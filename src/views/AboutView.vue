@@ -10,6 +10,7 @@
 <style scoped>
  .about {
   display: grid;
+  grid-template-columns: 1fr;
   border: 1px solid red;
  }
  

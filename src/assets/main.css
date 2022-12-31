@@ -1,11 +1,13 @@
 @import './base.css';
 
 #app {
+  display: grid;
+  grid-template-columns: 1fr;
   max-width: 1280px;
-  margin: 0 auto;
+   margin: 0 auto;
   padding: 2rem;
-
   font-weight: normal;
+  border: 2px dashed red;
 }
 
 a,
@@ -23,13 +25,14 @@ a,
 
 @media (min-width: 1024px) {
   body {
-    display: flex;
-    place-items: center;
+    display: grid;
+    place-items: top;
   }
 
   #app {
     display: grid;
     grid-template-columns: 1fr;
     padding: 0 2rem;
+    border: 2px dashed black;
   }
 }

@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div class="bentobox">bentobox
     <header>
       <img alt="Vue logo" class="logo" src="@/assets/logo.png" width="125" height="125" />
       <nav>
@@ -7,36 +7,41 @@
         <RouterLink to="/about">About</RouterLink>
       </nav>
     </header>
-    <router-view/>
   </div>
+  <router-view/>
 </template>
 
 <script setup>
 import { RouterLink, RouterView } from 'vue-router'
 </script>
 
-
 <style scoped>
+.bentobox {
+  display: grid;
+  grid-template-columns: 1fr;
+  border: 4px solid chocolate;
+}
+
 header {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   line-height: 1.5;
-  border: 1px dashed red;
+  /* max-height: 10vh; */
 }
 
 .logo {
-  display: inline;
+  display: block;
   margin: 0 auto 2rem;
-  border: 1px solid purple;
 }
 
 nav {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   width: 100%;
   font-size: 12px;
   text-align: center;
   margin-top: 2rem;
+  border: 5px solid black;
 }
 
 nav a.router-link-exact-active {
@@ -58,29 +63,31 @@ nav a:first-of-type {
 }
 
 @media (min-width: 1024px) {
+  .bentobox {
+    display: grid;
+    grid-template-columns: 1fr;
+    border: 4px solid rgb(189, 30, 210);
+  }
+
   header {
     display: grid;
     grid-template-columns: 1fr 8fr;
-    padding-right: calc(var(--section-gap) / 2);
+    border: 2px solid blue;
+    /*max-height: 10vh;*/
   }
 
   .logo {
     margin: 0 2rem 0 0;
   }
 
-  header .wrapper {
-    display: grid;
-    grid-template-columns: 1fr;
-    border: 2px solid blue;
-  }
-
   nav {
+    grid-template-columns: 1fr 1fr;
     text-align: left;
     margin-left: -1rem;
     font-size: 1rem;
     padding: 1rem 0;
     margin-top: 1rem;
+    border: 5px solid red;
   }
 }
-
 </style>
