@@ -1,9 +1,9 @@
-<script setup>
-import TheWelcome from '../components/TheWelcome.vue'
-</script>
 
 <template>
   <main>
-    <TheWelcome />
+    BentoBox-DS HOP  connect, AI help, bentospaces
   </main>
 </template>
+
+<script setup>
+</script>

@@ -16,7 +16,8 @@
   "dependencies": {
     "pinia": "^2.0.28",
     "vue": "^3.2.45",
-    "vue-router": "^4.1.6"
+    "vue-router": "^4.1.6",
+    "wasm-game-of-life": "file:../bentoboxds/src/pkg2"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.1.4",
@@ -32,6 +33,8 @@
     "prettier": "^2.7.1",
     "start-server-and-test": "^1.15.2",
     "vite": "^4.0.0",
+    "vite-plugin-top-level-await": "^1.2.2",
+    "vite-plugin-wasm": "^3.1.0",
     "vitest": "^0.25.6"
   }
 }

@@ -1,15 +1,22 @@
 <template>
   <div class="about">
-    <h1>This is an about page</h1>
+    BentoBox - DS  Peer to Peer Data Science Toolkit  All code open source
   </div>
 </template>
 
-<style>
+<script setup>
+</script>
+
+<style scoped>
+ .about {
+  display: grid;
+  border: 1px solid red;
+ }
+ 
 @media (min-width: 1024px) {
-  .about {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-  }
+ .about {
+  display: grid;
+  border: 1px solid blue;
+ }
 }
 </style>

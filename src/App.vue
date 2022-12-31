@@ -1,37 +1,38 @@
-<script setup>
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './components/HelloWorld.vue'
-</script>
-
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
-
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
+  <div id="app">
+    <header>
+      <img alt="Vue logo" class="logo" src="@/assets/logo.png" width="125" height="125" />
       <nav>
         <RouterLink to="/">Home</RouterLink>
         <RouterLink to="/about">About</RouterLink>
       </nav>
-    </div>
-  </header>
-
-  <RouterView />
+    </header>
+    <router-view/>
+  </div>
 </template>
+
+<script setup>
+import { RouterLink, RouterView } from 'vue-router'
+</script>
+
 
 <style scoped>
 header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   line-height: 1.5;
-  max-height: 100vh;
+  border: 1px dashed red;
 }
 
 .logo {
-  display: block;
+  display: inline;
   margin: 0 auto 2rem;
+  border: 1px solid purple;
 }
 
 nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   width: 100%;
   font-size: 12px;
   text-align: center;
@@ -58,8 +59,8 @@ nav a:first-of-type {
 
 @media (min-width: 1024px) {
   header {
-    display: flex;
-    place-items: center;
+    display: grid;
+    grid-template-columns: 1fr 8fr;
     padding-right: calc(var(--section-gap) / 2);
   }
 
@@ -68,18 +69,18 @@ nav a:first-of-type {
   }
 
   header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 1fr;
+    border: 2px solid blue;
   }
 
   nav {
     text-align: left;
     margin-left: -1rem;
     font-size: 1rem;
-
     padding: 1rem 0;
     margin-top: 1rem;
   }
 }
+
 </style>
