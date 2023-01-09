@@ -5,6 +5,7 @@
       <nav>
         <RouterLink to="/">Home</RouterLink>
         <RouterLink to="/about">About</RouterLink>
+        <RouterLink to="/connect">Launch</RouterLink>
       </nav>
     </header>
   </div>
@@ -81,7 +82,7 @@ nav a:first-of-type {
   }
 
   nav {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     text-align: left;
     margin-left: -1rem;
     font-size: 1rem;

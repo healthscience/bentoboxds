@@ -17,7 +17,7 @@
     "pinia": "^2.0.28",
     "vue": "^3.2.45",
     "vue-router": "^4.1.6",
-    "wasm-game-of-life": "file:../bentoboxds/src/pkg2"
+    "safeflow": "file:../bentoboxds/src/safeflow-wasm/safeflow.js"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.1.4",
