@@ -1,12 +1,25 @@
 <template>
-  <div class="bentobox">bentobox
+  <div class="bentobox">
     <header>
-      <img alt="Vue logo" class="logo" src="@/assets/logo.png" width="125" height="125" />
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-        <RouterLink to="/connect">Launch</RouterLink>
-      </nav>
+      <div class="bentobox-top" id="logo-bb">
+        <img alt="BentoBox-DS" class="logo" src="@/assets/logo.png" width="80" height="80" />
+        <span>BentoBox-DS</span>
+      </div>
+      <div class="bentobox-top"  id="main-nav">  
+        <nav>
+          <RouterLink to="/">Home</RouterLink>
+          <RouterLink to="/about">About</RouterLink>
+        </nav>
+      </div>
+      <div class="bentobox-top">
+        <div class="bb-align">Language</div>
+      </div>
+      <div class="bentobox-top">
+        <div class="bb-align">Help</div>
+      </div>
+      <div class="bentobox-top">
+        <div class="bb-align">Sign-in</div>
+      </div>
     </header>
   </div>
   <router-view/>
@@ -20,7 +33,7 @@ import { RouterLink, RouterView } from 'vue-router'
 .bentobox {
   display: grid;
   grid-template-columns: 1fr;
-  border: 4px solid chocolate;
+  border: 4px solid rgb(183, 30, 210);
 }
 
 header {
@@ -30,9 +43,13 @@ header {
   /* max-height: 10vh; */
 }
 
+.bentoxbox-top {
+  border: 1px dash blue;
+}
+
 .logo {
   display: block;
-  margin: 0 auto 2rem;
+  margin: 0 auto .2rem;
 }
 
 nav {
@@ -42,7 +59,7 @@ nav {
   font-size: 12px;
   text-align: center;
   margin-top: 2rem;
-  border: 5px solid black;
+  border: 2px solid black;
 }
 
 nav a.router-link-exact-active {
@@ -63,18 +80,27 @@ nav a:first-of-type {
   border: 0;
 }
 
+.bb-align {
+  font-size: 12px;
+  text-align: center;
+}
+
 @media (min-width: 1024px) {
   .bentobox {
     display: grid;
     grid-template-columns: 1fr;
-    border: 4px solid rgb(189, 30, 210);
+    border: 1px solid rgb(189, 30, 210);
   }
 
   header {
     display: grid;
-    grid-template-columns: 1fr 8fr;
-    border: 2px solid blue;
+    grid-template-columns: 1fr 2fr 1fr 1fr 1fr;
+    border: 1px solid blue;
     /*max-height: 10vh;*/
+  }
+
+  .bentobox-top {
+    border: 1px solid blue;
   }
 
   .logo {
@@ -82,13 +108,20 @@ nav a:first-of-type {
   }
 
   nav {
-    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr;
     text-align: left;
-    margin-left: -1rem;
+    margin-left: 0rem;
     font-size: 1rem;
     padding: 1rem 0;
     margin-top: 1rem;
-    border: 5px solid red;
+    border: 1px solid red;
+  }
+
+  .bb-align {
+    margin-left: 0rem;
+    font-size: 1rem;
+    padding: 1rem 0;
+    margin-top: 1rem;
   }
 }
 </style>
