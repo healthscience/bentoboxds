@@ -1,61 +1,64 @@
-import Vue from 'vue'
+import { ref, computed } from 'vue'
+import { defineStore } from 'pinia'
 
-export default {
-  state: {
-    beebeeStatus: false,
-    statusCALE:
-    {
-      text: 'off',
-      active: false
-    },
-    helpchatAsk:
-    {
-      text: '',
-      time: '',
-      active: false
-    },
-    helpchatReply: '',
-    helpchatHistory: [],
-    caleaiReply:
-    {
-      text: '... .. ...',
-      time: '',
-      data: {},
-      active: false
-    },
-    liveFutureCollection: { active: false }
+export const aiInterfaceStore = defineStore('beebeeAIstore', {
+  state: () => {
+    return { 
+      beebeeStatus: false,
+      statusCALE:
+      {
+        text: 'off',
+        active: false
+      },
+      helpchatAsk:
+      {
+        text: '',
+        time: '',
+        active: false
+      },
+      helpchatReply: '',
+      helpchatHistory: [],
+      caleaiReply:
+      {
+        text: '... .. ...',
+        time: '',
+        data: {},
+        active: false
+      },
+      liveFutureCollection: { active: false }
+    }
   },
-  getters: {
-  },
-  mutations: {
-    SET_BBAI_STATE: (state, inVerified) => {
+  actions: {
+    actionBBAI: (context, update) => {
+      // filter a list of Kentity bundles given the Experiment CNRL
       // check current state and reverse
-      if (state.statusCALE.active === false) {
-        Vue.set(state.statusCALE, 'active', true)
-        Vue.set(state.statusCALE, 'text', 'on')
+      if (this.statusCALE.active === false) {
+        this.statusCALE.active = true
+        thisstate.statusCALE.text = on
       } else {
-        Vue.set(state.statusCALE, 'active', false)
-        Vue.set(state.statusCALE, 'text', 'off')
+        thisstate.statusCALE.active = false
+        thisstate.statusCALE.text = 'off'
       }
     },
-    SET_ASKCALE_HELP: (state, inVerified) => {
-      // set context for help ie where orginiated
-      state.liveHelpcontext = 'cale'
-      Vue.set(state.helpModal, 'active', true)
+    actionAskBB: (context, update) => {
+      // context.commit('SET_ASKBB_HELP', update)
+      // context.rootState.liveHelpcontext = 'BB-AI'
+      // thiscontext.rootState.helpModal, 'active', true)
     },
-    SET_ASKBB_CHAT: (state, inVerified) => {
+    actionHelpAsk: (context, update) => {
       // set context
-      Vue.set(state.helpchatAsk, 'text', inVerified)
+      this.state.helpchatAsk.text = inVerified
       let date = new Date()
       // get the time as a string
       let time = date.toLocaleTimeString()
-      Vue.set(state.helpchatAsk, 'time', time)
+      this.state.helpchatAsk.time = time
     },
-    SET_ASKBB_ENTRY: (state, inVerified) => {
-      // need to check if access to AI or local?
-      console.log(inVerified)
+    actionHelpaskentry: (context, update) => {
+      let dataAI = {}
+      dataAI.token = context.rootState.jwttoken
+      dataAI.update = update
       if (inVerified.update === true) {
-        Vue.set(state.helpchatAsk, 'active', true)
+        thisstate.helpchatAsk, 'active', true
         let aiMessageout = {}
         aiMessageout.type = 'bbai'
         aiMessageout.reftype = 'ignore'
@@ -69,15 +72,17 @@ export default {
         let date = new Date()
         // get the time as a string
         let time = date.toLocaleTimeString()
-        Vue.set(state.caleaiReply, 'text', 'beebee is not connected')
-        Vue.set(state.caleaiReply, 'time', time)
-        Vue.set(state.caleaiReply, 'active', false)
+        this.state.caleaiReply.text = 'beebee is not connected'
+        this.state.caleaiReply.time = time
+        this.state.caleaiReply.active = false
       }
     },
-    SET_FUTURE_DATA: (state, inVerified) => {
-      console.log('GET future data CALE via BB ')
-      let fstate = !state.liveFutureCollection.active
-      Vue.set(state.liveFutureCollection, 'active', fstate)
+    actionFuture: (context, update) => {
+      let dataAI = {}
+      dataAI.token = context.rootState.jwttoken
+      dataAI.update = update
+      let fstate = !this.liveFutureCollection.active
+      this.state.liveFutureCollection.active = 'fstate'
       // data nxp context ref contracts
       let refBundle = {}
       refBundle.future = true
@@ -91,37 +96,8 @@ export default {
       // const caleMessage = JSON.stringify(aiMessageout)
       // Vue.prototype.$socket.send(caleMessage)
     },
-    SET_STATUS_BB: (state, inVerified) => {
-      state.beebeeStatus = !state.beebeeStatus
-    }
-  },
-  actions: {
-    actionBBAI: (context, update) => {
-    // filter a list of Kentity bundles given the Experiment CNRL
-      context.commit('SET_BBAI_STATE', update)
-    },
-    actionAskBB: (context, update) => {
-      // context.commit('SET_ASKBB_HELP', update)
-      context.rootState.liveHelpcontext = 'BB-AI'
-      Vue.set(context.rootState.helpModal, 'active', true)
-    },
-    actionHelpAsk: (context, update) => {
-      context.commit('SET_ASKBB_CHAT', update)
-    },
-    actionHelpaskentry: (context, update) => {
-      let dataAI = {}
-      dataAI.token = context.rootState.jwttoken
-      dataAI.update = update
-      context.commit('SET_ASKBB_ENTRY', dataAI)
-    },
-    actionFuture: (context, update) => {
-      let dataAI = {}
-      dataAI.token = context.rootState.jwttoken
-      dataAI.update = update
-      context.commit('SET_FUTURE_DATA', dataAI)
-    },
     actionBBstate: (context) => {
-      context.commit('SET_STATUS_BB')
-    }
+      this.beebeeStatus = !this.beebeeStatus
+    }    
   }
-}
+})

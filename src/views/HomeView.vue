@@ -1,14 +1,10 @@
 <template>
-  <div id="space-shaper" >
-    <div class="beebee-space">
-      <div class="bentospace">
-        space
-      </div>
+  <div id="space-shaper">
+    <div class="bentospace">
+      space for bentoboxes
+      <bento-box></bento-box>
     </div>
   </div>
-    <div class="beebee-home">
-      <beebee-chat></beebee-chat>
-    </div>
   <div class="beebee-welcome">
     <div id="message-question">What can you do?</div>
     <div id="bb-features">
@@ -17,13 +13,22 @@
       <div class="message-bb">Share</div>
     </div>
   </div>
+  <div class="beebee-home">
+    <beebee-chat></beebee-chat>
+  </div>
 </template>
 
 <script setup>
   import BeebeeChat from '@/components/beebeehelp/chatInterface.vue'
+  import BentoBox from '@/components/bentobox/baseBox.vue'
 </script>
 
 <style scoped>
+#space-shaper {
+  width: 90vw;
+  border: 3px dashed green;
+}
+
 .beebee-space {
   height: 92vh;
   width: 92vw;
@@ -35,8 +40,8 @@
   display: grid;
   grid-template-columns: 1fr;
   border: 2px solid green;
-  height: 100%;
-  width: 100%;
+  height: 98vh;
+  width: 98vh;
   padding-top: 2px;
   margin: auto;
   transform-origin: left top;
@@ -47,18 +52,9 @@
   border:1px green;
 }
 
-.beebee-home {
-  position: fixed;
-  top: 280px;
-  left: 18px;
-  z-index: 2;
-  border: 2px dashed red;
-  width: 640px;
-}
-
 .beebee-welcome {
   position: fixed;
-  top: 340px;
+  top: 440px;
   left: 14px;
   z-index: 2;
   border: 1px dashed blue;
@@ -74,9 +70,18 @@
   border: 1px solid purple;
 }
 
+.beebee-home {
+  position: fixed;
+  top:30vh;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, 50%);
+  z-index: 2;
+  border: 2px dashed red;
+}
   @media (min-width: 1024px) {
-    .space-shaper {
-      position: static;
+    #space-shaper {
+      border: 3px dashed green;
     }
 
     .beebee-space {
@@ -101,18 +106,9 @@
       background-size: 60px 60px, 60px 60px;
     }
 
-    .beebee-home {
-      position: fixed;
-      top: 180px;
-      left: 180px;
-      z-index: 2;
-      border: 2px dashed red;
-      width: 640px;
-    }
-
     .beebee-welcome {
       position: fixed;
-      top: 240px;
+      top: 640px;
       left: 140px;
       z-index: 2;
       border: 1px dashed blue;
@@ -130,6 +126,14 @@
 
     .message-bb {
       border: 1px solid purple;
+    }
+    .beebee-home {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, 50%);
+      z-index: 2;
+      border: 2px dashed rgb(27, 23, 130);
     }
   }
 </style>

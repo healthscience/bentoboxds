@@ -2,7 +2,7 @@
   <div id="chat-interface">
     <!-- Natural Language Chat -->
     <div id="natlang-ai">
-      <div class="chat-flow" id="conversation">
+      <div class="chat-flow" id="conversation" v-if="beginChat === true">
         <div class="peer-ask"  id="peer-chat-left">
           <img class="left-chat-peer" src="../.././assets/peerlogo.png" alt="Avatar">
           <div v-if="chatAsk.active === true" class="left-chat"> {{ chatAsk.text }} </div>
@@ -45,9 +45,21 @@
 <script setup>
   import { ref } from 'vue'
   import { computed } from 'vue'
+  import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
-  const askInput = ref('hello majae')
+  const beginChat = ref(false)
 
+  const askInput = ref('What would you like to chart?')
+  let storeInfo = ref('local not store')
+  console.log('start')
+  console.log(storeInfo)
+
+
+  const storeAI = aiInterfaceStore()
+  console.log(storeAI.beebeeStatus)
+  storeInfo.value = storeAI.beebeeStatus
+  console.log('store info two')
+  console.log(storeInfo)
   // a computed ref
   const chatAsk = computed(() => {
    return {
@@ -71,56 +83,8 @@
             text: 'please',
             time: '5555'
           }
+
   })
-
-// import beebeendarTool from '@/components/visualise/tools/beebeendarTool'
-
-/* export default {
-  name: 'Help-AI',
-  components: {
-    // beebeendarTool
-  },
-  props: {
-  },
-  computed: {
-    beebeeAIStatus: function () {
-      return this.$store.state.aiInterface.statusbeebee
-    },
-    chatAsk: function () {
-      return this.$store.state.aiInterface.helpchatAsk
-    },
-    aiResponse: function () {
-      return this.$store.state.aiInterface.beebeeaiReply
-    }
-  },
-  data () {
-    return {
-      askInput: ''
-    }
-  },
-  methods: {
-    askebeebeesave () {
-      let chatASKbeebee = this.askInput
-      this.$store.dispatch('actionHelpAsk', chatASKbeebee)
-    },
-    submitAsk () {
-      this.$store.dispatch('actionHelpaskentry', true)
-      this.askInput = ''
-    },
-    beebeeChartSpace (query) {
-      console.log('beebee chart dispaly')
-      console.log(query)
-      let spaceContext = {}
-      spaceContext.nxpCNRL = query.library.board
-      spaceContext.moduleCNRL = query.library.mod
-      spaceContext.moduleType = 'cnrl-114'
-      spaceContext.mData = '3'
-      this.$store.dispatch('actionVisSpaceAdd', spaceContext)
-    }
-  }
-}
-*/
-
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
@@ -139,8 +103,8 @@
 .chat-flow {
   display: block;
   margin-top: .5em;
-  width: 800px;
-  border: 0px solid red;
+  width: 80%;
+  border: 3px solid red;
 }
 
 #conversation {
@@ -204,4 +168,8 @@
 
 #natlang-ask {
 }
+
+  @media (min-width: 1024px) {
+  }
+  
 </style>
