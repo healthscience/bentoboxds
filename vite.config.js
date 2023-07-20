@@ -11,7 +11,7 @@ import basicSsl from '@vitejs/plugin-basic-ssl'
 // https://vitejs.dev/config/
 export default defineConfig({
   // base: path.resolve(__dirname, "./dist/"),
-  base: "/",
+  base: "/bentobox/",
   plugins: [
     vue(),
     wasm(),
@@ -23,7 +23,7 @@ export default defineConfig({
       devOptions: {
         enabled: false
       },
-      includeAssets: ['favicon.ico', 'logo-bb.png'],
+      includeAssets: ['favicon.ico', 'logo-512x512.png'],
       manifest: {
         name: 'BentoBox-DS',
         short_name: 'BB-DS',
@@ -31,8 +31,8 @@ export default defineConfig({
         theme_color: '#ffffff',
         icons: [
           {
-            src: 'logo-bb.png',
-            sizes: '144x144',
+            src: 'logo-512x512.png',
+            sizes: '512x512',
             type: 'image/png'
           }
         ]

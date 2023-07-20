@@ -27,7 +27,7 @@
       <div class="chat-flow" id="ai-interaction">
         <form id="ask-ai-form" v-on:submit.prevent @keyup.enter.prevent="submitAsk">
           <label for="askname"></label>
-          <input type="text" id="askinput" name="ainame" v-on:keyup="askebeebeesave" v-model="askInput">
+          <input type="text" id="askinput" name="ainame" v-on:keyup="storeAI.actionNatlangIn(askInput)" placeholder="What would you like to chart?" v-model="askInput">
         </form>
         <button v-if="beebeeAIStatus.active === true" id="natlang-ask" @click.prevent="submitAsk">
           Ask BeeBee
@@ -49,17 +49,14 @@
 
   const beginChat = ref(false)
 
-  const askInput = ref('What would you like to chart?')
+  const askStart = ref('What would you like to chart?')
+  const askInput = ref('')
   let storeInfo = ref('local not store')
-  console.log('start')
-  console.log(storeInfo)
-
 
   const storeAI = aiInterfaceStore()
   console.log(storeAI.beebeeStatus)
   storeInfo.value = storeAI.beebeeStatus
-  console.log('store info two')
-  console.log(storeInfo)
+
   // a computed ref
   const chatAsk = computed(() => {
    return {
@@ -91,8 +88,8 @@
 <style scoped>
 
 #natlang-ai {
-  display: flex;
-  flex-direction: column;
+  grid-template-columns: 1fr;
+  align-items: center;
   align-items: center;
   justify-content: center;
   border: 1px solid grey;
@@ -103,8 +100,8 @@
 .chat-flow {
   display: block;
   margin-top: .5em;
-  width: 80%;
-  border: 3px solid red;
+  width: 70%;
+  border: 0px solid red;
 }
 
 #conversation {
@@ -119,7 +116,7 @@
   grid-template-columns: 1fr 4fr 1fr;
   background-color: pink;
   border-radius: 25px;
-  width: 90%;
+  width: 60%;
 }
 
 .left-chat-peer {
@@ -163,13 +160,42 @@
   font-size: 1.2em;
   padding-left: 1em;
   height:4em;
-  width: 600px;
+  width: 70vw;
 }
 
 #natlang-ask {
 }
 
   @media (min-width: 1024px) {
+    #chat-interface {
+      border: 0px solid blue;
+      width: 60vw;
+    }
+
+    #natlang-ai {
+      display: grid;
+      grid-template-columns: 1fr;
+      align-items: center;
+      justify-content: center;
+      border: 0px solid grey;
+      padding: 1em;
+      border-radius: 1em;
+    }
+
+    #askinput {
+      font-size: 1.2em;
+      padding-left: 1em;
+      height:4em;
+      width: 100%;
+      opacity: 100%;
+    }
+
+    .chat-flow {
+      display: block;
+      margin-top: .5em;
+      width: 99%;
+      border: 0x solid rgb(11, 113, 11);
+    }
   }
-  
+
 </style>

@@ -2,8 +2,7 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 
 export const aiInterfaceStore = defineStore('beebeeAIstore', {
-  state: () => {
-    return { 
+  state: () => ({
       beebeeStatus: false,
       statusCALE:
       {
@@ -26,26 +25,39 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         active: false
       },
       liveFutureCollection: { active: false }
-    }
-  },
+  }),
   actions: {
-    actionBBAI: (context, update) => {
+    actionNatlangIn00 () {
+      console.log(this.beebeeStatus)
+    },
+    actionBBAI: () => {
       // filter a list of Kentity bundles given the Experiment CNRL
       // check current state and reverse
       if (this.statusCALE.active === false) {
         this.statusCALE.active = true
         thisstate.statusCALE.text = on
       } else {
-        thisstate.statusCALE.active = false
-        thisstate.statusCALE.text = 'off'
+        this.state.statusCALE.active = false
+        this.state.statusCALE.text = 'off'
       }
     },
-    actionAskBB: (context, update) => {
+    actionNatlangIn (update) {
+      // set context
+      console.log('nat alng start')
+      console.log(this.beebeeStatus)
+      this.helpchatAsk.text = update
+      let date = new Date()
+      // get the time as a string
+      let time = date.toLocaleTimeString()
+      this.helpchatAsk.time = time
+      console.log(this.helpchatAsk)
+    },
+    actionAskBB (update) {
       // context.commit('SET_ASKBB_HELP', update)
       // context.rootState.liveHelpcontext = 'BB-AI'
       // thiscontext.rootState.helpModal, 'active', true)
     },
-    actionHelpAsk: (context, update) => {
+    actionHelpAsk (update) {
       // set context
       this.state.helpchatAsk.text = inVerified
       let date = new Date()
@@ -53,7 +65,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       let time = date.toLocaleTimeString()
       this.state.helpchatAsk.time = time
     },
-    actionHelpaskentry: (context, update) => {
+    actionHelpaskentry (update) {
       let dataAI = {}
       dataAI.token = context.rootState.jwttoken
       dataAI.update = update
@@ -77,7 +89,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         this.state.caleaiReply.active = false
       }
     },
-    actionFuture: (context, update) => {
+    actionFuture (update) {
       let dataAI = {}
       dataAI.token = context.rootState.jwttoken
       dataAI.update = update
@@ -96,7 +108,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       // const caleMessage = JSON.stringify(aiMessageout)
       // Vue.prototype.$socket.send(caleMessage)
     },
-    actionBBstate: (context) => {
+    actionBBstate (context) {
       this.beebeeStatus = !this.beebeeStatus
     }    
   }

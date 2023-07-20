@@ -5,6 +5,9 @@
         <img alt="BentoBox-DS" class="logo" src="@/assets/logo.png" width="80" height="80" />
         <span>BentoBox-DS</span>
       </div>
+      <div class="bentobox-top">
+        <div class="bb-align"></div>
+      </div>
       <div class="bentobox-top"  id="main-nav">  
         <nav>
           <RouterLink to="/">Home</RouterLink>
@@ -13,6 +16,9 @@
       </div>
       <div class="bentobox-top">
         <div class="bb-align">Language</div>
+      </div>
+      <div class="bentobox-top">
+        <div class="bb-align alpha-round">Alpha</div>
       </div>
       <div class="bentobox-top">
         <div class="bb-align">Help</div>
@@ -39,7 +45,7 @@ import { useSocketStore } from '@/stores/socket.js'
   display: grid;
   grid-template-columns: 1fr;
   width: 90vw;
-  border: 1px solid rgb(183, 30, 210);
+  border: 0px solid rgb(183, 30, 210);
   background-color: white;
 }
 
@@ -51,7 +57,7 @@ header {
 }
 
 .bentoxbox-top {
-  border: 1px dash blue;
+  border: 0px dash blue;
 }
 
 .logo {
@@ -66,7 +72,7 @@ nav {
   font-size: 12px;
   text-align: center;
   margin-top: 2rem;
-  border: 2px solid black;
+  border: 0px solid black;
 }
 
 nav a.router-link-exact-active {
@@ -98,24 +104,24 @@ nav a:first-of-type {
     top: 0;
     display: grid;
     grid-template-columns: 1fr;
-    border: 1px solid rgb(189, 30, 210);
+    border: 0px solid rgb(189, 30, 210);
     background-color: rgb(250, 246, 246);
     z-index: 12;
   }
 
   header {
     display: grid;
-    grid-template-columns: 1fr 2fr 1fr 1fr 1fr;
-    border: 1px solid blue;
+    grid-template-columns: 4fr 1fr 2fr 1fr 1fr 1fr 1fr;
+    border: 0px solid blue;
     /*max-height: 10vh;*/
   }
 
   .bentobox-top {
-    border: 1px solid blue;
+    border: 0px solid blue;
   }
 
   .logo {
-    margin: 0 2rem 0 0;
+    margin: 0 1rem 0 0;
   }
 
   nav {
@@ -125,7 +131,7 @@ nav a:first-of-type {
     font-size: 1rem;
     padding: 1rem 0;
     margin-top: 1rem;
-    border: 1px solid red;
+    border: 0px solid red;
   }
 
   .bb-align {
@@ -133,6 +139,15 @@ nav a:first-of-type {
     font-size: 1rem;
     padding: 1rem 0;
     margin-top: 1rem;
+  }
+
+  .alpha-round {
+    background-color: rgb(235, 135, 63);
+    border-radius: 15px;
+    justify-self: end;
+    margin-top: 1.5em;
+    padding: 0.2rem 0;
+    color: white;
   }
 }
 </style>

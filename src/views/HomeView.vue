@@ -1,7 +1,6 @@
 <template>
   <div id="space-shaper">
     <div class="bentospace">
-      space for bentoboxes
       <bento-box></bento-box>
     </div>
   </div>
@@ -26,7 +25,7 @@
 <style scoped>
 #space-shaper {
   width: 90vw;
-  border: 3px dashed green;
+  border: 0px dashed green;
 }
 
 .beebee-space {
@@ -41,7 +40,7 @@
   grid-template-columns: 1fr;
   border: 2px solid green;
   height: 98vh;
-  width: 98vh;
+  width: 98vw;
   padding-top: 2px;
   margin: auto;
   transform-origin: left top;
@@ -54,10 +53,10 @@
 
 .beebee-welcome {
   position: fixed;
-  top: 440px;
+  top: 80%;
   left: 14px;
   z-index: 2;
-  border: 1px dashed blue;
+  border: 0px dashed blue;
   width: 80%;
 }
 
@@ -67,21 +66,20 @@
 }
 
 .message-bb {
-  border: 1px solid purple;
+  border: 0px solid purple;
 }
 
 .beebee-home {
   position: fixed;
-  top:30vh;
-  top: 50%;
+  top:30%;
   left: 50%;
   transform: translate(-50%, 50%);
   z-index: 2;
-  border: 2px dashed red;
+  border: 0px dashed red;
 }
   @media (min-width: 1024px) {
     #space-shaper {
-      border: 3px dashed green;
+      border: 0px dashed green;
     }
 
     .beebee-space {
@@ -108,10 +106,10 @@
 
     .beebee-welcome {
       position: fixed;
-      top: 640px;
+      top: 80vh;
       left: 140px;
       z-index: 2;
-      border: 1px dashed blue;
+      border: 0px dashed blue;
       width: 80%;
     }
 
@@ -125,15 +123,15 @@
     }
 
     .message-bb {
-      border: 1px solid purple;
+      border: 0px solid purple;
     }
     .beebee-home {
       position: fixed;
-      top: 50%;
+      top: 30%;
       left: 50%;
       transform: translate(-50%, 50%);
       z-index: 2;
-      border: 2px dashed rgb(27, 23, 130);
+      border: 0px dashed rgb(27, 23, 130);
     }
   }
 </style>
