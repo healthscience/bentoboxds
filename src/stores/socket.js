@@ -1,9 +1,11 @@
 import { defineStore } from "pinia";
-// import { store } from "@/stores/store.js";
+// import { store } from "@/stores/store.js"
+import { aiInterfaceStore } from "@/stores/aiInterface.js"
 
 export const useSocketStore = defineStore({
   id: "socket",
   state: () => ({
+    aiStore: aiInterfaceStore(),
     count: 0,
     websocket: {},
     connection_ready: false,
@@ -36,16 +38,26 @@ export const useSocketStore = defineStore({
       //we parse the json that we receive
       var received = JSON.parse(evt.data)
       console.log(received)
-      // this.send_message()
-      //check if it's our message or from a friend
+      // keep in message log for session?
       this.messages.push(received)
-      console.log('messages2')
-      console.log(this.messages)
+      // parse and route to logic processing
+      if (received.type === 'library') {
+        console.log('library')
+      } else if (received.type == '') {
+        console.log('safeflow')
+      } else if (received.type == 'bbai-reply') {
+        console.log('beebee')
+        console.log(this.aiStore)
+        this.aiStore.processReply(received)
+      } else if (received.type == '') {
+        console.log('error')       
+      }
+    
     },
-    send_message () {
-      var to_send = { from: 'yyyyaj', message: 'mmmmmbaba' }
-      this.websocket.send( JSON.stringify(to_send) )
-      this.messages.push( { from: "send", message: to_send.message } )
+    send_message (data) {
+      this.websocket.send(JSON.stringify(data))
+      // keep list of message per session live?
+      // this.messages.push( { from: "send", message: to_send.message } )
     },    
     onSockerError (evt) {
       this.connection_error = true

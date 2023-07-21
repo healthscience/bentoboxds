@@ -29,7 +29,7 @@
           <label for="askname"></label>
           <input type="text" id="askinput" name="ainame" v-on:keyup="storeAI.actionNatlangIn(askInput)" placeholder="What would you like to chart?" v-model="askInput">
         </form>
-        <button v-if="beebeeAIStatus.active === true" id="natlang-ask" @click.prevent="submitAsk">
+        <button v-if="beebeeAIStatus.active === true" id="natlang-ask" @click.prevent="storeAI.submitAsk()">
           Ask BeeBee
         </button>
       </div>
@@ -47,8 +47,6 @@
   import { computed } from 'vue'
   import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
-  const beginChat = ref(false)
-
   const askStart = ref('What would you like to chart?')
   const askInput = ref('')
   let storeInfo = ref('local not store')
@@ -59,29 +57,21 @@
 
   // a computed ref
   const chatAsk = computed(() => {
-   return {
-            active: true,
-            text: 'please',
-            time: '3333'
-          }
+   return storeAI.helpchatAsk
   })
 
   const aiResponse = computed(() => {
-   return {
-            active: true,
-            text: 'please',
-            time: '44444'
-          }
+   return storeAI.beebeeReply
   })
 
   const beebeeAIStatus = computed(() => {
-   return {
-            active: true,
-            text: 'please',
-            time: '5555'
-          }
-
+   return storeAI.helpchatAsk
   })
+
+  const beginChat = computed(() => {
+   return storeAI.beginChat
+  })
+
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
