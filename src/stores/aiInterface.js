@@ -5,6 +5,8 @@ import { useSocketStore } from "@/stores/socket.js"
 export const aiInterfaceStore = defineStore('beebeeAIstore', {
   state: () => ({
     sendSocket: useSocketStore(),
+    startChat: true,
+    historyBar: false,
     beginChat: false,
     beebeeStatus: false,
     statusCALE:
@@ -47,19 +49,23 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         this.state.statusCALE.text = 'off'
       }
     },
-    actionNatlangIn (update) {
+    actionNatlangIn (event, update) {
       // set context
-      console.log('nat alng start')
-      console.log(this.beebeeStatus)
-      this.helpchatAsk.text = update
-      let date = new Date()
-      // get the time as a string
-      let time = date.toLocaleTimeString()
-      this.helpchatAsk.time = time
-      console.log(this.helpchatAsk)
+      if (event.key === 'Enter') {
+        // process the input
+        this.submitAsk(update)
+      } else {
+        this.helpchatAsk.text = update
+        let date = new Date()
+        // get the time as a string
+        let time = date.toLocaleTimeString()
+        this.helpchatAsk.time = time
+      }
     },
     submitAsk (update) {
-      console.log('sumbmit  bbbbbeebee')
+      // remove start boxes
+      this.startChat = false
+      this.historyBar = true
       // check for numbers, files, excel etc. or spam check for size
       let firstAnalysis = update
       // provide feedback else forward to beebeeLogic via HOP

@@ -24,35 +24,25 @@
           <img class="right-chat-beebee" src="../.././assets/logo.png" alt="bbAI">
         </div>
       </div>
-      <div class="chat-flow" id="ai-interaction">
-        <form id="ask-ai-form" v-on:submit.prevent @keyup.enter.prevent="submitAsk">
-          <label for="askname"></label>
-          <input type="text" id="askinput" name="ainame" v-on:keyup="storeAI.actionNatlangIn(askInput)" placeholder="What would you like to chart?" v-model="askInput">
-        </form>
-        <button v-if="beebeeAIStatus.active === true" id="natlang-ask" @click.prevent="storeAI.submitAsk()">
-          Ask BeeBee
-        </button>
+      <div class="chat-flow">
+        <input-box></input-box>
       </div>
     </div>
-    <!-- <div v-if="helpState.type === 'future'" id="feedback-action">
-      Date asked for: {{ helpState.data }}
-      <beebeendar-tool :shellID="helpState.refcontract" :moduleCNRL="'future'" :moduleType="'future'" :mData="'future'"></beebeendar-tool>
-    </div> -->
   </div>
 </template>
 
 
 <script setup>
-  import { ref } from 'vue'
-  import { computed } from 'vue'
-  import { aiInterfaceStore } from '@/stores/aiInterface.js'
+import inputBox from '@/components/beebeehelp/inputBox.vue'
+import { ref } from 'vue'
+import { computed } from 'vue'
+import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   const askStart = ref('What would you like to chart?')
   const askInput = ref('')
   let storeInfo = ref('local not store')
 
   const storeAI = aiInterfaceStore()
-  console.log(storeAI.beebeeStatus)
   storeInfo.value = storeAI.beebeeStatus
 
   // a computed ref
@@ -62,10 +52,6 @@
 
   const aiResponse = computed(() => {
    return storeAI.beebeeReply
-  })
-
-  const beebeeAIStatus = computed(() => {
-   return storeAI.helpchatAsk
   })
 
   const beginChat = computed(() => {
@@ -141,18 +127,6 @@
   padding-top: 1em;
 }
 
-#ai-interaction {
-  display: grid;
-  grid-template-columns: 4fr 1fr
-}
-
-#askinput {
-  font-size: 1.2em;
-  padding-left: 1em;
-  height:4em;
-  width: 70vw;
-}
-
 #natlang-ask {
 }
 
@@ -170,14 +144,6 @@
       border: 0px solid grey;
       padding: 1em;
       border-radius: 1em;
-    }
-
-    #askinput {
-      font-size: 1.2em;
-      padding-left: 1em;
-      height:4em;
-      width: 100%;
-      opacity: 100%;
     }
 
     .chat-flow {
