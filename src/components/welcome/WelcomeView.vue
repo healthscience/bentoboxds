@@ -17,7 +17,7 @@
 </template>
 
 <script setup>
-import BeebeeChat from '@/components/beebeehelp/chatInterface.vue'
+import BeebeeChat from '@/components/beebeehelp/inputBox.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { ref } from 'vue'
 

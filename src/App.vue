@@ -9,8 +9,6 @@ import { RouterLink, RouterView } from 'vue-router'
 import { useSocketStore } from '@/stores/socket.js'
 
   const storeWebsocket = useSocketStore()
-  console.log('ws ob')
-  console.log(storeWebsocket)
   storeWebsocket.init_chat()
 
 </script>

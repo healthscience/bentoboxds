@@ -31,10 +31,6 @@
 </template>
 
 <script setup>
-import { useSocketStore } from '@/stores/socket.js'
-
-  const storeWebsocket = useSocketStore()
-  storeWebsocket.init_chat()
 
 </script>
 

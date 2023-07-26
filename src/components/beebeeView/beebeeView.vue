@@ -68,7 +68,7 @@ const startChat = ref(true)
     #beebee-shaper {
       display: grid;
       grid-template-columns: 1fr 7fr;
-      border: 2px dashed green;
+      border: 0px dashed rgb(0, 15, 128);
     }
 
     .bento-history {
@@ -107,7 +107,7 @@ const startChat = ref(true)
     .beebee-home {
       display: grid;
       grid-template-columns: 1fr;
-      border: 3px dashed rgb(24, 207, 21);
+      border: 3px dashed rgb(207, 108, 21);
     }
   }
 </style>

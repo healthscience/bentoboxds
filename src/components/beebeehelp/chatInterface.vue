@@ -2,31 +2,34 @@
   <div id="chat-interface">
     <!-- Natural Language Chat -->
     <div id="natlang-ai">
-      <div class="chat-flow" id="conversation" v-if="beginChat === true">
+      <div class="chat-flow" id="conversation" v-if="beginChat === true"  v-for="chati in chatPairs">
         <div class="peer-ask"  id="peer-chat-left">
           <img class="left-chat-peer" src="../.././assets/peerlogo.png" alt="Avatar">
-          <div v-if="chatAsk.active === true" class="left-chat"> {{ chatAsk.text }} </div>
-          <span class="left-chat">{{ chatAsk.time }}</span>
+          <div v-if="chati.question.data.active === true" class="left-chat"> {{ chati.question.data.text }} </div>
+          <span class="left-chat">{{ chati.question.data.time }}</span>
         </div>
         <div class="beebee-reply" id="beebee-chat-right">
-          <span class="right-chat">{{ aiResponse.time }}</span>
-          <div class="right-chat">{{ aiResponse.text }}
-            <div v-if="aiResponse.type === 'hopquery'">
-              <span>Datatype: {{ aiResponse.data.library.text }} for month {{ aiResponse.data.time.words.day }} day {{ aiResponse.data.time.words.month }}</span>--- <button id="new-query" @click.prevent="beebeeChartSpace(aiResponse.data)">yes, produce chart</button>
+          <span class="right-time">{{ chati.reply.time }}</span>
+          <div class="right-chat">{{ chati.reply.data.text }}
+            <div v-if="chati.reply.type === 'hopquery'">
+              <span>Datatype: {{ chati.data.library.text }} for month {{ chati.data.time.words.day }} day {{ chati.data.time.words.month }}</span>--- <button id="new-query" @click.prevent="beebeeChartSpace(chati.data)">yes, produce chart</button>
             </div>
-            <div v-else-if="aiResponse.type === 'upload'">
+            <div v-else-if="chati.reply.data.type === 'bbai'">
+              Please select a chart style  line bar pie
+            </div>
+            <div v-else-if="chati.type === 'upload'">
               <button>start file upload</button>
             </div>
-            <div v-else-if="aiResponse.query === false && aiResponse.type !== 'hello'">
-              {{ aiResponse.data }}
+            <div v-else-if="chati.query === false && chati.type !== 'hello'">
+              {{ chati }}
             </div>
           </div>
           <img class="right-chat-beebee" src="../.././assets/logo.png" alt="bbAI">
         </div>
       </div>
-      <div class="chat-flow">
-        <input-box></input-box>
-      </div>
+    </div>
+    <div class="chat-input">
+      <input-box></input-box>
     </div>
   </div>
 </template>
@@ -40,12 +43,19 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   const askStart = ref('What would you like to chart?')
   const askInput = ref('')
-  let storeInfo = ref('local not store')
 
   const storeAI = aiInterfaceStore()
-  storeInfo.value = storeAI.beebeeStatus
+
 
   // a computed ref
+  const chatPairs = computed(() => {
+   return storeAI.historyPair
+  })
+
+  const chatHistory = computed(() => {
+   return storeAI.helpchatHistory
+  })
+
   const chatAsk = computed(() => {
    return storeAI.helpchatAsk
   })
@@ -71,10 +81,13 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   border: 1px solid grey;
   padding: 1em;
   border-radius: 1em;
+  height: 100%;
+  overflow-y: scroll;
 }
 
 .chat-flow {
-  display: block;
+  display: grid;
+  grid-template-columns: 1fr;
   margin-top: .5em;
   width: 70%;
   border: 0px solid red;
@@ -84,7 +97,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   display: grid;
   grid-template-columns: 1fr;
   min-height: 100px;
-  overflow-y: scroll;
 }
 
 .peer-ask {
@@ -127,30 +139,54 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   padding-top: 1em;
 }
 
+
+.chat-input {
+  position: fixed;
+  margin-top: .5em;
+  width: 80%;
+  border: 1x solid red;
+}
+
 #natlang-ask {
 }
 
   @media (min-width: 1024px) {
     #chat-interface {
       border: 0px solid blue;
-      width: 60vw;
+      width: 100%;
     }
 
     #natlang-ai {
       display: grid;
       grid-template-columns: 1fr;
+      width: 100%;
       align-items: center;
       justify-content: center;
-      border: 0px solid grey;
+      border: 3px solid grey;
       padding: 1em;
       border-radius: 1em;
+      max-height: 63vh;
+      overflow-y: scroll;
+    }
+
+    #conversation {
+      display: grid;
+      grid-template-columns: 1fr;
     }
 
     .chat-flow {
-      display: block;
+      display: grid;
+      grid-template-columns: 1fr;
       margin-top: .5em;
       width: 99%;
       border: 0x solid rgb(11, 113, 11);
+    }
+
+    .chat-input {
+      position: fixed;
+      bottom: 4%;
+      width: 76%;
+      border: 0px solid red;
     }
   }
 

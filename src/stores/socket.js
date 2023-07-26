@@ -21,11 +21,10 @@ export const useSocketStore = defineStore({
       this.count = Math.round(100 * Math.random())
     },
     init_chat () {
-      console.log('chat live')
       //connect to Sockets Bay
+      console.log('how many sockets open?')
       const sockets_bay_url = `wss://127.0.0.1:9888`
       this.websocket = new WebSocket(sockets_bay_url)
-      console.log(this.websocket)
       this.websocket.onopen = this.onSocketOpen
       this.websocket.onmessage = this.onSocketMessage
       this.websocket.onerror = this.onSockerError
@@ -37,7 +36,6 @@ export const useSocketStore = defineStore({
       console.log(evt.data)
       //we parse the json that we receive
       var received = JSON.parse(evt.data)
-      console.log(received)
       // keep in message log for session?
       this.messages.push(received)
       // parse and route to logic processing
@@ -46,8 +44,7 @@ export const useSocketStore = defineStore({
       } else if (received.type == '') {
         console.log('safeflow')
       } else if (received.type == 'bbai-reply') {
-        console.log('beebee')
-        console.log(this.aiStore)
+        console.log('beebee------------------------')
         this.aiStore.processReply(received)
       } else if (received.type == '') {
         console.log('error')       

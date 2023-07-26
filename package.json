@@ -14,6 +14,7 @@
     "electron:serve": "electron ."
   },
   "dependencies": {
+    "object-hash": "^3.0.0",
     "pinia": "^2.0.28",
     "safeflow": "file:../bentoboxds/src/safeflow-wasm/safeflow.js",
     "vue": "^3.2.45",

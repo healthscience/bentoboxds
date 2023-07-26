@@ -1,10 +1,10 @@
 <template>
   <div id="ai-interaction">
-    <form id="ask-ai-form" v-on:submit.prevent @keyup.enter.prevent="submitAsk">
-      <label for="askname"></label>
-      <input type="text-area" id="askinput" name="ainame" v-on:keyup="storeAI.actionNatlangIn($event, askInput)" placeholder="What would you like to chart?" v-model="askInput">
+    <form id="ask-ai-form" @submit.prevent="storeAI.submitAsk()">
+      <label for="askname"></label><!--  v-on:keyup="storeAI.actionNatlangIn($event)" -->
+      <input type="text-area" id="askinput" name="ainame" placeholder="What would you like to chart?" v-model="storeAI.askQuestion.text">
     </form>
-    <button v-if="beebeeAIStatus.active === true" id="natlang-ask" @click.prevent="storeAI.submitAsk()" v-on:keyup.enter.prevent="storeAI.submitAsk()">
+    <button type="submit" v-if="beebeeAIStatus.active === true" id="natlang-ask" @click="storeAI.submitAsk">
       Ask BeeBee
     </button>
   </div>
@@ -15,17 +15,14 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { ref } from 'vue'
 import { computed } from 'vue'
 
-  const askStart = ref('What would you like to chart?')
-  const askInput = ref('')
   let storeInfo = ref('local not store')
 
   const beebeeAIStatus = computed(() => {
     return storeAI.helpchatAsk
     })
 
-
   const storeAI = aiInterfaceStore()
-  storeInfo.value = storeAI.beebeeStatus
+
 
 </script>
 
