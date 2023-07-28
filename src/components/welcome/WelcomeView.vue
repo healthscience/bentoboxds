@@ -37,7 +37,7 @@ const startChat = ref(true)
 .beebee-space {
   height: 92vh;
   width: 92vw;
-  overflow: scroll;
+  overflow-y: scroll;
   border: 0px dashed blue;
 }
 

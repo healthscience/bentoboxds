@@ -1,11 +1,20 @@
 <template>
   <div id="beebee-shaper">
     <div class="bento-history">
-      <div class="">
-        Questions
+      <div class="history">
+        <button @click="historyType('history')">History</button>
       </div>
-      <div class="">
-        Spaces
+      <div class="spaces">
+        <button @click="historyType('space')">Spaces</button>
+      </div>
+      <div class="live-drop-zone">
+        list {{ historyList }}
+        <div v-if="historyList === 'history'">
+          {{ chartList }}
+        </div>
+        <div v-else>
+          {{ spaceList }}
+        </div>
       </div>
     </div>
     <div class="bentospace">
@@ -18,21 +27,54 @@
 
 <script setup>
 import BeebeeChat from '@/components/beebeehelp/chatInterface.vue'
-// import BentoBox from '@/components/bentobox/baseBox.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { ref } from 'vue'
 
 const storeAI = aiInterfaceStore()
 
 const startChat = ref(true)
+let historyList = ref('history')
+let chartList = ref(['chart1', 'chart2', 'chart3',])
+let spaceList = ref(['space1', 'space2', 'space3',])
 
+function historyType (type) {
+  this.historyList = type
+}
 
 </script>
 
 <style scoped>
 #beebee-shaper {
+  display: grid;
+  grid-template-columns: 1fr 7fr;
   width: 90vw;
+  height: 90vh;
   border: 0px dashed green;
+}
+
+.bento-history {
+  display: grid;
+  grid-template-columns: 1fr;
+  margin-top: 8.5em;
+  border: 3px solid green;
+}
+
+.history {
+  display: relative;
+  align-items: top;
+  height: 2em;
+  border: 2px dashed green;
+}
+.spaces {
+  display: relative;
+  height: 2em;
+  border: 2px dashed green;
+}
+
+.live-drop-zone {
+  display: relative;
+  height: 2em;
+  border: 2px dashed green;
 }
 
 .bentospace {
@@ -41,7 +83,6 @@ const startChat = ref(true)
   border: 2px solid green;
   height: 90vh;
   padding-top: 2px;
-  margin: auto;
   transform-origin: left top;
   border: 1px solid orange;
   background-color: #fff4f4;
@@ -50,19 +91,11 @@ const startChat = ref(true)
   border:1px green;
 }
 
-#bb-features {
-  display: grid;
-  grid-template-columns: 1fr;
-}
-
-.message-bb {
-  border: 0px solid purple;
-}
-
 .beebee-home {
   display: grid;
   border: 0px dashed red;
 }
+
   @media (min-width: 1024px) {
 
     #beebee-shaper {
@@ -72,10 +105,28 @@ const startChat = ref(true)
     }
 
     .bento-history {
-      border: 3px solid red;
       display: grid;
       grid-template-columns: 1fr;
+      grid-template-rows: 1fr 1fr 10fr;
       margin-top: 8.5em;
+      height: 60vh;
+      border: 6x solid red;
+    }
+
+    .history {
+      height: 2em;
+      border: 2px dashed blue;
+    }
+
+    .spaces {
+      position: relative;
+      height: 2em;
+      border: 2px dashed blue;
+    }
+
+    .live-drop-zone {
+      height: 100%;
+      border: 4px dashed rgb(228, 137, 39);
     }
 
     .bentospace {
@@ -94,15 +145,6 @@ const startChat = ref(true)
 
     #message-question {
       text-align: center;
-    }
-
-    #bb-features {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-    }
-
-    .message-bb {
-      border: 0px solid purple;
     }
     .beebee-home {
       display: grid;

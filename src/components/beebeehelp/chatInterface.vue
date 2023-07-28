@@ -8,20 +8,30 @@
           <div v-if="chati.question.data.active === true" class="left-chat"> {{ chati.question.data.text }} </div>
           <span class="left-chat">{{ chati.question.data.time }}</span>
         </div>
-        <div class="beebee-reply" id="beebee-chat-right">
+        <div class="beebee-reply">
           <span class="right-time">{{ chati.reply.time }}</span>
-          <div class="right-chat">{{ chati.reply.data.text }}
-            <div v-if="chati.reply.type === 'hopquery'">
-              <span>Datatype: {{ chati.data.library.text }} for month {{ chati.data.time.words.day }} day {{ chati.data.time.words.month }}</span>--- <button id="new-query" @click.prevent="beebeeChartSpace(chati.data)">yes, produce chart</button>
+          <div class="reply-text-chart">
+            <div class="right-chat">{{ chati.reply.data.text }}
+              <div v-if="chati.reply.type === 'hopquery'">
+                <span>Datatype: {{ chati.data.library.text }} for month {{ chati.data.time.words.day }} day {{ chati.data.time.words.month }}</span>--- <button id="new-query" @click.prevent="beebeeChartSpace(chati.data)">yes, produce chart</button>
+              </div>
+              <div v-else-if="chati.reply.data.type === 'bbai'">
+                Please select a chart style
+                  <button @click="chartBuild('bar')">bar</button> <button @click="chartBuild('line')">line</button> <button>pie</button>
+              </div>
+              <div v-else-if="chati.type === 'upload'">
+                <button>start file upload</button>
+              </div>
+              <div v-else-if="chati.query === false && chati.type !== 'hello'">
+                {{ chati }}
+              </div>
             </div>
-            <div v-else-if="chati.reply.data.type === 'bbai'">
-              Please select a chart style  line bar pie
-            </div>
-            <div v-else-if="chati.type === 'upload'">
-              <button>start file upload</button>
-            </div>
-            <div v-else-if="chati.query === false && chati.type !== 'hello'">
-              {{ chati }}
+            <div id="beebee-chartspace" v-if="chartLive === true">
+              <bar-chart  v-if="chartStyle === 'bar'"></bar-chart>
+              <line-chart v-if="chartStyle === 'line'"></line-chart>
+              <div id="space-tools">
+                <button id="saveTospace">add to space</button>
+              </div>
             </div>
           </div>
           <img class="right-chat-beebee" src="../.././assets/logo.png" alt="bbAI">
@@ -37,15 +47,22 @@
 
 <script setup>
 import inputBox from '@/components/beebeehelp/inputBox.vue'
+import barChart from '@/components/visualisation/charts/barChart.vue'
+import lineChart from '@/components/visualisation/charts/lineChart.vue'
 import { ref } from 'vue'
 import { computed } from 'vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   const askStart = ref('What would you like to chart?')
-  const askInput = ref('')
+  const chartLive = ref(false)
+  const chartStyle = ref('')
 
   const storeAI = aiInterfaceStore()
 
+  function chartBuild (style) {
+    this.chartLive = true
+    this.chartStyle = style
+  }
 
   // a computed ref
   const chatPairs = computed(() => {
@@ -75,7 +92,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
 #natlang-ai {
   grid-template-columns: 1fr;
-  align-items: center;
   align-items: center;
   justify-content: center;
   border: 1px solid grey;
@@ -139,6 +155,10 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   padding-top: 1em;
 }
 
+#beebee-chartspace {
+  border: 1px solid purple;
+}
+
 
 .chat-input {
   position: fixed;
@@ -180,6 +200,10 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
       margin-top: .5em;
       width: 99%;
       border: 0x solid rgb(11, 113, 11);
+    }
+
+    #beebee-chartspace {
+     border: 1px solid purple;
     }
 
     .chat-input {
