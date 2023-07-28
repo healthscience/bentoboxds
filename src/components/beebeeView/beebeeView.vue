@@ -114,6 +114,7 @@ function historyType (type) {
     }
 
     .history {
+      position: relative;
       height: 2em;
       border: 2px dashed blue;
     }

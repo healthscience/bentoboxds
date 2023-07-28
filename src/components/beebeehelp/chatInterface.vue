@@ -2,8 +2,8 @@
   <div id="chat-interface">
     <!-- Natural Language Chat -->
     <div id="natlang-ai">
-      <div class="chat-flow" id="conversation" v-if="beginChat === true"  v-for="chati in chatPairs">
-        <div class="peer-ask"  id="peer-chat-left">
+      <div id="conversation" v-if="beginChat === true"  v-for="chati in chatPairs">
+        <div class="peer-ask">
           <img class="left-chat-peer" src="../.././assets/peerlogo.png" alt="Avatar">
           <div v-if="chati.question.data.active === true" class="left-chat"> {{ chati.question.data.text }} </div>
           <span class="left-chat">{{ chati.question.data.time }}</span>
@@ -34,13 +34,18 @@
               </div>
             </div>
           </div>
-          <img class="right-chat-beebee" src="../.././assets/logo.png" alt="bbAI">
+          <div class="beebee">
+            <img class="right-chat-beebee" src="../.././assets/logo.png" alt="bbAI">beebee
+          </div>
         </div>
       </div>
+      <!--<div id="buttommove"></div>-->
+      <div id="buttommove" ref="targetId" >Bottom {{ updateBottom  }}</div>
     </div>
     <div class="chat-input">
       <input-box></input-box>
     </div>
+    <button @click="scrollToElement">Scroll to bottom</button>
   </div>
 </template>
 
@@ -49,8 +54,7 @@
 import inputBox from '@/components/beebeehelp/inputBox.vue'
 import barChart from '@/components/visualisation/charts/barChart.vue'
 import lineChart from '@/components/visualisation/charts/lineChart.vue'
-import { ref } from 'vue'
-import { computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   const askStart = ref('What would you like to chart?')
@@ -85,15 +89,33 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
    return storeAI.beginChat
   })
 
+  const bottom = ref(null)
+  onMounted(() => {
+    // console.log(bottom.value)
+    // bottom.value.scrollIntoView({behavior: "smooth"})
+  })
+
+  const updateBottom = computed(() => {
+    setTimeout(scrollToElement, 500)
+    return storeAI.chatBottom
+  })
+
+  const targetId = ref(null)
+
+  const scrollToElement = () =>  {
+    const el = document.getElementById('buttommove');
+    if (el) {
+      el.scrollIntoView({ block: "end" });
+    }
+  }
+
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 
 #natlang-ai {
-  grid-template-columns: 1fr;
-  align-items: center;
-  justify-content: center;
+  display: block;
   border: 1px solid grey;
   padding: 1em;
   border-radius: 1em;
@@ -101,17 +123,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   overflow-y: scroll;
 }
 
-.chat-flow {
-  display: grid;
-  grid-template-columns: 1fr;
-  margin-top: .5em;
-  width: 70%;
-  border: 0px solid red;
-}
-
 #conversation {
-  display: grid;
-  grid-template-columns: 1fr;
+  display: block;
   min-height: 100px;
 }
 
@@ -129,11 +142,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
 .right-chat-beebee {
   width: 50px;
-}
-
-#peer-chat-left {
-  display: grid;
-  grid-template-columns: 1fr 4fr 1fr;
 }
 
 .left-chat {
@@ -177,33 +185,26 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     }
 
     #natlang-ai {
-      display: grid;
-      grid-template-columns: 1fr;
+      display: block;
       width: 100%;
-      align-items: center;
-      justify-content: center;
       border: 3px solid grey;
       padding: 1em;
       border-radius: 1em;
-      max-height: 63vh;
+      height: 64vh;
       overflow-y: scroll;
     }
 
     #conversation {
-      display: grid;
-      grid-template-columns: 1fr;
-    }
-
-    .chat-flow {
-      display: grid;
-      grid-template-columns: 1fr;
-      margin-top: .5em;
-      width: 99%;
-      border: 0x solid rgb(11, 113, 11);
+      display: block;
+      min-height: 10vh;
+      margin-top: 1em;
+      border: 1px dashed black;
     }
 
     #beebee-chartspace {
-     border: 1px solid purple;
+      height: auto;
+      background-color: white;
+      border: 1px solid purple;
     }
 
     .chat-input {
@@ -212,6 +213,11 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
       width: 76%;
       border: 0px solid red;
     }
+
+    #snap {
+     scroll-snap-align: end;
+    }
+
   }
 
 </style>

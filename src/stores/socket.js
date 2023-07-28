@@ -33,7 +33,7 @@ export const useSocketStore = defineStore({
       this.connection_ready = true
     },
     onSocketMessage (evt) {
-      console.log(evt.data)
+      // console.log(evt.data)
       //we parse the json that we receive
       var received = JSON.parse(evt.data)
       // keep in message log for session?

@@ -3,16 +3,19 @@ import { shallowRef } from 'vue'
 import { markRaw } from 'vue'
 import { defineStore } from 'pinia'
 import hashObject from 'object-hash'
-import { useSocketStore } from "@/stores/socket.js"
+import { useSocketStore } from '@/stores/socket.js'
+import DataPraser from '@/stores/hopUtility/dataParse.js'
 
 export const aiInterfaceStore = defineStore('beebeeAIstore', {
   state: () => ({
     sendSocket: useSocketStore(),
+    liveDataParse: new DataPraser(),
     startChat: true,
     historyBar: false,
     beginChat: false,
     beebeeStatus: false,
     qcount: 0,
+    chatBottom: 0,
     askQuestion: {
       text: ''
     },
@@ -38,7 +41,9 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       data: {},
       active: false
     },
-    liveFutureCollection: { active: false }
+    liveFutureCollection: { active: false },
+    tempNumberData: [],
+    tempLabelData: []
   }),
   actions: {
     actionBBAI () {
@@ -68,7 +73,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       // remove start boxes
       this.startChat = false
       this.historyBar = true
-      // check for numbers, files, excel etc. or spam check for size
       let saveQ = {}
       saveQ.count = this.qcount
       saveQ.text = this.askQuestion.text
@@ -113,10 +117,19 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           let pairBB = {}
           pairBB.question = histMatch
           pairBB.reply = received
+          // temporary parse check for number and chart if numbers
+          // check for numbers, files, excel etc. or spam check for size
+          let numberCheck = this.liveDataParse.numberParse(histMatch.data.text)
+          if (numberCheck.status === true) {
+            this.tempNumberData = numberCheck.data
+            this.tempLabelData = numberCheck.label
+            histMatch.data.text = numberCheck.data
+          }
           this.historyPair.push(pairBB)
         }
       }
-      this.beginChat = true
+      this.beginChat = true 
+      this.chatBottom++
     }    
   }
 })
