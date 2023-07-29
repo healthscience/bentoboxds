@@ -8,12 +8,16 @@
         <button @click="historyType('space')">Spaces</button>
       </div>
       <div class="live-drop-zone">
-        list {{ historyList }}
         <div v-if="historyList === 'history'">
-          {{ chartList }}
+          <button class="create-chat">+ create chat</button>
+          <div class="history-list" v-for="his in chartList">
+            <button class="flat-history"> {{ his }} </button>
+          </div>
         </div>
         <div v-else>
-          {{ spaceList }}
+          <div class="history-list" v-for="sis in spaceList">
+            <button class="flat-history" @click="bentoSpaceOpen(sis)"> {{ sis }} </button>
+          </div>
         </div>
       </div>
     </div>
@@ -21,12 +25,14 @@
       <div class="beebee-home">
         <beebee-chat></beebee-chat>
        </div>
+       <bento-space></bento-space>
     </div>
   </div>
 </template>
 
 <script setup>
 import BeebeeChat from '@/components/beebeehelp/chatInterface.vue'
+import BentoSpace from '@/components/bentospace/spaceTemplate.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { ref } from 'vue'
 
@@ -34,11 +40,17 @@ const storeAI = aiInterfaceStore()
 
 const startChat = ref(true)
 let historyList = ref('history')
-let chartList = ref(['chart1', 'chart2', 'chart3',])
+let chartList = ref(['chat1', 'chat2', 'chat3',])
 let spaceList = ref(['space1', 'space2', 'space3',])
 
 function historyType (type) {
   this.historyList = type
+}
+
+function bentoSpaceOpen (spaceID) {
+  console.log('bentospace')
+  console.log(spaceID)
+  storeAI.bentospaceState = !storeAI.bentospaceState
 }
 
 </script>
@@ -69,6 +81,22 @@ function historyType (type) {
   display: relative;
   height: 2em;
   border: 2px dashed green;
+}
+
+.create-chat {
+  background-color: white;
+  border: 1px dashed grey;
+}
+
+.flat-history {
+  background-color: rgb(110, 134, 226);
+  border: 0px;
+  margin: .4em;
+  padding: .5em;
+}
+
+.history-list:first-child {
+  background-color: green;
 }
 
 .live-drop-zone {

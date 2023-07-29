@@ -3,20 +3,14 @@
     <div class="bentospace">
     </div>
   </div>
-  <div class="beebee-welcome" v-if="storeAI.startChat === true">
-    <div id="message-question">What can you do?</div>
-    <div id="bb-features">
-      <div class="message-bb">Ask</div>
-      <div class="message-bb">Chart</div>
-      <div class="message-bb">Share</div>
-    </div>
-  </div>
+  <beebee-welcome></beebee-welcome>
   <div class="beebee-home">
     <beebee-chat></beebee-chat>
   </div>
 </template>
 
 <script setup>
+import BeebeeWelcome from '@/components/welcome/welcomeMessage.vue'
 import BeebeeChat from '@/components/beebeehelp/inputBox.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { ref } from 'vue'
@@ -55,24 +49,6 @@ const startChat = ref(true)
   background: linear-gradient(-90deg, rgba(0, 0, 0, .1) 1px, transparent 1px), linear-gradient(rgba(0, 0, 0, .1) 1px, transparent 1px);
   background-size: 60px 60px, 60px 60px;
   border:1px green;
-}
-
-.beebee-welcome {
-  position: fixed;
-  top: 80%;
-  left: 14px;
-  z-index: 2;
-  border: 0px dashed blue;
-  width: 80%;
-}
-
-#bb-features {
-  display: grid;
-  grid-template-columns: 1fr;
-}
-
-.message-bb {
-  border: 0px solid purple;
 }
 
 .beebee-home {
@@ -121,27 +97,6 @@ const startChat = ref(true)
       background-size: 60px 60px, 60px 60px;
     }
 
-    .beebee-welcome {
-      position: fixed;
-      top: 80vh;
-      left: 140px;
-      z-index: 2;
-      border: 0px dashed blue;
-      width: 80%;
-    }
-
-    #message-question {
-      text-align: center;
-    }
-
-    #bb-features {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-    }
-
-    .message-bb {
-      border: 0px solid purple;
-    }
     .beebee-home {
       position: fixed;
       top: 30%;

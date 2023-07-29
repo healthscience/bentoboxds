@@ -31,6 +31,7 @@
               <line-chart v-if="chartStyle === 'line'"></line-chart>
               <div id="space-tools">
                 <button id="saveTospace">add to space</button>
+                <button id="shareNetwork">Share</button>
               </div>
             </div>
           </div>
@@ -40,12 +41,11 @@
         </div>
       </div>
       <!--<div id="buttommove"></div>-->
-      <div id="buttommove" ref="targetId" >Bottom {{ updateBottom  }}</div>
+      <div id="buttommove" ref="targetId" >{{ updateBottom  }}</div>
     </div>
     <div class="chat-input">
       <input-box></input-box>
     </div>
-    <button @click="scrollToElement">Scroll to bottom</button>
   </div>
 </template>
 
@@ -155,8 +155,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   background-color: #d8d7e2;
   width: 90%;
   border-radius: 25px;
-  justify-self: end;
   margin-top: .5em;
+  margin-left: 8%;
 }
 
 .right-chat {
@@ -198,7 +198,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
       display: block;
       min-height: 10vh;
       margin-top: 1em;
-      border: 1px dashed black;
     }
 
     #beebee-chartspace {
