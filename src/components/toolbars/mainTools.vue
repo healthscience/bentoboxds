@@ -1,41 +1,54 @@
 <template>
-  <div class="bentobox">
-    <header>
-      <div class="bentobox-top" id="logo-bb">
-        <img alt="BentoBox-DS" class="logo" src="@/assets/logo.png" width="80" height="80" />
-        <span>BentoBox-DS</span>
-      </div>
-      <div class="bentobox-top">
-        <div class="bb-align"></div>
-      </div>
-      <div class="bentobox-top"  id="main-nav">  
-        <nav>
-          <RouterLink to="/">Home</RouterLink>
-          <RouterLink to="/about">About</RouterLink>
-        </nav>
-      </div>
-      <div class="bentobox-top">
-        <div class="bb-align">Language</div>
-      </div>
-      <div class="bentobox-top">
-        <div class="bb-align alpha-round">Alpha</div>
-      </div>
-      <div class="bentobox-top">
-        <div class="bb-align">Help</div>
-      </div>
-      <div class="bentobox-top">
-        <div class="bb-align">Sign-in</div>
-      </div>
-    </header>
+  <div class="bentobox-mobile">
+    <div id="mobile-menu" v-if="mobileSize === false">
+      Mobile menu
+    </div>
+    <div class="bentobox-browser" v-else>
+      <header>
+        <div class="bentobox-top" id="logo-bb">
+          <img alt="BentoBox-DS" class="logo" src="@/assets/logo.png" width="60" height="60" />
+          <div class="logo-words">BentoBox-DS</div>
+        </div>
+        <div class="bentobox-top">
+          <div class="bb-align"></div>
+        </div>
+        <div class="bentobox-top">  
+          <nav>
+            <RouterLink to="/">Home</RouterLink>
+            <RouterLink to="/about">About</RouterLink>
+          </nav>
+        </div>
+        <div class="bentobox-top">
+          <div class="bb-align">Language</div>
+        </div>
+        <div class="bentobox-top">
+          <div class="bb-align alpha-round">Alpha</div>
+        </div>
+        <div class="bentobox-top">
+          <div class="bb-align">Help</div>
+        </div>
+        <div class="bentobox-top">
+          <div class="bb-align">Sign-in</div>
+        </div>
+      </header>
+    </div>
   </div>
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
+
+  let mobileSize = ref(true)
+  onMounted(() => {
+    let mql = window.matchMedia("(min-width: 1024px)")
+    console.log(mql)
+    mobileSize.value = mql.matches
+  })
 
 </script>
 
 <style scoped>
-.bentobox {
+.bentobox-mobile {
   display: grid;
   grid-template-columns: 1fr;
   width: 90vw;
@@ -54,10 +67,19 @@ header {
   border: 0px dash blue;
 }
 
-.logo {
-  display: block;
-  margin: 0 auto .2rem;
+#logo-bb {
+  display: grid;
+  grid-template-columns: 1fr 4fr;
 }
+
+.logo {
+  border: 0px solid blue;
+}
+
+.logo-words {
+  justify-content: start;
+}
+
 
 nav {
   display: grid;
@@ -93,7 +115,7 @@ nav a:first-of-type {
 }
 
 @media (min-width: 1024px) {
-  .bentobox {
+  .bentobox-browser {
     position: fixed;
     top: 0;
     display: grid;
@@ -107,6 +129,7 @@ nav a:first-of-type {
     display: grid;
     grid-template-columns: 4fr 1fr 2fr 1fr 1fr 1fr 1fr;
     border: 0px solid blue;
+    width: 98vw;
     /*max-height: 10vh;*/
   }
 
@@ -114,9 +137,18 @@ nav a:first-of-type {
     border: 0px solid blue;
   }
 
-  .logo {
-    margin: 0 1rem 0 0;
-  }
+  #logo-bb {
+  display: grid;
+  grid-template-columns: 1fr 8fr;
+}
+
+.logo {
+}
+
+.logo-words {
+  justify-content: start;
+  align-self: center;
+}
 
   nav {
     grid-template-columns: 1fr 1fr;

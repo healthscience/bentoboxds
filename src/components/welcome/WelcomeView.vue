@@ -24,13 +24,13 @@ const startChat = ref(true)
 
 <style scoped>
 #space-shaper {
-  width: 90vw;
+  width: 60vw;
   border: 0px dashed green;
 }
 
 .beebee-space {
-  height: 92vh;
-  width: 92vw;
+  height: 60vh;
+  width: 60vw;
   overflow-y: scroll;
   border: 0px dashed blue;
 }
@@ -53,7 +53,7 @@ const startChat = ref(true)
 
 .beebee-home {
   position: fixed;
-  top:30%;
+  top: 36%;
   left: 50%;
   transform: translate(-50%, 50%);
   z-index: 2;
