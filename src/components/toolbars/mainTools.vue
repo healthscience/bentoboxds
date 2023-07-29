@@ -1,7 +1,7 @@
 <template>
   <div class="bentobox-mobile">
     <div id="mobile-menu" v-if="mobileSize === false">
-      Mobile menu
+      <mobile-menu></mobile-menu>
     </div>
     <div class="bentobox-browser" v-else>
       <header>
@@ -36,6 +36,7 @@
 </template>
 
 <script setup>
+import mobileMenu from '@/components/toolbars/mobileNav.vue'
 import { ref, onMounted } from 'vue'
 
   let mobileSize = ref(true)

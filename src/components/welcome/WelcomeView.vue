@@ -28,13 +28,6 @@ const startChat = ref(true)
   border: 0px dashed green;
 }
 
-.beebee-space {
-  height: 60vh;
-  width: 60vw;
-  overflow-y: scroll;
-  border: 0px dashed blue;
-}
-
 .bentospace {
   display: grid;
   grid-template-columns: 1fr;
@@ -53,10 +46,10 @@ const startChat = ref(true)
 
 .beebee-home {
   position: fixed;
-  top: 36%;
+  top: 20%;
   left: 50%;
   transform: translate(-50%, 50%);
-  z-index: 2;
+  z-index: 0;
   border: 0px dashed red;
 }
   @media (min-width: 1024px) {
@@ -73,13 +66,6 @@ const startChat = ref(true)
       grid-template-columns: 1fr;
       width: 20vw;
       margin-top: 9em;
-    }
-
-    .beebee-space {
-      height: 90vh;
-      width: 90vw;
-      overflow: hidden;
-      border: 0px dashed blue;
     }
 
     .bentospace {

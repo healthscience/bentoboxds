@@ -48,8 +48,6 @@ function historyType (type) {
 }
 
 function bentoSpaceOpen (spaceID) {
-  console.log('bentospace')
-  console.log(spaceID)
   storeAI.bentospaceState = !storeAI.bentospaceState
 }
 
