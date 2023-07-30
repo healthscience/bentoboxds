@@ -42,7 +42,6 @@ import { ref, onMounted } from 'vue'
   let mobileSize = ref(true)
   onMounted(() => {
     let mql = window.matchMedia("(min-width: 1024px)")
-    console.log(mql)
     mobileSize.value = mql.matches
   })
 

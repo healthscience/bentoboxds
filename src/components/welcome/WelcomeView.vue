@@ -1,12 +1,13 @@
 <template>
   <div id="space-shaper">
     <div class="bentospace">
+      <div class="beebee-home">
+        <beebee-chat></beebee-chat>
+      </div>
+      <beebee-welcome></beebee-welcome>
     </div>
   </div>
-  <beebee-welcome></beebee-welcome>
-  <div class="beebee-home">
-    <beebee-chat></beebee-chat>
-  </div>
+
 </template>
 
 <script setup>
@@ -31,7 +32,6 @@ const startChat = ref(true)
 .bentospace {
   display: grid;
   grid-template-columns: 1fr;
-  border: 2px solid green;
   height: 98vh;
   width: 98vw;
   padding-top: 2px;
@@ -45,10 +45,9 @@ const startChat = ref(true)
 }
 
 .beebee-home {
-  position: fixed;
+  position: relative;
   top: 20%;
-  left: 50%;
-  transform: translate(-50%, 50%);
+  height: 200px;
   z-index: 0;
   border: 0px dashed red;
 }

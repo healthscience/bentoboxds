@@ -1,11 +1,13 @@
 <template>
   <div id="beebee-shaper">
     <div class="bento-history">
-      <div class="history">
-        <button @click="historyType('history')">History</button>
-      </div>
-      <div class="spaces">
-        <button @click="historyType('space')">Spaces</button>
+      <div class="history-buttons">
+        <div class="history">
+          <button @click="historyType('history')">History</button>
+        </div>
+        <div class="spaces">
+          <button @click="historyType('space')">Spaces</button>
+        </div>
       </div>
       <div class="live-drop-zone">
         <div v-if="historyList === 'history'">
@@ -56,7 +58,8 @@ function bentoSpaceOpen (spaceID) {
 <style scoped>
 #beebee-shaper {
   display: grid;
-  grid-template-columns: 1fr 7fr;
+  grid-template-columns: 1fr;
+  top: 0%;
   width: 90vw;
   height: 90vh;
   border: 0px dashed green;
@@ -65,20 +68,25 @@ function bentoSpaceOpen (spaceID) {
 .bento-history {
   display: grid;
   grid-template-columns: 1fr;
-  margin-top: 8.5em;
-  border: 3px solid green;
+  margin-top: 15%;
+  border: 0px solid green;
+}
+
+.history-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
 }
 
 .history {
   display: relative;
   align-items: top;
   height: 2em;
-  border: 2px dashed green;
+  border: 0px dashed green;
 }
 .spaces {
   display: relative;
   height: 2em;
-  border: 2px dashed green;
+  border: 0px dashed green;
 }
 
 .create-chat {
@@ -93,6 +101,10 @@ function bentoSpaceOpen (spaceID) {
   padding: .5em;
 }
 
+.history-list {
+  display: inline-block;
+}
+
 .history-list:first-child {
   background-color: green;
 }
@@ -100,21 +112,21 @@ function bentoSpaceOpen (spaceID) {
 .live-drop-zone {
   display: relative;
   height: 2em;
-  border: 2px dashed green;
+  border: 0px dashed green;
 }
 
 .bentospace {
   display: grid;
   grid-template-columns: 1fr;
   border: 2px solid green;
-  height: 90vh;
+  height: 60vh;
+  width: 90vw;
   padding-top: 2px;
   transform-origin: left top;
   border: 1px solid orange;
   background-color: #fff4f4;
   background: linear-gradient(-90deg, rgba(0, 0, 0, .1) 1px, transparent 1px), linear-gradient(rgba(0, 0, 0, .1) 1px, transparent 1px);
   background-size: 60px 60px, 60px 60px;
-  border:1px green;
 }
 
 .beebee-home {
@@ -139,10 +151,19 @@ function bentoSpaceOpen (spaceID) {
       border: 6x solid red;
     }
 
+    .history-buttons {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+
     .history {
       position: relative;
       height: 2em;
       border: 2px dashed blue;
+    }
+
+    .history-list {
+      display: block;
     }
 
     .spaces {

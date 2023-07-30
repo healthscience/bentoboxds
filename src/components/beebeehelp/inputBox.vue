@@ -35,9 +35,8 @@ import { computed } from 'vue'
 
 #askinput {
   font-size: 1.2em;
-  padding-left: 1em;
   height:4em;
-  width: 70vw;
+  width: 100%;
 }
 
 @media (min-width: 1024px) {

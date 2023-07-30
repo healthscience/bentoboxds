@@ -133,7 +133,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   grid-template-columns: 1fr 4fr 1fr;
   background-color: pink;
   border-radius: 25px;
-  width: 60%;
+  width: 80%;
 }
 
 .left-chat-peer {
@@ -153,7 +153,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   display: grid;
   grid-template-columns: 1fr 4fr 1fr;
   background-color: #d8d7e2;
-  width: 90%;
+  width: 96%;
   border-radius: 25px;
   margin-top: .5em;
   margin-left: 8%;
@@ -165,6 +165,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
 #beebee-chartspace {
   border: 1px solid purple;
+  width: 220px;
 }
 
 
