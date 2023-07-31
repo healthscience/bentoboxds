@@ -16,19 +16,29 @@
 
 <script setup>
 import { ref} from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 
-const menuItems = ref(['Home', 'About', 'Language', 'Help', 'Sign-in'])
-const menuLive = ref(false)
+  const router = useRouter()
+  const route = useRoute()
 
-const selectMenuBB = () => {
-  menuLive.value = !menuLive.value
-}
+  const menuItems = ref(['home', 'about', 'Language', 'Help', 'Sign-in'])
+  const menuLive = ref(false)
+
+  const selectMenuBB = () => {
+    menuLive.value = !menuLive.value
+  }
 
 
-function menuSelect (m) {
-  console.log('route to right place')
-  console.log(m)
-}
+  function menuSelect (m) {
+    if (m === 'home' || m === 'about') {
+      router.push({
+          name: m
+      })
+    } else {
+      console.log('other')
+    }
+    selectMenuBB()
+  }
 
 </script>
 

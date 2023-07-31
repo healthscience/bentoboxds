@@ -22,7 +22,6 @@ export const useSocketStore = defineStore({
     },
     init_chat () {
       //connect to Sockets Bay
-      console.log('how many sockets open?')
       const sockets_bay_url = `wss://127.0.0.1:9888`
       this.websocket = new WebSocket(sockets_bay_url)
       this.websocket.onopen = this.onSocketOpen

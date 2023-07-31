@@ -114,12 +114,17 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 
+#chat-interface {
+  height: 100%;
+  width: 100%;
+}
+
 #natlang-ai {
   display: block;
   border: 1px solid grey;
   padding: 1em;
   border-radius: 1em;
-  height: 100%;
+  height: 60vh;
   overflow-y: scroll;
 }
 
@@ -164,16 +169,15 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 }
 
 #beebee-chartspace {
-  border: 1px solid purple;
   width: 220px;
 }
 
 
 .chat-input {
-  position: fixed;
+  position: absolute;
+  bottom: 10%;
   margin-top: .5em;
   width: 80%;
-  border: 1x solid red;
 }
 
 #natlang-ask {
@@ -205,7 +209,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
       height: auto;
       width: 90%;
       background-color: white;
-      border: 1px solid purple;
     }
 
     .chat-input {

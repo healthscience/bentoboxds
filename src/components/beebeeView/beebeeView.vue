@@ -9,7 +9,7 @@
           <button @click="historyType('space')">Spaces</button>
         </div>
       </div>
-      <div class="live-drop-zone">
+      <div class="live-drop-zone" v-if="historyActive ===  true">
         <div v-if="historyList === 'history'">
           <button class="create-chat">+ create chat</button>
           <div class="history-list" v-for="his in chartList">
@@ -41,16 +41,22 @@ import { ref } from 'vue'
 const storeAI = aiInterfaceStore()
 
 // const startChat = ref(true)
+const historyActive = ref(false)
 let historyList = ref('history')
 let chartList = ref(['chat1', 'chat2', 'chat3',])
 let spaceList = ref(['space1', 'space2', 'space3',])
 
 function historyType (type) {
   this.historyList = type
+  this.historyActive = !this.historyActive
 }
 
 function bentoSpaceOpen (spaceID) {
   storeAI.bentospaceState = !storeAI.bentospaceState
+}
+
+function dropSpaceActive (spaceID) {
+  storeAI.historyActive = !storeAI.historyActive
 }
 
 </script>
@@ -61,15 +67,12 @@ function bentoSpaceOpen (spaceID) {
   grid-template-columns: 1fr;
   top: 0%;
   width: 90vw;
-  height: 90vh;
-  border: 0px dashed green;
+  height: 94vh;
 }
 
 .bento-history {
-  display: grid;
-  grid-template-columns: 1fr;
-  margin-top: 15%;
-  border: 0px solid green;
+  margin-top: 5%;
+  height: 5em;
 }
 
 .history-buttons {
@@ -81,12 +84,10 @@ function bentoSpaceOpen (spaceID) {
   display: relative;
   align-items: top;
   height: 2em;
-  border: 0px dashed green;
 }
 .spaces {
   display: relative;
   height: 2em;
-  border: 0px dashed green;
 }
 
 .create-chat {
@@ -112,14 +113,12 @@ function bentoSpaceOpen (spaceID) {
 .live-drop-zone {
   display: relative;
   height: 2em;
-  border: 0px dashed green;
 }
 
 .bentospace {
   display: grid;
   grid-template-columns: 1fr;
-  border: 2px solid green;
-  height: 60vh;
+  height: 80vh;
   width: 90vw;
   padding-top: 2px;
   transform-origin: left top;
@@ -131,7 +130,7 @@ function bentoSpaceOpen (spaceID) {
 
 .beebee-home {
   display: grid;
-  border: 0px dashed red;
+  height: 90vh;
 }
 
   @media (min-width: 1024px) {
@@ -139,7 +138,10 @@ function bentoSpaceOpen (spaceID) {
     #beebee-shaper {
       display: grid;
       grid-template-columns: 1fr 7fr;
+      height: 90vh;
+      width: 100%;
       border: 0px dashed rgb(0, 15, 128);
+      
     }
 
     .bento-history {
@@ -148,7 +150,6 @@ function bentoSpaceOpen (spaceID) {
       grid-template-rows: 1fr 1fr 10fr;
       margin-top: 8.5em;
       height: 60vh;
-      border: 6x solid red;
     }
 
     .history-buttons {
@@ -159,7 +160,6 @@ function bentoSpaceOpen (spaceID) {
     .history {
       position: relative;
       height: 2em;
-      border: 2px dashed blue;
     }
 
     .history-list {
@@ -197,7 +197,7 @@ function bentoSpaceOpen (spaceID) {
     .beebee-home {
       display: grid;
       grid-template-columns: 1fr;
-      border: 3px dashed rgb(207, 108, 21);
+      border: 0px dashed rgb(207, 108, 21);
     }
   }
 </style>

@@ -30,7 +30,7 @@ import { computed } from 'vue'
 
 #ai-interaction {
   display: grid;
-  grid-template-columns: 1fr
+  grid-template-columns: 1fr;
 }
 
 #askinput {
