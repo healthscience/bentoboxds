@@ -14,12 +14,11 @@
 import BeebeeWelcome from '@/components/welcome/welcomeMessage.vue'
 import BeebeeChat from '@/components/beebeehelp/inputBox.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
-import { ref } from 'vue'
+// import { ref } from 'vue'
 
 const storeAI = aiInterfaceStore()
 
-const startChat = ref(true)
-
+// const startChat = ref(true)
 
 </script>
 
@@ -33,7 +32,7 @@ const startChat = ref(true)
   display: grid;
   grid-template-columns: 1fr;
   height: 98vh;
-  width: 98vw;
+  width: 92vw;
   padding-top: 2px;
   margin: auto;
   transform-origin: left top;
@@ -51,6 +50,7 @@ const startChat = ref(true)
   z-index: 0;
   border: 0px dashed red;
 }
+
   @media (min-width: 1024px) {
 
     #space-shaper {

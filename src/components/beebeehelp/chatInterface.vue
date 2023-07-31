@@ -57,15 +57,15 @@ import lineChart from '@/components/visualisation/charts/lineChart.vue'
 import { ref, computed, onMounted } from 'vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
-  const askStart = ref('What would you like to chart?')
-  const chartLive = ref(false)
-  const chartStyle = ref('')
+  // const askStart = ref('What would you like to chart?')
+  let chartLive = ref(false)
+  let chartStyle = ref('')
 
   const storeAI = aiInterfaceStore()
 
-  function chartBuild (style) {
-    this.chartLive = true
-    this.chartStyle = style
+  const chartBuild = style => {
+    chartLive.value = true
+    chartStyle.value = style
   }
 
   // a computed ref
@@ -203,6 +203,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
     #beebee-chartspace {
       height: auto;
+      width: 90%;
       background-color: white;
       border: 1px solid purple;
     }

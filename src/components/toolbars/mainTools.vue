@@ -1,6 +1,6 @@
 <template>
   <div class="bentobox-mobile">
-    <div id="mobile-menu" v-if="mobileSize === false">
+    <div id="mobile-menu-live" v-if="mobileSize === false">
       <mobile-menu></mobile-menu>
     </div>
     <div class="bentobox-browser" v-else>
@@ -54,6 +54,14 @@ import { ref, onMounted } from 'vue'
   width: 90vw;
   border: 0px solid rgb(183, 30, 210);
   background-color: white;
+}
+
+#mobile-menu-live {
+  border: 0px solid red;
+  height: 40px;
+  display: grid;
+  justify-content: center;
+  z-index: 400;
 }
 
 header {

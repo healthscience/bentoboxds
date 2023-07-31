@@ -33,8 +33,9 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 <style>
 .beebee-welcome {
   position: relative;
-  border: 0px dashed blue;
-  width: 80%;
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-content: center;
 }
 
 #message-question {
@@ -46,6 +47,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   grid-template-columns: 1fr;
   row-gap: .6em;
   justify-content: center;
+  padding: 2em;
 }
 
 .message-bb {

@@ -4,7 +4,7 @@
       <label for="askname"></label><!--  v-on:keyup="storeAI.actionNatlangIn($event)" -->
       <input type="text-area" id="askinput" name="ainame" placeholder="What would you like to chart?" v-model="storeAI.askQuestion.text">
     </form>
-    <button type="submit" v-if="beebeeAIStatus.active === true" id="natlang-ask" @click="storeAI.submitAsk">
+    <button id="natlang-ask" type="submit" v-if="beebeeAIStatus.active === true" @click="storeAI.submitAsk">
       Ask BeeBee
     </button>
   </div>
@@ -39,6 +39,10 @@ import { computed } from 'vue'
   width: 100%;
 }
 
+#natlang-ask {
+  height: 60px;
+}
+
 @media (min-width: 1024px) {
   #ai-interaction {
     display: grid;
@@ -51,7 +55,11 @@ import { computed } from 'vue'
     height:4em;
     width: 100%;
     opacity: 100%;
-  } 
+  }
+
+  #natlang-ask {
+    height: auto;
+  }
 }
 
 </style>
