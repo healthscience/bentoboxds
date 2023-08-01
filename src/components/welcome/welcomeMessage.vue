@@ -11,7 +11,7 @@
       <div class="message-bb">
         <header>Chart</header>
         <div class="message-learn">
-          A BentBox offers a range of charts and analysis tools
+          A BentoBox offers a range of charts and analysis tools
         </div>
       </div>
       <div class="message-bb">

@@ -20,7 +20,10 @@
           <div id="beebee-help">beebee help</div>
           <div id="space-bar">space bar</div>
         </div>
-        <div id="bento-space">Space within space need minimap and bentoboxes</div>
+        <div id="bento-space">
+          <!-- location for bentobox - es -->
+          <bento-box></bento-box>
+        </div>
       </template>
       <template #footer>
       </template>
@@ -31,6 +34,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import ModalSpace from '@/components/bentospace/spaceModal.vue'
+import BentoBox from '@/components/bentobox/baseBox.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   const storeAI = aiInterfaceStore()
