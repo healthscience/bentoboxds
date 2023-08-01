@@ -121,8 +121,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           // temporary parse check for number and chart if numbers
           // check for numbers, files, excel etc. or spam check for size
           let numberCheck = this.liveDataParse.numberParse(histMatch.data.text)
-          console.log('number check')
-          console.log(numberCheck)
           if (numberCheck.status === true) {
             this.tempNumberData = numberCheck.data
             this.tempLabelData = numberCheck.label

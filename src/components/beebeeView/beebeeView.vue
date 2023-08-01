@@ -171,7 +171,7 @@ function dropSpaceActive (spaceID) {
     .spaces {
       position: relative;
       height: 2em;
-      border: 2px dashed blue;
+      border: 0px dashed blue;
     }
 
     .live-drop-zone {

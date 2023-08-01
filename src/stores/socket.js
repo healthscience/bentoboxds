@@ -43,7 +43,6 @@ export const useSocketStore = defineStore({
       } else if (received.type == '') {
         console.log('safeflow')
       } else if (received.type == 'bbai-reply') {
-        console.log('beebee------------------------')
         this.aiStore.processReply(received)
       } else if (received.type == '') {
         console.log('error')       
