@@ -177,6 +177,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   position: absolute;
   bottom: 10%;
   margin-top: .5em;
+  margin-left: 30px;
   width: 80%;
 }
 

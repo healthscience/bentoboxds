@@ -72,7 +72,9 @@ function dropSpaceActive (spaceID) {
 
 .bento-history {
   margin-top: 5%;
-  height: 5em;
+  height: auto;
+  display: grid;
+  justify-content: center;
 }
 
 .history-buttons {
@@ -83,7 +85,7 @@ function dropSpaceActive (spaceID) {
 .history {
   display: relative;
   align-items: top;
-  height: 2em;
+  height: 1em;
 }
 .spaces {
   display: relative;
@@ -111,7 +113,7 @@ function dropSpaceActive (spaceID) {
 }
 
 .live-drop-zone {
-  display: relative;
+  display: block;
   height: 2em;
 }
 
