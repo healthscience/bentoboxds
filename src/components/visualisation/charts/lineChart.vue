@@ -34,7 +34,8 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 
   const chartOptions = computed(() => {
     return {
-      responsive: true
+      responsive: true,
+      maintainAspectRatio: true
     }
   })
 </script>

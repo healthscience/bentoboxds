@@ -20,6 +20,7 @@
     "safeflow": "file:../bentoboxds/src/safeflow-wasm/safeflow.js",
     "vue": "^3.2.45",
     "vue-chartjs": "^5.2.0",
+    "vue-resizable": "^2.1.7",
     "vue-router": "^4.1.6"
   },
   "devDependencies": {

@@ -35,7 +35,8 @@ ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 
   const chartOptions = computed(() => {
     return {
-      responsive: true
+      responsive: true,
+      maintainAspectRatio: true
     }
   })
 </script>

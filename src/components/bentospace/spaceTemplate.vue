@@ -4,15 +4,17 @@
     <modal-space :show="bentspaceStatus" @close="closeBentoSpace">
       <template #header>
         <!-- The code below goes into the header slot -->
-        <button
-          type="button"
-          class="btn-green"
-          @click="closeBentoSpace"
-          aria-label="Close modal"
-        >
-          Close
-        </button>
-        <a href="#" id="return-bentospace" @click="closeBentoSpace">return</a>
+        <div id="space-modal-header">
+          <button
+            type="button"
+            class="btn-green"
+            @click="closeBentoSpace"
+            aria-label="Close modal"
+          >
+            Close
+          </button>
+          <div id="return-modal-close" @click="closeBentoSpace">return</div>
+        </div>
         <h3>BentoSpace #</h3>
       </template>
       <template #body>
@@ -20,11 +22,10 @@
           <div id="beebee-help">beebee help</div>
           <div id="space-bar">space bar</div>
         </div>
-        <div id="bento-space" @drop="drop" @dragover="allowDrop">
+        <div id="bento-space">
           <!-- location for bentobox - es -->
           <bento-box></bento-box>
         </div>
-        <div id="drop-zone" ></div>
       </template>
       <template #footer>
       </template>
@@ -49,10 +50,6 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     ev.preventDefault()
   }
 
-  const dragBB = (ev) => {
-    ev.dataTransfer.setData("text", ev.target.id)
-  }
-
   const drop = (ev) => {
     console.log('drop')
     ev.preventDefault()
@@ -60,8 +57,8 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     var data = ev.dataTransfer.getData("text")
     console.log(data)
     let locNew = {}
-    locNew.x = ev.clientX - 127
-    locNew.y = ev.clientY - 40
+    locNew.x = ev.x - 100
+    locNew.y = ev.y - 150
     // ev.target.appendChild(document.getElementById(data))
     bboxStore.setBoxlocation(locNew)
   }
@@ -87,7 +84,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   display: grid;
   grid-template-columns: 1fr;
   border: 2px solid green;
-  height: 70vh;
+  height: 80vh;
   width: 100%;
   margin-top: 0.1em;
   transform-origin: left top;
@@ -97,12 +94,25 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   background-size: 60px 60px, 60px 60px;
 }
 
-#drop-zone {
-  border: 2px dashed red;
-  height: 10vh;
+#pace-modal-header {
+
+}
+
+#return-modal-close {
+  text-align: right;
 }
 
   @media (min-width: 1024px) {
+    
+    #pace-modal-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    #return-modal-close {
+      justify-content: right;
+    }
+
 
   }
 
