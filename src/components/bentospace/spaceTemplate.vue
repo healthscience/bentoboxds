@@ -44,30 +44,12 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   const bboxStore = bentoboxStore()
   const bentospaceLive = ref(true)
   const showModal = ref(false)
-
-  const allowDrop = (ev) => {
-    console.log('penny droped')
-    ev.preventDefault()
-  }
-
-  const drop = (ev) => {
-    console.log('drop')
-    ev.preventDefault()
-    console.log(ev)
-    var data = ev.dataTransfer.getData("text")
-    console.log(data)
-    let locNew = {}
-    locNew.x = ev.x - 100
-    locNew.y = ev.y - 150
-    // ev.target.appendChild(document.getElementById(data))
-    bboxStore.setBoxlocation(locNew)
-  }
   
   const bentspaceStatus = computed(() => {
     return storeAI.bentospaceState
   })
 
-  function closeBentoSpace () {
+  const closeBentoSpace = () => {
     storeAI.bentospaceState = !storeAI.bentospaceState
   }
 </script>
@@ -92,10 +74,6 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   background-color: #fff4f4;
   background: linear-gradient(-90deg, rgba(0, 0, 0, .1) 1px, transparent 1px), linear-gradient(rgba(0, 0, 0, .1) 1px, transparent 1px);
   background-size: 60px 60px, 60px 60px;
-}
-
-#pace-modal-header {
-
 }
 
 #return-modal-close {

@@ -41,21 +41,21 @@ import { ref } from 'vue'
 const storeAI = aiInterfaceStore()
 
 // const startChat = ref(true)
-const historyActive = ref(false)
+let historyActive = ref(false)
 let historyList = ref('history')
 let chartList = ref(['chat1', 'chat2', 'chat3',])
 let spaceList = ref(['space1', 'space2', 'space3',])
 
-function historyType (type) {
-  this.historyList = type
-  this.historyActive = !this.historyActive
+let historyType = (type) => {
+  historyList = type
+  historyActive.value = !historyActive.value
 }
 
-function bentoSpaceOpen (spaceID) {
+const bentoSpaceOpen = (spaceID) => {
   storeAI.bentospaceState = !storeAI.bentospaceState
 }
 
-function dropSpaceActive (spaceID) {
+const dropSpaceActive = (spaceID) => {
   storeAI.historyActive = !storeAI.historyActive
 }
 

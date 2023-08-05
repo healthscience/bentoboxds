@@ -92,25 +92,29 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     return typeof value !== "number" ? 0 : value;
   })
 
-
-  const boxLocX = bbliveStore.boxLocation.x + 'px' // bbliveStore.boxLocation.x + 'px'
-  const boxLocY = bbliveStore.boxLocation.y + 'px'
-
-  const boxX = computed(() => {
-    return bbliveStore.boxLocation.x + 'px'
-  })
-
-  const boxT = computed(() => {
-    return bbliveStore.boxLocation.y + 'px'
-  })
-
-  const dragBB = (ev) => {
-    ev.dataTransfer.setData("text", ev.target.id)
-  }
-
 </script>
 
 <style scoped>
+.resizable {
+  background-position: top left;
+  width: 150px;
+  height: 150px;
+  padding: 0;
+  border: 4px solid #a6ff00;
+  font-weight: normal;
+  color: #0d0d0d;
+  position: relative;
+}
+
+.drag-container-1,
+.drag-container-2 {
+  width: 100%;
+  height: 40px;
+  background: rgb(141, 145, 226);
+  color: white;
+  text-align: center;
+  cursor: pointer;
+}
 
 #bentobox-cell {
   display: block;
@@ -161,7 +165,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 #bb-expand-size {
   display: block;
   width: 100%;
-  background-color: red;
+  background-color:  rgb(141, 145, 226);
 }
 
 @media (min-width: 1024px) {
