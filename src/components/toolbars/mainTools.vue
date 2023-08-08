@@ -61,7 +61,7 @@ import { ref, onMounted } from 'vue'
   height: 40px;
   display: grid;
   justify-content: center;
-  z-index: 400;
+  z-index: 4;
 }
 
 header {
@@ -130,8 +130,7 @@ nav a:first-of-type {
     grid-template-columns: 1fr;
     border: 0px solid rgb(189, 30, 210);
     background-color: rgb(250, 246, 246);
-    z-index: 12;
-  }
+    z-index: 4  }
 
   header {
     display: grid;

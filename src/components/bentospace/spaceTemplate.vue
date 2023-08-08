@@ -22,9 +22,13 @@
           <div id="beebee-help">beebee help</div>
           <div id="space-bar">space bar</div>
         </div>
-        <div id="bento-space">
-          <!-- location for bentobox - es -->
-          <bento-box></bento-box>
+        <div id="bentospace-holder" v-dragscroll.noleft.noright="true" >
+          <div id="bento-space">
+            <!-- location for bentobox - es -->
+            <div id="bento-layout" v-for="bbox in storeAI.bentoboxList">
+             <bento-box :bboxid="bbox"></bento-box>
+            </div>
+          </div>
         </div>
       </template>
       <template #footer>
@@ -62,6 +66,10 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   background-color: antiquewhite;
 }
 
+#bentospace-holder {
+
+}
+
 #bento-space {
   display: grid;
   grid-template-columns: 1fr;
@@ -81,7 +89,19 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 }
 
   @media (min-width: 1024px) {
-    
+
+    #bentospace-holder {
+      height: 80vh;
+      width: 100%;
+      overflow: scroll;
+    }
+
+    #bento-space {
+      height: 998vh;
+      width: 998vw;
+      z-index: 2;
+    }
+
     #pace-modal-header {
       display: grid;
       grid-template-columns: 1fr 1fr;

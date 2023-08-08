@@ -18,12 +18,12 @@
     @resize:start="eHandler"
     @resize:end="eHandler"
     @drag:move="eHandler"
-    @drag:start="eHandler"
+    @drag:start="eHandlerTimerStart"
     @drag:end="eHandler"
   >
     <div class="drag-container-1">
       <div id="bb-toolbar">
-        <div class="bb-bar-main">a bentobox active</div>
+        <div class="bb-bar-main">a bentobox active</div>--{{ bboxid }}
         <div class="bb-bar-main"><button id="network-vis">social</button></div>
         <div class="bb-bar-main"><button id="network-map">map</button></div>
         <div class="bb-bar-main"><button id="bb-copy">copy</button></div>
@@ -64,29 +64,64 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   const bbliveStore = bentoboxStore()
   const futureStatus = ref(true)
 
+  const props = defineProps({
+    bboxid: String
+  })
+
   /* drag drop move resize */
   const tW = 440
   const tH = 440
   const handlers = ref(["r", "rb", "b", "lb", "l", "lt", "t", "rt"])
-  let left = ref(`calc( 50% - ${tW / 2}px)`)
-  let top = ref(`calc(50% - ${tH / 2}px)`)
+  let left = ref(`calc(2% - ${tW / 2}px)`)
+  let top = ref(`calc(4% - ${tH / 2}px)`)
   let height = ref('fit-content')
   let width = ref('fit-content')
   let maxW = ref('100%')
   let maxH = ref('100%')
   let minW = ref('20vw')
   let minH = ref('20vh')
-  let fit = ref(true)
+  let fit = ref(false)
   let event = ref('')
   const dragSelector = ref('.drag-container-1, .drag-container-2')
+  let timerPress = ref(0)
 
   const eHandler = (data) => {
+    // console.log('move')
+    // console.log(data)
     width = data.width;
     height = data.height;
     left = data.left;
     top = data.top;
     event = data.eventName;
   }
+
+  const longHoldCheck = () => {
+    const nowTime = new Date()
+    let timeDiff = nowTime - timerPress
+    if (timeDiff < 200) {
+      setTimeout(longHoldCheck, 1)
+    } else {
+      console.log('yes long press')
+    }
+  }
+
+  const eHandlerTimerStart = (data) => {
+    // console.log('move down START')
+    // console.log(data)
+    // set timer start
+    timerPress = new Date()
+    // console.log(timerPress)
+    setTimeout(longHoldCheck, 1)
+   }
+
+   const eHandlerTimerStop = (data) => {
+    // set timer start
+    timerPress = new Date()
+    if (startTime > 10000) {
+      console.log('long press')
+      timeLong = true
+    }
+   }
 
   const checkEmpty = computed((value) => {
     return typeof value !== "number" ? 0 : value;
@@ -114,11 +149,13 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   color: white;
   text-align: center;
   cursor: pointer;
+  z-index: 9;
 }
 
 #bentobox-cell {
   display: block;
   border: 0px solid grey;
+  z-index: 9;
 }
 
 #bb-toolbar {
@@ -189,12 +226,14 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     color: white;
     text-align: center;
     cursor: pointer;
+    z-index: 9;
   }
 
   #bentobox-cell {
     display: block;
     min-height: inherit;
     min-width: inherit;
+    z-index: 9;
   }
 
   #bb-toolbar {

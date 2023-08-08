@@ -27,6 +27,7 @@
               </div>
             </div>
             <div id="beebee-chartspace" v-if="chartLive === true">
+              <bento-box></bento-box> <!--the slimed down bentobox to the chart and bring in tools as needed-->
               <bar-chart  v-if="chartStyle === 'bar'"></bar-chart>
               <line-chart v-if="chartStyle === 'line'"></line-chart>
               <div id="space-tools">
@@ -52,6 +53,7 @@
 
 <script setup>
 import inputBox from '@/components/beebeehelp/inputBox.vue'
+import BentoBox from '@/components/bentobox/baseBox.vue'
 import barChart from '@/components/visualisation/charts/barChart.vue'
 import lineChart from '@/components/visualisation/charts/lineChart.vue'
 import { ref, computed, onMounted } from 'vue'
@@ -169,6 +171,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 }
 
 #beebee-chartspace {
+  border: 1px dashed red;
   width: 220px;
 }
 

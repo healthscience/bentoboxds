@@ -9,7 +9,7 @@
           <button @click="historyType('space')">Spaces</button>
         </div>
       </div>
-      <div class="live-drop-zone" v-if="historyActive ===  true">
+      <div class="live-drop-zone" v-if="historyActive ===  true" @mouseup="dropBBox">
         <div v-if="historyList === 'history'">
           <button class="create-chat">+ create chat</button>
           <div class="history-list" v-for="his in chartList">
@@ -18,7 +18,7 @@
         </div>
         <div v-else>
           <div class="history-list" v-for="sis in spaceList">
-            <button class="flat-history" @click="bentoSpaceOpen(sis)"> {{ sis }} </button>
+            <button class="flat-history" @click="bentoSpaceOpen(sis)" @mouseover="hoverCheck(sis)" @mousemove="downCheck(sis)"> {{ sis }} </button>
           </div>
         </div>
       </div>
@@ -57,6 +57,22 @@ const bentoSpaceOpen = (spaceID) => {
 
 const dropSpaceActive = (spaceID) => {
   storeAI.historyActive = !storeAI.historyActive
+}
+
+const dropBBox = (ev) => {
+  console.log('dropzone BB')
+  ev.preventDefault()
+  console.log(ev)
+}
+
+const hoverCheck = (sis) => {
+  console.log('hover id')
+  console.log(sis)
+}
+
+const downCheck = (sis) => {
+  console.log('down id')
+  console.log(sis)
 }
 
 </script>
@@ -108,9 +124,9 @@ const dropSpaceActive = (spaceID) => {
   display: inline-block;
 }
 
-.history-list:first-child {
+/* .history-list:first-child {
   background-color: green;
-}
+} */
 
 .live-drop-zone {
   display: block;
@@ -168,6 +184,10 @@ const dropSpaceActive = (spaceID) => {
       display: block;
     }
 
+    .history-list:hover {
+      background-color: blue;
+    }
+
     .spaces {
       position: relative;
       height: 2em;
@@ -177,6 +197,10 @@ const dropSpaceActive = (spaceID) => {
     .live-drop-zone {
       height: 100%;
       border: 4px dashed rgb(228, 137, 39);
+    }
+
+    .live-drop-zone:hover {
+      background-color: rgb(244, 245, 246);
     }
 
     .bentospace {
