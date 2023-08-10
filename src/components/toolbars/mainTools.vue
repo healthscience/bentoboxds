@@ -15,24 +15,21 @@
         <div class="bentobox-top">  
           <nav>
             <RouterLink to="/">{{ $t("message.home") }}</RouterLink>
-            <RouterLink to="/about">About</RouterLink>
+            <RouterLink to="/about">{{ $t("message.about") }}</RouterLink>
           </nav>
         </div>
         <div class="bentobox-top">
           <div class="bb-align">
             <drop-down :title="'Language'" :items="languages"></drop-down>
-            <!--<div class="toolkit-settings" id="select-language" v-for="entry in languages">
-              <button @click="changeLocale(entry.language)">
-                {{ entry.title }}
-              </button>
-            </div> -->
           </div>
         </div>
         <div class="bentobox-top">
           <div class="bb-align alpha-round">Alpha</div>
         </div>
         <div class="bentobox-top">
-          <div class="bb-align">Help</div>
+          <nav>
+            <RouterLink to="/help">{{ $t("message.help") }}</RouterLink>
+          </nav>
         </div>
         <div class="bentobox-top">
           <div class="bb-align">Sign-in</div>
@@ -56,7 +53,8 @@ import { ref, onMounted } from 'vue'
   const languages = ref([
     { flag: 'en', language: 'en', title: 'English' },
     { flag: 'es', language: 'es', title: 'española' },
-    { flag: 'zh', language: 'zh', title: '普通话' }  // 普通话
+    { flag: 'zh', language: 'zh', title: '普通话' },
+    { flag: 'jp', language: 'jp', title: '日本語' }
   ])
 
 </script>
@@ -164,6 +162,7 @@ nav a:first-of-type {
 }
 
 .logo {
+  border: 0px solid red;
 }
 
 .logo-words {
