@@ -12,7 +12,7 @@
             aria-label="Close modal"
           >
             Close
-          </button>-- {{ storeAI.bentoboxList }} -- {{ storeAI.longPress  }}
+          </button>
           <div id="return-modal-close" @click="closeBentoSpace">return</div>
         </div>
         <h3>BentoSpace #</h3>
@@ -25,7 +25,7 @@
         <div id="bentospace-holder" v-dragscroll.noleft.noright="true" >
           <div id="bento-space">
             <!-- location for bentobox - es -->
-            <div id="bento-layout" v-for="bbox in storeAI.bentoboxList">
+            <div id="bento-layout" v-for="bbox in storeAI.bentoboxList[storeAI.liveBspace]">
              <bento-box :bboxid="bbox"></bento-box>
             </div>
           </div>

@@ -26,7 +26,7 @@
                 {{ chati }}
               </div>
             </div>
-            <div id="beebee-chartspace" v-if="chartLive === true">
+            <div id="beebee-chartspace" v-if="storeAI.beebeeChatLog === true">
               <bento-box></bento-box> <!--the slimed down bentobox to the chart and bring in tools as needed-->
               <bar-chart  v-if="chartStyle === 'bar'"></bar-chart>
               <line-chart v-if="chartStyle === 'line'"></line-chart>
@@ -60,13 +60,13 @@ import { ref, computed, onMounted } from 'vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   // const askStart = ref('What would you like to chart?')
-  let chartLive = ref(false)
   let chartStyle = ref('')
 
   const storeAI = aiInterfaceStore()
+  storeAI.beebeeChatLog // ref(false)
 
   const chartBuild = style => {
-    chartLive.value = true
+    storeAI.beebeeChatLog = true
     chartStyle.value = style
   }
 

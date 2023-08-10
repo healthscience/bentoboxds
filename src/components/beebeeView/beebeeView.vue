@@ -53,6 +53,8 @@ let historyType = (type) => {
 
 const bentoSpaceOpen = (spaceID) => {
   storeAI.bentospaceState = !storeAI.bentospaceState
+  storeAI.liveBspace = spaceID
+  storeAI.beebeeChatLog = false
 }
 
 const dropSpaceActive = (spaceID) => {
@@ -60,12 +62,10 @@ const dropSpaceActive = (spaceID) => {
 }
 
 const dropBBox = (ev) => {
-  console.log('dropzone BB')
   ev.preventDefault()
-  console.log(ev.target.outerText)
-  console.log(storeAI.longPress)
   if (storeAI.longPress === true) {
-    storeAI.bentoboxList.push(ev.target.outerText)
+    storeAI.bentoboxList[ev.target.outerText] = []
+    storeAI.bentoboxList[ev.target.outerText].push(ev.target.outerText)
     storeAI.longPress = false
   }
 }
