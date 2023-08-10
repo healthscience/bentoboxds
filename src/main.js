@@ -5,11 +5,7 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 import VueDragscroll from 'vue-dragscroll'
-import { createI18n } from 'vue-i18n'
-
-const i18n = createI18n({
-  // something vue-i18n options here ...
-})
+import i18n from "./i18n"
 
 import './assets/main.css'
 

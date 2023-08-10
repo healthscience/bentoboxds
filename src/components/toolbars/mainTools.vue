@@ -14,17 +14,18 @@
         </div>
         <div class="bentobox-top">  
           <nav>
-            <RouterLink to="/">Home  {{ $t('home') }}</RouterLink>
+            <RouterLink to="/">{{ $t("message.home") }}</RouterLink>
             <RouterLink to="/about">About</RouterLink>
           </nav>
         </div>
         <div class="bentobox-top">
           <div class="bb-align">
-            <div class="toolkit-settings" id="select-language" v-for="entry in languages">
+            <drop-down :title="'Language'" :items="languages"></drop-down>
+            <!--<div class="toolkit-settings" id="select-language" v-for="entry in languages">
               <button @click="changeLocale(entry.language)">
                 {{ entry.title }}
               </button>
-            </div>
+            </div> -->
           </div>
         </div>
         <div class="bentobox-top">
@@ -43,6 +44,7 @@
 
 <script setup>
 import mobileMenu from '@/components/toolbars/mobileNav.vue'
+import DropDown from '@/components/toolbars/dropDown.vue'
 import { ref, onMounted } from 'vue'
 
   let mobileSize = ref(true)
@@ -51,15 +53,11 @@ import { ref, onMounted } from 'vue'
     mobileSize.value = mql.matches
   })
 
-  const language = ref([
+  const languages = ref([
     { flag: 'en', language: 'en', title: 'English' },
-    { flag: 'zh', language: 'zh', title: '普通话' }, // 普通话
-    { flag: 'es', language: 'es', title: 'Espana' }
+    { flag: 'es', language: 'es', title: 'española' },
+    { flag: 'zh', language: 'zh', title: '普通话' }  // 普通话
   ])
-
-  const changeLocale = (locale) => {
-    this.$i18n.locale = locale
-  }
 
 </script>
 
