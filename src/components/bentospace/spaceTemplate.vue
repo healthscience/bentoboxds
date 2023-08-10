@@ -12,7 +12,7 @@
             aria-label="Close modal"
           >
             Close
-          </button>
+          </button>-- {{ storeAI.bentoboxList }} -- {{ storeAI.longPress  }}
           <div id="return-modal-close" @click="closeBentoSpace">return</div>
         </div>
         <h3>BentoSpace #</h3>
@@ -67,7 +67,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 }
 
 #bentospace-holder {
-
+  border: 0px solid red;;
 }
 
 #bento-space {

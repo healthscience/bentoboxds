@@ -9,7 +9,7 @@
           <button @click="historyType('space')">Spaces</button>
         </div>
       </div>
-      <div class="live-drop-zone" v-if="historyActive ===  true" @mouseup="dropBBox">
+      <div class="live-drop-zone" v-if="historyActive ===  true" @mouseover="hoverCheck(sis)">
         <div v-if="historyList === 'history'">
           <button class="create-chat">+ create chat</button>
           <div class="history-list" v-for="his in chartList">
@@ -18,7 +18,7 @@
         </div>
         <div v-else>
           <div class="history-list" v-for="sis in spaceList">
-            <button class="flat-history" @click="bentoSpaceOpen(sis)" @mouseover="hoverCheck(sis)" @mousemove="downCheck(sis)"> {{ sis }} </button>
+            <button class="flat-history" @click="bentoSpaceOpen(sis)" @mouseup="dropBBox" @mouseover="hoverCheck(sis)" @mousemove="moveCheck(sis)"> {{ sis }} </button>
           </div>
         </div>
       </div>
@@ -62,17 +62,22 @@ const dropSpaceActive = (spaceID) => {
 const dropBBox = (ev) => {
   console.log('dropzone BB')
   ev.preventDefault()
-  console.log(ev)
+  console.log(ev.target.outerText)
+  console.log(storeAI.longPress)
+  if (storeAI.longPress === true) {
+    storeAI.bentoboxList.push(ev.target.outerText)
+    storeAI.longPress = false
+  }
 }
 
 const hoverCheck = (sis) => {
-  console.log('hover id')
-  console.log(sis)
+  // console.log('hover id')
+  // console.log(sis)
 }
 
-const downCheck = (sis) => {
-  console.log('down id')
-  console.log(sis)
+const moveCheck = (sis) => {
+  // console.log('move id')
+  // console.log(sis)
 }
 
 </script>

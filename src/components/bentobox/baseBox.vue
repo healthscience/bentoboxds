@@ -60,7 +60,9 @@ import barChart from '@/components/visualisation/charts/barChart.vue'
 import lineChart from '@/components/visualisation/charts/lineChart.vue'
 import { ref, computed, onMounted } from 'vue'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
+import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
+  const storeAI = aiInterfaceStore()
   const bbliveStore = bentoboxStore()
   const futureStatus = ref(true)
 
@@ -73,7 +75,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   const tH = 440
   const handlers = ref(["r", "rb", "b", "lb", "l", "lt", "t", "rt"])
   let left = ref(`calc(2% - ${tW / 2}px)`)
-  let top = ref(`calc(4% - ${tH / 2}px)`)
+  let top = ref(`calc(8% - ${tH / 2}px)`)
   let height = ref('fit-content')
   let width = ref('fit-content')
   let maxW = ref('100%')
@@ -98,10 +100,11 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   const longHoldCheck = () => {
     const nowTime = new Date()
     let timeDiff = nowTime - timerPress
-    if (timeDiff < 200) {
+    if (timeDiff < 2000) {
       setTimeout(longHoldCheck, 1)
     } else {
       console.log('yes long press')
+      storeAI.longPress = true
     }
   }
 
@@ -117,7 +120,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
    const eHandlerTimerStop = (data) => {
     // set timer start
     timerPress = new Date()
-    if (startTime > 10000) {
+    if (startTime > 20000) {
       console.log('long press')
       timeLong = true
     }

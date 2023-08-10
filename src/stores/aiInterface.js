@@ -45,7 +45,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     tempNumberData: [],
     tempLabelData: [],
     bentospaceState: false,
-    bentoboxList: ['123', '345', '564343']
+    longPress: false,
+    bentoboxList: [] // ['123', '345', '564343']
   }),
   actions: {
     actionBBAI () {

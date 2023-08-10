@@ -14,12 +14,18 @@
         </div>
         <div class="bentobox-top">  
           <nav>
-            <RouterLink to="/">Home</RouterLink>
+            <RouterLink to="/">Home  {{ $t('home') }}</RouterLink>
             <RouterLink to="/about">About</RouterLink>
           </nav>
         </div>
         <div class="bentobox-top">
-          <div class="bb-align">Language</div>
+          <div class="bb-align">
+            <div class="toolkit-settings" id="select-language" v-for="entry in languages">
+              <button @click="changeLocale(entry.language)">
+                {{ entry.title }}
+              </button>
+            </div>
+          </div>
         </div>
         <div class="bentobox-top">
           <div class="bb-align alpha-round">Alpha</div>
@@ -44,6 +50,16 @@ import { ref, onMounted } from 'vue'
     let mql = window.matchMedia("(min-width: 1024px)")
     mobileSize.value = mql.matches
   })
+
+  const language = ref([
+    { flag: 'en', language: 'en', title: 'English' },
+    { flag: 'zh', language: 'zh', title: '普通话' }, // 普通话
+    { flag: 'es', language: 'es', title: 'Espana' }
+  ])
+
+  const changeLocale = (locale) => {
+    this.$i18n.locale = locale
+  }
 
 </script>
 
