@@ -1,5 +1,5 @@
 <template>
-  <div class="bentobox-mobile">
+  <div class="bentobox-main-nav">
     <div id="mobile-menu-live" v-if="mobileSize === false">
       <mobile-menu></mobile-menu>
     </div>
@@ -60,7 +60,7 @@ import { ref, onMounted } from 'vue'
 </script>
 
 <style scoped>
-.bentobox-mobile {
+.bentobox-main-nav {
   display: grid;
   grid-template-columns: 1fr;
   width: 90vw;

@@ -3,7 +3,6 @@ import { resolve, dirname } from 'node:path'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
-import path from 'node:path'
 import wasm from "vite-plugin-wasm";
 import topLevelAwait from "vite-plugin-top-level-await";
 import { VitePWA } from 'vite-plugin-pwa'
@@ -12,7 +11,7 @@ import basicSsl from '@vitejs/plugin-basic-ssl'
 // https://vitejs.dev/config/
 export default defineConfig({
   // base: path.resolve(__dirname, "./dist/"),
-  base: "/bentobox/",
+  base: "/",
   plugins: [
     vue(),
     wasm(),
@@ -31,7 +30,7 @@ export default defineConfig({
       manifest: {
         name: 'BentoBox-DS',
         short_name: 'BB-DS',
-        description: 'Nocode AI  datas cience',
+        description: 'Charting with AI - datascience',
         theme_color: '#ffffff',
         icons: [
           {
