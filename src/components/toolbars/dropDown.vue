@@ -20,6 +20,8 @@
 import { ref } from 'vue'
 import i18n from "@/i18n"
 
+  const emit = defineEmits(['langSelected'])
+
   const props = defineProps({
     title: String,
     items: Array
@@ -29,6 +31,7 @@ import i18n from "@/i18n"
 
   const changeLocale = (locale) => {
     i18n.global.locale.value = locale
+    emit('langSelected', locale)
   }
 
 </script>

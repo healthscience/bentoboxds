@@ -4,7 +4,10 @@
     <div class="menu-holder">
       <div class="mobile-menu-options" v-for="mmi of menuItems">
         <div class="list-nav-mobile" v-if="menuLive === true">
-          <button class="mobile-menu-button" @click="menuSelect(mmi)">{{ mmi }}</button>
+          <button class="mobile-menu-button" @click="menuSelect(mmi)">{{ $t("message." + mmi) }}</button>
+          <div id="language-mobile" v-if="mmi === 'language'" :class="{ active: langActive }">
+            <drop-down :title="'Please select'" :items="languages" @langSelected="emitDropLang"></drop-down>
+          </div>
         </div>
       </div>
     </div>
@@ -17,12 +20,21 @@
 <script setup>
 import { ref} from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import DropDown from '@/components/toolbars/dropDown.vue'
+
 
   const router = useRouter()
   const route = useRoute()
 
-  const menuItems = ref(['home', 'about', 'Language', 'Help', 'Sign-in'])
+  const menuItems = ref(['home', 'about', 'language', 'help', 'signin'])
   const menuLive = ref(false)
+  let langActive = ref(false)
+  const languages = ref([
+    { flag: 'en', language: 'en', title: 'English' },
+    { flag: 'es', language: 'es', title: 'española' },
+    { flag: 'zh', language: 'zh', title: '普通话' },
+    { flag: 'jp', language: 'jp', title: '日本語' }
+  ])
 
   const selectMenuBB = () => {
     menuLive.value = !menuLive.value
@@ -34,9 +46,15 @@ import { useRouter, useRoute } from 'vue-router'
       router.push({
           name: m
       })
+      selectMenuBB()
+    } else if(m === 'language') {
+      langActive.value = !langActive.value
     } else {
-      console.log('other')
+      selectMenuBB()
     }
+  }
+
+  const emitDropLang = (mmi) => {
     selectMenuBB()
   }
 
@@ -95,7 +113,18 @@ import { useRouter, useRoute } from 'vue-router'
 }
 
 .mobile-menu-options {
+  border: 0xp solid red;
 }
+
+#language-mobile {
+  display: none;
+}
+
+#language-mobile.active {
+  display: block;
+  background-color: rgb(29, 51, 215);
+}
+
 
 @media (min-width: 1024px) {
 

@@ -5,28 +5,36 @@ const messages = {
     message: {
       home: 'Home',
       about: 'About',
-      help: 'Help'
+      help: 'Help',
+      language: 'Language',
+      signin: 'Sign-in'
     }
   },
   es: {
     message: {
       home: 'hogar',
       about: 'acerca de',
-      help: 'ayuda'
+      help: 'ayuda',
+      language: 'Language',
+      signin: 'Sign-in'
     }
   },
   zh: {
     message: {
       home: '家',
       about: '关于',
-      help: '帮助'
+      help: '帮助',
+      language: 'Language',
+      signin: 'Sign-in'
     }
   },
   jp: {
     message: {
       home: '家',
       about: 'について',
-      help: 'ヘルプ'
+      help: 'ヘルプ',
+      language: 'Language',
+      signin: 'Sign-in'
     }
   }
 }
