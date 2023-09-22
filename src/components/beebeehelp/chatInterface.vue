@@ -2,7 +2,7 @@
   <div id="chat-interface">
     <!-- Natural Language Chat -->
     <div id="natlang-ai">
-      <div id="conversation" v-if="beginChat === true"  v-for="chati in chatPairs">
+      <div id="conversation" v-if="beginChat === true"  v-for="chati in chatPairs">cp-- {{ chatPairs }}
         <div class="peer-ask">
           <img class="left-chat-peer" src="../.././assets/peerlogo.png" alt="Avatar">
           <div v-if="chati.question.data.active === true" class="left-chat"> {{ chati.question.data.text }} </div>
@@ -28,12 +28,12 @@
             </div>
             <div id="beebee-chartspace" v-if="storeAI.beebeeChatLog === true">
               <bento-box></bento-box> <!--the slimed down bentobox to the chart and bring in tools as needed-->
-              <bar-chart  v-if="chartStyle === 'bar'"></bar-chart>
+              <!--<bar-chart  v-if="chartStyle === 'bar'"></bar-chart>
               <line-chart v-if="chartStyle === 'line'"></line-chart>
               <div id="space-tools">
                 <button id="saveTospace">add to space</button>
                 <button id="shareNetwork">Share</button>
-              </div>
+              </div>-->
             </div>
           </div>
           <div class="beebee">

@@ -116,6 +116,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     processReply (received) {
+      console.log('processreplay')
+      console.log(received)
       // match to question via bbid
       for (let histMatch of this.helpchatHistory) {
         if (histMatch.bbid === received.bbid) {
@@ -124,12 +126,12 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           pairBB.reply = received
           // temporary parse check for number and chart if numbers
           // check for numbers, files, excel etc. or spam check for size
-          let numberCheck = this.liveDataParse.numberParse(histMatch.data.text)
+          /* let numberCheck = this.liveDataParse.numberParse(histMatch.data.text)
           if (numberCheck.status === true) {
             this.tempNumberData = numberCheck.data
             this.tempLabelData = numberCheck.label
             histMatch.data.text = numberCheck.data
-          }
+          } */
           this.historyPair.push(pairBB)
         }
       }
