@@ -19,10 +19,12 @@ ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 
   // const dataValues = ref([2, 4, 7])
   const dataValues = computed(() => {
+    console.log(storeAI.tempNumberData)
     return storeAI.tempNumberData
   })
 
   const dataLabel = computed(() => {
+    console.log(storeAI.tempLabelData)
     return storeAI.tempLabelData
   })
 

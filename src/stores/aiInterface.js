@@ -1,6 +1,5 @@
 import { ref, computed } from 'vue'
-import { shallowRef } from 'vue'
-import { markRaw } from 'vue'
+import { shallowRef, markRaw } from 'vue'
 import { defineStore } from 'pinia'
 import hashObject from 'object-hash'
 import { useSocketStore } from '@/stores/socket.js'
@@ -137,6 +136,16 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
       this.beginChat = true 
       this.chatBottom++
-    }    
+    },
+    processHOPdata (dataHOP) {
+      console.log('hop data woot wooo hoooo')
+      console.log(dataHOP)
+      this.tempNumberData = dataHOP.data.data.chartPackage.datasets[0].data
+      this.tempLabelData = dataHOP.data.data.chartPackage.labels
+      console.log(this.tempNumberData)
+      console.log(this.tempLabelData)
+      this.beebeeChatLog = true
+      // histMatch.data.text = dataHOP.data
+    }
   }
 })

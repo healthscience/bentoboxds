@@ -25,8 +25,8 @@
               <div v-else-if="chati.query === false && chati.type !== 'hello'">
                 {{ chati }}
               </div>
-            </div>
-            <div id="beebee-chartspace" v-if="storeAI.beebeeChatLog === true">
+            </div>chart acitve ---- {{ storeAI.beebeeChatLog }}
+            <div id="beebee-chartspace" v-if="storeAI.beebeeChatLog === true">true
               <bento-box></bento-box> <!--the slimed down bentobox to the chart and bring in tools as needed-->
               <!--<bar-chart  v-if="chartStyle === 'bar'"></bar-chart>
               <line-chart v-if="chartStyle === 'line'"></line-chart>
@@ -54,8 +54,6 @@
 <script setup>
 import inputBox from '@/components/beebeehelp/inputBox.vue'
 import BentoBox from '@/components/bentobox/baseBox.vue'
-import barChart from '@/components/visualisation/charts/barChart.vue'
-import lineChart from '@/components/visualisation/charts/lineChart.vue'
 import { ref, computed, onMounted } from 'vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
