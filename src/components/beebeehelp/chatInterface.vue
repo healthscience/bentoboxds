@@ -2,7 +2,7 @@
   <div id="chat-interface">
     <!-- Natural Language Chat -->
     <div id="natlang-ai">
-      <div id="conversation" v-if="beginChat === true"  v-for="chati in chatPairs">cp-- {{ chatPairs }}
+      <div id="conversation" v-if="beginChat === true"  v-for="chati in chatPairs">
         <div class="peer-ask">
           <img class="left-chat-peer" src="../.././assets/peerlogo.png" alt="Avatar">
           <div v-if="chati.question.data.active === true" class="left-chat"> {{ chati.question.data.text }} </div>
@@ -23,11 +23,10 @@
                 <button>start file upload</button>
               </div>
               <div v-else-if="chati.query === false && chati.type !== 'hello'">
-                {{ chati }}
               </div>
-            </div>chart acitve ---- {{ storeAI.beebeeChatLog }}
-            <div id="beebee-chartspace" v-if="storeAI.beebeeChatLog === true">true
-              <bento-box></bento-box> <!--the slimed down bentobox to the chart and bring in tools as needed-->
+            </div>
+            <div id="beebee-chartspace" v-if="storeAI.beebeeChatLog[chati.question.bbid] === true">true
+              <bento-box :bboxid="chati.question.bbid"></bento-box> <!--the slimed down bentobox to the chart and bring in tools as needed-->
               <!--<bar-chart  v-if="chartStyle === 'bar'"></bar-chart>
               <line-chart v-if="chartStyle === 'line'"></line-chart>
               <div id="space-tools">

@@ -2,7 +2,7 @@
   <Bar
     id="my-chart-id"
     :options="chartOptions"
-    :data="chartData"
+    :data="props.chartData"
   />
 </template>
 
@@ -17,6 +17,11 @@ const storeAI = aiInterfaceStore()
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 
+const props = defineProps({
+    chartData: Object
+  })
+  
+  /*
   // const dataValues = ref([2, 4, 7])
   const dataValues = computed(() => {
     console.log(storeAI.tempNumberData)
@@ -34,7 +39,7 @@ ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
       datasets: [ { data: dataValues.value } ]
     }
    })
-
+  */
   const chartOptions = computed(() => {
     return {
       responsive: true,

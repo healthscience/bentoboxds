@@ -16,6 +16,11 @@ const storeAI = aiInterfaceStore()
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
 
+
+const props = defineProps({
+    chartData: Object
+  })
+  /*
   // const dataValues = ref([2, 4, 7])
   const dataValues = computed(() => {
     return storeAI.tempNumberData
@@ -31,7 +36,7 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
       datasets: [ { data: dataValues.value } ]
     }
    })
-
+  */
   const chartOptions = computed(() => {
     return {
       responsive: true,

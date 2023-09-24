@@ -33,6 +33,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     helpchatReply: '',
     helpchatHistory: shallowRef([]),
     historyPair: [],
+    bbidHOPid: [],
     beebeeReply:
     {
       text: '... .. ...',
@@ -41,9 +42,9 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       active: false
     },
     liveFutureCollection: { active: false },
-    tempNumberData: [],
-    tempLabelData: [],
-    beebeeChatLog: false,
+    tempNumberData: {},
+    tempLabelData: {},
+    beebeeChatLog: {},
     bentospaceState: false,
     longPress: false,
     liveBspace: '',
@@ -137,15 +138,28 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.beginChat = true 
       this.chatBottom++
     },
+    processHOPsummary (dataSummary) {
+      // match bbid to HOP ID
+      console.log('summaryset')
+      console.log(dataSummary)
+      let inputID = Object.keys(dataSummary.data)
+      this.bbidHOPid.push({ bbid: dataSummary.bbid, HOPid: inputID[0] })
+    },
     processHOPdata (dataHOP) {
       console.log('hop data woot wooo hoooo')
       console.log(dataHOP)
-      this.tempNumberData = dataHOP.data.data.chartPackage.datasets[0].data
-      this.tempLabelData = dataHOP.data.data.chartPackage.labels
+      // match input id to bbid
+      let matchBBID = ''
+      for (let bhid of this.bbidHOPid) {
+        if (bhid.HOPid === dataHOP.context.input.key) {
+          matchBBID = bhid.bbid
+        }
+      }
+      this.beebeeChatLog[matchBBID] = true
+      this.tempNumberData[matchBBID] = dataHOP.data.data.chartPackage.datasets[0].data
+      this.tempLabelData[matchBBID] = dataHOP.data.data.chartPackage.labels
       console.log(this.tempNumberData)
       console.log(this.tempLabelData)
-      this.beebeeChatLog = true
-      // histMatch.data.text = dataHOP.data
     }
   }
 })

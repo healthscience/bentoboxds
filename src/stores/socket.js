@@ -49,7 +49,7 @@ export const useSocketStore = defineStore({
         this.aiStore.processReply(received)
       } else if (received.type == 'sf-summary') {
         console.log('ecs--sumary')
-        console.log(received)
+        this.aiStore.processHOPsummary(received)
       } else if (received.type == 'sf-displayEntityRange') {
         console.log('sf-entity data returned')
       } else if (received.type == 'sf-newEntityRange') {

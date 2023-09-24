@@ -23,7 +23,7 @@
   >
     <div class="drag-container-1">
       <div id="bb-toolbar">
-        <div class="bb-bar-main">a bentobox active</div>--{{ bboxid }}
+        <div class="bb-bar-main">a bentobox active</div>
         <div class="bb-bar-main"><button id="network-vis">social</button></div>
         <div class="bb-bar-main"><button id="network-map">map</button></div>
         <div class="bb-bar-main"><button id="bb-copy">copy</button></div>
@@ -39,14 +39,14 @@
         <div id="peer-bentobox">
           <div id="bento-past">past
             <div id="past-box">past toolbar <button id="full-past-toolbar">full</button></div>
-            <bar-chart v-if="bbliveStore.chartStyle === 'bar'"></bar-chart>
-            <line-chart v-if="bbliveStore.chartStyle === 'line'"></line-chart>
+            <bar-chart v-if="bbliveStore.chartStyle === 'bar'" :chartData="chartData"></bar-chart>
+            <line-chart v-if="bbliveStore.chartStyle === 'line'" :chartData="chartData"></line-chart>
           </div>
-          <div id="bento-future">future
+          <!--<div id="bento-future">future
             <div id="future-box">future toolbar <button id="full-future-toolbar">full</button></div>
-            <bar-chart v-if="bbliveStore.chartStyle === 'bar'"></bar-chart>
-            <line-chart v-if="bbliveStore.chartStyle === 'line'"></line-chart>
-          </div>
+            <bar-chart v-if="bbliveStore.chartStyle === 'bar'" :chartData="chartData" ></bar-chart>
+            <line-chart v-if="bbliveStore.chartStyle === 'line'" :chartData="chartData"></line-chart>
+          </div>-->
         </div>
       </div>
     </div>
@@ -129,6 +129,23 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   const checkEmpty = computed((value) => {
     return typeof value !== "number" ? 0 : value;
   })
+
+  /* data flow work */
+    // const dataValues = ref([2, 4, 7])
+    const dataValues = computed(() => {
+    return storeAI.tempNumberData[props.bboxid]
+  })
+
+  const dataLabel = computed(() => {
+    return storeAI.tempLabelData[props.bboxid]
+  })
+
+  const chartData = computed(() => {
+    return {
+      labels: dataLabel.value, // [ 'January', 'February', 'March' ],
+      datasets: [ { data: dataValues.value } ]
+    }
+   })
 
 </script>
 
