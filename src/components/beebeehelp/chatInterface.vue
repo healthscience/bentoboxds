@@ -25,7 +25,7 @@
               <div v-else-if="chati.query === false && chati.type !== 'hello'">
               </div>
             </div>
-            <div id="beebee-chartspace" v-if="storeAI.beebeeChatLog[chati.question.bbid] === true">true
+            <div id="beebee-chartspace" v-if="storeAI.beebeeChatLog[chati.question.bbid] === true">
               <bento-box :bboxid="chati.question.bbid"></bento-box> <!--the slimed down bentobox to the chart and bring in tools as needed-->
               <!--<bar-chart  v-if="chartStyle === 'bar'"></bar-chart>
               <line-chart v-if="chartStyle === 'line'"></line-chart>
