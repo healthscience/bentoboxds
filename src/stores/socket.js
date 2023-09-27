@@ -36,7 +36,7 @@ export const useSocketStore = defineStore({
       // console.log(evt.data)
       //we parse the json that we receive
       var received = JSON.parse(evt.data)
-      // console.log(received)
+      console.log(received)
       // keep in message log for session?
       this.messages.push(received)
       // parse and route to logic processing
@@ -61,8 +61,8 @@ export const useSocketStore = defineStore({
     
     },
     send_message (data) {
-      console.log('sendto--HOP')
-      console.log(data)
+      // console.log('sendto--HOP')
+      // console.log(data)
       this.websocket.send(JSON.stringify(data))
       // keep list of message per session live?
       // this.messages.push( { from: "send", message: to_send.message } )

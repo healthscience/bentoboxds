@@ -3,7 +3,7 @@ import { defineStore } from 'pinia'
 
 export const bentoboxStore = defineStore('bentostore', {
   state: () => ({
-    chartStyle: 'bar',
+    chartStyle: {},
     boxLocation:
     {
       x: 200,
@@ -14,8 +14,8 @@ export const bentoboxStore = defineStore('bentostore', {
   }),
   actions: {
     // since we rely on `this`, we cannot use an arrow function
-    setChartstyle (style) {
-      this.chartStyle = style
+    setChartstyle (id, style) {
+      this.chartStyle[id] = style
     },
     setBoxlocation (loc) {
       console.log(loc)

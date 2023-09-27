@@ -3,11 +3,13 @@ import { shallowRef, markRaw } from 'vue'
 import { defineStore } from 'pinia'
 import hashObject from 'object-hash'
 import { useSocketStore } from '@/stores/socket.js'
+import { bentoboxStore } from "@/stores/bentoboxStore.js"
 import DataPraser from '@/stores/hopUtility/dataParse.js'
 
 export const aiInterfaceStore = defineStore('beebeeAIstore', {
   state: () => ({
     sendSocket: useSocketStore(),
+    liveBentoBox: bentoboxStore(),
     liveDataParse: new DataPraser(),
     startChat: true,
     historyBar: false,
@@ -34,6 +36,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     helpchatHistory: shallowRef([]),
     historyPair: [],
     bbidHOPid: [],
+    hopSummary: [],
     beebeeReply:
     {
       text: '... .. ...',
@@ -116,8 +119,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     processReply (received) {
-      console.log('processreplay')
-      console.log(received)
       // match to question via bbid
       for (let histMatch of this.helpchatHistory) {
         if (histMatch.bbid === received.bbid) {
@@ -140,14 +141,11 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     },
     processHOPsummary (dataSummary) {
       // match bbid to HOP ID
-      console.log('summaryset')
-      console.log(dataSummary)
       let inputID = Object.keys(dataSummary.data)
       this.bbidHOPid.push({ bbid: dataSummary.bbid, HOPid: inputID[0] })
+      this.hopSummary.push({ HOPid: inputID[0], summary: dataSummary })
     },
     processHOPdata (dataHOP) {
-      console.log('hop data woot wooo hoooo')
-      console.log(dataHOP)
       // match input id to bbid
       let matchBBID = ''
       for (let bhid of this.bbidHOPid) {
@@ -158,8 +156,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.beebeeChatLog[matchBBID] = true
       this.tempNumberData[matchBBID] = dataHOP.data.data.chartPackage.datasets[0].data
       this.tempLabelData[matchBBID] = dataHOP.data.data.chartPackage.labels
-      console.log(this.tempNumberData)
-      console.log(this.tempLabelData)
+      this.liveBentoBox.setChartstyle(matchBBID, dataHOP.context.moduleorder.visualise.value.info.settings.visualise)
     }
   }
 })

@@ -20,8 +20,8 @@
             <button id="full-past-toolbar">full</button>
             <button id="full-future-toolbar">future</button>
           </div>
-          <bar-chart v-if="bbliveStore.chartStyle === 'bar'" :chartData="chartData"></bar-chart>
-          <line-chart v-if="bbliveStore.chartStyle === 'line'" :chartData="chartData"></line-chart>
+          <bar-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'bar'" :chartData="chartData"></bar-chart>
+          <line-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'line'" :chartData="chartData"></line-chart>
         </div>
         <!--<div id="bento-future">
           <div id="future-box"><button id="full-future-toolbar">full</button></div>
