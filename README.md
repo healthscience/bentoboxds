@@ -1,6 +1,6 @@
 # bentoboxds
 
-This template should help get you started developing with Vue 3 in Vite.
+BentoBoxDS sovereign data that shapes health.  Graphical toolkit for chart, network experiments, DML on the Health Oracle Protocol
 
 ## Recommended IDE Setup
 
