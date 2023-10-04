@@ -22,13 +22,15 @@ export const useSocketStore = defineStore({
     },
     init_chat () {
       //connect to Sockets Bay
-      const sockets_bay_url = `wss://127.0.0.1:9888`
+      const sockets_bay_url = `wss://127.0.0.1:9888` // `wss://165.227.244.213:9888` // `wss://127.0.0.1:9888`
       this.websocket = new WebSocket(sockets_bay_url)
       this.websocket.onopen = this.onSocketOpen
       this.websocket.onmessage = this.onSocketMessage
       this.websocket.onerror = this.onSockerError
     },
     onSocketOpen (evt) {
+      console.log('open connection')
+      console.log(evt)
       this.connection_ready = true
     },
     onSocketMessage (evt) {
