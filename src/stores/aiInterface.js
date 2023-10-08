@@ -47,6 +47,9 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     liveFutureCollection: { active: false },
     tempNumberData: {},
     tempLabelData: {},
+    activeFuture: {},
+    futureLabelData: {},
+    futureNumberData: {},
     beebeeChatLog: {},
     bentospaceState: false,
     longPress: false,
@@ -157,6 +160,41 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.tempNumberData[matchBBID] = dataHOP.data.data.chartPackage.datasets[0].data
       this.tempLabelData[matchBBID] = dataHOP.data.data.chartPackage.labels
       this.liveBentoBox.setChartstyle(matchBBID, dataHOP.context.moduleorder.visualise.value.info.settings.visualise)
+    },
+    processFuture (data) {
+      // prepare chart for bentobox with ID
+      console.log('process future')
+      console.log(data)
+      this.activeFuture[data.bbid] = true
+      this.futureLabelData[data.bbid] = [ 1, 2, 3 ]
+      this.futureNumberData[data.bbid] =  [ 'January', 'February', 'March' ]
+    },
+    prepareFuture (pid) {
+      console.log('predict future process')
+      // any additional text added or just button click context
+      let matchBBID = ''
+      for (let bhid of this.bbidHOPid) {
+        if (bhid.bbid === pid) {
+          matchBBID = bhid.HOPid
+        }
+      }
+      // take info from NXP past and flag update for Model
+      let queryNXP = {}
+      for (let nxp of this.hopSummary) {
+        if (nxp.HOPid === matchBBID) {
+          queryNXP = nxp.summary.data
+        }
+      }
+      // message beebee  --  TODO make a model to form messages out (standard format keep consistant)
+      let aiMessageout = {}
+      aiMessageout.type = 'bbai'
+      aiMessageout.reftype = 'ignore'
+      aiMessageout.action = 'predict-future'
+      aiMessageout.data = { question: 'future chart line', model: 'linear-regression', nxp: queryNXP }
+      aiMessageout.bbid = pid
+      console.log(aiMessageout)
+      const sendocket = useSocketStore()
+      this.sendSocket.send_message(aiMessageout)
     }
   }
 })

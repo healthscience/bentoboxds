@@ -16,18 +16,18 @@
       </div>
       <div id="peer-bentobox">
         <div id="bento-past">
-          <div id="past-box">
+          <div id="past-box">ff {{ futureBox }}
             <button id="full-past-toolbar">full</button>
-            <button id="full-future-toolbar">future</button>
+            <button id="full-future-toolbar" @click="predictFuture()">future</button>
           </div>
           <bar-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'bar'" :chartData="chartData"></bar-chart>
           <line-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'line'" :chartData="chartData"></line-chart>
         </div>
-        <!--<div id="bento-future">
+        <div id="bento-future" class="future-show" :class="{ active: futureBox }">
           <div id="future-box"><button id="full-future-toolbar">full</button></div>
-          <bar-chart v-if="bbliveStore.chartStyle === 'bar'" :chartData="chartData" ></bar-chart>
-          <line-chart v-if="bbliveStore.chartStyle === 'line'" :chartData="chartData"></line-chart>
-        </div>-->
+          <bar-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'bar'" :chartData="chartfutureData" ></bar-chart>
+          <line-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'line'" :chartData="chartfutureData"></line-chart>
+        </div>
       </div>
     </div>
   </div>
@@ -93,7 +93,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   /* data flow work */
     // const dataValues = ref([2, 4, 7])
-    const dataValues = computed(() => {
+  const dataValues = computed(() => {
     return storeAI.tempNumberData[props.bboxid]
   })
 
@@ -108,6 +108,32 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     }
    })
 
+  /*
+  * predict future
+  */
+  const predictFuture = () => {
+    storeAI.prepareFuture(props.bboxid)
+  }
+
+  const futureBox = computed(() => {
+    return storeAI.activeFuture[props.bboxid]
+  })
+
+  const futuredataValues = computed(() => {
+    return storeAI.futureNumberData[props.bboxid]
+  })
+
+  const futuredataLabel = computed(() => {
+    return storeAI.futureLabelData[props.bboxid]
+  })
+
+  const chartfutureData = computed(() => {
+    return {
+      labels: futuredataLabel.value,
+      datasets: [ { data: futuredataValues.value } ]
+    }
+  })
+    
 </script>
 
 <style scoped>
@@ -264,6 +290,16 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   
   #past-box {
     background-color: rgb(236, 236, 243);
+  }
+
+  .future-show {
+    display: none;
+    border: 1px solid red;
+  }
+
+  .future-show.active {
+    display: block;
+    border: 1px solid blue;
   }
 
   #future-box {

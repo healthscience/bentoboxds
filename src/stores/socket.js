@@ -47,8 +47,11 @@ export const useSocketStore = defineStore({
       } else if (received.type == 'hopquery') {
         console.log('safeflow')
       } else if (received.type == 'bbai-reply') {
-        console.log('beebee-replay')
+        console.log('beebee-reply')
         this.aiStore.processReply(received)
+      } else if (received.type == 'bbai-future') {
+        console.log('beebee-future')
+        this.aiStore.processFuture(received)
       } else if (received.type == 'sf-summary') {
         console.log('ecs--sumary')
         this.aiStore.processHOPsummary(received)

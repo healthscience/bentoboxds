@@ -11,18 +11,15 @@
         <div class="beebee-reply">
           <span class="right-time">{{ chati.reply.time }}</span>
           <div class="reply-text-chart">
-            <div class="right-chat">{{ chati.reply.data.text }}
+            <div class="right-chat">
               <div v-if="chati.reply.type === 'hopquery'">
                 <span>Datatype: {{ chati.data.library.text }} for month {{ chati.data.time.words.day }} day {{ chati.data.time.words.month }}</span>--- <button id="new-query" @click.prevent="beebeeChartSpace(chati.data)">yes, produce chart</button>
-              </div>
-              <div v-else-if="chati.reply.data.type === 'bbai'">
-                Please select a chart style
-                  <button @click="chartBuild('bar')">bar</button> <button @click="chartBuild('line')">line</button> <button>pie</button>
               </div>
               <div v-else-if="chati.type === 'upload'">
                 <button>start file upload</button>
               </div>
-              <div v-else-if="chati.query === false && chati.type !== 'hello'">
+              <div v-else>
+                {{ chati.reply.data }}
               </div>
             </div>
             <div id="beebee-chartspace" v-if="storeAI.beebeeChatLog[chati.question.bbid] === true">
