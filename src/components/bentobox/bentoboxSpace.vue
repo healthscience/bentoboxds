@@ -1,37 +1,61 @@
 <template>
-  <div class="drag-container-1">
-    <div id="bb-toolbar">
-      <div class="bb-bar-main">a bentobox active --{{ props.bboxid }} {{ chartData }}</div>
-      <div class="bb-bar-main"><button id="network-vis">social</button></div>
-      <div class="bb-bar-main"><button id="network-map">map</button></div>
-      <div class="bb-bar-main"><button id="bb-copy">copy</button></div>
-    </div> 
-  </div>
-  <div id="bentobox-cell">
-    <div id="bb-network-graph">Network</div>
-    <div id="bb-world-map">map</div>
-    <div id="bentobox-holder">
-      <div id="network-bentobox">
-        network bentobox
-      </div>
-      <div id="peer-bentobox">
-        <div id="bento-past">past
-          <div id="past-box">past toolbar <button id="full-past-toolbar">Tools</button></div>
-          <bar-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'bar'" :chartData="chartData"></bar-chart>
-          <line-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'line'" :chartData="chartData"></line-chart>
+  <vue-resizable
+    class="resizable"
+    ref="resizableComponent"
+    :dragSelector="dragSelector"
+    :active="handlers"
+    :fit-parent="fit"
+    :max-width="maxW | checkEmpty"
+    :max-height="maxH | checkEmpty"
+    :min-width="minW | checkEmpty"
+    :min-height="minH | checkEmpty"
+    :width="width"
+    :height="height"
+    :left="left"
+    :top="top"
+    @mount="eHandler"
+    @resize:move="eHandler"
+    @resize:start="eHandler"
+    @resize:end="eHandler"
+    @drag:move="eHandler"
+    @drag:start="eHandlerTimerStart"
+    @drag:end="eHandler"
+  >
+    <div class="drag-container-1">
+      <div id="bb-toolbar">
+        <div class="bb-bar-main">a bentobox active</div>
+        <div class="bb-bar-main"><button id="network-vis">social</button></div>
+        <div class="bb-bar-main"><button id="network-map">map</button></div>
+        <div class="bb-bar-main"><button id="bb-copy">copy</button></div>
+      </div> 
+    </div>
+    <div id="bentobox-cell">
+      <div id="bb-network-graph">Network</div>
+      <div id="bb-world-map">map</div>
+      <div id="bentobox-holder">
+        <div id="network-bentobox">
+          network bentobox
         </div>
-        <div id="bento-future">future
-          <div id="future-box">future toolbar <button id="full-future-toolbar">full</button></div>
-          <bar-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'bar'" :chartData="chartfutureData" ></bar-chart>
-          <line-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'line'" :chartData="chartfutureData"></line-chart>
+        <div id="peer-bentobox">
+          <div id="bento-past">past
+            <div id="past-box">past toolbar <button id="full-past-toolbar">Tools</button></div>
+            <bar-chart v-if="bbliveStore.chartStyle === 'bar'" :chartData="chartData"></bar-chart>
+            <line-chart v-if="bbliveStore.chartStyle === 'line'" :chartData="chartData"></line-chart>
+          </div>
+          <!--<div id="bento-future">future
+            <div id="future-box">future toolbar <button id="full-future-toolbar">full</button></div>
+            <bar-chart v-if="bbliveStore.chartStyle === 'bar'" :chartData="chartData" ></bar-chart>
+            <line-chart v-if="bbliveStore.chartStyle === 'line'" :chartData="chartData"></line-chart>
+          </div>-->
         </div>
       </div>
     </div>
-  </div>
-  <div id="bb-expand-size">modules ^</div>
+    <div id="bb-expand-size">modules ^</div>
+  </vue-resizable>
 </template>
 
 <script setup>
+import VueResizable from 'vue-resizable'
 import barChart from '@/components/visualisation/charts/barChart.vue'
 import lineChart from '@/components/visualisation/charts/lineChart.vue'
 import { ref, computed, onMounted } from 'vue'
@@ -122,32 +146,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
       datasets: [ { data: dataValues.value } ]
     }
    })
-
-  /*
-  * predict future
-  */
-  const predictFuture = () => {
-    storeAI.prepareFuture(props.bboxid)
-  }
-
-  const futureBox = computed(() => {
-    return storeAI.activeFuture[props.bboxid]
-  })
-
-  const futuredataValues = computed(() => {
-    return storeAI.futureNumberData[props.bboxid]
-  })
-
-  const futuredataLabel = computed(() => {
-    return storeAI.futureLabelData[props.bboxid]
-  })
-
-  const chartfutureData = computed(() => {
-    return {
-      labels: futuredataLabel.value,
-      datasets: [ { data: futuredataValues.value } ]
-    }
-  })
 
 </script>
 

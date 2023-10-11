@@ -18,7 +18,7 @@
         <h3>Data Box</h3>
       </template>
       <template #body>
-        <bento-box></bento-box>
+        <bento-box :bboxid="props.bboxid"></bento-box>
       </template>
       <template #footer>
       </template>

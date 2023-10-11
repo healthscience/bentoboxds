@@ -18,7 +18,7 @@
       <div id="peer-bentobox">
         <div id="bento-past">
           <div id="past-box"> {{ futureBox }}
-            <button id="full-past-toolbar">full</button>
+            <button id="full-past-toolbar">tools</button>
             <button id="full-future-toolbar" @click="predictFuture()">future</button>
           </div>
           <bar-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'bar'" :chartData="chartData"></bar-chart>
