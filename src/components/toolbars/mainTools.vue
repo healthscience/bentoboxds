@@ -6,7 +6,7 @@
     <div class="bentobox-browser" v-else>
       <header>
         <div class="bentobox-top" id="logo-bb">
-          <img alt="BentoBox-DS" class="logo" src="@/assets/logo.png" width="60" height="60" />
+          <RouterLink to="/"><img alt="BentoBox-DS" class="logo" src="@/assets/logo.png" width="60" height="60" /></RouterLink>
           <div class="logo-words">BentoBox-DS</div>
         </div>
         <div class="bentobox-top">

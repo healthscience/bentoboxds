@@ -2,6 +2,7 @@
   <div class="drag-container-1">
     <div id="bb-toolbar">
       <div class="bb-bar-main">a bentobox</div>
+      <div class="bb-bar-main"><button @click="clickExpandBentobox(props.bboxid)">expand</button></div>
       <!--<div class="bb-bar-main"><button id="network-vis">social</button></div>
       <div class="bb-bar-main"><button id="network-map">map</button></div>
       <div class="bb-bar-main"><button id="bb-copy">copy</button></div>-->
@@ -16,7 +17,7 @@
       </div>
       <div id="peer-bentobox">
         <div id="bento-past">
-          <div id="past-box">ff {{ futureBox }}
+          <div id="past-box"> {{ futureBox }}
             <button id="full-past-toolbar">full</button>
             <button id="full-future-toolbar" @click="predictFuture()">future</button>
           </div>
@@ -31,9 +32,11 @@
       </div>
     </div>
   </div>
+  <bentobox-focus v-if="storeAI.expandBentobox[props.bboxid] === true" :bboxid="props.bboxid"></bentobox-focus>
 </template>
 
 <script setup>
+import BentoboxFocus from '@/components/bentobox/bentoboxFocus.vue'
 import barChart from '@/components/visualisation/charts/barChart.vue'
 import lineChart from '@/components/visualisation/charts/lineChart.vue'
 import { ref, computed, onMounted } from 'vue'
@@ -86,6 +89,13 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
       timeLong = true
     }
    }
+
+   const clickExpandBentobox = (boxid) => {
+    console.log(boxid)
+    console.log('expand to full bentobox')
+    storeAI.expandBentobox[boxid] = true
+   }
+   
 
   const checkEmpty = computed((value) => {
     return typeof value !== "number" ? 0 : value;

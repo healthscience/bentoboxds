@@ -15,7 +15,9 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     historyBar: false,
     beginChat: false,
     beebeeStatus: false,
+    dataBoxState: false,
     qcount: 0,
+    uploadStatus: false,
     chatBottom: 0,
     askQuestion: {
       text: ''
@@ -47,6 +49,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     liveFutureCollection: { active: false },
     tempNumberData: {},
     tempLabelData: {},
+    expandBentobox: {},
     activeFuture: {},
     futureLabelData: {},
     futureNumberData: {},
@@ -54,9 +57,14 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     bentospaceState: false,
     longPress: false,
     liveBspace: '',
-    bentoboxList: {} // ['123', '345', '564343']
+    bentoboxList: {}, // ['123', '345', '564343']
+    csvpreviewLive: false,
+    linesLimit: []
   }),
   actions: {
+    sendMessageHOP (message) {
+      this.sendSocket.send_message(message)
+    },
     actionBBAI () {
       // filter a list of Kentity bundles given the Experiment CNRL
       // check current state and reverse
@@ -82,6 +90,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     },
     submitAsk () {
       // remove start boxes
+      this.uploadStatus = false
       this.startChat = false
       this.historyBar = true
       let saveQ = {}
@@ -139,6 +148,11 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           this.historyPair.push(pairBB)
         }
       }
+      // check if reply is upload?  If yes, present upload interface
+      console.log(received)
+      if (received.action === 'upload') {
+        // this.uploadStatus = true
+      }
       this.beginChat = true 
       this.chatBottom++
     },
@@ -156,6 +170,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           matchBBID = bhid.bbid
         }
       }
+      this.expandBentobox[matchBBID] = false
       this.beebeeChatLog[matchBBID] = true
       this.tempNumberData[matchBBID] = dataHOP.data.data.chartPackage.datasets[0].data
       this.tempLabelData[matchBBID] = dataHOP.data.data.chartPackage.labels

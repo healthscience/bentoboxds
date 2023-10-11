@@ -20,6 +20,9 @@
               </div>
               <div v-else>
                 {{ chati.reply.data }}
+                <div v-if="chati.reply.action === 'upload'">
+                  <button @click="uploadButton">Click to upload file</button>
+                </div>
               </div>
             </div>
             <div id="beebee-chartspace" v-if="storeAI.beebeeChatLog[chati.question.bbid] === true">
@@ -99,10 +102,14 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   const targetId = ref(null)
 
   const scrollToElement = () =>  {
-    const el = document.getElementById('buttommove');
+    const el = document.getElementById('buttommove')
     if (el) {
-      el.scrollIntoView({ block: "end" });
+      el.scrollIntoView({ block: "end" })
     }
+  }
+
+  const uploadButton = () =>  {
+    storeAI.uploadStatus = true
   }
 
 </script>

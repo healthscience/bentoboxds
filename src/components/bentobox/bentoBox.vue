@@ -38,7 +38,7 @@
         </div>
         <div id="peer-bentobox">
           <div id="bento-past">past
-            <div id="past-box">past toolbar <button id="full-past-toolbar">full</button></div>
+            <div id="past-box">past toolbar <button id="full-past-toolbar">Tools</button></div>
             <bar-chart v-if="bbliveStore.chartStyle === 'bar'" :chartData="chartData"></bar-chart>
             <line-chart v-if="bbliveStore.chartStyle === 'line'" :chartData="chartData"></line-chart>
           </div>

@@ -10,7 +10,8 @@ export const bentoboxStore = defineStore('bentostore', {
       y: 200
     },
     locX: 140,
-    locY: 140
+    locY: 140,
+    fileBund: {}
   }),
   actions: {
     // since we rely on `this`, we cannot use an arrow function

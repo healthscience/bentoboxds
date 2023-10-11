@@ -7,22 +7,26 @@
     <button id="natlang-ask" type="submit" v-if="beebeeAIStatus.active === true" @click="storeAI.submitAsk">
       Ask BeeBee
     </button>
+    <data-box v-if="uploadLive === true"></data-box>
   </div>
 </template>
 
 <script setup>
+import DataBox from '@/components/dataspace/dataBox.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { ref } from 'vue'
 import { computed } from 'vue'
 
-  let storeInfo = ref('local not store')
+  const storeAI = aiInterfaceStore()
 
   const beebeeAIStatus = computed(() => {
     return storeAI.helpchatAsk
-    })
+  })
 
-  const storeAI = aiInterfaceStore()
-
+  // a computed ref
+  const uploadLive = computed(() => {
+    return storeAI.uploadStatus
+  })
 
 </script>
 
