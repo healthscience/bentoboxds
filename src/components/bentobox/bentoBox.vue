@@ -1,7 +1,7 @@
 <template>
   <div class="drag-container-1">
     <div id="bb-toolbar">
-      <div class="bb-bar-main">a bentobox active --{{ props.bboxid }} {{ chartData }}</div>
+      <div class="bb-bar-main">a bentobox active</div>
       <div class="bb-bar-main"><button id="network-vis">social</button></div>
       <div class="bb-bar-main"><button id="network-map">map</button></div>
       <div class="bb-bar-main"><button id="bb-copy">copy</button></div>
