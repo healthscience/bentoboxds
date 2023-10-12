@@ -3,6 +3,7 @@
     <div id="bb-toolbar">
       <div class="bb-bar-main">a bentobox</div>
       <div class="bb-bar-main"><button @click="clickExpandBentobox(props.bboxid)">expand</button></div>
+      <div class="bb-bar-main"><button @click="clickAddbentoSpace(props.bboxid)">+ space</button></div>
       <!--<div class="bb-bar-main"><button id="network-vis">social</button></div>
       <div class="bb-bar-main"><button id="network-map">map</button></div>
       <div class="bb-bar-main"><button id="bb-copy">copy</button></div>-->
@@ -91,11 +92,12 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
    }
 
    const clickExpandBentobox = (boxid) => {
-    console.log(boxid)
-    console.log('expand to full bentobox')
     storeAI.expandBentobox[boxid] = true
    }
-   
+
+   const clickAddbentoSpace = (boxid) => {
+    storeAI.bentoboxList['space1'].push(boxid)
+   }
 
   const checkEmpty = computed((value) => {
     return typeof value !== "number" ? 0 : value;

@@ -26,13 +26,8 @@
               </div>
             </div>
             <div id="beebee-chartspace" v-if="storeAI.beebeeChatLog[chati.question.bbid] === true">
-              <bento-box :bboxid="chati.question.bbid"></bento-box> <!--the slimed down bentobox to the chart and bring in tools as needed-->
-              <!--<bar-chart  v-if="chartStyle === 'bar'"></bar-chart>
-              <line-chart v-if="chartStyle === 'line'"></line-chart>
-              <div id="space-tools">
-                <button id="saveTospace">add to space</button>
-                <button id="shareNetwork">Share</button>
-              </div>-->
+              <!--the slimed down bentobox to the chart and bring in tools as needed-->
+              <bento-box :bboxid="chati.question.bbid"></bento-box>
             </div>
           </div>
           <div class="beebee">

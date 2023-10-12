@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <!-- use the modal component, pass in the prop -->
-    <modal-space :show="bentspaceStatus" @close="closeBentoSpace">
+    <modal-space :show="bentospaceStatus" @close="closeBentoSpace">
       <template #header>
         <!-- The code below goes into the header slot -->
         <div id="space-modal-header">
@@ -40,7 +40,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import ModalSpace from '@/components/bentospace/spaceModal.vue'
-import BentoBox from '@/components/bentobox/baseBox.vue'
+import BentoBox from '@/components/bentobox/bentoboxSpace.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
@@ -49,7 +49,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   const bentospaceLive = ref(true)
   const showModal = ref(false)
   
-  const bentspaceStatus = computed(() => {
+  const bentospaceStatus = computed(() => {
     return storeAI.bentospaceState
   })
 

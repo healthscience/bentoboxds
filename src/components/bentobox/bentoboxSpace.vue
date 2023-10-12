@@ -39,14 +39,14 @@
         <div id="peer-bentobox">
           <div id="bento-past">past
             <div id="past-box">past toolbar <button id="full-past-toolbar">Tools</button></div>
-            <bar-chart v-if="bbliveStore.chartStyle === 'bar'" :chartData="chartData"></bar-chart>
-            <line-chart v-if="bbliveStore.chartStyle === 'line'" :chartData="chartData"></line-chart>
+            <bar-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'bar'" :chartData="chartData"></bar-chart>
+            <line-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'line'" :chartData="chartData"></line-chart>
           </div>
-          <!--<div id="bento-future">future
+          <div id="bento-future">future
             <div id="future-box">future toolbar <button id="full-future-toolbar">full</button></div>
-            <bar-chart v-if="bbliveStore.chartStyle === 'bar'" :chartData="chartData" ></bar-chart>
-            <line-chart v-if="bbliveStore.chartStyle === 'line'" :chartData="chartData"></line-chart>
-          </div>-->
+            <bar-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'bar'" :chartData="chartfutureData" ></bar-chart>
+            <line-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'line'" :chartData="chartfutureData"></line-chart>
+          </div>
         </div>
       </div>
     </div>
@@ -146,6 +146,32 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
       datasets: [ { data: dataValues.value } ]
     }
    })
+
+     /*
+  * predict future
+  */
+  const predictFuture = () => {
+    storeAI.prepareFuture(props.bboxid)
+  }
+
+  const futureBox = computed(() => {
+    return storeAI.activeFuture[props.bboxid]
+  })
+
+  const futuredataValues = computed(() => {
+    return storeAI.futureNumberData[props.bboxid]
+  })
+
+  const futuredataLabel = computed(() => {
+    return storeAI.futureLabelData[props.bboxid]
+  })
+
+  const chartfutureData = computed(() => {
+    return {
+      labels: futuredataLabel.value,
+      datasets: [ { data: futuredataValues.value } ]
+    }
+  })
 
 </script>
 

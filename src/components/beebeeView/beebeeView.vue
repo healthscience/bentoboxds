@@ -18,7 +18,7 @@
         </div>
         <div v-else>
           <div class="history-list" v-for="sis in spaceList">
-            <button class="flat-history" @click="bentoSpaceOpen(sis)" @mouseup="dropBBox" @mouseover="hoverCheck(sis)" @mousemove="moveCheck(sis)"> {{ sis }} </button>
+            <button class="flat-history" @click="bentoSpaceOpen(sis)" @mouseover="hoverCheck(sis)" @mousemove="moveCheck(sis)"> {{ sis }} </button> <!--@mouseup="dropBBox"-->
           </div>
         </div>
       </div>
@@ -43,8 +43,8 @@ const storeAI = aiInterfaceStore()
 // const startChat = ref(true)
 let historyActive = ref(false)
 let historyList = ref('history')
-let chartList = ref(['chat1', 'chat2', 'chat3',])
-let spaceList = ref(['space1', 'space2', 'space3',])
+let chartList = ref(['chat1'])
+let spaceList = ref(['space1'])
 
 let historyType = (type) => {
   historyList = type
@@ -54,7 +54,7 @@ let historyType = (type) => {
 const bentoSpaceOpen = (spaceID) => {
   storeAI.bentospaceState = !storeAI.bentospaceState
   storeAI.liveBspace = spaceID
-  storeAI.beebeeChatLog = false
+  // storeAI.beebeeChatLog = false
 }
 
 const dropSpaceActive = (spaceID) => {
@@ -145,7 +145,7 @@ const moveCheck = (sis) => {
   width: 90vw;
   padding-top: 2px;
   transform-origin: left top;
-  border: 1px solid orange;
+  border: 0px solid orange;
   background-color: #fff4f4;
   background: linear-gradient(-90deg, rgba(0, 0, 0, .1) 1px, transparent 1px), linear-gradient(rgba(0, 0, 0, .1) 1px, transparent 1px);
   background-size: 60px 60px, 60px 60px;
@@ -201,7 +201,7 @@ const moveCheck = (sis) => {
 
     .live-drop-zone {
       height: 100%;
-      border: 4px dashed rgb(228, 137, 39);
+      border: 0px dashed rgb(228, 137, 39);
     }
 
     .live-drop-zone:hover {
@@ -216,7 +216,7 @@ const moveCheck = (sis) => {
       width: 100%;
       margin-top: 8.5em;
       transform-origin: left top;
-      border: 1px solid orange;
+      border: 0px solid orange;
       background-color: #fff4f4;
       background: linear-gradient(-90deg, rgba(0, 0, 0, .1) 1px, transparent 1px), linear-gradient(rgba(0, 0, 0, .1) 1px, transparent 1px);
       background-size: 60px 60px, 60px 60px;

@@ -164,12 +164,15 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     },
     processHOPdata (dataHOP) {
       // match input id to bbid
+      console.log('hop data back')
+      console.log(dataHOP)
       let matchBBID = ''
       for (let bhid of this.bbidHOPid) {
         if (bhid.HOPid === dataHOP.context.input.key) {
           matchBBID = bhid.bbid
         }
       }
+      this.bentoboxList['space1'] = []
       this.expandBentobox[matchBBID] = false
       this.beebeeChatLog[matchBBID] = true
       this.tempNumberData[matchBBID] = dataHOP.data.data.chartPackage.datasets[0].data
