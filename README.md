@@ -1,10 +1,9 @@
 # bentoboxds
 
-BentoBoxDS sovereign data that shapes health.  Graphical toolkit for chart, network experiments, DML on the Health Oracle Protocol
+BentoBoxDS - sovereign data that shapes health
+A graphical toolkit for charting ( https://bentoboxds.org/ ) & building network experiments & coordinating DML (decentralise machine learning) on the Health Oracle Protocol ( https://github.com/healthscience/hop )
 
-## Recommended IDE Setup
-
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+BentoBoxDS run as desktop or web application in the browser and will require HOP to be installed locally.  Setup help available discord server (community link on  https://bentoboxds.org/).
 
 ## Customize configuration
 
