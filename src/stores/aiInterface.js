@@ -39,6 +39,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     historyPair: [],
     bbidHOPid: [],
     hopSummary: [],
+    futurePids: [],
     beebeeReply:
     {
       text: '... .. ...',
@@ -157,6 +158,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.chatBottom++
     },
     processHOPsummary (dataSummary) {
+      console.log('HOP summary set===============')
+      console.log(dataSummary)
       // match bbid to HOP ID
       let inputID = Object.keys(dataSummary.data)
       this.bbidHOPid.push({ bbid: dataSummary.bbid, HOPid: inputID[0] })
@@ -164,39 +167,53 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     },
     processHOPdata (dataHOP) {
       // match input id to bbid
-      console.log('hop data back')
-      console.log(dataHOP)
-      let matchBBID = ''
-      for (let bhid of this.bbidHOPid) {
-        if (bhid.HOPid === dataHOP.context.input.key) {
-          matchBBID = bhid.bbid
+      console.log('BBox--IN--hop data back')
+      // console.log(dataHOP)
+            // is the data for past or future
+      if (dataHOP.context.input.update !== 'predict-future') {
+        let matchBBID = ''
+        for (let bhid of this.bbidHOPid) {
+          if (bhid.HOPid === dataHOP.context.input.key) {
+            matchBBID = bhid.bbid
+          }
         }
+        this.bentoboxList['space1'] = []
+        this.expandBentobox[matchBBID] = false
+        this.beebeeChatLog[matchBBID] = true
+        this.tempNumberData[matchBBID] = dataHOP.data.data.chartPackage.datasets[0].data
+        this.tempLabelData[matchBBID] = dataHOP.data.data.chartPackage.labels
+        this.liveBentoBox.setChartstyle(matchBBID, dataHOP.context.moduleorder.visualise.value.info.settings.visualise)
+      } else {
+        // data for future prediction
+        this.processFuture(dataHOP)
       }
-      this.bentoboxList['space1'] = []
-      this.expandBentobox[matchBBID] = false
-      this.beebeeChatLog[matchBBID] = true
-      this.tempNumberData[matchBBID] = dataHOP.data.data.chartPackage.datasets[0].data
-      this.tempLabelData[matchBBID] = dataHOP.data.data.chartPackage.labels
-      this.liveBentoBox.setChartstyle(matchBBID, dataHOP.context.moduleorder.visualise.value.info.settings.visualise)
     },
-    processFuture (data) {
+    processFuture (dataHOP) {
       // prepare chart for bentobox with ID
       console.log('process future')
-      console.log(data)
-      this.activeFuture[data.bbid] = true
-      this.futureLabelData[data.bbid] = [ 1, 2, 3 ]
-      this.futureNumberData[data.bbid] =  [ 'January', 'February', 'March' ]
+      let futureMatch = ''
+      for (let fpi of this.futurePids) {
+        if (fpi.hopid === dataHOP.context.input.exp.key) {
+          console.log('pid match')
+          futureMatch = fpi.bboxid
+        }
+      }
+      this.activeFuture[futureMatch] = true
+      this.futureNumberData[futureMatch] = dataHOP.data.data.chartPackage.datasets[0].data // [ 1, 2, 3 ] 
+      this.futureLabelData[futureMatch] = dataHOP.data.data.chartPackage.labels // [ 'January', 'February', 'March' ]
+      // need to set chart style or assume past style?
     },
-    prepareFuture (pid) {
-      console.log('predict future process')
+    prepareFuture (boxid) {
       // any additional text added or just button click context
       let matchBBID = ''
       for (let bhid of this.bbidHOPid) {
-        if (bhid.bbid === pid) {
+        if (bhid.bbid === boxid) {
           matchBBID = bhid.HOPid
         }
       }
-      // take info from NXP past and flag update for Model
+      // keep track of future pid's
+      this.futurePids.push({ bboxid: boxid, hopid: matchBBID })
+      // take info from NXP past and flag update to existing NXP
       let queryNXP = {}
       for (let nxp of this.hopSummary) {
         if (nxp.HOPid === matchBBID) {
@@ -209,7 +226,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       aiMessageout.reftype = 'ignore'
       aiMessageout.action = 'predict-future'
       aiMessageout.data = { question: 'future chart line', model: 'linear-regression', nxp: queryNXP }
-      aiMessageout.bbid = pid
+      aiMessageout.bbid = boxid
+      console.log('BB-messageOUT--prediction')
       console.log(aiMessageout)
       const sendocket = useSocketStore()
       this.sendSocket.send_message(aiMessageout)

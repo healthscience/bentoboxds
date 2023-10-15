@@ -34,31 +34,23 @@ export const useSocketStore = defineStore({
       this.connection_ready = true
     },
     onSocketMessage (evt) {
-      console.log('bbox-message-in')
+      //console.log('bbox-message-in')
       // console.log(evt.data)
       //we parse the json that we receive
       var received = JSON.parse(evt.data)
-      console.log(received)
+      // console.log(received)
       // keep in message log for session?
       this.messages.push(received)
       // parse and route to logic processing
       if (received.type === 'library') {
         console.log('library')
-      } else if (received.type == 'hopquery') {
-        console.log('safeflow')
       } else if (received.type == 'bbai-reply') {
-        console.log('beebee-reply')
         this.aiStore.processReply(received)
-      } else if (received.type == 'bbai-future') {
-        console.log('beebee-future')
-        this.aiStore.processFuture(received)
       } else if (received.type == 'sf-summary') {
-        console.log('ecs--sumary')
         this.aiStore.processHOPsummary(received)
       } else if (received.type == 'sf-displayEntityRange') {
-        console.log('sf-entity data returned')
+        console.log('sf-entity data returned UPDATE???')
       } else if (received.type == 'sf-newEntityRange') {
-        console.log('first time compute')
         this.aiStore.processHOPdata(received)
       } else if (received.type == '') {
         console.log('error')       

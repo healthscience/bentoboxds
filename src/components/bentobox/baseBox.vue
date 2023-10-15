@@ -217,6 +217,16 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   min-height: 10vh;
 }
 
+.future-show {
+  display: none;
+  border: 1px solid red;
+}
+
+
+.future-show.active {
+  display: block;
+  border: 1px solid blue;
+}
 
 #bb-expand-size {
   display: block;
