@@ -149,19 +149,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 </script>
 
 <style scoped>
-.resizable {
-  background-position: top left;
-  width: 150px;
-  height: 150px;
-  padding: 0;
-  border: 4px solid #a6ff00;
-  font-weight: normal;
-  color: #0d0d0d;
-  position: relative;
-}
 
-.drag-container-1,
-.drag-container-2 {
+.drag-container-1 {
   width: 100%;
   height: 40px;
   background: rgb(141, 145, 226);
@@ -236,19 +225,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
 @media (min-width: 1024px) {
 
-  .resizable {
-    background-position: top left;
-    width: 150px;
-    height: 150px;
-    padding: 0;
-    border: 4px solid #a6ff00;
-    font-weight: normal;
-    color: #0d0d0d;
-    position: relative;
-  }
-
-  .drag-container-1,
-  .drag-container-2 {
+  .drag-container-1 {
     width: 100%;
     height: 40px;
     background: rgb(141, 145, 226);

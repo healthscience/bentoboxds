@@ -168,7 +168,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
 #beebee-chartspace {
   border: 1px dashed red;
-  width: 220px;
+  width: 90%;
 }
 
 
