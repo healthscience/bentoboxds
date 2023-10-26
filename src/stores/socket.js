@@ -34,11 +34,11 @@ export const useSocketStore = defineStore({
       this.connection_ready = true
     },
     onSocketMessage (evt) {
-      //console.log('bbox-message-in')
+      console.log('bbox-message-in')
       // console.log(evt.data)
       //we parse the json that we receive
       var received = JSON.parse(evt.data)
-      // console.log(received)
+      console.log(received)
       // keep in message log for session?
       this.messages.push(received)
       // parse and route to logic processing

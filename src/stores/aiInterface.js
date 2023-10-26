@@ -150,7 +150,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         }
       }
       // check if reply is upload?  If yes, present upload interface
-      console.log(received)
       if (received.action === 'upload') {
         // this.uploadStatus = true
       }
@@ -158,8 +157,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.chatBottom++
     },
     processHOPsummary (dataSummary) {
-      console.log('HOP summary set===============')
-      console.log(dataSummary)
       // match bbid to HOP ID
       let inputID = Object.keys(dataSummary.data)
       this.bbidHOPid.push({ bbid: dataSummary.bbid, HOPid: inputID[0] })
@@ -167,9 +164,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     },
     processHOPdata (dataHOP) {
       // match input id to bbid
-      console.log('BBox--IN--hop data back')
-      // console.log(dataHOP)
-            // is the data for past or future
+      // is the data for past or future
       if (dataHOP.context.input.update !== 'predict-future') {
         let matchBBID = ''
         for (let bhid of this.bbidHOPid) {
@@ -190,7 +185,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     },
     processFuture (dataHOP) {
       // prepare chart for bentobox with ID
-      console.log('process future')
       let futureMatch = ''
       for (let fpi of this.futurePids) {
         if (fpi.hopid === dataHOP.context.input.exp.key) {
