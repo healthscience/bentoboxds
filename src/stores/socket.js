@@ -1,11 +1,13 @@
 import { defineStore } from "pinia";
 // import { store } from "@/stores/store.js"
 import { aiInterfaceStore } from "@/stores/aiInterface.js"
+import { libraryStore } from "@/stores/libraryStore.js"
 
 export const useSocketStore = defineStore({
   id: "socket",
   state: () => ({
     aiStore: aiInterfaceStore(),
+    libStore: libraryStore(),
     count: 0,
     websocket: {},
     connection_ready: false,
@@ -44,6 +46,8 @@ export const useSocketStore = defineStore({
       // parse and route to logic processing
       if (received.type === 'library') {
         console.log('library')
+        console.log(received)
+        this.libStore.processReply(received)
       } else if (received.type == 'bbai-reply') {
         this.aiStore.processReply(received)
       } else if (received.type == 'sf-summary') {

@@ -19,6 +19,10 @@
 			</ul>
 		</drop-zone>
 		<button @click.prevent="saveFiles(file)" class="upload-button">Upload</button>
+		<div id="library-message">
+			<header>Library feedback</header>
+			File {{ storeLib.libraryMessage.path }} saved: {{ storeLib.libraryMessage.success }}
+		</div>
 	</div>
 </template>
 
@@ -28,6 +32,7 @@ import DropZone from '@/components/dataspace/upload/dropZone.vue'
 import FilePreview from '@/components/dataspace/upload/filePreview.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
+import { libraryStore } from '@/stores/libraryStore.js'
 // import { useObjectUrl } from '@vueuse/core'
 // import { shallowRef } from 'vue'
 
@@ -39,6 +44,7 @@ const file = shallowRef(null)
 
 const storeAI = aiInterfaceStore()
 const bbliveStore = bentoboxStore()
+const storeLib = libraryStore()
 
 // File Management
 import useFileList from '@/components/dataspace/upload/compositions/fileList.js'
@@ -108,11 +114,11 @@ const saveFiles = (file) => {
 			messageHOP.type = 'library'
 			messageHOP.reftype = 'save-file'
 			messageHOP.action = 'save-file'
-			messageHOP.data = fileBund
+			messageHOP.data = bbliveStore.fileBund
 			// send to HOP
 			console.log('before message send')
-			// storeAI.sendMessageHOP(messageHOP)
-			// storeAI.uploadStatus = false
+			storeAI.sendMessageHOP(messageHOP)
+			storeAI.uploadStatus = false
 		}
   }
 }
@@ -199,5 +205,9 @@ label {
 
 button {
 	cursor: pointer;
+}
+
+#library-message {
+	background-color: white;
 }
 </style>

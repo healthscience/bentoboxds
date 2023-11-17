@@ -4,12 +4,14 @@ import { defineStore } from 'pinia'
 import hashObject from 'object-hash'
 import { useSocketStore } from '@/stores/socket.js'
 import { bentoboxStore } from "@/stores/bentoboxStore.js"
+import { libraryStore } from '@/stores/libraryStore.js'
 import DataPraser from '@/stores/hopUtility/dataParse.js'
 
 export const aiInterfaceStore = defineStore('beebeeAIstore', {
   state: () => ({
     sendSocket: useSocketStore(),
     liveBentoBox: bentoboxStore(),
+    libStore: libraryStore(),
     liveDataParse: new DataPraser(),
     startChat: true,
     historyBar: false,
@@ -133,8 +135,10 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     },
     processReply (received) {
       // match to question via bbid
+      let questionStart = {}
       for (let histMatch of this.helpchatHistory) {
         if (histMatch.bbid === received.bbid) {
+          questionStart = histMatch
           let pairBB = {}
           pairBB.question = histMatch
           pairBB.reply = received
@@ -149,10 +153,13 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           this.historyPair.push(pairBB)
         }
       }
+      if (received.action === 'library-peerlibrary') {
+        this.libStore.processReply(received, questionStart)
+      }
       // check if reply is upload?  If yes, present upload interface
       if (received.action === 'upload') {
         // this.uploadStatus = true
-      }
+      } 
       this.beginChat = true 
       this.chatBottom++
     },
