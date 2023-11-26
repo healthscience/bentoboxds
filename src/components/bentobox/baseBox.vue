@@ -22,8 +22,10 @@
             <button id="full-past-toolbar">tools</button>
             <button id="full-future-toolbar" @click="predictFuture()">future</button>
           </div>
-          <bar-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'bar'" :chartData="chartData"></bar-chart>
-          <line-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'line'" :chartData="chartData"></line-chart>
+          <div id="past-vis">
+            <bar-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'bar'" :chartData="chartData"></bar-chart>
+             <line-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'line'" :chartData="chartData"></line-chart>
+           </div>
         </div>
         <div id="bento-future" class="future-show" :class="{ active: futureBox }">
           <div id="future-box"><button id="full-future-toolbar">full</button></div>
@@ -193,8 +195,18 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 }
 
 #bento-past {
+  display: grid;
+  grid-template-columns: 1fr;
+  min-width: 10vw;
+  min-height: 10vh;
+}
+
+#past-box, #future-box {
   position: relative;
-  border: 2px dashed blue;
+}
+
+#past-vis {
+  position: relative;
   min-width: 10vw;
   min-height: 10vh;
 }
@@ -208,13 +220,11 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
 .future-show {
   display: none;
-  border: 1px solid red;
 }
 
 
 .future-show.active {
   display: block;
-  border: 1px solid blue;
 }
 
 #bb-expand-size {
@@ -259,7 +269,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   #bentobox-holder {
     position: relative;
-    border: 1px solid blue;
     display: grid;
     grid-template-columns: 1fr;
     background-color: beige;
@@ -284,7 +293,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   #past-box, #future-box {
     position: relative;
-    border:1px dashed blue;
   }
   
   #past-box {
@@ -293,12 +301,10 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   .future-show {
     display: none;
-    border: 1px solid red;
   }
 
   .future-show.active {
     display: block;
-    border: 1px solid blue;
   }
 
   #future-box {
@@ -306,7 +312,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   }
 
   #bento-past {
-    position: relative;
+    display: grid;
+    grid-template-columns: 1fr;
     border:1px dashed blue;
     height: auto;
     width: auto;

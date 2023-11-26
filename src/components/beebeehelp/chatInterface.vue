@@ -38,7 +38,7 @@
             </div>
           </div>
           <div class="beebee">
-            <img class="right-chat-beebee" src="../.././assets/logo.png" alt="bbAI">beebee
+            <img class="right-chat-beebee" src="../.././assets/logo.png" alt="bbAI">
           </div>
         </div>
       </div>
@@ -162,7 +162,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
 .beebee-reply {
   display: grid;
-  grid-template-columns: 1fr 4fr 1fr;
+  grid-template-columns: 1fr;
   background-color: #d8d7e2;
   width: 96%;
   border-radius: 25px;
@@ -172,10 +172,15 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
 .right-chat {
   padding-top: 1em;
+  display: block;
+}
+
+.beebee {
+  display: grid;
+  justify-self: end;
 }
 
 #beebee-chartspace {
-  border: 1px dashed red;
   width: 90%;
 }
 

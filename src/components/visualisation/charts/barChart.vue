@@ -10,9 +10,6 @@
 import { Bar } from 'vue-chartjs'
 import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
 import { ref, computed } from 'vue'
-import { aiInterfaceStore } from '@/stores/aiInterface.js'
-
-const storeAI = aiInterfaceStore()
 
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
@@ -43,7 +40,12 @@ const props = defineProps({
   const chartOptions = computed(() => {
     return {
       responsive: true,
-      maintainAspectRatio: true
+      maintainAspectRatio: true,
+      /*scales: {
+        x: {
+          type: 'timeseries',
+        }
+      }*/
     }
   })
 </script>
