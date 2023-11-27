@@ -21,6 +21,7 @@
           <line-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'line'" :chartData="chartData"></line-chart>
         </div>
         <div id="bento-future">future
+          <button id="full-future-toolbar" @click="predictFuture()">Predict</button>
           <div id="future-box">future toolbar <button id="full-future-toolbar">full</button></div>
           <bar-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'bar'" :chartData="chartfutureData" ></bar-chart>
           <line-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'line'" :chartData="chartfutureData"></line-chart>

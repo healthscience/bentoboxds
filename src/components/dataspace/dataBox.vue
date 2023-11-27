@@ -16,10 +16,20 @@
           <div id="return-modal-close" @click="closedataBox">return</div>
         </div>
         <h3>Data Box</h3>
+        <button @click="networkLibraryShow">Library</button>
       </template>
       <template #body>
         <space-upload v-if="uploadLive === true"></space-upload>
         <csv-preview v-if="storeAI.csvpreviewLive === true"></csv-preview>
+        <div v-if="showLibrary === true">
+          <iframe
+            :src="'./xlibrary-test.html'"
+            width="90%"
+            height="1200px"
+            name="networklibrarylive"
+            frameborder="0" >
+          </iframe>
+      </div>
       </template>
       <template #footer>
       </template>
@@ -38,6 +48,11 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   const storeAI = aiInterfaceStore()
   const bboxStore = bentoboxStore()
   const showModal = ref(true)
+  const showLibrary = ref(false)
+
+  const networkLibraryShow = () => {
+    showLibrary.value = !showLibrary.value
+  }
   
   const databoxStatus = computed(() => {
     return storeAI.dataBoxState

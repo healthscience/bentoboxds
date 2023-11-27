@@ -1,11 +1,13 @@
 import { defineStore } from "pinia";
 // import { store } from "@/stores/store.js"
 import { aiInterfaceStore } from "@/stores/aiInterface.js"
+import { libraryStore } from "@/stores/libraryStore.js"
 
 export const useSocketStore = defineStore({
   id: "socket",
   state: () => ({
     aiStore: aiInterfaceStore(),
+    libStore: libraryStore(),
     count: 0,
     websocket: {},
     connection_ready: false,
@@ -44,21 +46,15 @@ export const useSocketStore = defineStore({
       // parse and route to logic processing
       if (received.type === 'library') {
         console.log('library')
-      } else if (received.type == 'hopquery') {
-        console.log('safeflow')
+        console.log(received)
+        this.libStore.processReply(received)
       } else if (received.type == 'bbai-reply') {
-        console.log('beebee-reply')
         this.aiStore.processReply(received)
-      } else if (received.type == 'bbai-future') {
-        console.log('beebee-future')
-        this.aiStore.processFuture(received)
       } else if (received.type == 'sf-summary') {
-        console.log('ecs--sumary')
         this.aiStore.processHOPsummary(received)
       } else if (received.type == 'sf-displayEntityRange') {
-        console.log('sf-entity data returned')
+        console.log('sf-entity data returned UPDATE???')
       } else if (received.type == 'sf-newEntityRange') {
-        console.log('first time compute')
         this.aiStore.processHOPdata(received)
       } else if (received.type == '') {
         console.log('error')       

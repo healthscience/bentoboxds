@@ -22,8 +22,10 @@
             <button id="full-past-toolbar">tools</button>
             <button id="full-future-toolbar" @click="predictFuture()">future</button>
           </div>
-          <bar-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'bar'" :chartData="chartData"></bar-chart>
-          <line-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'line'" :chartData="chartData"></line-chart>
+          <div id="past-vis">
+            <bar-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'bar'" :chartData="chartData"></bar-chart>
+             <line-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'line'" :chartData="chartData"></line-chart>
+           </div>
         </div>
         <div id="bento-future" class="future-show" :class="{ active: futureBox }">
           <div id="future-box"><button id="full-future-toolbar">full</button></div>
@@ -149,19 +151,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 </script>
 
 <style scoped>
-.resizable {
-  background-position: top left;
-  width: 150px;
-  height: 150px;
-  padding: 0;
-  border: 4px solid #a6ff00;
-  font-weight: normal;
-  color: #0d0d0d;
-  position: relative;
-}
 
-.drag-container-1,
-.drag-container-2 {
+.drag-container-1 {
   width: 100%;
   height: 40px;
   background: rgb(141, 145, 226);
@@ -204,8 +195,18 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 }
 
 #bento-past {
+  display: grid;
+  grid-template-columns: 1fr;
+  min-width: 10vw;
+  min-height: 10vh;
+}
+
+#past-box, #future-box {
   position: relative;
-  border: 2px dashed blue;
+}
+
+#past-vis {
+  position: relative;
   min-width: 10vw;
   min-height: 10vh;
 }
@@ -217,6 +218,14 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   min-height: 10vh;
 }
 
+.future-show {
+  display: none;
+}
+
+
+.future-show.active {
+  display: block;
+}
 
 #bb-expand-size {
   display: block;
@@ -226,19 +235,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
 @media (min-width: 1024px) {
 
-  .resizable {
-    background-position: top left;
-    width: 150px;
-    height: 150px;
-    padding: 0;
-    border: 4px solid #a6ff00;
-    font-weight: normal;
-    color: #0d0d0d;
-    position: relative;
-  }
-
-  .drag-container-1,
-  .drag-container-2 {
+  .drag-container-1 {
     width: 100%;
     height: 40px;
     background: rgb(141, 145, 226);
@@ -272,7 +269,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   #bentobox-holder {
     position: relative;
-    border: 1px solid blue;
     display: grid;
     grid-template-columns: 1fr;
     background-color: beige;
@@ -297,7 +293,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   #past-box, #future-box {
     position: relative;
-    border:1px dashed blue;
   }
   
   #past-box {
@@ -306,12 +301,10 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   .future-show {
     display: none;
-    border: 1px solid red;
   }
 
   .future-show.active {
     display: block;
-    border: 1px solid blue;
   }
 
   #future-box {
@@ -319,7 +312,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   }
 
   #bento-past {
-    position: relative;
+    display: grid;
+    grid-template-columns: 1fr;
     border:1px dashed blue;
     height: auto;
     width: auto;

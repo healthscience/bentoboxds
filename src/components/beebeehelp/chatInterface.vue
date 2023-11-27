@@ -11,15 +11,22 @@
         <div class="beebee-reply">
           <span class="right-time">{{ chati.reply.time }}</span>
           <div class="reply-text-chart">
-            <div class="right-chat">
+            <div class="right-chat">{{ chati.reply.type }}
               <div v-if="chati.reply.type === 'hopquery'">
                 <span>Datatype: {{ chati.data.library.text }} for month {{ chati.data.time.words.day }} day {{ chati.data.time.words.month }}</span>--- <button id="new-query" @click.prevent="beebeeChartSpace(chati.data)">yes, produce chart</button>
+              </div>
+              <div v-else-if="chati.reply.type === 'bbai-reply'">
+                {{ chati.reply.data }}
               </div>
               <div v-else-if="chati.type === 'upload'">
                 <button>start file upload</button>
               </div>
+              <div v-else-if="chati.reply.type === 'library-peerlibrary'">
+                <button>library</button>
+                <library-view></library-view>
+              </div>
               <div v-else>
-                {{ chati.reply.data }}
+                {{ chati.reply.data.text }}
                 <div v-if="chati.reply.action === 'upload'">
                   <button @click="uploadButton">Click to upload file</button>
                 </div>
@@ -31,7 +38,7 @@
             </div>
           </div>
           <div class="beebee">
-            <img class="right-chat-beebee" src="../.././assets/logo.png" alt="bbAI">beebee
+            <img class="right-chat-beebee" src="../.././assets/logo.png" alt="bbAI">
           </div>
         </div>
       </div>
@@ -48,6 +55,7 @@
 <script setup>
 import inputBox from '@/components/beebeehelp/inputBox.vue'
 import BentoBox from '@/components/bentobox/baseBox.vue'
+import LibraryView from '@/components/beebeeView/libraryView.vue'
 import { ref, computed, onMounted } from 'vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
@@ -154,7 +162,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
 .beebee-reply {
   display: grid;
-  grid-template-columns: 1fr 4fr 1fr;
+  grid-template-columns: 1fr;
   background-color: #d8d7e2;
   width: 96%;
   border-radius: 25px;
@@ -164,11 +172,16 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
 .right-chat {
   padding-top: 1em;
+  display: block;
+}
+
+.beebee {
+  display: grid;
+  justify-self: end;
 }
 
 #beebee-chartspace {
-  border: 1px dashed red;
-  width: 220px;
+  width: 90%;
 }
 
 

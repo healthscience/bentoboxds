@@ -9,7 +9,7 @@
 				<span v-else>
 					<span>Drag Your Files Here</span>
 					<span class="smaller">
-						or <strong><em>click here</em></strong> to select files
+						or <strong><button>click here</button></strong> to select files
 					</span>
 				</span>
 				<input type="file" id="file-input" multiple @change="onInputChange" />
@@ -19,6 +19,10 @@
 			</ul>
 		</drop-zone>
 		<button @click.prevent="saveFiles(file)" class="upload-button">Upload</button>
+		<div id="library-message">
+			<header>Library feedback</header>
+			File {{ storeLib.libraryMessage.path }} saved: {{ storeLib.libraryMessage.success }}
+		</div>
 	</div>
 </template>
 
@@ -28,24 +32,29 @@ import DropZone from '@/components/dataspace/upload/dropZone.vue'
 import FilePreview from '@/components/dataspace/upload/filePreview.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
-import { useObjectUrl } from '@vueuse/core'
-import { shallowRef } from 'vue'
+import { libraryStore } from '@/stores/libraryStore.js'
+// import { useObjectUrl } from '@vueuse/core'
+// import { shallowRef } from 'vue'
 
-const file = shallowRef()
-// const url = useObjectUrl(file)
+
+import { ref, shallowRef, computed } from "vue"
+
+const file = shallowRef(null)
+
 
 const storeAI = aiInterfaceStore()
 const bbliveStore = bentoboxStore()
+const storeLib = libraryStore()
 
 // File Management
 import useFileList from '@/components/dataspace/upload/compositions/fileList.js'
-import { ref } from 'vue'
 const { files, addFiles, removeFile } = useFileList()
 
 function onInputChange(e) {
   console.log('onchange')
   file.value = e.target.files[0]
-  // console.log(file)
+	console.log('file change')
+  console.log(file)
 	// addFiles(e.target.files)
 	// e.target.value = null // reset so that selecting the same file again will still cause it to fire this change
 }
@@ -58,38 +67,37 @@ const saveFiles = (file) => {
   /* upload file data flow */
   // let fileData = uploadFiles(files)
   // send data to HOP to save in Holepunch
-  file.value = file
+	console.log('savefile')
+	console.log(file)
+  // file.value = file
   let sourceLocation = 'local'
-  const localthis = this
-  let fileData = file.value
-  let fileName = fileData.name
-  let filepath = fileData.url
-  let fileType = fileData.type
 	// prepare message data
-
-	bbliveStore.fileBund.name = fileName
+	bbliveStore.fileBund.name = file.name
 	bbliveStore.fileBund.source = sourceLocation
 	bbliveStore.fileBund.websource = '' // readRemotefile
 	bbliveStore.fileBund.web = 'none'
-	bbliveStore.fileBund.path = filepath
-	bbliveStore.fileBund.type = fileType
+	bbliveStore.fileBund.path = file.url
+	bbliveStore.fileBund.type = file.type
   // give summary back to peer
-  if (fileType === 'text/csv') {
+  if (file.type === 'text/csv') {
     storeAI.csvpreviewLive = true
     const reader = new FileReader()
-    reader.onloadend = (event) => { // = function () {
-      const lines = reader.result.split(/\r\n|\n/)
-      storeAI.linesLimit = lines.slice(0, 40)
+    reader.onloadend = function () {  // = (event) => { // = function () {
+      const lines = reader.result // .split(/\r\n|\n/)
+			let splitLines = lines.split(/\r\n|\n/)
+      storeAI.linesLimit = splitLines.slice(0, 40)
 			let fileContent = reader.result
 			bbliveStore.fileBund.content = fileContent
     }
-    reader.readAsText(fileData)
+		reader.onerror = function() {
+   	 console.log(reader.error)
+ 		}
+    reader.readAsText(file)
   } else {
 		// prepare file data for storage via HOP
 		let fileContent = {}
 		const reader2 = new FileReader()
-		// reader2.readAsText(fileData)
-		reader2.readAsDataURL(fileData)
+		reader2.readAsText(fileData)
 		reader2.onload = function (e) {
 			fileContent = e.target.result
 			let lineBundle =
@@ -106,11 +114,11 @@ const saveFiles = (file) => {
 			messageHOP.type = 'library'
 			messageHOP.reftype = 'save-file'
 			messageHOP.action = 'save-file'
-			messageHOP.data = fileBund
+			messageHOP.data = bbliveStore.fileBund
 			// send to HOP
 			console.log('before message send')
-			// storeAI.sendMessageHOP(messageHOP)
-			// storeAI.uploadStatus = false
+			storeAI.sendMessageHOP(messageHOP)
+			storeAI.uploadStatus = false
 		}
   }
 }
@@ -197,5 +205,9 @@ label {
 
 button {
 	cursor: pointer;
+}
+
+#library-message {
+	background-color: white;
 }
 </style>

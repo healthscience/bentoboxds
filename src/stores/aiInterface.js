@@ -4,12 +4,14 @@ import { defineStore } from 'pinia'
 import hashObject from 'object-hash'
 import { useSocketStore } from '@/stores/socket.js'
 import { bentoboxStore } from "@/stores/bentoboxStore.js"
+import { libraryStore } from '@/stores/libraryStore.js'
 import DataPraser from '@/stores/hopUtility/dataParse.js'
 
 export const aiInterfaceStore = defineStore('beebeeAIstore', {
   state: () => ({
     sendSocket: useSocketStore(),
     liveBentoBox: bentoboxStore(),
+    libStore: libraryStore(),
     liveDataParse: new DataPraser(),
     startChat: true,
     historyBar: false,
@@ -39,6 +41,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     historyPair: [],
     bbidHOPid: [],
     hopSummary: [],
+    futurePids: [],
     beebeeReply:
     {
       text: '... .. ...',
@@ -132,8 +135,10 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     },
     processReply (received) {
       // match to question via bbid
+      let questionStart = {}
       for (let histMatch of this.helpchatHistory) {
         if (histMatch.bbid === received.bbid) {
+          questionStart = histMatch
           let pairBB = {}
           pairBB.question = histMatch
           pairBB.reply = received
@@ -148,11 +153,13 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           this.historyPair.push(pairBB)
         }
       }
+      if (received.action === 'library-peerlibrary') {
+        this.libStore.processReply(received, questionStart)
+      }
       // check if reply is upload?  If yes, present upload interface
-      console.log(received)
       if (received.action === 'upload') {
         // this.uploadStatus = true
-      }
+      } 
       this.beginChat = true 
       this.chatBottom++
     },
@@ -164,39 +171,50 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     },
     processHOPdata (dataHOP) {
       // match input id to bbid
-      console.log('hop data back')
-      console.log(dataHOP)
-      let matchBBID = ''
-      for (let bhid of this.bbidHOPid) {
-        if (bhid.HOPid === dataHOP.context.input.key) {
-          matchBBID = bhid.bbid
+      // is the data for past or future
+      if (dataHOP.context.input.update !== 'predict-future') {
+        let matchBBID = ''
+        for (let bhid of this.bbidHOPid) {
+          if (bhid.HOPid === dataHOP.context.input.key) {
+            matchBBID = bhid.bbid
+          }
+        }
+        this.bentoboxList['space1'] = []
+        this.expandBentobox[matchBBID] = false
+        this.beebeeChatLog[matchBBID] = true
+        this.tempNumberData[matchBBID] = dataHOP.data.data.chartPackage.datasets[0].data
+        this.tempLabelData[matchBBID] = dataHOP.data.data.chartPackage.labels
+        this.liveBentoBox.setChartstyle(matchBBID, dataHOP.context.moduleorder.visualise.value.info.settings.visualise)
+      } else {
+        // data for future prediction
+        this.processFuture(dataHOP)
+      }
+    },
+    processFuture (dataHOP) {
+      // prepare chart for bentobox with ID
+      let futureMatch = ''
+      for (let fpi of this.futurePids) {
+        if (fpi.hopid === dataHOP.context.input.exp.key) {
+          console.log('pid match')
+          futureMatch = fpi.bboxid
         }
       }
-      this.bentoboxList['space1'] = []
-      this.expandBentobox[matchBBID] = false
-      this.beebeeChatLog[matchBBID] = true
-      this.tempNumberData[matchBBID] = dataHOP.data.data.chartPackage.datasets[0].data
-      this.tempLabelData[matchBBID] = dataHOP.data.data.chartPackage.labels
-      this.liveBentoBox.setChartstyle(matchBBID, dataHOP.context.moduleorder.visualise.value.info.settings.visualise)
+      this.activeFuture[futureMatch] = true
+      this.futureNumberData[futureMatch] = dataHOP.data.data.chartPackage.datasets[0].data // [ 1, 2, 3 ] 
+      this.futureLabelData[futureMatch] = dataHOP.data.data.chartPackage.labels // [ 'January', 'February', 'March' ]
+      // need to set chart style or assume past style?
     },
-    processFuture (data) {
-      // prepare chart for bentobox with ID
-      console.log('process future')
-      console.log(data)
-      this.activeFuture[data.bbid] = true
-      this.futureLabelData[data.bbid] = [ 1, 2, 3 ]
-      this.futureNumberData[data.bbid] =  [ 'January', 'February', 'March' ]
-    },
-    prepareFuture (pid) {
-      console.log('predict future process')
+    prepareFuture (boxid) {
       // any additional text added or just button click context
       let matchBBID = ''
       for (let bhid of this.bbidHOPid) {
-        if (bhid.bbid === pid) {
+        if (bhid.bbid === boxid) {
           matchBBID = bhid.HOPid
         }
       }
-      // take info from NXP past and flag update for Model
+      // keep track of future pid's
+      this.futurePids.push({ bboxid: boxid, hopid: matchBBID })
+      // take info from NXP past and flag update to existing NXP
       let queryNXP = {}
       for (let nxp of this.hopSummary) {
         if (nxp.HOPid === matchBBID) {
@@ -209,7 +227,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       aiMessageout.reftype = 'ignore'
       aiMessageout.action = 'predict-future'
       aiMessageout.data = { question: 'future chart line', model: 'linear-regression', nxp: queryNXP }
-      aiMessageout.bbid = pid
+      aiMessageout.bbid = boxid
+      console.log('BB-messageOUT--prediction')
       console.log(aiMessageout)
       const sendocket = useSocketStore()
       this.sendSocket.send_message(aiMessageout)
