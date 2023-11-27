@@ -195,7 +195,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       let futureMatch = ''
       for (let fpi of this.futurePids) {
         if (fpi.hopid === dataHOP.context.input.exp.key) {
-          console.log('pid match')
           futureMatch = fpi.bboxid
         }
       }
@@ -228,8 +227,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       aiMessageout.action = 'predict-future'
       aiMessageout.data = { question: 'future chart line', model: 'linear-regression', nxp: queryNXP }
       aiMessageout.bbid = boxid
-      console.log('BB-messageOUT--prediction')
-      console.log(aiMessageout)
       const sendocket = useSocketStore()
       this.sendSocket.send_message(aiMessageout)
     }

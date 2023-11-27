@@ -18,8 +18,9 @@
               <div v-else-if="chati.reply.type === 'bbai-reply'">
                 {{ chati.reply.data }}
               </div>
-              <div v-else-if="chati.type === 'upload'">
-                <button>start file upload</button>
+              <div v-else-if="chati.reply.type === 'upload'">
+                {{ chati.reply.data.text }}
+                <button @click="uploadButton">Click to upload file</button>
               </div>
               <div v-else-if="chati.reply.type === 'library-peerlibrary'">
                 <button>library</button>
@@ -93,7 +94,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   const bottom = ref(null)
   onMounted(() => {
-    // console.log(bottom.value)
     // bottom.value.scrollIntoView({behavior: "smooth"})
   })
 
