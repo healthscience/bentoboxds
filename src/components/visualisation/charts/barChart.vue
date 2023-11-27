@@ -9,6 +9,7 @@
 <script setup>
 import { Bar } from 'vue-chartjs'
 import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
+import 'chartjs-adapter-luxon'
 import { ref, computed } from 'vue'
 
 
@@ -41,11 +42,21 @@ const props = defineProps({
     return {
       responsive: true,
       maintainAspectRatio: true,
-      /*scales: {
-        x: {
-          type: 'timeseries',
+      options: {
+        scales: {
+          x: {
+            type: 'time',
+            /* time: {
+              unit: 'month'
+            } */
+            time: {
+              displayFormats: {
+               quarter: 'MMM YYYY'
+              }
+            }
+          }
         }
-      }*/
+      }
     }
   })
 </script>
