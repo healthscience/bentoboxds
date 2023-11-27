@@ -31,29 +31,23 @@ export const useSocketStore = defineStore({
       this.websocket.onerror = this.onSockerError
     },
     onSocketOpen (evt) {
-      console.log('open connection')
-      console.log(evt)
       this.connection_ready = true
     },
     onSocketMessage (evt) {
-      console.log('bbox-message-in')
-      // console.log(evt.data)
       //we parse the json that we receive
       var received = JSON.parse(evt.data)
-      console.log(received)
       // keep in message log for session?
       this.messages.push(received)
       // parse and route to logic processing
       if (received.type === 'library') {
-        console.log('library')
-        console.log(received)
         this.libStore.processReply(received)
+      } else if (received.type == 'upload') {
+        this.aiStore.processReply(received)
       } else if (received.type == 'bbai-reply') {
         this.aiStore.processReply(received)
       } else if (received.type == 'sf-summary') {
         this.aiStore.processHOPsummary(received)
       } else if (received.type == 'sf-displayEntityRange') {
-        console.log('sf-entity data returned UPDATE???')
       } else if (received.type == 'sf-newEntityRange') {
         this.aiStore.processHOPdata(received)
       } else if (received.type == '') {
@@ -62,8 +56,6 @@ export const useSocketStore = defineStore({
     
     },
     send_message (data) {
-      // console.log('sendto--HOP')
-      // console.log(data)
       this.websocket.send(JSON.stringify(data))
       // keep list of message per session live?
       // this.messages.push( { from: "send", message: to_send.message } )

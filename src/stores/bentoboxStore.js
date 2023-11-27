@@ -19,7 +19,6 @@ export const bentoboxStore = defineStore('bentostore', {
       this.chartStyle[id] = style
     },
     setBoxlocation (loc) {
-      console.log(loc)
       // const tempLoc = {}
       // tempLoc.x = 10
       // tempLoc.y = 10

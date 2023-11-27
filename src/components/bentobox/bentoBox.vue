@@ -65,8 +65,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   let timerPress = ref(0)
 
   const eHandler = (data) => {
-    // console.log('move')
-    // console.log(data)
     width = data.width;
     height = data.height;
     left = data.left;
@@ -80,17 +78,12 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     if (timeDiff < 2000) {
       setTimeout(longHoldCheck, 1)
     } else {
-      console.log('yes long press')
       storeAI.longPress = true
     }
   }
 
   const eHandlerTimerStart = (data) => {
-    // console.log('move down START')
-    // console.log(data)
-    // set timer start
     timerPress = new Date()
-    // console.log(timerPress)
     setTimeout(longHoldCheck, 1)
    }
 
@@ -98,7 +91,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     // set timer start
     timerPress = new Date()
     if (startTime > 20000) {
-      console.log('long press')
       timeLong = true
     }
    }
