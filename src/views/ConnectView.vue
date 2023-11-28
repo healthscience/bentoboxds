@@ -5,14 +5,14 @@
 </template>
 
 <script setup>
-//import init, { greet, add_heading } from './../pkg/learnwasm.js'
+// import init, { greet, add_heading } from './../pkg/learnwasm.js'
 // import { useCounterStore } from '@/stores/counter'
 
 
-import { useSafeFlowStore } from '@/stores/SafeFlowStore.js'
+// import { useSafeFlowStore } from '@/stores/SafeFlowStore.js'
   // counter
-  const SafeFlow = useSafeFlowStore()
-  SafeFlow.connectSafeFlow()
+  // const SafeFlow = useSafeFlowStore()
+  // SafeFlow.connectSafeFlow()
   // SafeFlow.confirmConnect()
 
 </script>
