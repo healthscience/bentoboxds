@@ -3,7 +3,7 @@
 describe('base layout mobile', () => {
   it('visits the mobile app url', () => {
     cy.viewport(600, 300)
-    cy.visit('https://localhost:4173/')
+    cy.visit('/')
     cy.get('#app').find('.bentobox-main-nav')
     cy.get('.bentobox-main-nav').find('#mobile-menu-live')
   })

@@ -29,6 +29,12 @@ export const useSocketStore = defineStore({
       this.websocket.onopen = this.onSocketOpen
       this.websocket.onmessage = this.onSocketMessage
       this.websocket.onerror = this.onSockerError
+      this.websocket.onclose = this.onSockerClose
+      window.addEventListener("unload", function () {
+        console.log('refreshpage')
+        if(this.socket.readyState == WebSocket.OPEN)
+          socket.close()
+      })
     },
     onSocketOpen (evt) {
       this.connection_ready = true
@@ -62,6 +68,9 @@ export const useSocketStore = defineStore({
     },    
     onSockerError (evt) {
       this.connection_error = true
+    },
+    onSocketClose (evt) {
+      this.websocket.close()
     }
   }
 })

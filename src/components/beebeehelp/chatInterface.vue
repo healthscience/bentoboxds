@@ -20,7 +20,7 @@
               </div>
               <div v-else-if="chati.reply.type === 'upload'">
                 {{ chati.reply.data.text }}
-                <button @click="uploadButton">Click to upload file</button>
+                <button id="upload-button" @click="uploadButton">Click to upload file</button>
               </div>
               <div v-else-if="chati.reply.type === 'library-peerlibrary'">
                 <button>library</button>
@@ -29,7 +29,7 @@
               <div v-else>
                 {{ chati.reply.data.text }}
                 <div v-if="chati.reply.action === 'upload'">
-                  <button @click="uploadButton">Click to upload file</button>
+                  <button id="upload-button" @click="uploadButton">Click to upload file</button>
                 </div>
               </div>
             </div>
