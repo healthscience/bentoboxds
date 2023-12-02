@@ -16,15 +16,16 @@
                 <span>Datatype: {{ chati.data.library.text }} for month {{ chati.data.time.words.day }} day {{ chati.data.time.words.month }}</span>--- <button id="new-query" @click.prevent="beebeeChartSpace(chati.data)">yes, produce chart</button>
               </div>
               <div v-else-if="chati.reply.type === 'bbai-reply'">
-                {{ chati.reply.data }}
+                <div v-if="chati.reply.data.type !== 'library-peerlibrary'">
+                  {{ chati.reply.data }}
+                </div>
               </div>
               <div v-else-if="chati.reply.type === 'upload'">
                 {{ chati.reply.data.text }}
                 <button id="upload-button" @click="uploadButton">Click to upload file</button>
               </div>
               <div v-else-if="chati.reply.type === 'library-peerlibrary'">
-                <button>library</button>
-                <library-view></library-view>
+                <button @click="openLibrary">open library</button>
               </div>
               <div v-else>
                 {{ chati.reply.data.text }}
@@ -56,15 +57,17 @@
 <script setup>
 import inputBox from '@/components/beebeehelp/inputBox.vue'
 import BentoBox from '@/components/bentobox/baseBox.vue'
-import LibraryView from '@/components/beebeeView/libraryView.vue'
 import { ref, computed, onMounted } from 'vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
+import { libraryStore } from '@/stores/libraryStore.js'
 
   // const askStart = ref('What would you like to chart?')
   let chartStyle = ref('')
 
   const storeAI = aiInterfaceStore()
   storeAI.beebeeChatLog // ref(false)
+
+  const storeLibrary = libraryStore()
 
   const chartBuild = style => {
     storeAI.beebeeChatLog = true
@@ -112,7 +115,15 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   }
 
   const uploadButton = () =>  {
+    storeAI.dataBoxStatus = true
     storeAI.uploadStatus = true
+    storeLibrary.libraryStatus = false
+  }
+
+  const openLibrary = () => {
+    storeAI.dataBoxStatus = true
+    storeAI.uploadStatus = false
+    storeLibrary.libraryStatus = true
   }
 
 </script>

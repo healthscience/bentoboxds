@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <!-- use the modal component, pass in the prop -->
-    <modal-data :show="uploadLive" @close="closedataBox">
+    <modal-data :show="dataBoxStatus" @close="closedataBox">
       <template #header>
         <!-- The code below goes into the header slot -->
         <div id="space-modal-header">
@@ -17,11 +17,12 @@
         </div>
         <h3>Data Box</h3>
         <button @click="networkLibraryShow">Library</button>
+        <button @click="nxpLibraryPeer">Experiments</button>
       </template>
       <template #body>
-        <space-upload v-if="uploadLive === true"></space-upload>
+        <space-upload v-if="uploadStatus === true"></space-upload>
         <csv-preview v-if="storeAI.csvpreviewLive === true"></csv-preview>
-        <div v-if="showLibrary === true">
+        <div v-if="libraryStatus === true">
           <iframe
             :src="'./xlibrary-test.html'"
             width="90%"
@@ -29,7 +30,8 @@
             name="networklibrarylive"
             frameborder="0" >
           </iframe>
-      </div>
+        </div>
+        <library-view v-if="storeLibrary.libPeerview === true"></library-view>
       </template>
       <template #footer>
       </template>
@@ -42,20 +44,22 @@ import { ref, computed } from 'vue'
 import ModalData from '@/components/dataspace/datamodal/dataModal.vue'
 import SpaceUpload from '@/components/dataspace/upload/uploadSpace.vue'
 import CsvPreview from '@/components/dataspace/upload/csvPreview.vue'
+import LibraryView from '@/components/beebeeView/libraryView.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
+import { libraryStore } from '@/stores/libraryStore.js'
 
   const storeAI = aiInterfaceStore()
   const bboxStore = bentoboxStore()
+  const storeLibrary = libraryStore()
   const showModal = ref(true)
-  const showLibrary = ref(false)
-
-  const networkLibraryShow = () => {
-    showLibrary.value = !showLibrary.value
-  }
   
-  const databoxStatus = computed(() => {
-    return storeAI.dataBoxState
+  const uploadStatus = computed(() => {
+    return storeAI.uploadStatus
+  })
+
+  const dataBoxStatus = computed(() => {
+    return storeAI.dataBoxStatus
   })
 
   // a computed ref
@@ -63,8 +67,20 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     return storeAI.uploadStatus
   })
 
+  const libraryStatus = computed(() => {
+    return storeLibrary.libraryStatus
+  })
+
   const closedataBox = () => {
-    storeAI.uploadStatus = !storeAI.uploadStatus
+    storeAI.dataBoxStatus = !storeAI.dataBoxStatus
+  }
+
+  const networkLibraryShow = () => {
+    storeLibrary.libraryStatus = !storeLibrary.libraryStatus
+  }
+
+  const nxpLibraryPeer = () => {
+    storeLibrary.libPeerview = !storeLibrary.libPeerview
   }
 </script>
 

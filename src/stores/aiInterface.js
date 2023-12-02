@@ -17,8 +17,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     historyBar: false,
     beginChat: false,
     beebeeStatus: false,
-    dataBoxState: false,
     qcount: 0,
+    dataBoxStatus: false,
     uploadStatus: false,
     chatBottom: 0,
     askQuestion: {

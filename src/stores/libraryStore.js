@@ -4,8 +4,14 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
 export const libraryStore = defineStore('librarystore', {
   state: () => ({
+    libraryStatus: false,
+    libPeerview: false,
     liveBentoBox: aiInterfaceStore(),
-    libraryMessage: ''
+    libraryMessage: '',
+    peerExperimentList: {
+      data: [1, 2, 3],
+      column: ['a', 'b', 'c']
+    }
   }),
   actions: {
     // since we rely on `this`, we cannot use an arrow function
