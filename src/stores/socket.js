@@ -30,22 +30,26 @@ export const useSocketStore = defineStore({
       this.websocket.onmessage = this.onSocketMessage
       this.websocket.onerror = this.onSockerError
       this.websocket.onclose = this.onSockerClose
-      window.addEventListener("unload", function () {
+      /* window.addEventListener("unload", function () {
         console.log('refreshpage')
         if(this.socket.readyState == WebSocket.OPEN)
           socket.close()
-      })
+      }) */
     },
     onSocketOpen (evt) {
       this.connection_ready = true
     },
     onSocketMessage (evt) {
+      console.log('ui socket')
       //we parse the json that we receive
       var received = JSON.parse(evt.data)
+      console.log(received)
       // keep in message log for session?
       this.messages.push(received)
       // parse and route to logic processing
       if (received.type === 'library') {
+        this.libStore.processReply(received)
+      } else if (received.type == 'publiclibrary') {
         this.libStore.processReply(received)
       } else if (received.type == 'upload') {
         this.aiStore.processReply(received)
@@ -70,7 +74,9 @@ export const useSocketStore = defineStore({
       this.connection_error = true
     },
     onSocketClose (evt) {
-      this.websocket.close()
+      console.log('close socket')
+      console.log(evt)
+      // this.websocket.close()
     }
   }
 })

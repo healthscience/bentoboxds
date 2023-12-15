@@ -16,7 +16,7 @@
                 <span>Datatype: {{ chati.data.library.text }} for month {{ chati.data.time.words.day }} day {{ chati.data.time.words.month }}</span>--- <button id="new-query" @click.prevent="beebeeChartSpace(chati.data)">yes, produce chart</button>
               </div>
               <div v-else-if="chati.reply.type === 'bbai-reply'">
-                <div v-if="chati.reply.data.type !== 'library-peerlibrary'">
+                <div v-if="chati.reply.data?.type !== 'library-peerlibrary'">
                   {{ chati.reply.data }}
                 </div>
               </div>

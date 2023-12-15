@@ -7,7 +7,7 @@
         :columns="peerNXPlib.columns"
         :filter-key="searchQuery">
       </list-contracts>
-      <start-experience id="start-demo-nxp" v-else></start-experience>
+      <!--<start-experience id="start-demo-nxp" v-else></start-experience>-->
     </div>
 
   </div>
@@ -15,7 +15,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import StartExperience from '@/components/beebeeView/library/StartExperience.vue'
+// import StartExperience from '@/components/beebeeView/library/StartExperience.vue'
 import ListContracts from '@/components//beebeeView/library/ListContracts.vue'
 import { libraryStore } from '@/stores/libraryStore.js'
 
@@ -23,7 +23,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   const spaceType = ref('Boards')
   const spaceState = ref('private')
-  const searchQuery = ref([])
+  const searchQuery = ref('')
 
   // a computed ref
   const peerNXPlib = computed(() => {

@@ -3,18 +3,14 @@
     <div class="list-table">
       <div class="table-header">
         <div class="row-header">
-          <div class="header-items" v-for="key in columns" :key="key.id"
-            @click="sortBy(key)"
-            :class="{ active: sortKey == key }">
-            {{ key | capitalize }}
-            <span class="arrow" :class="sortOrders[key] > 0 ? 'asc' : 'dsc'">
-            </span>
+          <div class="header-items" v-for="key in props.columns" :key="key.id">
+            {{ key }}
           </div>
         </div>
       </div>
       <div class="table-rows">
-        <div class="alternate-bk" v-for="entry in filteredExperiments" :key="entry.id">
-          <div class="table-row-columns" v-for="key in columns" :key="key.id">
+        <div class="alternate-bk" v-for="entry in props.experiments" :key="entry.id">
+          <div class="table-row-columns" v-for="key in props.columns" :key="key.id">
             <div v-if="key !== 'action'">
             {{entry[key]}}
             </div>
@@ -29,23 +25,43 @@
 </template>
 
 <script setup>
+import { ref, computed } from 'vue'
+import { libraryStore } from '@/stores/libraryStore.js'
 
-/*
-export default {
-  name: 'list-contracts',
-  components: {
-  },
-  beforeMount () {
-  },
-  created () {
-  },
-  mounted () {
-  },
-  props: {
+  const storeLibrary = libraryStore()
+
+  const sortOrders = ref({})
+
+  const props = defineProps({
     experiments: Array,
     columns: Array,
     filterKey: String
-  },
+  })
+
+  const sortBy = (key) => {
+    this.sortKey = key
+    this.sortOrders[key] = this.sortOrders[key] * -1
+  }
+
+  const actionBoard = (board, NXPcontract) => {
+      if (NXPcontract.action === 'View') {
+        console.log('view bentoboard and its boxes')
+        storeLibrary.prepareLibraryMessage(board, 'networkexperiment')
+        // this.$store.dispatch('actionHOPoutState', board)
+        // this.$store.dispatch('actionDashboardState', board)
+        // close BeeBee
+        // this.$store.dispatch('actionBBstate')
+      } else {
+        console.log('preview')
+        // preview network experiment
+        // this.$store.dispatch('actionJOINViewexperiment', board)
+        // this.refContractLookup()
+      }
+    }
+
+/*
+export default {
+
   computed: {
     showExperimentList: function () {
       return this.$store.state.experimentListshow
@@ -129,20 +145,6 @@ export default {
     },
     setactiveXNPlist (nxp) {
       this.$store.dispatch('actionLiveNXPlist', nxp)
-    },
-    actionBoard (board, NXPcontract) {
-      this.shellContract = board
-      this.actionKBundle = NXPcontract
-      if (NXPcontract.action === 'View') {
-        this.$store.dispatch('actionHOPoutState', board)
-        // this.$store.dispatch('actionDashboardState', board)
-        // close BeeBee
-        this.$store.dispatch('actionBBstate')
-      } else {
-        // preview network experiment
-        this.$store.dispatch('actionJOINViewexperiment', board)
-        this.refContractLookup()
-      }
     }
   }
 }

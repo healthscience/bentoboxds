@@ -118,7 +118,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         aiMessageout.action = 'question'
         aiMessageout.data = this.inputAskHistory[this.qcount]
         aiMessageout.bbid = hashQuestion
-        // const sendocket = useSocketStore()
         this.sendSocket.send_message(aiMessageout)
         this.helpchatHistory.push(aiMessageout)
         this.askQuestion.text = ''
@@ -153,7 +152,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           this.historyPair.push(pairBB)
         }
       }
-      if (received.action === 'library-peerlibrary') {
+      if (received.action === 'library-peerlibrary' || 'publiclibrary') {
         this.libStore.processReply(received, questionStart)
       }
       // check if reply is upload?  If yes, present upload interface
