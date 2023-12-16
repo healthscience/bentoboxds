@@ -14,7 +14,7 @@
     <header>Reference Contracts</header>
     <div id="ref-contracts-view">
       <div class="view-contract">
-        <button id="datatypesCNRL" @click.prevent="viewRefContracts('datatypes')">datatypes</button>
+        <button id="datatypesCNRL" @click.prevent="viewRefContracts('datatype')">datatypes</button>
       </div>
       <div class="view-contract">
         <button id="computeCNRL" @click.prevent="viewRefContracts('compute')">compute</button>
@@ -101,17 +101,19 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
     const getRefContracts = () => {
       statusContract.active = true
-      referenceLive = 'datatype'
+      // referenceLive.value = 'datatype'
       // ask network library for contracts via HOP
       storeLibrary.sendMessage('get-library')
     }
 
     const viewRefContracts = (type) => {
+      console.log('view ref cont type')
+  
       // ask network library for contracts for this peer
-      referenceLive = type
-      referenceState.value = !referenceState.value
-      console.log(referenceLive)
-      console.log(referenceState)
+      referenceLive.value = type
+      referenceState.value = true
+      console.log(referenceLive.value)
+      console.log(referenceState.value)
     }
 
     const makeModulecontracts = () => {
