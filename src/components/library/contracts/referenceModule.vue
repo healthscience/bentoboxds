@@ -33,35 +33,39 @@
     <header>Module Contracts</header>
     <div id="module-contracts">
       <div class="mod-contracts-view">
-        <button  id="experimentCNRL" @click.prevent="viewRefContracts('experiment-public')">modules-public</button>
+        <button  id="experimentCNRL" @click.prevent="viewRefContracts('experiment')">experiment-public</button>
       </div>
       <div class="mod-contracts-view">
-        <button id="moduleRefs" @click.prevent="viewRefContracts('modules-public')">modules-public</button>
+        <button id="moduleRefs" @click.prevent="viewRefContracts('module')">modules-public</button>
       </div>
       <div class="mod-contracts-view">
-        <button  id="experimentCNRL" @click.prevent="viewRefContracts('peer-experiment')">peer-experiment</button>
+        <button  id="experimentCNRL" @click.prevent="viewRefContracts('private-experiment')">peer-experiment</button>
       </div>
       <div class="mod-contracts-view">
-        <button id="moduleRefs" @click.prevent="viewRefContracts('peer-modules')">peer-modules </button>
+        <button id="moduleRefs" @click.prevent="viewRefContracts('private-modules')">peer-modules </button>
       </div>
     </div>
     <div id="ledger-view">
-      <!--<div class="mod-contracts-view">
-        <button id="peer-results" @click.prevent="viewRefContracts(peerResults.text)"> {{ peerResults.text }}</button>
+      <div class="mod-contracts-view">
+        <button id="peer-results" @click.prevent="viewRefContracts('results')">Peer results</button>
       </div>
       <div class="mod-contracts-view">
-        <button id="peer-kbl" @click.prevent="viewRefContracts(peerKBL.text)"> {{ peerKBL.text }}</button>
-      </div>-->
+        <button id="peer-kbl" @click.prevent="viewRefContracts('ledger')">Peer Ledger</button>
+      </div>
     </div>
     <view-reference v-if="referenceState === true" :refTypeLive="referenceLive"></view-reference>
-    <!--<view-results v-if="startRefContract.active !== true && referenceLive === 'peer-results'" :refTypeLive="referenceLive"></view-results>
-    <view-ledger v-if="startRefContract.active !== true && referenceLive === 'peer-KBL'" :refTypeLive="referenceLive"></view-ledger>
-    <new-refcontract v-if="startRefContract.active"></new-refcontract>-->
+    <view-modules v-if="moduleState === true" :refTypeLive="referenceLive"></view-modules>
+    <view-results v-if="resultsState === true" :refTypeLive="referenceLive"></view-results>
+    <view-ledger v-if="ledgerState === true" :refTypeLive="referenceLive"></view-ledger>
+    <!--<new-refcontract v-if="startRefContract.active"></new-refcontract>-->
 </template>
 
 <script setup>
 import ViewReference from '@/components/library/contracts/viewReference.vue'
-import { ref, computed, toDisplayString } from 'vue'
+import ViewModules from '@/components/library/contracts/viewModules.vue'
+import ViewResults from '@/components/library/hop/viewResults.vue'
+import ViewLedger from '@/components/library/hop/viewLedger.vue'
+import { ref } from 'vue'
 import { libraryStore } from '@/stores/libraryStore.js'
 
   const storeLibrary = libraryStore()
@@ -70,6 +74,9 @@ import { libraryStore } from '@/stores/libraryStore.js'
   /* data */
   let referenceLive = ref('')
   let referenceState = ref(false)
+  let moduleState = ref(false)
+  let resultsState = ref(false)
+  let ledgerState = ref(false)
 
   let statusContract = ref(
     {
@@ -89,7 +96,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   const newSetRefContract = (ap) => {
       // set describe data tools hidden
-      this.$store.dispatch('actionDatadescribe', false)
+      // this.$store.dispatch('actionDatadescribe', false)
       if (this.startRefContract.active === false) {
         this.startRefContract.active = true
         this.startRefContract.text = 'close'
@@ -107,13 +114,32 @@ import { libraryStore } from '@/stores/libraryStore.js'
     }
 
     const viewRefContracts = (type) => {
-      console.log('view ref cont type')
-  
+      console.log(type)
       // ask network library for contracts for this peer
-      referenceLive.value = type
-      referenceState.value = true
-      console.log(referenceLive.value)
-      console.log(referenceState.value)
+      if (type === 'datatype' || type === 'compute' || type === 'packaging' || type === 'visualise') {
+        referenceLive.value = type
+        referenceState.value = true
+        moduleState.value = false
+        resultsState.value = false
+        ledgerState.value = false
+      } else if (type === 'experiment' || type === 'private-experiment' || type === 'module' || type === 'private-modules') {
+        referenceLive.value = type
+        moduleState.value = true
+        referenceState.value = false
+        resultsState.value = false
+        ledgerState.value = false
+      } else if (type === 'results') {
+        moduleState.value = false
+        referenceState.value = false
+        resultsState.value = true
+        ledgerState.value = false
+
+      } else if (type === 'ledger') {
+        moduleState.value = false
+        referenceState.value = false
+        resultsState.value = false
+        ledgerState.value = true
+      }
     }
 
     const makeModulecontracts = () => {

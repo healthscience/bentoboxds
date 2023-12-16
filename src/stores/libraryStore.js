@@ -17,13 +17,14 @@ export const libraryStore = defineStore('librarystore', {
       column: ['a', 'b', 'c']
     },
     publicLibrary: [],
+    peerLibrary: [],
+    peerResuls: [],
+    peerLedger: [],
     peerLibraryNXP: []
   }),
   actions: {
     // since we rely on `this`, we cannot use an arrow function
     processReply (message, questionStart) {
-      console.log(message)
-      console.log(questionStart)
       if (message.action === 'save-file') {
         // set message
         this.libraryMessage = message.data.text
@@ -33,8 +34,6 @@ export const libraryStore = defineStore('librarystore', {
         // newPair.question = questionStart
         // newPair.reply = message.data
         // this.liveBentoBox.historyPair.push(newPair)
-        console.log('0------------------------')
-        console.log(message.referenceContracts)
         this.publicLibrary = message.referenceContracts
       } else if (message.action === 'library-peerlibrary') {
         // prepare network experiment lists
@@ -42,6 +41,8 @@ export const libraryStore = defineStore('librarystore', {
         newPair.question = questionStart
         newPair.reply = message.data
         this.liveBentoBox.historyPair.push(newPair)
+        // peer library data
+        this.peerLibrary = message.data.data.referenceContracts
         // prepare the list of peer experiments for library display
         this.peerExperimentList = this.utilLibrary.prepareBentoSpaceJoinedNXPlist(message.data.data.networkPeerExpModules)
         // keep track NXP contract bundle
