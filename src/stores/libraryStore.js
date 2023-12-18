@@ -18,7 +18,7 @@ export const libraryStore = defineStore('librarystore', {
     },
     publicLibrary: [],
     peerLibrary: [],
-    peerResuls: [],
+    peerResults: [],
     peerLedger: [],
     peerLibraryNXP: []
   }),
@@ -47,6 +47,12 @@ export const libraryStore = defineStore('librarystore', {
         this.peerExperimentList = this.utilLibrary.prepareBentoSpaceJoinedNXPlist(message.data.data.networkPeerExpModules)
         // keep track NXP contract bundle
         this.peerLibraryNXP = message.data.data.networkPeerExpModules
+      } else if (message.action === 'results') {
+        this.peerResults = message.data
+        console.log(this.peerResults)
+      } else if (message.action === 'ledger') {
+        this.peerLedger = message.data
+        console.log(this.peerLedger)
       }
     },
     prepareLibraryMessage (contractID, action) {
@@ -80,7 +86,7 @@ export const libraryStore = defineStore('librarystore', {
         refContract2.task = 'GET'
         // refContract2.jwt = this.state.jwttoken
         this.sendSocket.send_message(refContract2)
-      } else if (hopMessage === 'ledger')  {
+      } else if (hopMessage === 'get-results')  {
         const resultsPeer = {}
         resultsPeer.type = 'library'
         resultsPeer.action = 'results'

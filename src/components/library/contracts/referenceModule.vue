@@ -111,6 +111,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
       // referenceLive.value = 'datatype'
       // ask network library for contracts via HOP
       storeLibrary.sendMessage('get-library')
+      storeLibrary.sendMessage('get-results')
     }
 
     const viewRefContracts = (type) => {
