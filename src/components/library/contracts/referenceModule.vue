@@ -57,7 +57,7 @@
     <view-modules v-if="moduleState === true" :refTypeLive="referenceLive"></view-modules>
     <view-results v-if="resultsState === true" :refTypeLive="referenceLive"></view-results>
     <view-ledger v-if="ledgerState === true" :refTypeLive="referenceLive"></view-ledger>
-    <!--<new-refcontract v-if="startRefContract.active"></new-refcontract>-->
+    <new-refcontract v-if="startRefContract.active"></new-refcontract>
 </template>
 
 <script setup>
@@ -65,11 +65,11 @@ import ViewReference from '@/components/library/contracts/viewReference.vue'
 import ViewModules from '@/components/library/contracts/viewModules.vue'
 import ViewResults from '@/components/library/hop/viewResults.vue'
 import ViewLedger from '@/components/library/hop/viewLedger.vue'
+import NewRefcontract from '@/components/library/contracts/contribute/newRefcontract.vue'
 import { ref } from 'vue'
 import { libraryStore } from '@/stores/libraryStore.js'
 
   const storeLibrary = libraryStore()
-
 
   /* data */
   let referenceLive = ref('')
@@ -95,14 +95,12 @@ import { libraryStore } from '@/stores/libraryStore.js'
   /* methods */
 
   const newSetRefContract = (ap) => {
-      // set describe data tools hidden
-      // this.$store.dispatch('actionDatadescribe', false)
-      if (this.startRefContract.active === false) {
-        this.startRefContract.active = true
-        this.startRefContract.text = 'close'
+      if (startRefContract.value.active === false) {
+        startRefContract.value.active = true
+        startRefContract.value.text = 'close'
       } else {
-        this.startRefContract.active = false
-        this.startRefContract.text = 'New ref. contract'
+        startRefContract.value.active = false
+        startRefContract.value.text = 'New ref. contract'
       }
     }
 

@@ -27,7 +27,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   // a computed ref
   const peerNXPlib = computed(() => {
-    console.log(storeLibrary.peerExperimentList) 
     return storeLibrary.peerExperimentList
   })
 

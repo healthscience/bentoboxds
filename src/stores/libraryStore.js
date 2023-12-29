@@ -20,7 +20,35 @@ export const libraryStore = defineStore('librarystore', {
     peerLibrary: [],
     peerResults: [],
     peerLedger: [],
-    peerLibraryNXP: []
+    peerLibraryNXP: [],
+    newPackingForm:
+    {
+      authrequired: false,
+      filename: '',
+      sqlitetablename: '',
+      jsonpath: '',
+      authtoken: '',
+      apicolumns: [],
+      apicolHolder: [[]],
+      catCount: 0,
+      tidyCount: 0,
+      category: {},
+      tidy: {},
+      device:
+      {
+        id: '',
+        device_name: '',
+        device_manufacturer: '',
+        device_mac: '',
+        device_type: '',
+        device_model: '',
+        query: '',
+        location_lat: '',
+        location_long: '',
+        firmware: '',
+        mobileapp: ''
+      }
+    }
   }),
   actions: {
     // since we rely on `this`, we cannot use an arrow function
