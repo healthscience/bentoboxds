@@ -93,7 +93,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
   )
 
   /* methods */
-
   const newSetRefContract = (ap) => {
       if (startRefContract.value.active === false) {
         startRefContract.value.active = true

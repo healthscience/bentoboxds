@@ -21,6 +21,16 @@ export const libraryStore = defineStore('librarystore', {
     peerResults: [],
     peerLedger: [],
     peerLibraryNXP: [],
+    newRefcontractForm: {},
+    datatypeForm: {
+      primary: Boolean,
+      name: '',
+      description: '',
+      wiki: '',
+      rdf: '',
+      measurement: '',
+      datatypeType: ''
+    },
     newPackingForm:
     {
       authrequired: false,
@@ -131,6 +141,8 @@ export const libraryStore = defineStore('librarystore', {
         ledgerPeer.task = 'GET'
         // ledgerPeer.jwt = this.state.jwttoken
         this.sendSocket.send_message(ledgerPeer)
+      } else {
+        this.sendSocket.send_message(hopMessage)
       }
     }
   }
