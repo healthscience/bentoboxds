@@ -70,9 +70,10 @@ const formContribute = [
 const saveRefContract = () => {
     // pull together other parts of refcontract
     const refContract = {}
-    refContract.type = 'contracts'
+    refContract.type = 'library'
+    refContract.action = 'contracts'
     refContract.reftype = contractformType.value.type
-    refContract.action = 'PUT'
+    refContract.task = 'PUT'
     refContract.privacy = 'public'
     refContract.data = storeLibrary.datatypeForm
     storeLibrary.sendMessage(refContract)

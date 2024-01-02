@@ -31,6 +31,14 @@ export const libraryStore = defineStore('librarystore', {
       measurement: '',
       datatypeType: ''
     },
+    newComputeForm: {
+      primary: Boolean,
+      name: '',
+      description: '',
+      dtprefix: '',
+      code: '',
+      hash: ''
+    },
     newPackingForm:
     {
       authrequired: false,
