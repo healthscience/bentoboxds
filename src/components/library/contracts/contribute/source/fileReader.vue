@@ -95,7 +95,41 @@
 import SourceModal from '@/components/library/contracts/contribute/source/sourceModal.vue'
 import axios from 'axios'
 
-import { computed } from 'vue'
+import {ref, computed } from 'vue'
+import { libraryStore } from '@/stores/libraryStore.js'
+
+  const storeLibrary = libraryStore()
+
+  let linesLimit = ref([])
+
+  /*
+    sourceButton:
+    {
+      active: false,
+      text: 'sourcebutton'
+    },
+    lineCounter: 0,
+    lineBundle:
+    {
+      cnumber: '',
+      dataline: '',
+      delimiter: '',
+      datename: '',
+      datetype: ''
+    },
+    fileinputSeen: true,
+    fileData: {},
+    fileName: '',
+    filepath: '',
+    fileType: '',
+    fileSummary: '',
+    linesLimit: [],
+    feedbackM: '',
+    warningM: '',
+    readRemotefile: '',
+    sourceLocation: ''
+
+  */
 
   const props = defineProps({
     sourceType: String,
@@ -104,16 +138,17 @@ import { computed } from 'vue'
   })
 
   // a computed ref
-  fileStatus = computed(() => {
-    return this.$store.state.fileSaveStatus
+  const fileStatus = computed(() => {
+    console.log('file status')
+    console.log(storeLibrary.fileSaveStatus)
+    return storeLibrary.fileSaveStatus
   })
 
-  fileFeedback = computed(() => {
-    return this.$store.state.fileFeedback
+  const fileFeedback = computed(() => {
+    return storeLibrary.fileFeedback
   })
 
 /*
-
   data: () => ({
     sourceButton:
     {

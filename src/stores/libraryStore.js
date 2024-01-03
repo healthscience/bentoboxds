@@ -66,7 +66,16 @@ export const libraryStore = defineStore('librarystore', {
         firmware: '',
         mobileapp: ''
       }
-    }
+    },
+    newVisualiseForm: {
+      primary: Boolean,
+      name: '',
+      description: '',
+      structureName: '',
+      visHolder: [],
+    },
+    fileSaveStatus: false,
+    fileFeedback: ''
   }),
   actions: {
     // since we rely on `this`, we cannot use an arrow function

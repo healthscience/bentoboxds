@@ -1,7 +1,7 @@
 <template>
   <div id="source-tools">
     <div class="source-form-item">
-      <select class="select-source-id" @change="sourceSelect" v-model="source">
+      <select class="select-source-id" @change="sourceSelect" v-model="fileType">
         <option value="none" selected="">Please select</option>
         <!-- <option value="safeNetwork">SAFEnetwork</option> -->
         <!-- <option value="dat">HYERCORE</option> -->
@@ -11,9 +11,10 @@
         <option value="csv">CSV</option>
         <option value="json">JSON</option>
         <option value="sqlite">SQLite</option>
-      </select>
+      </select>--- {{ fileType }}
     </div>
-    <div class="source-form-item" id="file-space">
+    <space-upload v-if="uploadStatus === true"></space-upload>
+    <!--<div class="source-form-item" id="file-space">
       <source-file v-if="fileType === 'csv'" :sourceType="'csv'" :sourceActive="sourceState" @closeSModal="closeSModal"></source-file>
     </div>
     <div class="source-form-item" id="file-space">
@@ -24,16 +25,51 @@
     </div>
     <div class="source-form-item" id="file-space">
       <rest-api v-if="fileType === 'rest'" :sourceType="'rest'" :sourceActive="sourceState" @closeSModal="closeSModal"></rest-api>
-    </div>
+    </div>-->
   </div>
 </template>
 
-<script>
+<script setup>
+import SpaceUpload from '@/components/dataspace/upload/uploadSpace.vue'
 import SourceFile from '@/components/library/contracts/contribute/source/fileReader.vue'
 import JsonFile from '@/components/library/contracts/contribute/source/jsonReader.vue'
 import SqliteFile from '@/components/library/contracts/contribute/source/sqliteReader.vue'
 import RestApi from '@/components/library/contracts/contribute/source/restReader.vue'
 
+import { aiInterfaceStore } from '@/stores/aiInterface.js'
+import { ref, computed } from 'vue'
+
+  const storeAI = aiInterfaceStore()
+
+  // a computed ref
+  const uploadStatus = computed(() => {
+    return storeAI.uploadStatus
+  })
+
+  /* data */
+
+  let fileType = ref('')
+  let sourceState = ref(false)
+  let closeSModal =  ref(false)
+
+
+  /* methods */
+  const sourceSelect = () => {
+      storeAI.uploadStatus = !storeAI.uploadStatus
+      console.log(fileType)
+      if (fileType === 'csv') {
+        
+      } else if (fileType === 'json') {
+        
+      } else if (fileType === 'sqlite') {
+        
+      } else if (fileType === 'rest') {
+        
+      }
+      // this.$store.dispatch('buildRefPackageAPI', this.source)
+    }
+
+/*
 export default {
   name: 'source-builder',
   components: {
@@ -78,6 +114,7 @@ export default {
     }
   }
 }
+*/
 </script>
 
 <style scoped>
@@ -95,4 +132,5 @@ export default {
   justify-content: start;
   width: 300px;
 }
+
 </style>

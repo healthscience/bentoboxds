@@ -5,18 +5,18 @@
     </div>
     <div class="package-form-item">
       <label for="package-add-source">Source Primary?</label>
-      <select class="select-package-source" id="package-primary" @change="primarySelect" v-model="formData.primary">Please select
+      <select class="select-package-source" id="package-primary" @change="primarySelect" v-model="storeLibrary.newPackingForm.primary">Please select
         <option value=true>YES</option>
         <option value=false>NO</option>
       </select>
     </div>
     <div class="package-form-item">
       <label for="package-add-name">Name:</label>
-      <input id="package-mapping-name" @input="nameSave" @paste="nameSave" @keyup="nameSave" v-model="formData.name" placeholder="package mapping name" required="" type="text">
+      <input id="package-mapping-name" @input="nameSave" @paste="nameSave" @keyup="nameSave" v-model="storeLibrary.newPackingForm.name" placeholder="package mapping name" required="" type="text">
     </div>
     <div class="package-form-item">
       <label for="package-add-description">Description:</label>
-      <textarea name="message" cols="40" rows="2" required="" id="package-mapping-description" @input="descriptionSave" @paste="descriptionSave" @keyup="descriptionSave" v-model="formData.description"></textarea>
+      <textarea name="message" cols="40" rows="2" required="" id="package-mapping-description" @input="descriptionSave" @paste="descriptionSave" @keyup="descriptionSave" v-model="storeLibrary.newPackingForm.description"></textarea>
     </div>
     <div class="package-form-item">
       <label for="package-source-data">Data source:</label>
@@ -26,19 +26,19 @@
     </div>
     <div class="package-form-item">
       <label for="tidy">Authorisation required?</label>
-      <input type="checkbox" id="auth-access" @change="authrequiredSelect" v-model="formData.authrequired">
+      <input type="checkbox" id="auth-access" @change="authrequiredSelect" v-model="storeLibrary.newPackingForm.authrequired">
     </div>
     <div class="package-form-item">Authorisation
-      <describe-auth v-if="livePackForm.authrequired === true" :formData="formData"></describe-auth>
+      <describe-auth v-if="livePackForm.authrequired === true" :formData="storeLibrary.newPackingForm"></describe-auth>
     </div>
     <div id="desribe-data" v-if="datasourceLive === true">
       <div id="sqlite-table-name" v-if="filetypeLive === 'sqlite'">
         <label for="add-code-name">SQLite table name: </label>
-        <input type="text"  id="table-name-sqlite" placeholder="" required @input="sqlitetableSave" @paste="sqlitetableSave" @keyup="sqlitetableSave"  v-model="formData.sqlitetable" />
+        <input type="text"  id="table-name-sqlite" placeholder="" required @input="sqlitetableSave" @paste="sqlitetableSave" @keyup="sqlitetableSave"  v-model="storeLibrary.newPackingForm.sqlitetable" />
       </div>
       <div class="package-column-item">
         <label for="add-code-name">Column builder</label>
-        <input type="text"  id="package-base-address" placeholder="column" required  v-model="formData.columns" />
+        <input type="text"  id="package-base-address" placeholder="column" required  v-model="storeLibrary.newPackingForm.columns" />
         <a href='#' id="add-column" @click.prevent="columnsSave" >Add column </a>
         <a href='#' id="auto-column" @click.prevent="columnsAuto" > Auto add</a>
       </div>
@@ -52,13 +52,13 @@
         <a href='#' id="add-category" @click.prevent="addCategory" >Add category</a>
       </div>
       <div class="pack-info" v-for="dc of catCount" :key="dc.id" >
-          <describe-category :catID="dc" :catForm="formData.catHolder[dc]"></describe-category>
+          <describe-category :catID="dc" :catForm="storeLibrary.newPackingForm.catHolder[dc]"></describe-category>
       </div>
       <div class="pack-info">
         <a href='#' id="add-tidy-code" @click.prevent="addTidyItem">Add tidy rule</a>
       </div>
       <div class="pack-info" v-for="dty of tidyCount" :key="dty.id" >
-        <describe-tidy :tidyID="dty" :tidyForm="formData.tidyHolder[dty]"></describe-tidy>
+        <describe-tidy :tidyID="dty" :tidyForm="storeLibrary.newPackingForm.tidyHolder[dty]"></describe-tidy>
       </div>
       <div class="package-form-item">DEVICE INFO
         <describe-device></describe-device>
@@ -79,11 +79,6 @@ import { computed } from 'vue'
 import { libraryStore } from '@/stores/libraryStore.js'
 
 const storeLibrary = libraryStore()
-
-
-const props = defineProps({
-    formData: Object
-    })
 
   // a computed ref
   const livePackForm = computed(() => {

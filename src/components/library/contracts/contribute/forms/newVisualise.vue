@@ -5,29 +5,29 @@
     </div>
     <div class="visualise-form-item">
       <label for="visualise-add-source">Source Primary?</label>
-      <select class="select-package-source" id="v-primary" @input="primarySelect" @change="primarySelect" v-model="formData.primary">Please select
+      <select class="select-package-source" id="v-primary" @input="primarySelect" @change="primarySelect" v-model="storeLibrary.newVisualiseForm.primary">Please select
         <option value=true>YES</option>
         <option value=false>NO</option>
       </select>
     </div>
     <div class="visualise-form-item">
       <label for="visualise-add-name">Name:</label>
-      <input id="visualise-mapping-name" @input="nameSave" @paste="nameSave" @keyup="nameSave" v-model="formData.name" placeholder="visualise mapping name" required="" type="text">
+      <input id="visualise-mapping-name" @input="nameSave" @paste="nameSave" @keyup="nameSave" v-model="storeLibrary.newVisualiseForm.name" placeholder="visualise mapping name" required="" type="text">
     </div>
     <div class="visualise-form-item">
       <label for="visualise-add-description">Description:</label>
-      <textarea name="message" cols="40" rows="6" required="" id="visualise-mapping-description" @input="descriptionSave" @paste="descriptionSave" @keyup="descriptionSave" v-model="formData.description"></textarea>
+      <textarea name="message" cols="40" rows="6" required="" id="visualise-mapping-description" @input="descriptionSave" @paste="descriptionSave" @keyup="descriptionSave" v-model="storeLibrary.newVisualiseForm.description"></textarea>
     </div>
     <div class="visualise-form-item">
       <label for="visualise-structure-types">Structure name</label>
-      <input id="visualise-mapping-name" @input="structureSave" @paste="structureSave" @keyup="structureSave" v-model="formData.structureName" placeholder="visualise structure name" required="" type="text">
+      <input id="visualise-mapping-name" @input="structureSave" @paste="structureSave" @keyup="structureSave" v-model="storeLibrary.newVisualiseForm.structureName" placeholder="visualise structure name" required="" type="text">
     </div>
     <div id="visualise-form-item">
-      <ul class="lab-list" v-for="(dl, index) of formData.visHolder" :key='dl.id'>
+      <ul class="lab-list" v-for="(dl, index) of storeLibrary.newVisualiseForm.visHolder" :key='dl.id'>
         <div class="lab-item">
-          <input id="structure-label-name"  v-model="formData.visHolder[index].labels" placeholder="" required="" type="text">
+          <input id="structure-label-name"  v-model="storeLibrary.newVisualiseForm.visHolder[index].labels" placeholder="" required="" type="text">
           <label for="structure-add-element">Data holder</label>
-          <select class="select-structure-source" id="v-primary" @change="typeESelect(index)" v-model="formData.visHolder[index].type">Please select type
+          <select class="select-structure-source" id="v-primary" @change="typeESelect(index)" v-model="storeLibrary.newVisualiseForm.visHolder[index].type">Please select type
             <option value=null>null</option>
             <option value=Array>Array</option>
             <option value=Object>Object</option>
@@ -40,10 +40,13 @@
 </template>
 
 <script setup>
+import { libraryStore } from '@/stores/libraryStore.js'
 
-const props = defineProps({
-  formData: Object
-  })
+  const storeLibrary = libraryStore()
+
+  const addElement = () => {
+    storeLibrary.newVisualiseForm.visHolder.push({})
+  }
 
 
 /* export default {
