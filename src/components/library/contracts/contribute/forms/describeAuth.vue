@@ -1,33 +1,21 @@
 <template>
   <div id="describe-authorisation">
     <div class="auth-info">
-      <label for="auth-store">Authorise access:</label>
-      <input type="text"  id="auth-access-token" placeholder="" required @change="authtokenSave" @input="authtokenSave" @paste="authtokenSave" @keyup="authtokenSave" v-model="formData.authorisation"/>
+      <label for="auth-store">Authorise access token:</label>
+      <input type="text"  id="auth-access-token" placeholder="" required @input="authtokenSave" @paste="authtokenSave" @keyup="authtokenSave" v-model="storeLibrary.newPackingForm.authorisation"/>
     </div>
   </div>
 </template>
 
 <script setup>
+import { libraryStore } from '@/stores/libraryStore.js'
 
-/* export default {
-  name: 'describe-auth',
-  components: {
-  },
-  props: {
-    formData: {
-      type: Object
-    }
-  },
-  computed: {
-  },
-  data: () => ({
-  }),
-  methods: {
-    authtokenSave () {
-      this.$store.dispatch('actionSaveAuth', '')
-    }
+  const storeLibrary = libraryStore()
+
+  /* methods */
+  const authtokenSave = () => {
+    // this.$store.dispatch('actionSaveAuth', '')
   }
-} */
 </script>
 
 <style>

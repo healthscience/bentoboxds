@@ -11,53 +11,58 @@
         <button id="build-new-referencecontract" @click.prevent="newSetRefContract(startRefContract)">{{ startRefContract.text }}</button>
       </div>
     </div>
-    <header>Reference Contracts</header>
-    <div id="ref-contracts-view">
-      <div class="view-contract">
-        <button id="datatypesCNRL" @click.prevent="viewRefContracts('datatype')">datatypes</button>
+    <div id="reference-contract-groups">
+      <div id="ref-contracts-view" class="ref-group">
+        <header>Reference Contracts</header>
+        <div class="view-contract">
+          <button class="buttonexplore" id="datatypesCNRL" @click.prevent="viewRefContracts('datatype')">datatypes</button>
+        </div>
+        <div class="view-contract">
+          <button class="buttonexplore"  id="computeCNRL" @click.prevent="viewRefContracts('compute')">compute</button>
+        </div>
+        <!-- <div class="view-contract">
+          <button id="unitsCNRL" @click.prevent="viewRefContracts(CNRLunitseen.text)"> {{ CNRLunitseen.text }}</button>
+        </div> -->
+        <div class="view-contract">
+          <button class="buttonexplore"  id="packaingCNRL" @click.prevent="viewRefContracts('packaging')">Data Packaging</button>
+        </div>
+        <div class="view-contract">
+          <button class="buttonexplore"  id="visualiseRefs" @click.prevent="viewRefContracts('visualise')">Visualise</button>
+        </div>
       </div>
-      <div class="view-contract">
-        <button id="computeCNRL" @click.prevent="viewRefContracts('compute')">compute</button>
+      <div id="module-contracts" class="ref-group">
+        <header>Module Contracts</header>
+        <div class="mod-contracts-view">
+          <button class="buttonexplore" id="experimentCNRL" @click.prevent="viewRefContracts('experiment')">experiment-public</button>
+        </div>
+        <div class="mod-contracts-view">
+          <button class="buttonexplore"  id="moduleRefs" @click.prevent="viewRefContracts('module')">modules-public</button>
+        </div>
+        <div class="mod-contracts-view">
+          <button class="buttonexplore"  id="experimentCNRL" @click.prevent="viewRefContracts('private-experiment')">peer-experiment</button>
+        </div>
+        <div class="mod-contracts-view">
+          <button class="buttonexplore" id="moduleRefs" @click.prevent="viewRefContracts('private-modules')">peer-modules </button>
+        </div>
       </div>
-      <!-- <div class="view-contract">
-        <button id="unitsCNRL" @click.prevent="viewRefContracts(CNRLunitseen.text)"> {{ CNRLunitseen.text }}</button>
-      </div> -->
-      <div class="view-contract">
-        <button id="packaingCNRL" @click.prevent="viewRefContracts('packaging')">Data Packaging</button>
-      </div>
-      <div class="view-contract">
-        <button id="visualiseRefs" @click.prevent="viewRefContracts('visualise')">Visualise</button>
+      <div id="ledger-view" class="ref-group">
+        <header>Ledger</header>
+        <div class="mod-contracts-view">
+          <button class="buttonexplore"  id="peer-results" @click.prevent="viewRefContracts('results')">Peer results</button>
+        </div>
+        <div class="mod-contracts-view">
+          <button class="buttonexplore"  id="peer-kbl" @click.prevent="viewRefContracts('ledger')">Peer Ledger</button>
+        </div>
       </div>
     </div>
+    <div id="explorer-view" v-if="startRefContract.active != true">
+      <view-reference v-if="referenceState === true" :refTypeLive="referenceLive"></view-reference>
+      <view-modules v-if="moduleState === true" :refTypeLive="referenceLive"></view-modules>
+      <view-results v-if="resultsState === true" :refTypeLive="referenceLive"></view-results>
+      <view-ledger v-if="ledgerState === true" :refTypeLive="referenceLive"></view-ledger>
     </div>
-    <header>Module Contracts</header>
-    <div id="module-contracts">
-      <div class="mod-contracts-view">
-        <button  id="experimentCNRL" @click.prevent="viewRefContracts('experiment')">experiment-public</button>
-      </div>
-      <div class="mod-contracts-view">
-        <button id="moduleRefs" @click.prevent="viewRefContracts('module')">modules-public</button>
-      </div>
-      <div class="mod-contracts-view">
-        <button  id="experimentCNRL" @click.prevent="viewRefContracts('private-experiment')">peer-experiment</button>
-      </div>
-      <div class="mod-contracts-view">
-        <button id="moduleRefs" @click.prevent="viewRefContracts('private-modules')">peer-modules </button>
-      </div>
-    </div>
-    <div id="ledger-view">
-      <div class="mod-contracts-view">
-        <button id="peer-results" @click.prevent="viewRefContracts('results')">Peer results</button>
-      </div>
-      <div class="mod-contracts-view">
-        <button id="peer-kbl" @click.prevent="viewRefContracts('ledger')">Peer Ledger</button>
-      </div>
-    </div>
-    <view-reference v-if="referenceState === true" :refTypeLive="referenceLive"></view-reference>
-    <view-modules v-if="moduleState === true" :refTypeLive="referenceLive"></view-modules>
-    <view-results v-if="resultsState === true" :refTypeLive="referenceLive"></view-results>
-    <view-ledger v-if="ledgerState === true" :refTypeLive="referenceLive"></view-ledger>
     <new-refcontract v-if="startRefContract.active"></new-refcontract>
+  </div>
 </template>
 
 <script setup>
@@ -183,6 +188,26 @@ import { libraryStore } from '@/stores/libraryStore.js'
 #module-contracts {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+#reference-contract-groups {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+.ref-group {
+  border-left: 1px dashed rgb(228, 138, 69);
+  padding-left: 20px;
+}
+
+#ref-contracts-view,#module-contracts,#ledger-view {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.buttonexplore {
+  min-width: 200px;
+  border: 2px solid orange;
 }
 
 @media (min-width: 1024px) {

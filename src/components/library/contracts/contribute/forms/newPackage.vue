@@ -5,18 +5,18 @@
     </div>
     <div class="package-form-item">
       <label for="package-add-source">Source Primary?</label>
-      <select class="select-package-source" id="package-primary" @change="primarySelect" v-model="storeLibrary.newPackingForm.primary">Please select
+      <select class="select-package-source" id="package-primary" @change="primarySelect" v-model="storeLibrary.newPackagingForm.primary">Please select
         <option value=true>YES</option>
         <option value=false>NO</option>
       </select>
     </div>
     <div class="package-form-item">
       <label for="package-add-name">Name:</label>
-      <input id="package-mapping-name" @input="nameSave" @paste="nameSave" @keyup="nameSave" v-model="storeLibrary.newPackingForm.name" placeholder="package mapping name" required="" type="text">
+      <input id="package-mapping-name" @input="nameSave" @paste="nameSave" @keyup="nameSave" v-model="storeLibrary.newPackagingForm.name" placeholder="package mapping name" required="" type="text">
     </div>
     <div class="package-form-item">
       <label for="package-add-description">Description:</label>
-      <textarea name="message" cols="40" rows="2" required="" id="package-mapping-description" @input="descriptionSave" @paste="descriptionSave" @keyup="descriptionSave" v-model="storeLibrary.newPackingForm.description"></textarea>
+      <textarea name="message" cols="40" rows="2" required="" id="package-mapping-description" @input="descriptionSave" @paste="descriptionSave" @keyup="descriptionSave" v-model="storeLibrary.newPackagingForm.description"></textarea>
     </div>
     <div class="package-form-item">
       <label for="package-source-data">Data source:</label>
@@ -26,19 +26,19 @@
     </div>
     <div class="package-form-item">
       <label for="tidy">Authorisation required?</label>
-      <input type="checkbox" id="auth-access" @change="authrequiredSelect" v-model="storeLibrary.newPackingForm.authrequired">
+      <input type="checkbox" id="auth-access" v-model="storeLibrary.newPackagingForm.authrequired">
     </div>
     <div class="package-form-item">Authorisation
-      <describe-auth v-if="livePackForm.authrequired === true" :formData="storeLibrary.newPackingForm"></describe-auth>
+      <describe-auth v-if="storeLibrary.newPackagingForm.authrequired === true"></describe-auth>
     </div>
     <div id="desribe-data" v-if="datasourceLive === true">
       <div id="sqlite-table-name" v-if="filetypeLive === 'sqlite'">
         <label for="add-code-name">SQLite table name: </label>
-        <input type="text"  id="table-name-sqlite" placeholder="" required @input="sqlitetableSave" @paste="sqlitetableSave" @keyup="sqlitetableSave"  v-model="storeLibrary.newPackingForm.sqlitetable" />
+        <input type="text"  id="table-name-sqlite" placeholder="" required @input="sqlitetableSave" @paste="sqlitetableSave" @keyup="sqlitetableSave"  v-model="storeLibrary.newPackagingForm.sqlitetable" />
       </div>
       <div class="package-column-item">
         <label for="add-code-name">Column builder</label>
-        <input type="text"  id="package-base-address" placeholder="column" required  v-model="storeLibrary.newPackingForm.columns" />
+        <input type="text"  id="package-base-address" placeholder="column" required  v-model="storeLibrary.newPackagingForm.columns" />
         <a href='#' id="add-column" @click.prevent="columnsSave" >Add column </a>
         <a href='#' id="auto-column" @click.prevent="columnsAuto" > Auto add</a>
       </div>
@@ -52,13 +52,13 @@
         <a href='#' id="add-category" @click.prevent="addCategory" >Add category</a>
       </div>
       <div class="pack-info" v-for="dc of catCount" :key="dc.id" >
-          <describe-category :catID="dc" :catForm="storeLibrary.newPackingForm.catHolder[dc]"></describe-category>
+          <describe-category :catid=dc></describe-category>
       </div>
       <div class="pack-info">
         <a href='#' id="add-tidy-code" @click.prevent="addTidyItem">Add tidy rule</a>
       </div>
       <div class="pack-info" v-for="dty of tidyCount" :key="dty.id" >
-        <describe-tidy :tidyID="dty" :tidyForm="storeLibrary.newPackingForm.tidyHolder[dty]"></describe-tidy>
+        <describe-tidy :tidyid=dty></describe-tidy>
       </div>
       <div class="package-form-item">DEVICE INFO
         <describe-device></describe-device>
@@ -82,15 +82,16 @@ const storeLibrary = libraryStore()
 
   // a computed ref
   const livePackForm = computed(() => {
-    return storeLibrary.newPackingForm
+    return storeLibrary.newPackagingForm
   })
 
+  /* computed */
   const catCount = computed(() => {
-    return storeLibrary.newPackingForm.catCount
+    return storeLibrary.newPackagingForm.catCount
   })
 
   const tidyCount = computed(() => {
-      return storeLibrary.newPackingForm.tidyCount
+      return storeLibrary.newPackagingForm.tidyCount
   })
 
   const fileFeedback = computed(() => {
@@ -104,6 +105,65 @@ const storeLibrary = libraryStore()
   const filetypeLive = computed(() => {
     return storeLibrary.sourceFiletype
   })
+
+  /* methods */
+  const authrequiredSelect = (ak) => {
+    // this.$store.dispatch('buildRefPackageAuthrequired', this.formData.authrequired)
+  }
+
+  const columnsSave = (ad) => {
+    console.log(ad.target)
+    /* let colCount
+    if (state.newPackagingForm.apicolumns.length === 0) {
+      colCount = 1
+    } else {
+      colCount = state.newPackagingForm.apicolumns.length + 1
+    } */
+    const newColumn = {}
+    newColumn.count = 1
+    newColumn.name = ad
+    // state.newPackagingForm.apicolumns.push(newColumn)
+    // state.newPackagingForm.apicolHolder.push([])
+    storeLibrary.newDatafile.columns.push(newColumn)
+  }
+
+  const columnsAuto = (ak) => {
+    // needs to be info. back from save.
+    let colCount = 0
+    if (storeLibrary.newPackagingForm.apicolumns.length === 0) {
+      colCount = 1
+    } else {
+      colCount = storeLibrary.newPackagingForm.apicolumns.length + 1
+    }
+    for (const col of storeLibrary.newPackagingForm.apicolumns) {
+      const newColumn = {}
+      newColumn.count = colCount
+      newColumn.name = col
+      storeLibrary.newDatafile.columns.push(newColumn)
+      storeLibrary.newPackagingForm.apicolHolder.push([])
+      colCount++
+    }
+  }
+
+  const addCategory = () => {
+    storeLibrary.newPackagingForm.catCount++
+    const catBundle = {}
+    catBundle.category = {}
+    catBundle.column = {}
+    catBundle.rule = ''
+    storeLibrary.newPackagingForm.category[catCount.value] = catBundle
+    storeLibrary.newPackagingForm.catHolder[catCount.value] = {}
+  }
+
+  const addTidyItem = () => {
+    storeLibrary.newPackagingForm.tidyCount++
+    const tidyBundle = {}
+    tidyBundle.tidy = {}
+    tidyBundle.datatype = {}
+    tidyBundle.rule = {}
+    storeLibrary.newPackagingForm.tidy[tidyCount.value] = tidyBundle
+    storeLibrary.newPackagingForm.tidyHolder[tidyCount.value] = {}
+  }
 
 /*
 export default {

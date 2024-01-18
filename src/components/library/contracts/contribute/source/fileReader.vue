@@ -102,35 +102,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   let linesLimit = ref([])
 
-  /*
-    sourceButton:
-    {
-      active: false,
-      text: 'sourcebutton'
-    },
-    lineCounter: 0,
-    lineBundle:
-    {
-      cnumber: '',
-      dataline: '',
-      delimiter: '',
-      datename: '',
-      datetype: ''
-    },
-    fileinputSeen: true,
-    fileData: {},
-    fileName: '',
-    filepath: '',
-    fileType: '',
-    fileSummary: '',
-    linesLimit: [],
-    feedbackM: '',
-    warningM: '',
-    readRemotefile: '',
-    sourceLocation: ''
-
-  */
-
   const props = defineProps({
     sourceType: String,
     sourceActive: Boolean,
@@ -139,8 +110,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   // a computed ref
   const fileStatus = computed(() => {
-    console.log('file status')
-    console.log(storeLibrary.fileSaveStatus)
     return storeLibrary.fileSaveStatus
   })
 

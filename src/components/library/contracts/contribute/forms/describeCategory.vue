@@ -2,25 +2,48 @@
   <div id="describe-category">
     Category
     <label for="package-add-category">Select datatype:</label>
-    <select class="select-categor-id" id="category-mapping-build" @change="categoryDTSelect" v-model="catForm.category">
+    <select class="select-categor-id" id="category-mapping-build" @change="categoryDTSelect" v-model="storeLibrary.newPackagingForm.category[props.catid].category">
       <option value="none" selected="">Please select</option>
-      <option v-for="dtl in datatypesLive" :key="dtl.key" v-bind:value="dtl.key">
+      <option v-for="dtl in libraryStore.datatypesLive" :key="dtl.key" v-bind:value="dtl.key">
         <option value=dtl.key>{{ dtl.value.concept.name }}</option>
       </option>
     </select>
     <label for="package-add-category">Select column:</label>
-    <select class="select-categor-id" id="category-mapping-build" @change="categorycolumnSelect" v-model="catForm.categorycolumn">
+    <select class="select-categor-id" id="category-mapping-build" @change="categorycolumnSelect" v-model="storeLibrary.newPackagingForm.category[props.catid].column">
       <option value="none" selected="">Select column</option>
-      <option v-for="dtl in datatypesLive" :key="dtl.key" v-bind:value="dtl.key">
+      <option v-for="dtl in storeLibrary.publicLibrary.datatype">
         <option value=dtl.key>{{ dtl.value.concept.name }}</option>
       </option>
     </select>
     <label for="add-category-rule">Rule/code:</label>
-    <input type="text"  id="mapping-rule-code" placeholder="" required @change="categoryruleSave" @paste="categoryruleSave" @keyup="categoryruleSave" v-model="catForm.categoryrule" />
+    <input type="text"  id="mapping-rule-code" placeholder="" required @change="categoryruleSave" @paste="categoryruleSave" @keyup="categoryruleSave" v-model="storeLibrary.newPackagingForm.category[props.catid].rule" />
   </div>
 </template>
 
 <script setup>
+import { ref, computed } from 'vue'
+import { libraryStore } from '@/stores/libraryStore.js'
+
+const storeLibrary = libraryStore()
+
+const props = defineProps({
+    catid: Number
+  })
+
+  /* methods */
+  const categoryDTSelect = () => {
+    // this.$store.dispatch('buildRefPackageCategory', this.newPackagingForm.category)
+  }
+
+  const categorycolumnSelect = () => {
+    // this.$store.dispatch('buildRefPackageCategoryColumn', this.newPackagingForm.categorycolumn)
+  }
+  
+  const categoryruleSave = () => {
+    // this.$store.dispatch('buildRefPackageCategoryRule', this.newPackagingForm.categoryrule)
+  }
+
+// datatypesLive
 
 /* export default {
   name: 'describe-category',
@@ -28,7 +51,7 @@
   },
   props: {
     catID: null,
-    catForm: {
+    newPackagingForm: {
       type: Object
     }
   },
@@ -42,16 +65,7 @@
   },
   data: () => ({
   }),
-  methods: {
-    categoryDTSelect () {
-      this.$store.dispatch('buildRefPackageCategory', this.catForm.category)
-    },
-    categorycolumnSelect () {
-      this.$store.dispatch('buildRefPackageCategoryColumn', this.catForm.categorycolumn)
-    },
-    categoryruleSave () {
-      this.$store.dispatch('buildRefPackageCategoryRule', this.catForm.categoryrule)
-    }
+
   }
 } */
 </script>

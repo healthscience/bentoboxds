@@ -1,100 +1,93 @@
 <template>
   <div id="describe-data">
-    <div class="row">
-      <div class="col-3">
-        <h3>Datatypes available</h3>
-        <div class="list-group" :list="list1" group="people" @change="log">
-          <div
-            class="list-group-item"
-            v-for="(element) in list1"
-            :key="element.key"
-          >
-            {{ element.value.concept.name }}
-          </div>
-        </div>
+    <div id="library-datatypes"
+      v-on:dragover.prevent
+      v-on:drop="handleDrop($event, libraryDatatypes)"
+    >
+      <h3>Datatypes available</h3>
+      <div class="list-dt-item" 
+          v-for="(element) in storeLibrary.publicLibrary.datatype"
+          :key="element.key"
+          draggable="true"
+          v-on:dragstart="handleDragStart($event, element)"
+        >
+          {{ element.value.concept.name }}
       </div>
-      <div id="data-columns">
-        <header>Drag datatype to column name</header>
-        <ul v-for='col in dtcolumns' :key='col.id'>
-          <div class="col-name">
-            <h3>{{ col.name }}</h3>
-            <div class="list-group" :list="newLists[col.count]" group="people" @change="log">
-              <div
-                class="list-match-item"
-                v-for="(element) in newLists[col.count]"
-                :key="element.key"
-              >
-                {{ element.value.concept.name }}
-              </div>
+    </div>
+    <div id="match-datatypes">
+      <header>Drag datatype to column name</header>
+      <div
+        v-for='col in storeLibrary.newDatafile.columns'
+        :key='col.id'
+      >
+        <div class="col-name"
+
+        >
+          <h3>{{ col.name }}</h3>
+          <div class="list-group" :list="storeLibrary.newLists[col.count]" group="matchdt" 
+            v-on:dragover.prevent
+            v-on:drop="handleDrop($event, col.count)"
+          >
+            <div
+              class="list-match-item">
+              {{ storeLibrary.newLists[col.count]?.value.concept.name }}
             </div>
           </div>
-        </ul>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-// import draggable from 'vuedraggable'
-/*
-export default {
-  name: 'describe-data',
-  components: {
-    draggable
-  },
-  props: {
-  },
-  computed: {
-    list1: function () {
-      return this.$store.state.dataTypesLive
-    },
-    dtcolumns: function () {
-      return this.$store.state.newPackingForm.apicolumns
-    },
-    newLists: function () {
-      return this.$store.state.newPackingForm.apicolHolder
-    }
-  },
-  data () {
-    return {
-      index: 0
-    }
-  },
-  methods: {
-    log: function (evt) {
-      // window.console.log(evt)
-    }
+import { ref, computed } from 'vue'
+import { libraryStore } from '@/stores/libraryStore.js'
+
+  const storeLibrary = libraryStore()
+
+  let libraryDatatypes = ref(storeLibrary.publicLibrary.datatype)
+
+  /* computed */
+  const dtcolumns = computed(() => {
+    return storeLibrary.newPackingForm.apicolHolder
+  })
+
+  const handleDragStart = (event, itemData) => {
+    event.dataTransfer.setData('application/json', JSON.stringify(itemData))
   }
-}
-*/
+
+  const handleDrop = (event, targetContainer) => {
+    const itemData = JSON.parse(event.dataTransfer.getData('application/json'))
+    // match id to datatype
+    let matchDatatype = itemData
+    storeLibrary.newLists[targetContainer] = {}
+    storeLibrary.newLists[targetContainer] = matchDatatype
+  }
+
 </script>
 
-<style>
-#module-builder {
+<style scoped>
+#describe-data {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
 }
 
-.row {
-  border: 3px solid lightgrey;
-  min-height: 2em;
+#library-datatypes {
+  border: 2px solid blue;
 }
 
-.col-3 {
-  display: inline-block;
-  vertical-align: text-top;
-  width: 25%;
-  border: 2px solid grey;
-  margin-right: 4em;
+#match-datatypes {
+  border: 2px solid green;
 }
 
 .col-name {
   display: inline-block;
   vertical-align: text-top;
   width: 60%;
-  border: 1px solid grey;
 }
 
 #data-columns {
-  border: 2px solid orange;
+  border: 1px solid orange;
   min-height: 400px;
   vertical-align: text-top;
   display: inline-block;
@@ -116,12 +109,21 @@ export default {
   background-color: #E6ECEC;
 }
 
+.list-dt-item {
+  display: block;
+  width: 200px;
+  padding: .5em;
+  margin: 1em;
+  border: 2px solid orange;
+  background-color: #E6ECEC;
+}
+
 .list-match-item {
   display: block;
   width: 200px;
   padding: .5em;
   margin: 1em;
-  border: 1px solid lightgrey;
+  border: 2px solid orange;
   background-color: #E6ECEC;
 }
 </style>

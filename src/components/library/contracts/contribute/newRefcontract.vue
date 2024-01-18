@@ -68,6 +68,7 @@ const formContribute = [
 
 /* methods */
 const saveRefContract = () => {
+    console.log('save new ref conract')
     // pull together other parts of refcontract
     const refContract = {}
     refContract.type = 'library'
@@ -75,7 +76,16 @@ const saveRefContract = () => {
     refContract.reftype = contractformType.value.type
     refContract.task = 'PUT'
     refContract.privacy = 'public'
-    refContract.data = storeLibrary.datatypeForm
+    if (contractformType.value.type === 'datatype') {
+      refContract.data = storeLibrary.datatypeForm
+    } else if (contractformType.value.type === 'compute') {
+      refContract.data = storeLibrary.newComputeForm
+    } else if (contractformType.value.type === 'packaging') {
+      refContract.data = storeLibrary.newPackagingForm
+    } else if (contractformType.value.type === 'visualise') {
+      refContract.data = storeLibrary.newVisualiseForm
+    }
+    console.log(refContract)
     storeLibrary.sendMessage(refContract)
     // reset the form data
   }

@@ -12,6 +12,8 @@ export const libraryStore = defineStore('librarystore', {
     utilLibrary: new LibraryUtility(),
     sendSocket: useSocketStore(),
     libraryMessage: '',
+    uploadStatus: false,
+    restStatus: false,
     peerExperimentList: {
       data: [1, 2, 3],
       column: ['a', 'b', 'c']
@@ -39,15 +41,22 @@ export const libraryStore = defineStore('librarystore', {
       code: '',
       hash: ''
     },
-    newPackingForm:
+    newDatafile: {
+      columns: []
+    },
+    newPackagingForm:
     {
       authrequired: false,
+      type: '',
       filename: '',
       sqlitetablename: '',
+      baseapi: '',
       jsonpath: '',
       authtoken: '',
       apicolumns: [],
       apicolHolder: [[]],
+      catHolder: {},
+      tidyHolder: {},
       catCount: 0,
       tidyCount: 0,
       category: {},
@@ -67,6 +76,22 @@ export const libraryStore = defineStore('librarystore', {
         mobileapp: ''
       }
     },
+    fileBund: {},
+    fileBundleList: [],
+    linesLimit: [],
+    csvpreviewLive: false,
+    lineBundle:
+    {
+      cnumber: '',
+      dataline: '',
+      delimiter: '',
+      datetype: ''
+    },
+    catForm: {
+      category: '',
+      categorycolumn: '',
+      categoryrule: '',
+    },
     newVisualiseForm: {
       primary: Boolean,
       name: '',
@@ -74,6 +99,19 @@ export const libraryStore = defineStore('librarystore', {
       structureName: '',
       visHolder: [],
     },
+    deviceForm:
+    {
+      query: '',
+      name: '',
+      mac_address: '',
+      location_lat: '',
+      location_long: '',
+      firmware: '',
+      mobileapp: ''
+    },
+    sourceDataSelected: false,
+    newLists: {},
+    dtcolumns: [],
     fileSaveStatus: false,
     fileFeedback: ''
   }),
@@ -82,7 +120,8 @@ export const libraryStore = defineStore('librarystore', {
     processReply (message, questionStart) {
       if (message.action === 'save-file') {
         // set message
-        this.libraryMessage = message.data.text
+        this.libraryMessage = message.data
+        this.newPackagingForm.apicolumns = message.data.data.headerinfo.splitwords
       } else if (message.type === 'publiclibrary') {
         // prepare public library
         // let newPair = {}
@@ -104,10 +143,8 @@ export const libraryStore = defineStore('librarystore', {
         this.peerLibraryNXP = message.data.data.networkPeerExpModules
       } else if (message.action === 'results') {
         this.peerResults = message.data
-        console.log(this.peerResults)
       } else if (message.action === 'ledger') {
         this.peerLedger = message.data
-        console.log(this.peerLedger)
       }
     },
     prepareLibraryMessage (contractID, action) {
@@ -115,11 +152,11 @@ export const libraryStore = defineStore('librarystore', {
       let libMessageout = {}
       libMessageout.type = 'library'
       libMessageout.action = 'contracts'
-      libMessageout.reftype = 'assemble'
-      libMessageout.task = 'experiment'
+      libMessageout.reftype = 'experiment'
+      libMessageout.privacy = 'private'
+      libMessageout.task = 'assemble'
       libMessageout.data = contractData
       libMessageout.bbid = 'nxp-123'
-      console.log(libMessageout)
       this.sendSocket.send_message(libMessageout)
     },
     sendMessage (hopMessage) {

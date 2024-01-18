@@ -16,7 +16,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 // import StartExperience from '@/components/beebeeView/library/StartExperience.vue'
-import ListContracts from '@/components//beebeeView/library/ListContracts.vue'
+import ListContracts from '@/components/library/contracts/list/ListContracts.vue'
 import { libraryStore } from '@/stores/libraryStore.js'
 
   const storeLibrary = libraryStore()

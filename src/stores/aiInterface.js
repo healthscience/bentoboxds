@@ -19,7 +19,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     beebeeStatus: false,
     qcount: 0,
     dataBoxStatus: false,
-    uploadStatus: false,
     chatBottom: 0,
     askQuestion: {
       text: ''
@@ -61,11 +60,11 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     longPress: false,
     liveBspace: '',
     bentoboxList: {}, // ['123', '345', '564343']
-    csvpreviewLive: false,
-    linesLimit: []
   }),
   actions: {
     sendMessageHOP (message) {
+      console.log('send mpapage socket')
+      console.log(message)
       this.sendSocket.send_message(message)
     },
     actionBBAI () {
@@ -93,7 +92,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     },
     submitAsk () {
       // remove start boxes
-      this.uploadStatus = false
       this.startChat = false
       this.historyBar = true
       let saveQ = {}
@@ -169,9 +167,22 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.hopSummary.push({ HOPid: inputID[0], summary: dataSummary })
     },
     processHOPdata (dataHOP) {
+      // close databox
       // match input id to bbid
-      // is the data for past or future
-      if (dataHOP.context.input.update !== 'predict-future') {
+      // is the data for past or future or no data
+      if (dataHOP.data.data === 'none') {
+        this.dataBoxStatus = !this.dataBoxStatus
+        let pairBB = {}
+        let question = {}
+        question.data = { active: false }
+        pairBB.question = question
+        let reply = {}
+        reply.time = new Date()
+        reply.type = 'feedback'
+        reply.data = { text: 'no data for this network experiment'}
+        pairBB.reply = reply
+        this.historyPair.push(pairBB)
+      } else if (dataHOP.context.input.update !== 'predict-future') {
         let matchBBID = ''
         for (let bhid of this.bbidHOPid) {
           if (bhid.HOPid === dataHOP.context.input.key) {

@@ -41,6 +41,7 @@ export const useSocketStore = defineStore({
     },
     onSocketMessage (evt) {
       console.log('ui socket')
+      // console.log(evt)
       //we parse the json that we receive
       var received = JSON.parse(evt.data)
       console.log(received)

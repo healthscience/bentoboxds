@@ -21,16 +21,10 @@
       </template>
       <template #body>
         <space-upload v-if="uploadStatus === true"></space-upload>
-        <csv-preview v-if="storeAI.csvpreviewLive === true"></csv-preview>
+        <rest-upload v-if="restStatus === true"></rest-upload>
+        <csv-preview v-if="storeLibrary.csvpreviewLive === true"></csv-preview>
         <div v-if="libraryStatus === true">
           <network-library></network-library>
-          <!--<iframe
-            :src="'./xlibrary-test.html'"
-            width="90%"
-            height="1200px"
-            name="networklibrarylive"
-            frameborder="0" >
-          </iframe>-->
         </div>
         <library-view v-if="storeLibrary.libPeerview === true"></library-view>
       </template>
@@ -44,6 +38,7 @@
 import { ref, computed } from 'vue'
 import ModalData from '@/components/dataspace/datamodal/dataModal.vue'
 import SpaceUpload from '@/components/dataspace/upload/uploadSpace.vue'
+import RestUpload from '@/components/dataspace/upload/restUpload.vue'
 import CsvPreview from '@/components/dataspace/upload/csvPreview.vue'
 import NetworkLibrary from '@/components/library/index.vue'
 import LibraryView from '@/components/beebeeView/libraryView.vue'
@@ -57,8 +52,13 @@ import { libraryStore } from '@/stores/libraryStore.js'
   const showModal = ref(true)
   
   const uploadStatus = computed(() => {
-    return storeAI.uploadStatus
+    return storeLibrary.uploadStatus
   })
+
+  const restStatus = computed(() => {
+    return storeLibrary.restStatus
+  })
+
 
   const dataBoxStatus = computed(() => {
     return storeAI.dataBoxStatus
@@ -66,7 +66,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   // a computed ref
   const uploadLive = computed(() => {
-    return storeAI.uploadStatus
+    return storeLibrary.uploadStatus
   })
 
   const libraryStatus = computed(() => {

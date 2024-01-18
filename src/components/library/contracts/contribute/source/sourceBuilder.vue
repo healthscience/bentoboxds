@@ -11,110 +11,47 @@
         <option value="csv">CSV</option>
         <option value="json">JSON</option>
         <option value="sqlite">SQLite</option>
-      </select>--- {{ fileType }}
+      </select>
     </div>
-    <space-upload v-if="uploadStatus === true"></space-upload>
-    <!--<div class="source-form-item" id="file-space">
-      <source-file v-if="fileType === 'csv'" :sourceType="'csv'" :sourceActive="sourceState" @closeSModal="closeSModal"></source-file>
-    </div>
-    <div class="source-form-item" id="file-space">
-      <json-file v-if="fileType === 'json'" :sourceType="'json'" :sourceActive="sourceState" @closeSModal="closeSModal"></json-file>
-    </div>
-    <div class="source-form-item" id="file-space">
-      <sqlite-file v-if="fileType === 'sqlite'" :sourceType="'sqlite'" :sourceActive="sourceState" @closeSModal="closeSModal"></sqlite-file>
-    </div>
-    <div class="source-form-item" id="file-space">
-      <rest-api v-if="fileType === 'rest'" :sourceType="'rest'" :sourceActive="sourceState" @closeSModal="closeSModal"></rest-api>
-    </div>-->
   </div>
 </template>
 
 <script setup>
-import SpaceUpload from '@/components/dataspace/upload/uploadSpace.vue'
-import SourceFile from '@/components/library/contracts/contribute/source/fileReader.vue'
-import JsonFile from '@/components/library/contracts/contribute/source/jsonReader.vue'
-import SqliteFile from '@/components/library/contracts/contribute/source/sqliteReader.vue'
-import RestApi from '@/components/library/contracts/contribute/source/restReader.vue'
-
-import { aiInterfaceStore } from '@/stores/aiInterface.js'
+import { libraryStore } from '@/stores/libraryStore.js'
 import { ref, computed } from 'vue'
 
-  const storeAI = aiInterfaceStore()
+  const storeLibrary = libraryStore()
 
   // a computed ref
   const uploadStatus = computed(() => {
-    return storeAI.uploadStatus
+    return storeLibrary.uploadStatus
   })
 
   /* data */
 
   let fileType = ref('')
-  let sourceState = ref(false)
-  let closeSModal =  ref(false)
-
 
   /* methods */
   const sourceSelect = () => {
-      storeAI.uploadStatus = !storeAI.uploadStatus
-      console.log(fileType)
-      if (fileType === 'csv') {
-        
-      } else if (fileType === 'json') {
-        
-      } else if (fileType === 'sqlite') {
-        
-      } else if (fileType === 'rest') {
-        
-      }
-      // this.$store.dispatch('buildRefPackageAPI', this.source)
-    }
-
-/*
-export default {
-  name: 'source-builder',
-  components: {
-    SourceFile,
-    JsonFile,
-    SqliteFile,
-    RestApi
-  },
-  props: {
-    sourceType: String,
-    sourceActive: Boolean
-  },
-  computed: {
-  },
-  data: () => ({
-    source: '',
-    fileType: '',
-    sourceState: false
-  }),
-  created () {
-  },
-  mounted () {
-  },
-  visualised: {
-  },
-  methods: {
-    sourceSelect () {
-      this.fileType = this.source
-      if (this.source === 'csv') {
-        this.sourceState = !this.sourceState
-      } else if (this.source === 'json') {
-        this.sourceState = !this.sourceState
-      } else if (this.source === 'sqlite') {
-        this.sourceState = !this.sourceState
-      } else if (this.source === 'rest') {
-        this.sourceState = !this.sourceState
-      }
-      this.$store.dispatch('buildRefPackageAPI', this.source)
-    },
-    closeSModal () {
-      this.sourceState = !this.sourceState
+    if (fileType.value === 'csv') {
+      storeLibrary.uploadStatus = !storeLibrary.uploadStatus
+      storeLibrary.sourceDataSelected = !storeLibrary.sourceDataSelected
+      storeLibrary.newPackagingForm.type = 'csv'
+    } else if (fileType.value === 'json') {
+      storeLibrary.uploadStatus = !storeLibrary.uploadStatus
+      storeLibrary.sourceDataSelected = !storeLibrary.sourceDataSelected
+      storeLibrary.newPackagingForm.type = 'json'
+    } else if (fileType.value === 'sqlite') {
+      storeLibrary.uploadStatus = !storeLibrary.uploadStatus
+      storeLibrary.sourceDataSelected = !storeLibrary.sourceDataSelected
+      storeLibrary.newPackagingForm.type = 'sqlite'
+    } else if (fileType.value === 'rest') {
+      storeLibrary.restStatus = !storeLibrary.restStatus
+      // storeLibrary.sourceDataSelected = !storeLibrary.sourceDataSelected
+      storeLibrary.newPackagingForm.type = 'rest'
     }
   }
-}
-*/
+
 </script>
 
 <style scoped>
