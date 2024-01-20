@@ -21,7 +21,7 @@
 		<button @click.prevent="saveFiles(file)" class="upload-button">Upload</button>
 		<div id="library-message">
 			<header>Library feedback</header>
-			File {{ storeLibrary.libraryMessage.data.headerinfo.splitwords }} saved: {{ storeLibrary.libraryMessage.success }}
+			File {{ storeLibrary.libraryMessage.data?.headerinfo.splitwords }} saved: {{ storeLibrary.libraryMessage.success }}
 		</div>
 	</div>
 </template>
@@ -30,8 +30,6 @@
 // Components
 import DropZone from '@/components/dataspace/upload/dropZone.vue'
 import FilePreview from '@/components/dataspace/upload/filePreview.vue'
-import { aiInterfaceStore } from '@/stores/aiInterface.js'
-import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 // import { useObjectUrl } from '@vueuse/core'
 // import { shallowRef } from 'vue'

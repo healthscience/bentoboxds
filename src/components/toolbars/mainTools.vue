@@ -32,17 +32,24 @@
           </nav>
         </div>
         <div class="bentobox-top">
-          <div class="bb-align">Sign-in</div>
+          <div class="bb-align" @click="selfAuth">Sign-in</div>
         </div>
       </header>
     </div>
+    <account-box v-if="storeAccount.accountStatus === true"></account-box>
   </div>
 </template>
 
 <script setup>
 import mobileMenu from '@/components/toolbars/mobileNav.vue'
 import DropDown from '@/components/toolbars/dropDown.vue'
+import AccountBox from '@/components/toolbars/account/selfAuth.vue'
+
+import { accountStore } from '@/stores/accountStore.js'
+
 import { ref, onMounted } from 'vue'
+
+  const storeAccount = accountStore()
 
   let mobileSize = ref(true)
   onMounted(() => {
@@ -56,6 +63,10 @@ import { ref, onMounted } from 'vue'
     { flag: 'zh', language: 'zh', title: '普通话' },
     { flag: 'jp', language: 'jp', title: '日本語' }
   ])
+
+  const selfAuth = () => {
+    storeAccount.accountStatus = !storeAccount.accountStatus
+  }
 
 </script>
 

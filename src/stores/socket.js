@@ -2,12 +2,14 @@ import { defineStore } from "pinia";
 // import { store } from "@/stores/store.js"
 import { aiInterfaceStore } from "@/stores/aiInterface.js"
 import { libraryStore } from "@/stores/libraryStore.js"
+import { accountStore } from "@/stores/accountStore.js"
 
 export const useSocketStore = defineStore({
   id: "socket",
   state: () => ({
     aiStore: aiInterfaceStore(),
     libStore: libraryStore(),
+    accStore: accountStore(),
     count: 0,
     websocket: {},
     connection_ready: false,
@@ -61,6 +63,8 @@ export const useSocketStore = defineStore({
       } else if (received.type == 'sf-displayEntityRange') {
       } else if (received.type == 'sf-newEntityRange') {
         this.aiStore.processHOPdata(received)
+      } else if (received.type === 'account') {
+        this.accStore.processReply(received)
       } else if (received.type == '') {
         console.log('error')       
       }
