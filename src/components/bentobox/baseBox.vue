@@ -4,10 +4,21 @@
       <div class="bb-bar-main">a bentobox</div>
       <div class="bb-bar-main"><button @click="clickExpandBentobox(props.bboxid)">expand</button></div>
       <div class="bb-bar-main"><button @click="clickAddbentoSpace(props.bboxid)">+ space</button></div>
+      <div class="bb-bar-main"><button @click="clickShareSpace(props.bboxid)">share</button></div>
       <!--<div class="bb-bar-main"><button id="network-vis">social</button></div>
       <div class="bb-bar-main"><button id="network-map">map</button></div>
       <div class="bb-bar-main"><button id="bb-copy">copy</button></div>-->
-    </div> 
+    </div>
+  </div>
+  <div id="share-form">
+    <form id="ask-ai-form" @submit.prevent="storeAccount.shareProtocol(props.bboxid)">
+      <label for="sharepeer"></label>
+      <input type="input" id="sharekey" placeholder="publickey" v-model="storeAccount.sharePubkey" autofocus>
+      <button id="share-send" type="submit">
+      Send invite
+    </button>
+    </form>
+
   </div>
   <div id="bentobox-cell">
     <div id="bb-network-graph">Network</div>
@@ -45,7 +56,9 @@ import lineChart from '@/components/visualisation/charts/lineChart.vue'
 import { ref, computed, onMounted } from 'vue'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
+import { accountStore } from '@/stores/accountStore.js'
 
+  const storeAccount = accountStore()
   const storeAI = aiInterfaceStore()
   const bbliveStore = bentoboxStore()
   const futureStatus = ref(true)
@@ -90,10 +103,15 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     storeAI.expandBentobox[boxid] = true
    }
 
-   const clickAddbentoSpace = (boxid) => {
+  const clickAddbentoSpace = (boxid) => {
     storeAI.bentoboxList['space1'].push(boxid)
-   }
+  }
 
+  const clickShareSpace = (boxid) => {
+    console.log('which peer?')
+    console.log(boxid)
+  }
+  
   const checkEmpty = computed((value) => {
     return typeof value !== "number" ? 0 : value;
   })

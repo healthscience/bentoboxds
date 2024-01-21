@@ -1,5 +1,8 @@
 <template>
-  <div id="list-space"> peer
+  <div id="list-space">
+    <div id="network-keys">
+      Public key: {{ storeAccount.networkInfo.publickey }}
+    </div>
     <button type="button" class="btn" @click.prevent="addWarmpeer()">Add new</button>
     <div v-if="addWarm === true" id="add-warm-peer">
       <input v-model="newPeername" placeholder="name">
@@ -45,8 +48,15 @@ import { accountStore } from '@/stores/accountStore.js'
 
 <style scoped>
 
+#network-keys {
+  padding: 1em;
+}
+
 @media (min-width: 1024px) {
 
+  #network-keys {
+    margin: .1em;
+  }
 }
 
 </style>
