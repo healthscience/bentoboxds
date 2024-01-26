@@ -141,10 +141,11 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   })
 
   const chartData = computed(() => {
-    return {
-      labels: dataLabel.value, // [ 'January', 'February', 'March' ],
-      datasets: [ { data: dataValues.value } ]
-    }
+    return storeAI.visData[props.bboxid]
+    /* {
+      // labels: dataLabel.value, // [ 'January', 'February', 'March' ],
+      // datasets: [ { data: dataValues.value } ]
+    } */
    })
 
      /*

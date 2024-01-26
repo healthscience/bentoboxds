@@ -112,7 +112,6 @@ const storeLibrary = libraryStore()
   }
 
   const columnsSave = (ad) => {
-    console.log(ad.target)
     /* let colCount
     if (state.newPackagingForm.apicolumns.length === 0) {
       colCount = 1

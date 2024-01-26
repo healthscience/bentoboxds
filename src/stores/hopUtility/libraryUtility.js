@@ -66,7 +66,6 @@ class LibraryUtility { //  extends EventEmitter {
   matchNXPcontract = function (contractID, nxpList) {
     let contractNXP = {}
     for (let nxp of nxpList) {
-      console.log(nxp)
       if (nxp.exp.key === contractID) {
         contractNXP = nxp
       }

@@ -10,7 +10,7 @@
       <div class="bb-bar-main"><button id="bb-copy">copy</button></div>-->
     </div>
   </div>
-  <div id="share-form">
+  <div id="share-form" v-if="shareForm">
     <form id="ask-ai-form" @submit.prevent="storeAccount.shareProtocol(props.bboxid)">
       <label for="sharepeer"></label>
       <input type="input" id="sharekey" placeholder="publickey" v-model="storeAccount.sharePubkey" autofocus>
@@ -62,6 +62,7 @@ import { accountStore } from '@/stores/accountStore.js'
   const storeAI = aiInterfaceStore()
   const bbliveStore = bentoboxStore()
   const futureStatus = ref(true)
+  const shareForm = ref(false)
 
   const props = defineProps({
     bboxid: String
@@ -108,8 +109,7 @@ import { accountStore } from '@/stores/accountStore.js'
   }
 
   const clickShareSpace = (boxid) => {
-    console.log('which peer?')
-    console.log(boxid)
+    shareForm.value = !shareForm.value
   }
   
   const checkEmpty = computed((value) => {
@@ -127,10 +127,11 @@ import { accountStore } from '@/stores/accountStore.js'
   })
 
   const chartData = computed(() => {
-    return {
-      labels: dataLabel.value, // [ 'January', 'February', 'March' ],
-      datasets: [ { data: dataValues.value } ]
-    }
+    return storeAI.visData[props.bboxid]
+    /* {
+      // labels: dataLabel.value, // [ 'January', 'February', 'March' ],
+      // datasets: [ { data: dataValues.value } ]
+    } */
    })
 
   /*

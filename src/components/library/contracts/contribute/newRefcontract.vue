@@ -68,7 +68,6 @@ const formContribute = [
 
 /* methods */
 const saveRefContract = () => {
-    console.log('save new ref conract')
     // pull together other parts of refcontract
     const refContract = {}
     refContract.type = 'library'
@@ -85,7 +84,6 @@ const saveRefContract = () => {
     } else if (contractformType.value.type === 'visualise') {
       refContract.data = storeLibrary.newVisualiseForm
     }
-    console.log(refContract)
     storeLibrary.sendMessage(refContract)
     // reset the form data
   }

@@ -1,9 +1,11 @@
 import { defineStore } from 'pinia'
 import { useSocketStore } from '@/stores/socket.js'
+import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
 export const accountStore = defineStore('account', {
   state: () => ({
     sendSocket: useSocketStore(),
+    liveBentoBox: aiInterfaceStore(),
     accountStatus: false,
     peerauth: false,
     networkInfo: {},
@@ -25,10 +27,30 @@ export const accountStore = defineStore('account', {
       }
     },
     shareProtocol (boxid) {
+      // set peer live
+      let peerDetails = {}
+      peerDetails.name = 'peer'
+      peerDetails.publickey = this.sharePubkey
+      peerDetails.datastores = ''
+      this.warmPeers.push(peerDetails)
       let shareContext = {}
       // need to lookup nxp from boxid
-      shareContext.boxid = boxid
+      let sfMatch = {}
+      for (let histMatch of this.liveBentoBox.bbidHOPid) {
+        if (histMatch.bbid === boxid) {
+          sfMatch = histMatch
+        }
+      }
+      // match to summary from SafeFlow
+      let sfSummary = {}
+      for (let sumSF of this.liveBentoBox.hopSummary) {
+        if (sumSF.HOPid === sfMatch.HOPid) {
+          sfSummary = sumSF
+        }
+      }
+      shareContext.hop = sfSummary.summary
       shareContext.publickey = this.sharePubkey
+      shareContext.data = this.liveBentoBox.visData[boxid]
       let shareInfo = {}
       shareInfo.type = 'network'
       shareInfo.action = 'share'
@@ -36,8 +58,6 @@ export const accountStore = defineStore('account', {
       shareInfo.reftype = 'null'
       shareInfo.privacy = 'private'
       shareInfo.data = shareContext
-      console.log('share')
-      console.log(shareInfo)
       this.sendMessageHOP(shareInfo)
     },
     sendMessageHOP (message) {

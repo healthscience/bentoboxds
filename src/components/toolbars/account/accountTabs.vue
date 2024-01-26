@@ -56,7 +56,6 @@ let listContext = ref('')
 
 
   const selectTab = (ls) => {
-    console.log(ls)
     if (ls === 'peers') {
       peerActive.value = !peerActive.value
     } else if (ls === 'datastores') {
@@ -69,82 +68,6 @@ let listContext = ref('')
     listContext = ls
   }
 
-/*
-export default {
-  name: 'list-connections',
-  components: {
-    DatastoreList
-  },
-  props: {
-  },
-  created () {
-  },
-  mounted () {
-  },
-  computed: {
-    publicKeysList: function () {
-      let displayKeys = []
-      for (let keyi of this.$store.state.publickeys) {
-        let keyInfo = {}
-        let keyName = Object.keys(keyi)
-        keyInfo.keyname = keyName[0]
-        keyInfo.pubkey = keyi[keyInfo.keyname]
-        displayKeys.push(keyInfo)
-      }
-      return displayKeys
-    },
-    publicKeysIndex: function () {
-      return this.$store.state.publickeysIndex
-    },
-    warmPeers: function () {
-      return this.$store.state.warmNetwork
-    },
-    swarmState: function () {
-      return this.$store.state.swarmStatus
-    }
-  },
-  data: () => ({
-    tab:
-    {
-      isActive: false,
-      isDisabled: true
-    },
-    listContext: 'peers',
-    addWarm: false,
-    newPeer: '',
-    newPeername: '',
-    secretPeer: '',
-    passwordPeer: '',
-    peerDStore: '',
-    replicateList: ['peerlibrary', 'librarynetwork', 'resultspeer', 'kblpeer'],
-    peerSynckey: ''
-  }),
-  methods: {
-    selectTab (ls) {
-      this.listContext = ls
-    },
-    addWarmpeer () {
-      this.addWarm = !this.addWarm
-    },
-    addWarmNetwork () {
-      let peerHolder = {}
-      peerHolder.name = this.newPeername
-      peerHolder.publickey = this.newPeer
-      peerHolder.datastore = this.peerDStore
-      const peerContract = {}
-      peerContract.type = 'library'
-      peerContract.reftype = 'peer-add'
-      peerContract.action = 'PUT'
-      peerContract.data = peerHolder
-      const peerCJSON = JSON.stringify(peerContract)
-      this.$store.dispatch('actionAddwarmPeer', peerCJSON)
-      this.newPeername = ''
-      this.newPeer = ''
-      this.peerDStore = ''
-      this.addWarm = false
-    }
-  }
-} */
 </script>
 
 <style scoped>

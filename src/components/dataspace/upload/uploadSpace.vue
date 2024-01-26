@@ -96,7 +96,6 @@ const saveFiles = (file) => {
 	storeLibrary.fileBundleList.push(fileBundle)
   // give summary back to peer
   if (file.type === 'text/csv') {
-		console.log('save local')
     storeLibrary.csvpreviewLive = true
     const reader = new FileReader()
     reader.onloadend = function () {  // = (event) => { // = function () {
@@ -111,7 +110,6 @@ const saveFiles = (file) => {
  		}
     reader.readAsText(file)
   } else {
-		console.log('save via HOP')
 		// prepare file data for storage via HOP
 		const reader2 = new FileReader()
 		// reader2.readAsText(fileData)

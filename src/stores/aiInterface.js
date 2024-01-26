@@ -48,6 +48,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       active: false
     },
     liveFutureCollection: { active: false },
+    visData: {},
     tempNumberData: {},
     tempLabelData: {},
     expandBentobox: {},
@@ -59,11 +60,11 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     longPress: false,
     liveBspace: '',
     bentoboxList: {}, // ['123', '345', '564343']
+    countNotifications: 0,
+    notifList: [{ action: 'chart'}]
   }),
   actions: {
     sendMessageHOP (message) {
-      console.log('send mpapage socket')
-      console.log(message)
       this.sendSocket.send_message(message)
     },
     actionBBAI () {
@@ -159,6 +160,35 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.beginChat = true 
       this.chatBottom++
     },
+    processNotification (received) {
+      this.countNotifications++
+      this.notifList.push(received)
+      // add to chart part list (do now or on requrest?)
+      let pairBB = {}
+      let question = {}
+      question.bbid = received.bbid // hashObject(received)
+      question.data = { active: true, text: received.action }
+      pairBB.question = question
+      let reply = {}
+      reply.time = new Date()
+      reply.type = received.action
+      reply.data = { text: received.text }
+      pairBB.reply = reply
+      this.historyPair.push(pairBB)
+      this.beginChat = true
+      this.chatBottom++
+    },
+    processPeerData (dataNetwork) {
+      let matchBBID = dataNetwork.hop.bbid
+      let hopDataChart = {}
+      hopDataChart.datasets = [ { data: dataNetwork.data.datasets[0].data } ]
+      hopDataChart.labels = dataNetwork.data.labels
+      this.visData[matchBBID] = hopDataChart
+      this.liveBentoBox.setChartstyle(matchBBID, 'line')
+      this.expandBentobox[matchBBID] = false
+      this.beebeeChatLog[matchBBID] = true
+      this.bentoboxList['space1'] = []
+    },
     processHOPsummary (dataSummary) {
       // match bbid to HOP ID
       let inputID = Object.keys(dataSummary.data)
@@ -191,8 +221,12 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         this.bentoboxList['space1'] = []
         this.expandBentobox[matchBBID] = false
         this.beebeeChatLog[matchBBID] = true
-        this.tempNumberData[matchBBID] = dataHOP.data.data.chartPackage.datasets[0].data
-        this.tempLabelData[matchBBID] = dataHOP.data.data.chartPackage.labels
+        // this.tempNumberData[matchBBID] = dataHOP.data.data.chartPackage.datasets[0].data
+        // this.tempLabelData[matchBBID] = dataHOP.data.data.chartPackage.labels
+        let hopDataChart = {}
+        hopDataChart.datasets = [ { data: dataHOP.data.data.chartPackage.datasets[0].data } ]
+        hopDataChart.labels = dataHOP.data.data.chartPackage.labels
+        this.visData[matchBBID] = hopDataChart
         this.liveBentoBox.setChartstyle(matchBBID, dataHOP.context.moduleorder.visualise.value.info.settings.visualise)
       } else {
         // data for future prediction

@@ -27,6 +27,9 @@
           <div class="bb-align alpha-round">Alpha</div>
         </div>
         <div class="bentobox-top">
+          <network-notify></network-notify>
+        </div>
+        <div class="bentobox-top">
           <nav>
             <RouterLink to="/help">{{ $t("message.help") }}</RouterLink>
           </nav>
@@ -41,6 +44,7 @@
 </template>
 
 <script setup>
+import NetworkNotify from '@/components/toolbars/notification/networkNotify.vue'
 import mobileMenu from '@/components/toolbars/mobileNav.vue'
 import DropDown from '@/components/toolbars/dropDown.vue'
 import AccountBox from '@/components/toolbars/account/selfAuth.vue'
@@ -153,11 +157,12 @@ nav a:first-of-type {
     grid-template-columns: 1fr;
     border: 0px solid rgb(189, 30, 210);
     background-color: rgb(250, 246, 246);
-    z-index: 4  }
+    z-index: 4
+  }
 
   header {
     display: grid;
-    grid-template-columns: 4fr 1fr 2fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 4fr 1fr 2fr 1fr 1fr 1fr 1fr 1fr;
     border: 0px solid blue;
     width: 98vw;
     /*max-height: 10vh;*/

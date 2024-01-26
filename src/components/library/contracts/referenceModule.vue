@@ -117,7 +117,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
     }
 
     const viewRefContracts = (type) => {
-      console.log(type)
       // ask network library for contracts for this peer
       if (type === 'datatype' || type === 'compute' || type === 'packaging' || type === 'visualise') {
         referenceLive.value = type

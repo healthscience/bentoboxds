@@ -254,8 +254,6 @@ import { ref, computed } from 'vue'
 
   /*  computed  */
   const referenceData = computed(() => {
-    console.log('public librar refs')
-    console.log(props.refTypeLive)
     if (props.refTypeLive === 'datatype') {
       viewType.value = 'datatype-view'
     } else if (props.refTypeLive === 'compute') {

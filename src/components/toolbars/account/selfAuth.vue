@@ -69,7 +69,6 @@ import { accountStore } from '@/stores/accountStore.js'
 
   const selfVerify = () => {
     // need to setup pub/private key schnorr sign utilities
-    console.log('self auth true')
     storeAccount.peerauth = true
   }
 
