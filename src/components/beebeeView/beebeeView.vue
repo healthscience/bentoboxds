@@ -40,7 +40,6 @@ import { ref } from 'vue'
 
 const storeAI = aiInterfaceStore()
 
-// const startChat = ref(true)
 let historyActive = ref(false)
 let historyList = ref('history')
 let chartList = ref(['chat1'])

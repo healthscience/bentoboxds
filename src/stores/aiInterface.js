@@ -61,7 +61,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     liveBspace: '',
     bentoboxList: {}, // ['123', '345', '564343']
     countNotifications: 0,
-    notifList: [{ action: 'chart'}]
+    notifList: []
   }),
   actions: {
     sendMessageHOP (message) {
