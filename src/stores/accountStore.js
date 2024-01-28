@@ -32,7 +32,18 @@ export const accountStore = defineStore('account', {
       peerDetails.name = 'peer'
       peerDetails.publickey = this.sharePubkey
       peerDetails.datastores = ''
-      this.warmPeers.push(peerDetails)
+      // check if peer already added
+      if (this.warmPeers.length > 0) {
+        for (let wp of this.warmPeers) {
+          if (wp.publickey === peerDetails.publickey) {
+            
+          } else {
+            this.warmPeers.push(peerDetails)
+          }
+        }
+      } else {
+        this.warmPeers.push(peerDetails)
+      }
       let shareContext = {}
       // need to lookup nxp from boxid
       let sfMatch = {}

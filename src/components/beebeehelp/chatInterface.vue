@@ -116,7 +116,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   const uploadButton = () =>  {
     storeAI.dataBoxStatus = true
-    storeAI.uploadStatus = true
+    storeLibrary.uploadStatus = true
     storeLibrary.libraryStatus = false
   }
 

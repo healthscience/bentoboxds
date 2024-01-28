@@ -75,6 +75,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   const closedataBox = () => {
     storeAI.dataBoxStatus = !storeAI.dataBoxStatus
+    storeLibrary.uploadStatus = false
   }
 
   const networkLibraryShow = () => {

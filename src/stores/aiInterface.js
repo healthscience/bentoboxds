@@ -5,9 +5,11 @@ import { useSocketStore } from '@/stores/socket.js'
 import { bentoboxStore } from "@/stores/bentoboxStore.js"
 import { libraryStore } from '@/stores/libraryStore.js'
 import DataPraser from '@/stores/hopUtility/dataParse.js'
+import { accountStore } from "@/stores/accountStore.js"
 
 export const aiInterfaceStore = defineStore('beebeeAIstore', {
   state: () => ({
+    accStore: accountStore(),
     sendSocket: useSocketStore(),
     liveBentoBox: bentoboxStore(),
     libStore: libraryStore(),
@@ -164,19 +166,23 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.countNotifications++
       this.notifList.push(received)
       // add to chart part list (do now or on requrest?)
-      let pairBB = {}
-      let question = {}
-      question.bbid = received.bbid // hashObject(received)
-      question.data = { active: true, text: received.action }
-      pairBB.question = question
-      let reply = {}
-      reply.time = new Date()
-      reply.type = received.action
-      reply.data = { text: received.text }
-      pairBB.reply = reply
-      this.historyPair.push(pairBB)
-      this.beginChat = true
-      this.chatBottom++
+      if (received.action === 'chart') {
+        let pairBB = {}
+        let question = {}
+        question.bbid = received.bbid // hashObject(received)
+        question.data = { active: true, text: received.action }
+        pairBB.question = question
+        let reply = {}
+        reply.time = new Date()
+        reply.type = received.action
+        reply.data = { text: received.text }
+        pairBB.reply = reply
+        this.historyPair.push(pairBB)
+        this.beginChat = true
+        this.chatBottom++
+      } else if (received.action === 'warm-peer-new') {
+        this.accStore.warmPeers.push(received.data)
+      }
     },
     processPeerData (dataNetwork) {
       let matchBBID = dataNetwork.hop.bbid
