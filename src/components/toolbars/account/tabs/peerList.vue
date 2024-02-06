@@ -54,6 +54,10 @@ import { accountStore } from '@/stores/accountStore.js'
 
 @media (min-width: 1024px) {
 
+  #list-space {
+    min-height: 60vh;
+  }
+
   #network-keys {
     margin: .1em;
   }

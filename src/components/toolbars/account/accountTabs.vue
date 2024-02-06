@@ -17,7 +17,7 @@
         </div>
         <div
           class="grid-component-tab" v-bind:class="{ active: aiActive}"
-          v-on:click="selectTab('ai')"
+          v-on:click="selectTab('aiagents')"
         >
           AI
         </div>
@@ -36,6 +36,7 @@
           </div>
         </div>
         <datastore-list v-if="listContext === 'datastores'"></datastore-list>
+        <aiagents-list v-if="listContext === 'aiagents'"></aiagents-list>
         <div class="list-space" id="wallet-list" v-if="listContext === 'wallets'">
         </div>
       </div>
@@ -47,6 +48,7 @@
 import { ref } from 'vue'
 import PeerList from '@/components/toolbars/account/tabs/peerList.vue'
 import DatastoreList from '@/components/toolbars/account/tabs/datastoreList.vue'
+import AiagentsList from '@/components/toolbars/account/tabs/aiagentsList.vue'
 
 let peerActive = ref(false)
 let dsActive = ref(false)
@@ -60,7 +62,7 @@ let listContext = ref('')
       peerActive.value = !peerActive.value
     } else if (ls === 'datastores') {
       dsActive.value = !dsActive.value
-    } else if (ls === 'ai') {
+    } else if (ls === 'aiagents') {
       aiActive.value = !aiActive.value
     } else if (ls === 'wallets') {
       walletActive.value = !walletActive.value

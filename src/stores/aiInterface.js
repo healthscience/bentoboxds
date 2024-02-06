@@ -15,6 +15,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     libStore: libraryStore(),
     liveDataParse: new DataPraser(),
     startChat: true,
+    chatAttention: '',
     historyBar: false,
     beginChat: false,
     beebeeStatus: false,
@@ -38,7 +39,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     }),
     helpchatReply: '',
     helpchatHistory: shallowRef([]),
-    historyPair: [],
+    historyPair: {},
     bbidHOPid: [],
     hopSummary: [],
     futurePids: [],
@@ -63,7 +64,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     liveBspace: '',
     bentoboxList: {}, // ['123', '345', '564343']
     countNotifications: 0,
-    notifList: []
+    notifList: [],
+    boxLibSummary: {}
   }),
   actions: {
     sendMessageHOP (message) {
@@ -91,6 +93,13 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       } else {
         console.log(this.askQuestion)
       }
+    },
+    setupChatHistory (chat) {
+      // does the chat history exist if not setup
+      if (this.historyPair.hasOwnProperty(chat.chatid) === false) {
+        this.historyPair[chat.chatid] = []
+      }
+      this.beginChat = true
     },
     submitAsk () {
       // remove start boxes
@@ -149,7 +158,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
             this.tempLabelData = numberCheck.label
             histMatch.data.text = numberCheck.data
           } */
-          this.historyPair.push(pairBB)
+          this.historyPair[this.chatAttention].push(pairBB)
         }
       }
       if (received.action === 'library-peerlibrary' || 'publiclibrary') {
@@ -177,7 +186,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         reply.type = received.action
         reply.data = { text: received.text }
         pairBB.reply = reply
-        this.historyPair.push(pairBB)
+        this.historyPair[this.chatAttention].push(pairBB)
         this.beginChat = true
         this.chatBottom++
       } else if (received.action === 'warm-peer-new') {
@@ -216,7 +225,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         reply.type = 'feedback'
         reply.data = { text: 'no data for this network experiment'}
         pairBB.reply = reply
-        this.historyPair.push(pairBB)
+        this.historyPair[this.chatAttention].push(pairBB)
       } else if (dataHOP.context.input.update !== 'predict-future') {
         let matchBBID = ''
         for (let bhid of this.bbidHOPid) {
@@ -278,6 +287,30 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       aiMessageout.bbid = boxid
       const sendocket = useSocketStore()
       this.sendSocket.send_message(aiMessageout)
+    },
+    prepareLibrarySummary (boxid) {
+      for (let hi of this.hopSummary) {
+        if (hi.summary.bbid == boxid) {
+          this.boxLibSummary[boxid] = hi.summary
+        }
+      }
+    },
+    prepareBentoBoxSave (message) {
+      let settingsData = this.historyPair[message.data.chatid]
+      // loop over data to match to visualisation alread prepared.  (note. or HOPQuery to re-create via HOP)
+      let visDataperChat = [] // this.visData[]
+      for (let bbi of settingsData) {
+        let visD = this.visData[bbi.reply.bbid]
+        visDataperChat.push(visD)
+      }
+
+      let saveData = {}
+      saveData.pair = settingsData
+      saveData.chat = message.data
+      saveData.visData = visDataperChat
+      message.data = saveData
+      // console.log(message)
+      this.sendSocket.send_message(message)
     }
   }
 })

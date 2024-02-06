@@ -33,7 +33,7 @@
                   <button id="upload-button" @click="uploadButton">Click to upload file</button>
                 </div>
               </div>
-            </div>
+            </div>--chat {{ storeAI.beebeeChatLog }} {{ chati.question.bbid }}
             <div id="beebee-chartspace" v-if="storeAI.beebeeChatLog[chati.question.bbid] === true">
               <!--the slimed down bentobox to chart and bring in tools as needed-->
               <bento-box :bboxid="chati.question.bbid"></bento-box>
@@ -65,7 +65,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
   let chartStyle = ref('')
 
   const storeAI = aiInterfaceStore()
-  storeAI.beebeeChatLog // ref(false)
 
   const storeLibrary = libraryStore()
 
@@ -76,7 +75,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   // a computed ref
   const chatPairs = computed(() => {
-   return storeAI.historyPair
+   return storeAI.historyPair[storeAI.chatAttention]
   })
 
   const chatHistory = computed(() => {
@@ -92,7 +91,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
   })
 
   const beginChat = computed(() => {
-   return storeAI.beginChat
+    return storeAI.beginChat
   })
 
   const bottom = ref(null)
@@ -216,10 +215,10 @@ import { libraryStore } from '@/stores/libraryStore.js'
     #natlang-ai {
       display: block;
       width: 100%;
-      border: 3px solid grey;
+      border: 0px solid grey;
       padding: 1em;
       border-radius: 1em;
-      height: 64vh;
+      height: 80vh;
       overflow-y: scroll;
     }
 
@@ -237,9 +236,10 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
     .chat-input {
       position: fixed;
-      bottom: 4%;
+      bottom: 20px;
       width: 76%;
       border: 0px solid red;
+      z-index: 9;
     }
 
     .beebee-reply {

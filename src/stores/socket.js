@@ -3,10 +3,12 @@ import { defineStore } from "pinia";
 import { aiInterfaceStore } from "@/stores/aiInterface.js"
 import { libraryStore } from "@/stores/libraryStore.js"
 import { accountStore } from "@/stores/accountStore.js"
+import { bentoboxStore } from "@/stores/bentoboxStore.js"
 
 export const useSocketStore = defineStore({
   id: "socket",
   state: () => ({
+    bentoboxStore: bentoboxStore(),
     aiStore: aiInterfaceStore(),
     libStore: libraryStore(),
     accStore: accountStore(),
@@ -46,11 +48,13 @@ export const useSocketStore = defineStore({
       // console.log(evt)
       //we parse the json that we receive
       var received = JSON.parse(evt.data)
-      // console.log(received)
+      console.log(received)
       // keep in message log for session?
       this.messages.push(received)
       // parse and route to logic processing
-      if (received.type === 'library') {
+      if (received.type === 'bentobox') {
+        this.bentoboxStore.processReply(received)
+      } else if (received.type === 'library') {
         this.libStore.processReply(received)
       } else if (received.type == 'publiclibrary') {
         this.libStore.processReply(received)

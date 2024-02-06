@@ -15,7 +15,7 @@
         network bentobox
       </div>
       <div id="peer-bentobox">
-        <div id="bento-past">past d {{ chartData }}
+        <div id="bento-past">
           <div id="past-box">past toolbar <button id="full-past-toolbar">Tools</button></div>
           <bar-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'bar'" :chartData="chartData"></bar-chart>
           <line-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'line'" :chartData="chartData"></line-chart>

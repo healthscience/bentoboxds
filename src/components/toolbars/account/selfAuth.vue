@@ -58,8 +58,10 @@ import ModalAuth from '@/components/toolbars/account/authModal.vue'
 import AccountTabs from '@/components/toolbars/account/accountTabs.vue'
 
 import { accountStore } from '@/stores/accountStore.js'
+import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   const storeAccount = accountStore()
+  const storeAI = aiInterfaceStore()
 
   let selfpwInput = ref('')
 
@@ -70,11 +72,22 @@ import { accountStore } from '@/stores/accountStore.js'
   const selfVerify = () => {
     // need to setup pub/private key schnorr sign utilities
     storeAccount.peerauth = true
+    storeAI.startChat = false
+    // send message to get history of chats, spaces, peers
+    let saveBentoBoxsetting = {}
+    saveBentoBoxsetting.type = 'bentobox'
+    saveBentoBoxsetting.reftype = 'chat-history'
+    saveBentoBoxsetting.action = 'start'
+    saveBentoBoxsetting.task = 'start'
+    saveBentoBoxsetting.data = ''
+    saveBentoBoxsetting.bbid = ''
+    storeAI.sendMessageHOP(saveBentoBoxsetting)
   }
 
   const accountBoxStatus = computed(() => {
     return storeAccount.accountStatus
   })
+
 </script>
 
 <style scoped>
