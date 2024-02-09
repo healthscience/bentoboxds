@@ -33,7 +33,7 @@
                   <button id="upload-button" @click="uploadButton">Click to upload file</button>
                 </div>
               </div>
-            </div>--chat {{ storeAI.beebeeChatLog }} {{ chati.question.bbid }}
+            </div>
             <div id="beebee-chartspace" v-if="storeAI.beebeeChatLog[chati.question.bbid] === true">
               <!--the slimed down bentobox to chart and bring in tools as needed-->
               <bento-box :bboxid="chati.question.bbid"></bento-box>

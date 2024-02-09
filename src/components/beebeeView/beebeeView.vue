@@ -52,16 +52,24 @@ import BentoSpace from '@/components/bentospace/spaceTemplate.vue'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { ref, computed } from 'vue'
+import ChatInterface from '../beebeehelp/chatInterface.vue'
 
 const storeAI = aiInterfaceStore()
 const storeBentobox = bentoboxStore()
 
-let historyActive = ref(false)
-let historyList = ref('history')
 // let chartList = ref([{name:'chat1', chatid:'12345', active: true}])
 let spaceList = ref(['space1'])
 let saveChat = ref(false)
 let newChatname = ref('')
+
+
+const historyActive = computed(() => {
+  return storeBentobox.historyActive
+})
+
+const historyList = computed(() => {
+  return storeAI.historyList
+})
 
 const chatList = computed(() => {
   return storeBentobox.chatList
@@ -72,8 +80,8 @@ const attentionChat = computed(() => {
 })
 
 let historyType = (type) => {
-  historyList = type
-  historyActive.value = !historyActive.value
+  storeAI.historyList = type
+  storeBentobox.historyActive = !storeBentobox.historyActive
 }
 
 const bentoSpaceOpen = (spaceID) => {
@@ -150,8 +158,22 @@ const saveChatHistory = (chat) => {
 }
 
 const deleteChatHistory = (chat) => {
-  console.log('delete chat history')
-  console.log(chat)
+  // remove form chat list and delete message
+  let updateChatlist = []
+  for (let ch of storeBentobox.chatList) {
+    if (ch.chatid !== chat.chatid) {
+      updateChatlist.push(ch)
+    }
+  }
+  storeBentobox.chatList = updateChatlist
+  let delBentoBoxsetting = {}
+  delBentoBoxsetting.type = 'bentobox'
+  delBentoBoxsetting.reftype = 'chat-history'
+  delBentoBoxsetting.action = 'delete'
+  delBentoBoxsetting.task = 'delete'
+  delBentoBoxsetting.data = chat
+  delBentoBoxsetting.bbid = ''
+  storeAI.sendMessageHOP(delBentoBoxsetting)
 }
 </script>
 

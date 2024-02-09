@@ -1,14 +1,14 @@
 <template>
   <Teleport to="body">
-    <!-- use the modal component, pass in the prop -->
+    <!-- use the modal component, pass in the prop -->vv {{ accountBoxStatus }}
     <modal-auth :show="accountBoxStatus" @close="closeAccount">
       <template #header>
         <!-- The code below goes into the header slot -->
-        <div id="space-modal-header">
+        <div id="account-modal-header">
           <button
             type="button"
             class="btn-green"
-            @click="closedataBox"
+            @click="closeAccount"
             aria-label="Close modal"
           >
             Close
@@ -67,6 +67,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   const closeAccount = () => {
     storeAccount.accountStatus = !storeAccount.accountStatus
+    console.log(storeAI.accountStatus)
   }
 
   const selfVerify = () => {
@@ -92,7 +93,20 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
 <style scoped>
 
+#return-modal-close {
+  justify-content: right;
+}
+
 @media (min-width: 1024px) {
+
+  #account-modal-header {
+    display: grid;
+    grid-template-columns: 1fr 10fr;
+  }
+
+  #return-modal-close {
+    justify-content: right;
+  }
 
 }
 

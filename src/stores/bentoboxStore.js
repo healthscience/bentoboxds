@@ -5,6 +5,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 export const bentoboxStore = defineStore('bentostore', {
   state: () => ({
     storeAI: aiInterfaceStore(),
+    historyActive: false,
     chatList: [
       {
         name:'chat1', chatid:'12345', active: true
@@ -45,15 +46,26 @@ export const bentoboxStore = defineStore('bentostore', {
             // build datapair
             if (cm?.value?.pair) {
               this.storeAI.historyPair[cm.key] = cm.value.pair
-              this.storeAI.beebeeChatLog[cm.key] = true
-              console.log(cm.value.visData)
-              this.storeAI.visData[cm.key] = cm.value.visData
+              // loop over boxids for this chat
+              for (let pair of cm.value.pair) {
+                this.storeAI.beebeeChatLog[pair.reply.bbid] = true
+                if (cm.value?.visData) {
+                  let hopDataChart = {}
+                  hopDataChart.datasets = [ { data: cm.value?.visData[0]?.datasets[0]?.data } ]
+                  hopDataChart.labels = cm.value?.visData[0]?.labels
+                  this.storeAI.visData[pair.reply.bbid] = hopDataChart
+                }
+                this.chartStyle[pair.reply.bbid] = 'line'
+              }
             }
           }
           this.chatList = chatMenu
         }
-        console.log('vis data saved repared')
-        console.log(this.storeAI.visData)
+        // set the chat list live
+        this.storeAI.historyList = 'history'
+        this.storeAI.chatAttention = this.chatList[0].chatid
+        this.storeAI.setupChatHistory(this.chatList[0])
+        this.historyActive = true
       }
     }
   }

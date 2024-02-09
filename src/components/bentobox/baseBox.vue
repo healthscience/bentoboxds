@@ -151,8 +151,6 @@ import { accountStore } from '@/stores/accountStore.js'
   })
 
   const chartData = computed(() => {
-    console.log('any data')
-    console.log(storeAI.visData)
     return storeAI.visData[props.bboxid]
     /* {
       // labels: dataLabel.value, // [ 'January', 'February', 'March' ],

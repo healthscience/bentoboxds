@@ -16,6 +16,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     liveDataParse: new DataPraser(),
     startChat: true,
     chatAttention: '',
+    historyList: '',
     historyBar: false,
     beginChat: false,
     beebeeStatus: false,
