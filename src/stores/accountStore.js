@@ -6,6 +6,7 @@ export const accountStore = defineStore('account', {
   state: () => ({
     sendSocket: useSocketStore(),
     storeAI: aiInterfaceStore(),
+    accountMenu: 'Sign-in',
     accountStatus: false,
     peerauth: false,
     networkInfo: {},

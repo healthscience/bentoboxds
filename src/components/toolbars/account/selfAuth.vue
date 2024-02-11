@@ -82,6 +82,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     saveBentoBoxsetting.data = ''
     saveBentoBoxsetting.bbid = ''
     storeAI.sendMessageHOP(saveBentoBoxsetting)
+    storeAccount.accountMenu = 'account'
   }
 
   const accountBoxStatus = computed(() => {

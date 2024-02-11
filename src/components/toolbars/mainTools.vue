@@ -35,7 +35,7 @@
           </nav>
         </div>
         <div class="bentobox-top">
-          <div class="bb-align" @click="selfAuth">Sign-in</div>
+          <div class="bb-align" @click="selfAuth">{{ storeAccount.accountMenu }}</div>
         </div>
       </header>
     </div>
@@ -56,6 +56,8 @@ import { ref, onMounted } from 'vue'
   const storeAccount = accountStore()
 
   let mobileSize = ref(true)
+  let accountState = ref('Sign-in')
+
   onMounted(() => {
     let mql = window.matchMedia("(min-width: 1024px)")
     mobileSize.value = mql.matches
