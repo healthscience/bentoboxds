@@ -8,7 +8,7 @@
           <div v-if="chati.question.data.active === true" class="left-chat"> {{ chati.question.data.text }} </div>
           <span class="left-chat">{{ chati.question.data.time }}</span>
         </div>
-        <div class="beebee-reply">
+        <div class="beebee-reply" v-bind:class="{ active: chati.reply.network === true }">
           <span class="right-time">{{ chati.reply.time }}</span>
           <div class="reply-text-chart">
             <div class="right-chat">{{ chati.reply.type }}
@@ -250,6 +250,11 @@ import { libraryStore } from '@/stores/libraryStore.js'
       border-radius: 25px;
       margin-top: .5em;
       margin-left: 40px;
+    }
+
+    .active {
+      border: 2px solid orange;
+      background-color: antiquewhite;
     }
 
   }

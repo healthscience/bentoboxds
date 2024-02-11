@@ -179,13 +179,14 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       if (received.action === 'chart') {
         let pairBB = {}
         let question = {}
-        question.bbid = received.bbid // hashObject(received)
+        question.bbid = received.bbid
         question.data = { active: true, text: received.action }
         pairBB.question = question
         let reply = {}
         reply.time = new Date()
         reply.type = received.action
         reply.data = { text: received.text }
+        reply.network = true
         pairBB.reply = reply
         this.historyPair[this.chatAttention].push(pairBB)
         this.beginChat = true

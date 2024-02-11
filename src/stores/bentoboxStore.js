@@ -65,6 +65,8 @@ export const bentoboxStore = defineStore('bentostore', {
                   this.chartStyle[pair.reply.bbid] = 'line'
                 }
               } else {
+                // add to menu list
+                this.spaceList.push(cm.value.space)
                 this.storeAI.liveBspace = cm.value.space
                 if (cm.value.bboxlist.length > 0) {
                   this.storeAI.bentoboxList[cm.value.space.spaceid] = cm.value.bboxlist

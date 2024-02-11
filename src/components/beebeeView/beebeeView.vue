@@ -208,7 +208,7 @@ const saveSpacename = () => {
   storeAI.bentoboxList[spaceID] = []
   newSpacename.value = ''
   // make this the active space
-  storeAI.liveBspace = spaceID
+  storeAI.liveBspace = newSpaceItem
   let spaceLiveList = []
   for (let spi of storeBentobox.spaceList) {
     if (spi.spaceid === spaceID) {
