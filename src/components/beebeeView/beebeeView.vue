@@ -19,7 +19,7 @@
             <label for="chatname"></label>
             <input type="input" id="newchat" name="newchat" placeholder="chat name" v-model="newChatname">
             <button id="save-chat-name" type="submit">
-              save
+              add
             </button>
           </form>
           </div>
@@ -38,7 +38,7 @@
               <label for="spacename"></label>
               <input type="input" id="newspace" name="newspace" placeholder="space name" v-model="newSpacename">
               <button id="save-space-name" type="submit">
-                save
+                add
               </button>
             </form>
           </div>
@@ -157,6 +157,7 @@ const saveChatname = () => {
   newChatItem.chatid = chatID
   newChatItem.active = false
   storeBentobox.chatList.push(newChatItem)
+  //setup chat history holder
   storeAI.setupChatHistory(newChatItem)
   newChatname.value = ''
   // set as the active chat
