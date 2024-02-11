@@ -11,6 +11,11 @@ export const bentoboxStore = defineStore('bentostore', {
         name:'chat1', chatid:'12345', active: true
       }
     ],
+    spaceList: [
+      {
+        name:'space1', spaceid:'91919191', active: true
+      }
+    ],
     chartStyle: {},
     boxLocation:
     {
@@ -45,17 +50,27 @@ export const bentoboxStore = defineStore('bentostore', {
             }
             // build datapair
             if (cm?.value?.pair) {
-              this.storeAI.historyPair[cm.key] = cm.value.pair
-              // loop over boxids for this chat
-              for (let pair of cm.value.pair) {
-                this.storeAI.beebeeChatLog[pair.reply.bbid] = true
-                if (cm.value?.visData) {
-                  let hopDataChart = {}
-                  hopDataChart.datasets = [ { data: cm.value?.visData[0]?.datasets[0]?.data } ]
-                  hopDataChart.labels = cm.value?.visData[0]?.labels
-                  this.storeAI.visData[pair.reply.bbid] = hopDataChart
+              // is setting for chat or space?
+              if ('space' in cm.value !== true ) {
+                this.storeAI.historyPair[cm.key] = cm.value.pair
+                // loop over boxids for this chat
+                for (let pair of cm?.value?.pair) {
+                  this.storeAI.beebeeChatLog[pair.reply.bbid] = true
+                  if (cm.value?.visData) {
+                    let hopDataChart = {}
+                    hopDataChart.datasets = [ { data: cm.value?.visData[0]?.datasets[0]?.data } ]
+                    hopDataChart.labels = cm.value?.visData[0]?.labels
+                    this.storeAI.visData[pair.reply.bbid] = hopDataChart
+                  }
+                  this.chartStyle[pair.reply.bbid] = 'line'
                 }
-                this.chartStyle[pair.reply.bbid] = 'line'
+              } else {
+                this.storeAI.liveBspace = cm.value.space
+                if (cm.value.bboxlist.length > 0) {
+                  this.storeAI.bentoboxList[cm.value.space.spaceid] = cm.value.bboxlist
+                } else {
+                  this.storeAI.bentoboxList[cm.value.space.spaceid] = []
+                }
               }
             }
           }

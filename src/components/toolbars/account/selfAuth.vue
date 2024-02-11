@@ -67,7 +67,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   const closeAccount = () => {
     storeAccount.accountStatus = !storeAccount.accountStatus
-    console.log(storeAI.accountStatus)
   }
 
   const selfVerify = () => {

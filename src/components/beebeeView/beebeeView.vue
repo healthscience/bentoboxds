@@ -3,10 +3,10 @@
     <div class="bento-history">
       <div class="history-buttons">
         <div class="history">
-          <button @click="historyType('history')">Chat</button>
+          <button @click="historyType('history')" class="button-chat-menu" v-bind:class="{ active: historyList === 'history' }">Chat</button>
         </div>
         <div class="spaces">
-          <button @click="historyType('space')">Spaces</button>
+          <button @click="historyType('space')" v-bind:class="{ active: historyList === 'space' }">Spaces</button>
         </div>
       </div>
       <div class="live-drop-zone" v-if="historyActive ===  true" @mouseover="hoverCheck(sis)">
@@ -30,8 +30,24 @@
           </div>
         </div>
         <div v-else>
+          <button class="create-space" @click="newSpacemenu">
+            + create space
+          </button>
+          <div id="space-form-save" v-if="saveSpace">
+            <form id="ask-ai-form" @submit.prevent="saveSpacename()">
+              <label for="spacename"></label>
+              <input type="input" id="newspace" name="newspace" placeholder="space name" v-model="newSpacename">
+              <button id="save-space-name" type="submit">
+                save
+              </button>
+            </form>
+          </div>
           <div class="history-list" v-for="sis in spaceList">
-            <button class="flat-history" @click="bentoSpaceOpen(sis)" @mouseover="hoverCheck(sis)" @mousemove="moveCheck(sis)"> {{ sis }} </button> <!--@mouseup="dropBBox"-->
+            <button
+               class="flat-history"  v-bind:class="{ active: sis.active }" @click="bentoSpaceOpen(sis)" @mouseover="hoverCheck(sis)" @mousemove="moveCheck(sis)"> {{ sis.name }}
+             </button> <!--@mouseup="dropBBox"-->
+            <button class="save-chat-history" @click="saveSpaceHistory(sis)">save</button>
+            <button class="delete-chat-history" @click="deleteSpaceHistory(sis)">Del</button>
           </div>
         </div>
       </div>
@@ -52,15 +68,14 @@ import BentoSpace from '@/components/bentospace/spaceTemplate.vue'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { ref, computed } from 'vue'
-import ChatInterface from '../beebeehelp/chatInterface.vue'
 
 const storeAI = aiInterfaceStore()
 const storeBentobox = bentoboxStore()
 
-// let chartList = ref([{name:'chat1', chatid:'12345', active: true}])
-let spaceList = ref(['space1'])
 let saveChat = ref(false)
+let saveSpace = ref(false)
 let newChatname = ref('')
+let newSpacename = ref('')
 
 
 const historyActive = computed(() => {
@@ -75,19 +90,17 @@ const chatList = computed(() => {
   return storeBentobox.chatList
 })
 
+const spaceList = computed(() => {
+  return storeBentobox.spaceList
+})
+
 const attentionChat = computed(() => {
   return storeAI.chatAttention
 })
 
 let historyType = (type) => {
   storeAI.historyList = type
-  storeBentobox.historyActive = !storeBentobox.historyActive
-}
-
-const bentoSpaceOpen = (spaceID) => {
-  storeAI.bentospaceState = !storeAI.bentospaceState
-  storeAI.liveBspace = spaceID
-  // storeAI.beebeeChatLog = false
+  storeBentobox.historyActive = true
 }
 
 const dropSpaceActive = (spaceID) => {
@@ -144,6 +157,68 @@ const saveChatname = () => {
   newChatItem.chatid = chatID
   newChatItem.active = false
   storeBentobox.chatList.push(newChatItem)
+  storeAI.setupChatHistory(newChatItem)
+  newChatname.value = ''
+  // set as the active chat
+  storeAI.chatAttention = chatID
+  let chatLiveList = []
+  for (let chi of storeBentobox.chatList) {
+    if (chi.chatid === chatID) {
+      chi.active = true
+      chatLiveList.push(chi)
+    } else {
+      chi.active = false
+      chatLiveList.push(chi)
+    }
+  }
+  storeBentobox.chatList = chatLiveList
+}
+
+const newSpacemenu = () => {
+  saveSpace.value = !saveSpace.value
+}
+
+const bentoSpaceOpen = (spaceID) => {
+  storeAI.bentospaceState = !storeAI.bentospaceState
+  storeAI.liveBspace = spaceID
+  // storeAI.beebeeChatLog = false
+  // make button green
+  let spaceLiveList = []
+  for (let spi of storeBentobox.spaceList) {
+    if (spi.spaceid === spaceID.spaceid) {
+      spi.active = true
+      spaceLiveList.push(spi)
+    } else {
+      spi.active = false
+      spaceLiveList.push(spi)
+    }
+  }
+  storeBentobox.spaceList = spaceLiveList
+}
+
+const saveSpacename = () => {
+  saveSpace.value = !saveSpace.value
+  let spaceID = hashObject(newSpacename.value + new Date())
+  let newSpaceItem = {}
+  newSpaceItem.name = newSpacename.value
+  newSpaceItem.spaceid = spaceID
+  newSpaceItem.active = false
+  storeBentobox.spaceList.push(newSpaceItem)
+  storeAI.bentoboxList[spaceID] = []
+  newSpacename.value = ''
+  // make this the active space
+  storeAI.liveBspace = spaceID
+  let spaceLiveList = []
+  for (let spi of storeBentobox.spaceList) {
+    if (spi.spaceid === spaceID) {
+      spi.active = true
+      spaceLiveList.push(spi)
+    } else {
+      spi.active = false
+      spaceLiveList.push(spi)
+    }
+  }
+  storeBentobox.spaceList = spaceLiveList
 }
 
 const saveChatHistory = (chat) => {
@@ -172,6 +247,36 @@ const deleteChatHistory = (chat) => {
   delBentoBoxsetting.action = 'delete'
   delBentoBoxsetting.task = 'delete'
   delBentoBoxsetting.data = chat
+  delBentoBoxsetting.bbid = ''
+  storeAI.sendMessageHOP(delBentoBoxsetting)
+}
+
+const saveSpaceHistory = (space) => {
+  let saveBentoBoxsetting = {}
+  saveBentoBoxsetting.type = 'bentobox'
+  saveBentoBoxsetting.reftype = 'space-history'
+  saveBentoBoxsetting.action = 'save'
+  saveBentoBoxsetting.task = 'save'
+  saveBentoBoxsetting.data = space
+  saveBentoBoxsetting.bbid = ''
+  storeAI.prepareSpaceSave(saveBentoBoxsetting)
+}
+
+const deleteSpaceHistory = (space) => {
+  // remove form chat list and delete message
+  let updateSpacelist = []
+  for (let sp of storeBentobox.spaceList) {
+    if (sp.spaceid !== space.spaceid) {
+      updateSpacelist.push(sp)
+    }
+  }
+  storeBentobox.spaceList = updateSpacelist
+  let delBentoBoxsetting = {}
+  delBentoBoxsetting.type = 'bentobox'
+  delBentoBoxsetting.reftype = 'space-history'
+  delBentoBoxsetting.action = 'delete'
+  delBentoBoxsetting.task = 'delete'
+  delBentoBoxsetting.data = space
   delBentoBoxsetting.bbid = ''
   storeAI.sendMessageHOP(delBentoBoxsetting)
 }
@@ -277,6 +382,11 @@ const deleteChatHistory = (chat) => {
     .history-buttons {
       display: grid;
       grid-template-columns: 1fr;
+    }
+
+
+    .menulive {
+      background-color: 1px solid green;
     }
 
     .history {

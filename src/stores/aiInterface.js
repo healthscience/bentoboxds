@@ -63,7 +63,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     bentospaceState: false,
     longPress: false,
     liveBspace: '',
-    bentoboxList: {}, // ['123', '345', '564343']
+    bentoboxList: { '91919191': [] },
     countNotifications: 0,
     notifList: [],
     boxLibSummary: {}
@@ -311,6 +311,21 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       saveData.visData = visDataperChat
       message.data = saveData
       // console.log(message)
+      this.sendSocket.send_message(message)
+    },
+    prepareSpaceSave (message) {
+      let boxidPerspace = this.bentoboxList[message.data.spaceid]
+      let visDataperSpace = []
+      for (let bbi of boxidPerspace) {
+        let visD = this.visData[bbi]
+        visDataperSpace.push(visD)
+      }
+      let saveData = {}
+      saveData.pair = {}
+      saveData.space = message.data
+      saveData.visData = visDataperSpace
+      saveData.bboxlist = boxidPerspace
+      message.data = saveData
       this.sendSocket.send_message(message)
     }
   }

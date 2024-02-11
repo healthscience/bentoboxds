@@ -129,7 +129,12 @@ import { accountStore } from '@/stores/accountStore.js'
    }
 
   const clickAddbentoSpace = (boxid) => {
-    storeAI.bentoboxList['space1'].push(boxid)
+    console.log('space id and box')
+    console.log(boxid)
+    console.log(storeAI.liveBspace)
+    console.log(storeAI.bentoboxList)
+    // which space is active
+    storeAI.bentoboxList[storeAI.liveBspace.spaceid].push(boxid)
   }
 
   const clickShareSpace = (boxid) => {
