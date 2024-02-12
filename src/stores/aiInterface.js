@@ -314,13 +314,11 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         let visD = this.visData[bbi.reply.bbid]
         visDataperChat.push(visD)
       }
-
       let saveData = {}
       saveData.pair = settingsData
       saveData.chat = message.data
       saveData.visData = visDataperChat
       message.data = saveData
-      // console.log(message)
       this.sendSocket.send_message(message)
     },
     prepareSpaceSave (message) {

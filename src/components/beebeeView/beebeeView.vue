@@ -315,8 +315,17 @@ const deleteSpaceHistory = (space) => {
 }
 
 .create-chat {
+  margin-top: 1em;
   background-color: white;
   border: 1px dashed grey;
+  margin-bottom: 1em;
+}
+
+.create-space {
+  margin-top: 1em;
+  background-color: white;
+  border: 1px dashed grey;
+  margin-bottom: 1em;
 }
 
 .flat-history {
@@ -402,6 +411,10 @@ const deleteSpaceHistory = (space) => {
 
     .history-list:hover {
       background-color: blue;
+    }
+
+    #chat-form-save, #space-form-save {
+      margin-bottom: 1em;
     }
 
     .spaces {

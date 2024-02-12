@@ -8,12 +8,12 @@ export const bentoboxStore = defineStore('bentostore', {
     historyActive: false,
     chatList: [
       {
-        name:'chat1', chatid:'12345', active: true
+        name:'latest', chatid:'12345', active: true
       }
     ],
     spaceList: [
       {
-        name:'space1', spaceid:'91919191', active: true
+        name:'openspace', spaceid:'91919191', active: true
       }
     ],
     chartStyle: {},
@@ -54,15 +54,19 @@ export const bentoboxStore = defineStore('bentostore', {
               if ('space' in cm.value !== true ) {
                 this.storeAI.historyPair[cm.key] = cm.value.pair
                 // loop over boxids for this chat
+                let pairCount = 0
                 for (let pair of cm?.value?.pair) {
                   this.storeAI.beebeeChatLog[pair.reply.bbid] = true
                   if (cm.value?.visData) {
+                    // for (let i = 0; i < cm.value?.visData.length; i++) {
                     let hopDataChart = {}
-                    hopDataChart.datasets = [ { data: cm.value?.visData[0]?.datasets[0]?.data } ]
-                    hopDataChart.labels = cm.value?.visData[0]?.labels
+                    hopDataChart.datasets = [ { data: cm.value?.visData[pairCount]?.datasets[0]?.data } ]
+                    hopDataChart.labels = cm.value?.visData[pairCount]?.labels
                     this.storeAI.visData[pair.reply.bbid] = hopDataChart
+                    // }
                   }
                   this.chartStyle[pair.reply.bbid] = 'line'
+                  pairCount++
                 }
               } else {
                 // add to menu list
@@ -77,12 +81,15 @@ export const bentoboxStore = defineStore('bentostore', {
             }
           }
           this.chatList = chatMenu
+          // set the chat list live
+          this.storeAI.historyList = 'history'
+          this.storeAI.chatAttention = this.chatList[0].chatid
+          this.storeAI.setupChatHistory(this.chatList[0])
+          this.historyActive = true
+        } else if (message.action.trim() === 'save') {
+          console.log('saved feedback')
         }
-        // set the chat list live
-        this.storeAI.historyList = 'history'
-        this.storeAI.chatAttention = this.chatList[0].chatid
-        this.storeAI.setupChatHistory(this.chatList[0])
-        this.historyActive = true
+
       }
     }
   }
