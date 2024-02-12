@@ -72,6 +72,15 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     sendMessageHOP (message) {
       this.sendSocket.send_message(message)
     },
+    clearData () {
+      // clear all chat, space, account data
+      let chatKeys = Object.keys(this.historyPair)
+      for (let ck of chatKeys) {
+        delete this.historyPair[ck]
+      }
+      // for web refresh
+      location.reload()
+    },
     actionBBAI () {
       // filter a list of Kentity bundles given the Experiment CNRL
       // check current state and reverse

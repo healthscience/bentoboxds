@@ -3,17 +3,17 @@
     <div v-if="show" class="modal-mask">
       <div class="modal-container">
         <div class="modal-header">
-          <slot name="header">default header</slot>
+          <slot name="header"></slot>
         </div>
 
         <div class="modal-body">
           <slot name="body">default body</slot>
         </div>
         <div class="modal-connect">
-          <slot name="connect">default connect</slot>
+          <slot name="connect"></slot>
         </div>
         <div class="modal-tabs">
-          <slot name="tabs">default tabs</slot>
+          <slot name="tabs"></slot>
         </div>
         <div class="modal-footer">
           <slot name="footer">

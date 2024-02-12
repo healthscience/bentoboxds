@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body">
-    <!-- use the modal component, pass in the prop -->vv {{ accountBoxStatus }}
+    <!-- use the modal component, pass in the prop -->
     <modal-auth :show="accountBoxStatus" @close="closeAccount">
       <template #header>
         <!-- The code below goes into the header slot -->
@@ -15,11 +15,10 @@
           </button>
           <div id="return-modal-close" @click="closeAccount">return</div>
         </div>
-        <div>Account</div>
       </template>
       <template #body>
-        <div id="connect-wallet">
-          <div id="self-verify">
+        <div id="connect-hop">
+          <div id="self-verify" v-if="storeAccount.peerauth !== true">
             <form id="self-signin-form" >
               <div class="self-inputs">
                 <label class="form-couple-type" for="password-account">password</label>
@@ -28,9 +27,12 @@
               </div>
             </form>
           </div>
+          <div v-else id="disconnect-signout">
+            <button id="disconnect-button" @click="disconnectHOP">Disconnect and signout</button>
+          </div>
         </div>
       </template>
-      <template #connect>connect
+      <template #connect>
         <!-- <div id="network-status" v-if="peerauth === true">
           <div class="status-info">
             Connection Status: <div class="hon-square-status" v-bind:class="{ active: connectNetworkstatus === true && peerauth === true }"></div>
@@ -43,10 +45,11 @@
           </div>
         </div>-->
       </template>
-      <template #tabs>tabs
+      <template #tabs>
         <account-tabs v-if="storeAccount.peerauth === true"></account-tabs>
       </template>
       <template #footer>
+        BentoBoxDS
       </template>
     </modal-auth>
   </Teleport>
@@ -85,6 +88,16 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     storeAccount.accountMenu = 'account'
   }
 
+  const disconnectHOP= () => {
+    // close HOP and websockt
+    let disconnectHOP = {}
+    disconnectHOP.type = 'close'
+    storeAccount.sendMessageHOP(disconnectHOP)
+    storeAccount.accountStatus = false
+    storeAccount.accountMenu = 'Sign-in'
+    storeAI.clearData()
+  }
+
   const accountBoxStatus = computed(() => {
     return storeAccount.accountStatus
   })
@@ -105,9 +118,33 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   }
 
   #return-modal-close {
+    display: grid;
     justify-content: right;
   }
 
+  #connect-hop {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  #self-verify {
+    display: grid;
+    justify-content: center;
+  }
+
+  #self-signin-form {
+    background-color: antiquewhite;
+    padding: 2em;
+  }
+
+  #disconnect-signout {
+    display: grid;
+    justify-content: right;
+  }
+
+  #disconnect-button {
+    color: red;
+  }
 }
 
 </style>
