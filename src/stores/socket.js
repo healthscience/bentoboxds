@@ -16,6 +16,7 @@ export const useSocketStore = defineStore({
     websocket: {},
     connection_ready: false,
     connection_error: false,
+    connection_loss: false,
     messages: []
   }),
   actions: {
@@ -33,7 +34,7 @@ export const useSocketStore = defineStore({
       this.websocket.onopen = this.onSocketOpen
       this.websocket.onmessage = this.onSocketMessage
       this.websocket.onerror = this.onSockerError
-      this.websocket.onclose = this.onSockerClose
+      this.websocket.onclose = this.onSocketClose
       /* window.addEventListener("unload", function () {
         console.log('refreshpage')
         if(this.socket.readyState == WebSocket.OPEN)
@@ -84,11 +85,13 @@ export const useSocketStore = defineStore({
       // this.messages.push( { from: "send", message: to_send.message } )
     },    
     onSockerError (evt) {
+      console.log('socket error')
       this.connection_error = true
     },
     onSocketClose (evt) {
       console.log('close socket')
       console.log(evt)
+      this.connection_loss = true
       // this.websocket.close()
     }
   }
