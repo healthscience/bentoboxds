@@ -43,6 +43,10 @@ export const useSocketStore = defineStore({
     },
     onSocketOpen (evt) {
       this.connection_ready = true
+      if (this.connection_read === true) {
+        this.connection_error = false
+        this.connection_loss = false
+      }
     },
     onSocketMessage (evt) {
       // console.log('ui socket')
@@ -87,12 +91,40 @@ export const useSocketStore = defineStore({
     onSockerError (evt) {
       console.log('socket error')
       this.connection_error = true
+      // this.autoReconnect()
     },
     onSocketClose (evt) {
       console.log('close socket')
       console.log(evt)
       this.connection_loss = true
       // this.websocket.close()
+      // this.autoReconnect()
+    },
+    autoReconnect () {
+       function socketReconnect () {
+        console.log(this.connection_ready)
+        console.log('check if socket existigs now')
+        if (this.connection_ready === undefined || this.connection_ready === false) {
+          const sockets_bay_url = `wss://127.0.0.1:9888` // `wss://165.227.244.213:9888` // `wss://127.0.0.1:9888`
+          this.websocket = new WebSocket(sockets_bay_url)
+          this.websocket.onopen = this.onSocketOpen
+          this.websocket.onmessage = this.onSocketMessage
+          this.websocket.onerror = this.onSockerError
+          this.websocket.onclose = this.onSocketClose
+          console.log('after reattempt')
+          console.log(this.connection_ready)
+          if (this.connection_ready === true) {
+            console.log('pass --true now')
+            this.connection_error = false
+            this.connection_loss = false
+          }
+        } else {
+          console.log('connection restabished')
+          this.connection_error = false
+          this.connection_loss = false
+        }
+      }
+      setInterval(socketReconnect, 4000)
     }
   }
 })
