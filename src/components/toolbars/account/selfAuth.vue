@@ -76,6 +76,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     // need to setup pub/private key schnorr sign utilities
     storeAccount.peerauth = true
     storeAI.startChat = false
+    storeAccount.accountStatus = false
     // send message to get history of chats, spaces, peers
     let saveBentoBoxsetting = {}
     saveBentoBoxsetting.type = 'bentobox'

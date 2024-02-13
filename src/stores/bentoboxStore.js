@@ -42,6 +42,8 @@ export const bentoboxStore = defineStore('bentostore', {
       // prepare chat menu and pairs
       if (message.reftype.trim() === 'chat-history') {
         if (message.action.trim() === 'start') {
+          console.log('start chat history')
+          console.log(message)
           // set the saved chats for peer
           let chatMenu = []
           for (let cm of message.data) {
