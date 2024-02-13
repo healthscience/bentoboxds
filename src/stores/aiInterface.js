@@ -307,31 +307,33 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     prepareBentoBoxSave (message) {
-      console.log('message save')
-      console.log(message)
       let settingsData = this.historyPair[message.data.chatid]
       console.log(settingsData)
-      // save HOP summary info ie. HOPquery
-      let hopQuery = {}
-      for (let hp of this.hopSummary) {
-        console.log(hp)
-        // if (hp.id === message.) {
-        // }
-      }
+      let bbidPerChat = []
       // loop over data to match to visualisation alread prepared.  (note. or HOPQuery to re-create via HOP)
       let visDataperChat = [] // this.visData[]
       for (let bbi of settingsData) {
+        bbidPerChat.push(bbi.reply.bbid)
         let visD = this.visData[bbi.reply.bbid]
         visDataperChat.push(visD)
+      }
+      // save HOP summary info ie. HOPquery
+      let hopQuery = []
+      for (let bb of bbidPerChat) {
+        for (let hp of this.hopSummary) {
+          if (bb === hp.summary.bbid) {
+            hopQuery.push(hp)
+          }
+        }
       }
       let saveData = {}
       saveData.pair = settingsData
       saveData.chat = message.data
       saveData.visData = visDataperChat
-      saveData.summary = hopQuery
+      saveData.hop = hopQuery
       message.data = saveData
-      console.log()
-      // this.sendSocket.send_message(message)
+      console.log(message)
+      this.sendSocket.send_message(message)
     },
     prepareSpaceSave (message) {
       let boxidPerspace = this.bentoboxList[message.data.spaceid]

@@ -53,17 +53,13 @@ export const accountStore = defineStore('account', {
           sfMatch = histMatch
         }
       }
-      // match to summary from SafeFlow
-      console.log('summary for save or HOP?')
-      console.log(this.storeAI.hopSummary)
-      console.log(this.storeAI.historyPair)
+      // match to summary from SafeFlow (could be first time or saved)
       let sfSummary = {}
-      for (let sumSF of this.storeAI.hopSummary) {
-        if (sumSF.HOPid === sfMatch.HOPid) {
+      for (let sumSF of this.storeAI.hopSummary[boxid]) {
+        if (sumSF.summary.bbid === boxid) {
           sfSummary = sumSF
         }
       }
-      console.log(sfSummary)
       shareContext.hop = sfSummary.summary
       shareContext.publickey = this.sharePubkey
       shareContext.data = this.storeAI.visData[boxid]
@@ -75,7 +71,7 @@ export const accountStore = defineStore('account', {
       shareInfo.privacy = 'private'
       shareInfo.data = shareContext
       console.log(shareInfo)
-      // this.sendMessageHOP(shareInfo)
+      this.sendMessageHOP(shareInfo)
     },
     sendMessageHOP (message) {
       this.sendSocket.send_message(message)

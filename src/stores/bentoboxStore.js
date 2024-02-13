@@ -42,8 +42,6 @@ export const bentoboxStore = defineStore('bentostore', {
       // prepare chat menu and pairs
       if (message.reftype.trim() === 'chat-history') {
         if (message.action.trim() === 'start') {
-          console.log('start chat history')
-          console.log(message)
           // set the saved chats for peer
           let chatMenu = []
           for (let cm of message.data) {
@@ -60,12 +58,11 @@ export const bentoboxStore = defineStore('bentostore', {
                 for (let pair of cm?.value?.pair) {
                   this.storeAI.beebeeChatLog[pair.reply.bbid] = true
                   if (cm.value?.visData) {
-                    // for (let i = 0; i < cm.value?.visData.length; i++) {
                     let hopDataChart = {}
                     hopDataChart.datasets = [ { data: cm.value?.visData[pairCount]?.datasets[0]?.data } ]
                     hopDataChart.labels = cm.value?.visData[pairCount]?.labels
                     this.storeAI.visData[pair.reply.bbid] = hopDataChart
-                    // }
+                    this.storeAI.hopSummary[pair.reply.bbid] = cm.value?.hop
                   }
                   this.chartStyle[pair.reply.bbid] = 'line'
                   pairCount++

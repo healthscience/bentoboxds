@@ -134,7 +134,7 @@ export const libraryStore = defineStore('librarystore', {
         let newPair = {}
         newPair.question = questionStart
         newPair.reply = message.data
-        this.liveBentoBox.historyPair.push(newPair)
+        this.liveBentoBox.historyPair[this.liveBentoBox.chatAttention].push(newPair)
         // peer library data
         this.peerLibrary = message.data.data.referenceContracts
         // prepare the list of peer experiments for library display
