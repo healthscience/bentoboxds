@@ -62,7 +62,11 @@ export const bentoboxStore = defineStore('bentostore', {
                     hopDataChart.datasets = [ { data: cm.value?.visData[pairCount]?.datasets[0]?.data } ]
                     hopDataChart.labels = cm.value?.visData[pairCount]?.labels
                     this.storeAI.visData[pair.reply.bbid] = hopDataChart
-                    this.storeAI.hopSummary[pair.reply.bbid] = cm.value?.hop
+                    if (cm.value?.hop !== undefined) {
+                      let summaryHOP = cm.value?.hop[0]
+                      summaryHOP.bbid = pair.reply.bbid
+                      this.storeAI.hopSummary.push({ HOPid: pair.reply.bbid, summary: summaryHOP })
+                    }
                   }
                   this.chartStyle[pair.reply.bbid] = 'line'
                   pairCount++

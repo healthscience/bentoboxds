@@ -55,7 +55,7 @@ export const accountStore = defineStore('account', {
       }
       // match to summary from SafeFlow (could be first time or saved)
       let sfSummary = {}
-      for (let sumSF of this.storeAI.hopSummary[boxid]) {
+      for (let sumSF of this.storeAI.hopSummary) {
         if (sumSF.summary.bbid === boxid) {
           sfSummary = sumSF
         }
@@ -70,7 +70,6 @@ export const accountStore = defineStore('account', {
       shareInfo.reftype = 'null'
       shareInfo.privacy = 'private'
       shareInfo.data = shareContext
-      console.log(shareInfo)
       this.sendMessageHOP(shareInfo)
     },
     sendMessageHOP (message) {
