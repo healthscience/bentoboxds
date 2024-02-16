@@ -38,16 +38,14 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import ModalSpace from '@/components/bentospace/spaceModal.vue'
 import BentoBox from '@/components/bentobox/bentoboxSpace.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
   const storeAI = aiInterfaceStore()
-  const bboxStore = bentoboxStore()
-  const bentospaceLive = ref(true)
-  const showModal = ref(false)
+  const storeBentobox = bentoboxStore()
   
   const bentospaceStatus = computed(() => {
     return storeAI.bentospaceState
@@ -55,6 +53,8 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
   const closeBentoSpace = () => {
     storeAI.bentospaceState = !storeAI.bentospaceState
+    // save the current layout on close
+    storeBentobox.saveLayoutSpace(storeAI.liveBspace.spaceid)
   }
 </script>
 

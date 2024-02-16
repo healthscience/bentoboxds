@@ -348,6 +348,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       saveData.visData = visDataperSpace
       saveData.bboxlist = boxidPerspace
       message.data = saveData
+      console.log('message to space menu save')
+      console.log(message)
       this.sendSocket.send_message(message)
     }
   }

@@ -5,8 +5,8 @@
     :dragSelector="dragSelector"
     :active="handlers"
     :fit-parent="fit"
-    :max-width="maxW | checkEmpty"
-    :max-height="maxH | checkEmpty"
+    :max-width="spaceLocation.tW | checkEmpty"
+    :max-height="spaceLocation.tH | checkEmpty"
     :min-width="minW | checkEmpty"
     :min-height="minH | checkEmpty"
     :width="width"
@@ -39,13 +39,13 @@
         <div id="peer-bentobox">
           <div id="bento-past">past
             <div id="past-box">past toolbar <button id="full-past-toolbar">Tools</button></div>
-            <bar-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'bar'" :chartData="chartData"></bar-chart>
-            <line-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'line'" :chartData="chartData"></line-chart>
+            <bar-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'bar'" :chartData="chartData"></bar-chart>
+            <line-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'line'" :chartData="chartData"></line-chart>
           </div>
           <div id="bento-future">future
             <div id="future-box">future toolbar <button id="full-future-toolbar">full</button></div>
-            <bar-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'bar'" :chartData="chartfutureData" ></bar-chart>
-            <line-chart v-if="bbliveStore.chartStyle[props.bboxid] === 'line'" :chartData="chartfutureData"></line-chart>
+            <bar-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'bar'" :chartData="chartfutureData" ></bar-chart>
+            <line-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'line'" :chartData="chartfutureData"></line-chart>
           </div>
         </div>
       </div>
@@ -63,7 +63,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   const storeAI = aiInterfaceStore()
-  const bbliveStore = bentoboxStore()
+  const storeBentobox = bentoboxStore()
   const futureStatus = ref(true)
 
   const props = defineProps({
@@ -87,14 +87,39 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   const dragSelector = ref('.drag-container-1, .drag-container-2')
   let timerPress = ref(0)
 
+
+  /* methods */
+  const updateBoxLocation = (location) => {
+    /* drag drop move resize */
+    let updateBox = {}
+    updateBox.tW = 880
+    updateBox.tH = 480
+    updateBox.handlers = ref(["r", "rb", "b", "lb", "l", "lt", "t", "rt"])
+    updateBox.left = location.cmp.mouseX // ref(`calc(2% - ${tW / 2}px)`) // set posotion on space
+    updateBox.top = location.cmp.mouseY // ref(`calc(8% - ${tH / 2}px)`)  // set position on space
+    updateBox.height = ref('fit-content')
+    updateBox.width = ref('fit-content')
+    updateBox.maxW = ref('100%')
+    updateBox.maxH = ref('100%')
+    updateBox.minW = ref('20vw')
+    updateBox.minH = ref('20vh')
+    updateBox.fit = ref(false)
+    updateBox.event = ref('')
+    updateBox.dragSelector = ref('.drag-container-1, .drag-container-2')
+    console.log('update bbox')
+    console.log(updateBox)
+    storeBentobox.locationBbox[props.bboxid] = updateBox
+  }
+
   const eHandler = (data) => {
-    // console.log('move')
+    // console.log('box hannananander')
     // console.log(data)
-    width = data.width;
+    /* width = data.width;
     height = data.height;
     left = data.left;
     top = data.top;
-    event = data.eventName;
+    event = data.eventName; */
+    updateBoxLocation(data)
   }
 
   const longHoldCheck = () => {
@@ -123,6 +148,11 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
       timeLong = true
     }
    }
+
+   /* computed */
+   const spaceLocation = computed(() => {
+    return storeBentobox.locationBbox[props.bboxid]
+  })
 
   const checkEmpty = computed((value) => {
     return typeof value !== "number" ? 0 : value;

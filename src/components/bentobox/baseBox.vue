@@ -145,6 +145,8 @@ import { accountStore } from '@/stores/accountStore.js'
   const selectBentoSpace = (sp) => {
     storeAI.bentoboxList[sp.spaceid].push(props.bboxid)
     clickAddbentoSpace(props.bboxid)
+    // add location default if not already set?
+    storeBentobox.setLocationBbox(props.bboxid)
   }
 
   const clickShareSpace = (boxid) => {
