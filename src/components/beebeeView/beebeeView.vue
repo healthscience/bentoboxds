@@ -6,7 +6,7 @@
           <button @click="historyType('history')" class="button-chat-menu" v-bind:class="{ active: historyList === 'history' }">Chat</button>
         </div>
         <div class="spaces">
-          <button @click="historyType('space')" v-bind:class="{ active: historyList === 'space' }">Spaces</button>
+          <button @click="historyType('space')" class="button-chat-menu" v-bind:class="{ active: historyList === 'space' }">Spaces</button>
         </div>
       </div>
       <chat-menu v-if="historyActive ===  true"></chat-menu>
@@ -86,7 +86,6 @@ let historyType = (type) => {
   background-color: rgb(113, 172, 114);
 }
 
-
 .bentospace {
   display: grid;
   grid-template-columns: 1fr;
@@ -103,6 +102,10 @@ let historyType = (type) => {
 .beebee-home {
   display: grid;
   height: 90vh;
+}
+
+.button-chat-menu {
+  width: 120px;
 }
 
   @media (min-width: 1024px) {
@@ -157,5 +160,10 @@ let historyType = (type) => {
       grid-template-columns: 1fr;
       border: 0px dashed rgb(207, 108, 21);
     }
+
+    .button-chat-menu {
+      width: 180px;
+    }
+
   }
 </style>

@@ -308,7 +308,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     },
     prepareBentoBoxSave (message) {
       let settingsData = this.historyPair[message.data.chatid]
-      console.log(settingsData)
       let bbidPerChat = []
       // loop over data to match to visualisation alread prepared.  (note. or HOPQuery to re-create via HOP)
       let visDataperChat = [] // this.visData[]
@@ -332,7 +331,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       saveData.visData = visDataperChat
       saveData.hop = hopQuery
       message.data = saveData
-      console.log(message)
       this.sendSocket.send_message(message)
     },
     prepareSpaceSave (message) {
@@ -348,8 +346,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       saveData.visData = visDataperSpace
       saveData.bboxlist = boxidPerspace
       message.data = saveData
-      console.log('message to space menu save')
-      console.log(message)
       this.sendSocket.send_message(message)
     }
   }

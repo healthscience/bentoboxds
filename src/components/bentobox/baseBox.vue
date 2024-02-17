@@ -7,8 +7,10 @@
       <div class="bb-bar-main"><button class="space-button" @click="clickAddbentoSpace(props.bboxid)">+ space</button></div>
       <div class="bb-bar-main"><button @click="clickShareSpace(props.bboxid)">share</button>
         <div id="spaces-list" v-if="shareSelect">
-          <select class="select-space-save" id="space-options-save" v-for="sp in spaceList" @change="selectBentoSpace(sp)" v-model="spaceSave">
-            <option value="none" selected="">{{ sp.name }}</option>
+          <select class="select-space-save" id="space-options-save" v-model="spaceSave" @change="selectBentoSpace()">
+            <option selected="" v-for="sp in spaceList" :value="sp.spaceid">
+              {{ sp.name }}
+            </option>
           </select>
         </div>
       </div>
@@ -142,11 +144,11 @@ import { accountStore } from '@/stores/accountStore.js'
     shareSelect.value = !shareSelect.value
   }
 
-  const selectBentoSpace = (sp) => {
-    storeAI.bentoboxList[sp.spaceid].push(props.bboxid)
+  const selectBentoSpace = () => {
+    storeAI.bentoboxList[spaceSave.value].push(props.bboxid)
     clickAddbentoSpace(props.bboxid)
     // add location default if not already set?
-    storeBentobox.setLocationBbox(props.bboxid)
+    storeBentobox.setLocationBbox(spaceSave.value, props.bboxid)
   }
 
   const clickShareSpace = (boxid) => {
@@ -163,13 +165,13 @@ import { accountStore } from '@/stores/accountStore.js'
 
   /* data flow work */
     // const dataValues = ref([2, 4, 7])
-  const dataValues = computed(() => {
+  /* const dataValues = computed(() => {
     return storeAI.tempNumberData[props.bboxid]
   })
 
   const dataLabel = computed(() => {
     return storeAI.tempLabelData[props.bboxid]
-  })
+  }) */
 
   const chartData = computed(() => {
     return storeAI.visData[props.bboxid]

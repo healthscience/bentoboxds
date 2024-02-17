@@ -14,7 +14,7 @@
     </div>
     <div class="history-list" v-for="sis in spaceList">
       <button
-          class="flat-history"  v-bind:class="{ active: sis.active }" @click="bentoSpaceOpen(sis)" @mouseover="hoverCheck(sis)" @mousemove="moveCheck(sis)"> {{ sis.name }}
+          class="flat-history"  v-bind:class="{ active: sis?.active }" @click="bentoSpaceOpen(sis)" @mouseover="hoverCheck(sis)" @mousemove="moveCheck(sis)"> {{ sis.name }}
         </button> <!--@mouseup="dropBBox"-->
       <button class="save-chat-history" @click="saveSpaceHistory(sis)">save</button>
       <button class="delete-chat-history" @click="deleteSpaceHistory(sis)">Del</button>
@@ -59,7 +59,6 @@ const newSpacemenu = () => {
 const bentoSpaceOpen = (spaceID) => {
   storeAI.bentospaceState = !storeAI.bentospaceState
   storeAI.liveBspace = spaceID
-  // storeAI.beebeeChatLog = false
   // make button green
   let spaceLiveList = []
   for (let spi of storeBentobox.spaceList) {
@@ -97,6 +96,7 @@ const saveSpacename = () => {
     }
   }
   storeBentobox.spaceList = spaceLiveList
+  storeBentobox.locationBbox[spaceID] = {}
 }
 
 const saveSpaceHistory = (space) => {

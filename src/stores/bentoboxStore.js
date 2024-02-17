@@ -17,7 +17,9 @@ export const bentoboxStore = defineStore('bentostore', {
       }
     ],
     chartStyle: {},
-    locationBbox: {},
+    locationBbox: {
+      91919191: {}
+    },
     boxLocation:
     {
       x: 200,
@@ -40,8 +42,8 @@ export const bentoboxStore = defineStore('bentostore', {
       this.locY = loc.y
     },
     processReply (message) {
-      console.log('message bentobox')
-      console.log(message)
+      // console.log('message bentobox')
+      // console.log(message)
       // prepare chat menu and pairs
       if (message.reftype.trim() === 'chat-history') {
         if (message.action.trim() === 'start') {
@@ -89,8 +91,8 @@ export const bentoboxStore = defineStore('bentostore', {
                     updateBox.tW = 480
                     updateBox.tH = 480
                     updateBox.handlers = ref(["r", "rb", "b", "lb", "l", "lt", "t", "rt"])
-                    updateBox.left = ref(`calc(2% - ${tW / 2}px)`)
-                    updateBox.top = ref(`calc(8% - ${tH / 2}px)`)
+                    updateBox.left = 90 // ref(`calc(2% - ${tW / 2}px)`)
+                    updateBox.top = 90 // ref(`calc(8% - ${tH / 2}px)`)
                     updateBox.height = ref('fit-content')
                     updateBox.width = ref('fit-content')
                     updateBox.maxW = ref('100%')
@@ -100,25 +102,37 @@ export const bentoboxStore = defineStore('bentostore', {
                     updateBox.fit = ref(false)
                     updateBox.event = ref('')
                     updateBox.dragSelector = ref('.drag-container-1, .drag-container-2')
-                    this.locationBbox[bbox] = updateBox
+                    this.locationBbox[cm.value.space.spaceid] = {}
+                    this.locationBbox[cm.value.space.spaceid][bbox] = updateBox
                   }
                 } else {
-                  this.storeAI.bentoboxList[cm.value.space.spaceid] = []
+                  this.storeAI.bentoboxList[cm.value.space.spaceid] = {}
                 }
               }
             }
             // check for location spaces info. already saved
             if (cm?.value?.location) {
-              this.storeAI.bentoboxList[cm.value.spaceid] = cm?.value?.boxlist
+              // add to menu list
+              // console.log(cm?.value)
+              // this.spaceList.push(cm.value.space)
+              // set bbox settings
+              this.storeAI.bentoboxList[cm.value.spaceshort] = cm?.value?.boxlist
+              // if location space not set set it
+              if (cm.value.spaceshort in this.locationBbox) {
+              } else {
+                this.locationBbox[cm.value.spaceshort] = {}
+              }
               for (let boxsp of cm?.value?.boxlist) {
                 for (let cord of cm?.value?.location) {
                   if (cord.bbox === boxsp) {
-                    this.locationBbox[boxsp] = cord.coord 
+                    if (cord.coord !== undefined) {
+                      this.locationBbox[cm.value.spaceshort][boxsp] = cord.coord
+                    }
                   }
                 } 
               }
             } else {
-              console.log('no locat d oroords')
+              // console.log('no locat d oroords')
             }
           }
           this.chatList = chatMenu
@@ -130,12 +144,12 @@ export const bentoboxStore = defineStore('bentostore', {
         } else if (message.action.trim() === 'save') {
           console.log('saved feedback')
         }
-
       }
     },
-    setLocationBbox (bbox) {
+    setLocationBbox (space, bbox) {
       // check not already set
-      if (bbox in this.locationBbox) {
+      let spaceLive = this.locationBbox[space]
+      if (bbox in spaceLive) {
       } else {
         const tW = 440
         const tH = 440
@@ -143,32 +157,31 @@ export const bentoboxStore = defineStore('bentostore', {
         updateBox.tW = 480
         updateBox.tH = 480
         updateBox.handlers = ref(["r", "rb", "b", "lb", "l", "lt", "t", "rt"])
-        updateBox.left = ref(`calc(2% - ${tW / 2}px)`)
-        updateBox.top = ref(`calc(8% - ${tH / 2}px)`)
-        updateBox.height = ref('fit-content')
-        updateBox.width = ref('fit-content')
-        updateBox.maxW = ref('100%')
-        updateBox.maxH = ref('100%')
-        updateBox.minW = ref('20vw')
-        updateBox.minH = ref('20vh')
+        updateBox.left = 90 // ref(`calc(2% - ${tW / 2}px)`)
+        updateBox.top = 90 // ref(`calc(8% - ${tH / 2}px)`)
+        // updateBox.height = ref('fit-content')
+        // updateBox.width = ref('fit-content')
+        // updateBox.maxW = ref('100%')
+        // updateBox.maxH = ref('100%')
+        // updateBox.minW = ref('20vw')
+        // updateBox.minH = ref('20vh')
         updateBox.fit = ref(false)
         updateBox.event = ref('')
         updateBox.dragSelector = ref('.drag-container-1, .drag-container-2')
-        this.locationBbox[bbox] = updateBox
+        this.locationBbox[space][bbox] = updateBox
       }
     },
     saveLayoutSpace (spaceID) {
       // save layout per space
-      console.log('current locatio to ba save e ')
-      console.log(this.locationBbox)
       // gather info per box
       let boxLocList = []
       for (let bbox of this.storeAI.bentoboxList[spaceID]) {
-        let locInfo = this.locationBbox[bbox]
+        let locInfo = this.locationBbox[spaceID][bbox]
         boxLocList.push({ bbox: bbox, coord: locInfo })
       }
       let spaceInfo = {}
-      spaceInfo.spaceid = spaceID
+      spaceInfo.spaceid = 's-' + spaceID
+      spaceInfo.spaceshort = spaceID
       spaceInfo.boxlist = this.storeAI.bentoboxList[spaceID]
       spaceInfo.location = boxLocList
       let spaceSave = {}
@@ -177,7 +190,6 @@ export const bentoboxStore = defineStore('bentostore', {
       spaceSave.action = 'save-position'
       spaceSave.data = spaceInfo
       spaceSave.bbid = ''
-      console.log(spaceSave)
       this.storeAI.sendMessageHOP(spaceSave)
     }
   }

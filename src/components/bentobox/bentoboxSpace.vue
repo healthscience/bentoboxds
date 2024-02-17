@@ -11,9 +11,8 @@
     :min-height="minH | checkEmpty"
     :width="width"
     :height="height"
-    :left="left"
-    :top="top"
-    @mount="eHandler"
+    :left="spaceLocation.left"
+    :top="spaceLocation.top"
     @resize:move="eHandler"
     @resize:start="eHandler"
     @resize:end="eHandler"
@@ -27,6 +26,7 @@
         <div class="bb-bar-main"><button id="network-vis">social</button></div>
         <div class="bb-bar-main"><button id="network-map">map</button></div>
         <div class="bb-bar-main"><button id="bb-copy">copy</button></div>
+        <div class="bb-bar-main"><button id="bb-remove" @click="removeBboxSpace">remove</button></div>
       </div> 
     </div>
     <div id="bentobox-cell">
@@ -95,8 +95,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     updateBox.tW = 880
     updateBox.tH = 480
     updateBox.handlers = ref(["r", "rb", "b", "lb", "l", "lt", "t", "rt"])
-    updateBox.left = location.cmp.mouseX // ref(`calc(2% - ${tW / 2}px)`) // set posotion on space
-    updateBox.top = location.cmp.mouseY // ref(`calc(8% - ${tH / 2}px)`)  // set position on space
+    updateBox.left = location.left // ref(`calc(2% - ${tW / 2}px)`) // set posotion on space
+    updateBox.top = location.top // ref(`calc(8% - ${tH / 2}px)`)  // set position on space
     updateBox.height = ref('fit-content')
     updateBox.width = ref('fit-content')
     updateBox.maxW = ref('100%')
@@ -106,13 +106,10 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     updateBox.fit = ref(false)
     updateBox.event = ref('')
     updateBox.dragSelector = ref('.drag-container-1, .drag-container-2')
-    console.log('update bbox')
-    console.log(updateBox)
-    storeBentobox.locationBbox[props.bboxid] = updateBox
+    storeBentobox.locationBbox[storeAI.liveBspace.spaceid][props.bboxid] = updateBox
   }
 
   const eHandler = (data) => {
-    // console.log('box hannananander')
     // console.log(data)
     /* width = data.width;
     height = data.height;
@@ -120,6 +117,11 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     top = data.top;
     event = data.eventName; */
     updateBoxLocation(data)
+  }
+
+  const eHandlerStart = (data) => {
+    // console.log('ehand start')
+    // updateBoxLocation(data)
   }
 
   const longHoldCheck = () => {
@@ -139,19 +141,31 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     timerPress = new Date()
     // console.log(timerPress)
     setTimeout(longHoldCheck, 1)
-   }
+  }
 
-   const eHandlerTimerStop = (data) => {
+  const eHandlerTimerStop = (data) => {
     // set timer start
     timerPress = new Date()
     if (startTime > 20000) {
       timeLong = true
     }
-   }
+  }
 
-   /* computed */
-   const spaceLocation = computed(() => {
-    return storeBentobox.locationBbox[props.bboxid]
+  const removeBboxSpace = () => {
+    // remove from spaceList and location
+    let currentSpaceBboxes = storeAI.bentoboxList[storeAI.liveBspace.spaceid]
+    let updateBblist = []
+    for (let bb of currentSpaceBboxes) {
+      if (bb !== props.bboxid) {
+        updateBblist.push(bb)
+      }
+    }
+    storeAI.bentoboxList[storeAI.liveBspace.spaceid] = updateBblist
+  }
+
+  /* computed */
+  const spaceLocation = computed(() => {
+    return storeBentobox.locationBbox[storeAI.liveBspace.spaceid][props.bboxid]
   })
 
   const checkEmpty = computed((value) => {
@@ -160,13 +174,13 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   /* data flow work */
     // const dataValues = ref([2, 4, 7])
-    const dataValues = computed(() => {
+  /* const dataValues = computed(() => {
     return storeAI.tempNumberData[props.bboxid]
   })
 
   const dataLabel = computed(() => {
     return storeAI.tempLabelData[props.bboxid]
-  })
+  }) */
 
   const chartData = computed(() => {
     return storeAI.visData[props.bboxid]
@@ -235,7 +249,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
 #bb-toolbar {
   display: grid;
-  grid-template-columns: 5fr 1fr 1fr 1fr;
+  grid-template-columns: 5fr 1fr 1fr 1fr 1fr;
 }
 
 #bb-network-graph {
@@ -313,7 +327,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   #bb-toolbar {
     display: grid;
-    grid-template-columns: 5fr 1fr 1fr 1fr;
+    grid-template-columns: 5fr 1fr 1fr 1fr 1fr;
     width: 100%;
     background-color:rgb(141, 145, 226);
   }

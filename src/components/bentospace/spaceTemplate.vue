@@ -15,7 +15,7 @@
           </button>
           <div id="return-modal-close" @click="closeBentoSpace">return</div>
         </div>
-        <h3>BentoSpace #</h3>
+        <h3>BentoSpace # {{ storeAI.liveBspace.name }}</h3>
       </template>
       <template #body>
         <div id="space-toolbar">
@@ -26,7 +26,7 @@
           <div id="bento-space">
             <!-- location for bentobox - es -->
             <div id="bento-layout" v-for="bbox in storeAI.bentoboxList[storeAI.liveBspace.spaceid]">
-             <bento-box :bboxid="bbox"></bento-box>
+             <bento-boxspace :bboxid="bbox"></bento-boxspace>
             </div>
           </div>
         </div>
@@ -40,7 +40,7 @@
 <script setup>
 import { computed } from 'vue'
 import ModalSpace from '@/components/bentospace/spaceModal.vue'
-import BentoBox from '@/components/bentobox/bentoboxSpace.vue'
+import BentoBoxspace from '@/components/bentobox/bentoboxSpace.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
