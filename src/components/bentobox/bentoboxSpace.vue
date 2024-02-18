@@ -18,10 +18,10 @@
     @resize:end="eHandler"
     @drag:move="eHandler"
     @drag:start="eHandlerTimerStart"
-    @drag:end="eHandler"
+    @drag:end="eHandlerTimerStop"
   >
-    <div class="drag-container-1">
-      <div id="bb-toolbar">
+    <div class="drag-container-1" >
+      <div id="bb-toolbar" v-bind:class="{ active: bboxActive }">
         <div class="bb-bar-main">a bentobox active</div>
         <div class="bb-bar-main"><button id="network-vis">social</button></div>
         <div class="bb-bar-main"><button id="network-map">map</button></div>
@@ -70,6 +70,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     bboxid: String
   })
 
+  let bboxActive = ref(false)
+
   /* drag drop move resize */
   const tW = 440
   const tH = 440
@@ -116,6 +118,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     left = data.left;
     top = data.top;
     event = data.eventName; */
+    event.value = data.eventName
     updateBoxLocation(data)
   }
 
@@ -135,20 +138,21 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   }
 
   const eHandlerTimerStart = (data) => {
-    // console.log('move down START')
+    bboxActive.value = true
     // console.log(data)
     // set timer start
-    timerPress = new Date()
+    //timerPress = new Date()
     // console.log(timerPress)
-    setTimeout(longHoldCheck, 1)
+    // setTimeout(longHoldCheck, 1)
   }
 
   const eHandlerTimerStop = (data) => {
     // set timer start
-    timerPress = new Date()
-    if (startTime > 20000) {
-      timeLong = true
-    }
+    bboxActive.value = false
+    // timerPress = new Date()
+    // if (startTime > 20000) {
+    //   timeLong = true
+    // }
   }
 
   const removeBboxSpace = () => {
@@ -224,7 +228,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   width: 150px;
   height: 150px;
   padding: 0;
-  border: 4px solid #a6ff00;
+  border: 4px solid rgb(106, 114, 224);
   font-weight: normal;
   color: #0d0d0d;
   position: relative;
@@ -294,6 +298,10 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   background-color:  rgb(141, 145, 226);
 }
 
+.active {
+  background-color: green;
+}
+
 @media (min-width: 1024px) {
 
   .resizable {
@@ -301,7 +309,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     width: 150px;
     height: 150px;
     padding: 0;
-    border: 4px solid #a6ff00;
+    border: 4px solid rgb(106, 114, 224);
     font-weight: normal;
     color: #0d0d0d;
     position: relative;
@@ -329,7 +337,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     display: grid;
     grid-template-columns: 5fr 1fr 1fr 1fr 1fr;
     width: 100%;
-    background-color:rgb(141, 145, 226);
+    /* background-color:rgb(141, 145, 226); */
   }
 
   #bb-network-graph {
@@ -397,6 +405,11 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     width: 100%;
     height: 40px;
     background-color: rgb(141, 145, 226);
+  }
+  #beebee-tooblar.active {
+    display: grid;
+    background-color: rgb(105, 216, 105);
+    z-index: 10;
   }
 
 }

@@ -8,7 +8,7 @@ export const bentoboxStore = defineStore('bentostore', {
     historyActive: false,
     chatList: [
       {
-        name:'latest', chatid:'12345', active: true
+        name:'latest', chatid:'0123456543210', active: true
       }
     ],
     spaceList: [
@@ -17,6 +17,8 @@ export const bentoboxStore = defineStore('bentostore', {
       }
     ],
     chartStyle: {},
+    locationStart: 90,
+    scaleZoom: 1,
     locationBbox: {
       91919191: {}
     },
@@ -77,8 +79,10 @@ export const bentoboxStore = defineStore('bentostore', {
                   pairCount++
                 }
               } else {
-                // add to menu list
-                this.spaceList.push(cm.value.space)
+                // add to menu list  no duplicate and TODO set one as active
+                if (this.spaceList[0].spaceid !== cm.value.space.spaceid) {
+                  this.spaceList.push(cm.value.space)
+                }
                 this.storeAI.liveBspace = cm.value.space
                 if (cm.value.bboxlist.length > 0) {
   
@@ -157,8 +161,8 @@ export const bentoboxStore = defineStore('bentostore', {
         updateBox.tW = 480
         updateBox.tH = 480
         updateBox.handlers = ref(["r", "rb", "b", "lb", "l", "lt", "t", "rt"])
-        updateBox.left = 90 // ref(`calc(2% - ${tW / 2}px)`)
-        updateBox.top = 90 // ref(`calc(8% - ${tH / 2}px)`)
+        updateBox.left = '90px' // ref(`calc(2% - ${tW / 2}px)`)
+        updateBox.top = this.locationStart + 'px' // ref(`calc(8% - ${tH / 2}px)`)
         // updateBox.height = ref('fit-content')
         // updateBox.width = ref('fit-content')
         // updateBox.maxW = ref('100%')
@@ -169,6 +173,7 @@ export const bentoboxStore = defineStore('bentostore', {
         updateBox.event = ref('')
         updateBox.dragSelector = ref('.drag-container-1, .drag-container-2')
         this.locationBbox[space][bbox] = updateBox
+        this.locationStart+= 40
       }
     },
     saveLayoutSpace (spaceID) {
