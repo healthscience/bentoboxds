@@ -11,6 +11,7 @@ export const libraryStore = defineStore('librarystore', {
     liveBentoBox: aiInterfaceStore(),
     utilLibrary: new LibraryUtility(),
     sendSocket: useSocketStore(),
+    startLibrary: false,
     libraryMessage: '',
     uploadStatus: false,
     restStatus: false,
@@ -123,12 +124,21 @@ export const libraryStore = defineStore('librarystore', {
         this.libraryMessage = message.data
         this.newPackagingForm.apicolumns = message.data.data.headerinfo.splitwords
       } else if (message.type === 'publiclibrary') {
-        // prepare public library
-        // let newPair = {}
-        // newPair.question = questionStart
-        // newPair.reply = message.data
-        // this.liveBentoBox.historyPair.push(newPair)
-        this.publicLibrary = message.referenceContracts
+        let typeRefcontracts = Object.keys(message.referenceContracts)
+        // look over and see if the library has been setup?
+        let setupContracts = []
+        for (let typeContract of typeRefcontracts) {
+          if(message.referenceContracts[typeContract].length !== 0) {
+            setupContracts.push(true)
+          }
+        }
+        let checkLogic = (element) => element  === true;
+        let checkSetup = setupContracts.some(checkLogic)
+        if (checkSetup === false) {
+          this.startLibrary = true
+        } else {
+          this.publicLibrary = message.referenceContracts
+        }
       } else if (message.action === 'library-peerlibrary') {
         // prepare network experiment lists
         let newPair = {}
@@ -138,9 +148,11 @@ export const libraryStore = defineStore('librarystore', {
         // peer library data
         this.peerLibrary = message.data.data.referenceContracts
         // prepare the list of peer experiments for library display
-        this.peerExperimentList = this.utilLibrary.prepareBentoSpaceJoinedNXPlist(message.data.data.networkPeerExpModules)
-        // keep track NXP contract bundle
-        this.peerLibraryNXP = message.data.data.networkPeerExpModules
+        if (message.data.data.networkPeerExpModules.length > 0) {
+          this.peerExperimentList = this.utilLibrary.prepareBentoSpaceJoinedNXPlist(message.data.data.networkPeerExpModules)
+          // keep track NXP contract bundle
+          this.peerLibraryNXP = message.data.data.networkPeerExpModules
+        }
       } else if (message.action === 'results') {
         this.peerResults = message.data
       } else if (message.action === 'ledger') {

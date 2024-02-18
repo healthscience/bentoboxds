@@ -1,8 +1,11 @@
 <template>
   <div id="reference-tools">
     <div id="task-select">
-      <div class="contract-task">
+      <div class="contract-task">oo {{ storeLibrary.startLibrary }}
         <button id="get-referencecontract" @click.prevent="getRefContracts()">Get Ref. Contract</button>
+      </div>
+      <div id="notify-library-start-replication" v-if="storeLibrary.startLibrary === true">
+        <button @click="startLibraryRepication">Start</button> library replication
       </div>
       <!-- <div class="view-refconts">
         <button id="build-modulecontracts" @click.prevent="makeModulecontracts()">Make modules</button>
@@ -211,7 +214,11 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
 @media (min-width: 1024px) {
 
-
+#notify-library-start-replication {
+  position: absolute;
+  top: 1px;
+  left: 180px;
+}
 
 }
 
