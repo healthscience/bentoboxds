@@ -302,7 +302,12 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     prepareLibrarySummary (boxid) {
       for (let hi of this.hopSummary) {
         if (hi.summary.bbid == boxid) {
-          this.boxLibSummary[boxid] = hi.summary
+          // new or saved format
+          if ('data' in hi.summary) {
+            this.boxLibSummary[boxid] = hi.summary
+          } else {
+            this.boxLibSummary[boxid] = hi.summary.summary.summary
+          }
         }
       }
     },

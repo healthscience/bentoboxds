@@ -45,54 +45,6 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
       offRight.value = '0px'
     }
   }
-
-/*
-export default {
-  name: 'MinnavMap',
-  components: {
-  },
-  beforeMount () {
-  },
-  created () {
-  },
-  mounted () {
-    this.setMinmapcanvas()
-  },
-  props: {
-  },
-  computed: {
-    spaceCoord: function () {
-      return this.$store.state.liveSpaceCoord
-    }
-  },
-  data: function () {
-    return {
-      c: {},
-      ctx: {},
-      openminib: true,
-      openmini: false,
-      offRight: '-400px'
-    }
-  },
-  methods: {
-    setMinmapcanvas () {
-      let c = document.getElementById('minimap-canvas')
-      let ctx = c.getContext('2d')
-      this.$store.dispatch('actionSetminmap', ctx)
-    },
-    mouseMiniSelect (e) {
-      this.$store.dispatch('actionMMapMove', e)
-    },
-    setMiniMapShow () {
-      this.openmini = !this.openmini
-      if (this.openmini === false) {
-        this.offRight = '-400px'
-      } else {
-        this.offRight = '0px'
-      }
-    }
-  }
-}*/
 </script>
 
 <style scoped>

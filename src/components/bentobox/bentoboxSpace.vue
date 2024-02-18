@@ -50,7 +50,8 @@
         </div>
       </div>
     </div>
-    <div id="bb-expand-size">modules ^</div>
+    <div id="bb-expand-size" @click="expandModules">modules v</div>
+    <modules-list v-if="modulesShow"></modules-list>
   </vue-resizable>
 </template>
 
@@ -58,19 +59,20 @@
 import VueResizable from 'vue-resizable'
 import barChart from '@/components/visualisation/charts/barChart.vue'
 import lineChart from '@/components/visualisation/charts/lineChart.vue'
+import ModulesList from '@/components/bentobox/modules/modulesList.vue'
 import { ref, computed, onMounted } from 'vue'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
-  const futureStatus = ref(true)
 
   const props = defineProps({
     bboxid: String
   })
 
   let bboxActive = ref(false)
+  let modulesShow = ref(false)
 
   /* drag drop move resize */
   const tW = 440
@@ -165,6 +167,10 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
       }
     }
     storeAI.bentoboxList[storeAI.liveBspace.spaceid] = updateBblist
+  }
+
+  const expandModules = () => {
+    modulesShow.value = !modulesShow.value
   }
 
   /* computed */
@@ -296,6 +302,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   display: block;
   width: 100%;
   background-color:  rgb(141, 145, 226);
+  color: blue;
 }
 
 .active {
