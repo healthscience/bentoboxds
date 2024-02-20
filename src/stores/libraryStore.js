@@ -119,6 +119,8 @@ export const libraryStore = defineStore('librarystore', {
   actions: {
     // since we rely on `this`, we cannot use an arrow function
     processReply (message, questionStart) {
+      console.log('library back')
+      console.log(message)
       if (message.action === 'save-file') {
         // set message
         this.libraryMessage = message.data
@@ -153,6 +155,9 @@ export const libraryStore = defineStore('librarystore', {
           // keep track NXP contract bundle
           this.peerLibraryNXP = message.data.data.networkPeerExpModules
         }
+      } else if (message.action === 'replicate-publiclibrary') {
+        this.sendMessage('get-library')
+        this.sendMessage('get-results')
       } else if (message.action === 'results') {
         this.peerResults = message.data
       } else if (message.action === 'ledger') {

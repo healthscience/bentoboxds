@@ -5,7 +5,12 @@
         <button id="get-referencecontract" @click.prevent="getRefContracts()">Get Ref. Contract</button>
       </div>
       <div id="notify-library-start-replication" v-if="storeLibrary.startLibrary === true">
-        <button @click="startLibraryRepication">Start</button> library replication
+        <form id="library-replication-form">
+          <label for="replicteplibrary"></label>
+          <input type="input" id="publibkey" placeholder="librarykey" v-model="pubLibrarykey" autofocus>
+          <button @click.prevent="startLibraryRepication">Start</button>
+        </form>
+        
       </div>
       <!-- <div class="view-refconts">
         <button id="build-modulecontracts" @click.prevent="makeModulecontracts()">Make modules</button>
@@ -76,7 +81,9 @@ import ViewLedger from '@/components/library/hop/viewLedger.vue'
 import NewRefcontract from '@/components/library/contracts/contribute/newRefcontract.vue'
 import { ref } from 'vue'
 import { libraryStore } from '@/stores/libraryStore.js'
+import { accountStore } from '@/stores/accountStore.js'
 
+  const storeAccount = accountStore()
   const storeLibrary = libraryStore()
 
   /* data */
@@ -85,6 +92,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
   let moduleState = ref(false)
   let resultsState = ref(false)
   let ledgerState = ref(false)
+  let pubLibrarykey = ref('')
 
   let statusContract = ref(
     {
@@ -147,6 +155,19 @@ import { libraryStore } from '@/stores/libraryStore.js'
       }
     }
 
+    const startLibraryRepication = () => {
+      let shareInfo = {}
+      shareInfo.type = 'library'
+      shareInfo.action = 'account'
+      shareInfo.task = 'replicate'
+      shareInfo.reftype = 'publiclibrary'
+      shareInfo.privacy = 'public'
+      shareInfo.data = { discoverykey: pubLibrarykey.value }
+      console.log(shareInfo)
+      storeAccount.sendMessageHOP(shareInfo)
+    }
+
+    /*
     const makeModulecontracts = () => {
       const refModContract = {}
       refModContract.type = 'library'
@@ -165,7 +186,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
       const refVisJSON = JSON.stringify(refVisContract)
       // ask network library for contracts for this peer
       this.$store.dispatch('actionMakeVisualiseRefContract', refVisJSON)
-    }
+    } */
 
 </script>
 
