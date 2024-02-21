@@ -64,12 +64,14 @@ export const accountStore = defineStore('account', {
       shareContext.publickey = this.sharePubkey
       shareContext.data = this.storeAI.visData[boxid]
       let shareInfo = {}
-      shareInfo.type = 'library'
+      shareInfo.type = 'network'
       shareInfo.action = 'share'
       shareInfo.task = 'peer-join'
       shareInfo.reftype = 'null'
       shareInfo.privacy = 'private'
       shareInfo.data = shareContext
+      console.log('share')
+      console.log(shareInfo)
       this.sendMessageHOP(shareInfo)
     },
     sendMessageHOP (message) {
