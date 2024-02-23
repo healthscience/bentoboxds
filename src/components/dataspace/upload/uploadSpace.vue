@@ -9,7 +9,7 @@
 				<span v-else>
 					<span>Drag Your Files Here</span>
 					<span class="smaller">
-						or <strong><button>click here</button></strong> to select files
+						or <strong>click</strong> to select files
 					</span>
 				</span>
 				<input type="file" id="file-input" multiple @change="onInputChange" />
@@ -31,15 +31,13 @@
 import DropZone from '@/components/dataspace/upload/dropZone.vue'
 import FilePreview from '@/components/dataspace/upload/filePreview.vue'
 import { libraryStore } from '@/stores/libraryStore.js'
-// import { useObjectUrl } from '@vueuse/core'
-// import { shallowRef } from 'vue'
-
-
+import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { ref, shallowRef, computed } from "vue"
 
 	const file = shallowRef(null)
 
 	const storeLibrary = libraryStore()
+	const storeAI = aiInterfaceStore()
 
 // File Management
 import useFileList from '@/components/dataspace/upload/compositions/fileList.js'
@@ -78,6 +76,8 @@ const saveFiles = (file) => {
   // let fileData = uploadFiles(files)
   // send data to HOP to save in Holepunch
   // file.value = file
+	console.log('save puload')
+	console.log(file)
   let sourceLocation = ''
 	if (checkElectron() === false) {
 		sourceLocation = 'web'
@@ -96,6 +96,7 @@ const saveFiles = (file) => {
 	storeLibrary.fileBundleList.push(fileBundle)
   // give summary back to peer
   if (file.type === 'text/csv') {
+		console.log('yes file')
     storeLibrary.csvpreviewLive = true
     const reader = new FileReader()
     reader.onloadend = function () {  // = (event) => { // = function () {
@@ -109,7 +110,29 @@ const saveFiles = (file) => {
    	 console.log(reader.error)
  		}
     reader.readAsText(file)
+		// if direct from beebee inform chat
+		if (storeAI.dataBoxStatus !== true) {
+			console.log('not in databox modeal')
+			// TODO send to beebee via socket but for now create reply here
+			let question = {}
+			question.type ='bbai'
+			question.reftype = 'ignore'
+			question.action = 'question'
+			question.data = { "count": 0, "text": "Upload of file", "active": true, "time": new Date() }
+			question.bbid = ''
+			let bbReply = {}
+			bbReply.type = 'bbai-reply'
+			bbReply.data = { text: 'summary of file data file is csv, heading are:', filedata: { type: 'csv', columns: 'one', grid: storeLibrary.linesLimit }, prompt: 'Would you like to chart this data?' }
+			bbReply.bbid = ''
+			let newPair = {}
+			newPair.question = question
+			newPair.reply = bbReply
+			storeAI.historyPair[storeAI.chatAttention].push(newPair)
+			// if csv  active viewer
+			storeLibrary.csvpreviewLive = true
+		}
   } else {
+		console.log('send for HOP')
 		// prepare file data for storage via HOP
 		const reader2 = new FileReader()
 		// reader2.readAsText(fileData)

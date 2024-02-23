@@ -125,7 +125,11 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       saveQ.time = time
       this.inputAskHistory.push(saveQ)
       // provide feedback else forward to beebeeLogic via HOP
-      this.actionHelpAskInput()
+      if (this.askQuestion.text === 'yes') {
+        console.log('yes to previous beebee reply')
+      } else {
+       this.actionHelpAskInput()
+      }
     },
     actionHelpAskInput () {
       if (this.inputAskHistory[this.qcount].text.length > 0) {
