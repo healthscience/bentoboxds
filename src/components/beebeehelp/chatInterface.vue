@@ -2,7 +2,7 @@
   <div id="chat-interface">
     <!-- Natural Language Chat -->
     <div id="natlang-ai">
-      <div id="conversation" v-if="beginChat === true"  v-for="chati in chatPairs">cd--{{ chati }}
+      <div id="conversation" v-if="beginChat === true"  v-for="chati in chatPairs">
         <div class="peer-ask">
           <img class="left-chat-peer" src="../.././assets/peerlogo.png" alt="Avatar">
           <div v-if="chati.question.data.active === true" class="left-chat"> {{ chati.question.data.text }} </div>
@@ -19,14 +19,17 @@
               <div v-else-if="chati.reply.type === 'bbai-reply'">
                 <div v-if="chati.reply.data?.type !== 'library-peerlibrary'">
                   <div class="beeebee-text">
-                    {{ chati.reply.data.text }}
+                    {{ chati.reply.data.text}}
                     </div>
-                    <div class="bee-file-data">
-                      {{ chati.reply.data.filedata }}
+                    <div v-if="chati.reply?.data?.filedata" class="bee-file-data">
+                      {{ chati.reply.data.filedata.type }} - {{ chati.reply.data.filedata.file.name }} -- {{ chati.reply.data.filedata.columns}}
                       <csv-preview v-if="storeLibrary.csvpreviewLive === true"></csv-preview>
                     </div>
                     <div v-if="chati.reply?.data?.prompt?.length > 0" class="bee-prompt-question">
                       {{ chati.reply.data.prompt }}
+                      <div class="data-options"  v-for="(dopt, index) in chati.reply?.data?.options">
+                        <button class="data-option-select" @click.prevent="dataOptionVis(index, dopt)">{{ dopt }}</button>
+                      </div>
                     </div>
                 </div>
               </div>
@@ -136,6 +139,16 @@ import { libraryStore } from '@/stores/libraryStore.js'
     storeAI.dataBoxStatus = true
     storeAI.uploadStatus = false
     storeLibrary.libraryStatus = true
+  }
+
+  const dataOptionVis = (did, colName) => {
+    console.log('chart this vis data type')
+    console.log(did)
+    console.log(colName)
+    let dataCode = {}
+    dataCode.id = did
+    dataCode.name = colName
+    storeAI.submitAsk(dataCode)
   }
 
 </script>
@@ -268,6 +281,17 @@ import { libraryStore } from '@/stores/libraryStore.js'
     .active {
       border: 2px solid orange;
       background-color: antiquewhite;
+    }
+
+    .data-options {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+
+    .data-option-select {
+      display: inline-block;
+      padding: 0.25em;
+      margin-bottom: 0.6em;
     }
 
   }

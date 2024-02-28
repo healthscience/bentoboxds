@@ -33,7 +33,11 @@ export const bentoboxStore = defineStore('bentostore', {
   actions: {
     // since we rely on `this`, we cannot use an arrow function
     setChartstyle (id, style) {
+      if (style !== undefined) {
       this.chartStyle[id] = style
+      } else {
+        this.chartStyle[id] = 'line'
+      }
     },
     setBoxlocation (loc) {
       // const tempLoc = {}

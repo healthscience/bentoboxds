@@ -45,7 +45,7 @@
     <div id="bb-world-map">map</div>
     <div id="bentobox-holder">
       <div id="network-bentobox">
-        network bentobox
+        network bentobox 
       </div>
       <div id="peer-bentobox">
         <div id="bento-past">

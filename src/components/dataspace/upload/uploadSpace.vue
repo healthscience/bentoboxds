@@ -28,6 +28,7 @@
 
 <script setup>
 // Components
+import hashObject from 'object-hash'
 import DropZone from '@/components/dataspace/upload/dropZone.vue'
 import FilePreview from '@/components/dataspace/upload/filePreview.vue'
 import { libraryStore } from '@/stores/libraryStore.js'
@@ -35,6 +36,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { ref, shallowRef, computed } from "vue"
 
 	const file = shallowRef(null)
+	let headerLocal = ref('')
 
 	const storeLibrary = libraryStore()
 	const storeAI = aiInterfaceStore()
@@ -76,8 +78,6 @@ const saveFiles = (file) => {
   // let fileData = uploadFiles(files)
   // send data to HOP to save in Holepunch
   // file.value = file
-	console.log('save puload')
-	console.log(file)
   let sourceLocation = ''
 	if (checkElectron() === false) {
 		sourceLocation = 'web'
@@ -96,13 +96,15 @@ const saveFiles = (file) => {
 	storeLibrary.fileBundleList.push(fileBundle)
   // give summary back to peer
   if (file.type === 'text/csv') {
-		console.log('yes file')
     storeLibrary.csvpreviewLive = true
     const reader = new FileReader()
     reader.onloadend = function () {  // = (event) => { // = function () {
       const lines = reader.result 
 			let splitLines = lines.split(/\r\n|\n/)
       storeLibrary.linesLimit = splitLines.slice(0, 40)
+			// extract headers assume first line
+			headerLocal.value = localHeaderExtract(splitLines[0])
+			console.log(headerLocal)
 			let fileContent = reader.result
 			storeLibrary.fileBund.content = fileContent
     }
@@ -112,18 +114,19 @@ const saveFiles = (file) => {
     reader.readAsText(file)
 		// if direct from beebee inform chat
 		if (storeAI.dataBoxStatus !== true) {
-			console.log('not in databox modeal')
 			// TODO send to beebee via socket but for now create reply here
 			let question = {}
 			question.type ='bbai'
 			question.reftype = 'ignore'
 			question.action = 'question'
-			question.data = { "count": 0, "text": "Upload of file", "active": true, "time": new Date() }
-			question.bbid = ''
+			question.data = { "count": storeAI.qcount, "text": "Upload of file", "active": true, "time": new Date() }
+			storeAI.qcount++
+			let hashQuestion = hashObject(question.data)
+			question.bbid = hashQuestion
 			let bbReply = {}
 			bbReply.type = 'bbai-reply'
-			bbReply.data = { text: 'summary of file data file is csv, heading are:', filedata: { type: 'csv', columns: 'one', grid: storeLibrary.linesLimit }, prompt: 'Would you like to chart this data?' }
-			bbReply.bbid = ''
+			bbReply.data = { text: 'summary of file data file is csv, heading are:', filedata: { type: 'csv', file: fileBundle, columns: 'one', grid: storeLibrary.linesLimit }, prompt: 'Select data to chart:', options: headerLocal, }
+			bbReply.bbid = hashQuestion
 			let newPair = {}
 			newPair.question = question
 			newPair.reply = bbReply
@@ -132,7 +135,6 @@ const saveFiles = (file) => {
 			storeLibrary.csvpreviewLive = true
 		}
   } else {
-		console.log('send for HOP')
 		// prepare file data for storage via HOP
 		const reader2 = new FileReader()
 		// reader2.readAsText(fileData)
@@ -167,6 +169,11 @@ const saveFiles = (file) => {
 		}
 		reader2.readAsDataURL(file)
   }
+
+	const localHeaderExtract = (lineOne) => {
+		let headerInfo = lineOne.split(',')
+		return headerInfo
+	}
 }
 </script>
 

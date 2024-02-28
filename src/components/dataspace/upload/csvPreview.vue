@@ -1,4 +1,4 @@
-<template>csv fiewer {{ storeLibrary.linesLimit?.length }}
+<template>csv viewer length = {{ storeLibrary.linesLimit?.length }}
   <div id="data-viewer">
     <div class="csv-section" id="summary-content">
       <ul v-for="(value, index) in storeLibrary.linesLimit" :key="value.id">
