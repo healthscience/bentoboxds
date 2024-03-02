@@ -14,6 +14,7 @@
           </select>
         </div>
       </div>
+      <div class="bb-bar-main"><button @click="clickVisTools(props.bboxid)">Tools</button></div>
       <!--<div class="bb-bar-main"><button id="network-vis">social</button></div>
       <div class="bb-bar-main"><button id="network-map">map</button></div>
       <div class="bb-bar-main"><button id="bb-copy">copy</button></div>-->
@@ -28,6 +29,7 @@
     </button>
     </form>
   </div>
+  <bb-tools v-if="boxToolsShow" :bboxid="props.bboxid"></bb-tools>
   <div id="library-summary" v-if="libSum">
     <div id="lib-summary">
       Library summary: {{ boxLibrarySummary.key[0] }}
@@ -70,6 +72,7 @@
 </template>
 
 <script setup>
+import BbTools from '@/components/bentobox/tools/vistoolBar.vue'
 import BentoboxFocus from '@/components/bentobox/bentoboxFocus.vue'
 import barChart from '@/components/visualisation/charts/barChart.vue'
 import lineChart from '@/components/visualisation/charts/lineChart.vue'
@@ -155,6 +158,14 @@ import { accountStore } from '@/stores/accountStore.js'
     shareForm.value = !shareForm.value
   }
   
+  const clickVisTools = (boxid) => {
+    storeBentobox.boxtoolsShow[boxid] = !storeBentobox.boxtoolsShow[boxid]
+  }
+
+  const boxToolsShow = computed(() => {
+    return storeBentobox.boxtoolsShow[props.bboxid]
+  })
+
   const checkEmpty = computed((value) => {
     return typeof value !== "number" ? 0 : value;
   })
@@ -244,7 +255,7 @@ import { accountStore } from '@/stores/accountStore.js'
 
 #bb-toolbar {
   display: grid;
-  grid-template-columns: 4fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 4fr 1fr 1fr 1fr 1fr 1fr;
 }
 
 #bb-network-graph {
@@ -350,7 +361,7 @@ import { accountStore } from '@/stores/accountStore.js'
 
   #bb-toolbar {
     display: grid;
-    grid-template-columns: 4fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 4fr 1fr 1fr 1fr 1fr 1fr;
     width: 100%;
     background-color:rgb(141, 145, 226);
   }

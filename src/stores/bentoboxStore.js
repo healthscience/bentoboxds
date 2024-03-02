@@ -17,6 +17,9 @@ export const bentoboxStore = defineStore('bentostore', {
       }
     ],
     chartStyle: {},
+    openDatatools: {},
+    boxtoolsShow: {},
+    vistoolsStatus : {},
     locationStart: 90,
     scaleZoom: 1,
     locationBbox: {
@@ -64,6 +67,8 @@ export const bentoboxStore = defineStore('bentostore', {
               // is setting for chat or space?
               if ('space' in cm.value !== true ) {
                 this.storeAI.historyPair[cm.key] = cm.value.pair
+                // toolbars
+                this.boxtoolsShow[cm.key] = false
                 // loop over boxids for this chat
                 let pairCount = 0
                 for (let pair of cm?.value?.pair) {
