@@ -1,12 +1,11 @@
 <template>
   <div id="time-control">
-     date picker
-  </div>
-    <!--<div id="time-control-update">
+    <div id="time-control-update">
       <div id="time-options" class="series-style">
         <div id="calendar-selector">
           <div id="date-selector-status">
-            <date-picker class="select-caldate"  v-model="calendarvalue"  value-type="format" format="YYYY-MM-DD" @change="calendarSelect" :lang="lang" :range="rangeActive === true" ></date-picker>
+            <VueDatePicker v-model="date" value-type="format" format="YYYY-MM-DD" @change="calendarSelect" :lang="lang" :range="rangeActive === true"></VueDatePicker>
+            <!--<date-picker class="select-caldate"  v-model="calendarvalue"  value-type="format" format="YYYY-MM-DD" @change="calendarSelect" :lang="lang" :range="rangeActive === true" ></date-picker>-->
             <div>{{ cellDate }}</div>
           </div>
           <div id="time-calendar-tools">
@@ -50,12 +49,141 @@
         </div>
       </div>
     </div>
-    <div id="calendar-tools">
-      <button id="update-chart" @click.prevent="updateKbundle($event)">Update</button>
-    </div>-->
+  </div>
 </template>
 
 <script setup>
+import { ref } from 'vue'
+import VueDatePicker from '@vuepic/vue-datepicker'
+import '@vuepic/vue-datepicker/dist/main.css'
+
+const date = ref()
+const calendarvalue = ref('')
+const rangeActive = ref([])
+const calendarList = ref([])
+const cellDate = ref('')
+const selectedTimeBundle = ref('single')
+const selectedChartnumber = ref('singlechart')
+const lang = ref({
+  days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+  months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+  pickers: ['next 7 days', 'next 30 days', 'previous 7 days', 'previous 30 days'],
+  placeholder: {
+    date: 'Select Date',
+    dateRange: 'Select Date Range'
+  }
+})
+const optionTimeBundle = ref([
+  { text: 'Single day', value: 'single', id: 0 },
+  { text: 'Pick days', value: 'multi', id: 1 },
+  { text: 'Range days', value: 'range', id: 2 },
+  { text: 'Ask BB', value: 'natlang', id: 3 }
+])
+const navTime = ref([{ 'text': { 'word': '-day', 'number': -86400000 } }, { 'text': { 'word': '+day', 'number': 86400000 } }])
+const selectedTimeFormat = ref('timeseries')
+const timeformatoptions = ([
+    { text: 'Time series', value: 'timeseries', id: 0 },
+    { text: 'Overlay', value: 'overlay', id: 1 }
+  ])
+
+/* methods */
+const clearMultidays = (md) => {
+    this.calendarList = []
+    this.calendarListMS = []
+    this.makeTimeBundles = []
+  }
+
+const calendarSelect = () => {
+
+  let feedbackTime = {}
+  feedbackTime.device = this.mData
+  feedbackTime.message = 'clear'
+  feedbackTime.active = false
+  // this.$store.dispatch('actionFeeback', feedbackTime)
+  if (this.calendarToolMulti.active !== true && this.rangeActive !== true) {
+    // convert to correct time format and update KBundle and build new visStyle
+    let bTime = {}
+    bTime.selectDate = this.calendarvalue
+    bTime.text = 'selectd'
+    let numberTimeformat = moment(this.calendarvalue).valueOf()
+    // this.$store.dispatch('singleDateUpdate', numberTimeformat)
+    this.calendarListMS = []
+    this.calendarListMS.push(numberTimeformat)
+    let timeContext = {}
+    timeContext.device = this.mData
+    timeContext.timerange = this.calendarListMS
+    // this.$store.dispatch('actionSetTimerange', timeContext)
+  } else if (this.rangeActive === true) {
+    // reset the timeholder
+    this.calendarListMS = []
+    let rangeSelected = moment.range(this.calendarvalue[0], this.calendarvalue[1])
+    let segText = 'days'
+    let sourceRangeTimes = Array.from(rangeSelected.by(segText))
+    // loop over range and build date range format
+    for (let dr of sourceRangeTimes) {
+      this.calendarListMS.push(moment(dr).valueOf())
+    }
+    // set time range in store so other toolbars have access
+    let timeContext = {}
+    timeContext.device = this.mData
+    timeContext.timerange = this.calendarListMS
+    // this.$store.dispatch('actionSetTimerange', timeContext)
+  } else if (this.calendarToolMulti.active === true) {
+    let formatTimeDisplay = moment(this.calendarvalue).format('LLll')
+    this.calendarList.push(formatTimeDisplay)
+    this.calendarListMS.push(moment(this.calendarvalue).valueOf())
+    // set time range in store so other toolbars have access
+    let timeContext = {}
+    timeContext.device = this.mData
+    timeContext.timerange = this.calendarListMS
+    // this.$store.dispatch('actionSetTimerange', timeContext)
+  }
+}
+
+const setShiftTimeData = (seg) => {
+  // first clear the range of existing
+  let timeContext = {}
+  timeContext.module = this.moduleCNRL
+  timeContext.device = this.mData
+  timeContext.timerange = []
+  // this.$store.dispatch('actionSetTimerange', timeContext)
+  // back and forward and time
+  let contextK = {}
+  contextK.nxpCNRL = this.shellID
+  contextK.moduleCNRL = this.moduleCNRL
+  contextK.moduleType = this.moduleType
+  contextK.mData = this.mData
+  contextK.startperiodchange = seg.text.number
+  contextK.startperiod = 0
+  contextK.rangechange = []
+  // check that time is selected
+  if (contextK.startperiod !== 0) {
+    console.log('no time present, prompt peer1')
+  } else {
+    // this.$store.dispatch('actionVisUpdate', contextK)
+  }
+}
+
+const labelsSelect = () => {
+  // this.liveData.data.chartOptions.legend.display = !this.liveData.data.chartOptions.legend.display
+  let legendContext = {}
+  legendContext.shellID = this.shellID
+  legendContext.moduleCNRL = this.moduleCNRL
+  legendContext.moduleType = this.moduleType
+  legendContext.mData = this.mData
+  // this.$store.dispatch('actionLegendStatus', legendContext)
+}
+
+const cellDateF = () => {
+  this.startSetDate(this.$store.state.compModuleHolder[this.moduleCNRL][this.mData])
+  let dateLive = {}
+  if (this.$store.state.compModuleHolder !== undefined && this.$store.state.compModuleHolder[this.moduleCNRL][this.mData]) {
+    let updateDate = moment(this.$store.state.compModuleHolder[this.moduleCNRL][this.mData].date).format('YYYY-MM-DD')
+    dateLive = updateDate
+  }
+  return dateLive
+}
+
 /*
 import DatePicker from 'vue2-datepicker'
 import 'vue2-datepicker/index.css'

@@ -1,67 +1,39 @@
 <template>
-  <div id="diy-tools">vis toolbar
-    <div id="chart-type">
-      <!-- <div class="network-tools">
-        <div class="context-network">
-          <button @click.prevent="setNetworkgraph('networkview')">{{ network.text }}</button>
-        </div>
-        <div class="context-network">
-          <button @click.prevent="setNetworkmap('mapview')">{{ mapButton.text }}</button>
-        </div>
-      </div> -->
-      <div class="network-tools">
-        <calendar-tool></calendar-tool>
+  <div id="vis-tools">
+    <div class="network-tools">
+      <div class="context-network">ng
+        <!--<button @click.prevent="setNetworkgraph('networkview')">{{ network.text }}</button>-->
       </div>
-      <!-- <div class="network-tools">
-        <div class="chart-style-tools">
-          <li>
-            <button @click.prevent="chartSelect()">Bar</button>
-          </li>
-          <li>
-            <button @click.prevent="chartSelect()">Line</button>
-          </li>
-          <li>
-            <button @click.prevent="chartSelect()">Mixed</button>
-          </li>
-          <div>
-            <button @click.prevent="labelsSelect()">Labels</button>
-          </div>
-        </div>
-      </div> -->
-      <div class="network-tools" v-if="openDataLive !== undefined">
-        <a href="#" id="opendata-space" @click.prevent="openDataToolbar()">{{ openDataLive.text }}</a>
+      <div class="context-network">nm
+        <!--<button @click.prevent="setNetworkmap('mapview')">{{ mapButton.text }}</button>-->
       </div>
     </div>
-    <div v-if="openDataLive !== undefined" id="open-knowledge">
-      <opendata-tool v-if="openDataLive[mData].active === true" :toolInfo="visToolbarStatusLive"></opendata-tool>
+    <div class="network-tools">
+      <calendar-tool></calendar-tool>
     </div>
-    <!-- <div id="social-graph">
-      <div id="social-network" v-if="socialState === true && socialgraphActive !== undefined && socialgraphActive.length > 0">
-        <div id="network-graph-container">
-          <header>SOCAIL GRAPH</header>
-          Select Peers
-          <ul class="graph-peer" v-for="sg in socialgraphActive" :key="sg.key" v-bind:value="sg.key">
-            <li>
-              {{ sg }}
-            </li>
-          </ul>
-          <button class="button-past" @click.prevent="setPastNetwork()">Now</button>
-          <button class="button-future" @click.prevent="setFutureNetwork()">Future</button>
-        </div>
-      </div>
+    <div id="chart-style-tools" class="network-tools">
+      <li>
+        <button @click.prevent="chartSelect()">Bar</button>
+      </li>
+      <li>
+        <button @click.prevent="chartSelect()">Line</button>
+      </li>
+      <!--<li>
+        <button @click.prevent="chartSelect()">Mixed</button>
+      </li>
+      <div>
+        <button @click.prevent="labelsSelect()">Labels</button>
+      </div>-->
     </div>
-    <div id="map-network">
-      <div id="open-map" v-if="mapState === true && networkMap !== undefined && networkMap.length > 0">
-        <div id="network-graph-container">
-          <header>MAP</header>
-          <ul  v-for="map in networkMap" :key="map.key" v-bind:value="map.key">
-            <li class="map-peer">
-              {{ map }}
-            </li>
-          </ul>
-        </div>
-      </div>
-    </div> -->
+    <div class="network-tools">
+      <button href="#" id="opendata-space" @click.prevent="openDataToolbar()">open data</button>
+    </div>
+    <div id="update-manual" class="network-tools">
+      <button id="update-chart" @click.prevent="updateKbundle($event)">Update</button>
+    </div>
+  </div>
+  <div class="network-tools" v-if="openDataLive !== undefined" id="open-knowledge">
+    <opendata-tool v-if="openDataLive.active === true" :toolInfo="visToolbarStatusLive"></opendata-tool>
   </div>
   <!--<div id="feedback-time" v-if="feedbackmessage !== 'clear'" v-bind:class="{ active: feedbackActive }">
     {{ feedbackmessage }}
@@ -84,6 +56,42 @@ const props = defineProps({
     bboxid: String
   })
 
+/* methods */
+const updateKbundle = () => {
+  // prepare update for HOP
+  let contextK = {}
+  contextK.nxpCNRL = this.shellID
+  contextK.moduleCNRL = this.moduleCNRL
+  contextK.moduleType = this.moduleType
+  contextK.mData = this.mData
+  contextK.startperiod = moment(this.calendarvalue).valueOf()
+  contextK.startperiodchange = 0
+  let rangeSet = []
+  if (this.timeRange === undefined) {
+    rangeSet = []
+  } else {
+    rangeSet = this.timeRange
+  }
+  contextK.rangechange = rangeSet
+  // contextK.singlechart = true
+  contextK.singlechart = this.selectedChartnumber
+  contextK.timeformat = this.selectedTimeFormat
+  // check that time is selected
+  if (contextK.rangechange.length === undefined || contextK.rangechange.length === 0) {
+    let feedbackDevice = {}
+    feedbackDevice.device = this.mData
+    feedbackDevice.message = 'please select a date'
+    this.$store.dispatch('actionFeeback', feedbackDevice)
+  } else {
+    this.$store.dispatch('actionVisUpdate', contextK)
+ }
+
+}
+
+const openDataToolbar = () => {
+  console.log('open data')
+}
+
 /*  computed */
 const openDataLive = computed(() => {
   return storeBentobox.openDatatools[props.bboxid]
@@ -93,23 +101,59 @@ const visToolbarStatusLive = computed(() => {
   return storeBentobox.vistoolsStatus[props.bboxid]
 })
 
+/*
 
+    updateKbundle (cm) {
+      // prepare update for safeFLOW
+      let contextK = {}
+      contextK.nxpCNRL = this.shellID
+      contextK.moduleCNRL = this.moduleCNRL
+      contextK.moduleType = this.moduleType
+      contextK.mData = this.mData
+      contextK.startperiod = moment(this.calendarvalue).valueOf()
+      contextK.startperiodchange = 0
+      let rangeSet = []
+      if (this.timeRange === undefined) {
+        rangeSet = []
+      } else {
+        rangeSet = this.timeRange
+      }
+      contextK.rangechange = rangeSet
+      // contextK.singlechart = true
+      contextK.singlechart = this.selectedChartnumber
+      contextK.timeformat = this.selectedTimeFormat
+      // check that time is selected
+      if (contextK.rangechange.length === undefined || contextK.rangechange.length === 0) {
+        let feedbackDevice = {}
+        feedbackDevice.device = this.mData
+        feedbackDevice.message = 'please select a date'
+        this.$store.dispatch('actionFeeback', feedbackDevice)
+      } else {
+        this.$store.dispatch('actionVisUpdate', contextK)
+      }
+    }
+
+    */
 
 </script>
 
 
 <style scoped>
 
-#diy-tools {
+#vis-tools {
   display: grid;
   grid-template-columns: 1fr;
 }
 
 @media (min-width: 1024px) {
 
-  #diy-tools {
+  #vis-tools {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  }
+
+  .network-tools {
+    border: 1px solid blue;
   }
 
 }
