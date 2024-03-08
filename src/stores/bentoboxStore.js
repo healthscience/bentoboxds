@@ -17,6 +17,15 @@ export const bentoboxStore = defineStore('bentostore', {
       }
     ],
     chartStyle: {},
+    boxToolStatus: {},
+    /* {
+      opendatatools: { active: false },
+      boxtoolshow: { active: false },
+      vistoolsstatus: { active: false },
+      scalezoom: 1,
+      location: {}
+    } */
+    devicesettings: {},
     openDatatools: {},
     boxtoolsShow: {},
     vistoolsStatus : {},
@@ -84,6 +93,19 @@ export const bentoboxStore = defineStore('bentostore', {
                       this.storeAI.hopSummary.push({ HOPid: pair.reply.bbid, summary: summaryHOP })
                     }
                   }
+                  // set box detail setings
+                  this.boxToolStatus[pair.reply.bbid] = {}
+                  let boxSettings = 
+                  {
+                    opendatatools: { active: false },
+                    boxtoolshow: { active: false },
+                    vistoolsstatus: { active: false },
+                    scalezoom: 1,
+                    location: {},
+                    chartstyle: 'line'
+                  }
+                  this.boxToolStatus[pair.reply.bbid] = boxSettings
+                  this.devicesettings[pair.reply.bbid] = {}
                   this.chartStyle[pair.reply.bbid] = 'line'
                   pairCount++
                 }

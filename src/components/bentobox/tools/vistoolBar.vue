@@ -11,13 +11,23 @@
     <div class="network-tools">
       <calendar-tool></calendar-tool>
     </div>
+    <div class="network-tools">
+      <div id="chart-options">
+        <div class="chart-update">
+          <select v-model="selectedTimeFormat" @change.prevent="setTimeFormat()">
+            <option v-for="tfoption in timeformatoptions" v-bind:value="tfoption.value" :key='tfoption.id' :selected="{}">
+            {{ tfoption.text }}
+            </option>
+          </select>
+        </div>
+        <div>
+          <button @click.prevent="labelsSelect()">Labels</button>
+        </div>
+      </div>
+    </div>
     <div id="chart-style-tools" class="network-tools">
-      <li>
-        <button @click.prevent="chartSelect()">Bar</button>
-      </li>
-      <li>
-        <button @click.prevent="chartSelect()">Line</button>
-      </li>
+        <button class="chart-type" @click.prevent="chartSelect()">Bar</button>
+        <button class="chart-type" @click.prevent="chartSelect()">Line</button>
       <!--<li>
         <button @click.prevent="chartSelect()">Mixed</button>
       </li>
@@ -28,12 +38,9 @@
     <div class="network-tools">
       <button href="#" id="opendata-space" @click.prevent="openDataToolbar()">open data</button>
     </div>
-    <div id="update-manual" class="network-tools">
-      <button id="update-chart" @click.prevent="updateKbundle($event)">Update</button>
-    </div>
   </div>
-  <div class="network-tools" v-if="openDataLive !== undefined" id="open-knowledge">
-    <opendata-tool v-if="openDataLive.active === true" :toolInfo="visToolbarStatusLive"></opendata-tool>
+  <div class="network-tools" v-if="boxSettings !== undefined" id="open-knowledge">
+    <opendata-tool v-if="boxSettings?.opendatatools?.active === true" :bboxid="props.bboxid" :toolInfo="boxSettings"></opendata-tool>
   </div>
   <!--<div id="feedback-time" v-if="feedbackmessage !== 'clear'" v-bind:class="{ active: feedbackActive }">
     {{ feedbackmessage }}
@@ -56,43 +63,44 @@ const props = defineProps({
     bboxid: String
   })
 
-/* methods */
-const updateKbundle = () => {
-  // prepare update for HOP
-  let contextK = {}
-  contextK.nxpCNRL = this.shellID
-  contextK.moduleCNRL = this.moduleCNRL
-  contextK.moduleType = this.moduleType
-  contextK.mData = this.mData
-  contextK.startperiod = moment(this.calendarvalue).valueOf()
-  contextK.startperiodchange = 0
-  let rangeSet = []
-  if (this.timeRange === undefined) {
-    rangeSet = []
-  } else {
-    rangeSet = this.timeRange
-  }
-  contextK.rangechange = rangeSet
-  // contextK.singlechart = true
-  contextK.singlechart = this.selectedChartnumber
-  contextK.timeformat = this.selectedTimeFormat
-  // check that time is selected
-  if (contextK.rangechange.length === undefined || contextK.rangechange.length === 0) {
-    let feedbackDevice = {}
-    feedbackDevice.device = this.mData
-    feedbackDevice.message = 'please select a date'
-    this.$store.dispatch('actionFeeback', feedbackDevice)
-  } else {
-    this.$store.dispatch('actionVisUpdate', contextK)
- }
+const timeformatoptions = ref([
+  { text: 'Time series', value: 'timeseries', id: 0 },
+  { text: 'Overlay', value: 'overlay', id: 1 }
+])
 
+const selectedTimeFormat = ref('timeseries')
+
+/* methods */
+const openDataToolbar = () => {
+  console.log('open datatoolbar')
+  console.log(storeBentobox.boxToolStatus)
+  console.log(props.bboxid)
+  storeBentobox.boxToolStatus[props.bboxid].opendatatools.active = !storeBentobox.boxToolStatus[props.bboxid].opendatatools.active
 }
 
-const openDataToolbar = () => {
-  console.log('open data')
+const setTimeFormat = () => {
+  console.log('set time format')
+}
+
+const labelsSelect = () => {
+  // this.liveData.data.chartOptions.legend.display = !this.liveData.data.chartOptions.legend.display
+  let legendContext = {}
+  legendContext.shellID = '' // this.shellID
+  legendContext.moduleCNRL = '' // this.moduleCNRL
+  legendContext.moduleType = '' // this.moduleType
+  legendContext.mData = '' // his.mData
+  // this.$store.dispatch('actionLegendStatus', legendContext)
+}
+
+const chartSelect = () => {
+  console.log('char ttype')
 }
 
 /*  computed */
+const boxSettings = computed(() => {
+  return storeBentobox.boxToolStatus[props.bboxid]
+})
+
 const openDataLive = computed(() => {
   return storeBentobox.openDatatools[props.bboxid]
 })
@@ -100,40 +108,6 @@ const openDataLive = computed(() => {
 const visToolbarStatusLive = computed(() => {
   return storeBentobox.vistoolsStatus[props.bboxid]
 })
-
-/*
-
-    updateKbundle (cm) {
-      // prepare update for safeFLOW
-      let contextK = {}
-      contextK.nxpCNRL = this.shellID
-      contextK.moduleCNRL = this.moduleCNRL
-      contextK.moduleType = this.moduleType
-      contextK.mData = this.mData
-      contextK.startperiod = moment(this.calendarvalue).valueOf()
-      contextK.startperiodchange = 0
-      let rangeSet = []
-      if (this.timeRange === undefined) {
-        rangeSet = []
-      } else {
-        rangeSet = this.timeRange
-      }
-      contextK.rangechange = rangeSet
-      // contextK.singlechart = true
-      contextK.singlechart = this.selectedChartnumber
-      contextK.timeformat = this.selectedTimeFormat
-      // check that time is selected
-      if (contextK.rangechange.length === undefined || contextK.rangechange.length === 0) {
-        let feedbackDevice = {}
-        feedbackDevice.device = this.mData
-        feedbackDevice.message = 'please select a date'
-        this.$store.dispatch('actionFeeback', feedbackDevice)
-      } else {
-        this.$store.dispatch('actionVisUpdate', contextK)
-      }
-    }
-
-    */
 
 </script>
 
@@ -149,7 +123,7 @@ const visToolbarStatusLive = computed(() => {
 
   #vis-tools {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr 2fr 1fr 1fr 1fr;
   }
 
   .network-tools {

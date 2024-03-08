@@ -259,8 +259,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.hopSummary.push({ HOPid: inputID[0], summary: dataSummary })
     },
     processHOPdata (dataHOP) {
-      console.log('process HOP data----------')
-      console.log(dataHOP)
       // close databox
       // match input id to bbid
       // is the data for past or future or no data
@@ -340,12 +338,13 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     },
     prepareLibrarySummary (boxid) {
       for (let hi of this.hopSummary) {
+        console.log(hi)
         if (hi.summary.bbid == boxid) {
           // new or saved format
           if ('data' in hi.summary) {
             this.boxLibSummary[boxid] = hi.summary
           } else {
-            this.boxLibSummary[boxid] = hi.summary.summary.summary
+            this.boxLibSummary[boxid] = hi.summary.summary
           }
         }
       }

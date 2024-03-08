@@ -3,10 +3,13 @@
     <div id="time-control-update">
       <div id="time-options" class="series-style">
         <div id="calendar-selector">
-          <div id="date-selector-status">
-            <VueDatePicker v-model="date" value-type="format" format="YYYY-MM-DD" @change="calendarSelect" :lang="lang" :range="rangeActive === true"></VueDatePicker>
-            <!--<date-picker class="select-caldate"  v-model="calendarvalue"  value-type="format" format="YYYY-MM-DD" @change="calendarSelect" :lang="lang" :range="rangeActive === true" ></date-picker>-->
-            <div>{{ cellDate }}</div>
+          <div id="date-selector-status"  v-bind:class="{ active: calActive }">
+            <VueDatePicker class="calendar-view" @open="alertFn" @closed="alertFn" v-model="boxDate" :range="{ partialRange: true }"></VueDatePicker>
+          </div>
+          <div id="selected-dates-list" v-if="boxDate !== 'date' && boxDate.length > 0">
+            <div class="dates-selected" v-for="sdate of boxDate">
+              {{ sdate }}
+            </div>
           </div>
           <div id="time-calendar-tools">
             <div class="time-tools" id="select-range-type">
@@ -17,7 +20,7 @@
               </select> 
             </div>
             <div class="time-tools">
-              <button id="multi-day-clear" @click.prevent="clearMultidays($event)">Clear</button>
+              <button id="multi-day-clear" @click.prevent="clearMultidays()">Clear</button>
             </div>
             <div class="time-tools">
               <div id="select-time">
@@ -25,6 +28,9 @@
                   <button class="button is-primary" @click.prevent="setShiftTimeData(tv)">{{ tv.text.word }}</button>
                 </div>
               </div>
+            </div>
+            <div id="update-manual">
+              <button id="update-chart" @click.prevent="updateKbundle($event)">Update</button>
             </div>
           </div>
         </div>
@@ -34,34 +40,23 @@
           </div>
         </div>
       </div>
-      <div class="series-style">
-        <div id="chart-options">
-          <div class="chart-update">
-            <select v-model="selectedTimeFormat" @change.prevent="setTimeFormat()">
-              <option v-for="tfoption in timeformatoptions" v-bind:value="tfoption.value" :key='tfoption.id' :selected="tfoption.value == selectedChartnumber">
-              {{ tfoption.text }}
-              </option>
-            </select>
-          </div>
-          <div>
-            <button @click.prevent="labelsSelect()">Labels</button>
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { DateTime } from 'luxon'
+import { ref, onMounted } from 'vue'
 import VueDatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 
-const date = ref()
+const boxDate = ref([])
+let timeRange = ref([])
 const calendarvalue = ref('')
 const rangeActive = ref([])
 const calendarList = ref([])
 const cellDate = ref('')
+let calActive = ref(false)
 const selectedTimeBundle = ref('single')
 const selectedChartnumber = ref('singlechart')
 const lang = ref({
@@ -81,37 +76,49 @@ const optionTimeBundle = ref([
 ])
 const navTime = ref([{ 'text': { 'word': '-day', 'number': -86400000 } }, { 'text': { 'word': '+day', 'number': 86400000 } }])
 const selectedTimeFormat = ref('timeseries')
-const timeformatoptions = ([
-    { text: 'Time series', value: 'timeseries', id: 0 },
-    { text: 'Overlay', value: 'overlay', id: 1 }
-  ])
+const calendarListMS = ref([])
+const makeTimeBundles = ref([])
+
+/* mounted */
+onMounted(() => {
+  const now = DateTime.now()
+  console.log('mounted and date')
+  console.log(now)
+  boxDate.value = now
+})
 
 /* methods */
 const clearMultidays = (md) => {
-    this.calendarList = []
-    this.calendarListMS = []
-    this.makeTimeBundles = []
+  boxDate.value = []
+    // calendarListMS.value = []
+    // makeTimeBundles.value = []
   }
 
-const calendarSelect = () => {
+  const alertFn = () => {
+    console.log('ca open or dclase')
+    calActive.value = !calActive.value
+    console.log(calActive)
+  }
+
+  const calendarSelect = () => {
 
   let feedbackTime = {}
   feedbackTime.device = this.mData
   feedbackTime.message = 'clear'
   feedbackTime.active = false
   // this.$store.dispatch('actionFeeback', feedbackTime)
-  if (this.calendarToolMulti.active !== true && this.rangeActive !== true) {
+  if (calendarToolMulti.active !== true && rangeActive !== true) {
     // convert to correct time format and update KBundle and build new visStyle
     let bTime = {}
-    bTime.selectDate = this.calendarvalue
+    bTime.selectDate = calendarvalue
     bTime.text = 'selectd'
-    let numberTimeformat = moment(this.calendarvalue).valueOf()
+    // let numberTimeformat = moment(this.calendarvalue).valueOf()
     // this.$store.dispatch('singleDateUpdate', numberTimeformat)
     this.calendarListMS = []
     this.calendarListMS.push(numberTimeformat)
     let timeContext = {}
-    timeContext.device = this.mData
-    timeContext.timerange = this.calendarListMS
+    timeContext.device = mData
+    timeContext.timerange = calendarListMS
     // this.$store.dispatch('actionSetTimerange', timeContext)
   } else if (this.rangeActive === true) {
     // reset the timeholder
@@ -140,19 +147,50 @@ const calendarSelect = () => {
   }
 }
 
+const updateKbundle = () => {
+  // prepare update for HOP
+  let contextK = {}
+  contextK.nxpCNRL = shellID
+  contextK.moduleCNRL = moduleCNRL
+  contextK.moduleType = moduleType
+  contextK.mData = mData
+  // contextK.startperiod = moment(calendarvalue).valueOf()
+  contextK.startperiodchange = 0
+  let rangeSet = []
+  if (timeRange === undefined) {
+    rangeSet = []
+  } else {
+    rangeSet = timeRange
+  }
+  contextK.rangechange = rangeSet
+  // contextK.singlechart = true
+  contextK.singlechart = selectedChartnumber
+  contextK.timeformat = selectedTimeFormat
+  // check that time is selected
+  if (contextK.rangechange.length === undefined || contextK.rangechange.length === 0) {
+    let feedbackDevice = {}
+    feedbackDevice.device = this.mData
+    feedbackDevice.message = 'please select a date'
+    // this.$store.dispatch('actionFeeback', feedbackDevice)
+  } else {
+    // this.$store.dispatch('actionVisUpdate', contextK)
+ }
+
+}
+
 const setShiftTimeData = (seg) => {
   // first clear the range of existing
   let timeContext = {}
-  timeContext.module = this.moduleCNRL
-  timeContext.device = this.mData
+  timeContext.module = moduleCNRL
+  timeContext.device = mData
   timeContext.timerange = []
   // this.$store.dispatch('actionSetTimerange', timeContext)
   // back and forward and time
   let contextK = {}
-  contextK.nxpCNRL = this.shellID
-  contextK.moduleCNRL = this.moduleCNRL
-  contextK.moduleType = this.moduleType
-  contextK.mData = this.mData
+  contextK.nxpCNRL = shellID
+  contextK.moduleCNRL = moduleCNRL
+  contextK.moduleType = moduleType
+  contextK.mData = mData
   contextK.startperiodchange = seg.text.number
   contextK.startperiod = 0
   contextK.rangechange = []
@@ -164,289 +202,16 @@ const setShiftTimeData = (seg) => {
   }
 }
 
-const labelsSelect = () => {
-  // this.liveData.data.chartOptions.legend.display = !this.liveData.data.chartOptions.legend.display
-  let legendContext = {}
-  legendContext.shellID = this.shellID
-  legendContext.moduleCNRL = this.moduleCNRL
-  legendContext.moduleType = this.moduleType
-  legendContext.mData = this.mData
-  // this.$store.dispatch('actionLegendStatus', legendContext)
-}
-
 const cellDateF = () => {
-  this.startSetDate(this.$store.state.compModuleHolder[this.moduleCNRL][this.mData])
+  startSetDate(this.$store.state.compModuleHolder[moduleCNRL][mData])
   let dateLive = {}
-  if (this.$store.state.compModuleHolder !== undefined && this.$store.state.compModuleHolder[this.moduleCNRL][this.mData]) {
+  /* if (this.$store.state.compModuleHolder !== undefined && this.$store.state.compModuleHolder[this.moduleCNRL][this.mData]) {
     let updateDate = moment(this.$store.state.compModuleHolder[this.moduleCNRL][this.mData].date).format('YYYY-MM-DD')
     dateLive = updateDate
-  }
+  } */
   return dateLive
 }
 
-/*
-import DatePicker from 'vue2-datepicker'
-import 'vue2-datepicker/index.css'
-// import { extendMoment } from 'moment-range'
-// const moment = require('moment')
-import Moment from 'moment'
-import { extendMoment } from 'moment-range'
-const moment = extendMoment(Moment)
-
-export default {
-  name: 'calendar-tool',
-  components: {
-    DatePicker
-  },
-  props: {
-    shellID: String,
-    moduleCNRL: String,
-    moduleType: String,
-    mData: String
-  },
-  computed: {
-    updateTime: function () {
-      return this.$store.state.peersocket.testHolder
-    },
-    cellDate: function () {
-      this.startSetDate(this.$store.state.compModuleHolder[this.moduleCNRL][this.mData])
-      let dateLive = {}
-      if (this.$store.state.compModuleHolder !== undefined && this.$store.state.compModuleHolder[this.moduleCNRL][this.mData]) {
-        let updateDate = moment(this.$store.state.compModuleHolder[this.moduleCNRL][this.mData].date).format('YYYY-MM-DD')
-        dateLive = updateDate
-      }
-      return dateLive
-    },
-    timeRange: function () {
-      return this.$store.state.setTimerange[this.mData]
-    }
-  },
-  created () {
-  },
-  mounted () {
-    this.startSetDate(this.cellDate)
-  },
-  data: () => ({
-    toolbar:
-    {
-      active: false,
-      text: 'off'
-    },
-    navTime: [{ 'text': { 'word': '-day', 'number': -86400000 } }, { 'text': { 'word': '+day', 'number': 86400000 } }],
-    calendarRangeTools:
-    {
-      name: 'Range',
-      id: 'range-days',
-      active: false
-    },
-    calendarToolMulti:
-    {
-      name: 'Mulit Days',
-      id: 'multi-days',
-      active: false
-    },
-    displayTime: 'today',
-    future:
-    {
-      text: 'future',
-      active: true
-    },
-    timeformatoptions: [
-      { text: 'Time series', value: 'timeseries', id: 0 },
-      { text: 'Overlay', value: 'overlay', id: 1 }
-    ],
-    selectedTimeFormat: 'timeseries',
-    selectedChartnumber: 'singlechart',
-    calendarList: [],
-    calendarListMS: [],
-    optionTimeBundle: [
-      { text: 'Single day', value: 'single', id: 0 },
-      { text: 'Pick days', value: 'multi', id: 1 },
-      { text: 'Range days', value: 'range', id: 2 },
-      { text: 'Ask BB', value: 'natlang', id: 3 }
-    ],
-    selectedTimeBundle: 'single',
-    time1: '',
-    time2: '',
-    time3: '',
-    // custom lang
-    calendarvalue: '',
-    startDate: '',
-    rangeActive: false,
-    lang: {
-      days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-      months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-      pickers: ['next 7 days', 'next 30 days', 'previous 7 days', 'previous 30 days'],
-      placeholder: {
-        date: 'Select Date',
-        dateRange: 'Select Date Range'
-      }
-    },
-    // custom range shortcuts
-    shortcuts: [
-      {
-        text: 'Today',
-        onClick: () => {
-          this.time3 = [ new Date(), new Date() ]
-        }
-      }
-    ],
-    timePickerOptions: {
-      start: '00:00',
-      step: '00:30',
-      end: '23:30'
-    }
-  }),
-  methods: {
-    setDefaultTime (dtime) {
-      this.calendarvalue = dtime
-    },
-    startSetDate (startDate) {
-      if (startDate !== undefined && startDate.date) {
-        let updateDate = moment(startDate.date).format('YYYY-MM-DD')
-        this.calendarvalue = updateDate
-      }
-    },
-    calendarSelect () {
-      // clear feedback if required
-      let feedbackTime = {}
-      feedbackTime.device = this.mData
-      feedbackTime.message = 'clear'
-      feedbackTime.active = false
-      this.$store.dispatch('actionFeeback', feedbackTime)
-      if (this.calendarToolMulti.active !== true && this.rangeActive !== true) {
-        // convert to correct time format and update KBundle and build new visStyle
-        let bTime = {}
-        bTime.selectDate = this.calendarvalue
-        bTime.text = 'selectd'
-        let numberTimeformat = moment(this.calendarvalue).valueOf()
-        this.$store.dispatch('singleDateUpdate', numberTimeformat)
-        this.calendarListMS = []
-        this.calendarListMS.push(numberTimeformat)
-        let timeContext = {}
-        timeContext.device = this.mData
-        timeContext.timerange = this.calendarListMS
-        this.$store.dispatch('actionSetTimerange', timeContext)
-      } else if (this.rangeActive === true) {
-        // reset the timeholder
-        this.calendarListMS = []
-        let rangeSelected = moment.range(this.calendarvalue[0], this.calendarvalue[1])
-        let segText = 'days'
-        let sourceRangeTimes = Array.from(rangeSelected.by(segText))
-        // loop over range and build date range format
-        for (let dr of sourceRangeTimes) {
-          this.calendarListMS.push(moment(dr).valueOf())
-        }
-        // set time range in store so other toolbars have access
-        let timeContext = {}
-        timeContext.device = this.mData
-        timeContext.timerange = this.calendarListMS
-        this.$store.dispatch('actionSetTimerange', timeContext)
-      } else if (this.calendarToolMulti.active === true) {
-        let formatTimeDisplay = moment(this.calendarvalue).format('LLll')
-        this.calendarList.push(formatTimeDisplay)
-        this.calendarListMS.push(moment(this.calendarvalue).valueOf())
-        // set time range in store so other toolbars have access
-        let timeContext = {}
-        timeContext.device = this.mData
-        timeContext.timerange = this.calendarListMS
-        this.$store.dispatch('actionSetTimerange', timeContext)
-      }
-    },
-    setTimeBundle () {
-      if (this.selectedTimeBundle === 'range') {
-        this.rangeActive = !this.rangeActive
-        this.calendarToolMulti.active = false
-      } else if (this.selectedTimeBundle === 'multi') {
-        // clear the timerange for this device
-        // set time range in store so other toolbars have access
-        this.calendarListMS = []
-        let timeContext = {}
-        timeContext.device = this.mData
-        timeContext.timerange = []
-        this.$store.dispatch('actionSetTimerange', timeContext)
-        this.calendarToolMulti.active = !this.calendarToolMulti.active
-        this.rangeActive = false
-      } else if (this.selectedTimeBundle === 'natlang') {
-        // natural language ask CALE
-        this.$store.dispatch('actionAskBB', 'askBB')
-      } else {
-        this.calendarToolMulti.active = false
-        this.rangeActive = false
-      }
-    },
-    clearMultidays (md) {
-      this.calendarList = []
-      this.calendarListMS = []
-      this.makeTimeBundles = []
-    },
-    setTimeFormat () {
-      // set in store so open data can pick up setting
-      this.$store.dispatch('actionSetTimeFormat', this.selectedTimeFormat)
-    },
-    setShiftTimeData (seg) {
-      // first clear the range of existing
-      let timeContext = {}
-      timeContext.module = this.moduleCNRL
-      timeContext.device = this.mData
-      timeContext.timerange = []
-      this.$store.dispatch('actionSetTimerange', timeContext)
-      // back and forward and time
-      let contextK = {}
-      contextK.nxpCNRL = this.shellID
-      contextK.moduleCNRL = this.moduleCNRL
-      contextK.moduleType = this.moduleType
-      contextK.mData = this.mData
-      contextK.startperiodchange = seg.text.number
-      contextK.startperiod = 0
-      contextK.rangechange = []
-      // check that time is selected
-      if (contextK.startperiod !== 0) {
-        console.log('no time present, prompt peer1')
-      } else {
-        this.$store.dispatch('actionVisUpdate', contextK)
-      }
-    },
-    labelsSelect () {
-      // this.liveData.data.chartOptions.legend.display = !this.liveData.data.chartOptions.legend.display
-      let legendContext = {}
-      legendContext.shellID = this.shellID
-      legendContext.moduleCNRL = this.moduleCNRL
-      legendContext.moduleType = this.moduleType
-      legendContext.mData = this.mData
-      this.$store.dispatch('actionLegendStatus', legendContext)
-    },
-    updateKbundle (cm) {
-      // prepare update for safeFLOW
-      let contextK = {}
-      contextK.nxpCNRL = this.shellID
-      contextK.moduleCNRL = this.moduleCNRL
-      contextK.moduleType = this.moduleType
-      contextK.mData = this.mData
-      contextK.startperiod = moment(this.calendarvalue).valueOf()
-      contextK.startperiodchange = 0
-      let rangeSet = []
-      if (this.timeRange === undefined) {
-        rangeSet = []
-      } else {
-        rangeSet = this.timeRange
-      }
-      contextK.rangechange = rangeSet
-      // contextK.singlechart = true
-      contextK.singlechart = this.selectedChartnumber
-      contextK.timeformat = this.selectedTimeFormat
-      // check that time is selected
-      if (contextK.rangechange.length === undefined || contextK.rangechange.length === 0) {
-        let feedbackDevice = {}
-        feedbackDevice.device = this.mData
-        feedbackDevice.message = 'please select a date'
-        this.$store.dispatch('actionFeeback', feedbackDevice)
-      } else {
-        this.$store.dispatch('actionVisUpdate', contextK)
-      }
-    }
-  }
-} */
 </script>
 
 <style scoped>
@@ -467,7 +232,7 @@ export default {
 
   #calendar-selector {
     display: grid;
-    grid-template-columns: 8fr 2fr 1fr;
+    grid-template-columns: 1fr;
   }
 
   .select-caldate {
@@ -500,6 +265,31 @@ export default {
     grid-template-columns: 1fr;
   }
 
+  .active {
+    border: 0px solid red;
+    top: -150px;
+  }
+
+  #selected-dates-list {
+    position: absolute;
+    top: 0;
+    left: -210px;
+    max-width: 200px;
+    display: block;
+    border: 1px solid blue;
+    min-height: 100px;
+    background-color: whitesmoke;
+    overflow-y: scroll;
+  }
+
+  .dates-selected {
+    background-color: antiquewhite;
+  }
+
+  .calendar-view {
+    border: 0px solid blue;
+  }
+
   #calendar-tools {
     display: inline-block;
     padding: 0.4em;
@@ -522,11 +312,11 @@ export default {
   }
 
   #update-chart {
-    font-size: 1.4em;
+    font-size: 1em;
     background-color: #4CAF50; /* Green */
     border: none;
     color: white;
-    padding: 12px 28px;
+    padding: 8px 18px;
     text-align: center;
   }
 
