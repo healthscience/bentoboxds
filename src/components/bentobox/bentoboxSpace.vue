@@ -29,6 +29,7 @@
         <div class="bb-bar-main"><button id="bb-remove" @click="removeBboxSpace">remove</button></div>
       </div> 
     </div> -->
+    <div id="bb-toolbar" v-bind:class="{ active: bboxActive }">Active bar</div>
     <box-tools :bboxid="props.bboxid"></box-tools>
     <button id="bb-remove" @click="removeBboxSpace">remove</button>
     <div id="bentobox-cell">
@@ -91,7 +92,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   let minH = ref('20vh')
   let fit = ref(false)
   let event = ref('')
-  const dragSelector = ref('.drag-container-1, .drag-container-2')
+  const dragSelector = ref('#bb-toolbar, .drag-container-2')
   let timerPress = ref(0)
 
 
@@ -112,7 +113,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     updateBox.minH = ref('20vh')
     updateBox.fit = ref(false)
     updateBox.event = ref('')
-    updateBox.dragSelector = ref('.drag-container-1, .drag-container-2')
+    updateBox.dragSelector = ref('#bb-toolbar, .drag-container-2')
     storeBentobox.locationBbox[storeAI.liveBspace.spaceid][props.bboxid] = updateBox
   }
 

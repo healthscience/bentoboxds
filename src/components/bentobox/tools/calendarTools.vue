@@ -4,18 +4,26 @@
       <div id="time-options" class="series-style">
         <div id="calendar-selector">
           <div id="date-selector-status"  v-bind:class="{ active: calActive }">
-            <VueDatePicker class="calendar-view" @open="alertFn" @closed="alertFn" v-model="boxDate" :range="{ partialRange: true }"></VueDatePicker>
+            <div id="range-datepicker" v-if="selectedTimeBundle === 'range'" >
+              <VueDatePicker class="calendar-view" @open="alertFn" @closed="alertFn" v-model="boxDaterange" :range="{}"></VueDatePicker>
           </div>
-          <div id="selected-dates-list" v-if="boxDate !== 'date' && boxDate.length > 0">
-            <div class="dates-selected" v-for="sdate of boxDate">
+          <div id="single-datepicker" v-else-if="selectedTimeBundle === 'single'">
+            <VueDatePicker class="calendar-view" @open="alertFn" @closed="alertFn" v-model="boxDate"></VueDatePicker>
+          </div>
+          <div id="multi-datepicker" v-else-if="selectedTimeBundle === 'multi'">
+            <VueDatePicker class="calendar-view" @open="alertFn" @closed="alertFn" v-model="boxDaterange" multi-dates></VueDatePicker>
+          </div>
+          </div>
+          <div id="selected-dates-list" v-if="boxDaterange !== 'date' && boxDaterange?.length > 1">
+            <div class="dates-selected" v-for="sdate of boxDaterange">
               {{ sdate }}
             </div>
           </div>
           <div id="time-calendar-tools">
             <div class="time-tools" id="select-range-type">
               <select v-model="selectedTimeBundle" @change.prevent="setTimeBundle()">
-                <option v-for="tb in optionTimeBundle" :key='tb.id' v-bind:value="tb.value" :selected="tb.value == selectedTimeBundle">
-                {{ tb.text }}
+                <option v-for="tb in optionTimeBundle" :value="tb.value" :selected="tb.value === selectedTimeBundle">
+                  {{ tb.text }}
                 </option>
               </select> 
             </div>
@@ -49,13 +57,14 @@ import { DateTime } from 'luxon'
 import { ref, onMounted } from 'vue'
 import VueDatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
+import { update } from 'cypress/types/lodash';
 
-const boxDate = ref([])
+let boxDate = ref()
+let boxDaterange = ref([])
 let timeRange = ref([])
 const calendarvalue = ref('')
 const rangeActive = ref([])
 const calendarList = ref([])
-const cellDate = ref('')
 let calActive = ref(false)
 const selectedTimeBundle = ref('single')
 const selectedChartnumber = ref('singlechart')
@@ -71,8 +80,7 @@ const lang = ref({
 const optionTimeBundle = ref([
   { text: 'Single day', value: 'single', id: 0 },
   { text: 'Pick days', value: 'multi', id: 1 },
-  { text: 'Range days', value: 'range', id: 2 },
-  { text: 'Ask BB', value: 'natlang', id: 3 }
+  { text: 'Range days', value: 'range', id: 2 }
 ])
 const navTime = ref([{ 'text': { 'word': '-day', 'number': -86400000 } }, { 'text': { 'word': '+day', 'number': 86400000 } }])
 const selectedTimeFormat = ref('timeseries')
@@ -82,22 +90,18 @@ const makeTimeBundles = ref([])
 /* mounted */
 onMounted(() => {
   const now = DateTime.now()
-  console.log('mounted and date')
-  console.log(now)
   boxDate.value = now
 })
 
 /* methods */
 const clearMultidays = (md) => {
-  boxDate.value = []
+  boxDaterange.value = []
     // calendarListMS.value = []
     // makeTimeBundles.value = []
   }
 
   const alertFn = () => {
-    console.log('ca open or dclase')
     calActive.value = !calActive.value
-    console.log(calActive)
   }
 
   const calendarSelect = () => {
@@ -123,27 +127,38 @@ const clearMultidays = (md) => {
   } else if (this.rangeActive === true) {
     // reset the timeholder
     this.calendarListMS = []
-    let rangeSelected = moment.range(this.calendarvalue[0], this.calendarvalue[1])
+    let rangeSelected = moment.range(calendarvalue[0], calendarvalue[1])
     let segText = 'days'
     let sourceRangeTimes = Array.from(rangeSelected.by(segText))
     // loop over range and build date range format
     for (let dr of sourceRangeTimes) {
-      this.calendarListMS.push(moment(dr).valueOf())
+      calendarListMS.push(moment(dr).valueOf())
     }
     // set time range in store so other toolbars have access
     let timeContext = {}
-    timeContext.device = this.mData
-    timeContext.timerange = this.calendarListMS
+    timeContext.device = mData
+    timeContext.timerange = calendarListMS
     // this.$store.dispatch('actionSetTimerange', timeContext)
-  } else if (this.calendarToolMulti.active === true) {
-    let formatTimeDisplay = moment(this.calendarvalue).format('LLll')
-    this.calendarList.push(formatTimeDisplay)
-    this.calendarListMS.push(moment(this.calendarvalue).valueOf())
+  } else if (calendarToolMulti.active === true) {
+    let formatTimeDisplay = moment(calendarvalue).format('LLll')
+    calendarList.push(formatTimeDisplay)
+    calendarListMS.push(moment(calendarvalue).valueOf())
     // set time range in store so other toolbars have access
     let timeContext = {}
-    timeContext.device = this.mData
-    timeContext.timerange = this.calendarListMS
+    timeContext.device = mData
+    timeContext.timerange = calendarListMS
     // this.$store.dispatch('actionSetTimerange', timeContext)
+  }
+}
+
+const setTimeBundle = () => {
+  // set calendar type
+  if (selectedTimeBundle.value === 'single') {
+    selectedTimeBundle.value = 'single'
+  } else if (selectedTimeBundle.value === 'range') {
+    selectedTimeBundle.value = 'range'
+  } else if (selectedTimeBundle.value === 'multi') {
+    selectedTimeBundle.value = 'multi'
   }
 }
 
@@ -179,31 +194,15 @@ const updateKbundle = () => {
 }
 
 const setShiftTimeData = (seg) => {
-  // first clear the range of existing
-  let timeContext = {}
-  timeContext.module = moduleCNRL
-  timeContext.device = mData
-  timeContext.timerange = []
-  // this.$store.dispatch('actionSetTimerange', timeContext)
-  // back and forward and time
-  let contextK = {}
-  contextK.nxpCNRL = shellID
-  contextK.moduleCNRL = moduleCNRL
-  contextK.moduleType = moduleType
-  contextK.mData = mData
-  contextK.startperiodchange = seg.text.number
-  contextK.startperiod = 0
-  contextK.rangechange = []
-  // check that time is selected
-  if (contextK.startperiod !== 0) {
-    console.log('no time present, prompt peer1')
-  } else {
-    // this.$store.dispatch('actionVisUpdate', contextK)
-  }
+  console.log('shift time ')
+  console.log(seg)
+  console.log(boxDate.value)
+  // let updateDate = DateTime.now(boxDate.value).plus({ days: 1 })
+  // console.log(updateDate)
 }
 
 const cellDateF = () => {
-  startSetDate(this.$store.state.compModuleHolder[moduleCNRL][mData])
+  // startSetDate(this.$store.state.compModuleHolder[moduleCNRL][mData])
   let dateLive = {}
   /* if (this.$store.state.compModuleHolder !== undefined && this.$store.state.compModuleHolder[this.moduleCNRL][this.mData]) {
     let updateDate = moment(this.$store.state.compModuleHolder[this.moduleCNRL][this.mData].date).format('YYYY-MM-DD')
@@ -280,6 +279,7 @@ const cellDateF = () => {
     min-height: 100px;
     background-color: whitesmoke;
     overflow-y: scroll;
+    z-index: 14;
   }
 
   .dates-selected {
