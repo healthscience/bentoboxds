@@ -57,7 +57,6 @@ import { DateTime } from 'luxon'
 import { ref, onMounted } from 'vue'
 import VueDatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
-import { update } from 'cypress/types/lodash';
 
 let boxDate = ref()
 let boxDaterange = ref([])
