@@ -50,7 +50,7 @@ function onInputChange(e) {
   file.value = e.target.files[0]
 	let fileName = file.value.name
 	storeLibrary.fileBund.name = fileName
-	// addFiles(e.target.files)
+	addFiles(e.target.files)
 	//e.target.value = null // reset so that selecting the same file again will still cause it to fire this change
 }
 
