@@ -53,47 +53,49 @@
 </template>
 
 <script setup>
-import { DateTime } from 'luxon'
+import { DateTime, Interval } from 'luxon'
 import { ref, onMounted } from 'vue'
 import VueDatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
+import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
-let boxDate = ref()
-let boxDaterange = ref([])
-let timeRange = ref([])
-const calendarvalue = ref('')
-const rangeActive = ref([])
-const calendarList = ref([])
-let calActive = ref(false)
-const selectedTimeBundle = ref('single')
-const selectedChartnumber = ref('singlechart')
-const lang = ref({
-  days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-  months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-  pickers: ['next 7 days', 'next 30 days', 'previous 7 days', 'previous 30 days'],
-  placeholder: {
-    date: 'Select Date',
-    dateRange: 'Select Date Range'
-  }
-})
-const optionTimeBundle = ref([
-  { text: 'Single day', value: 'single', id: 0 },
-  { text: 'Pick days', value: 'multi', id: 1 },
-  { text: 'Range days', value: 'range', id: 2 }
-])
-const navTime = ref([{ 'text': { 'word': '-day', 'number': -86400000 } }, { 'text': { 'word': '+day', 'number': 86400000 } }])
-const selectedTimeFormat = ref('timeseries')
-const calendarListMS = ref([])
-const makeTimeBundles = ref([])
+  const storeAI = aiInterfaceStore()
 
-/* mounted */
-onMounted(() => {
-  const now = DateTime.now()
-  boxDate.value = now
-})
+  const props = defineProps({
+    bboxid: String
+  })
 
-/* methods */
-const clearMultidays = (md) => {
+
+  let boxDate = ref()
+  let boxDaterange = ref([])
+  const calendarList = ref([])
+  let calActive = ref(false)
+  const selectedTimeBundle = ref('single')
+  const lang = ref({
+    days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+    months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    pickers: ['next 7 days', 'next 30 days', 'previous 7 days', 'previous 30 days'],
+    placeholder: {
+      date: 'Select Date',
+      dateRange: 'Select Date Range'
+    }
+  })
+  const optionTimeBundle = ref([
+    { text: 'Single day', value: 'single', id: 0 },
+    { text: 'Pick days', value: 'multi', id: 1 },
+    { text: 'Range days', value: 'range', id: 2 }
+  ])
+  const navTime = ref([{ 'text': { 'word': '-day', 'number': -86400000 } }, { 'text': { 'word': '+day', 'number': 86400000 } }])
+  const selectedTimeFormat = ref('timeseries')
+
+  /* mounted */
+  onMounted(() => {
+    const now = DateTime.now()
+    boxDate.value = now
+  })
+
+  /* methods */
+  const clearMultidays = (md) => {
   boxDaterange.value = []
     // calendarListMS.value = []
     // makeTimeBundles.value = []
@@ -103,112 +105,65 @@ const clearMultidays = (md) => {
     calActive.value = !calActive.value
   }
 
-  const calendarSelect = () => {
 
-  let feedbackTime = {}
-  feedbackTime.device = this.mData
-  feedbackTime.message = 'clear'
-  feedbackTime.active = false
-  // this.$store.dispatch('actionFeeback', feedbackTime)
-  if (calendarToolMulti.active !== true && rangeActive !== true) {
-    // convert to correct time format and update KBundle and build new visStyle
-    let bTime = {}
-    bTime.selectDate = calendarvalue
-    bTime.text = 'selectd'
-    // let numberTimeformat = moment(this.calendarvalue).valueOf()
-    // this.$store.dispatch('singleDateUpdate', numberTimeformat)
-    this.calendarListMS = []
-    this.calendarListMS.push(numberTimeformat)
-    let timeContext = {}
-    timeContext.device = mData
-    timeContext.timerange = calendarListMS
-    // this.$store.dispatch('actionSetTimerange', timeContext)
-  } else if (this.rangeActive === true) {
-    // reset the timeholder
-    this.calendarListMS = []
-    let rangeSelected = moment.range(calendarvalue[0], calendarvalue[1])
-    let segText = 'days'
-    let sourceRangeTimes = Array.from(rangeSelected.by(segText))
-    // loop over range and build date range format
-    for (let dr of sourceRangeTimes) {
-      calendarListMS.push(moment(dr).valueOf())
+  const setTimeBundle = () => {
+    // set calendar type
+    if (selectedTimeBundle.value === 'single') {
+      selectedTimeBundle.value = 'single'
+    } else if (selectedTimeBundle.value === 'range') {
+      selectedTimeBundle.value = 'range'
+    } else if (selectedTimeBundle.value === 'multi') {
+      selectedTimeBundle.value = 'multi'
     }
-    // set time range in store so other toolbars have access
-    let timeContext = {}
-    timeContext.device = mData
-    timeContext.timerange = calendarListMS
-    // this.$store.dispatch('actionSetTimerange', timeContext)
-  } else if (calendarToolMulti.active === true) {
-    let formatTimeDisplay = moment(calendarvalue).format('LLll')
-    calendarList.push(formatTimeDisplay)
-    calendarListMS.push(moment(calendarvalue).valueOf())
-    // set time range in store so other toolbars have access
-    let timeContext = {}
-    timeContext.device = mData
-    timeContext.timerange = calendarListMS
-    // this.$store.dispatch('actionSetTimerange', timeContext)
   }
-}
 
-const setTimeBundle = () => {
-  // set calendar type
-  if (selectedTimeBundle.value === 'single') {
-    selectedTimeBundle.value = 'single'
-  } else if (selectedTimeBundle.value === 'range') {
-    selectedTimeBundle.value = 'range'
-  } else if (selectedTimeBundle.value === 'multi') {
-    selectedTimeBundle.value = 'multi'
+  const updateKbundle = () => {
+    // prepare update for HOP
+    // what time period is active, single, pick or range? Or update via open data settings?
+    let hopTime = []
+    if (selectedTimeBundle.value === 'single') {
+      hopTime.push(boxDate.value.toMillis())
+    } else if (selectedTimeBundle.value === 'range') {
+      // need to expand our range
+      let i = Interval.fromDateTimes(boxDaterange.value[0], boxDaterange.value[1]).splitBy({ day: 1 })
+      // let arryDates = i.map(d => d.start)
+      for (let date of i) {
+        let luxTime = DateTime.local(date)
+        hopTime.push(luxTime.toMillis())
+      }
+    } else if (selectedTimeBundle.value === 'multi') {
+      for (let date of boxDaterange.value) {
+        let luxTime = DateTime.local(date)
+        hopTime.push(luxTime.toMillis())
+      }
+    }
+    console.log(hopTime)
+    // get the library contracts
+    storeAI.prepareLibrarySummary(props.bboxid)
+    let entityID = Object.keys(storeAI.boxLibSummary[props.bboxid].data)
+    let HOPcontext = {}
+    HOPcontext.entityUUID = entityID[0]
+    HOPcontext.bbid = props.bboxid
+    HOPcontext.modules = storeAI.boxLibSummary[props.bboxid].data[entityID[0]].modules
+    HOPcontext.exp = { key: entityID[0], update: storeAI.boxLibSummary[props.bboxid].data }
+    HOPcontext.update = {}
+    let updateECS = {}
+    updateECS.entityUUID = entityID[0]
+    updateECS.input = 'refUpdate'
+    updateECS.modules = HOPcontext.modules = storeAI.boxLibSummary[props.bboxid].data[entityID[0]].modules
+    HOPcontext.update = updateECS
+    storeAI.actionHelpAskUpdate(HOPcontext)
   }
-}
 
-const updateKbundle = () => {
-  // prepare update for HOP
-  let contextK = {}
-  contextK.nxpCNRL = shellID
-  contextK.moduleCNRL = moduleCNRL
-  contextK.moduleType = moduleType
-  contextK.mData = mData
-  // contextK.startperiod = moment(calendarvalue).valueOf()
-  contextK.startperiodchange = 0
-  let rangeSet = []
-  if (timeRange === undefined) {
-    rangeSet = []
-  } else {
-    rangeSet = timeRange
+  const setShiftTimeData = (seg) => {
+    if (seg.text.word === '+day') {
+      let updateDate = boxDate.value.plus({ days: 1 })
+      boxDate.value = updateDate  
+    } else {
+      let updateDate = boxDate.value.minus({ days: 1 })
+      boxDate.value = updateDate
+    }
   }
-  contextK.rangechange = rangeSet
-  // contextK.singlechart = true
-  contextK.singlechart = selectedChartnumber
-  contextK.timeformat = selectedTimeFormat
-  // check that time is selected
-  if (contextK.rangechange.length === undefined || contextK.rangechange.length === 0) {
-    let feedbackDevice = {}
-    feedbackDevice.device = this.mData
-    feedbackDevice.message = 'please select a date'
-    // this.$store.dispatch('actionFeeback', feedbackDevice)
-  } else {
-    // this.$store.dispatch('actionVisUpdate', contextK)
- }
-
-}
-
-const setShiftTimeData = (seg) => {
-  console.log('shift time ')
-  console.log(seg)
-  console.log(boxDate.value)
-  // let updateDate = DateTime.now(boxDate.value).plus({ days: 1 })
-  // console.log(updateDate)
-}
-
-const cellDateF = () => {
-  // startSetDate(this.$store.state.compModuleHolder[moduleCNRL][mData])
-  let dateLive = {}
-  /* if (this.$store.state.compModuleHolder !== undefined && this.$store.state.compModuleHolder[this.moduleCNRL][this.mData]) {
-    let updateDate = moment(this.$store.state.compModuleHolder[this.moduleCNRL][this.mData].date).format('YYYY-MM-DD')
-    dateLive = updateDate
-  } */
-  return dateLive
-}
 
 </script>
 

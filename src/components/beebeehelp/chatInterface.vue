@@ -23,12 +23,12 @@
                     </div>
                     <div v-if="chati.reply?.data?.filedata" class="bee-file-data">
                       {{ chati.reply.data.filedata.type }} - {{ chati.reply.data.filedata.file.name }} -- {{ chati.reply.data.filedata.columns}}
-                      <csv-preview v-if="storeLibrary.csvpreviewLive === true"></csv-preview>
+                      <csv-preview v-if="storeLibrary.csvpreviewLive === true" :summarydata="chati.reply.data.filedata.grid"></csv-preview>
                     </div>
                     <div v-if="chati.reply?.data?.prompt?.length > 0" class="bee-prompt-question">
                       {{ chati.reply.data.prompt }}
                       <div class="data-options"  v-for="(dopt, index) in chati.reply?.data?.options">
-                        <button class="data-option-select" @click.prevent="dataOptionVis(index, dopt)">{{ dopt }}</button>
+                        <button class="data-option-select" @click.prevent="dataOptionVis(index, dopt, chati.reply.bbid)">{{ dopt }}</button>
                       </div>
                     </div>
                 </div>
@@ -141,13 +141,11 @@ import { libraryStore } from '@/stores/libraryStore.js'
     storeLibrary.libraryStatus = true
   }
 
-  const dataOptionVis = (did, colName) => {
-    console.log('chart this vis data type')
-    console.log(did)
-    console.log(colName)
+  const dataOptionVis = (did, colName, bbid) => {
     let dataCode = {}
     dataCode.id = did
     dataCode.name = colName
+    dataCode.bbid = bbid
     storeAI.submitAsk(dataCode)
   }
 

@@ -9,13 +9,13 @@
       </div>
     </div>
     <div class="network-tools">
-      <calendar-tool></calendar-tool>
+      <calendar-tool :bboxid="props.bboxid"></calendar-tool>
     </div>
     <div class="network-tools">
       <div id="chart-options">
         <div class="chart-update">
           <select v-model="selectedTimeFormat" @change.prevent="setTimeFormat()">
-            <option v-for="tfoption in timeformatoptions" v-bind:value="tfoption.value" :key='tfoption.id' :selected="{}">
+            <option v-for="tfoption in timeformatoptions" v-bind:value="tfoption.value" :key='tfoption.id' :selected="selectedChartnumber">
             {{ tfoption.text }}
             </option>
           </select>
@@ -59,7 +59,9 @@ import { accountStore } from '@/stores/accountStore.js'
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
 
-const props = defineProps({
+  const selectedChartnumber = ref('singlechart')
+
+  const props = defineProps({
     bboxid: String
   })
 

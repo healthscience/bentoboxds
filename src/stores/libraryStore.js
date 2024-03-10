@@ -79,7 +79,7 @@ export const libraryStore = defineStore('librarystore', {
     },
     fileBund: {},
     fileBundleList: [],
-    linesLimit: [],
+    linesLimit: {},
     csvpreviewLive: false,
     lineBundle:
     {
@@ -119,8 +119,8 @@ export const libraryStore = defineStore('librarystore', {
   actions: {
     // since we rely on `this`, we cannot use an arrow function
     processReply (message, questionStart) {
-      console.log('library back')
-      console.log(message)
+      // console.log('library back')
+      // console.log(message)
       if (message.action === 'save-file') {
         // set message
         this.libraryMessage = message.data

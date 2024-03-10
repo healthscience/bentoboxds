@@ -128,21 +128,41 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       // provide feedback else forward to beebeeLogic via HOP
       if (this.askQuestion.text === 'yes') {
         let lastQuestion = this.historyPair[this.chatAttention].slice(-1)
-        lastQuestion[0].reply.data.content = this.storeLibrary.linesLimit
+        lastQuestion[0].reply.data.content = lastQuestion.reply.data.grid // this.storeLibrary.linesLimit
         this.actionFileAskInput(lastQuestion[0].reply)
       } else if (dataInfo?.id) {
-        // need to check if same pair but different data type context?
-        let checkCurrentQ = Object.keys(this.currentQuestion)
-        if (checkCurrentQ.length > 0) {
-          let lastQuestion = this.currentQuestion
-          lastQuestion[0].reply.data.context = dataInfo
-          this.actionFileAskInput(lastQuestion[0].reply)
-        } else {
-          let lastQuestion = this.historyPair[this.chatAttention].slice(-1)
-          lastQuestion[0].reply.data.content = this.storeLibrary.linesLimit
-          lastQuestion[0].reply.data.context = dataInfo
+        // if bbid match to that
+        let matchBBox = {}
+        let questionCount = []
+        for (let hpair of this.historyPair[this.chatAttention]) {
+          if (hpair.reply.bbid === dataInfo.bbid) {
+            matchBBox = hpair
+            questionCount.push(hpair)
+          }
+        }
+        if (questionCount.length > 1) {
+          matchBBox = questionCount[0]
+        }
+        if (matchBBox) {
+          let lastQuestion = matchBBox
+          lastQuestion.reply.data.content = matchBBox.reply.data.filedata.grid
+          lastQuestion.reply.data.context = dataInfo
           this.currentQuestion = lastQuestion
-          this.actionFileAskInput(lastQuestion[0].reply)
+          this.actionFileAskInput(lastQuestion.reply)
+        } else {
+          // need to check if same pair but different data type context?
+          let checkCurrentQ = Object.keys(this.currentQuestion)
+          if (checkCurrentQ.length > 0) {
+            let lastQuestion = this.currentQuestion
+            lastQuestion[0].reply.data.context = dataInfo
+            this.actionFileAskInput(lastQuestion[0].reply)
+          } else {
+            let lastQuestion = this.historyPair[this.chatAttention].slice(-1)
+            lastQuestion[0].reply.data.content = this.storeLibrary.linesLimit
+            lastQuestion[0].reply.data.context = dataInfo
+            this.currentQuestion = lastQuestion
+            this.actionFileAskInput(lastQuestion[0].reply)
+          }
         }
       } else {
        this.actionHelpAskInput()
@@ -155,25 +175,29 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       aiMessageout.action = 'question'
       aiMessageout.data = fileData.data
       aiMessageout.bbid = fileData.bbid
-      console.log('message HOP query')
-      console.log(aiMessageout)
       this.sendSocket.send_message(aiMessageout)
       this.helpchatHistory.push(aiMessageout)
       this.askQuestion.text = ''
       this.qcount++      
     },
     actionHelpAskInput () {
-      if (this.inputAskHistory[this.qcount].text.length > 0) {
-        let hashQuestion = hashObject(this.inputAskHistory[this.qcount])
+      // match question
+      let matchQuestion = {}
+      for (let inquest of this.inputAskHistory) {
+        if (inquest.count == this.qcount) {
+          matchQuestion = inquest
+        } else {
+        }
+      }
+      if (matchQuestion.text.length > 0) {
+        let hashQuestion = hashObject(matchQuestion)
         // thisstate.helpchatAsk, 'active', true
         let aiMessageout = {}
         aiMessageout.type = 'bbai'
         aiMessageout.reftype = 'ignore'
         aiMessageout.action = 'question'
-        aiMessageout.data = this.inputAskHistory[this.qcount]
+        aiMessageout.data = matchQuestion
         aiMessageout.bbid = hashQuestion
-        console.log('message HOP query')
-        console.log(aiMessageout)
         this.sendSocket.send_message(aiMessageout)
         this.helpchatHistory.push(aiMessageout)
         this.askQuestion.text = ''
@@ -188,23 +212,35 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         this.beebeeReply.active = false
       }
     },
+    actionHelpAskUpdate (HOPq) {
+      // let hashQuestion = hashObject(this.inputAskHistory[this.qcount])
+      let aiMessageout = {}
+      aiMessageout.type = 'safeflow'
+      aiMessageout.reftype = 'ignore'
+      aiMessageout.action = 'updatenetworkexperiment'
+      aiMessageout.data = HOPq
+      aiMessageout.bbid = HOPq.bbid
+      this.sendSocket.send_message(aiMessageout)
+      this.helpchatHistory.push(aiMessageout)
+      this.qcount++
+    },
     processReply (received) {
       // match to question via bbid
       let questionStart = {}
+      let questionCount = []
       for (let histMatch of this.helpchatHistory) {
         if (histMatch.bbid === received.bbid) {
+          questionCount.push(histMatch)
           questionStart = histMatch
+        }
+      }
+      if (questionCount.length === 1) {
+        // does the question exist from file upload?
+        if (questionCount[0].data?.filedata) {
+        } else {
           let pairBB = {}
-          pairBB.question = histMatch
+          pairBB.question = questionStart
           pairBB.reply = received
-          // temporary parse check for number and chart if numbers
-          // check for numbers, files, excel etc. or spam check for size
-          /* let numberCheck = this.liveDataParse.numberParse(histMatch.data.text)
-          if (numberCheck.status === true) {
-            this.tempNumberData = numberCheck.data
-            this.tempLabelData = numberCheck.label
-            histMatch.data.text = numberCheck.data
-          } */
           this.historyPair[this.chatAttention].push(pairBB)
         }
       }
