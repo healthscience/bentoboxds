@@ -237,7 +237,25 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       if (questionCount.length === 1) {
         // does the question exist from file upload?
         if (questionCount[0].data?.filedata) {
+          console.log('file data one')
+          console.log(received)
+          // set box detail setings
+          console.log('file toolbar settins')
+          this.storeBentoBox.boxToolStatus[received.bbid] = {}
+          let boxSettings = 
+          {
+            opendatatools: { active: false },
+            boxtoolshow: { active: false },
+            vistoolsstatus: { active: false },
+            scalezoom: 1,
+            location: {},
+            chartstyle: 'line'
+          }
+          this.storeBentoBox.boxToolStatus[received.bbid] = boxSettings
+          this.storeBentoBox.devicesettings[received.bbid] = {}
+          this.storeBentoBox.chartStyle[received.bbid] = 'line'
         } else {
+          console.log('file data two')
           let pairBB = {}
           pairBB.question = questionStart
           pairBB.reply = received

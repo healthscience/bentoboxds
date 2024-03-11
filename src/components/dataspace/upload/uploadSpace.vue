@@ -104,8 +104,6 @@ const saveFiles = (files) => {
 				const lines = reader.result 
 				let splitLines = lines.split(/\r\n|\n/)
 				storeLibrary.linesLimit = splitLines.slice(0, 40)
-
-
 				// if direct from beebee inform chat
 				if (storeAI.dataBoxStatus !== true) {
 					// TODO send to beebee via socket but for now create reply here
@@ -115,9 +113,7 @@ const saveFiles = (files) => {
 					question.reftype = 'ignore'
 					question.action = 'question'
 					question.data = { "count": storeAI.qcount, "text": "Upload of file", "active": true, "time": new Date() }
-
 					let hashQuestion = hashObject(question.data + file.file.name)
-
 					// extract headers assume first line
 					headerLocal[hashQuestion] = localHeaderExtract(splitLines[0])
 					let fileContent = reader.result
