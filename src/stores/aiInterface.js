@@ -444,6 +444,11 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       saveData.bboxlist = boxidPerspace
       message.data = saveData
       this.sendSocket.send_message(message)
+    },
+    prepareAI (message) {
+      console.log('message for beebee to pass on to AI')
+      console.log(message)
+      this.sendMessageHOP(message)
     }
   }
 })

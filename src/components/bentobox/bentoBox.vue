@@ -32,7 +32,7 @@
     </div>
   </div>
   <div id="bb-expand-size" @click="expandModules">modules v</div>
-    <modules-list v-if="modulesShow"></modules-list>
+    <modules-list v-if="modulesShow" :bboxid="props.bboxid"></modules-list>
 </template>
 
 <script setup>

@@ -23,7 +23,7 @@
 			<header>Library feedback</header>
 			File {{ storeLibrary.libraryMessage.data?.headerinfo.splitwords }} saved: {{ storeLibrary.libraryMessage.success }}
 		</div>
-		<div id="files-list">files {{ files }}</div>
+		<!--<div id="files-list">files {{ files }}</div>-->
 	</div>
 </template>
 
