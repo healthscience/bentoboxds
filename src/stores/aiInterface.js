@@ -225,52 +225,53 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.qcount++
     },
     processReply (received) {
-      // match to question via bbid
-      let questionStart = {}
-      let questionCount = []
-      for (let histMatch of this.helpchatHistory) {
-        if (histMatch.bbid === received.bbid) {
-          questionCount.push(histMatch)
-          questionStart = histMatch
-        }
-      }
-      if (questionCount.length === 1) {
-        // does the question exist from file upload?
-        if (questionCount[0].data?.filedata) {
-          console.log('file data one')
-          console.log(received)
-          // set box detail setings
-          console.log('file toolbar settins')
-          this.storeBentoBox.boxToolStatus[received.bbid] = {}
-          let boxSettings = 
-          {
-            opendatatools: { active: false },
-            boxtoolshow: { active: false },
-            vistoolsstatus: { active: false },
-            scalezoom: 1,
-            location: {},
-            chartstyle: 'line'
+      if (received.action === 'ai-task') {
+        console.log('third party AI')
+        console.log(received)
+      } else {
+        // match to question via bbid
+        let questionStart = {}
+        let questionCount = []
+        for (let histMatch of this.helpchatHistory) {
+          if (histMatch.bbid === received.bbid) {
+            questionCount.push(histMatch)
+            questionStart = histMatch
           }
-          this.storeBentoBox.boxToolStatus[received.bbid] = boxSettings
-          this.storeBentoBox.devicesettings[received.bbid] = {}
-          this.storeBentoBox.chartStyle[received.bbid] = 'line'
-        } else {
-          console.log('file data two')
-          let pairBB = {}
-          pairBB.question = questionStart
-          pairBB.reply = received
-          this.historyPair[this.chatAttention].push(pairBB)
         }
+        if (questionCount.length === 1) {
+          // does the question exist from file upload?
+          if (questionCount[0].data?.filedata) {
+            // set box detail setings
+            this.storeBentoBox.boxToolStatus[received.bbid] = {}
+            let boxSettings = 
+            {
+              opendatatools: { active: false },
+              boxtoolshow: { active: false },
+              vistoolsstatus: { active: false },
+              scalezoom: 1,
+              location: {},
+              chartstyle: 'line'
+            }
+            this.storeBentoBox.boxToolStatus[received.bbid] = boxSettings
+            this.storeBentoBox.devicesettings[received.bbid] = {}
+            this.storeBentoBox.chartStyle[received.bbid] = 'line'
+          } else {
+            let pairBB = {}
+            pairBB.question = questionStart
+            pairBB.reply = received
+            this.historyPair[this.chatAttention].push(pairBB)
+          }
+        }
+        if (received.action === 'library-peerlibrary' || 'publiclibrary') {
+          this.storeLibrary.processReply(received, questionStart)
+        }
+        // check if reply is upload?  If yes, present upload interface
+        if (received.action === 'upload') {
+          // this.uploadStatus = true
+        } 
+        this.beginChat = true 
+        this.chatBottom++
       }
-      if (received.action === 'library-peerlibrary' || 'publiclibrary') {
-        this.storeLibrary.processReply(received, questionStart)
-      }
-      // check if reply is upload?  If yes, present upload interface
-      if (received.action === 'upload') {
-        // this.uploadStatus = true
-      } 
-      this.beginChat = true 
-      this.chatBottom++
     },
     processNotification (received) {
       this.countNotifications++
@@ -391,6 +392,9 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.sendSocket.send_message(aiMessageout)
     },
     prepareLibrarySummary (boxid) {
+      console.log('summary HOP')
+      console.log(boxid)
+      console.log(this.hopSummary)
       for (let hi of this.hopSummary) {
         console.log(hi)
         if (hi.summary.bbid == boxid) {

@@ -1,6 +1,6 @@
 <template>
   <div id="modules-list-box">
-    <div class="module-box">
+    <div class="module-box">--{{ boxLibrarySummary }}
       <div class="module-header">Data</div>
         <div id="data-module">data reference contract</div>
       </div>
@@ -25,7 +25,7 @@
         <div class="compute-ref-contracts">
           Auto regression
           <div class="compute-stages">
-            <div class="stage-compute-task"><!--<button @click="trainStart()">train-Evolution</button>--></div>
+            <div class="stage-compute-task"><button @click="trainStart()">train-Evolution</button></div>
             <div class="stage-compute-task">predict</div>
             <div class="stage-compute-task">evaluate</div>
           </div>
@@ -47,9 +47,11 @@
 import { ref, computed } from 'vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
+import { libraryStore } from '@/stores/libraryStore.js'
 
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
+  const storeLibrary = libraryStore()
  
   /* props */
   const props = defineProps({
@@ -58,18 +60,30 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
 
   /* computed */
-  const start = computed(() => {
-    return 3
+  /*
+  * library summary
+  */
+  const boxLibrarySummary = computed(() => {
+    console.log('toooools')
+    console.log(props.bboxid)
+    console.log(storeAI.boxLibSummary)
+    let NXPcontract = {}
+    NXPcontract.key = Object.keys(storeAI.boxLibSummary[props.bboxid]?.data)
+    let modKeys = []
+    for (let mod of storeAI?.boxLibSummary[props.bboxid]?.data[NXPcontract.key].modules) {
+      modKeys.push(mod.key)
+    }
+    NXPcontract.modules = modKeys
+    return NXPcontract
   })
 
   /* methods */
   const trainStart = () => {
-    console.log('start evolution training of autoregression model, find peers')
-    console.log(props.bboxid)
     let aiMessage = {}
     aiMessage.type = 'bbai'
     aiMessage.reftype = 'ai'
     aiMessage.action = 'ai-task'
+    aiMessage.task = 'cale-evolution'
     aiMessage.data = {}
     aiMessage.bbid = props.bboxid
     storeAI.prepareAI(aiMessage)

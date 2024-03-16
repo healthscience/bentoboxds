@@ -8,6 +8,7 @@ export const libraryStore = defineStore('librarystore', {
   state: () => ({
     libraryStatus: false,
     libPeerview: false,
+    newNXP: false,
     storeAI: aiInterfaceStore(),
     utilLibrary: new LibraryUtility(),
     sendSocket: useSocketStore(),
@@ -112,6 +113,7 @@ export const libraryStore = defineStore('librarystore', {
     },
     sourceDataSelected: false,
     newLists: {},
+    newModuleList: [ { id: 4, text: 'Item 4' } ],
     dtcolumns: [],
     fileSaveStatus: false,
     fileFeedback: ''
