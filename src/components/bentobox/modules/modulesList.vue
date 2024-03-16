@@ -1,6 +1,6 @@
 <template>
   <div id="modules-list-box">
-    <div class="module-box">--{{ boxLibrarySummary }}
+    <div class="module-box">
       <div class="module-header">Data</div>
         <div id="data-module">data reference contract</div>
       </div>
@@ -13,7 +13,7 @@
         </div>
       </div>
       <div id="computes-list-future">
-        <div class="compute-header">FUTURE</div>
+        <div class="compute-header">FUTURE {{ modelUpdate }}</div>
         <div class="compute-ref-contracts">
           Linear regression
           <div class="compute-stages">
@@ -25,7 +25,7 @@
         <div class="compute-ref-contracts">
           Auto regression
           <div class="compute-stages">
-            <div class="stage-compute-task"><button @click="trainStart()">train-Evolution</button></div>
+            <div class="stage-compute-task"><button @click="trainStart()">Begin-Evolution</button></div>
             <div class="stage-compute-task">predict</div>
             <div class="stage-compute-task">evaluate</div>
           </div>
@@ -60,9 +60,13 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
 
   /* computed */
+  const modelUpdate = computed (() => {
+    return storeAI.boxModelUpdate[props.bboxid]
+  })
+
   /*
   * library summary
-  */
+
   const boxLibrarySummary = computed(() => {
     console.log('toooools')
     console.log(props.bboxid)
@@ -75,7 +79,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
     }
     NXPcontract.modules = modKeys
     return NXPcontract
-  })
+  })  */
 
   /* methods */
   const trainStart = () => {

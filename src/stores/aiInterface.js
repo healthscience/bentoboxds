@@ -67,7 +67,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     bentoboxList: { '91919191': [] },
     countNotifications: 0,
     notifList: [],
-    boxLibSummary: {}
+    boxLibSummary: {},
+    boxModelUpdate: {}
   }),
   actions: {
     sendMessageHOP (message) {
@@ -228,6 +229,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       if (received.action === 'ai-task') {
         console.log('third party AI')
         console.log(received)
+        this.boxModelUpdate[received.bbid] = {}
+        this.boxModelUpdate[received.bbid] = received.data.model
       } else {
         // match to question via bbid
         let questionStart = {}
