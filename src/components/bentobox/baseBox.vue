@@ -10,7 +10,7 @@
       <div id="peer-bentobox">
         <div id="bento-past">
           <div id="past-box"> {{ futureBox }}
-            <button id="full-past-toolbar">tools</button>
+            <!--<button id="full-past-toolbar">tools</button>-->
             <button id="full-future-toolbar" @click="predictFuture()">future</button>
           </div>
           <div id="past-vis">
@@ -19,7 +19,7 @@
            </div>
         </div>
         <div id="bento-future" class="future-show" :class="{ active: futureBox }">
-          <div id="future-box"><button id="full-future-toolbar">full</button></div>
+          <!--<div id="future-box"><button id="full-future-toolbar">full</button></div>-->
           <bar-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'bar'" :chartData="chartfutureData" ></bar-chart>
           <line-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'line'" :chartData="chartfutureData"></line-chart>
         </div>

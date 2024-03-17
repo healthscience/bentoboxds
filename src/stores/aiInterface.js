@@ -52,6 +52,15 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       data: {},
       active: false
     },
+    boxSettings: 
+    {
+      opendatatools: { active: false },
+      boxtoolshow: { active: false },
+      vistoolsstatus: { active: false },
+      scalezoom: 1,
+      location: {},
+      chartstyle: 'line'
+    },
     liveFutureCollection: { active: false },
     visData: {},
     tempNumberData: {},
@@ -255,7 +264,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
               location: {},
               chartstyle: 'line'
             }
-            this.storeBentoBox.boxToolStatus[received.bbid] = boxSettings
+            this.storeBentoBox.boxToolStatus[received.bbid] = this.boxSettings
             this.storeBentoBox.devicesettings[received.bbid] = {}
             this.storeBentoBox.chartStyle[received.bbid] = 'line'
           } else {
@@ -263,6 +272,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
             pairBB.question = questionStart
             pairBB.reply = received
             this.historyPair[this.chatAttention].push(pairBB)
+            this.storeBentoBox.boxToolStatus[received.bbid] = this.boxSettings
+            this.storeBentoBox.devicesettings[received.bbid] = {}
           }
         }
         if (received.action === 'library-peerlibrary' || 'publiclibrary') {
@@ -395,11 +406,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.sendSocket.send_message(aiMessageout)
     },
     prepareLibrarySummary (boxid) {
-      console.log('summary HOP')
-      console.log(boxid)
-      console.log(this.hopSummary)
       for (let hi of this.hopSummary) {
-        console.log(hi)
         if (hi.summary.bbid == boxid) {
           // new or saved format
           if ('data' in hi.summary) {
@@ -409,6 +416,17 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           }
         }
       }
+    },
+    prepareGenesisContracts (message) {
+      let aiMessageout = {}
+      aiMessageout.type = 'library'
+      aiMessageout.reftype = 'ignore'
+      aiMessageout.action = 'contracts'
+      aiMessageout.task = 'experiment-genesis'
+      aiMessageout.privacy = 'public'
+      aiMessageout.data = {}
+      aiMessageout.bbid = ''
+      this.sendMessageHOP(aiMessageout)
     },
     prepareBentoBoxSave (message) {
       let settingsData = this.historyPair[message.data.chatid]
@@ -453,8 +471,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.sendSocket.send_message(message)
     },
     prepareAI (message) {
-      console.log('message for beebee to pass on to AI')
-      console.log(message)
       this.sendMessageHOP(message)
     }
   }

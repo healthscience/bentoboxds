@@ -6,11 +6,11 @@
         <ul>
           <li class="question-item">
             Ask question:
-            <textarea @paste="questionSave" @keyup="questionSave" required="" v-model="questionLive.question.text" placeholder="prime"></textarea>
+            <textarea @paste="questionSave" @keyup="questionSave" required="" v-model="questionLive" placeholder="prime"></textarea>
           </li>
-          <li class="question-live" v-if="questionLive.question !== undefined">
+          <li class="question-live" v-if="questionLive !== undefined">
             Question:
-            {{ questionLive.question.text }}
+            {{ questionLive }}
           </li>
           <!--<li class="question-item">
             Forum discussion:<input v-model="question.forum" placeholder="forum link">
@@ -21,58 +21,48 @@
   </div>
 </template>
 
-<script>
-export default {
-  name: 'nxp-question',
-  components: {
-  },
-  props: {
-    modData: {
-      type: Object
-    }
-  },
-  data: () => ({
-  }),
-  created () {
-  },
-  mounted () {
-  },
-  computed: {
-    questionLive: function () {
-      return this.$store.state.refcontractQuestion
-    }
-  },
-  methods: {
-    questionSave () {
-      let questionMod = {}
-      questionMod.module = this.modData
-      // questionMod.question = this.questionLive
-      this.$store.dispatch('actionSetQuestionRefContract', questionMod)
-    }
+<script setup>
+import { ref, computed } from 'vue'
+
+import { libraryStore } from '@/stores/libraryStore.js'
+
+
+  const storeLibrary = libraryStore()
+  
+  let questionLive= ref('')
+
+  /* method */
+  const questionSave = (contract) => {
+    console.log('look up contract')
   }
-}
+
 </script>
 
-<style>
-#question-nxp {
-  margin: 1em;
-  border: 0px solid grey;
-}
+<style scoped>
 
-#question-nxp header{
-  font-weight: bold;
-}
 
-#prime-question {
-  margin: 1em;
-}
+@media (min-width: 1024px) {
 
-.question-item {
-  display: block;
-  margin: 1em;
-}
+  #question-nxp {
+    margin: 1em;
+    border: 0px solid grey;
+  }
 
-.question-live {
-  font-size: 1.2em;
+  #question-nxp header {
+    font-weight: bold;
+  }
+
+  #prime-question {
+    margin: 1em;
+  }
+
+  .question-item {
+    display: block;
+    margin: 1em;
+  }
+
+  .question-live {
+    font-size: 1.2em;
+  }
 }
 </style>

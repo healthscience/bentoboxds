@@ -26,6 +26,7 @@ export const libraryStore = defineStore('librarystore', {
     peerLedger: [],
     peerLibraryNXP: [],
     newRefcontractForm: {},
+    genesisModules: [],
     datatypeForm: {
       primary: Boolean,
       name: '',
@@ -113,7 +114,9 @@ export const libraryStore = defineStore('librarystore', {
     },
     sourceDataSelected: false,
     newLists: {},
-    newModuleList: [ { id: 4, text: 'Item 4' } ],
+    newModuleList: [],
+    buildNewExperiment: [],
+    refcontractOption: [ { ref: true, id: 'ref1', name: 'compute' }],
     dtcolumns: [],
     fileSaveStatus: false,
     fileFeedback: ''
@@ -157,6 +160,10 @@ export const libraryStore = defineStore('librarystore', {
           // keep track NXP contract bundle
           this.peerLibraryNXP = message.data.data.networkPeerExpModules
         }
+      } else if (message.action === 'new-experiment') {
+        console.log('new NXP')
+        console.log(message)
+        this.genesisModules = message.data.modules
       } else if (message.action === 'replicate-publiclibrary') {
         this.sendMessage('get-library')
         this.sendMessage('get-results')

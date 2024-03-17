@@ -1,5 +1,5 @@
 <template>
-  <div id="k-toolkit">
+  <div id="k-toolkit">vis viwer
     <div id="diy-tools">
       <div id="chart-type">
         <!-- <ul>
@@ -23,119 +23,47 @@
           </li>
         </ul> -->
       </div>
-      <div v-if="openDataLive[mData] !== undefined" id="open-knowledge">
-        <opendata-tool v-if="openDataLive[mData].active === true" :shellID="shellID" :moduleCNRL="moduleCNRL" :moduleType="moduleType" :mData="mData" :toolInfo="visToolbarStatusLive"></opendata-tool>
-      </div>
     </div>
   </div>
 </template>
 
-<script>
-// import CalendarTool from '@/components/experiments/setCalendarTool'
-// import OpendataTool from '@/components/bentoboard/setKnowledgeLive'
+<script setup>
+import { ref, computed } from 'vue'
 
-export default {
-  name: 'module-chartbuilder',
-  components: {
-    // CalendarTool,
-    // OpendataTool
-  },
-  created () {
-  },
-  mounted () {
-  },
-  props: {
-    shellID: String,
-    moduleCNRL: String,
-    moduleType: String,
-    mData: String
-  },
-  computed: {
-    visToolbarStatusLive: function () {
-      if (this.moduleCNRL === 'start-1122335588' || this.moduleCNRL === '') {
-        if (this.$store.state.toolbarVisStatus['cnrl-001234543458']) {
-          return { text: 'open tools', active: true, learn: true }
-        } else if (this.$store.state.toolbarVisStatus['temp-001234543458']) {
-          return { text: 'open tools', active: true, learn: true }
-        } else {
-          return {}
-        }
-      } else {
-        return this.$store.state.toolbarVisStatus[this.moduleCNRL][this.mData]
-      }
-    },
-    openDataLive: function () {
-      let defaultCheck = Object.keys(this.$store.state.opendataTools)
-      if (!this.$store.state.opendataTools[this.moduleCNRL]) {
-        if (defaultCheck[0] === 'default') {
-          return this.$store.state.opendataTools['default']
-        } else {
-          return false
-        }
-      } else {
-        return this.$store.state.opendataTools[this.moduleCNRL]
-      }
-    },
-    liveData: function () {
-      if (!this.$store.state.NXPexperimentData[this.shellID]) {
-        return {}
-      } else if (!this.$store.state.NXPexperimentData[this.shellID][this.moduleCNRL].data[this.mData]) {
-        return {}
-      } else {
-        return this.$store.state.NXPexperimentData[this.shellID][this.moduleCNRL].data[this.mData]
-      }
-    }
-  },
-  data: () => ({
-    timeSelect: true,
-    kContext: {},
-    saveStatusEK: {},
-    openDataState: { 'active': true }
-  }),
-  methods: {
-    chartSelect () {
-      console.log('chart select type bar line mixed')
-    },
-    visToolbarUpdate () {
-      let updateVisTools = {}
-      updateVisTools.state = this.visToolbarStatusLive.active
-      updateVisTools.module = this.moduleCNRL
-      updateVisTools.dtid = this.mData
-      this.$store.dispatch('actionVistoolsUpdate', updateVisTools)
-    },
-    openData () {
-      let updateOpendata = {}
-      updateOpendata.state = this.openDataLive[this.mData].active
-      updateOpendata.module = this.moduleCNRL
-      updateOpendata.dtid = this.mData
-      this.$store.dispatch('actionVisOpenData', updateOpendata)
-    }
-  }
-}
+import { libraryStore } from '@/stores/libraryStore.js'
+
+
+  const storeLibrary = libraryStore()
+  
+  let visLive= ref('')
+
 </script>
 
-<style>
-#k-toolkit {
-  border: 0px solid red;
-}
+<style scoped>
 
-#diy-tools {
-  border: 0px solid #E9EDF0;
-  background-color: #f0ece9; /*#E9EDF0;*/
-}
+  @media (min-width: 1024px) {
+    #k-toolkit {
+      border: 0px solid red;
+    }
 
-.chart-style-tools {
-  border-right: 3px solid white;
-}
+    #diy-tools {
+      border: 0px solid #E9EDF0;
+      background-color: #f0ece9; /*#E9EDF0;*/
+    }
 
-ul {
-  list-style-type: none;
-  padding: 0;
-}
+    .chart-style-tools {
+      border-right: 3px solid white;
+    }
 
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    li {
+      display: inline-block;
+      margin: 0 10px;
+    }
+  }
 
 </style>

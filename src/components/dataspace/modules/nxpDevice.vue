@@ -1,9 +1,9 @@
 <template>
   <div id="device-nxp">
     <header>Device Data Source:</header>
-    <div id="network-library">
+    <!--<div id="network-library">
        All device, sensors, data stores need to be described in the <a href="" id="network-library-damahub" @click.prevent="networLibrary()">Network Library</a>
-    </div>
+    </div>--->
     <!--<networklibrary-modal v-show="isModalNLib" @closenl="closeModalNLib">
       <template v-slot:header>
         Network Library
@@ -11,42 +11,21 @@
       <template v-slot:body>
       </template>
     </networklibrary-modal>-->
-    <div id="prime-device">
+    <!--<div id="prime-device">
       <form id="device_form" name="device_form" method="post" action="#">
         <ul v-for="ds of datasource" :key="ds.id">
           <device-source :modData="modData" :datID="ds"></device-source>
         </ul>
-        <!-- <button id="add-source-button" type="button" class="btn" @click="addDatasource()">add data source</button> -->
+        <button id="add-source-button" type="button" class="btn" @click="addDatasource()">add data source</button>
       </form>
-    </div>
+    </div>-->
   </div>
 </template>
 
 <script>
-import DeviceSource from '@/components/dataspace/modules/nxpDeviceAdd.vue'
+// import DeviceSource from '@/components/dataspace/modules/nxpDeviceAdd.vue'
 
-export default {
-  name: 'nxp-device',
-  components: {
-    DeviceSource,
-    // NetworklibraryModal
-  },
-  computed: {
-  },
-  props: {
-    modData: {
-      type: Object
-    }
-  },
-  data: () => ({
-    countD: 0,
-    datasource: [0],
-    isModalNLib: false
-  }),
-  created () {
-  },
-  mounted () {
-  },
+/*
   methods: {
     addDatasource () {
       // update vuex of data source latest
@@ -65,19 +44,23 @@ export default {
     }
   }
 }
+*/
 </script>
 
-<style>
-#network-library {
-  margin: 2em;
-}
+<style scoped>
 
-.ref-pair {
-  display: block;
-}
+@media (min-width: 1024px) {
 
-#add-source-button {
-  margin-top: 2em;
-}
+  #network-library {
+    margin: 2em;
+  }
 
+  .ref-pair {
+    display: block;
+  }
+
+  #add-source-button {
+    margin-top: 2em;
+  }
+}
 </style>

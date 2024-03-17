@@ -6,12 +6,12 @@
       v-on:drop="handleDrop($event, 'modules-available')"
     >
       <div class="mod-active" 
-          v-for="(element) in libraryAvailable"
+          v-for="(element) in storeLibrary.genesisModules"
           :key="element.key"
           draggable="true"
           v-on:dragstart="handleDragStart($event, element)"
         >
-          {{ element.text }}
+          {{ element.name }}
       </div>
     </div>
     <div id="modules-selected"
@@ -23,14 +23,31 @@
         draggable="true"
         v-on:dragstart="handleDragStart($event, newMod)"
       >
-        new-- {{ newMod.text }}
+        <div class="mod-option-holder"
+          v-on:dragover.prevent
+          v-on:drop="handleRefDrop($event, 'mod-option-holder')"
+        >
+          <component :is="componentsNew[newMod.name]"></component>
+      </div>
+      </div>
+    </div>
+    <div id="refcontract-selected"
+      v-on:dragover.prevent
+      v-on:drop="handleDrop($event, 'refcontract-selected')"
+    >
+      <div class="ref-selected"
+        v-for="newRef in storeLibrary.refcontractOption" 
+        draggable="true"
+        v-on:dragstart="handleDragStart($event, newRef)"
+      >
+        ref-- {{ newRef.name }}
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, shallowRef, computed } from 'vue'
 
 // import draggable from 'vuedraggable'
 import NxpQuestion from '@/components/dataspace/modules/nxpQuestion.vue'
@@ -47,13 +64,12 @@ import { libraryStore } from '@/stores/libraryStore.js'
   const storeAI = aiInterfaceStore()
   const bboxStore = bentoboxStore()
   const storeLibrary = libraryStore()
+  const componentsNew = shallowRef({ question: NxpQuestion, data: NxpDevice, compute: NxpCompute, visualise: NxpVisualise })
 
-  // temp data
-  let libraryAvailable = ref([ { id: 1, text: 'Item 1' }, { id: 2, text: 'Item 2' }, { id: 3, text: 'Item 3' }])
+  let refDrop = ref(false)
 
   /* computed */
-  const boxContracts = computed (() => {
-    return {}
+  const libraryAvailable = computed (() => {
   })
 
 
@@ -62,19 +78,39 @@ import { libraryStore } from '@/stores/libraryStore.js'
   }
 
   const handleDrop = (event, targetContainer) => {
-    const itemData = JSON.parse(event.dataTransfer.getData('application/json'))
-    if (targetContainer === 'modules-selected') {
-      storeLibrary.newModuleList = storeLibrary.newModuleList.filter(i => i.id !== itemData.id)
-      storeLibrary.newModuleList.push(itemData)
-      // remove from available list
-      libraryAvailable.value = libraryAvailable.value.filter(i => i.id !== itemData.id)
-    } else if (targetContainer === 'modules-available') {
-      libraryAvailable.value = libraryAvailable.value.filter(i => i.id !== itemData.id)
-      libraryAvailable.value.push(itemData)
-      // remove from selected list
-      storeLibrary.newModuleList = storeLibrary.newModuleList.filter(i => i.id !== itemData.id)
+    console.log('dropH')
+    if (refDrop.value === false) {
+      console.log('false through')
+      const itemData = JSON.parse(event.dataTransfer.getData('application/json'))
+      console.log('iteme tyoep')
+      console.log(itemData)
+      if (itemData.ref !== true) {
+        if (targetContainer === 'modules-selected') {
+          storeLibrary.newModuleList = storeLibrary.newModuleList.filter(i => i.id !== itemData.id)
+          storeLibrary.newModuleList.push(itemData)
+          // remove from available list
+          storeLibrary.genesisModules = storeLibrary.genesisModules.filter(i => i.id !== itemData.id)
+        } else if (targetContainer === 'modules-available') {
+          storeLibrary.genesisModules = storeLibrary.genesisModules.filter(i => i.id !== itemData.id)
+          storeLibrary.genesisModules.push(itemData)
+          // remove from selected list
+          storeLibrary.newModuleList = storeLibrary.newModuleList.filter(i => i.id !== itemData.id)
+        }
+      }
     }
   }
+
+  const handleRefDrop = (event, targetContainer) => {
+    console.log('drop REF')
+    event.preventDefault()
+    console.log(event)
+    refDrop.value = true
+    // add to module
+    storeLibrary.buildNewExperiment.push('refcontract')
+    // return drop value
+    refDrop.value = false
+  }
+
 </script>
 
 
@@ -88,7 +124,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   #experiment-holder {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 3fr 1fr;
     column-gap: 120px;
   }
 
@@ -116,6 +152,18 @@ import { libraryStore } from '@/stores/libraryStore.js'
     background-color: orange;
     width: 80%;
     margin: 0.5em;
+  }
+
+  .mod-option-holder {
+    min-height: 120px;
+  }
+
+  #refcontract-selected {
+    display: grid;
+    grid-template-columns: 1fr;
+    border: 1px solid grey;
+    padding: 1em;
+    height: 60px;
   }
 
 }

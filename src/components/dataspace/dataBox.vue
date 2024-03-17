@@ -91,6 +91,10 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   const nxpAdd = () => {
     storeLibrary.newNXP = !storeLibrary.newNXP
+    // send message to HOP to create genesis NXP contract structure
+    if (storeLibrary.newNXP === true) {
+      storeAI.prepareGenesisContracts()
+    }
   }
 </script>
 

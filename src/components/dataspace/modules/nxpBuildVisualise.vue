@@ -1,7 +1,7 @@
 <template>
   <div id="visualise-nxp-build">
     <header>VISUALISE DASHBOARD BUILDER:</header>
-    <div id="prime-visualise-build">
+    <!--<div id="prime-visualise-build">
       <header>Type of visualisation:</header>
       <li class="visualise-medium-item">
         Network Library Reference Contract:<input v-model="visualRefCont" placeholder="Reference Contract">
@@ -10,14 +10,16 @@
       <li v-if="refContractVisualise.key">
         {{  }}
       </li>
-    </div>
-    <chart-builder v-if="type === 'chart.js'" :shellID="shellID" :moduleCNRL="moduleCNRL" :moduleType="moduleType" :mData="mData"></chart-builder>
+    </div>-->
+    <!--<chart-builder v-if="type === 'chart.js'" :shellID="shellID" :moduleCNRL="moduleCNRL" :moduleType="moduleType" :mData="mData"></chart-builder>-->
   </div>
 </template>
 
-<script>
-import chartBuilder from '@/components/dataspace/modules/setChartBuilder.vue'
+<script setup>
+// import chartBuilder from '@/components/dataspace/modules/setChartBuilder.vue'
 
+
+/*
 export default {
   name: 'nxp-visualdashboard',
   components: {
@@ -66,7 +68,15 @@ export default {
     }
   }
 }
+
+*/
 </script>
 
-<style>
+<style scoped>
+
+@media (min-width: 1024px) {
+  #k-toolkit {
+    border: 0px solid red;
+  }
+}
 </style>

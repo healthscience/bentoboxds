@@ -18,13 +18,13 @@
       </div>
       <div id="peer-bentobox">
         <div id="bento-past">
-          <div id="past-box">past toolbar <button id="full-past-toolbar">Tools</button></div>
+          <!--<div id="past-box">past toolbar <button id="full-past-toolbar">Tools</button></div>-->
           <bar-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'bar'" :chartData="chartData"></bar-chart>
           <line-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'line'" :chartData="chartData"></line-chart>
         </div>
         <div id="bento-future">future
           <button id="full-future-toolbar" @click="predictFuture()">Predict</button>
-          <div id="future-box">future toolbar <button id="full-future-toolbar">full</button></div>
+          <!--<div id="future-box">future toolbar <button id="full-future-toolbar">full</button></div>-->
           <bar-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'bar'" :chartData="chartfutureData" ></bar-chart>
           <line-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'line'" :chartData="chartfutureData"></line-chart>
         </div>
