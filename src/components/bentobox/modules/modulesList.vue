@@ -25,7 +25,9 @@
         <div class="compute-ref-contracts">
           Auto regression
           <div class="compute-stages">
-            <div class="stage-compute-task"><button @click="trainStart()">Begin-Evolution</button></div>
+            <div class="stage-compute-task">
+              <button class="button-evolution" @click="trainStart()">Begin-Evolution</button>
+              <button class="button-evolution" @click="trainNetworkStart()">Begin-Network-Evolution</button></div>
             <div class="stage-compute-task">predict</div>
             <div class="stage-compute-task">evaluate</div>
           </div>
@@ -93,6 +95,17 @@ import { libraryStore } from '@/stores/libraryStore.js'
     storeAI.prepareAI(aiMessage)
   }
 
+  const trainNetworkStart = () => {
+    let aiMessage = {}
+    aiMessage.type = 'bbai'
+    aiMessage.reftype = 'ai'
+    aiMessage.action = 'ai-network-task'
+    aiMessage.task = 'cale-evolution'
+    aiMessage.data = {}
+    aiMessage.bbid = props.bboxid
+    storeAI.prepareAI(aiMessage)
+  }
+
 </script>
 
 <style scoped>
@@ -125,6 +138,16 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   .compute-header {
     font-weight: bold;
+  }
+
+  .stage-compute-task {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .button-evolution {
+    margin: 0.2em;
+    width: 80%;
   }
 }
 </style>
