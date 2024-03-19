@@ -122,7 +122,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   const chartfutureData = computed(() => {
     return {
       labels: futuredataLabel.value,
-      datasets: [ { data: futuredataValues.value } ]
+      datasets: [ { label: 'datatype', data: futuredataValues.value } ]
     }
   })
     

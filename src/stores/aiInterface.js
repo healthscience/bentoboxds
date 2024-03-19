@@ -329,6 +329,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     },
     processHOPdata (dataHOP) {
       // close databox
+      console.log('HOP data------------------ ')
+      console.log(dataHOP)
       // match input id to bbid
       // is the data for past or future or no data
       if (dataHOP.data.data === 'none') {
@@ -356,7 +358,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         // this.tempNumberData[matchBBID] = dataHOP.data.data.chartPackage.datasets[0].data
         // this.tempLabelData[matchBBID] = dataHOP.data.data.chartPackage.labels
         let hopDataChart = {}
-        hopDataChart.datasets = [ { data: dataHOP.data.data.chartPackage.datasets[0].data } ]
+        hopDataChart.datasets = [ { label: 'datatype', data: dataHOP.data.data.chartPackage.datasets[0].data } ]
         hopDataChart.labels = dataHOP.data.data.chartPackage.labels
         this.visData[matchBBID] = hopDataChart
         this.storeBentoBox.setChartstyle(matchBBID, dataHOP.context.moduleorder.visualise.value.info.settings.visualise)
