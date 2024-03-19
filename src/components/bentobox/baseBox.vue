@@ -176,6 +176,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
 #bento-future {
   position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
   border:1px dashed orange;
   min-width: 10vw;
   min-height: 10vh;

@@ -1,5 +1,5 @@
 <template>
-	<div id="upload-space">
+	<div id="upload-space" >
 		<drop-zone class="drop-area" @files-dropped="addFiles" #default="{ dropZoneActive }">
 			<label for="file-input">
 				<span v-if="dropZoneActive">
@@ -14,11 +14,11 @@
 				</span>
 				<input type="file" id="file-input" multiple @change="onInputChange" />
 			</label>
-			<ul class="image-list" v-show="files.length">
-				<file-preview v-for="file of files" :key="file.id" :file="file" tag="li" @remove="removeFile" />
-			</ul>
+			<div class="image-list" v-show="files.length">
+				<file-preview v-for="file of files" :key="file.id" :file="file" tag="li" @remove-file="removeFileEvent(file)"/>
+			</div>
 		</drop-zone>
-		<button @click.prevent="saveFiles(files)" class="upload-button">Upload</button>
+		<button v-if="files.length !== 0" @click.prevent="saveFiles(files)" class="upload-button">Upload</button>
 		<div id="library-message">
 			<header>Library feedback</header>
 			File {{ storeLibrary.libraryMessage.data?.headerinfo.splitwords }} saved: {{ storeLibrary.libraryMessage.success }}
@@ -34,7 +34,7 @@ import DropZone from '@/components/dataspace/upload/dropZone.vue'
 import FilePreview from '@/components/dataspace/upload/filePreview.vue'
 import { libraryStore } from '@/stores/libraryStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
-import { ref, shallowRef, computed } from "vue"
+import { ref, shallowRef } from "vue"
 
 	const file = shallowRef(null)
 	let headerLocal = ref({})
@@ -57,6 +57,9 @@ function onInputChange(e) {
 // Uploader
 // import createUploader from '@/components/dataspace/upload/compositions/fileUploader.js'
 // const { uploadFiles } = createUploader('url')
+const removeFileEvent = (file) => {
+	removeFile(file)
+}
 
 const checkElectron = () => {
     // Renderer process
@@ -172,6 +175,8 @@ const saveFiles = (files) => {
 			}
 			reader2.readAsDataURL(file)
 		}
+		// lastly clear file list
+		removeFile(file)
   }
 
 	const localHeaderExtract = (lineOne) => {
@@ -244,6 +249,7 @@ label {
 
 .image-list {
 	display: flex;
+	border: 1px solid red;
 	list-style: none;
 	flex-wrap: wrap;
 	padding: 0;
