@@ -82,7 +82,6 @@ const saveFiles = (files) => {
 		/* upload file data flow */
 		// let fileData = uploadFiles(files)
 		// send data to HOP to save in Holepunch
-		// file.value = file
 		let sourceLocation = ''
 		if (checkElectron() === false) {
 			sourceLocation = 'web'
@@ -140,8 +139,44 @@ const saveFiles = (files) => {
 				console.log(reader.error)
 			}
 			reader.readAsText(file.file)
+		}	else if (file.file.type !== 'text/csv') {
+			console.log('simple save SQLite file')
+			let fileSave = {}
+      fileSave.name = file.file.name
+      fileSave.path = file.url
+			fileSave.source = sourceLocation
+			if (file.file.type.length === 0) {
+				let splitExtension = file.file.name.split('.')
+				let matchExtension = ''
+				if (splitExtension[1] === 'db') {
+					matchExtension = 'sqlite'
+				} else {
+					matchExtension = splitExtension[1]
+				}
+				fileSave.type = matchExtension
+			} else {
+				fileSave.type = file.file.type
+			}
+      const reader2 = new FileReader()
+      reader2.readAsDataURL(file.file)
+      reader2.onload = function (e) {
+				fileSave.content = e.target.result
+        // localthis.filepath = e.target.result
+				// prepare message structure
+				let messageHOP = {}
+				messageHOP.type = 'library'
+				messageHOP.action = 'contracts'
+				messageHOP.reftype = 'save-file'
+				messageHOP.privacy = 'private'
+				messageHOP.task = 'PUT'
+				messageHOP.data = fileSave
+				console.log(messageHOP)
+				storeLibrary.sendMessage(messageHOP)
+      }
+
 		} else {
 			// prepare file data for storage via HOP
+			console.log('smiople dave nothing??')
 			const reader2 = new FileReader()
 			// reader2.readAsText(fileData)
 			reader2.onloadend = function () {

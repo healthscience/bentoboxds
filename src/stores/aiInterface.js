@@ -179,6 +179,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     actionFileAskInput (fileData) {
+      console.log('file ask')
+      console.log(fileData)
       let aiMessageout = {}
       aiMessageout.type = 'bbai'
       aiMessageout.reftype = 'ignore'
