@@ -14,7 +14,6 @@
 </template>
 
 <script setup>
-import { defineEmits } from 'vue'
 
 defineProps({
 	file: { type: Object, required: true },
