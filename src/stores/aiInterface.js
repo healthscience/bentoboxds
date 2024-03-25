@@ -9,7 +9,7 @@ import { accountStore } from "@/stores/accountStore.js"
 
 export const aiInterfaceStore = defineStore('beebeeAIstore', {
   state: () => ({
-    accStore: accountStore(),
+    storeAcc: accountStore(),
     sendSocket: useSocketStore(),
     storeBentoBox: bentoboxStore(),
     storeLibrary: libraryStore(),
@@ -237,11 +237,25 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.qcount++
     },
     processReply (received) {
-      if (received.action === 'ai-task') {
-        console.log('third party AI')
-        console.log(received)
+      console.log(received)
+      if (received.action === 'agent-task') {
         this.boxModelUpdate[received.bbid] = {}
         this.boxModelUpdate[received.bbid] = received.data.model
+      } else if (received.type === 'hop-learn') {
+        console.log('hop learm start top update ....')
+        console.log(received)
+        if (received.action === 'cale-evolution') {
+          if (received.task === 'begin') {
+            console.log('set as active')
+            this.storeAcc.processAgentStatus(received.data)
+          }
+        } else if (received.action === 'cale-gpt4all') {
+          console.log('gpt4')
+          if (received.task === 'begin') {
+            console.log('set as active')
+            this.storeAcc.processAgentStatus(received.data)
+          }
+        }
       } else {
         // match to question via bbid
         let questionStart = {}
@@ -309,7 +323,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         this.beginChat = true
         this.chatBottom++
       } else if (received.action === 'warm-peer-new') {
-        this.accStore.warmPeers.push(received.data)
+        this.storeAcc.warmPeers.push(received.data)
       }
     },
     processPeerData (dataNetwork) {

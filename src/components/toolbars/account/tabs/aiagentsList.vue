@@ -7,7 +7,7 @@
       <div class="ai-agent-list" v-for="agent of agentList">
         <div class="agent-name">{{ agent.name }} <button id="start-llm-learn" @click="startAgentlearn(agent.name)">Begin</button></div>
         <div class="agent-description">A local Large Language Model</div>
-        <div class="agent-active" v-bind:class="{ active: agent.active }">Active = {{ agent.active }}</div>
+        <div class="agent-active" v-bind:class="{ active: agent.active }">Status: {{ agent.active }}</div>
       </div>
     </div>
   </div>

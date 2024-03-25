@@ -14,7 +14,7 @@ export const accountStore = defineStore('account', {
     publickeyDrive: [],
     publicKeysList: [],
     sharePubkey: '',
-    agentList: [{ name: 'cale-gpt4all', active: false }, {name: 'cale-evolution', active: true }]
+    agentList: [{ name: 'cale-gpt4all', active: false }, {name: 'cale-evolution', active: false }]
   }),
   actions: {
     processReply (received) {
@@ -74,6 +74,17 @@ export const accountStore = defineStore('account', {
       console.log('share')
       console.log(shareInfo)
       this.sendMessageHOP(shareInfo)
+    },
+    processAgentStatus (data) {
+      console.log('process agent status')
+      console.log(data)
+      for (let agent of this.agentList) {
+        if (agent.name === data.name) {
+          if (data.status === 'loaded') {
+            agent.active = true
+          }
+        }
+      }
     },
     sendMessageHOP (message) {
       console.log('mesage acc')
