@@ -13,7 +13,8 @@ export const accountStore = defineStore('account', {
     warmPeers: [],
     publickeyDrive: [],
     publicKeysList: [],
-    sharePubkey: ''
+    sharePubkey: '',
+    agentList: [{ name: 'cale-gpt4all', active: false }, {name: 'cale-evolution', active: true }]
   }),
   actions: {
     processReply (received) {

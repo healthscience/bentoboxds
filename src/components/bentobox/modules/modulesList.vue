@@ -86,7 +86,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
     let aiMessage = {}
     aiMessage.type = 'bbai'
     aiMessage.reftype = 'ai'
-    aiMessage.action = 'ai-task'
+    aiMessage.action = 'agent-task'
     aiMessage.task = 'cale-evolution'
     aiMessage.data = {}
     aiMessage.bbid = props.bboxid
