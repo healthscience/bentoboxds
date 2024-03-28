@@ -5,8 +5,8 @@
       <div id="conversation" v-if="beginChat === true"  v-for="chati in chatPairs">
         <div class="peer-ask">
           <img class="left-chat-peer" src="../.././assets/peerlogo.png" alt="Avatar">
-          <div v-if="chati.question.data.active === true" class="left-chat"> {{ chati.question.data.text }} </div>
-          <span class="left-chat">{{ chati.question.data.time }}</span>
+          <div v-if="chati.question?.data?.active === true" class="left-chat"> {{ chati.question?.data?.text }} </div>
+          <span class="left-chat">{{ chati.question?.data?.time }}</span>
         </div>
         <div class="beebee-reply" v-bind:class="{ active: chati.reply.network === true }">
           <span class="right-time">{{ chati.reply.time }}</span>
@@ -16,7 +16,13 @@
               <div v-if="chati.reply.type === 'hopquery'">
                 <span>Datatype: {{ chati.data.library.text }} for month {{ chati.data.time.words.day }} day {{ chati.data.time.words.month }}</span>--- <button id="new-query" @click.prevent="beebeeChartSpace(chati.data)">yes, produce chart</button>
               </div>
+              <div v-else-if="chati.reply.action === 'agent-response'">
+                {{ chati.reply.data }}
+              </div>
               <div v-else-if="chati.reply.type === 'bbai-reply'">
+                <div v-if="chati.reply?.action === 'hello'">
+                  {{ chati.reply.data }}
+                </div>
                 <div v-if="chati.reply.data?.type !== 'library-peerlibrary'">
                   <div class="beeebee-text">
                     {{ chati.reply.data.text}}

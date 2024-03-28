@@ -237,26 +237,28 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.qcount++
     },
     processReply (received) {
+      console.log('rrrrr')
       console.log(received)
       if (received.action === 'agent-task') {
-        this.boxModelUpdate[received.bbid] = {}
-        this.boxModelUpdate[received.bbid] = received.data.model
+        console.log('ai task  what type')
+        if (received.task === 'cale-evolution') {
+          console.log(received.model)
+          this.boxModelUpdate[received.context.bbid] = {}
+          this.boxModelUpdate[received.context.bbid] = received.model.model
+        }
       } else if (received.type === 'hop-learn') {
-        console.log('hop learm start top update ....')
-        console.log(received)
         if (received.action === 'cale-evolution') {
           if (received.task === 'begin') {
-            console.log('set as active')
             this.storeAcc.processAgentStatus(received.data)
           }
         } else if (received.action === 'cale-gpt4all') {
-          console.log('gpt4')
           if (received.task === 'begin') {
-            console.log('set as active')
             this.storeAcc.processAgentStatus(received.data)
           }
         }
       } else {
+        console.log('heelo')
+        console.log(received)
         // match to question via bbid
         let questionStart = {}
         let questionCount = []
@@ -489,7 +491,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.sendSocket.send_message(message)
     },
     prepareAI (message) {
-      this.sendMessageHOP(message)
+      // need to build DML structure, proof of work hash
+      // this.sendMessageHOP(message)
     }
   }
 })

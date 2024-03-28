@@ -5,9 +5,12 @@
         beebee will learn from other AI agents.
       </div>
       <div class="ai-agent-list" v-for="agent of agentList">
-        <div class="agent-name">{{ agent.name }} <button id="start-llm-learn" @click="startAgentlearn(agent.name)">Begin</button></div>
-        <div class="agent-description">A local Large Language Model</div>
-        <div class="agent-active" v-bind:class="{ active: agent.active }">Status: {{ agent.active }}</div>
+        <div class="agent-name">{{ agent.name }} </div>
+        <div class="agent-description">local machine learning</div>
+        <div class="agent-active" v-bind:class="{ active: agent.active }">
+          <div id="status-agent">Status: {{ agent.active }}</div>
+          <button id="start-llm-learn" @click="startAgentlearn(agent.name)">Begin</button>
+        </div>
       </div>
     </div>
   </div>
@@ -65,6 +68,7 @@ import { accountStore } from '@/stores/accountStore.js'
     width: 80%;
     grid-template-columns: 2fr 2fr 1fr;
     border-bottom: 1px solid lightgrey;
+    margin-bottom: 1em;
   }
 
   .active {
