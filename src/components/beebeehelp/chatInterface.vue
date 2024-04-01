@@ -25,7 +25,7 @@
                 </div>
                 <div v-if="chati.reply.data?.type !== 'library-peerlibrary'">
                   <div class="beeebee-text">
-                    {{ chati.reply.data.text}}
+                    {{ chati.reply?.data?.text}}
                     </div>
                     <div v-if="chati.reply?.data?.filedata" class="bee-file-data">{{ chati.reply.data.filedata }}
                       {{ chati.reply.data.filedata.type }} - {{ chati.reply.data.filedata.file?.name }} -- {{ chati.reply.data.filedata.columns}}

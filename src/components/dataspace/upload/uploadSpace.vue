@@ -141,39 +141,51 @@ const saveFiles = (files) => {
 			reader.readAsText(file.file)
 		}	else if (file.file.type !== 'text/csv') {
 			console.log('simple save SQLite file')
-			let fileSave = {}
-      fileSave.name = file.file.name
-      fileSave.path = file.url
-			fileSave.source = sourceLocation
-			if (file.file.type.length === 0) {
-				let splitExtension = file.file.name.split('.')
-				let matchExtension = ''
-				if (splitExtension[1] === 'db') {
-					matchExtension = 'sqlite'
+			console.log(file.file.type)
+			// check for pdf file 
+			if (file.file.type !== 'application/pdf') {
+				let fileSave = {}
+				fileSave.name = file.file.name
+				fileSave.path = file.url
+				fileSave.source = sourceLocation
+				if (file.file.type.length === 0) {
+					let splitExtension = file.file.name.split('.')
+					let matchExtension = ''
+					if (splitExtension[1] === 'db') {
+						matchExtension = 'sqlite'
+					} else {
+						matchExtension = splitExtension[1]
+					}
+					fileSave.type = matchExtension
 				} else {
-					matchExtension = splitExtension[1]
+					fileSave.type = file.file.type
 				}
-				fileSave.type = matchExtension
+				const reader2 = new FileReader()
+				reader2.readAsDataURL(file.file)
+				reader2.onload = function (e) {
+					fileSave.content = e.target.result
+					// localthis.filepath = e.target.result
+					// prepare message structure
+					let messageHOP = {}
+					messageHOP.type = 'library'
+					messageHOP.action = 'contracts'
+					messageHOP.reftype = 'save-file'
+					messageHOP.privacy = 'private'
+					messageHOP.task = 'PUT'
+					messageHOP.data = fileSave
+					console.log(messageHOP)
+					storeLibrary.sendMessage(messageHOP)
+				}
 			} else {
-				fileSave.type = file.file.type
+				console.log('prepare rag agg')
+				aiMessage.type = 'bbai'
+				aiMessage.reftype = 'ai'
+				aiMessage.action = 'agent-task'
+				aiMessage.task = 'cale-gpt4all-rag'
+				aiMessage.data = {}
+				aiMessage.bbid = props.bboxid
+				storeAI.prepareAI(aiMessage)
 			}
-      const reader2 = new FileReader()
-      reader2.readAsDataURL(file.file)
-      reader2.onload = function (e) {
-				fileSave.content = e.target.result
-        // localthis.filepath = e.target.result
-				// prepare message structure
-				let messageHOP = {}
-				messageHOP.type = 'library'
-				messageHOP.action = 'contracts'
-				messageHOP.reftype = 'save-file'
-				messageHOP.privacy = 'private'
-				messageHOP.task = 'PUT'
-				messageHOP.data = fileSave
-				console.log(messageHOP)
-				storeLibrary.sendMessage(messageHOP)
-      }
-
 		} else {
 			// prepare file data for storage via HOP
 			console.log('smiople dave nothing??')
