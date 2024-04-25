@@ -23,7 +23,13 @@
       <div id="ref-contracts-view" class="ref-group">
         <header>Reference Contracts</header>
         <div class="view-contract">
+          <button class="buttonexplore" id="questionCNRL" @click.prevent="viewRefContracts('question')">Question</button>
+        </div>
+        <div class="view-contract">
           <button class="buttonexplore" id="datatypesCNRL" @click.prevent="viewRefContracts('datatype')">datatypes</button>
+        </div>
+        <div class="view-contract">
+          <button class="buttonexplore"  id="packaingCNRL" @click.prevent="viewRefContracts('packaging')">Data Packaging</button>
         </div>
         <div class="view-contract">
           <button class="buttonexplore"  id="computeCNRL" @click.prevent="viewRefContracts('compute')">compute</button>
@@ -31,9 +37,6 @@
         <!-- <div class="view-contract">
           <button id="unitsCNRL" @click.prevent="viewRefContracts(CNRLunitseen.text)"> {{ CNRLunitseen.text }}</button>
         </div> -->
-        <div class="view-contract">
-          <button class="buttonexplore"  id="packaingCNRL" @click.prevent="viewRefContracts('packaging')">Data Packaging</button>
-        </div>
         <div class="view-contract">
           <button class="buttonexplore"  id="visualiseRefs" @click.prevent="viewRefContracts('visualise')">Visualise</button>
         </div>
@@ -129,7 +132,7 @@ import { accountStore } from '@/stores/accountStore.js'
 
     const viewRefContracts = (type) => {
       // ask network library for contracts for this peer
-      if (type === 'datatype' || type === 'compute' || type === 'packaging' || type === 'visualise') {
+      if (type === 'question' || type === 'datatype' || type === 'compute' || type === 'packaging' || type === 'visualise') {
         referenceLive.value = type
         referenceState.value = true
         moduleState.value = false
@@ -146,7 +149,6 @@ import { accountStore } from '@/stores/accountStore.js'
         referenceState.value = false
         resultsState.value = true
         ledgerState.value = false
-
       } else if (type === 'ledger') {
         moduleState.value = false
         referenceState.value = false
@@ -163,7 +165,7 @@ import { accountStore } from '@/stores/accountStore.js'
       shareInfo.reftype = 'publiclibrary'
       shareInfo.privacy = 'public'
       shareInfo.data = { discoverykey: pubLibrarykey.value }
-      console.log(shareInfo)
+      // console.log(shareInfo)
       storeAccount.sendMessageHOP(shareInfo)
     }
 

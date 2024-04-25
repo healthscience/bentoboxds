@@ -22,15 +22,17 @@
         <!-- <button class="submit" type="submit" id="check-new-refcontract" @click.prevent="checkRefContract()">Check Contract</button>
         <button class="submit" type="submit" id="network-library-submit" @click.prevent="networkLibraryRefContract()" >Submit to network library</button> -->
       </div>
-      <div class="api-form-item">
-        <section id="api-feedback">
-        </section>
+      <div v-if="savenxpSuccess" class="newnxp-form-feeback">
+        <div id="hop-feedback">
+          New network experiment saved.
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
+import NewQuestiontype from '@/components/library/contracts/contribute/forms/newQuestiontype.vue'
 import NewDatatype from '@/components/library/contracts/contribute/forms/newDatatype.vue'
 import NewCompute from '@/components/library/contracts/contribute/forms/newCompute.vue'
 import NewUnits from '@/components/library/contracts/contribute/forms/newUnits.vue'
@@ -43,6 +45,7 @@ import { ref, computed, markRaw} from 'vue'
 const storeLibrary = libraryStore()
 
 const formContribute = [
+  { type: 'question', form: markRaw(NewQuestiontype) },
   { type: 'datatype', form: markRaw(NewDatatype) },
   { type: 'compute', form: markRaw(NewCompute) },
   /* { type: 'units', form: shallowRef(NewUnits }, */
@@ -50,9 +53,14 @@ const formContribute = [
   { type: 'visualise', form: markRaw(NewVisualise) }
 ]
 
-  let contractformType = ref(markRaw({ type: 'datatype', form: NewDatatype }))
+  let contractformType = ref(markRaw({ type: 'question', form: NewDatatype }))
 
   /* computed */
+  
+  const savenxpSuccess = computed(() => {
+    return storeLibrary.saveSuccessnxp
+  })
+
   const newRefContractLive = computed(() => {
     // return this.$store.state.newRefcontractForm
   })
@@ -75,7 +83,9 @@ const saveRefContract = () => {
     refContract.reftype = contractformType.value.type
     refContract.task = 'PUT'
     refContract.privacy = 'public'
-    if (contractformType.value.type === 'datatype') {
+    if (contractformType.value.type === 'question') {
+      refContract.data = storeLibrary.questionForm
+    } else if (contractformType.value.type === 'datatype') {
       refContract.data = storeLibrary.datatypeForm
     } else if (contractformType.value.type === 'compute') {
       refContract.data = storeLibrary.newComputeForm

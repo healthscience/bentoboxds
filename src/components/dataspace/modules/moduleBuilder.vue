@@ -24,8 +24,6 @@
         v-on:dragstart="handleDragStart($event, newMod)"
       >
         <div class="mod-option-holder"
-          v-on:dragover.prevent
-          v-on:drop="handleRefDrop($event, 'mod-option-holder')"
         >
           <component :is="componentsNew[newMod.name]"></component>
       </div>
@@ -36,11 +34,11 @@
       v-on:drop="handleDrop($event, 'refcontract-selected')"
     >
       <div class="ref-selected"
-        v-for="newRef in storeLibrary.refcontractOption" 
+        v-for="newRef in libraryAvailable" 
         draggable="true"
-        v-on:dragstart="handleDragStart($event, newRef)"
+        v-on:dragstart="handleDragRefStart($event, newRef)"
       >
-        ref-- {{ newRef.name }}
+        ref-- {{ newRef.value.refcontract }} {{ newRef.value.concept.name }} 
       </div>
     </div>
   </div>
@@ -49,7 +47,6 @@
 <script setup>
 import { ref, shallowRef, computed } from 'vue'
 
-// import draggable from 'vuedraggable'
 import NxpQuestion from '@/components/dataspace/modules/nxpQuestion.vue'
 import NxpDevice from '@/components/dataspace/modules/nxpDevice.vue'
 import NxpDapp from '@/components/dataspace/modules/nxpDapp.vue'
@@ -57,12 +54,8 @@ import NxpCompute from '@/components/dataspace/modules/nxpCompute.vue'
 import NxpControl from '@/components/dataspace/modules/nxpControl.vue'
 import NxpVisualise from '@/components/dataspace/modules/nxpBuildVisualise.vue'
 
-import { aiInterfaceStore } from '@/stores/aiInterface.js'
-import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 
-  const storeAI = aiInterfaceStore()
-  const bboxStore = bentoboxStore()
   const storeLibrary = libraryStore()
   const componentsNew = shallowRef({ question: NxpQuestion, data: NxpDevice, compute: NxpCompute, visualise: NxpVisualise })
 
@@ -70,6 +63,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   /* computed */
   const libraryAvailable = computed (() => {
+    return storeLibrary.publicLibrary[storeLibrary.moduleNxpActive]
   })
 
 
@@ -77,15 +71,18 @@ import { libraryStore } from '@/stores/libraryStore.js'
     event.dataTransfer.setData('application/json', JSON.stringify(itemData))
   }
 
+  const handleDragRefStart = (event, itemData) => {
+    refDrop.value = true
+    event.dataTransfer.setData('application/json', JSON.stringify(itemData))
+  }
+
   const handleDrop = (event, targetContainer) => {
-    console.log('dropH')
     if (refDrop.value === false) {
-      console.log('false through')
       const itemData = JSON.parse(event.dataTransfer.getData('application/json'))
-      console.log('iteme tyoep')
-      console.log(itemData)
       if (itemData.ref !== true) {
         if (targetContainer === 'modules-selected') {
+          // set as active module contract type
+          setModType(itemData)
           storeLibrary.newModuleList = storeLibrary.newModuleList.filter(i => i.id !== itemData.id)
           storeLibrary.newModuleList.push(itemData)
           // remove from available list
@@ -97,19 +94,39 @@ import { libraryStore } from '@/stores/libraryStore.js'
           storeLibrary.newModuleList = storeLibrary.newModuleList.filter(i => i.id !== itemData.id)
         }
       }
+    } else {
+      console.log('dro ref is true')
+      handleRefDrop(event, targetContainer)
     }
   }
 
   const handleRefDrop = (event, targetContainer) => {
-    console.log('drop REF')
-    event.preventDefault()
-    console.log(event)
-    refDrop.value = true
-    // add to module
-    storeLibrary.buildNewExperiment.push('refcontract')
-    // return drop value
+    let dropItem = JSON.parse(event.dataTransfer.getData('application/json'))
+    // match to module and add
+    if (dropItem?.value?.refcontract === 'question') {
+      storeLibrary.newnxp.questionLive.push(dropItem)
+    } else if (dropItem?.value?.refcontract === 'packaging') {
+      storeLibrary.newnxp.packagingLive.push(dropItem)
+    } else if (dropItem?.value?.refcontract === 'compute') {
+     storeLibrary.newnxp.computeLive.push(dropItem)
+    } else if (dropItem?.value?.refcontract === 'visualise') {
+      storeLibrary.newnxp.visualiseLive.push(dropItem)
+    }
     refDrop.value = false
   }
+
+  const setModType = (item) => {
+    if (item?.name) {
+      if (item.name === 'data') {
+        storeLibrary.moduleNxpActive = 'packaging'
+      } else {
+        storeLibrary.moduleNxpActive = item.name
+      }
+    } else {
+      storeLibrary.moduleNxpActive = item.refcontract
+    }
+  }
+
 
 </script>
 
@@ -145,6 +162,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
   .mod-active {
     background-color: antiquewhite;
     width: 80%;
+    max-height: 100px;
     margin: 0.5em;
   }
 
@@ -161,8 +179,16 @@ import { libraryStore } from '@/stores/libraryStore.js'
   #refcontract-selected {
     display: grid;
     grid-template-columns: 1fr;
+    align-items: center;
     border: 1px solid grey;
     padding: 1em;
+    height: inherit;
+    border: 1px solid blue;
+  }
+
+  .ref-selected {
+    display: grid;
+    border: 1px solid grey;
     height: 60px;
   }
 

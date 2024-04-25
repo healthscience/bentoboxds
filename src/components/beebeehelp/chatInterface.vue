@@ -12,7 +12,7 @@
           <span class="right-time">{{ chati.reply.time }}</span>
           <div class="reply-text-chart">
             <div class="right-chat">
-              {{ chati.reply.type }}
+              {{ chati.reply.type }}  {{ chati.reply.action }}
               <div v-if="chati.reply.type === 'hopquery'">
                 <span>Datatype: {{ chati.data.library.text }} for month {{ chati.data.time.words.day }} day {{ chati.data.time.words.month }}</span>--- <button id="new-query" @click.prevent="beebeeChartSpace(chati.data)">yes, produce chart</button>
               </div>
@@ -22,6 +22,9 @@
               <div v-else-if="chati.reply.type === 'bbai-reply'">
                 <div v-if="chati.reply?.action === 'hello'">
                   {{ chati.reply.data }}
+                </div>
+                <div v-if="chati.reply?.action === 'library'">
+                  <button @click="openLibrary">open library</button>
                 </div>
                 <div v-if="chati.reply.data?.type !== 'library-peerlibrary'">
                   <div class="beeebee-text">
@@ -51,15 +54,15 @@
                 <button @click="openLibrary">open library</button>
               </div>
               <div v-else>
-                {{ chati.reply.data.text }}
+                {{ chati.reply?.data?.text }}
                 <div v-if="chati.reply.action === 'upload'">
                   <button id="upload-button" @click="uploadButton">Click to upload file</button>
                 </div>
               </div>
             </div>
-            <div id="beebee-chartspace" v-if="storeAI.beebeeChatLog[chati.question.bbid] === true">
+            <div id="beebee-chartspace" v-if="storeAI.beebeeChatLog[chati?.question?.bbid] === true">
               <!--the slimed down bentobox to chart and bring in tools as needed-->
-              <bento-box :bboxid="chati.question.bbid"></bento-box>
+              <bento-box :bboxid="chati?.question?.bbid"></bento-box>
             </div>
           </div>
           <div class="beebee">

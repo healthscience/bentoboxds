@@ -140,10 +140,11 @@ const saveFiles = (files) => {
 			}
 			reader.readAsText(file.file)
 		}	else if (file.file.type !== 'text/csv') {
-			console.log('simple save SQLite file')
+			console.log('not csv file, what type is it?')
 			console.log(file.file.type)
 			// check for pdf file 
 			if (file.file.type !== 'application/pdf') {
+				console.log('not pdf file')
 				let fileSave = {}
 				fileSave.name = file.file.name
 				fileSave.path = file.url
@@ -177,14 +178,15 @@ const saveFiles = (files) => {
 					storeLibrary.sendMessage(messageHOP)
 				}
 			} else {
-				console.log('prepare rag agg')
+				console.log('prepare PDF or text for Embedding')
+				let aiMessage = {}
 				aiMessage.type = 'bbai'
 				aiMessage.reftype = 'ai'
 				aiMessage.action = 'agent-task'
 				aiMessage.task = 'cale-gpt4all-rag'
-				aiMessage.data = {}
-				aiMessage.bbid = props.bboxid
-				storeAI.prepareAI(aiMessage)
+				aiMessage.data = { text: 'please add this data to medical learning rag'}
+				aiMessage.bbid = '' // props.bboxid
+				storeAI.sendMessageHOP(aiMessage)
 			}
 		} else {
 			// prepare file data for storage via HOP

@@ -210,6 +210,7 @@ export const bentoboxStore = defineStore('bentostore', {
         updateBox.dragSelector = ref('.drag-container-1, .drag-container-2')
         this.locationBbox[space][bbox] = updateBox
         this.locationStart+= 40
+        console.log(this.locationStart)
       }
     },
     saveLayoutSpace (spaceID) {

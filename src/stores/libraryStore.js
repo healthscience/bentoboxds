@@ -9,7 +9,7 @@ export const libraryStore = defineStore('librarystore', {
   state: () => ({
     libraryStatus: false,
     libPeerview: false,
-    newNXP: false,
+    newNXPstatus: false,
     storeAI: aiInterfaceStore(),
     utilLibrary: new LibraryUtility(),
     sendSocket: useSocketStore(),
@@ -18,16 +18,28 @@ export const libraryStore = defineStore('librarystore', {
     uploadStatus: false,
     restStatus: false,
     peerExperimentList: {
-      data: [1, 2, 3],
-      column: ['a', 'b', 'c']
+      columns: ['id', 'name', 'description', 'time', 'device', 'action'],
+      data: []
     },
     publicLibrary: [],
+    listPublicNXP: [],
     peerLibrary: [],
     peerResults: [],
     peerLedger: [],
     peerLibraryNXP: [],
     newRefcontractForm: {},
     genesisModules: [],
+    saveSuccessnxp: false,
+    newnxp: {
+      questionLive: [],
+      packagingLive: [],
+      computeLive: [],
+      visualiseLive: []
+    },
+    questionForm: {
+      primary: Boolean,
+      name: ''
+    },
     datatypeForm: {
       primary: Boolean,
       name: '',
@@ -117,7 +129,7 @@ export const libraryStore = defineStore('librarystore', {
     newLists: {},
     newModuleList: [],
     buildNewExperiment: [],
-    refcontractOption: [ { ref: true, id: 'ref1', name: 'compute' }],
+    moduleNxpActive: 'question',
     dtcolumns: [],
     fileSaveStatus: false,
     fileFeedback: ''
@@ -125,8 +137,6 @@ export const libraryStore = defineStore('librarystore', {
   actions: {
     // since we rely on `this`, we cannot use an arrow function
     processReply (message, questionStart) {
-      // console.log('library back')
-      // console.log(message)
       if (message.action === 'save-file') {
         // set message
         if (message.task === 'sqlite') {
@@ -159,6 +169,7 @@ export const libraryStore = defineStore('librarystore', {
           this.libraryMessage = message.data
           this.newPackagingForm.apicolumns = message.data.data.headerinfo.splitwords
         }
+      } else if (message.type === 'library-open') {
       } else if (message.type === 'publiclibrary') {
         let typeRefcontracts = Object.keys(message.referenceContracts)
         // look over and see if the library has been setup?
@@ -175,24 +186,33 @@ export const libraryStore = defineStore('librarystore', {
         } else {
           this.publicLibrary = message.referenceContracts
         }
-      } else if (message.action === 'library-peerlibrary') {
+      } else if (message.action === 'peer-library') {
         // prepare network experiment lists
         let newPair = {}
         newPair.question = questionStart
         newPair.reply = message.data
         this.storeAI.historyPair[this.storeAI.chatAttention].push(newPair)
         // peer library data
-        this.peerLibrary = message.data.data.referenceContracts
+        this.peerLibrary = message.referenceContracts
         // prepare the list of peer experiments for library display
-        if (message.data.data.networkPeerExpModules.length > 0) {
-          this.peerExperimentList = this.utilLibrary.prepareBentoSpaceJoinedNXPlist(message.data.data.networkPeerExpModules)
+        if (message.networkPeerExpModules.length > 0) {
+          this.peerExperimentList = this.utilLibrary.prepareBentoSpaceJoinedNXPlist(message.networkPeerExpModules)
           // keep track NXP contract bundle
           this.peerLibraryNXP = message.data.data.networkPeerExpModules
         }
-      } else if (message.action === 'new-experiment') {
-        console.log('new NXP')
-        console.log(message)
+      } else if (message.action === 'new-modules') {
         this.genesisModules = message.data.modules
+      } else if (message.action === 'new-experiment') {
+        // notify peer created success
+        this.saveSuccessnxp = true
+        // now clear the module builder forms hodlers
+        let resetNXP = {
+          questionLive: [],
+          packagingLive: [],
+          computeLive: [],
+          visualiseLive: []
+        }
+        this.newnxp = resetNXP
       } else if (message.action === 'replicate-publiclibrary') {
         this.sendMessage('get-library')
         this.sendMessage('get-results')
@@ -201,6 +221,18 @@ export const libraryStore = defineStore('librarystore', {
       } else if (message.action === 'ledger') {
         this.peerLedger = message.data
       }
+    },
+    prepareJoinNXPMessage (contractID, action) {
+      let contractData = this.utilLibrary.matchPublicNXPcontract(contractID.id, this.publicLibrary.experiment)
+      let libMessageout = {}
+      libMessageout.type = 'library'
+      libMessageout.action = 'contracts'
+      libMessageout.reftype = 'experiment'
+      libMessageout.privacy = 'private'
+      libMessageout.task = 'join'
+      libMessageout.data = contractData
+      libMessageout.bbid = 'lib' + contractID.id
+      this.sendSocket.send_message(libMessageout)
     },
     prepareLibraryMessage (contractID, action) {
       let contractData = this.utilLibrary.matchNXPcontract(contractID, this.peerLibraryNXP)
@@ -213,6 +245,33 @@ export const libraryStore = defineStore('librarystore', {
       libMessageout.data = contractData
       libMessageout.bbid = 'nxp-123'
       this.sendSocket.send_message(libMessageout)
+    },
+    prepareGenesisModContracts (message) {
+      let aiMessageout = {}
+      aiMessageout.type = 'library'
+      aiMessageout.reftype = 'ignore'
+      aiMessageout.action = 'contracts'
+      aiMessageout.task = 'modules-genesis'
+      aiMessageout.privacy = 'public'
+      aiMessageout.data = {}
+      aiMessageout.bbid = ''
+      this.sendSocket.send_message(aiMessageout)
+    },
+    prepareGenesisContract (message) {
+      let libMessage = {}
+      libMessage.type = 'library'
+      libMessage.reftype = 'ignore'
+      libMessage.action = 'contracts'
+      libMessage.task = 'experiment-genesis'
+      libMessage.privacy = 'public'
+      libMessage.data = message
+      libMessage.bbid = ''
+      // this.sendMessageHOP(aiMessageout)
+      this.sendSocket.send_message(libMessage)
+    },
+    prepPublicNXPlist () {
+      console.log(this.publicLibrary)
+      this.listPublicNXP = this.utilLibrary.preparePublicNXPlist(this.publicLibrary)
     },
     sendMessage (hopMessage) {
       if (hopMessage === 'get-library') {
@@ -231,7 +290,6 @@ export const libraryStore = defineStore('librarystore', {
         refContract2.privacy = 'private' // 'privatelibrary'
         refContract2.reftype = 'private' // 'privatelibrary'
         refContract2.task = 'GET'
-        // refContract2.jwt = this.state.jwttoken
         this.sendSocket.send_message(refContract2)
       } else if (hopMessage === 'get-results')  {
         const resultsPeer = {}

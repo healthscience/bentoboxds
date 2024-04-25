@@ -1,4 +1,4 @@
-import { shallowRef, markRaw } from 'vue'
+import { shallowRef, markRaw, nextTick } from 'vue'
 import { defineStore } from 'pinia'
 import hashObject from 'object-hash'
 import { useSocketStore } from '@/stores/socket.js'
@@ -179,8 +179,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     actionFileAskInput (fileData) {
-      console.log('file ask')
-      console.log(fileData)
       let aiMessageout = {}
       aiMessageout.type = 'bbai'
       aiMessageout.reftype = 'ignore'
@@ -203,7 +201,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
       if (matchQuestion.text.length > 0) {
         let hashQuestion = hashObject(matchQuestion)
-        // thisstate.helpchatAsk, 'active', true
         let aiMessageout = {}
         aiMessageout.type = 'bbai'
         aiMessageout.reftype = 'ignore'
@@ -237,12 +234,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.qcount++
     },
     processReply (received) {
-      console.log('rrrrr')
-      console.log(received)
       if (received.action === 'agent-task') {
-        console.log('ai task  what type')
         if (received.task === 'cale-evolution') {
-          console.log(received.model)
           this.boxModelUpdate[received.context.bbid] = {}
           this.boxModelUpdate[received.context.bbid] = received.model.model
         }
@@ -257,8 +250,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           }
         }
       } else {
-        console.log('heelo')
-        console.log(received)
         // match to question via bbid
         let questionStart = {}
         let questionCount = []
@@ -295,6 +286,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           }
         }
         if (received.action === 'library-peerlibrary' || 'publiclibrary') {
+          console.log('library')
           this.storeLibrary.processReply(received, questionStart)
         }
         // check if reply is upload?  If yes, present upload interface
@@ -437,17 +429,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         }
       }
     },
-    prepareGenesisContracts (message) {
-      let aiMessageout = {}
-      aiMessageout.type = 'library'
-      aiMessageout.reftype = 'ignore'
-      aiMessageout.action = 'contracts'
-      aiMessageout.task = 'experiment-genesis'
-      aiMessageout.privacy = 'public'
-      aiMessageout.data = {}
-      aiMessageout.bbid = ''
-      this.sendMessageHOP(aiMessageout)
-    },
     prepareBentoBoxSave (message) {
       let settingsData = this.historyPair[message.data.chatid]
       let bbidPerChat = []
@@ -492,7 +473,18 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     },
     prepareAI (message) {
       // need to build DML structure, proof of work hash
-      // this.sendMessageHOP(message)
+      // ask library for NXP contract
+      console.log(message)
+      this.prepareLibrarySummary(message.bbid)
+      console.log(this.hopSummary)
+      let nxpContract = this.boxLibSummary[message.bbid]
+      if (message.action == 'agent-task') {
+        this.sendMessageHOP(message)
+      } else if (message.action === 'agent-network-task') {
+        message.data = nxpContract.data
+        this.sendMessageHOP(message)
+      }
+
     }
   }
 })

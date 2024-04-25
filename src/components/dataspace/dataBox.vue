@@ -16,9 +16,9 @@
           <div id="return-modal-close" @click="closedataBox">return</div>
         </div>
         <h3>Data Box</h3>
-        <button @click="networkLibraryShow">Library</button>
-        <button @click="nxpLibraryPeer">Experiments</button>
-        <button @click="nxpAdd">+ new NXP</button>
+        <button class="button-lib-data" v-bind:class="{ active: libAction === 'libraryexplorer' }" @click="networkLibraryShow">Library</button>
+        <button class="button-lib-data" v-bind:class="{ active: libAction === 'libraryexperiments' }" @click="nxpLibraryPeer">Experiments</button>
+        <button class="button-lib-data" v-bind:class="{ active: libAction === 'newexperiment' }" @click="nxpAdd">+ new NXP</button>
       </template>
       <template #body>
         <space-upload v-if="uploadStatus === true"></space-upload>
@@ -27,7 +27,7 @@
         <div v-if="libraryStatus === true">
           <network-library></network-library>
         </div>
-        <library-view v-if="storeLibrary.libPeerview === true"></library-view>
+        <libraryexp-view v-if="storeLibrary.libPeerview === true"></libraryexp-view>
         <newnxp-view v-if="storeLibrary.newNXP === true"></newnxp-view>
       </template>
       <template #footer>
@@ -43,7 +43,7 @@ import SpaceUpload from '@/components/dataspace/upload/uploadSpace.vue'
 import RestUpload from '@/components/dataspace/upload/restUpload.vue'
 import CsvPreview from '@/components/dataspace/upload/csvPreview.vue'
 import NetworkLibrary from '@/components/library/index.vue'
-import LibraryView from '@/components/dataspace/libraryNXPView.vue'
+import LibraryexpView from '@/components/dataspace/libraryNXPView.vue'
 import NewnxpView from '@/components/dataspace/newnxpView.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
@@ -54,6 +54,8 @@ import { libraryStore } from '@/stores/libraryStore.js'
   const storeLibrary = libraryStore()
   const showModal = ref(true)
   
+  let libAction = ref('')
+
   const uploadStatus = computed(() => {
     return storeLibrary.uploadStatus
   })
@@ -61,7 +63,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
   const restStatus = computed(() => {
     return storeLibrary.restStatus
   })
-
 
   const dataBoxStatus = computed(() => {
     return storeAI.dataBoxStatus
@@ -83,17 +84,35 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   const networkLibraryShow = () => {
     storeLibrary.libraryStatus = !storeLibrary.libraryStatus
+    if (storeLibrary.libraryStatus === true) {
+      libAction.value = 'libraryexplorer'
+    } else {
+      libAction.value = ''
+    }
   }
 
   const nxpLibraryPeer = () => {
     storeLibrary.libPeerview = !storeLibrary.libPeerview
+    if (storeLibrary.libPeerview === true) {
+      libAction.value = 'libraryexperiments'
+    } else {
+      libAction.value = ''
+    }
+    // prepare public library for table list view
+    storeLibrary.prepPublicNXPlist()
   }
 
   const nxpAdd = () => {
     storeLibrary.newNXP = !storeLibrary.newNXP
+    if (storeLibrary.newNXP === true) {
+      libAction.value = 'newexperiment'
+    } else {
+      libAction.value = ''
+    }
     // send message to HOP to create genesis NXP contract structure
     if (storeLibrary.newNXP === true) {
-      storeAI.prepareGenesisContracts()
+      storeLibrary.prepareGenesisModContracts()
+      storeLibrary.saveSuccessnxp = false
     }
   }
 </script>
@@ -132,7 +151,9 @@ import { libraryStore } from '@/stores/libraryStore.js'
       justify-content: right;
     }
 
-
+    .active {
+      background-color: green;
+    }
   }
 
 </style>

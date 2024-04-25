@@ -79,7 +79,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   let modulesShow = ref(false)
 
   /* drag drop move resize */
-  const tW = 440
+  const tW = 880
   const tH = 440
   const handlers = ref(["r", "rb", "b", "lb", "l", "lt", "t", "rt"])
   let left = ref(`calc(2% - ${tW / 2}px)`)

@@ -10,20 +10,20 @@
             </div>
             <button type="button" class="computeref-add" id="compute-btn" @click="refContractLookup()">Lookup</button>
           </div>
-          <div id="contract-summary" v-if="computesource.length > 0">{{ computesource }}
-            <div v-for="cs of computesource" :key="cs.id">
-              <div class="compute-refspace" v-if="refContractCompute[cs]">
+          <div id="contract-summary" v-if="computesource.length > 0">
+            <div v-for="cs of computesource">dd
+              <div class="compute-refspace">
                 <div class="compute-refcontract">
-                  {{ refContractCompute[cs].option.key }} -
+                  {{ cs.key }} -
                 </div>
                 <div class="compute-refcontract">
-                  {{ refContractCompute[cs].option.value.computational.name }} -
+                  {{ cs.value.computational.name }} -
                 </div>
                 <div class="compute-refcontract">
-                  {{ refContractCompute[cs].option.value.computational.description}} -
+                  {{ cs.value.computational.description}} -
                 </div>
                 <div class="compute-refcontract">
-                  {{ refContractCompute[cs].option.value.computational.code }} -
+                  {{ cs.value.computational.code }} -
                 </div>
               </div>
             </div>
@@ -51,7 +51,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
   })
 
   const computesource = computed (() => {
-    return storeLibrary.buildNewExperiment
+    return storeLibrary.newnxp.computeLive
   })
 
   /* method */

@@ -3,19 +3,19 @@
     <div class="list-table">
       <div class="table-header">
         <div class="row-header">
-          <div class="header-items" v-for="key in props.columns" :key="key.id">
-            {{ key }}
+          <div class="header-items" v-for="col in props.columns">
+           {{ col }}
           </div>
         </div>
       </div>
-      <div class="table-rows">
-        <div class="alternate-bk" v-for="entry in props.experiments" :key="entry.id">
-          <div class="table-row-columns" v-for="key in props.columns" :key="key.id">
-            <div v-if="key !== 'action'">
-            {{entry[key]}}
+      <div v-if="props.experiments.length > 0" class="table-rows">
+        <div class="alternate-bk" v-for="entry in props.experiments">
+          <div class="table-row-columns" v-for="col in props.columns">
+            <div v-if="col !== 'action'">
+            {{ col }} {{ entry[col] }}
             </div>
             <div v-else>
-              <button type="button" class="btn" @click="actionBoard(entry.id, entry)">{{ entry[key] }}</button>
+              <button type="button" class="btn" @click="actionBoard(entry, entry[col])">{{ entry[col] }}</button>
             </div>
           </div>
         </div>
@@ -34,8 +34,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   const props = defineProps({
     experiments: Array,
-    columns: Array,
-    filterKey: String
+    columns: Array
   })
 
   const sortBy = (key) => {
@@ -44,6 +43,8 @@ import { libraryStore } from '@/stores/libraryStore.js'
   }
 
   const actionBoard = (board, NXPcontract) => {
+    console.log(board)
+    console.log(NXPcontract)
       if (NXPcontract.action === 'View') {
         console.log('view bentoboard and its boxes')
         storeLibrary.prepareLibraryMessage(board, 'networkexperiment')
@@ -51,6 +52,10 @@ import { libraryStore } from '@/stores/libraryStore.js'
         // this.$store.dispatch('actionDashboardState', board)
         // close BeeBee
         // this.$store.dispatch('actionBBstate')
+      } else if (NXPcontract === 'Join') {
+        console.log('join this NXP and make private nxp')
+        console.log(board)
+        storeLibrary.prepareJoinNXPMessage(board, 'join')
       } else {
         console.log('preview')
         // preview network experiment
@@ -161,6 +166,7 @@ export default {
 }
 
 .list-table {
+  display: grid;
 }
 
 .row-header {

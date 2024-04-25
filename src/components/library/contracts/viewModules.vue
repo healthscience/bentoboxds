@@ -136,6 +136,8 @@ import { ref, computed } from 'vue'
       viewType.value = 'module-view'
       moduleLive = 'module'
     }
+    console.log('peer library--- compu')
+    console.log(storeLibrary.peerLibrary[moduleLive])
     return storeLibrary.peerLibrary[moduleLive]
   })
 

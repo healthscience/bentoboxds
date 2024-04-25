@@ -1,11 +1,11 @@
 <template>
-  <div id="module-referencecontract">
+  <div id="question-referencecontract">
     <header
       class="viewer-header"
       id="modalTitle"
     >
       <slot name="header">
-        This is a experiment
+        This is the default tile!
       </slot>
     </header>
     <section
@@ -13,44 +13,29 @@
       id="refcdescription"
     >
       <slot name="body">
-        experiment Reference Contract Info
+        Question Reference Contract Info
       </slot>
     </section>
     <footer class="board-footer">
       <slot name="footer">
-        Close
       </slot>
     </footer>
   </div>
 </template>
 
-<script>
-export default {
-  name: 'module-refcontract',
-  components: {
-  },
-  computed: {
-  },
-  data: () => ({
-  }),
-  created () {
-  },
-  mounted () {
-  },
-  methods: {
-  }
-}
+<script setup>
+
 </script>
 
-<style>
-#module-referencecontract {
-  text-align: center;
+<style scoped>
+#question-referencecontract {
+  text-align: left;
+  margin: 2em;
   background-color: #e6e6ff;
-  margin-bottom: 2em;
+  border: 1px solid lightgrey;
 }
 
 .viewer-header {
-  text-align: center;
   font-size: 2em;
   font-weight: bold;
 }
