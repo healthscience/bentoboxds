@@ -224,51 +224,54 @@ export default {
 </script>
 
 <style scoped>
-#newpackage-view {
-  display: grid;
-  grid-template-columns: 1fr;
-  font-size: 1.2em;
-}
 
-.package-form-item {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  margin: 1em;
-  list-style: none;
-}
+@media (min-width: 1024px) {
+  #newpackage-view {
+    display: grid;
+    grid-template-columns: 1fr;
+    font-size: 1.2em;
+  }
 
-.package-form-item label {
-  border: 0px solid red;
-  margin-right: 1em;
-  justify-self: end;
-}
+  .package-form-item {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin: 1em;
+    list-style: none;
+  }
 
-.pack-info {
-  padding: 1em;
-  list-style: none;
-}
+  .package-form-item label {
+    border: 0px solid red;
+    margin-right: 1em;
+    justify-self: end;
+  }
 
-#source-holder {
-  display: grid;
-  border: 2px solid rgb(0, 0, 0);
-}
+  .pack-info {
+    padding: 1em;
+    list-style: none;
+  }
 
-#auto-column {
-  margin-left: 2em;
-  border: 1px solid red;
-}
+  #source-holder {
+    display: grid;
+    border: 2px solid rgb(0, 0, 0);
+  }
 
-.package-column-item {
-  padding-bottom: 1em;
-  list-style: none;
-}
+  #auto-column {
+    margin-left: 2em;
+    border: 1px solid red;
+  }
 
-#sqlite-table-name {
-  margin-bottom: 1em;
-}
+  .package-column-item {
+    padding-bottom: 1em;
+    list-style: none;
+  }
 
-#table-name-sqlite {
-  width: 300px;
+  #sqlite-table-name {
+    margin-bottom: 1em;
+  }
+
+  #table-name-sqlite {
+    width: 300px;
+  }
 }
 
 </style>

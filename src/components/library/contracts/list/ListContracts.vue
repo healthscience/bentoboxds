@@ -43,8 +43,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
   }
 
   const actionBoard = (board, NXPcontract) => {
-    console.log(board)
-    console.log(NXPcontract)
       if (NXPcontract.action === 'View') {
         console.log('view bentoboard and its boxes')
         storeLibrary.prepareLibraryMessage(board, 'networkexperiment')

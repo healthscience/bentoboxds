@@ -127,6 +127,7 @@ export const libraryStore = defineStore('librarystore', {
     },
     sourceDataSelected: false,
     newLists: {},
+    newListsave: {},
     newModuleList: [],
     buildNewExperiment: [],
     moduleNxpActive: 'question',
@@ -163,11 +164,11 @@ export const libraryStore = defineStore('librarystore', {
 					newPair.question = question
 					newPair.reply = bbReply
 					this.storeAI.historyPair[this.storeAI.chatAttention].push(newPair)
-
-
+          this.newDatafile.columns = message.data.columns
         } else {
           this.libraryMessage = message.data
           this.newPackagingForm.apicolumns = message.data.data.headerinfo.splitwords
+          this.newDatafile.columns = message.data.columns
         }
       } else if (message.type === 'library-open') {
       } else if (message.type === 'publiclibrary') {
@@ -184,7 +185,7 @@ export const libraryStore = defineStore('librarystore', {
         if (checkSetup === false) {
           this.startLibrary = true
         } else {
-          this.publicLibrary = message.referenceContracts
+          this.publicLibrary = message
         }
       } else if (message.action === 'peer-library') {
         // prepare network experiment lists
@@ -223,7 +224,7 @@ export const libraryStore = defineStore('librarystore', {
       }
     },
     prepareJoinNXPMessage (contractID, action) {
-      let contractData = this.utilLibrary.matchPublicNXPcontract(contractID.id, this.publicLibrary.experiment)
+      let contractData = this.utilLibrary.matchPublicNXPcontract(contractID.id, this.publicLibrary.networkExpModules)
       let libMessageout = {}
       libMessageout.type = 'library'
       libMessageout.action = 'contracts'
@@ -271,7 +272,7 @@ export const libraryStore = defineStore('librarystore', {
     },
     prepPublicNXPlist () {
       console.log(this.publicLibrary)
-      this.listPublicNXP = this.utilLibrary.preparePublicNXPlist(this.publicLibrary)
+      this.listPublicNXP = this.utilLibrary.preparePublicNXPlist(this.publicLibrary.referenceContracts)
     },
     sendMessage (hopMessage) {
       if (hopMessage === 'get-library') {

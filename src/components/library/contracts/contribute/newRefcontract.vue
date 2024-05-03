@@ -18,7 +18,7 @@
       </div>
       <component :is="contractformType.form" ></component>
       <div class="api-form-item">
-        <button class="submit-save" type="submit"  id="save-new-refcontract" @click.prevent="saveRefContract()">Save</button>
+        <button class="submit-save" type="submit"  id="save-new-refcontract" @click.prevent="saveRefContract()">Save contract</button>
         <!-- <button class="submit" type="submit" id="check-new-refcontract" @click.prevent="checkRefContract()">Check Contract</button>
         <button class="submit" type="submit" id="network-library-submit" @click.prevent="networkLibraryRefContract()" >Submit to network library</button> -->
       </div>
@@ -100,45 +100,48 @@ const saveRefContract = () => {
 </script>
 
 <style scoped>
-#newapi-view {
-  display: grid;
-  justify-content: center;
-  background-color: #EBE7E0;
-  border: 4px solid lightgrey;
-  padding: 10px;
-}
 
-#newapi_form {
-  display: grid;
-  grid-template-columns: 1fr;
-  width: 90%;
-  justify-content: center;
-  align-content: center;
-  min-width: 360px;
-}
+@media (min-width: 1024px) {
+  #newapi-view {
+    display: grid;
+    justify-content: center;
+    background-color: #EBE7E0;
+    border: 4px solid lightgrey;
+    padding: 10px;
+  }
 
-.api-form-item {
-  display: grid;
-  grid-template-columns: 1fr;
-  padding-bottom: 2em;
-}
+  #newapi_form {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 90%;
+    justify-content: center;
+    align-content: center;
+    min-width: 360px;
+  }
 
-#form-api-section {
-  font-size: 1.2em;
-}
+  .api-form-item {
+    display: grid;
+    grid-template-columns: 1fr;
+    padding-bottom: 2em;
+  }
 
-.select-api-id {
-  width: 50%;
-  font-size: 1.2em;
-}
+  #form-api-section {
+    font-size: 1.2em;
+  }
 
-label {
-  margin-bottom: .5em;
-}
+  .select-api-id {
+    width: 50%;
+    font-size: 1.2em;
+  }
 
-#save-new-refcontract {
-  display: grid;
-  text-align: center;
-  font-size: 2em;
+  label {
+    margin-bottom: .5em;
+  }
+
+  #save-new-refcontract {
+    display: grid;
+    text-align: center;
+    font-size: 2em;
+  }
 }
 </style>

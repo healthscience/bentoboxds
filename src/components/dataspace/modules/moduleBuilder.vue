@@ -63,7 +63,9 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   /* computed */
   const libraryAvailable = computed (() => {
-    return storeLibrary.publicLibrary[storeLibrary.moduleNxpActive]
+    console.log(storeLibrary.publicLibrary)
+    console.log(storeLibrary.moduleNxpActive)
+    return storeLibrary.publicLibrary.referenceContracts[storeLibrary.moduleNxpActive]
   })
 
 

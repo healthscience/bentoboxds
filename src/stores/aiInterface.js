@@ -207,6 +207,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         aiMessageout.action = 'question'
         aiMessageout.data = matchQuestion
         aiMessageout.bbid = hashQuestion
+        console.log('question outotuotuou')
+        console.log(aiMessageout)
         this.sendSocket.send_message(aiMessageout)
         this.helpchatHistory.push(aiMessageout)
         this.askQuestion.text = ''

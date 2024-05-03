@@ -55,19 +55,21 @@ import { ref, computed } from 'vue'
 </script>
 
 <style scoped>
-#source-tools {
-  display: grid;
-  grid-template-columns: 1fr;
-}
+@media (min-width: 1024px) {
+  #source-tools {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
 
-.source-form-item {
-  width: 100%;
-}
+  .source-form-item {
+    width: 100%;
+  }
 
-.select-source-id {
-  display: grid;
-  justify-content: start;
-  width: 300px;
+  .select-source-id {
+    display: grid;
+    justify-content: start;
+    width: 300px;
+  }
 }
 
 </style>

@@ -29,7 +29,6 @@ class LibraryUtility { //  extends EventEmitter {
     let gridPublic = {}
     gridPublic.columns = gridColumns
     gridPublic.data = gridDatapeer
-    console.log(gridPublic)
     return gridPublic
   }
 
@@ -118,9 +117,10 @@ class LibraryUtility { //  extends EventEmitter {
   *
   */
   matchPublicNXPcontract = function (contractID, nxpList) {
+    console.log(nxpList)
     let contractNXP = {}
     for (let nxp of nxpList) {
-      if (nxp.key === contractID) {
+      if (nxp.exp.key === contractID) {
         contractNXP = nxp
       }
     }

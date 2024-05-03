@@ -92,29 +92,32 @@ const storeLibrary = libraryStore()
 </script>
 
 <style scoped>
-#wikipedia-datatype-name {
-  width: 300px;
-}
 
-#newapi-view {
-  display: grid;
-  grid-template-columns: 1fr;
-}
+@media (min-width: 1024px) {
+  #wikipedia-datatype-name {
+    width: 300px;
+  }
 
-.api-form-item {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  padding-top: .5em;
-}
+  #newapi-view {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
 
-.api-form-item label {
-  border: 0px solid red;
-  margin-right: 1em;
-  justify-self: end;
-}
+  .api-form-item {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    padding-top: .5em;
+  }
 
-#new-primary-datatype {
-  display: grid;
-  grid-template-columns: 1fr;
+  .api-form-item label {
+    border: 0px solid red;
+    margin-right: 1em;
+    justify-self: end;
+  }
+
+  #new-primary-datatype {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
 }
 </style>

@@ -270,8 +270,6 @@ import { ref, computed } from 'vue'
 
   /*  computed  */
   const referenceData = computed(() => {
-    console.log('pub lib')
-    console.log(storeLibrary.publicLibrary)
     if (props.refTypeLive === 'question') {
       viewType.value = 'question-view'
     } else if (props.refTypeLive === 'datatype') {
@@ -283,7 +281,7 @@ import { ref, computed } from 'vue'
     } else if (props.refTypeLive === 'visualise') {
       viewType.value = 'visualise-view'
     }
-    return storeLibrary.publicLibrary[props.refTypeLive]
+    return storeLibrary.publicLibrary.referenceContracts[props.refTypeLive]
   })
 
 </script>

@@ -124,7 +124,7 @@ import { ref, computed } from 'vue'
     } else if (props.refTypeLive === 'module') {
       viewType.value = 'module-view'
     }
-    return storeLibrary.publicLibrary[props.refTypeLive]
+    return storeLibrary.publicLibrary.referenceContracts[props.refTypeLive]
   })
 
   const peermoduleData = computed(() => {
