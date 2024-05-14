@@ -80,11 +80,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
 const storeLibrary = libraryStore()
 
-  // a computed ref
-  const livePackForm = computed(() => {
-    return storeLibrary.newPackagingForm
-  })
-
   /* computed */
   const catCount = computed(() => {
     return storeLibrary.newPackagingForm.catCount
@@ -164,63 +159,6 @@ const storeLibrary = libraryStore()
     storeLibrary.newPackagingForm.tidyHolder[tidyCount.value] = {}
   }
 
-/*
-export default {
-
-  data: () => ({
-    index: 0
-  }),
-  created () {
-  },
-  mounted () {
-  },
-  methods: {
-    primarySelect () {
-      this.$store.dispatch('buildRefPackagePrimary', this.formData.primary)
-    },
-    nameSave (k) {
-      this.$store.dispatch('buildRefPackageName', this.formData.name)
-    },
-    descriptionSave (dk) {
-      this.$store.dispatch('buildRefPackageDescription', this.formData.description)
-    },
-    apiSelect (as) {
-      this.$store.dispatch('buildRefPackageAPI', this.formData.api)
-    },
-    apibaseSave (ak) {
-      this.$store.dispatch('buildRefPackageAPIbase', this.formData.baseaddress)
-    },
-    apipathSave (ak) {
-      this.$store.dispatch('buildRefPackageAPIpath', this.formData.apipath)
-    },
-    authtokenSave (ak) {
-      this.$store.dispatch('buildRefPackageAPIauth', this.formData.authorisation)
-    },
-    authrequiredSelect (ak) {
-      this.$store.dispatch('buildRefPackageAuthrequired', this.formData.authrequired)
-    },
-    sqlitetableSave (ak) {
-      this.$store.dispatch('buildRefPackageSQLitetable', this.formData.sqlitetable)
-    },
-    columnsSave (ak) {
-      this.$store.dispatch('buildRefPackageColumns', this.formData.columns)
-    },
-    columnsAuto (ak) {
-      this.$store.dispatch('buildRefPackageAutoColumns', 'auto')
-    },
-    addCategory () {
-      // tell vuex to bundle last entry together
-      this.$store.dispatch('buildRefPackageCatBundle')
-      this.formData.catHolder[this.catCount] = {}
-    },
-    addTidyItem () {
-      // tell vuex to bundle last entry together
-      this.$store.dispatch('buildRefPackageTidyBundle')
-      this.formData.tidyHolder[this.tidyCount] = {}
-    }
-  }
-}
-*/
 </script>
 
 <style scoped>

@@ -12,11 +12,13 @@
         <div class="alternate-bk" v-for="entry in props.experiments">
           <div class="table-row-columns" v-for="col in props.columns">
             <div v-if="col !== 'action'">
-            {{ col }} {{ entry[col] }}
+              {{ entry[col] }}
             </div>
             <div v-else>
               <button type="button" class="btn" @click="actionBoard(entry, entry[col])">{{ entry[col] }}</button>
+              <div><a href="#" @click="removeExp(entry)">remove</a></div>
             </div>
+  
           </div>
         </div>
       </div>
@@ -34,7 +36,8 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   const props = defineProps({
     experiments: Array,
-    columns: Array
+    columns: Array,
+    privacy: PerformanceServerTiming
   })
 
   const sortBy = (key) => {
@@ -43,17 +46,16 @@ import { libraryStore } from '@/stores/libraryStore.js'
   }
 
   const actionBoard = (board, NXPcontract) => {
-      if (NXPcontract.action === 'View') {
+      if (NXPcontract === 'View') {
         console.log('view bentoboard and its boxes')
-        storeLibrary.prepareLibraryMessage(board, 'networkexperiment')
+        storeLibrary.prepareLibraryViewMessage(board, 'networkexperiment')
         // this.$store.dispatch('actionHOPoutState', board)
         // this.$store.dispatch('actionDashboardState', board)
         // close BeeBee
         // this.$store.dispatch('actionBBstate')
       } else if (NXPcontract === 'Join') {
-        console.log('join this NXP and make private nxp')
-        console.log(board)
-        storeLibrary.prepareJoinNXPMessage(board, 'join')
+        storeLibrary.joinSelected = board
+        storeLibrary.joinNXP = true
       } else {
         console.log('preview')
         // preview network experiment
@@ -62,96 +64,19 @@ import { libraryStore } from '@/stores/libraryStore.js'
       }
     }
 
-/*
-export default {
+    const removeExp = (exp) => {
+      console.log('remove')
+      console.log(exp)
+      storeLibrary.removeExpModContract(exp.id, props.privacy)
+      if (props.privacy === 'private') {
+        let index = storeLibrary.peerExperimentList.data.indexOf(exp.id)
+        storeLibrary.peerExperimentList.data.splice(index, 1)
+      } else if (props.privacy === 'public') {
+        let index = storeLibrary.listPublicNXP.data.indexOf(exp.id)
+        storeLibrary.listPublicNXP.data.splice(index, 1)
+      }
+    }
 
-  computed: {
-    showExperimentList: function () {
-      return this.$store.state.experimentListshow
-    },
-    peerExperimentListlive: function () {
-      return this.$store.state.joinedNXPlist
-    },
-    visDefaults: function () {
-      return this.$store.state.visModuleHolder
-    },
-    selectedOptions: function () {
-      return this.$store.state.joinNXPselected
-    },
-    NXPstatusData: function () {
-      return this.$store.state.nxpModulelist
-    },
-    NXPprogress: function () {
-      return this.$store.state.nxpProgress
-    },
-    ecsMessage: function () {
-      return this.$store.state.ecsMessageLive
-    },
-    filteredExperiments: function () {
-      var sortKey = this.sortKey
-      var filterKey = this.filterKey && this.filterKey.toLowerCase()
-      var order = this.sortOrders[sortKey] || 1
-      var experiments = this.experiments
-      if (filterKey) {
-        experiments = experiments.filter(function (row) {
-          return Object.keys(row).some(function (key) {
-            return String(row[key]).toLowerCase().indexOf(filterKey) > -1
-          })
-        })
-      }
-      if (sortKey) {
-        experiments = experiments.slice().sort(function (a, b) {
-          a = a[sortKey]
-          b = b[sortKey]
-          return (a === b ? 0 : a > b ? 1 : -1) * order
-        })
-      }
-      this.setactiveXNPlist(experiments)
-      return experiments
-    }
-  },
-  filters: {
-    capitalize: function (str) {
-      return str.charAt(0).toUpperCase() + str.slice(1)
-    }
-  },
-  data: function () {
-    var sortOrders = {}
-    this.columns.forEach(function (key) {
-      sortOrders[key] = 1
-    })
-    return {
-      shellContract: '',
-      sortKey: '',
-      sortOrders: sortOrders,
-      actionKBundle: {},
-      previewSeen: false,
-      type: 'chart.js',
-      shellID: null,
-      moduleCNRL: '',
-      moduleType: '',
-      mData: '',
-      visualRefCont: '',
-      messageRemove: false,
-      removeNXPid: ''
-    }
-  },
-  methods: {
-    sortBy: function (key) {
-      this.sortKey = key
-      this.sortOrders[key] = this.sortOrders[key] * -1
-    },
-    refContractLookup () {
-      // create new temp shellID
-      this.shellID = '7654321'
-      this.mData = '8855332211'
-    },
-    setactiveXNPlist (nxp) {
-      this.$store.dispatch('actionLiveNXPlist', nxp)
-    }
-  }
-}
-*/
 </script>
 
 <style scoped>

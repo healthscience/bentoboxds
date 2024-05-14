@@ -2,7 +2,7 @@
   <div id="build-new-nxp">
     <header>Board Builder</header>
     <module-builder></module-builder>
-    <button class="contribute-nxp-button" @click="contributeNXP" >Contribute Board</button>
+    <button class="contribute-nxp-button" @click="contributeNXP" >Contribute</button>
     {{ storeLibrary.newnxp }}
     <div v-if="savenxpSuccess" class="newnxp-form-feeback">
         <div id="hop-feedback">
@@ -29,8 +29,8 @@ import { libraryStore } from '@/stores/libraryStore.js'
   })
 
   const contributeNXP = () => {
-    console.log('new network expimrent geneiss to start')
     storeLibrary.prepareGenesisContract(storeLibrary.newnxp)
+    storeLibrary.newNXP = false
   }
 
 </script>
@@ -38,6 +38,20 @@ import { libraryStore } from '@/stores/libraryStore.js'
 <style scoped>
 
   @media (min-width: 1024px) {
+
+    #build-new-nxp {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+
+    .contribute-nxp-button {
+      display: grid;
+      grid-template-columns: 1fr;
+      justify-self: center;
+      width: 30%;
+      font-size: 1.2em;
+      margin-top: 1em;
+    }
 
   }
 </style>

@@ -1,11 +1,13 @@
 import { defineStore } from 'pinia'
 import { useSocketStore } from '@/stores/socket.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
+import { libraryStore } from '@/stores/libraryStore.js'
 
 export const accountStore = defineStore('account', {
   state: () => ({
     sendSocket: useSocketStore(),
     storeAI: aiInterfaceStore(),
+    storeLibrary: libraryStore(),
     accountMenu: 'Sign-in',
     accountStatus: false,
     peerauth: false,
@@ -20,6 +22,8 @@ export const accountStore = defineStore('account', {
     processReply (received) {
       if (received.action === 'hyperbee-pubkeys') {
         this.publicKeysList = received.data
+        // ask for library
+        this.storeLibrary.startLibrary()
       } else if (received.action === 'drive-pubkeys') {
         this.publickeyDrive = received.data
       } else if (received.action === 'warm-peers') {

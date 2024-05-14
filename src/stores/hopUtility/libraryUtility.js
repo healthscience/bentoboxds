@@ -55,7 +55,7 @@ class LibraryUtility { //  extends EventEmitter {
         let refTypes = ['question', 'packaging', 'compute', 'visualise']
         for (let reft of refTypes) {
           for (let refi of pubExpModules[reft]) {
-            if (modMatch.value.info.key === refi.key) {
+            if (modMatch?.value?.info?.key === refi?.key) {
               expandRF.push(refi)
             }
           }
@@ -67,7 +67,6 @@ class LibraryUtility { //  extends EventEmitter {
         }
       }
     }
-
     return expandSafeFlowStructure
   }
 
@@ -76,10 +75,14 @@ class LibraryUtility { //  extends EventEmitter {
   * @method prepareBentoSpaceJoinedNXPlist
   *
   */
-  prepareBentoSpaceJoinedNXPlist = function (peerExpModules) {
+  prepareBentoSpaceJoinedNXPlist = function (peerExpModules, publicRefContracts) {
     let gridColumns = ['id', 'name', 'description', 'time', 'device', 'action']
-    let gridDatapeer = this.prepareBentoSpaceExperimentSummary(peerExpModules)
-    let gridPeer = {}
+    let gridDatapeer = []
+    for (let expMods of peerExpModules) {
+      let gridExp = this.prepareBentoSpaceExperimentSummary(expMods, publicRefContracts)
+      gridDatapeer.push(gridExp)
+    }
+     let gridPeer = {}
     gridPeer.columns = gridColumns
     gridPeer.data = gridDatapeer
     return gridPeer
@@ -91,20 +94,22 @@ class LibraryUtility { //  extends EventEmitter {
   * @method prepareBentoSpaceExperimentSummary
   *
   */
-  prepareBentoSpaceExperimentSummary = function (peerExpModules) {
-    let gridDatapeer = []
+  prepareBentoSpaceExperimentSummary = function (peerExpModules, refContractsPublic) {
+    let gridDatapeer = {}
     let question2 = {}
-    for (let mod of peerExpModules[0].modules) {
+    for (let mod of peerExpModules.modules) {
       // look up question
       if (typeof mod.value.info === 'object' && Object.keys(mod.value.info).length > 0) {
-        if (mod.value.info.type === 'question') {
-          question2 = mod.value.info.question
+        if (mod.value.style === 'question') {
+          // get full ref contract
+          let fullRef = this.matchRefContract(mod.value.info.key, refContractsPublic, 'question')
+          question2 = fullRef.value.concept.name
         } else {
           question2 = 'none'
         }
       }
       if (question2 !== 'none') {
-        gridDatapeer.push({ id: peerExpModules[0].exp.key, name: question2.text, description: '--', time: Infinity, dapps: 'Yes', device: 'Yes', action: 'View' })
+        gridDatapeer = { id: peerExpModules.exp.key, name: question2, description: '--', time: Infinity, dapps: 'Yes', device: 'Yes', action: 'View' }
       }
     }
     return gridDatapeer
@@ -117,7 +122,6 @@ class LibraryUtility { //  extends EventEmitter {
   *
   */
   matchPublicNXPcontract = function (contractID, nxpList) {
-    console.log(nxpList)
     let contractNXP = {}
     for (let nxp of nxpList) {
       if (nxp.exp.key === contractID) {
@@ -129,18 +133,53 @@ class LibraryUtility { //  extends EventEmitter {
 
   /**
   * 
+  * update reference contract settings for join nxp contract
+  * @method updateSettings
+  *
+  */
+  updateSettings = function (contract, updates) {
+    console.log('update date for compute contract')
+    console.log(contract)
+    console.log(updates)
+    let updateNXPjoinContract = {}
+
+    return updateNXPjoinContract
+  }
+
+  /**
+  * 
   * select the network experiment contract for HOP
   * @method matchNXPcontract
   *
   */
   matchNXPcontract = function (contractID, nxpList) {
+    console.log('match nxp contract')
+    console.log(contractID)
+    console.log(nxpList)
     let contractNXP = {}
     for (let nxp of nxpList) {
+      console.log(nxp)
       if (nxp.exp.key === contractID) {
         contractNXP = nxp
       }
     }
     return contractNXP
+  }
+
+  /**
+  * 
+  * match ref contract id to full ref contract
+  * @method matchRefContract
+  *
+  */
+  matchRefContract = function (contractID, refList, reftype) {
+    let refContract = {}
+    for (let ref of refList[reftype]) {
+      if (ref.key === contractID) {
+        refContract = ref
+      }
+    }
+    return refContract
   }
 
 }

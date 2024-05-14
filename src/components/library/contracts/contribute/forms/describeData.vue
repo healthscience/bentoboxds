@@ -34,7 +34,7 @@
           </div>
         </div>
       </div>
-    </div>match == {{ storeLibrary.newLists }} dt----- {{ storeLibrary.newDatafile }}
+    </div>
   </div>
 </template>
 
@@ -58,32 +58,29 @@ import { libraryStore } from '@/stores/libraryStore.js'
   const handleDrop = (event, targetContainer, dti) => {
     const itemData = JSON.parse(event.dataTransfer.getData('application/json'))
     // make pair of column source name and ref DT contract hash ie key
-    console.log(itemData)
-
     if (targetContainer === 'match-column') {
       // the reference contract
       let matchRefDT =  storeLibrary.newLists[dti]
-      console.log('matchdt')
-      console.log(matchRefDT)
-      console.log(dti)
       // the column name
       let columnName = storeLibrary.newDatafile.columns[dti]
-      console.log(columnName)
       // match id to datatype
       let matchDatatype = itemData
       storeLibrary.newListsave[columnName.name] = {}
       storeLibrary.newListsave[columnName.name] = matchDatatype.key
       storeLibrary.newLists[dti] = {}
       storeLibrary.newLists[dti] = matchDatatype
+      storeLibrary.newPackagingForm.apicolumns = storeLibrary.newDatafile.columns
+      storeLibrary.newPackagingForm.apicolHolder = storeLibrary.newListsave
     } else if (targetContainer === 'library-datatypes') {
       // remove the match by column name
       let columnName = storeLibrary.newDatafile.columns[itemData]
-      console.log(columnName)
       delete storeLibrary.newListsave[columnName.name]
       delete storeLibrary.newLists[itemData]
+      storeLibrary.newPackagingForm.apicolumns = storeLibrary.newDatafile.columns
+      storeLibrary.newPackagingForm.apicolHolder = storeLibrary.newListsave
     }
-    console.log(storeLibrary.newListsave)
-    console.log(storeLibrary.newLists)
+    console.log('packaing new forming')
+    console.log(storeLibrary.newPackagingForm)
   }
 
 </script>

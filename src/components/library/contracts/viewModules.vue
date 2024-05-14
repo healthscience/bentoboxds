@@ -30,18 +30,18 @@
           Module info:
           <div class="key-hash"> {{ cd.key }} </div>
           <div class="value-info"> {{ cd.value.info.moduleinfo.name }} </div>
-          <div class="value-info">{{ cd.value.info }}</div>
+          <div class="value-info-small">{{ cd.value.info }}</div>
         </div>
         <div v-else>
           Module info:
           <div class="key-hash"> {{ cd.key }} </div>
           <div class="key-hash">type: {{ cd.value.type }} link-- {{ cd.value.link }}</div>
-          <div class="value-info"> {{ cd.value.info }} </div>
+          <div class="value-info-small"> {{ cd.value.info }} </div>
         </div>
         </template>
         <template v-slot:body>
           <div id="module-slot">
-            <div v-for="(pi, index) in cd.value.info.option" :key="pi.id">
+            <div v-for="(pi, index) in cd.value.info?.option" :key="pi.id">
               {{ index }} --- {{ pi }}
             </div>
           </div>
@@ -61,6 +61,7 @@
           Experiment info:
           <div class="key-hash"> {{ cd.key }} </div>
           <div class="key-hash">type: {{ cd.value.type }} link-- {{ cd.value.link }}</div>
+          <div>genesis -- {{ cd.value.genesis }}</div>
           <div class="value-info"> {{ cd.value.info }} </div>
         </div>
         </template>
@@ -78,18 +79,18 @@
           Module info:
           <div class="key-hash"> {{ cd.key }} </div>
           <div class="value-info"> {{ cd.value.info.moduleinfo.name }} </div>
-          <div class="value-info">{{ cd.value.info }}</div>
+          <div class="value-info-small">{{ cd.value.info }}</div>
         </div>
         <div v-else>
           Module info:
           <div class="key-hash"> {{ cd.key }} </div>
           <div class="key-hash">type: {{ cd.value.type }} link-- {{ cd.value.link }}</div>
-          <div class="value-info"> {{ cd.value.info }} </div>
+          <div class="value-info-small"> {{ cd.value.info }} </div>
         </div>
         </template>
         <template v-slot:body>
           <div id="module-slot">
-            <div v-for="(pi, index) in cd.value.info.option" :key="pi.id">
+            <div v-for="(pi, index) in cd.value.info?.option" :key="pi.id">
               {{ index }} --- {{ pi }}
             </div>
           </div>
@@ -145,128 +146,136 @@ import { ref, computed } from 'vue'
 
 
 <style scoped>
-#refcontract-summary {
-  display: grid;
-  grid-template-columns: 1fr;
-}
 
-.ref-wrapper {
-  border: 1px solid grey;
-  margin: 1em;
-  list-style-type: none;
-}
+@media (min-width: 1024px) {
+  #refcontract-summary {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
 
-.refname {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  justify-content: center;
-  margin-bottom: .5em;
-}
+  .ref-wrapper {
+    border: 1px solid grey;
+    margin: 1em;
+    list-style-type: none;
+  }
 
-.refinfo-col1 {
-  justify-self: end;
-  color: grey;
-}
+  .refname {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    justify-content: center;
+    margin-bottom: .5em;
+  }
 
-.refinfo-col2 {
-  justify-self: start;
-  margin-left: 1em;
-}
+  .refinfo-col1 {
+    justify-self: end;
+    color: grey;
+  }
 
-.ref-description {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  margin-bottom: .2em;
-}
+  .refinfo-col2 {
+    justify-self: start;
+    margin-left: 1em;
+  }
 
-.cnrl-element {
-  display: inline-block;
-  margin-bottom: 1em;
-}
+  .ref-description {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin-bottom: .2em;
+  }
 
-#date-format {
-  font-size: 0.6em;
-}
+  .cnrl-element {
+    display: inline-block;
+    margin-bottom: 1em;
+  }
 
-#datatype-slot {
-  margin: 1em;
-}
+  #date-format {
+    font-size: 0.6em;
+  }
 
-#compute-slot header {
-  margin-left: 4em;
-  text-align: left;
-}
+  #datatype-slot {
+    margin: 1em;
+  }
 
-#compute-slot ul li {
-  margin-left: 4em;
-  text-align: left;
-  list-style-type: none;
-}
+  #compute-slot header {
+    margin-left: 4em;
+    text-align: left;
+  }
 
-.packaging-basics {
-  text-align: left;
-  margin-top: 0.5em;
-}
+  #compute-slot ul li {
+    margin-left: 4em;
+    text-align: left;
+    list-style-type: none;
+  }
 
-#packaging-slot ul {
-  list-style-type: none;
-}
+  .packaging-basics {
+    text-align: left;
+    margin-top: 0.5em;
+  }
 
-#table-structure {
-  margin-top: 1em;
-  text-align: left;
-}
+  #packaging-slot ul {
+    list-style-type: none;
+  }
 
-.packaging-lists {
-  list-style-type: none;
-}
+  #table-structure {
+    margin-top: 1em;
+    text-align: left;
+  }
 
-.dt-map-key {
-  display: inline;
-  font-weight: normal;
-  width: 300px;
-  margin-right: 1em;
-}
+  .packaging-lists {
+    list-style-type: none;
+  }
 
-.dt-map-column {
-  display: inline;
-  font-weight: bold;
-  min-width: 6em;
-}
+  .dt-map-key {
+    display: inline;
+    font-weight: normal;
+    width: 300px;
+    margin-right: 1em;
+  }
 
-#packaging-network {
-  margin-top: 2em;
-  margin-left: 2em;
-  text-align: left;
-}
+  .dt-map-column {
+    display: inline;
+    font-weight: bold;
+    min-width: 6em;
+  }
 
-#visualise-slot header {
-  text-align: left;
-  margin-left: 2em;
-}
+  #packaging-network {
+    margin-top: 2em;
+    margin-left: 2em;
+    text-align: left;
+  }
 
-#visualise-slot ul li {
-  text-align: left;
-  margin-left: 2em;
-  list-style-type: none;
-}
+  #visualise-slot header {
+    text-align: left;
+    margin-left: 2em;
+  }
 
-.vis-type {
-  display: inline;
-  width: 200px;
-  font-weight: bold;
-}
+  #visualise-slot ul li {
+    text-align: left;
+    margin-left: 2em;
+    list-style-type: none;
+  }
 
-.vis-info {
-  display: inline;
-}
-#goverannce-slot {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  margin-top: 1em;
-}
+  .vis-type {
+    display: inline;
+    width: 200px;
+    font-weight: bold;
+  }
 
-.key-hash {
-  margin-bottom: 1em;
+  .vis-info {
+    display: inline;
+  }
+  #goverannce-slot {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin-top: 1em;
+  }
+
+  .key-hash {
+    margin-bottom: 1em;
+  }
+
+  .value-info-small {
+    font-size: 0.6em;
+    color: red;
+  }
 }
 </style>

@@ -24,7 +24,7 @@
         v-on:dragstart="handleDragStart($event, newMod)"
       >
         <div class="mod-option-holder"
-        >
+        >{{ newMod.name }}
           <component :is="componentsNew[newMod.name]"></component>
       </div>
       </div>
@@ -48,7 +48,7 @@
 import { ref, shallowRef, computed } from 'vue'
 
 import NxpQuestion from '@/components/dataspace/modules/nxpQuestion.vue'
-import NxpDevice from '@/components/dataspace/modules/nxpDevice.vue'
+import NxpPackaging from '@/components/dataspace/modules/nxpDevice.vue'
 import NxpDapp from '@/components/dataspace/modules/nxpDapp.vue'
 import NxpCompute from '@/components/dataspace/modules/nxpCompute.vue'
 import NxpControl from '@/components/dataspace/modules/nxpControl.vue'
@@ -57,7 +57,7 @@ import NxpVisualise from '@/components/dataspace/modules/nxpBuildVisualise.vue'
 import { libraryStore } from '@/stores/libraryStore.js'
 
   const storeLibrary = libraryStore()
-  const componentsNew = shallowRef({ question: NxpQuestion, data: NxpDevice, compute: NxpCompute, visualise: NxpVisualise })
+  const componentsNew = shallowRef({ question: NxpQuestion, packaging: NxpPackaging, compute: NxpCompute, visualise: NxpVisualise })
 
   let refDrop = ref(false)
 
@@ -119,7 +119,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   const setModType = (item) => {
     if (item?.name) {
-      if (item.name === 'data') {
+      if (item.name === 'packaging') {
         storeLibrary.moduleNxpActive = 'packaging'
       } else {
         storeLibrary.moduleNxpActive = item.name

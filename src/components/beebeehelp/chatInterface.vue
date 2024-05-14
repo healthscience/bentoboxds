@@ -37,9 +37,16 @@
                     <div v-if="chati.reply?.data?.prompt?.length > 0" class="bee-prompt-question">
                       {{ chati.reply.data.prompt }}
                       <div class="data-options"  v-for="(dopt, index) in chati.reply?.data?.options">
-                        <button class="data-option-select" @click.prevent="dataOptionVis(index, dopt, chati.reply.bbid)">
-                          {{ dopt }}
-                        </button>
+                        <div v-if="typeof dopt === 'string'">
+                          <button class="data-option-select" @click.prevent="dataOptionVis(index, dopt, chati.reply.bbid)">
+                            {{ dopt }}
+                          </button>
+                         </div>
+                         <div v-else>
+                            <button class="data-option-select" @click.prevent="dataOptionVis(index, dopt, chati.reply.bbid)">
+                              {{ dopt.name }}
+                            </button>
+                         </div>
                         <button class="data-option-select" :class="{ active: index === isDateColumn }" @click.prevent="dateOptionSelect(index, dopt, chati.reply.bbid)">date</button>
                       </div>
                     </div>
@@ -308,6 +315,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
       display: inline-block;
       padding: 0.25em;
       margin-bottom: 0.6em;
+      width: 100%;
     }
 
     .date-option-select {

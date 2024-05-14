@@ -4,6 +4,7 @@
       <list-contracts v-if="spaceState === 'private' && peerNXPlib.columns?.length > 0" class="experiment-info"
         :experiments="peerNXPlib.data"
         :columns="peerNXPlib.columns"
+        :privacy="'private'"
       >
       </list-contracts>
       <!--<start-experience id="start-demo-nxp" v-else></start-experience>-->
@@ -12,6 +13,7 @@
       <list-contracts v-if="libraryState === 'public' && publicNXPlib.data?.length > 0" class="experiment-info"
         :experiments="publicNXPlib.data"
         :columns="publicNXPlib.columns"
+        :privacy="'public'"
       >
       </list-contracts>
     </div>

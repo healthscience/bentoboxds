@@ -54,46 +54,12 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
 const storeLibrary = libraryStore()
 
-  /* methods */
-  /*
-  primarySelect = () => {
-    console.log(this.formData.value)
-    // this.$store.dispatch('buildRefcontractPrimary', this.formData.primary)
-  }
-
-  nameSave = (k) => {
-    // this.$store.dispatch('buildRefContractName', this.formData.name)
-    // return true
-  }
-
-  descriptionSave = (k) => {
-    // this.$store.dispatch('buildRefContractDescription', this.formData.description)
-    // return true
-  }
-  wikiSave = (k) => {
-    // this.$store.dispatch('buildRefContractWiki', this.formData.wiki)
-    // return true
-  }
-
-  rdfSave = (k) => {
-    // this.$store.dispatch('buildRefContractRDF', this.formData.rdf)
-    // return true
-  }
-
-  typeSelect = (k) => {
-    // this.$store.dispatch('buildRefcontractType', this.formData.datatypeType)
-    console.log(formData.value)
-  }
-
-  measurementSave = (k) => {
-    // this.$store.dispatch('buildRefcontractMeasurement', this.formData.measurement)
-  }
-  */
 </script>
 
 <style scoped>
 
 @media (min-width: 1024px) {
+
   #wikipedia-datatype-name {
     width: 300px;
   }

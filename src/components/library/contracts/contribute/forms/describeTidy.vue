@@ -5,7 +5,7 @@
     <label for="tidy-add-category">Select datatype:</label>
     <select class="select-tidy-id" id="tidy-mapping-build" @change="tidyDTSelect" v-model="storeLibrary.newPackagingForm.tidy[props.tidyid].datatype">
       <option value="none" selected="">Please select</option>
-      <option v-for="dtl in storeLibrary.publicLibrary.datatype" :key="dtl.key" v-bind:value="dtl.key">
+      <option v-for="dtl in storeLibrary?.publicLibrary?.referenceContracts?.datatype" :key="dtl.key" v-bind:value="dtl.key">
         <option value=dtl.key>{{ dtl.value.concept.name }}</option>
       </option>
     </select>

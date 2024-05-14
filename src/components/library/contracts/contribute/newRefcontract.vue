@@ -94,8 +94,76 @@ const saveRefContract = () => {
     } else if (contractformType.value.type === 'visualise') {
       refContract.data = storeLibrary.newVisualiseForm
     }
+    console.log('save ref contract new')
+    console.log(refContract)
     storeLibrary.sendMessage(refContract)
     // reset the form data
+    if (contractformType.value.type === 'question') {
+    storeLibrary.questionForm = { primary: null, name: '' }
+    } else if (contractformType.value.type === 'datatype') {
+      storeLibrary.datatypeForm =
+      {
+        primary: Boolean,
+        name: '',
+        description: '',
+        wiki: '',
+        rdf: '',
+        measurement: '',
+        datatypeType: ''
+      }
+    } else if (contractformType.value.type === 'compute') {
+      storeLibrary.newComputeForm = 
+      {
+        primary: Boolean,
+        name: '',
+        description: '',
+        dtprefix: '',
+        code: '',
+        hash: ''
+      }
+    } else if (contractformType.value.type === 'packaging') {
+      storeLibrary.newPackagingForm =
+      {
+        authrequired: false,
+        type: '',
+        filename: '',
+        sqlitetablename: '',
+        baseapi: '',
+        jsonpath: '',
+        authtoken: '',
+        apicolumns: [],
+        apicolHolder: [[]],
+        catHolder: {},
+        tidyHolder: {},
+        catCount: 0,
+        tidyCount: 0,
+        category: {},
+        tidy: {},
+        device:
+        {
+          id: '',
+          device_name: '',
+          device_manufacturer: '',
+          device_mac: '',
+          device_type: '',
+          device_model: '',
+          query: '',
+          location_lat: '',
+          location_long: '',
+          firmware: '',
+          mobileapp: ''
+        }
+      }
+    } else if (contractformType.value.type === 'visualise') {
+      storeLibrary.newVisualiseForm = 
+      {
+        primary: Boolean,
+        name: '',
+        description: '',
+        structureName: '',
+        visHolder: []
+      }
+    }
   }
 </script>
 

@@ -23,6 +23,11 @@
           <line-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'line'" :chartData="chartData"></line-chart>
         </div>
         <div id="bento-future">future
+          <select class="select-model-save" id="bbox-model-save" v-model="modelFuture" @change="selectPredModel()">
+            <option selected="" v-for="fm in computeList" :value="fm.key">
+              {{ fm.value.computational.name }}
+            </option>
+          </select>
           <button id="full-future-toolbar" @click="predictFuture()">Predict</button>
           <!--<div id="future-box">future toolbar <button id="full-future-toolbar">full</button></div>-->
           <bar-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'bar'" :chartData="chartfutureData" ></bar-chart>
@@ -43,11 +48,16 @@ import ModulesList from '@/components/bentobox/modules/modulesList.vue'
 import { ref, computed, onMounted } from 'vue'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
+import { libraryStore } from '@/stores/libraryStore.js'
+import LibraryNXPView from '../dataspace/libraryNXPView.vue'
+
 
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
+  const storeLibrary = libraryStore()
   
   let modulesShow = ref(false)
+  let modelFuture = ref('')
 
   const props = defineProps({
     bboxid: String
@@ -101,6 +111,11 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     }
    }
 
+  const selectPredModel = (model) => {
+    console.log(model)
+    console.log(modelFuture)
+  }
+
   const checkEmpty = computed((value) => {
     return typeof value !== "number" ? 0 : value;
   })
@@ -127,10 +142,15 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     return storeBentobox.boxtoolsShow[props.bboxid]
   })
 
+  const computeList = computed(() => {
+    return storeLibrary.publicLibrary.referenceContracts.compute
+  })
+  
   /*
   * predict future
   */
   const predictFuture = () => {
+    console.log(modelFuture.value)
     storeAI.prepareFuture(props.bboxid)
   }
 

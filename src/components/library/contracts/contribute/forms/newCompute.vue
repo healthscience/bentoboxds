@@ -37,63 +37,28 @@
 import { libraryStore } from '@/stores/libraryStore.js'
 
   const storeLibrary = libraryStore()
-
-/* export default {
-  name: 'compute-form',
-  components: {
-  },
-  props: {
-    formData: {
-      type: Object
-    }
-  },
-  data: () => ({
-  }),
-  created () {
-  },
-  mounted () {
-  },
-  computed: {
-  },
-  methods: {
-    nameSave () {
-      this.$store.dispatch('buildRefComputeName', this.formData.name)
-    },
-    descSave () {
-      this.$store.dispatch('buildRefComputeDescription', this.formData.description)
-    },
-    primarySave () {
-      this.$store.dispatch('buildRefComputePrimary', this.formData.primary)
-    },
-    dtprefixSave () {
-      this.$store.dispatch('buildRefComputeDTprefix', this.formData.dtprefiex)
-    },
-    codeSave () {
-      this.$store.dispatch('buildRefComputeCode', this.formData.code)
-    },
-    hashSave () {
-      this.$store.dispatch('buildRefComputeHash', this.formData.hash)
-    }
-  }
-} */
+  
 </script>
 
 <style scoped>
-#compute-form-view {
-  display: grid;
-  grid-template-columns: 1fr;
-}
 
-.compute-form-item {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  padding-top: 1em;
-}
+@media (min-width: 1024px) {
+  #compute-form-view {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
 
-.compute-form-item label {
-  border: 0px solid red;
-  margin-right: 1em;
-  justify-self: end;
+  .compute-form-item {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    padding-top: 1em;
+  }
+
+  .compute-form-item label {
+    border: 0px solid red;
+    margin-right: 1em;
+    justify-self: end;
+  }
 }
 
 </style>
