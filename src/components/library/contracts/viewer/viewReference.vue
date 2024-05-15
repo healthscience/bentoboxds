@@ -155,9 +155,9 @@
                     </li>
                     <li>
                       <ul v-if="index === 'tidy'" >
-                        <header>Tidy rules</header>
+                        <header>Tidy rules:</header>
                         <li v-for="ipv in pi" :key="ipv.key" >
-                            {{ ipv.tidy }} -- {{ ipv.tidydatatype }} -- {{ ipv.tidycode }}
+                            {{ ipv.tidy }} -- {{ ipv.datatype }} -- {{ ipv.code }}
                         </li>
                       </ul>
                     </li>
@@ -247,11 +247,11 @@
 </template>
 
 <script setup>
-import QuestionView from '@/components/library/contracts/questionViewer.vue'
-import DatatypeView from '@/components/library/contracts/datatypeViewer.vue'
-import ComputeView from '@/components/library/contracts/computeViewer.vue'
-import PackagingView from '@/components/library/contracts/packagingViewer.vue'
-import VisualiseView from '@/components/library/contracts/visualiseViewer.vue'
+import QuestionView from '@/components/library/contracts/viewer/questionViewer.vue'
+import DatatypeView from '@/components/library/contracts/viewer/datatypeViewer.vue'
+import ComputeView from '@/components/library/contracts/viewer/computeViewer.vue'
+import PackagingView from '@/components/library/contracts/viewer/packagingViewer.vue'
+import VisualiseView from '@/components/library/contracts/viewer/visualiseViewer.vue'
 // import ModuleView from './moduleViewer.vue'
 // import BoardView from './boardViewer.vue'
 import { libraryStore } from '@/stores/libraryStore.js'

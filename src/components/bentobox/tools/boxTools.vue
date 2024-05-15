@@ -2,10 +2,10 @@
   <div class="box-tools">
     <div id="bb-toolbar">
       <div class="bb-bar-main">a bentobox</div>
-      <div class="bb-bar-main"><button @click="clickSummaryLib(props.bboxid)">Lib</button></div>
+      <div class="bb-bar-main"><button @click="clickSummaryLib(props.bboxid)" v-bind:class="{ active: libSum }">Lib</button></div>
       <div class="bb-bar-main"><button @click="clickExpandBentobox(props.bboxid)">expand</button></div>
       <div class="bb-bar-main"><button class="space-button" @click="clickAddbentoSpace(props.bboxid)">+ space</button></div>
-      <div class="bb-bar-main"><button @click="clickShareSpace(props.bboxid)">share</button>
+      <div class="bb-bar-main"><button @click="clickShareSpace(props.bboxid)" v-bind:class="{ active: shareForm}">share</button>
         <div id="spaces-list" v-if="shareSelect">
           <select class="select-space-save" id="space-options-save" v-model="spaceSave" @change="selectBentoSpace()">
             <option selected="" v-for="sp in spaceList" :value="sp.spaceid">
@@ -14,7 +14,7 @@
           </select>
         </div>
       </div>
-      <div class="bb-bar-main"><button @click="clickVisTools(props.bboxid)">Tools</button></div>
+      <div class="bb-bar-main"><button @click="clickVisTools(props.bboxid)" v-bind:class="{ active: boxToolsShow}">Tools</button></div>
       <!--<div class="bb-bar-main"><button id="network-vis">social</button></div>
       <div class="bb-bar-main"><button id="network-map">map</button></div>
       <div class="bb-bar-main"><button id="bb-copy">copy</button></div>-->
@@ -359,6 +359,11 @@ const boxToolsShow = computed(() => {
     width: 100%;
     height: 40px;
     background-color: rgb(141, 145, 226);
+  }
+
+  .active {
+    background-color: rgb(113, 172, 114);
+    border: 1px solid green;
   }
 
 }

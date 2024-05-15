@@ -10,7 +10,7 @@
       </option>
     </select>
     <label for="add-category-rule">Tidy code:</label>
-    <input type="text"  id="mapping-rule-code" placeholder="" required @change="tidycodeSave" @paste="tidycodeSave" @keyup="tidycodeSave" v-model="storeLibrary.newPackagingForm.tidy[props.tidyid].code"/>
+    <input type="text"  id="mapping-rule-code" placeholder="" required v-model="storeLibrary.newPackagingForm.tidy[props.tidyid].code"/>
   </div>
 </template>
 
@@ -23,18 +23,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
   })
 
   /* methods */
-  const tidySelect = () => {
-    // this.$store.dispatch('buildRefPackageTidy', this.tidyForm.tidy)
-  }
-
-  const tidyDTSelect = () => {
-    // console.log('tidy dataytpe')
-    // console.log(this.tidyForm.tidydatatype)
-    // this.$store.dispatch('buildRefPackageTidyDT', this.tidyForm.tidydatatype)
-  }
-  const tidycodeSave = () => {
-    // this.$store.dispatch('buildRefPackageTidycode', this.tidyForm.tidycode)
-  }
 
 </script>
 

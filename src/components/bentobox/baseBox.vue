@@ -1,28 +1,32 @@
 <template>
   <box-tools :bboxid="props.bboxid"></box-tools>
   <div id="bentobox-cell">
-    <div id="bb-network-graph">Network</div>
-    <div id="bb-world-map">map</div>
-    <div id="bentobox-holder">
-      <div id="network-bentobox">
-        network bentobox 
+    <div class="bentocell-quadrants">
+    </div>
+    <div id="network-bentobox">
+      <div id="bb-network-graph">Network</div>
+      <div id="bb-world-map">map</div>
+      <div id="bentobox-holder">
+        <div id="network-bentobox">
+          network bentobox 
+        </div>
       </div>
-      <div id="peer-bentobox">
-        <div id="bento-past">
-          <div id="past-box"> {{ futureBox }}
-            <!--<button id="full-past-toolbar">tools</button>-->
-            <button id="full-future-toolbar" @click="predictFuture()">future</button>
+    </div>
+    <div id="peer-bentobox">
+      <div id="bento-past">
+        <div id="past-box"> {{ futureBox }}dd
+          <!--<button id="full-past-toolbar">tools</button>-->
+          <button id="full-future-toolbar" @click="predictFuture()">future</button>
+        </div>
+        <div id="past-vis">
+          <bar-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'bar'" :chartData="chartData"></bar-chart>
+            <line-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'line'" :chartData="chartData"></line-chart>
           </div>
-          <div id="past-vis">
-            <bar-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'bar'" :chartData="chartData"></bar-chart>
-             <line-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'line'" :chartData="chartData"></line-chart>
-           </div>
-        </div>
-        <div id="bento-future" class="future-show" :class="{ active: futureBox }">
-          <!--<div id="future-box"><button id="full-future-toolbar">full</button></div>-->
-          <bar-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'bar'" :chartData="chartfutureData" ></bar-chart>
-          <line-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'line'" :chartData="chartfutureData"></line-chart>
-        </div>
+      </div>
+      <div id="bento-future" class="future-show" :class="{ active: futureBox }">
+        <!--<div id="future-box"><button id="full-future-toolbar">full</button></div>-->
+        <bar-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'bar'" :chartData="chartfutureData" ></bar-chart>
+        <line-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'line'" :chartData="chartfutureData"></line-chart>
       </div>
     </div>
   </div>
@@ -218,6 +222,11 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     min-height: inherit;
     min-width: inherit;
     z-index: 9;
+  }
+
+  .bentocell-quadrants {
+    background-color: red;
+    height: 0px;
   }
 
   #bb-network-graph {

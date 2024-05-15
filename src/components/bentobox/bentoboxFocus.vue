@@ -15,7 +15,7 @@
           </button>
           <div id="return-modal-close" @click="closedataBox">return</div>
         </div>
-        <h3>Data Box</h3>
+        <h3>Expanded</h3>
       </template>
       <template #body>
         <bento-box :bboxid="props.bboxid"></bento-box>

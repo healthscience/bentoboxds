@@ -262,7 +262,7 @@ export const libraryStore = defineStore('librarystore', {
       libMessageout.task = 'join'
       libMessageout.data = updateJoinSettings
       libMessageout.bbid = 'lib' + genContract.value.exp.key
-      console.log('join this genis')
+      console.log('join this genesis')
       console.log(libMessageout)
       this.sendSocket.send_message(libMessageout)
     },

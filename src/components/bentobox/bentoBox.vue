@@ -1,5 +1,32 @@
 <template>
   <box-tools :bboxid="props.bboxid"></box-tools>
+  <div class="bentocell-quadrants">
+    <div id="bentobox-row">
+      <div id="bentobox-now" @click="bentoboxQuant('n')">
+        n
+      </div>
+      <div id="bentobox-future" @click="bentoboxQuant('f')">
+        f
+      </div>
+    </div>
+    <div id="bentobox-row">
+      <div id="network-bentobox-now" @click="bentoboxQuant('nn')">
+        nn
+      </div>
+      <div id="network-bentobox-future" @click="bentoboxQuant('nf')">
+        nf
+      </div>
+    </div>
+  </div>
+  <div id="network-bentobox">
+    <div id="bb-network-graph">Network</div>
+    <div id="bb-world-map">map</div>
+    <div id="bentobox-holder">
+      <div id="network-bentobox">
+        network bentobox 
+      </div>
+    </div>
+  </div>
   <!--<div class="drag-container-1">
     <div id="bb-toolbar">
       <div class="bb-bar-main">a bentobox active</div>
@@ -17,12 +44,12 @@
         network bentobox
       </div>
       <div id="peer-bentobox">
-        <div id="bento-past">
+        <div id="bento-past" v-if="quantSelect['now']">
           <!--<div id="past-box">past toolbar <button id="full-past-toolbar">Tools</button></div>-->
           <bar-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'bar'" :chartData="chartData"></bar-chart>
           <line-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'line'" :chartData="chartData"></line-chart>
         </div>
-        <div id="bento-future">future
+        <div id="bento-future" v-if="quantSelect['future']">future
           <select class="select-model-save" id="bbox-model-save" v-model="modelFuture" @change="selectPredModel()">
             <option selected="" v-for="fm in computeList" :value="fm.key">
               {{ fm.value.computational.name }}
@@ -58,6 +85,8 @@ import LibraryNXPView from '../dataspace/libraryNXPView.vue'
   
   let modulesShow = ref(false)
   let modelFuture = ref('')
+  let quantSelect = ref(
+    { now: true, future: false, nnow: false, nfuture: false })
 
   const props = defineProps({
     bboxid: String
@@ -116,6 +145,19 @@ import LibraryNXPView from '../dataspace/libraryNXPView.vue'
     console.log(modelFuture)
   }
 
+  const bentoboxQuant = (quant) => {
+    if (quant === 'n') {
+      quantSelect.value.now = !quantSelect.value.now
+    } else if (quant === 'f') {
+      quantSelect.value.future = !quantSelect.value.future
+    } else if (quant === 'nn') {
+      quantSelect.value.nnow = !quantSelect.value.nnow
+    } else if (quant === 'nf') {
+      quantSelect.value.nfuture = !quantSelect.value.nfuture
+    }
+  }
+
+  /* computed */
   const checkEmpty = computed((value) => {
     return typeof value !== "number" ? 0 : value;
   })
@@ -284,6 +326,42 @@ import LibraryNXPView from '../dataspace/libraryNXPView.vue'
     min-height: inherit;
     min-width: inherit;
     z-index: 9;
+  }
+
+  .bentocell-quadrants {
+    display: grid;
+    position: absolute;
+    top: 0px;
+    left: 200;
+    background-color: red;
+    width: 64px;
+    z-index: 19;
+  }
+
+  #bentobox-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background-color: green;
+  }
+
+  #bentobox-now {
+    background-color: purple;
+    width: 31px;
+  }
+
+  #network-bentobox-now {
+    background-color: greenyellow;
+    width: 31px;
+  }
+
+  #bentobox-future {
+    background-color: grey;
+    width: 31px;
+  }
+
+  #network-bentobox-future {
+    background-color: orange;
+    width: 31px;
   }
 
   #bb-toolbar {

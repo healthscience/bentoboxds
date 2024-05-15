@@ -61,21 +61,8 @@ const formContribute = [
     return storeLibrary.saveSuccessnxp
   })
 
-  const newRefContractLive = computed(() => {
-    // return this.$store.state.newRefcontractForm
-  })
-
-  const catCountLive = computed(() => {
-    // return this.$store.state.newPackingForm.catCount
-  })
-
-  const tidyCountLive = computed(() => {
-    // return this.$store.state.newPackingForm.tidyCount
-  })
-
-
-/* methods */
-const saveRefContract = () => {
+  /* methods */
+  const saveRefContract = () => {
     // pull together other parts of refcontract
     const refContract = {}
     refContract.type = 'library'
@@ -154,6 +141,7 @@ const saveRefContract = () => {
           mobileapp: ''
         }
       }
+      storeLibrary.newLists = {}
     } else if (contractformType.value.type === 'visualise') {
       storeLibrary.newVisualiseForm = 
       {

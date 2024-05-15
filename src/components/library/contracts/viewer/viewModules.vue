@@ -101,8 +101,8 @@
 </template>
 
 <script setup>
-import ExperimentView from '@/components/library/contracts/experimentViewer.vue'
-import ModuleView from '@/components/library/contracts/moduleViewer.vue'
+import ExperimentView from '@/components/library/contracts/viewer/experimentViewer.vue'
+import ModuleView from '@/components/library/contracts/viewer/moduleViewer.vue'
 
 import { libraryStore } from '@/stores/libraryStore.js'
 import { ref, computed } from 'vue'

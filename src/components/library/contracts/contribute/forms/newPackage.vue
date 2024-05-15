@@ -34,7 +34,7 @@
     <div id="desribe-data" v-if="datasourceLive === true">
       <div id="sqlite-table-name" v-if="filetypeLive === 'sqlite'">
         <label for="add-code-name">SQLite table name: </label>
-        <input type="text"  id="table-name-sqlite" placeholder="" required @input="sqlitetableSave" @paste="sqlitetableSave" @keyup="sqlitetableSave"  v-model="storeLibrary.newPackagingForm.sqlitetable" />
+        <input type="text"  id="table-name-sqlite" placeholder="" required  v-model="storeLibrary.newPackagingForm.sqlitetable" />
       </div>
       <div class="package-column-item">
         <label for="add-code-name">Column builder</label>

@@ -76,8 +76,8 @@
 </template>
 
 <script setup>
-import ViewReference from '@/components/library/contracts/viewReference.vue'
-import ViewModules from '@/components/library/contracts/viewModules.vue'
+import ViewReference from '@/components/library/contracts/viewer/viewReference.vue'
+import ViewModules from '@/components/library/contracts/viewer/viewModules.vue'
 import ViewResults from '@/components/library/hop/viewResults.vue'
 import ViewLedger from '@/components/library/hop/viewLedger.vue'
 import NewRefcontract from '@/components/library/contracts/contribute/newRefcontract.vue'
