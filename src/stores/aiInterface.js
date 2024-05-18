@@ -142,6 +142,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         this.actionFileAskInput(lastQuestion[0].reply)
       } else if (dataInfo?.id) {
         // if bbid match to that
+        console.log('yes mach bbid')
         let matchBBox = {}
         let questionCount = []
         for (let hpair of this.historyPair[this.chatAttention]) {
@@ -245,58 +246,72 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         if (received.action === 'cale-evolution') {
           if (received.task === 'begin') {
             this.storeAcc.processAgentStatus(received.data)
+          } else if (received.task === 'closed') {
+            this.storeAcc.processAgentStatus(received.data)
           }
         } else if (received.action === 'cale-gpt4all') {
           if (received.task === 'begin') {
             this.storeAcc.processAgentStatus(received.data)
+          } else if (received.task === 'closed') {
+            this.storeAcc.processAgentStatus(received.data)
           }
+        }
+      } else if (received.action === 'hop-learn-feedback') {
+        console.log('agent feeedback')
+        if (received.data.agent === 'not-active') {
+          let pairBB = {}
+          pairBB.question = received.data.input
+          pairBB.reply = received
+          this.historyPair[this.chatAttention].push(pairBB)
         }
       } else {
         // match to question via bbid
-        let questionStart = {}
-        let questionCount = []
-        for (let histMatch of this.helpchatHistory) {
-          if (histMatch.bbid === received.bbid) {
-            questionCount.push(histMatch)
-            questionStart = histMatch
-          }
-        }
-        if (questionCount.length === 1) {
-          // does the question exist from file upload?
-          if (questionCount[0].data?.filedata) {
-            // set box detail setings
-            this.storeBentoBox.boxToolStatus[received.bbid] = {}
-            let boxSettings = 
-            {
-              opendatatools: { active: false },
-              boxtoolshow: { active: false },
-              vistoolsstatus: { active: false },
-              scalezoom: 1,
-              location: {},
-              chartstyle: 'line'
+        if (received.data) {
+          let questionStart = {}
+          let questionCount = []
+          for (let histMatch of this.helpchatHistory) {
+            if (histMatch.bbid === received.bbid) {
+              questionCount.push(histMatch)
+              questionStart = histMatch
             }
-            this.storeBentoBox.boxToolStatus[received.bbid] = this.boxSettings
-            this.storeBentoBox.devicesettings[received.bbid] = {}
-            this.storeBentoBox.chartStyle[received.bbid] = 'line'
-          } else {
-            let pairBB = {}
-            pairBB.question = questionStart
-            pairBB.reply = received
-            this.historyPair[this.chatAttention].push(pairBB)
-            this.storeBentoBox.boxToolStatus[received.bbid] = this.boxSettings
-            this.storeBentoBox.devicesettings[received.bbid] = {}
           }
+        
+          if (questionCount.length === 1) {
+            // does the question exist from file upload?
+            if (questionCount[0].data?.filedata) {
+              // set box detail setings
+              this.storeBentoBox.boxToolStatus[received.bbid] = {}
+              let boxSettings = 
+              {
+                opendatatools: { active: false },
+                boxtoolshow: { active: false },
+                vistoolsstatus: { active: false },
+                scalezoom: 1,
+                location: {},
+                chartstyle: 'line'
+              }
+              this.storeBentoBox.boxToolStatus[received.bbid] = this.boxSettings
+              this.storeBentoBox.devicesettings[received.bbid] = {}
+              this.storeBentoBox.chartStyle[received.bbid] = 'line'
+            } else {
+              let pairBB = {}
+              pairBB.question = questionStart
+              pairBB.reply = received
+              this.historyPair[this.chatAttention].push(pairBB)
+              this.storeBentoBox.boxToolStatus[received.bbid] = this.boxSettings
+              this.storeBentoBox.devicesettings[received.bbid] = {}
+            }
+          }
+          if (received.action === 'library-peerlibrary' || 'publiclibrary') {
+            this.storeLibrary.processReply(received, questionStart)
+          }
+          // check if reply is upload?  If yes, present upload interface
+          if (received.action === 'upload') {
+            // this.uploadStatus = true
+          } 
+          this.beginChat = true 
+          this.chatBottom++
         }
-        if (received.action === 'library-peerlibrary' || 'publiclibrary') {
-          console.log('library')
-          this.storeLibrary.processReply(received, questionStart)
-        }
-        // check if reply is upload?  If yes, present upload interface
-        if (received.action === 'upload') {
-          // this.uploadStatus = true
-        } 
-        this.beginChat = true 
-        this.chatBottom++
       }
     },
     processNotification (received) {

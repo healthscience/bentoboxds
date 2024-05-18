@@ -194,8 +194,6 @@ export const libraryStore = defineStore('librarystore', {
           this.publicLibrary = message
         }
       } else if (message.action === 'peer-library') {
-        console.log('peer library')
-        console.log(message)
         // prepare network experiment lists
         let newPair = {}
         newPair.question = questionStart

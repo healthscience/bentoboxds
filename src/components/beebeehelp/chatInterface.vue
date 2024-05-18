@@ -23,6 +23,9 @@
                 <div v-if="chati.reply?.action === 'hello'">
                   {{ chati.reply.data }}
                 </div>
+                <div v-if="chati.reply.action === 'hop-learn-feedback'">
+                  {{ chati.reply.data.agent }} Please start the LLM in accounts settings.
+                </div>
                 <div v-if="chati.reply?.action === 'library'">
                   <button @click="openLibrary">open library</button>
                 </div>

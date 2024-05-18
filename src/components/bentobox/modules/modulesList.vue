@@ -110,12 +110,18 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
 <style scoped>
 #modules-list-box {
-  background-color: antiquewhite; 
+  display: grid;
+  grid-template-columns: 1fr;
+  background-color: antiquewhite;
+  border: 1px solid red;
 }
 
 @media (min-width: 1024px) {
   #modules-list-box {
-    background-color: antiquewhite; 
+    display: grid;
+    grid-template-columns: 1fr;
+    background-color: antiquewhite;
+    border: 1px solid red;
   }
 
   .module-box {

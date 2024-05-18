@@ -80,18 +80,17 @@ export const accountStore = defineStore('account', {
       this.sendMessageHOP(shareInfo)
     },
     processAgentStatus (data) {
-      console.log('process agent status')
-      console.log(data)
       for (let agent of this.agentList) {
         if (agent.name === data.name) {
           if (data.status === 'loaded') {
             agent.active = true
+          } else if (data.status === 'closed') {
+            agent.active = false
           }
         }
       }
     },
     sendMessageHOP (message) {
-      console.log('mesage acc')
       this.sendSocket.send_message(message)
     }
   }

@@ -9,7 +9,8 @@
         <div class="agent-description">local machine learning</div>
         <div class="agent-active" v-bind:class="{ active: agent.active }">
           <div id="status-agent">Status: {{ agent.active }}</div>
-          <button id="start-llm-learn" @click="startAgentlearn(agent.name)">Begin</button>
+          <button v-if="agent.active === false" id="start-llm-learn" @click="startAgentlearn(agent.name, 'start')">Begin</button>
+          <button v-else="agent.active === true" id="start-llm-learn" @click="startAgentlearn(agent.name, 'stop')">Stop</button>
         </div>
       </div>
     </div>
@@ -33,14 +34,24 @@ import { accountStore } from '@/stores/accountStore.js'
 })
 
   /* methods */
-  let startAgentlearn = (agent) => {
-    let learnMessage = {}
-    learnMessage.type = 'bbai'
-    learnMessage.reftype = 'ignore'
-    learnMessage.action = 'learn-agent-start'
-    learnMessage.data = { model: agent}
-    learnMessage.bbid = ''
-    storeAccount.sendMessageHOP(learnMessage)
+  let startAgentlearn = (agent, action) => {
+    if (action === 'start') {
+      let learnMessage = {}
+      learnMessage.type = 'bbai'
+      learnMessage.reftype = 'ignore'
+      learnMessage.action = 'learn-agent-start'
+      learnMessage.data = { model: agent}
+      learnMessage.bbid = ''
+      storeAccount.sendMessageHOP(learnMessage)
+    } else if (action === 'stop') {
+      let learnMessage = {}
+      learnMessage.type = 'bbai'
+      learnMessage.reftype = 'ignore'
+      learnMessage.action = 'learn-agent-stop'
+      learnMessage.data = { model: agent}
+      learnMessage.bbid = ''
+      storeAccount.sendMessageHOP(learnMessage)
+    }
 
 }
 
