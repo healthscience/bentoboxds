@@ -1,11 +1,11 @@
 <template>
   <div id="vis-tools">
     <div class="network-tools">
-      <div class="context-network">ng
-        <!--<button @click.prevent="setNetworkgraph('networkview')">{{ network.text }}</button>-->
+      <div class="context-network">
+        <button id="network-graph" @click="viewNetworkGrpah()" v-bind:class="{ active: storeBentobox.networkGraph }">graph</button>
       </div>
-      <div class="context-network">nm
-        <!--<button @click.prevent="setNetworkmap('mapview')">{{ mapButton.text }}</button>-->
+      <div class="context-network">
+        <button id="network-graph" @click="viewMap()" v-bind:class="{ active: storeBentobox.geoMap }">map</button>
       </div>
     </div>
     <div class="network-tools">
@@ -77,6 +77,14 @@ const openDataToolbar = () => {
   storeBentobox.boxToolStatus[props.bboxid].opendatatools.active = !storeBentobox.boxToolStatus[props.bboxid].opendatatools.active
 }
 
+const viewNetworkGrpah = () => {
+  storeBentobox.networkGraph = !storeBentobox.networkGraph
+}
+
+const viewMap = () => {
+  storeBentobox.geoMap = !storeBentobox.geoMap
+}
+
 const setTimeFormat = () => {
   console.log('set time format')
 }
@@ -122,13 +130,22 @@ const visToolbarStatusLive = computed(() => {
 
   #vis-tools {
     display: grid;
-    grid-template-columns: 1fr 2fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr 3fr 1fr 1fr 1fr;
   }
 
   .network-tools {
     border: 1px solid blue;
   }
 
+  .context-network {
+    margin-top: 1em;
+    margin-left: 2em;
+  }
+
+  .active {
+    background-color: rgb(113, 172, 114);
+    border: 1px solid green;
+  }
 }
 
 </style>

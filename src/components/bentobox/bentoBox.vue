@@ -2,19 +2,6 @@
   <div id="bentobox-quants" ref="bentoboxQuants" @mouseup.prevent="EndDrag()" @mousemove.prevent="OnDrag($event)">
     <div id="bentobox-tools">
       <box-tools :bboxid="props.bboxid"></box-tools>
-      <div id="network-bentobox">
-        <div id="bb-network-graph">Network graph</div>
-        <div id="bb-world-map">map open street</div>
-      </div>
-      <!--<div class="drag-container-1">
-        <div id="bb-toolbar">
-          <div class="bb-bar-main">a bentobox active</div>
-          <bb-tools v-if="boxToolsShow" :bboxid="props.bboxid"></bb-tools>
-          <div class="bb-bar-main"><button id="network-vis">social</button></div>
-          <div class="bb-bar-main"><button id="network-map">map</button></div>
-          <div class="bb-bar-main"><button id="bb-copy">copy</button></div>
-        </div>
-      </div> -->
       <div id="bentobox-mini"> <!-- switch on of bentobox quants -->
         <div id="bentobox-row">
           <div id="bentobox-now" class="mini-quant-off" @click="bentoboxQuant('n')"  v-bind:class="{ active: quantSelect['now'] }">
@@ -34,32 +21,35 @@
         </div>
       </div>
     </div>
-    <div id="box-now" ref="nowBBox" class="bentobox-cell">
+    <div id="box-now" ref="nowBBox" class="bentobox-cell" v-bind:style="{ display: liveBoxNow }">
       <div id="bentobox-network">
-        <div id="bb-network-graph">Network</div>
-        <div id="bb-world-map">map</div>
-        <div id="bentobox-holder">
+        <div id="bentobox-holder" v-if="graphLive">
+          <div id="bb-network-graph">Network graph</div>
           <div id="network-bentobox">
-            network bentobox
+              Peers in network or devices in network, some sort of navigation
           </div>
+        </div>
+        <div id="bb-world-map" v-if="mapLive">
+          <map-openstreet></map-openstreet>
         </div>
       </div>
       <div id="bento-past" v-if="quantSelect['now']">
         <!--<div id="past-box">past toolbar <button id="full-past-toolbar">Tools</button></div>-->
         <bar-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'bar'" :chartData="chartData"></bar-chart>-
         <line-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'line'" :chartData="chartData"></line-chart>
-
       </div>
     </div>
-    <div id="vertdragbar" @mousedown="StartRightDrag()"></div> <!-- vertical slider -->
-    <div  id="box-future" ref="futureBBox" class="bentobox-cell">
+    <div id="vertdragbar" @mousedown="StartRightDrag()"  v-bind:style="{ display: liveBoxNow }"></div> <!-- vertical slider -->
+    <div id="box-future" ref="futureBBox" class="bentobox-cell"  v-bind:style="{ display: liveBoxFuture }">
       <div id="bentobox-network">
-        <div id="bb-network-graph">Network</div>
-        <div id="bb-world-map">map</div>
-        <div id="bentobox-holder">
+        <div id="bentobox-holder" v-if="graphLive">
+          <div id="bb-network-graph">Network graph</div>
           <div id="network-bentobox">
-            network bentobox
+              Peers in network or devices in network, some sort of navigation
           </div>
+        </div>
+        <div id="bb-world-map" v-if="mapLive">
+          <map-openstreet></map-openstreet>
         </div>
       </div>
       <div id="bento-future" v-if="quantSelect['future']">
@@ -70,10 +60,52 @@
       </div>
     </div>
     <div id="expand" @mousedown="StartExpandDrag()"></div>
-    <div id="bentobox-modules">
-      <div id="bb-expand-size" @click="expandModules">modules v</div>
-      <modules-list v-if="modulesShow" :bboxid="props.bboxid"></modules-list>
+  </div>
+  <!--network bentoboxes-->
+  <div id="network-bentobox-quants" ref="networkbentoboxQuants" @mouseup.prevent="netEndDrag()" @mousemove.prevent="netOnDrag($event)">
+    <div id="networkbox-now" ref="nnowBBox" class="bentobox-cell"  v-bind:style="{ display: liveBoxNetNow }">
+      <div id="bentobox-network">
+        <div id="bentobox-holder" v-if="graphLive">
+          <div id="bb-network-graph">Network graph</div>
+          <div id="network-bentobox">
+              Peers in network or devices in network, some sort of navigation
+          </div>
+        </div>
+        <div id="bb-world-map" v-if="mapLive">
+          <map-openstreet></map-openstreet>
+        </div>
+      </div>
+      <div id="bento-past" v-if="quantSelect['nnow']">
+        <!--<div id="past-box">past toolbar <button id="full-past-toolbar">Tools</button></div>-->
+        <bar-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'bar'" :chartData="chartData"></bar-chart>-
+        <line-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'line'" :chartData="chartData"></line-chart>
+      </div>
     </div>
+    <div id="vertdragbar" @mousedown="StartNetworkRightDrag()"></div> <!-- vertical slider -->
+    <div id="networkbox-future" ref="nfutureBBox" class="bentobox-cell"  v-bind:style="{ display: liveBoxNetFuture }">
+      <div id="bentobox-network">
+        <div id="bentobox-holder" v-if="graphLive">
+          <div id="bb-network-graph">Network graph</div>
+          <div id="network-bentobox">
+              Peers in network or devices in network, some sort of navigation
+          </div>
+        </div>
+        <div id="bb-world-map" v-if="mapLive">
+          <map-openstreet></map-openstreet>
+        </div>
+      </div>
+      <div id="bento-future" v-if="quantSelect['nfuture']">
+        <!--<button id="full-future-toolbar" @click="predictFuture()">Predict</button>-->
+        <!--<div id="future-box">future toolbar <button id="full-future-toolbar">full</button></div>-->
+        <bar-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'bar'" :chartData="chartfutureData" ></bar-chart>
+        <line-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'line'" :chartData="chartfutureData"></line-chart>
+      </div>
+    </div>
+    <div id="network-expand" @mousedown="StartNetworkExpandDrag()"></div>
+  </div>
+  <div id="bentobox-modules">
+    <div id="bb-expand-size" @click="expandModules">modules v</div>
+    <modules-list v-if="modulesShow" :bboxid="props.bboxid"></modules-list>
   </div>
 </template>
 
@@ -83,6 +115,7 @@ import BoxTools from '@/components/bentobox/tools/boxTools.vue'
 import barChart from '@/components/visualisation/charts/barChart.vue'
 import lineChart from '@/components/visualisation/charts/lineChart.vue'
 import ModulesList from '@/components/bentobox/modules/modulesList.vue'
+import MapOpenstreet from '@/components/bentobox/graph/openStreetMap.vue'
 import { ref, computed, onMounted, nextTick } from 'vue'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
@@ -93,14 +126,22 @@ import { libraryStore } from '@/stores/libraryStore.js'
   const storeLibrary = libraryStore()
   
   let bentoboxQuants = ref(null)
+  let networkbentoboxQuants = ref(null)
   let nowBBox = ref(null)
   let futureBBox = ref(null)
+  let nnowBBox = ref(null)
+  let nfutureBBox = ref(null)
   let modulesShow = ref(false)
   let modelFuture = ref('')
-  let quantSelect = ref(
-    { now: true, future: false, nnow: false, nfuture: false })
+  let quantSelect = ref({ now: true, future: false, nnow: false, nfuture: false })
   let isRightDragging = ref(false)
+  let isNetworkRightDragging = ref(false)
   let isExpandDragging = ref(false)
+  let isNetworkExpandDragging = ref(false)
+  let liveBoxNow = ref('block')
+  let liveBoxFuture = ref('block')
+  let liveBoxNetNow = ref('block')
+  let liveBoxNetFuture = ref('block')
 
   const props = defineProps({
     bboxid: String
@@ -113,102 +154,198 @@ import { libraryStore } from '@/stores/libraryStore.js'
   const bentoboxQuant = (quant) => {
     if (quant === 'n') {
       quantSelect.value.now = !quantSelect.value.now
+      if (quantSelect.value.now !== true) {
+        liveBoxNow.value = 'none'
+      } else {
+        liveBoxNow.value = 'block'
+      }
     } else if (quant === 'f') {
       quantSelect.value.future = !quantSelect.value.future
+      if (quantSelect.value.future !== true) {
+      liveBoxFuture.value = 'none'
+      } else {
+        liveBoxFuture.value = 'block'
+      }
     } else if (quant === 'nn') {
       quantSelect.value.nnow = !quantSelect.value.nnow
+      if (quantSelect.value.nnow !== true) {
+      liveBoxNetNow.value = 'none'
+      } else {
+        liveBoxNetNow.value = 'block'
+      }
     } else if (quant === 'nf') {
       quantSelect.value.nfuture = !quantSelect.value.nfuture
+      if (quantSelect.value.nfuture !== true) {
+      liveBoxNetFuture.value = 'none'
+      } else {
+        liveBoxNetFuture.value = 'block'
+      }
     }
   }
 
   const SetCursor = (cursor) => {
+    let page = bentoboxQuants.value
+    page.style.cursor = cursor
+  }
+
+  const StartRightDrag = () => {
+    isRightDragging.value = true
+    SetCursor("ew-resize")
+  }
+
+  const StartNetworkRightDrag = () => {
+    isNetworkRightDragging.value = true
+    SetCursor("ew-resize")
+  }
+
+  const StartExpandDrag = () => {
+    isExpandDragging.value = true
+    SetCursor("ns-resize")
+  }
+
+  const StartNetworkExpandDrag = () => {
+    isNetworkExpandDragging.value = true
+    SetCursor("ns-resize")
+  }
+
+  const EndDrag = () => {
+    isRightDragging.value = false
+    isExpandDragging.value = false
+    isNetworkRightDragging.value = false
+    isNetworkExpandDragging.value = false
+    SetCursor("default")
+  }
+
+  const netEndDrag = () => {
+    isRightDragging.value = false
+    isExpandDragging.value = false
+    isNetworkRightDragging.value = false
+    isNetworkExpandDragging.value = false
+    SetCursor("default")
+  }
+
+  const OnDrag = async (event) => {
+    if(isExpandDragging.value) {
       let page = bentoboxQuants.value
-      page.style.cursor = cursor
-    }
+      let leftcol = nowBBox.value
+      let rightcol = futureBBox.value
 
-    const StartRightDrag = () => {
-      isRightDragging.value = true
-      SetCursor("ew-resize")
-    }
-
-    const StartExpandDrag = () => {
-      isExpandDragging.value = true
-      SetCursor("ns-resize")
-    }
-
-    const EndDrag = () => {
-      isRightDragging.value = false
-      isExpandDragging.value = false
-      SetCursor("default")
-    }
-
-    const OnDrag = async (event) => {
-      if(isExpandDragging.value) {
-        let page = bentoboxQuants.value
-        let leftcol = nowBBox.value
-        let rightcol = futureBBox.value
+      let leftColHeight = isExpandDragging ? event.clientY : event.clientY
+      let rightColHeight = isExpandDragging ? event.clientY : event.clientY
+      let dragbarHeight = 6
       
-
-        let leftColHeight = isExpandDragging ? event.clientY : event.clientY
-        let rightColHeight = isExpandDragging ? event.clientY : event.clientY
-        console.log(event.clientY)
-        let dragbarHeight = 6
-        
-        let rows = [
-          '20',
-          leftColHeight,
-          '6',
-          '20'
-        ]
-        
-        let updateString = ''
-        let newColDefn = rows.map(c => {
-          let pv = useToString(c)
-          let newPv = (pv.value + "px")
-          updateString = updateString + ' ' + newPv
-          return updateString
-        })
-        console.log(newColDefn)
-        page.style.gridTemplateRows = newColDefn.pop()
-        // chart.canvas.parentNode.style.height = leftColHeight
-        event.preventDefault()
-      }
-
-      if(isRightDragging.value) {
-        let page = bentoboxQuants.value
-        let leftcol = nowBBox.value
-        let rightcol = futureBBox.value	
-
-        let leftColWidth = isRightDragging ? event.clientX : leftcol.clientWidth
-        let rightColWidth = isRightDragging ? page.clientWidth - (6) - leftColWidth : 500
-        
-        let dragbarWidth = 6
-        
-        let cols = [
-          leftColWidth,
-          dragbarWidth,
-          rightColWidth // calc of left size for grid
-        ]
-
-        let updateString = ''
-        let newColDefn = cols.map(c => {
-          let pv = useToString(c)
-          let newPv = (pv.value + "px")
-          updateString = updateString + ' ' + newPv
-          return updateString
-        })
-        page.style.gridTemplateColumns = newColDefn.pop()
-        // chart.canvas.parentNode.style.width = leftColWidth
-        event.preventDefault()
-      }
+      let rows = [
+        '20',
+        leftColHeight,
+        '30',
+      ]
+      
+      let updateString = ''
+      let newColDefn = rows.map(c => {
+        let pv = useToString(c)
+        let newPv = (pv.value + "px")
+        updateString = updateString + ' ' + newPv
+        return updateString
+      })
+      page.style.gridTemplateRows = newColDefn.pop()
+      // chart.canvas.parentNode.style.height = leftColHeight
+      event.preventDefault()
     }
 
+    if(isRightDragging.value) {
+      let page = bentoboxQuants.value
+      let leftcol = nowBBox.value
+      let rightcol = futureBBox.value	
+
+      let leftColWidth = isRightDragging ? event.clientX : leftcol.clientWidth
+      let rightColWidth = isRightDragging ? page.clientWidth - (6) - leftColWidth : 500
+      
+      let dragbarWidth = 6
+      
+      let cols = [
+        leftColWidth,
+        dragbarWidth,
+        rightColWidth // calc of left size for grid
+      ]
+
+      let updateString = ''
+      let newColDefn = cols.map(c => {
+        let pv = useToString(c)
+        let newPv = (pv.value + "px")
+        updateString = updateString + ' ' + newPv
+        return updateString
+      })
+      page.style.gridTemplateColumns = newColDefn.pop()
+      // chart.canvas.parentNode.style.width = leftColWidth
+      event.preventDefault()
+    }
+  }
+
+  const netOnDrag = async (event) => {
+    if (isNetworkExpandDragging.value) {
+      let page = networkbentoboxQuants.value
+      let leftcol = nnowBBox.value
+      let rightcol = nfutureBBox.value
+
+      let leftColHeight = isNetworkExpandDragging ? event.clientY : event.clientY
+      let rightColHeight = isNetworkExpandDragging ? event.clientY : event.clientY
+      let dragbarHeight = 6
+      
+      let rows = [
+        leftColHeight,
+        '30',
+      ]
+      
+      let updateString = ''
+      let newColDefn = rows.map(c => {
+        let pv = useToString(c)
+        let newPv = (pv.value + "px")
+        updateString = updateString + ' ' + newPv
+        return updateString
+      })
+      page.style.gridTemplateRows = newColDefn.pop()
+      // chart.canvas.parentNode.style.height = leftColHeight
+      event.preventDefault()
+    }
+
+    if(isNetworkRightDragging.value) {
+      let page = networkbentoboxQuants.value
+      let leftcol = nnowBBox.value
+      let rightcol = nfutureBBox.value	
+
+      let leftColWidth = isNetworkRightDragging ? event.clientX : leftcol.clientWidth
+      let rightColWidth = isNetworkRightDragging ? page.clientWidth - (6) - leftColWidth : 500
+      
+      let dragbarWidth = 6
+      
+      let cols = [
+        leftColWidth,
+        dragbarWidth,
+        rightColWidth // calc of left size for grid
+      ]
+
+      let updateString = ''
+      let newColDefn = cols.map(c => {
+        let pv = useToString(c)
+        let newPv = (pv.value + "px")
+        updateString = updateString + ' ' + newPv
+        return updateString
+      })
+      page.style.gridTemplateColumns = newColDefn.pop()
+      // chart.canvas.parentNode.style.width = leftColWidth
+      event.preventDefault()
+    }
+  }
 
   /* computed */
-  const checkEmpty = computed((value) => {
-    return typeof value !== "number" ? 0 : value
+  const mapLive = computed(() => {
+    return storeBentobox.geoMap
   })
+
+  const graphLive = computed(() => {
+    return storeBentobox.networkGraph
+  })
+
 
   /* data flow work */
     // const dataValues = ref([2, 4, 7])
@@ -271,69 +408,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
 <style scoped>
 
-.bentobox-cell {
-  display: grid;
-}
-
-#bb-toolbar {
-  display: grid;
-  grid-template-columns: 1fr;
-}
-
-#bb-network-graph {
-  display: none;
-}
-
-#bb-world-map {
-  display: none;
-}
-
-#bentobox-holder {
-  position: relative;
-  border: 1px solid rgb(128, 128, 128);
-}
-
-#bentobox-quants {
-  display: grid;
-  grid-template-areas:
-  'bentobox-tools bentobox-tools bentobox-tools'
-  'boxnow vertdragbar boxfuture'
-  'expand expand expand'
-  'bbmodules bbmodules bbmodules';
-  grid-template-rows: min-content 1fr 9fr 6px 1fr;
-  grid-template-columns: 2fr 6px 2fr;
-  width: 98vw;   
-}
-
-#bentobox-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-}
-
-#bento-past {
-  position: relative;
-  margin: 2em;
-  border: 2px solid orange;
-}
-
-#bento-future {
-  position: relative;
-  margin: 2em;
-  border: 2px solid orange;
-}
-
-
-#bb-expand-size {
-  display: block;
-  width: 100%;
-  background-color:  rgb(141, 145, 226);
-}
-
-.active {
-  background-color: darblue;
-  border: 1px solid lightblue;
-}
-
 
 @media (min-width: 1024px) {
 
@@ -342,19 +416,29 @@ import { libraryStore } from '@/stores/libraryStore.js'
     grid-template-areas:
     'bentobox-tools bentobox-tools bentobox-tools'
     'boxnow vertdragbar boxfuture'
-    'expand expand expand'
-    'bbmodules bbmodules bbmodules';
-    grid-template-rows: min-content 1fr 9fr 6px 2fr;
+    'expand expand expand';
+    grid-template-rows: 1fr 9fr 30px;
     grid-template-columns: 2fr 6px 2fr;
-    height: 96vh;
-    width: 94vw;
+    height: auto;
+    width: 90vw;
+    border: 2px solid rgb(141, 145, 226);
+  }
+
+  #network-bentobox-quants {
+    display: grid;
+    grid-template-areas:
+    'netboxnow vertdragbar netboxfuture'
+    'networkexpand networkexpand networkexpand';
+    grid-template-rows: 9fr 6px;
+    grid-template-columns: 2fr 6px 2fr;
+    height: auto;
+    width: 90vw;
     border: 2px solid rgb(141, 145, 226);
   }
 
   #bentobox-tools {
     background-color: rgb(224, 227, 243);
     grid-area: bentobox-tools;
-    border: 0px solid red;
   }
 
   #bentobox-mini {
@@ -425,12 +509,51 @@ import { libraryStore } from '@/stores/libraryStore.js'
   }
 
   #expand {
+    display: block;
     background-color: darkblue;
     grid-area: expand;
+    cursor: ns-resize;
+    height: 16px;
+  }
+
+  #network-expand {
+    background-color: darkblue;
+    grid-area: networkexpand;
     cursor: ns-resize;
     height: 6px;
   }
 
+
+  #networkbox-now {
+    background-color: rgb(245, 247, 245);
+    grid-area: netboxnow;
+    overflow: hidden;
+    min-height: 30vh;
+  }
+
+  #networkbox-future {
+    background-color: rgb(241, 238, 231);
+    grid-area: netboxfuture;
+    overflow: hidden;
+    min-height: 30vh;
+  }
+
+  #bento-past {
+    position: relative;
+    height: 80%;
+    min-width: 20vw;
+    margin: 2em;
+    border: 0px solid orange;
+  }
+
+  #bento-future {
+    position: relative;
+    height: 80%;
+    min-width: 20vw;
+    margin: 2em;
+    border: 0px solid orange;
+  }
+  /* modules css */
   #bentobox-modules {
     display: grid;
     grid-template-columns: 1fr;
@@ -450,12 +573,22 @@ import { libraryStore } from '@/stores/libraryStore.js'
     background-color:rgb(141, 145, 226);
   }
 
+  /* network graph and social map */
+  #bentobox-network {
+    display: grid;
+    grid-template-columns: 1fr;
+    border: 2px solid red;
+    height: 10vh;
+  }
+
   #bb-network-graph {
-    display: none;
+    display: grid;
+    grid-template-columns: 1fr;
   }
 
   #bb-world-map {
-   display: none;
+   display: grid;
+   grid-template-columns: 1fr;
   }
 
   #bentobox-holder {
@@ -464,8 +597,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
     display: grid;
     grid-template-columns: 1fr;
     background-color: beige;
-    /* min-height: inherit;
-    min-width: inherit; */
+    height: 10vh;
   }
 
   #network-bentobox {
@@ -485,22 +617,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   #future-box {
     background-color:#fff4f4;
-  }
-
-  #bento-past {
-    position: relative;
-    min-height: 40vh;
-    min-width: 20vw;
-    margin: 2em;
-    border: 2px solid orange;
-  }
-
-  #bento-future {
-    position: relative;
-    min-height: 40vh;
-    min-width: 20vw;
-    margin: 2em;
-    border: 2px solid orange;
   }
 
   #bb-expand-size {

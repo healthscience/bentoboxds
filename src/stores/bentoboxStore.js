@@ -25,6 +25,8 @@ export const bentoboxStore = defineStore('bentostore', {
       scalezoom: 1,
       location: {}
     } */
+    networkGraph: false,
+    geoMap: false,
     devicesettings: {},
     openDatatools: {},
     boxtoolsShow: {},

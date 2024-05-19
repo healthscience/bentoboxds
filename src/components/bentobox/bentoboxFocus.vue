@@ -31,11 +31,8 @@ import { ref, computed } from 'vue'
 import ModalBentobox from '@/components/bentobox/bentoboxmodal/bentoboxModal.vue'
 import BentoBox from '@/components/bentobox/bentoBox.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
-import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
   const storeAI = aiInterfaceStore()
-  const bboxStore = bentoboxStore()
-  const showModal = ref(true)
 
   const props = defineProps({
     bboxid: String

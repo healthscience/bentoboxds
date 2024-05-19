@@ -113,7 +113,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
   display: grid;
   grid-template-columns: 1fr;
   background-color: antiquewhite;
-  border: 1px solid red;
+  border: 1px solid rgb(141, 145, 226);
 }
 
 @media (min-width: 1024px) {
@@ -121,7 +121,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
     display: grid;
     grid-template-columns: 1fr;
     background-color: antiquewhite;
-    border: 1px solid red;
+    border: 1px solid rgb(141, 145, 226);
   }
 
   .module-box {
