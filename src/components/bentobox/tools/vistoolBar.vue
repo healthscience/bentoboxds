@@ -1,6 +1,6 @@
 <template>
   <div id="vis-tools">
-    <div class="network-tools">
+    <div id="grap-map" class="network-tools">
       <div class="context-network">
         <button id="network-graph" @click="viewNetworkGrpah()" v-bind:class="{ active: storeBentobox.networkGraph }">graph</button>
       </div>
@@ -13,7 +13,7 @@
     </div>
     <div class="network-tools">
       <div id="chart-options">
-        <div class="chart-update">
+        <div class="chart-calendar-update">
           <select v-model="selectedTimeFormat" @change.prevent="setTimeFormat()">
             <option v-for="tfoption in timeformatoptions" v-bind:value="tfoption.value" :key='tfoption.id' :selected="selectedChartnumber">
             {{ tfoption.text }}
@@ -131,6 +131,11 @@ const visToolbarStatusLive = computed(() => {
   #vis-tools {
     display: grid;
     grid-template-columns: 1fr 3fr 1fr 1fr 1fr;
+  }
+
+  #grap-map {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
   }
 
   .network-tools {

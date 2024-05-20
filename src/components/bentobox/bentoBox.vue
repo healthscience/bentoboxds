@@ -26,7 +26,7 @@
         <div id="bentobox-holder" v-if="graphLive">
           <div id="bb-network-graph">Network graph</div>
           <div id="network-bentobox">
-              Peers in network or devices in network, some sort of navigation
+              <social-graph></social-graph>
           </div>
         </div>
         <div id="bb-world-map" v-if="mapLive">
@@ -45,7 +45,7 @@
         <div id="bentobox-holder" v-if="graphLive">
           <div id="bb-network-graph">Network graph</div>
           <div id="network-bentobox">
-              Peers in network or devices in network, some sort of navigation
+              <social-graph></social-graph>
           </div>
         </div>
         <div id="bb-world-map" v-if="mapLive">
@@ -68,7 +68,7 @@
         <div id="bentobox-holder" v-if="graphLive">
           <div id="bb-network-graph">Network graph</div>
           <div id="network-bentobox">
-              Peers in network or devices in network, some sort of navigation
+              <social-graph></social-graph>
           </div>
         </div>
         <div id="bb-world-map" v-if="mapLive">
@@ -87,7 +87,7 @@
         <div id="bentobox-holder" v-if="graphLive">
           <div id="bb-network-graph">Network graph</div>
           <div id="network-bentobox">
-              Peers in network or devices in network, some sort of navigation
+              <social-graph></social-graph>
           </div>
         </div>
         <div id="bb-world-map" v-if="mapLive">
@@ -115,6 +115,7 @@ import BoxTools from '@/components/bentobox/tools/boxTools.vue'
 import barChart from '@/components/visualisation/charts/barChart.vue'
 import lineChart from '@/components/visualisation/charts/lineChart.vue'
 import ModulesList from '@/components/bentobox/modules/modulesList.vue'
+import SocialGraph from '@/components/bentobox/graph/socialGraph.vue'
 import MapOpenstreet from '@/components/bentobox/graph/openStreetMap.vue'
 import { ref, computed, onMounted, nextTick } from 'vue'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
@@ -577,8 +578,8 @@ import { libraryStore } from '@/stores/libraryStore.js'
   #bentobox-network {
     display: grid;
     grid-template-columns: 1fr;
-    border: 2px solid red;
-    height: 10vh;
+    border: 0px solid red;
+    height: 1vh;
   }
 
   #bb-network-graph {
@@ -602,7 +603,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   #network-bentobox {
     border: 1px solid grey;
-    display: none;
+    display: grid;
     grid-template-columns: 1fr 1fr;
     margin: 1em;
   }

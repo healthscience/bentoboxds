@@ -1,52 +1,69 @@
 <template>
   <div id="time-control">
-    <div id="time-control-update">
-      <div id="time-options" class="series-style">
-        <div id="calendar-selector">
-          <div id="date-selector-status"  v-bind:class="{ active: calActive }">
-            <div id="range-datepicker" v-if="selectedTimeBundle === 'range'" >
-              <VueDatePicker class="calendar-view" @open="alertFn" @closed="alertFn" v-model="boxDaterange" :range="{}"></VueDatePicker>
+    <div id="calendar-live">
+      <div v-if="selectedTimeBundle === 'single'">
+        <a class="date-live-select" ref="#" @click="viewCalendarSeettings()">{{ boxDate }} v</a>
+      </div>
+      <div v-if="selectedTimeBundle === 'range'">
+        <a class="date-live-select" ref="#" @click="viewCalendarSeettings()">{{ boxDaterange }} v</a>
+      </div>
+      <div v-if="selectedTimeBundle === 'multi'">
+        <a ref="#" class="date-live-select" @click="viewCalendarSeettings()">{{ boxDate }} v</a>
+      </div>
+    </div>
+    <div id="date-set" v-if="setDateStatus">
+      <div id="time-control-update">
+        <div id="time-options" class="series-style">
+          <div id="calendar-range-select">
+            <div id="time-calendar-tools">
+              <div class="time-tools" id="select-range-type">
+                <select v-model="selectedTimeBundle" @change.prevent="setTimeBundle()">
+                  <option v-for="tb in optionTimeBundle" :value="tb.value" :selected="tb.value === selectedTimeBundle">
+                    {{ tb.text }}
+                  </option>
+                </select> 
+              </div>
+              <div class="time-tools">
+                <button id="multi-day-clear" @click.prevent="clearMultidays()">Clear</button>
+              </div>
+            </div>
           </div>
-          <div id="single-datepicker" v-else-if="selectedTimeBundle === 'single'">
-            <VueDatePicker class="calendar-view" @open="alertFn" @closed="alertFn" v-model="boxDate"></VueDatePicker>
-          </div>
-          <div id="multi-datepicker" v-else-if="selectedTimeBundle === 'multi'">
-            <VueDatePicker class="calendar-view" @open="alertFn" @closed="alertFn" v-model="boxDaterange" multi-dates></VueDatePicker>
-          </div>
+          <div id="calendar-selector">
+            <div id="date-selector-status"  v-bind:class="{ active: calActive }">
+              <div id="range-datepicker" v-if="selectedTimeBundle === 'range'" >
+                <VueDatePicker class="calendar-view" @open="alertFn" @closed="alertFn" v-model="boxDaterange" :range="{}"></VueDatePicker>
+              </div>
+              <div id="single-datepicker" v-else-if="selectedTimeBundle === 'single'">
+                <VueDatePicker class="calendar-view" @open="alertFn" @closed="alertFn" v-model="boxDate"></VueDatePicker>
+              </div>
+              <div id="multi-datepicker" v-else-if="selectedTimeBundle === 'multi'">
+                <VueDatePicker class="calendar-view" @open="alertFn" @closed="alertFn" v-model="boxDaterange" multi-dates></VueDatePicker>
+              </div>
+            </div>
           </div>
           <div id="selected-dates-list" v-if="boxDaterange !== 'date' && boxDaterange?.length > 1">
             <div class="dates-selected" v-for="sdate of boxDaterange">
               {{ sdate }}
             </div>
           </div>
-          <div id="time-calendar-tools">
-            <div class="time-tools" id="select-range-type">
-              <select v-model="selectedTimeBundle" @change.prevent="setTimeBundle()">
-                <option v-for="tb in optionTimeBundle" :value="tb.value" :selected="tb.value === selectedTimeBundle">
-                  {{ tb.text }}
-                </option>
-              </select> 
-            </div>
-            <div class="time-tools">
-              <button id="multi-day-clear" @click.prevent="clearMultidays()">Clear</button>
-            </div>
-            <div class="time-tools">
-              <div id="select-time">
-                <div v-for="tv in navTime" :key='tv.id' class="context-time">
-                  <button class="button is-primary" @click.prevent="setShiftTimeData(tv)">{{ tv.text.word }}</button>
-                </div>
-              </div>
-            </div>
-            <div id="update-manual">
-              <button id="update-chart" @click.prevent="updateKbundle($event)">Update</button>
+          <div id="calendar-list-view" >
+            <div class="time-m-list" v-for="datesl in calendarList" :key='datesl.id' >
+              {{ datesl }}
             </div>
           </div>
-        </div>
-        <div id="calendar-list-view" >
-          <div class="time-m-list" v-for="datesl in calendarList" :key='datesl.id' >
-            {{ datesl }}
+          <div id="update-manual">
+            <button id="update-chart" @click.prevent="updateKbundle($event)">Update</button>
           </div>
         </div>
+      </div>
+      <div id="date-quick-set">
+        <header>Quick set</header>
+        <div v-for="tv in navTime" :key='tv.id' class="context-time">
+          <button class="button is-primary" @click.prevent="setShiftTimeData(tv)">{{ tv.text.word }}</button>
+        </div>
+        <div class="date-fixed">day</div>
+        <div class="date-fixed">week</div>
+        <div class="date-fixed">month</div>
       </div>
     </div>
   </div>
@@ -65,7 +82,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     bboxid: String
   })
 
-
+  let setDateStatus = ref(false)
   let boxDate = ref()
   let boxDaterange = ref([])
   const calendarList = ref([])
@@ -105,7 +122,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     calActive.value = !calActive.value
   }
 
-
   const setTimeBundle = () => {
     // set calendar type
     if (selectedTimeBundle.value === 'single') {
@@ -137,7 +153,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
         hopTime.push(luxTime.toMillis())
       }
     }
-    console.log(hopTime)
+
     // get the library contracts
     storeAI.prepareLibrarySummary(props.bboxid)
     let entityID = Object.keys(storeAI.boxLibSummary[props.bboxid].data)
@@ -152,7 +168,9 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     updateECS.input = 'refUpdate'
     updateECS.modules = HOPcontext.modules = storeAI.boxLibSummary[props.bboxid].data[entityID[0]].modules
     HOPcontext.update = updateECS
-    storeAI.actionHelpAskUpdate(HOPcontext)
+    // close the calendar options and dispay date summary selected
+    setDateStatus.value = false
+    // storeAI.actionHelpAskUpdate(HOPcontext)
   }
 
   const setShiftTimeData = (seg) => {
@@ -165,22 +183,43 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     }
   }
 
+  const viewCalendarSeettings = () => {
+    setDateStatus.value = !setDateStatus.value
+  }
+
 </script>
 
 <style scoped>
 
 
 @media (min-width: 1024px) {
-  #time-context {
+
+  #date-set {
     display: grid;
-    grid-template-columns: 5fr 1fr;
-    border: 0px solid pink;
+    grid-template-columns: 3fr 1fr;
+    border-top: 2px solid blue;
+    margin-top: 1em;
   }
 
   #time-control-update {
     display: grid;
     grid-template-columns: 4fr 1fr;
     border: 0px solid black;
+    margin-top: 1em;
+  }
+
+  .date-live-select {
+    color: darkblue;
+    font-size: 1.2em;
+    padding-left: 1em;
+    padding-top: 3em;
+  }
+
+  #date-quick-set {
+    display: grid;
+    grid-template-columns: 1fr;
+    border: 0px solid black;
+    margin-top: 1em;
   }
 
   #calendar-selector {
@@ -224,10 +263,9 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   }
 
   #selected-dates-list {
-    position: absolute;
-    top: 0;
-    left: -210px;
-    max-width: 200px;
+    position: relative;
+    margin-top: 1em;
+    max-width: 280px;
     display: block;
     border: 1px solid blue;
     min-height: 100px;
