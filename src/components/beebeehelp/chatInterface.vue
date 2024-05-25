@@ -2,6 +2,7 @@
   <div id="chat-interface">
     <!-- Natural Language Chat -->
     <div id="natlang-ai">
+      <welcome-beebee></welcome-beebee>
       <div id="conversation" v-if="beginChat === true"  v-for="chati in chatPairs">
         <div class="peer-ask">
           <img class="left-chat-peer" src="../.././assets/peerlogo.png" alt="Avatar">
@@ -14,7 +15,8 @@
             <div class="right-chat">
               {{ chati.reply.type }}  {{ chati.reply.action }}
               <div v-if="chati.reply.type === 'hopquery'">
-                <span>Datatype: {{ chati.data.library.text }} for month {{ chati.data.time.words.day }} day {{ chati.data.time.words.month }}</span>--- <button id="new-query" @click.prevent="beebeeChartSpace(chati.data)">yes, produce chart</button>
+                <span>Datatype: {{ chati.data.library.text }} for month {{ chati.data.time.words.day }} day {{ chati.data.time.words.month }}</span>---
+                <button id="new-query" @click.prevent="beebeeChartSpace(chati.data)">yes, produce chart</button>
               </div>
               <div v-else-if="chati.reply.action === 'agent-response'">
                 {{ chati.reply.data }}
@@ -64,7 +66,9 @@
                 <button @click="openLibrary">open library</button>
               </div>
               <div v-else>
-                {{ chati.reply?.data?.text }}
+                <div v-if="chati.reply.type === 'feedback'">
+                  <div class="text-feedback">{{ chati.reply?.data?.text }}</div>
+                </div>
                 <div v-if="chati.reply.action === 'upload'">
                   <button id="upload-button" @click="uploadButton">Click to upload file</button>
                 </div>
@@ -91,6 +95,7 @@
 
 
 <script setup>
+import WelcomeBeebee from '@/components/beebeehelp/welcomeBeebee.vue'
 import inputBox from '@/components/beebeehelp/inputBox.vue'
 import SpaceUpload from '@/components/dataspace/upload/uploadSpace.vue'
 import CsvPreview from '@/components/dataspace/upload/csvPreview.vue'
@@ -111,7 +116,15 @@ import { libraryStore } from '@/stores/libraryStore.js'
     chartStyle.value = style
   }
 
-  // a computed ref
+  /* computed */
+  const libraryAvailable = computed (() => {
+    if (Object.keys(storeLibrary.publicLibrary).length > 0) {
+      return storeLibrary.publicLibrary.referenceContracts[storeLibrary.moduleNxpActive]
+    } else {
+      return []
+    }
+  })
+
   const chatPairs = computed(() => {
    return storeAI.historyPair[storeAI.chatAttention]
   })
@@ -169,7 +182,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
     dataCode.name = colName
     dataCode.timestamp = isDateColumn.value
     dataCode.bbid = bbid
-    console.log(dataCode)
     storeAI.submitAsk(dataCode)
   }
 
@@ -230,6 +242,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
   border-radius: 25px;
   margin-top: .5em;
   margin-left: 8%;
+  opacity: 90%;
 }
 
 .right-chat {
@@ -255,7 +268,8 @@ import { libraryStore } from '@/stores/libraryStore.js'
   width: 80%;
 }
 
-#natlang-ask {
+#buttommove {
+  color: white;
 }
 
   @media (min-width: 1024px) {

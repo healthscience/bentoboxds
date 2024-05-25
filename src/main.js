@@ -9,11 +9,16 @@ import i18n from "./i18n"
 
 import './assets/main.css'
 
+import VueDatePicker from '@vuepic/vue-datepicker'
+import '@vuepic/vue-datepicker/dist/main.css'
+
+
 const app = createApp(App)
 
 app.use(createPinia())
 app.use(router)
 app.use(VueDragscroll)
 app.use(i18n)
+app.component('VueDatePicker', VueDatePicker)
 
 app.mount('#app')

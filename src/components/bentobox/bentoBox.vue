@@ -53,6 +53,12 @@
         </div>
       </div>
       <div id="bento-future" v-if="quantSelect['future']">
+        <select class="select-model-save" id="bbox-model-save" v-model="modelFuture" @change="selectPredModel()">
+            <option selected="" v-for="fm in computeList" :value="fm.key">
+              {{ fm.value.computational.name }}
+            </option>
+          </select>
+          <button id="full-future-toolbar" @click="predictFuture()">Predict</button>
         <!--<button id="full-future-toolbar" @click="predictFuture()">Predict</button>-->
         <!-- <div id="future-box">future toolbar <button id="full-future-toolbar">full</button></div>-->
         <bar-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'bar'" :chartData="chartfutureData" ></bar-chart>
@@ -95,7 +101,12 @@
         </div>
       </div>
       <div id="bento-future" v-if="quantSelect['nfuture']">
-        <!--<button id="full-future-toolbar" @click="predictFuture()">Predict</button>-->
+        <select class="select-model-save" id="bbox-model-save" v-model="modelFuture" @change="selectPredModel()">
+            <option selected="" v-for="fm in computeList" :value="fm.key">
+              {{ fm.value.computational.name }}
+            </option>
+          </select>
+          <button id="full-future-toolbar" @click="predictFuture()">Predict</button>
         <!--<div id="future-box">future toolbar <button id="full-future-toolbar">full</button></div>-->
         <bar-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'bar'" :chartData="chartfutureData" ></bar-chart>
         <line-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'line'" :chartData="chartfutureData"></line-chart>
@@ -126,6 +137,12 @@ import { libraryStore } from '@/stores/libraryStore.js'
   const storeBentobox = bentoboxStore()
   const storeLibrary = libraryStore()
   
+  const props = defineProps({
+    bboxid: String,
+    bbwidth: String
+  })
+
+  let bentoboxWidth = props.bbwidth
   let bentoboxQuants = ref(null)
   let networkbentoboxQuants = ref(null)
   let nowBBox = ref(null)
@@ -143,10 +160,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
   let liveBoxFuture = ref('block')
   let liveBoxNetNow = ref('block')
   let liveBoxNetFuture = ref('block')
-
-  const props = defineProps({
-    bboxid: String
-  })
 
   let event = ref('')
   let timerPress = ref(0)
@@ -338,6 +351,11 @@ import { libraryStore } from '@/stores/libraryStore.js'
     }
   }
 
+  const selectPredModel = (model) => {
+    console.log(model)
+    console.log(modelFuture)
+  }
+
   /* computed */
   const mapLive = computed(() => {
     return storeBentobox.geoMap
@@ -418,10 +436,10 @@ import { libraryStore } from '@/stores/libraryStore.js'
     'bentobox-tools bentobox-tools bentobox-tools'
     'boxnow vertdragbar boxfuture'
     'expand expand expand';
-    grid-template-rows: 1fr 9fr 30px;
+    grid-template-rows: 1fr 300px 30px;
     grid-template-columns: 2fr 6px 2fr;
     height: auto;
-    width: 90vw;
+    width: var(--bentoboxWidth);
     border: 2px solid rgb(141, 145, 226);
   }
 
@@ -433,7 +451,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
     grid-template-rows: 9fr 6px;
     grid-template-columns: 2fr 6px 2fr;
     height: auto;
-    width: 90vw;
+    width: var(--bentoboxWidth);
     border: 2px solid rgb(141, 145, 226);
   }
 

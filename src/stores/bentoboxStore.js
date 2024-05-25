@@ -17,6 +17,7 @@ export const bentoboxStore = defineStore('bentostore', {
       }
     ],
     chartStyle: {},
+    bbToolbarOpendata: {},
     boxToolStatus: {},
     /* {
       opendatatools: { active: false },
@@ -28,9 +29,15 @@ export const bentoboxStore = defineStore('bentostore', {
     networkGraph: false,
     geoMap: false,
     devicesettings: {},
+    settings: {
+      xaxis: '',
+      yaxis: [],
+      category: ''
+    },
     openDatatools: {},
     boxtoolsShow: {},
     vistoolsStatus : {},
+    openDataSettings: {},
     locationStart: 90,
     scaleZoom: 1,
     locationBbox: {
@@ -80,6 +87,8 @@ export const bentoboxStore = defineStore('bentostore', {
                 this.storeAI.historyPair[cm.key] = cm.value.pair
                 // toolbars
                 this.boxtoolsShow[cm.key] = false
+                this.bbToolbarOpendata[cm.key] = false
+                this.openDataSettings[cm.key] = {}
                 // loop over boxids for this chat
                 let pairCount = 0
                 for (let pair of cm?.value?.pair) {
@@ -92,6 +101,8 @@ export const bentoboxStore = defineStore('bentostore', {
                     if (cm.value?.hop !== undefined) {
                       let summaryHOP = cm.value?.hop[0]
                       summaryHOP.bbid = pair.reply.bbid
+                      console.log('start HOP summary')
+                      console.log(summaryHOP)
                       this.storeAI.hopSummary.push({ HOPid: pair.reply.bbid, summary: summaryHOP })
                     }
                   }
@@ -108,6 +119,8 @@ export const bentoboxStore = defineStore('bentostore', {
                   }
                   this.boxToolStatus[pair.reply.bbid] = boxSettings
                   this.devicesettings[pair.reply.bbid] = {}
+                  this.devicesettings[pair.reply.bbid] = this.settings
+                  console.log('device settings set')
                   this.chartStyle[pair.reply.bbid] = 'line'
                   pairCount++
                 }

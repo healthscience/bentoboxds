@@ -18,7 +18,7 @@
         <h3>Expanded</h3>
       </template>
       <template #body>
-        <bento-box :bboxid="props.bboxid"></bento-box>
+        <bento-box :bboxid="props.bboxid" :bbwidth="'90vw'"></bento-box>
       </template>
       <template #footer>
       </template>
@@ -31,13 +31,16 @@ import { ref, computed } from 'vue'
 import ModalBentobox from '@/components/bentobox/bentoboxmodal/bentoboxModal.vue'
 import BentoBox from '@/components/bentobox/bentoBox.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
+import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
   const storeAI = aiInterfaceStore()
+  const storeBentobox = bentoboxStore()
 
   const props = defineProps({
     bboxid: String
   })
 
+  let date = ref('')
 
   // a computed ref
   const bentoboxLive = computed(() => {
@@ -46,6 +49,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   const closedataBox = () => {
     storeAI.expandBentobox[props.bboxid] = !storeAI.expandBentobox[props.bboxid]
+    // also close any toolbars open
+    storeBentobox.boxtoolsShow[props.bboxid] = false
   }
 </script>
 

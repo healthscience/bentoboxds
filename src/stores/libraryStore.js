@@ -1,7 +1,8 @@
-import { ref, computed, shallowRef } from 'vue'
+import { ref, computed, shallowRef, defineAsyncComponent } from 'vue'
 import { defineStore } from 'pinia'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import LibraryUtility from '@/stores/hopUtility/libraryUtility.js'
+import { bentoboxStore } from "@/stores/bentoboxStore.js"
 import { useSocketStore } from '@/stores/socket.js'
 import hashObject from 'object-hash'
 
@@ -14,6 +15,7 @@ export const libraryStore = defineStore('librarystore', {
     joinSelected: {},
     joinFeedback: false,
     storeAI: aiInterfaceStore(),
+    storeBentoBox: bentoboxStore(),
     utilLibrary: new LibraryUtility(),
     sendSocket: useSocketStore(),
     startLibrary: false,
@@ -140,6 +142,14 @@ export const libraryStore = defineStore('librarystore', {
   }),
   actions: {
     // since we rely on `this`, we cannot use an arrow function
+    defaultLibContracts () {
+      // set up three contract & send messages
+      let defaultConts = this.utilLibrary.prepareDefaultContracts()
+      for (let contract of defaultConts) {
+        console.log(contract)
+        // this.sendMessage(contract)
+      }
+    },
     startLibrary () {
       // ask network library for contracts via HOP
       this.sendMessage('get-library')
@@ -245,9 +255,28 @@ export const libraryStore = defineStore('librarystore', {
         this.peerLedger = message.data
       }
     },
+    prepareExperimentSettings (bboxid) {
+      console.log('peperpepreprpeprepeprpeprerpe')
+      console.log(bboxid)
+      console.log(this.storeAI.boxLibSummary)
+      // let NXPcontract = storeLibrary.prepareExperimentSummary(props.bboxid)
+      // let NXPcontract = this.storeAI.boxLibSummary[bboxid].data
+      // let key = Object.keys(this.storeAI.boxLibSummary[bboxid].data)
+      // let modulesContracts = NXPcontract[key].modules
+      // let extractedSettings = this.utilLibrary.moduleExtractSettings(modulesContracts)
+      // console.log('textract setings----------------')
+      // console.log(extractedSettings)
+      // NXPcontract.modules = this.utilLibrary.boxLibrarySummary(modules)
+      // temp test
+      let datatypeContext = {}
+      datatypeContext.xaxis = ['time']
+      datatypeContext.yaxis = [11, 22, 33]
+      datatypeContext.category = [22, 22, 22]
+      this.storeBentoBox.openDataSettings[bboxid] = datatypeContext
+      console.log('ovooveoroeovovoer')
+      // this.openDataSettings[bboxid] = extractedSettings
+    },
     prepareJoinNXPMessage (genContract, settings) {
-      // console.log('update settings')
-      // console.log(genContract)
       //let updateJoinSettings = this.utilLibrary.updateSettings(genContract, settings)
       let updateJoinSettings = {}
       updateJoinSettings.genesisnxp = genContract.value
@@ -260,13 +289,17 @@ export const libraryStore = defineStore('librarystore', {
       libMessageout.task = 'join'
       libMessageout.data = updateJoinSettings
       libMessageout.bbid = 'lib' + genContract.value.exp.key
-      console.log('join this genesis')
-      console.log(libMessageout)
       this.sendSocket.send_message(libMessageout)
     },
     prepareLibraryViewMessage (contract, action) {
-      console.log('message aview out')
-      console.log(contract)
+      // create a bbid
+      let boxID = {}
+      boxID.contract = contract
+      boxID.active = true
+      let date = new Date()
+      // get the time as a string
+      let time = date.toLocaleTimeString()
+      boxID.time =  time
       let contractQuery = this.utilLibrary.matchNXPcontract(contract.id, this.peerLibraryNXP)
       let libMessageout = {}
       libMessageout.type = 'library'
@@ -275,9 +308,9 @@ export const libraryStore = defineStore('librarystore', {
       libMessageout.privacy = 'private'
       libMessageout.task = 'assemble'
       libMessageout.data = contractQuery
-      libMessageout.bbid = 'nxp-123'
-      console.log('lib message vie NXP SFquery')
-      console.log(libMessageout)
+      libMessageout.bbid = hashObject(boxID)
+      // keep track of message
+      this.storeAI.helpchatHistory.push(libMessageout)
       this.sendSocket.send_message(libMessageout)
     },
     prepareGenesisModContracts (message) {

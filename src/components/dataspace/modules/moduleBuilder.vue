@@ -33,12 +33,16 @@
       v-on:dragover.prevent
       v-on:drop="handleDrop($event, 'refcontract-selected')"
     >
-      <div class="ref-selected"
-        v-for="newRef in libraryAvailable" 
-        draggable="true"
-        v-on:dragstart="handleDragRefStart($event, newRef)"
-      >
-        ref-- {{ newRef.value.refcontract }} {{ newRef.value.concept.name }} 
+      <div id="check-lib" v-if="libraryAvailable.length > 0">
+        <div class="ref-selected"
+          v-for="newRef in libraryAvailable" 
+          draggable="true"
+          v-on:dragstart="handleDragRefStart($event, newRef)"
+        >
+          ref-- {{ newRef.value.refcontract }}
+          <div v-if="newRef.value.concept">{{ newRef.value.concept.name }}</div>
+          <div v-if="newRef.value.computational" class="contract-name">{{ newRef.value.computational.name }}</div>
+        </div>
       </div>
     </div>
   </div>
@@ -63,9 +67,11 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   /* computed */
   const libraryAvailable = computed (() => {
-    console.log(storeLibrary.publicLibrary)
-    console.log(storeLibrary.moduleNxpActive)
-    return storeLibrary.publicLibrary.referenceContracts[storeLibrary.moduleNxpActive]
+    if (Object.keys(storeLibrary.publicLibrary).length > 0) {
+      return storeLibrary.publicLibrary.referenceContracts[storeLibrary.moduleNxpActive]
+    } else {
+      return []
+    }
   })
 
 
@@ -192,6 +198,10 @@ import { libraryStore } from '@/stores/libraryStore.js'
     display: grid;
     border: 1px solid grey;
     height: 60px;
+  }
+
+  .contract-name {
+    font-weight: bold;
   }
 
 }

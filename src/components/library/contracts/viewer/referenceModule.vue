@@ -18,7 +18,7 @@
         <button id="build-new-referencecontract" v-bind:class="{ active: newLibnxp === true }" @click.prevent="newSetRefContract(startRefContract)">{{ startRefContract.text }}</button>
       </div>
     </div>
-    <div id="reference-contract-groups">
+    <div id="reference-contract-groups" v-if="libraryCheck">
       <div id="ref-contracts-view" class="ref-group">
         <header>Reference Contracts</header>
         <div class="view-contract">
@@ -81,7 +81,7 @@ import ViewModules from '@/components/library/contracts/viewer/viewModules.vue'
 import ViewResults from '@/components/library/hop/viewResults.vue'
 import ViewLedger from '@/components/library/hop/viewLedger.vue'
 import NewRefcontract from '@/components/library/contracts/contribute/newRefcontract.vue'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { libraryStore } from '@/stores/libraryStore.js'
 import { accountStore } from '@/stores/accountStore.js'
 
@@ -171,26 +171,15 @@ import { accountStore } from '@/stores/accountStore.js'
       storeAccount.sendMessageHOP(shareInfo)
     }
 
-    /*
-    const makeModulecontracts = () => {
-      const refModContract = {}
-      refModContract.type = 'library'
-      refModContract.reftype = 'module'
-      refModContract.action = 'contracts'
-      refModContract.task = 'PUT'
-      const refModJSON = JSON.stringify(refModContract)
-      // ask network library for contracts for this peer
-      this.$store.dispatch('actionMakeModuleRefContract', refModJSON)
-    }
-
-    const makeVisuailsecontracts = () => {
-      const refVisContract = {}
-      refVisContract.reftype = 'visualise'
-      refVisContract.action = 'PUT'
-      const refVisJSON = JSON.stringify(refVisContract)
-      // ask network library for contracts for this peer
-      this.$store.dispatch('actionMakeVisualiseRefContract', refVisJSON)
-    } */
+    // a computed ref
+    const libraryCheck = computed(() => {
+      // any entries in the library?
+      if (Object.keys(storeLibrary.publicLibrary).length > 0) {
+       return true
+      } else {
+        return false
+      }
+    })
 
 </script>
 

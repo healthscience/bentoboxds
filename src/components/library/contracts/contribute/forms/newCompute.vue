@@ -4,19 +4,19 @@
       <span class="required_notification">All fields required</span>
     </div>
     <div class="compute-form-item">
+      <label for="compute-add-source">Compute Primary?</label>
+      <select class="select-compute-source" @change="primarySave" v-model="storeLibrary.newComputeForm.primary" id="">Please select
+        <option value="yes">YES</option>
+        <option value="no">NO</option>
+      </select>
+    </div>
+    <div class="compute-form-item">
       <label for="compute-add-name">Name:</label>
       <input id="compute-mapping-name" @input="nameSave" @paste="nameSave" @keyup="nameSave" v-model="storeLibrary.newComputeForm.name" placeholder="compute mapping name" required="" type="text">
     </div>
     <div class="compute-form-item">
       <label for="compute-add-description">Description:</label>
       <textarea name="message" cols="40" rows="6" @input="descSave" @paste="descSave" @keyup="descSave" v-model="storeLibrary.newComputeForm.description" required="" id="compute-mapping-description"></textarea>
-    </div>
-    <div class="compute-form-item">
-      <label for="compute-add-source">Compute Primary?</label>
-      <select class="select-compute-source" @change="primarySave" v-model="storeLibrary.newComputeForm.primary" id="">Please select
-        <option value="yes">YES</option>
-        <option value="no">NO</option>
-      </select>
     </div>
     <div class="compute-form-item">
       <label for="compute-add-datatype">datatype prefix:</label>

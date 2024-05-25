@@ -29,15 +29,17 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { libraryStore } from '@/stores/libraryStore.js'
+import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   const storeLibrary = libraryStore()
+  const storeAI = aiInterfaceStore()
 
   const sortOrders = ref({})
 
   const props = defineProps({
     experiments: Array,
     columns: Array,
-    privacy: PerformanceServerTiming
+    privacy: String
   })
 
   const sortBy = (key) => {
@@ -47,17 +49,14 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   const actionBoard = (board, NXPcontract) => {
       if (NXPcontract === 'View') {
-        console.log('view bentoboard and its boxes')
         storeLibrary.prepareLibraryViewMessage(board, 'networkexperiment')
+        storeAI.dataBoxStatus = true
         // this.$store.dispatch('actionHOPoutState', board)
         // this.$store.dispatch('actionDashboardState', board)
-        // close BeeBee
-        // this.$store.dispatch('actionBBstate')
       } else if (NXPcontract === 'Join') {
         storeLibrary.joinSelected = board
         storeLibrary.joinNXP = true
       } else {
-        console.log('preview')
         // preview network experiment
         // this.$store.dispatch('actionJOINViewexperiment', board)
         // this.refContractLookup()
@@ -65,8 +64,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
     }
 
     const removeExp = (exp) => {
-      console.log('remove')
-      console.log(exp)
       storeLibrary.removeExpModContract(exp.id, props.privacy)
       if (props.privacy === 'private') {
         let index = storeLibrary.peerExperimentList.data.indexOf(exp.id)

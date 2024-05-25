@@ -102,7 +102,9 @@ const saveFiles = (files) => {
 		if (file.file.type === 'text/csv') {
 			storeLibrary.csvpreviewLive = true
 			const reader = new FileReader()
-			reader.onloadend = function () {  // = (event) => { // = function () {
+			reader.onload = function (event) {  // = (event) => { // = function () {
+				console.log(reader.result)
+				console.log(event)
 				const lines = reader.result 
 				let splitLines = lines.split(/\r\n|\n/)
 				storeLibrary.linesLimit = splitLines.slice(0, 40)
@@ -136,15 +138,24 @@ const saveFiles = (files) => {
 
 			}
 			reader.onerror = function() {
+				console.log('erroro with file')
 				console.log(reader.error)
 			}
+			console.log('filereader start')
+			console.log(file.file)
 			reader.readAsText(file.file)
+
+			
+			const reader2 = new FileReader();
+  		const f = new Blob(['abc'], {type: 'text/plain'});
+  			reader2.onload = e => {
+				console.log('reader two result')
+    		console.log(e.target.result);
+  			};
+  		reader2.readAsArrayBuffer(f);
 		}	else if (file.file.type !== 'text/csv') {
-			console.log('not csv file, what type is it?')
-			console.log(file.file.type)
 			// check for pdf file 
 			if (file.file.type !== 'application/pdf') {
-				console.log('not pdf file')
 				let fileSave = {}
 				fileSave.name = file.file.name
 				fileSave.path = file.url
@@ -174,11 +185,9 @@ const saveFiles = (files) => {
 					messageHOP.privacy = 'private'
 					messageHOP.task = 'PUT'
 					messageHOP.data = fileSave
-					console.log(messageHOP)
 					storeLibrary.sendMessage(messageHOP)
 				}
 			} else {
-				console.log('prepare PDF or text for Embedding')
 				let aiMessage = {}
 				aiMessage.type = 'bbai'
 				aiMessage.reftype = 'ai'
@@ -190,7 +199,6 @@ const saveFiles = (files) => {
 			}
 		} else {
 			// prepare file data for storage via HOP
-			console.log('smiople dave nothing??')
 			const reader2 = new FileReader()
 			// reader2.readAsText(fileData)
 			reader2.onloadend = function () {

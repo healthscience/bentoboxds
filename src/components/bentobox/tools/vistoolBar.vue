@@ -36,11 +36,11 @@
       </div>-->
     </div>
     <div class="network-tools">
-      <button href="#" id="opendata-space" @click.prevent="openDataToolbar()">open data</button>
+      <button href="#" id="opendata-space" @click.prevent="openDataToolbar()"  v-bind:class="{ active: visToolbarStatus }">open data</button>
     </div>
   </div>
-  <div class="network-tools" v-if="boxSettings !== undefined" id="open-knowledge">
-    <opendata-tool v-if="boxSettings?.opendatatools?.active === true" :bboxid="props.bboxid" :toolInfo="boxSettings"></opendata-tool>
+  <div class="network-tools" id="open-knowledge">
+    <opendata-tool v-if="visToolbarStatus === true" :bboxid="props.bboxid" :toolInfo="boxSettings"></opendata-tool>
   </div>
   <!--<div id="feedback-time" v-if="feedbackmessage !== 'clear'" v-bind:class="{ active: feedbackActive }">
     {{ feedbackmessage }}
@@ -48,6 +48,7 @@
 </template>
 
 <script setup>
+
 import CalendarTool from '@/components/bentobox/tools/calendarTools.vue'
 import OpendataTool from '@/components/bentobox/tools/opendataTools.vue'
 import { ref, computed } from 'vue'
@@ -58,7 +59,7 @@ import { accountStore } from '@/stores/accountStore.js'
   const storeAccount = accountStore()
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
-
+  
   const selectedChartnumber = ref('singlechart')
 
   const props = defineProps({
@@ -74,7 +75,10 @@ const selectedTimeFormat = ref('timeseries')
 
 /* methods */
 const openDataToolbar = () => {
-  storeBentobox.boxToolStatus[props.bboxid].opendatatools.active = !storeBentobox.boxToolStatus[props.bboxid].opendatatools.active
+  console.log('open toolba r clicke')
+ // storeBentobox.boxToolStatus[props.bboxid].opendatatools.active = !storeBentobox.boxToolStatus[props.bboxid].opendatatools.active
+ storeBentobox.bbToolbarOpendata[props.bboxid] = !storeBentobox.bbToolbarOpendata[props.bboxid]
+ storeAI.prepareLibrarySummary(props.bboxid)
 }
 
 const viewNetworkGrpah = () => {
@@ -108,12 +112,8 @@ const boxSettings = computed(() => {
   return storeBentobox.boxToolStatus[props.bboxid]
 })
 
-const openDataLive = computed(() => {
-  return storeBentobox.openDatatools[props.bboxid]
-})
-
-const visToolbarStatusLive = computed(() => {
-  return storeBentobox.vistoolsStatus[props.bboxid]
+const visToolbarStatus = computed(() => {
+  return storeBentobox.bbToolbarOpendata[props.bboxid]
 })
 
 </script>
@@ -124,6 +124,8 @@ const visToolbarStatusLive = computed(() => {
 #vis-tools {
   display: grid;
   grid-template-columns: 1fr;
+  background-color:rgb(224, 227, 243);
+  z-index: 4;
 }
 
 @media (min-width: 1024px) {
@@ -139,7 +141,7 @@ const visToolbarStatusLive = computed(() => {
   }
 
   .network-tools {
-    border: 1px solid blue;
+    border: 1px solid rgb(171, 171, 227);
   }
 
   .context-network {

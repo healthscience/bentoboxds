@@ -18,6 +18,22 @@ class LibraryUtility { //  extends EventEmitter {
   }
 
   /**
+  * default contracts for time datatype  observation compute  chartjs visualisation
+  * @method prepareDefaultContracts
+  *
+  */
+  prepareDefaultContracts = function () {
+    let libContracts = []
+    let timeContract = {}
+    let computeContract = {}
+    let visualiseContract = {}
+    libContracts.push(timeContract)
+    libContracts.push(computeContract)
+    libContracts.push(visualiseContract)
+    return libContracts
+  }
+
+  /**
   * Prepare table for public experiment list available
   * @method preparePublicNXPlist
   *
@@ -138,9 +154,6 @@ class LibraryUtility { //  extends EventEmitter {
   *
   */
   updateSettings = function (contract, updates) {
-    console.log('update date for compute contract')
-    console.log(contract)
-    console.log(updates)
     let updateNXPjoinContract = {}
 
     return updateNXPjoinContract
@@ -153,12 +166,8 @@ class LibraryUtility { //  extends EventEmitter {
   *
   */
   matchNXPcontract = function (contractID, nxpList) {
-    console.log('match nxp contract')
-    console.log(contractID)
-    console.log(nxpList)
     let contractNXP = {}
     for (let nxp of nxpList) {
-      console.log(nxp)
       if (nxp.exp.key === contractID) {
         contractNXP = nxp
       }
@@ -180,6 +189,37 @@ class LibraryUtility { //  extends EventEmitter {
       }
     }
     return refContract
+  }
+
+
+  /* 
+  * provide summary of experiment to use in bentobox
+  * @method boxLibrarySummary
+  *
+  */
+  boxLibrarySummary = function (modules) {
+    let modKeys = []
+    for (let mod of modules) {
+      modKeys.push(mod)
+    }
+    return modKeys
+  }
+
+  /* 
+  * extract settings for open data toolbars
+  * @method moduleExtractSettings
+  *
+  */
+  moduleExtractSettings = function (modulesList) {
+    let modSettings = {}
+    for (let mod of modulesList) {
+      if (mod.value.style === 'compute') {
+        modSettings.xaxis = ['time'] // mod.value.info.settings.xaxis
+        modSettings.yaxis = mod.value.info.settings.yaxis
+        modSettings.category = mod.value.info.settings.category
+      }
+    }
+    return modSettings
   }
 
 }

@@ -56,7 +56,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
   const storeLibrary = libraryStore()
   const showModal = ref(true)
   
-  let libAction = ref('')
+  let libAction = ref('libraryexplorer')
 
   const uploadStatus = computed(() => {
     return storeLibrary.uploadStatus
@@ -101,7 +101,9 @@ import { libraryStore } from '@/stores/libraryStore.js'
       libAction.value = ''
     }
     // prepare public library for table list view
-    storeLibrary.prepPublicNXPlist()
+    if (storeLibrary.publicLibrary.referenceContracts !== undefined) {
+      storeLibrary.prepPublicNXPlist()
+    }
   }
 
   const nxpAdd = () => {
@@ -154,7 +156,8 @@ import { libraryStore } from '@/stores/libraryStore.js'
     }
 
     .active {
-      background-color: green;
+      background-color: rgb(113, 172, 114);
+      border: 1px solid green;
     }
   }
 

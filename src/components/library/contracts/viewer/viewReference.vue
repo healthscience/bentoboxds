@@ -20,7 +20,7 @@
         <template v-slot:header>
           <div id="refcontract-summary">
             <div class="refname">
-              <div class="refinfo-col1">Ref. contract name:</div>
+              <div class="refinfo-col1">Ref. contract name: </div>
               <div v-if="cd.value.concept.name" class="refinfo-col2">
                 {{ cd.value.concept.name }}
               </div>

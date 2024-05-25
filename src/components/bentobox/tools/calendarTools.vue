@@ -17,7 +17,7 @@
           <div id="calendar-range-select">
             <div id="time-calendar-tools">
               <div class="time-tools" id="select-range-type">
-                <select v-model="selectedTimeBundle" @change.prevent="setTimeBundle()">
+                <select class="time-tools-select" v-model="selectedTimeBundle" @change.prevent="setTimeBundle()">
                   <option v-for="tb in optionTimeBundle" :value="tb.value" :selected="tb.value === selectedTimeBundle">
                     {{ tb.text }}
                   </option>
@@ -31,13 +31,16 @@
           <div id="calendar-selector">
             <div id="date-selector-status"  v-bind:class="{ active: calActive }">
               <div id="range-datepicker" v-if="selectedTimeBundle === 'range'" >
-                <VueDatePicker class="calendar-view" @open="alertFn" @closed="alertFn" v-model="boxDaterange" :range="{}"></VueDatePicker>
+                <VueDatePicker class="calendar-view" @open="alertFn" @closed="alertFn" v-model="boxDaterange" :range="{}">
+                </VueDatePicker>
               </div>
               <div id="single-datepicker" v-else-if="selectedTimeBundle === 'single'">
-                <VueDatePicker class="calendar-view" @open="alertFn" @closed="alertFn" v-model="boxDate"></VueDatePicker>
+                <VueDatePicker  :teleport="true" class="calendar-view" @open="alertFn" @closed="alertFn" v-model="boxDate">
+                </VueDatePicker>
               </div>
               <div id="multi-datepicker" v-else-if="selectedTimeBundle === 'multi'">
-                <VueDatePicker class="calendar-view" @open="alertFn" @closed="alertFn" v-model="boxDaterange" multi-dates></VueDatePicker>
+                <VueDatePicker class="calendar-view" @open="alertFn" @closed="alertFn" v-model="boxDaterange" multi-dates>
+                </VueDatePicker>
               </div>
             </div>
           </div>
@@ -59,11 +62,8 @@
       <div id="date-quick-set">
         <header>Quick set</header>
         <div v-for="tv in navTime" :key='tv.id' class="context-time">
-          <button class="button is-primary" @click.prevent="setShiftTimeData(tv)">{{ tv.text.word }}</button>
+          <button class="button-time-quick" @click.prevent="setShiftTimeData(tv)">{{ tv.text.word }}</button>
         </div>
-        <div class="date-fixed">day</div>
-        <div class="date-fixed">week</div>
-        <div class="date-fixed">month</div>
       </div>
     </div>
   </div>
@@ -72,11 +72,11 @@
 <script setup>
 import { DateTime, Interval } from 'luxon'
 import { ref, onMounted } from 'vue'
-import VueDatePicker from '@vuepic/vue-datepicker'
-import '@vuepic/vue-datepicker/dist/main.css'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
+import { libraryStore } from '@/stores/libraryStore.js'
 
   const storeAI = aiInterfaceStore()
+  const storeLibrary = libraryStore()
 
   const props = defineProps({
     bboxid: String
@@ -88,21 +88,12 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   const calendarList = ref([])
   let calActive = ref(false)
   const selectedTimeBundle = ref('single')
-  const lang = ref({
-    days: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-    months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-    pickers: ['next 7 days', 'next 30 days', 'previous 7 days', 'previous 30 days'],
-    placeholder: {
-      date: 'Select Date',
-      dateRange: 'Select Date Range'
-    }
-  })
   const optionTimeBundle = ref([
     { text: 'Single day', value: 'single', id: 0 },
     { text: 'Pick days', value: 'multi', id: 1 },
     { text: 'Range days', value: 'range', id: 2 }
   ])
-  const navTime = ref([{ 'text': { 'word': '-day', 'number': -86400000 } }, { 'text': { 'word': '+day', 'number': 86400000 } }])
+  const navTime = ref([{ 'text': { 'word': '-day', 'number': -86400000 } }, { 'text': { 'word': '+day', 'number': 86400000 }}, { 'text': { 'word': '+week', 'number': 86400000 }}, { 'text': { 'word': '-week', 'number': 86400000 }}, { 'text': { 'word': '+year', 'number': 86400000 }}, { 'text': { 'word': '-year', 'number': 86400000 }}])
   const selectedTimeFormat = ref('timeseries')
 
   /* mounted */
@@ -138,9 +129,14 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     // what time period is active, single, pick or range? Or update via open data settings?
     let hopTime = []
     if (selectedTimeBundle.value === 'single') {
+      // make luxton time object
+      let luxTime = DateTime.now(boxDate.value)
+      boxDate.value = luxTime
+      console.log(boxDate.value)
       hopTime.push(boxDate.value.toMillis())
     } else if (selectedTimeBundle.value === 'range') {
       // need to expand our range
+      console.log(boxDaterange)
       let i = Interval.fromDateTimes(boxDaterange.value[0], boxDaterange.value[1]).splitBy({ day: 1 })
       // let arryDates = i.map(d => d.start)
       for (let date of i) {
@@ -156,31 +152,59 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
     // get the library contracts
     storeAI.prepareLibrarySummary(props.bboxid)
+    // no summary if already save  NEED other way to set contect
+    // what updates are there moduels?  Device/source, compute, vis controls or settings?
+    let moduleUpdate = {}
+    let computeChanges = {}
+    // controls
+    if (selectedTimeBundle.value === 'single') {
+      computeChanges.controls = { date: boxDate}
+    } else if (selectedTimeBundle.value === 'range') {
+      computeChanges.controls = { date: boxDaterange }
+    } else if (selectedTimeBundle.value === 'multi') {
+      computeChanges.controls = { date: boxDaterange }
+    }
+    // any settings changes?
+    moduleUpdate.compute = computeChanges
     let entityID = Object.keys(storeAI.boxLibSummary[props.bboxid].data)
     let HOPcontext = {}
-    HOPcontext.entityUUID = entityID[0]
+    HOPcontext.entityUUID = storeAI.boxLibSummary[props.bboxid].data[entityID[0]].shellID
     HOPcontext.bbid = props.bboxid
-    HOPcontext.modules = storeAI.boxLibSummary[props.bboxid].data[entityID[0]].modules
+    // HOPcontext.modules = storeAI.boxLibSummary[props.bboxid].data[entityID[0]].modules
     HOPcontext.exp = { key: entityID[0], update: storeAI.boxLibSummary[props.bboxid].data }
     HOPcontext.update = {}
     let updateECS = {}
-    updateECS.entityUUID = entityID[0]
+    updateECS.entityUUID = storeAI.boxLibSummary[props.bboxid].data[entityID[0]].shellID
     updateECS.input = 'refUpdate'
-    updateECS.modules = HOPcontext.modules = storeAI.boxLibSummary[props.bboxid].data[entityID[0]].modules
+    updateECS.modules = storeAI.boxLibSummary[props.bboxid].data[entityID[0]].modules
+    updateECS.changes = moduleUpdate
     HOPcontext.update = updateECS
     // close the calendar options and dispay date summary selected
     setDateStatus.value = false
-    // storeAI.actionHelpAskUpdate(HOPcontext)
+    storeAI.actionHelpAskUpdate(HOPcontext)
   }
 
   const setShiftTimeData = (seg) => {
     if (seg.text.word === '+day') {
       let updateDate = boxDate.value.plus({ days: 1 })
       boxDate.value = updateDate  
-    } else {
+    } else if (seg.text.word === '-day') {
       let updateDate = boxDate.value.minus({ days: 1 })
       boxDate.value = updateDate
+    } else if (seg.text.word === '+week') {
+        let updateDate = boxDate.value.minus({ weeks: 1 })
+        boxDate.value = updateDate
+    } else if (seg.text.word === '-week') {
+        let updateDate = boxDate.value.minus({ weeks: 1 })
+        boxDate.value = updateDate
+    } else if (seg.text.word === '+year') {
+        let updateDate = boxDate.value.minus({ year: 1 })
+        boxDate.value = updateDate
+    } else if (seg.text.word === '-year') {
+        let updateDate = boxDate.value.minus({ year: 1 })
+        boxDate.value = updateDate
     }
+
   }
 
   const viewCalendarSeettings = () => {
@@ -190,7 +214,16 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 </script>
 
 <style scoped>
+.dp__main :deep(.dp__theme_light) {
+  --dp-highlight-color: rgba(34, 233, 8, 0.993);
+  --dp-primary-color: #c4cde3;
+  --dp-primary-text-color: #000078;
 
+  .dp__overlay_container {
+    background-color: red;
+    font-size: 2em;
+  }
+}
 
 @media (min-width: 1024px) {
 
@@ -209,10 +242,14 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   }
 
   .date-live-select {
+    display: grid;
+    grid-template-columns: 1fr;
     color: darkblue;
     font-size: 1.2em;
     padding-left: 1em;
-    padding-top: 3em;
+    padding-top: .3em;
+    padding-bottom: .3em;
+    margin-top: 0.3em;
   }
 
   #date-quick-set {
@@ -229,10 +266,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   .select-caldate {
     min-width: 340px;
-  }
-
-  .time-tools {
-    border: 0px solid blue;
   }
 
   #select-range-type {
@@ -252,55 +285,49 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     font-size: 1.4em;
   }
 
+  .time-tools {
+    border: 0px solid green;
+  }
+
+  .time-tools-select {
+    font-size: 1.2em;
+    width: 100%;
+  }
+
   #date-selector-status {
     display: grid;
     grid-template-columns: 1fr;
   }
 
   .active {
-    border: 0px solid red;
-    top: -150px;
+    border: 1px solid lightblue;
+    /* top: -150px; */
   }
 
   #selected-dates-list {
     position: relative;
     margin-top: 1em;
+    margin-left: 1em;
     max-width: 280px;
-    display: block;
-    border: 1px solid blue;
+    display: grid;
     min-height: 100px;
     background-color: whitesmoke;
     overflow-y: scroll;
     z-index: 14;
   }
 
+  #range-datepicker {
+    border: 0px solid red;
+  }
+
   .dates-selected {
     background-color: antiquewhite;
   }
 
-  .calendar-view {
-    border: 0px solid blue;
-  }
-
-  #calendar-tools {
-    display: inline-block;
-    padding: 0.4em;
-    border: 2px solid white;
-  }
 
   #time-calendar-tools {
     display: grid;
     grid-template-columns: 1fr 1fr;
-  }
-
-  #select-time {
-    border: 0px solid orange;
-  }
-
-  .time-m-list {
-    display: block;
-    text-align: left;
-    border: 0px solid purple;
   }
 
   #update-chart {
@@ -310,19 +337,17 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     color: white;
     padding: 8px 18px;
     text-align: center;
-  }
-
-  .chart-update {
-    margin-top: .1em;
-    margin-bottom: .5em;
+    margin: 2em;
+    width: 70%;
   }
 
   #calendar-list-view {
     display: inline;
   }
 
-  #chart-options {
-    border: 0px solid green;
+  .button-time-quick {
+    margin: .4em;
+    width: 80%;
   }
 }
 </style>

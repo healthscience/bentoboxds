@@ -5,6 +5,7 @@ import { useSocketStore } from '@/stores/socket.js'
 import { bentoboxStore } from "@/stores/bentoboxStore.js"
 import { libraryStore } from '@/stores/libraryStore.js'
 import DataPraser from '@/stores/hopUtility/dataParse.js'
+import ChatUtilty from '@/stores/hopUtility/chatUtility.js'
 import { accountStore } from "@/stores/accountStore.js"
 
 export const aiInterfaceStore = defineStore('beebeeAIstore', {
@@ -14,6 +15,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     storeBentoBox: bentoboxStore(),
     storeLibrary: libraryStore(),
     liveDataParse: new DataPraser(),
+    liveChatUtil: new ChatUtilty(),
     startChat: true,
     chatAttention: '',
     historyList: '',
@@ -142,7 +144,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         this.actionFileAskInput(lastQuestion[0].reply)
       } else if (dataInfo?.id) {
         // if bbid match to that
-        console.log('yes mach bbid')
         let matchBBox = {}
         let questionCount = []
         for (let hpair of this.historyPair[this.chatAttention]) {
@@ -208,8 +209,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         aiMessageout.action = 'question'
         aiMessageout.data = matchQuestion
         aiMessageout.bbid = hashQuestion
-        console.log('question outotuotuou')
-        console.log(aiMessageout)
         this.sendSocket.send_message(aiMessageout)
         this.helpchatHistory.push(aiMessageout)
         this.askQuestion.text = ''
@@ -257,7 +256,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           }
         }
       } else if (received.action === 'hop-learn-feedback') {
-        console.log('agent feeedback')
         if (received.data.agent === 'not-active') {
           let pairBB = {}
           pairBB.question = received.data.input
@@ -280,8 +278,10 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
             // does the question exist from file upload?
             if (questionCount[0].data?.filedata) {
               // set box detail setings
+              let opendataToolbar = this.liveChatUtil.setOpendataToolbar()
               this.storeBentoBox.boxToolStatus[received.bbid] = {}
-              let boxSettings = 
+              this.storeBentoBox.boxToolStatus[received.bbid] = opendataToolbar
+              /* let boxSettings = 
               {
                 opendatatools: { active: false },
                 boxtoolshow: { active: false },
@@ -289,9 +289,9 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
                 scalezoom: 1,
                 location: {},
                 chartstyle: 'line'
-              }
-              this.storeBentoBox.boxToolStatus[received.bbid] = this.boxSettings
+              } */
               this.storeBentoBox.devicesettings[received.bbid] = {}
+              this.storeBentoBox.devicesettings[received.bbid] = this.storeBentoBox.settings
               this.storeBentoBox.chartStyle[received.bbid] = 'line'
             } else {
               let pairBB = {}
@@ -300,6 +300,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
               this.historyPair[this.chatAttention].push(pairBB)
               this.storeBentoBox.boxToolStatus[received.bbid] = this.boxSettings
               this.storeBentoBox.devicesettings[received.bbid] = {}
+              this.storeBentoBox.devicesettings[received.bbid] = this.storeBentoBox.settings
             }
           }
           if (received.action === 'library-peerlibrary' || 'publiclibrary') {
@@ -349,36 +350,40 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.bentoboxList['space1'] = []
     },
     processHOPsummary (dataSummary) {
+      console.log('HOP summary  SF entity hash')
+      console.log(dataSummary)
       // match bbid to HOP ID
       let inputID = Object.keys(dataSummary.data)
-      this.bbidHOPid.push({ bbid: dataSummary.bbid, HOPid: inputID[0] })
-      this.hopSummary.push({ HOPid: inputID[0], summary: dataSummary })
+      let HOPshell = dataSummary.data[inputID[0]].shellID
+      this.bbidHOPid.push({ bbid: dataSummary.bbid, HOPid: HOPshell })
+      this.hopSummary.push({ HOPid: HOPshell, summary: dataSummary })
     },
     processHOPdata (dataHOP) {
-      // close databox
-      console.log('HOP data------------------ ')
+      console.log('hop data in')
       console.log(dataHOP)
+      // close databox
       // match input id to bbid
       // is the data for past or future or no data
       if (dataHOP.data.data === 'none') {
         this.dataBoxStatus = !this.dataBoxStatus
-        let pairBB = {}
-        let question = {}
-        question.data = { active: false }
-        pairBB.question = question
-        let reply = {}
-        reply.time = new Date()
-        reply.type = 'feedback'
-        reply.data = { text: 'no data for this network experiment'}
-        pairBB.reply = reply
+        // stil produce a bentobox
+        let boxID = this.liveChatUtil.matchHOPbbid(dataHOP.context.dataprint.shell, this.bbidHOPid)
+        // set open data toolbar
+        let opendataToolbar = this.liveChatUtil.setOpendataToolbar()
+        this.storeBentoBox.boxToolStatus[boxID] = {}
+        this.storeBentoBox.boxToolStatus[boxID] = opendataToolbar
+        let pairBB = this.liveChatUtil.prepareChatQandA(boxID)        
+        let hopDataChart = {}
+        hopDataChart.datasets = [ { label: 'datatype', data: [] } ]
+        hopDataChart.labels = []
+        this.visData[boxID] = hopDataChart
+        this.storeBentoBox.setChartstyle(boxID, 'line')
+        this.expandBentobox[boxID] = false
+        this.beebeeChatLog[boxID] = true
+        // feed the chat
         this.historyPair[this.chatAttention].push(pairBB)
       } else if (dataHOP.context.input.update !== 'predict-future') {
-        let matchBBID = ''
-        for (let bhid of this.bbidHOPid) {
-          if (bhid.HOPid === dataHOP.context.input.key) {
-            matchBBID = bhid.bbid
-          }
-        }
+        let matchBBID = this.liveChatUtil.matchHOPbbid(dataHOP.data.context.shell, this.bbidHOPid)
         this.bentoboxList['space1'] = []
         this.expandBentobox[matchBBID] = false
         this.beebeeChatLog[matchBBID] = true
@@ -435,6 +440,9 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.sendSocket.send_message(aiMessageout)
     },
     prepareLibrarySummary (boxid) {
+      console.log('summary atfa save??')
+      console.log(boxid)
+      console.log(this.hopSummary)
       for (let hi of this.hopSummary) {
         if (hi.summary.bbid == boxid) {
           // new or saved format
@@ -443,8 +451,18 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           } else {
             this.boxLibSummary[boxid] = hi.summary.summary
           }
+        } else {
+          console.log('not landing')
+          this.boxLibSummary[boxid] = hi.summary.summary
         }
       }
+      console.log(this.boxLibSummary)
+      let NXPcontract = this.boxLibSummary[boxid].data
+      let key = Object.keys(this.boxLibSummary[boxid].data)
+      let modulesContracts = NXPcontract[key].modules
+      let extractedOD = this.storeLibrary.utilLibrary.moduleExtractSettings(modulesContracts)
+      this.storeBentoBox.openDataSettings[boxid] = extractedOD
+      return true
     },
     prepareBentoBoxSave (message) {
       let settingsData = this.historyPair[message.data.chatid]
@@ -491,9 +509,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     prepareAI (message) {
       // need to build DML structure, proof of work hash
       // ask library for NXP contract
-      console.log(message)
       this.prepareLibrarySummary(message.bbid)
-      console.log(this.hopSummary)
       let nxpContract = this.boxLibSummary[message.bbid]
       if (message.action == 'agent-task') {
         this.sendMessageHOP(message)
