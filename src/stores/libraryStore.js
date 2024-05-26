@@ -146,8 +146,7 @@ export const libraryStore = defineStore('librarystore', {
       // set up three contract & send messages
       let defaultConts = this.utilLibrary.prepareDefaultContracts()
       for (let contract of defaultConts) {
-        console.log(contract)
-        // this.sendMessage(contract)
+        this.sendMessage(contract)
       }
     },
     startLibrary () {
@@ -203,6 +202,9 @@ export const libraryStore = defineStore('librarystore', {
         } else {
           this.publicLibrary = message
         }
+      } else if (message.action === 'referenc-contract') {
+        // call HOP to get latest changes to public library
+        this.sendMessage('get-public-library')
       } else if (message.action === 'peer-library') {
         // prepare network experiment lists
         let newPair = {}
@@ -371,6 +373,16 @@ export const libraryStore = defineStore('librarystore', {
         refContract2.reftype = 'private' // 'privatelibrary'
         refContract2.task = 'GET'
         this.sendSocket.send_message(refContract2)
+      } else if (hopMessage === 'get-public-library') {
+        // peer library start contracts
+        const refContract = {}
+        refContract.type = 'library'
+        refContract.action = 'contracts'
+        refContract.privacy = 'public' // 'public library'
+        refContract.reftype = 'public' // 'public library'
+        refContract.task = 'GET'
+        // refContract.jwt = this.state.jwttoken
+        this.sendSocket.send_message(refContract)
       } else if (hopMessage === 'get-results')  {
         const resultsPeer = {}
         resultsPeer.type = 'library'

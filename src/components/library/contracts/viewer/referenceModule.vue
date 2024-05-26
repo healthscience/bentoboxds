@@ -2,7 +2,7 @@
   <div id="reference-tools">
     <div id="task-select">
       <div class="contract-task">
-        <button id="get-referencecontract" @click.prevent="getRefContracts()">Get Ref. Contract</button>
+        <button id="get-referencecontract" @click.prevent="getRefContracts()">Get Library Contracts</button>
         <div id="notify-library-start-replication" v-if="storeLibrary.startLibrary === true">
           <form id="library-replication-form">
             <label for="replicteplibrary"></label>

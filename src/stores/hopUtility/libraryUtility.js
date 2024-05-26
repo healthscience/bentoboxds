@@ -18,22 +18,6 @@ class LibraryUtility { //  extends EventEmitter {
   }
 
   /**
-  * default contracts for time datatype  observation compute  chartjs visualisation
-  * @method prepareDefaultContracts
-  *
-  */
-  prepareDefaultContracts = function () {
-    let libContracts = []
-    let timeContract = {}
-    let computeContract = {}
-    let visualiseContract = {}
-    libContracts.push(timeContract)
-    libContracts.push(computeContract)
-    libContracts.push(visualiseContract)
-    return libContracts
-  }
-
-  /**
   * Prepare table for public experiment list available
   * @method preparePublicNXPlist
   *
@@ -221,6 +205,72 @@ class LibraryUtility { //  extends EventEmitter {
     }
     return modSettings
   }
+
+  /**
+  * default contracts for time datatype  observation compute  chartjs visualisation
+  * @method prepareDefaultContracts
+  *
+  */
+  prepareDefaultContracts = function () {
+    let libContracts = []
+    let timeContract = this.prepareDefaultMessage('datatype')
+    let computeContract = this.prepareDefaultMessage('compute')
+    let visualiseContract = this.prepareDefaultMessage('visualise')
+    libContracts.push(timeContract)
+    libContracts.push(computeContract)
+    libContracts.push(visualiseContract)
+    return libContracts
+  }
+
+
+  /**
+  * prepare save contract message
+  * @method prepareDefaultMessage
+  *
+  */
+  prepareDefaultMessage = function (contract) {
+    const refContract = {}
+    refContract.type = 'library'
+    refContract.action = 'contracts'
+    refContract.reftype = contract
+    refContract.task = 'PUT'
+    refContract.privacy = 'public'
+    if (contract === 'question') {
+      refContract.data = {}
+    } else if (contract === 'datatype') {
+      let dtSettings = {}
+      dtSettings.primary =  true
+      dtSettings.name = 'time'
+      dtSettings.description = 'rolling out of universe'
+      dtSettings.wiki = 'https://en.wikipedia.org/wiki/Timestamp'
+      dtSettings.rdf = 'https://dbpedia.org/page/Timestamp'
+      dtSettings.measurement = 'Integer' 
+      dtSettings.datatypeType = 'datatype'
+      refContract.data = dtSettings
+    } else if (contract === 'compute') {
+      let compSettings = {}
+      compSettings.primary = true
+      compSettings.name = 'observation'
+      compSettings.description = 'source data'
+      compSettings.dtprefix = 'null'
+      compSettings.code = 'null'
+      compSettings.hash = 'null'
+      refContract.data = compSettings
+    } else if (contract === 'packaging') {
+      refContract.data = {}
+    } else if (contract === 'visualise') {
+      let visSettings = {}
+      visSettings.primary = Boolean
+      visSettings.name = 'chartjs'
+      visSettings.description = 'charting visualisations'
+      visSettings.structureName = 'datasets'
+      visSettings.visHolder = ''
+      refContract.data = visSettings
+    }
+    return refContract
+  }
+
+
 
 }
 

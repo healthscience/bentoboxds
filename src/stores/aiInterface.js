@@ -359,8 +359,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.hopSummary.push({ HOPid: HOPshell, summary: dataSummary })
     },
     processHOPdata (dataHOP) {
-      console.log('hop data in')
-      console.log(dataHOP)
       // close databox
       // match input id to bbid
       // is the data for past or future or no data
@@ -401,9 +399,11 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     },
     processFuture (dataHOP) {
       // prepare chart for bentobox with ID
+      let HOPid = dataHOP.context.input.entityUUID
       let futureMatch = ''
       for (let fpi of this.futurePids) {
-        if (fpi.hopid === dataHOP.context.input.exp.key) {
+    
+        if (fpi.hopid === HOPid) {
           futureMatch = fpi.bboxid
         }
       }

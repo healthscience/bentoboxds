@@ -1,5 +1,6 @@
 <template>
-  <box-tools :bboxid="props.bboxid"></box-tools>
+  <!--<bento-box :bboxid="props.bboxid" :bbwidth="'90vw'"></bento-box>-->
+  <box-tools :bboxid="props.bboxid"></box-tools>dd{{ chartfutureData }}
   <div id="bentobox-cell">
     <div class="bentocell-quadrants">
     </div>
@@ -34,6 +35,7 @@
 </template>
 
 <script setup>
+import BentoBox from '@/components/bentobox/bentoBox.vue'
 import BoxTools from '@/components/bentobox/tools/boxTools.vue'
 import BentoboxFocus from '@/components/bentobox/bentoboxFocus.vue'
 import barChart from '@/components/visualisation/charts/barChart.vue'
