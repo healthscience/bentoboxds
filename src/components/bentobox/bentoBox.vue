@@ -396,7 +396,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
   * predict future
   */
   const predictFuture = () => {
-    console.log(modelFuture.value)
     storeAI.prepareFuture(props.bboxid)
   }
 
@@ -437,7 +436,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
     'boxnow vertdragbar boxfuture'
     'expand expand expand';
     grid-template-rows: 1fr 300px 30px;
-    grid-template-columns: 2fr 6px 2fr;
+    grid-template-columns: 4fr 6px 1fr;
     height: auto;
     width: var(--bentoboxWidth);
     border: 2px solid rgb(141, 145, 226);
@@ -449,7 +448,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
     'netboxnow vertdragbar netboxfuture'
     'networkexpand networkexpand networkexpand';
     grid-template-rows: 9fr 6px;
-    grid-template-columns: 2fr 6px 2fr;
+    grid-template-columns: 4fr 6px 1fr;
     height: auto;
     width: var(--bentoboxWidth);
     border: 2px solid rgb(141, 145, 226);

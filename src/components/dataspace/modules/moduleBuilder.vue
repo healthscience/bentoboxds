@@ -1,5 +1,5 @@
 <template>
-  <div id="experiment-builder-header">Module Builder</div>
+  <div id="experiment-builder-header">Module Builder</div>{{ storeLibrary.moduleNxpActive }}ii
   <div id="experiment-holder">
     <div id="modules-available"
       v-on:dragover.prevent
@@ -24,8 +24,8 @@
         v-on:dragstart="handleDragStart($event, newMod)"
       >
         <div class="mod-option-holder"
-        >{{ newMod.name }}
-          <component :is="componentsNew[newMod.name]"></component>
+        >
+          <component :is="componentsNew[newMod.name]" :refFocus="storeLibrary.moduleNxpActive"></component>
       </div>
       </div>
     </div>
@@ -182,6 +182,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   .mod-option-holder {
     min-height: 120px;
+    border: 1px solid orange;
   }
 
   #refcontract-selected {

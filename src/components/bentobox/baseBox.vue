@@ -1,6 +1,6 @@
 <template>
   <!--<bento-box :bboxid="props.bboxid" :bbwidth="'90vw'"></bento-box>-->
-  <box-tools :bboxid="props.bboxid"></box-tools>dd{{ chartfutureData }}
+  <box-tools :bboxid="props.bboxid"></box-tools>
   <div id="bentobox-cell">
     <div class="bentocell-quadrants">
     </div>
@@ -15,7 +15,7 @@
     </div>
     <div id="peer-bentobox">
       <div id="bento-past">
-        <div id="past-box"> {{ futureBox }}dd
+        <div id="past-box">
           <!--<button id="full-past-toolbar">tools</button>-->
           <button id="full-future-toolbar" @click="predictFuture()">future</button>
         </div>

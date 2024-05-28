@@ -2,13 +2,13 @@
   <div id="time-control">
     <div id="calendar-live">
       <div v-if="selectedTimeBundle === 'single'">
-        <a class="date-live-select" ref="#" @click="viewCalendarSeettings()">{{ boxDate }} v</a>
+        <a class="date-live-select" ref="#" @click.prevent="viewCalendarSeettings()">{{ boxDate }} v</a>
       </div>
       <div v-if="selectedTimeBundle === 'range'">
-        <a class="date-live-select" ref="#" @click="viewCalendarSeettings()">{{ boxDaterange }} v</a>
+        <a class="date-live-select" ref="#" @click.prevent="viewCalendarSeettings()">{{ boxDaterange }} v</a>
       </div>
       <div v-if="selectedTimeBundle === 'multi'">
-        <a ref="#" class="date-live-select" @click="viewCalendarSeettings()">{{ boxDate }} v</a>
+        <a ref="#" class="date-live-select" @click.prevent="viewCalendarSeettings()">{{ boxDaterange }} v</a>
       </div>
     </div>
     <div id="date-set" v-if="setDateStatus">
@@ -17,7 +17,7 @@
           <div id="calendar-range-select">
             <div id="time-calendar-tools">
               <div class="time-tools" id="select-range-type">
-                <select class="time-tools-select" v-model="selectedTimeBundle" @change.prevent="setTimeBundle()">
+                <select class="time-tools-select" v-model="selectedTimeBundle" @change="setTimeBundle()">
                   <option v-for="tb in optionTimeBundle" :value="tb.value" :selected="tb.value === selectedTimeBundle">
                     {{ tb.text }}
                   </option>
@@ -31,15 +31,15 @@
           <div id="calendar-selector">
             <div id="date-selector-status"  v-bind:class="{ active: calActive }">
               <div id="range-datepicker" v-if="selectedTimeBundle === 'range'" >
-                <VueDatePicker class="calendar-view" @open="alertFn" @closed="alertFn" v-model="boxDaterange" :range="{}">
+                <VueDatePicker class="calendar-view" v-model="boxDaterange" :range="{}">
                 </VueDatePicker>
               </div>
               <div id="single-datepicker" v-else-if="selectedTimeBundle === 'single'">
-                <VueDatePicker  :teleport="true" class="calendar-view" @open="alertFn" @closed="alertFn" v-model="boxDate">
+                <VueDatePicker class="calendar-view" v-model="boxDate"  @update:model-value="handleDate">
                 </VueDatePicker>
               </div>
               <div id="multi-datepicker" v-else-if="selectedTimeBundle === 'multi'">
-                <VueDatePicker class="calendar-view" @open="alertFn" @closed="alertFn" v-model="boxDaterange" multi-dates>
+                <VueDatePicker class="calendar-view" v-model="boxDaterange" multi-dates>
                 </VueDatePicker>
               </div>
             </div>
@@ -71,7 +71,7 @@
 
 <script setup>
 import { DateTime, Interval } from 'luxon'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onBeforeMount, shallowRef } from 'vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 
@@ -84,6 +84,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   let setDateStatus = ref(false)
   let boxDate = ref()
+  let mutDate = ref()
   let boxDaterange = ref([])
   const calendarList = ref([])
   let calActive = ref(false)
@@ -97,7 +98,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
   const selectedTimeFormat = ref('timeseries')
 
   /* mounted */
-  onMounted(() => {
+  onBeforeMount(() => {
     const now = DateTime.now()
     boxDate.value = now
   })
@@ -124,19 +125,26 @@ import { libraryStore } from '@/stores/libraryStore.js'
     }
   }
 
+const handleDate = () => {
+  let dateChange = boxDate.value
+  // now change date
+  mutDate.value = DateTime.now(dateChange)
+  // console.log(bbaba)
+  // console.log(dateChange)
+  // console.log(boxDate.value)
+}
+
   const updateKbundle = () => {
     // prepare update for HOP
     // what time period is active, single, pick or range? Or update via open data settings?
     let hopTime = []
     if (selectedTimeBundle.value === 'single') {
       // make luxton time object
-      let luxTime = DateTime.now(boxDate.value)
-      boxDate.value = luxTime
-      console.log(boxDate.value)
-      hopTime.push(boxDate.value.toMillis())
+      let luxTime = DateTime.now(mutDate.value)
+      // boxDate.value = luxTime
+      hopTime.push(luxTime.toMillis())
     } else if (selectedTimeBundle.value === 'range') {
       // need to expand our range
-      console.log(boxDaterange)
       let i = Interval.fromDateTimes(boxDaterange.value[0], boxDaterange.value[1]).splitBy({ day: 1 })
       // let arryDates = i.map(d => d.start)
       for (let date of i) {
@@ -149,7 +157,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
         hopTime.push(luxTime.toMillis())
       }
     }
-
+    
     // get the library contracts
     storeAI.prepareLibrarySummary(props.bboxid)
     // no summary if already save  NEED other way to set contect
@@ -158,7 +166,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
     let computeChanges = {}
     // controls
     if (selectedTimeBundle.value === 'single') {
-      computeChanges.controls = { date: boxDate}
+      computeChanges.controls = { date: mutDate.value}
     } else if (selectedTimeBundle.value === 'range') {
       computeChanges.controls = { date: boxDaterange }
     } else if (selectedTimeBundle.value === 'multi') {
@@ -180,8 +188,8 @@ import { libraryStore } from '@/stores/libraryStore.js'
     updateECS.changes = moduleUpdate
     HOPcontext.update = updateECS
     // close the calendar options and dispay date summary selected
-    setDateStatus.value = false
     storeAI.actionHelpAskUpdate(HOPcontext)
+    setDateStatus.value = false
   }
 
   const setShiftTimeData = (seg) => {

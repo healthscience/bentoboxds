@@ -6,7 +6,7 @@
         <div>
           <div class="question-item">
             Ask question:
-            <textarea @paste="questionSave" @keyup="questionSave" required="" v-model="storeLibrary.newnxp.questionLive" placeholder="prime"></textarea>
+            <textarea @paste="questionSave" @keyup="questionSave" required="" v-model="localQuestion" placeholder="prime"></textarea>
           </div>
           <div class="question-live" v-if="storeLibrary.newnxp.questionLive !== undefined">
             Question:
@@ -35,7 +35,7 @@ import { ref, computed } from 'vue'
 
 import { libraryStore } from '@/stores/libraryStore.js'
 
-
+  let localQuestion = ref['']
   const storeLibrary = libraryStore()
   
   const refContractQuestion = computed (() => {

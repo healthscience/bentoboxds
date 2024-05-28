@@ -113,6 +113,9 @@
                 <div class="packaging-basics" v-if="index === 'filename'" >
                   {{ index }} -- {{ pi }}
                 </div>
+                <div class="packaging-basics" v-if="index === 'path'" >
+                  {{ index }} -- {{ pi }}
+                </div>
                 <div class="packaging-basics" v-if="index === 'sqlitetablename'" >
                   {{ index }} -- {{ pi }}
                 </div>

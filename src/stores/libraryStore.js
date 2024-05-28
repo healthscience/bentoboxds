@@ -63,13 +63,15 @@ export const libraryStore = defineStore('librarystore', {
       hash: ''
     },
     newDatafile: {
-      columns: []
+      columns: [],
+      path: ''
     },
     newPackagingForm:
     {
       authrequired: false,
       type: '',
       filename: '',
+      path: '',
       sqlitetablename: '',
       baseapi: '',
       jsonpath: '',
@@ -156,6 +158,8 @@ export const libraryStore = defineStore('librarystore', {
     },
     processReply (message, questionStart) {
       if (message.action === 'save-file') {
+        console.log('file data save info')
+        console.log(message)
         // set message
         if (message.task === 'sqlite') {
           // need to extract out to chat prepare utility TODO
@@ -180,10 +184,14 @@ export const libraryStore = defineStore('librarystore', {
 					newPair.reply = bbReply
 					this.storeAI.historyPair[this.storeAI.chatAttention].push(newPair)
           this.newDatafile.columns = message.data.columns
+          this.newDatafile.path = 'sqlite'
+          this.newDatafile.file = message.data.path
         } else {
           this.libraryMessage = message.data
           this.newPackagingForm.apicolumns = message.data.data.headerinfo.splitwords
           this.newDatafile.columns = message.data.columns
+          this.newDatafile.path = 'sqlite'
+          this.newDatafile.file = message.data.path
         }
       } else if (message.type === 'library-open') {
       } else if (message.type === 'publiclibrary') {
@@ -251,6 +259,8 @@ export const libraryStore = defineStore('librarystore', {
         for(let jlist of addJoinExp.data) {
           this.peerExperimentList.data.push(jlist)
         }
+        // call the peer library to get all the new modules active in Library
+        this.sendMessage('get-library')
       } else if (message.action === 'results') {
         this.peerResults = message.data
       } else if (message.action === 'ledger') {
@@ -313,6 +323,8 @@ export const libraryStore = defineStore('librarystore', {
       libMessageout.bbid = hashObject(boxID)
       // keep track of message
       this.storeAI.helpchatHistory.push(libMessageout)
+      console.log('view jioned NXP')
+      console.log(libMessageout)
       this.sendSocket.send_message(libMessageout)
     },
     prepareGenesisModContracts (message) {

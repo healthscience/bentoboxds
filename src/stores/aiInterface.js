@@ -231,7 +231,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       aiMessageout.action = 'updatenetworkexperiment'
       aiMessageout.data = HOPq
       aiMessageout.bbid = HOPq.bbid
-      this.sendSocket.send_message(aiMessageout)
+      this.sendMessageHOP(aiMessageout)
       this.helpchatHistory.push(aiMessageout)
       this.qcount++
     },
@@ -297,10 +297,15 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
               let pairBB = {}
               pairBB.question = questionStart
               pairBB.reply = received
-              this.historyPair[this.chatAttention].push(pairBB)
-              this.storeBentoBox.boxToolStatus[received.bbid] = this.boxSettings
-              this.storeBentoBox.devicesettings[received.bbid] = {}
-              this.storeBentoBox.devicesettings[received.bbid] = this.storeBentoBox.settings
+              // is the peer signed in?
+              if (this.storeAcc.peerauth === false) {
+                console.log('not signed in')
+              } else {
+                this.historyPair[this.chatAttention].push(pairBB)
+                this.storeBentoBox.boxToolStatus[received.bbid] = this.boxSettings
+                this.storeBentoBox.devicesettings[received.bbid] = {}
+                this.storeBentoBox.devicesettings[received.bbid] = this.storeBentoBox.settings
+              }
             }
           }
           if (received.action === 'library-peerlibrary' || 'publiclibrary') {
@@ -350,8 +355,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.bentoboxList['space1'] = []
     },
     processHOPsummary (dataSummary) {
-      console.log('HOP summary  SF entity hash')
-      console.log(dataSummary)
       // match bbid to HOP ID
       let inputID = Object.keys(dataSummary.data)
       let HOPshell = dataSummary.data[inputID[0]].shellID
@@ -363,30 +366,32 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       // match input id to bbid
       // is the data for past or future or no data
       if (dataHOP.data.data === 'none') {
-        this.dataBoxStatus = !this.dataBoxStatus
+        // need to match to summary data for context
+        let contKey = dataHOP.context.input.key
+        let matchSummary = this.liveChatUtil.matchSummaryPeerContract(contKey, this.storeLibrary.peerExperimentList)
+        this.dataBoxStatus = false
         // stil produce a bentobox
         let boxID = this.liveChatUtil.matchHOPbbid(dataHOP.context.dataprint.shell, this.bbidHOPid)
         // set open data toolbar
         let opendataToolbar = this.liveChatUtil.setOpendataToolbar()
         this.storeBentoBox.boxToolStatus[boxID] = {}
         this.storeBentoBox.boxToolStatus[boxID] = opendataToolbar
-        let pairBB = this.liveChatUtil.prepareChatQandA(boxID)        
+        let pairBB = this.liveChatUtil.prepareChatQandA(boxID, matchSummary)        
         let hopDataChart = {}
         hopDataChart.datasets = [ { label: 'datatype', data: [] } ]
         hopDataChart.labels = []
         this.visData[boxID] = hopDataChart
         this.storeBentoBox.setChartstyle(boxID, 'line')
-        this.expandBentobox[boxID] = false
+        // this.expandBentobox[boxID] = true
         this.beebeeChatLog[boxID] = true
         // feed the chat
         this.historyPair[this.chatAttention].push(pairBB)
+        this.chatBottom++
       } else if (dataHOP.context.input.update !== 'predict-future') {
         let matchBBID = this.liveChatUtil.matchHOPbbid(dataHOP.data.context.shell, this.bbidHOPid)
         this.bentoboxList['space1'] = []
-        this.expandBentobox[matchBBID] = false
+        // this.expandBentobox[matchBBID] = true
         this.beebeeChatLog[matchBBID] = true
-        // this.tempNumberData[matchBBID] = dataHOP.data.data.chartPackage.datasets[0].data
-        // this.tempLabelData[matchBBID] = dataHOP.data.data.chartPackage.labels
         let hopDataChart = {}
         hopDataChart.datasets = [ { label: 'datatype', data: dataHOP.data.data.chartPackage.datasets[0].data } ]
         hopDataChart.labels = dataHOP.data.data.chartPackage.labels
@@ -440,9 +445,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.sendSocket.send_message(aiMessageout)
     },
     prepareLibrarySummary (boxid) {
-      console.log('summary atfa save??')
-      console.log(boxid)
-      console.log(this.hopSummary)
       for (let hi of this.hopSummary) {
         if (hi.summary.bbid == boxid) {
           // new or saved format
@@ -452,11 +454,9 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
             this.boxLibSummary[boxid] = hi.summary.summary
           }
         } else {
-          console.log('not landing')
           this.boxLibSummary[boxid] = hi.summary.summary
         }
       }
-      console.log(this.boxLibSummary)
       let NXPcontract = this.boxLibSummary[boxid].data
       let key = Object.keys(this.boxLibSummary[boxid].data)
       let modulesContracts = NXPcontract[key].modules

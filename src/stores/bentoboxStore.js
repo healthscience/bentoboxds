@@ -186,7 +186,7 @@ export const bentoboxStore = defineStore('bentostore', {
             }
           }
           this.chatList = chatMenu
-          if (this.chatList.length === 0) {
+          if (this.chatList.length !== 0) {
             this.chatList.push({ name:'latest', chatid:'0123456543210', active: true })
           }
           // set the chat list live

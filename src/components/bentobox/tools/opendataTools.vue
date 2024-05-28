@@ -107,22 +107,13 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
       yaxis: [],
       category: ''
     })
+
   /* props */
   const props = defineProps({
     bboxid: String
   })
 
-
   /*  computed */
-
-  /*
-  * settings summary
-  */
-  const deviceSettings22 = computed(() => {
-    console.log('deivce setings')
-    return storeBentobox.devicesettings[props.bboxid]
-  })
-
   const deviceList = computed(() => {
     return [{ device_name: 'aaa', device_mac: 'pdodld' }]
   })

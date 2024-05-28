@@ -23,12 +23,12 @@ class ChatUtility {
   *
   *
   */
-  prepareChatQandA = function (inputHOP) {
+  prepareChatQandA = function (inputHOP, summary) {
     let chatFeed = {}
     let boxID = inputHOP
     let pairBB = {}
     let question = this.prepareQuestion(boxID)
-    let reply = this.prepareReply(boxID)
+    let reply = this.prepareReply(summary.name)
     chatFeed.question = question
     chatFeed.reply = reply
     return chatFeed
@@ -46,18 +46,34 @@ class ChatUtility {
     return question
   }
 
+  /**
+  * Match to summary context info.
+  * @method matchSummaryPeerContract
+  *
+  */
+  matchSummaryPeerContract = function (key, peerSummmary) {
+    let matchSummary = {}
+    for (let psum of peerSummmary.data) {
+      if (psum.id == key) {
+        matchSummary = psum
+      }
+    }
+    return matchSummary
+  }
+
+
 
   /**
   * Prepare the reply
   * @method prepareReply
   *
   */
-  prepareReply = function (hopInput) {
+  prepareReply = function (context) {
     // compile the repy
     let reply = {}
     reply.time = new Date()
     reply.type = 'feedback'
-    reply.data = { text: 'no data for this network experiment'}
+    reply.data = { text: context + ' --- no data for this network experiment'}
     return reply
   }
 

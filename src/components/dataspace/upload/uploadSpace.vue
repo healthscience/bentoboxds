@@ -103,8 +103,6 @@ const saveFiles = (files) => {
 			storeLibrary.csvpreviewLive = true
 			const reader = new FileReader()
 			reader.onload = function (event) {  // = (event) => { // = function () {
-				console.log(reader.result)
-				console.log(event)
 				const lines = reader.result 
 				let splitLines = lines.split(/\r\n|\n/)
 				storeLibrary.linesLimit = splitLines.slice(0, 40)
@@ -141,17 +139,10 @@ const saveFiles = (files) => {
 				console.log('erroro with file')
 				console.log(reader.error)
 			}
-			console.log('filereader start')
-			console.log(file.file)
 			reader.readAsText(file.file)
 
 			
 			const reader2 = new FileReader();
-  		const f = new Blob(['abc'], {type: 'text/plain'});
-  			reader2.onload = e => {
-				console.log('reader two result')
-    		console.log(e.target.result);
-  			};
   		reader2.readAsArrayBuffer(f);
 		}	else if (file.file.type !== 'text/csv') {
 			// check for pdf file 

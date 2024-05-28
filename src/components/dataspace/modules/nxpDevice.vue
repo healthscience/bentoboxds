@@ -1,13 +1,8 @@
 <template>
   <div id="device-add-nxp">
     <header>DATA PACKAGING</header>
-      <div  class="device-item">
-        Reference Contract:
-        <input v-model="storeLibrary.newPackaging" placeholder="Reference Contract">
-        <button type="button" class="btn" @click="refContractLookup()">Lookup</button>
-      </div>
       <div>
-        <div class="data-refspace">
+        <div class="data-refspace" v-if="props.refFocus === 'packaging'">
           <div v-for="pack of refContractPackage"> 
             <div class="refcontract-summary" v-if="pack.value">
               <div class="ref-pair">
@@ -36,6 +31,16 @@
               </div>
             </div>
           </div>
+          <div  class="device-item">
+            Reference Contract:
+            <input v-model="storeLibrary.newPackaging" placeholder="Reference Contract">
+            <button type="button" class="btn" @click="refContractLookup()">Lookup</button>
+          </div>
+        </div>
+        <div v-else >
+          <div class="ref-pair">
+                {{ refContractPackage[0]?.value.concept.name }}
+              </div>
         </div>
       </div>
   </div>
@@ -46,8 +51,11 @@ import { ref, computed } from 'vue'
 
 import { libraryStore } from '@/stores/libraryStore.js'
 
-
   const storeLibrary = libraryStore()
+
+  const props = defineProps({
+    refFocus: String
+  })
 
   const refContractPackage = computed (() => {
     return storeLibrary.newnxp.packagingLive
@@ -72,6 +80,8 @@ import { libraryStore } from '@/stores/libraryStore.js'
   .ref-pair {
     font-size: 1.2em;
     padding: 4px;
+    background-color: bisque;
+    width: 96%;
   }
 }
 </style>

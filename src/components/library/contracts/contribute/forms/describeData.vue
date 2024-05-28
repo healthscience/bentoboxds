@@ -44,13 +44,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   const storeLibrary = libraryStore()
 
-  let libraryDatatypes = ref(storeLibrary.publicLibrary.datatype)
-
   /* computed */
-  const dtcolumns = computed(() => {
-    return storeLibrary.newPackingForm.apicolHolder
-  })
-
   const handleDragStart = (event, itemData) => {
     event.dataTransfer.setData('application/json', JSON.stringify(itemData))
   }
@@ -69,6 +63,8 @@ import { libraryStore } from '@/stores/libraryStore.js'
       storeLibrary.newListsave[columnName.name] = matchDatatype.key
       storeLibrary.newLists[dti] = {}
       storeLibrary.newLists[dti] = matchDatatype
+      storeLibrary.newPackagingForm.filename = storeLibrary.newDatafile.file
+      storeLibrary.newPackagingForm.path = storeLibrary.newDatafile.path
       storeLibrary.newPackagingForm.apicolumns = storeLibrary.newDatafile.columns
       storeLibrary.newPackagingForm.apicolHolder = storeLibrary.newListsave
     } else if (targetContainer === 'library-datatypes') {
@@ -76,6 +72,8 @@ import { libraryStore } from '@/stores/libraryStore.js'
       let columnName = storeLibrary.newDatafile.columns[itemData]
       delete storeLibrary.newListsave[columnName.name]
       delete storeLibrary.newLists[itemData]
+      storeLibrary.newPackagingForm.filename = storeLibrary.newDatafile.file
+      storeLibrary.newPackagingForm.path = storeLibrary.newDatafile.path
       storeLibrary.newPackagingForm.apicolumns = storeLibrary.newDatafile.columns
       storeLibrary.newPackagingForm.apicolHolder = storeLibrary.newListsave
     }
@@ -105,6 +103,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
     display: inline-block;
     vertical-align: text-top;
     width: 60%;
+    font-size: .7em;
   }
 
   #data-columns {
@@ -146,6 +145,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
     margin: 1em;
     border: 2px solid orange;
     background-color: #E6ECEC;
+    font-size: 1.2em;
   }
 }
 </style>

@@ -40,7 +40,7 @@
     </div>
   </div>
   <div class="network-tools" id="open-knowledge">
-    <opendata-tool v-if="visToolbarStatus === true" :bboxid="props.bboxid" :toolInfo="boxSettings"></opendata-tool>
+    <opendata-tool v-if="visToolbarStatus === true" :bboxid="props.bboxid"></opendata-tool>
   </div>
   <!--<div id="feedback-time" v-if="feedbackmessage !== 'clear'" v-bind:class="{ active: feedbackActive }">
     {{ feedbackmessage }}
@@ -125,7 +125,7 @@ const visToolbarStatus = computed(() => {
   display: grid;
   grid-template-columns: 1fr;
   background-color:rgb(224, 227, 243);
-  z-index: 4;
+  z-index: 12;
 }
 
 @media (min-width: 1024px) {

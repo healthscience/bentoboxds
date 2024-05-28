@@ -16,9 +16,18 @@
           <div id="return-modal-close" @click="closedataBox">return</div>
         </div>
         <h3>Data Box</h3>
-        <button class="button-lib-data" v-bind:class="{ active: libAction === 'libraryexplorer' }" @click="networkLibraryShow">Library</button>
-        <button class="button-lib-data" v-bind:class="{ active: libAction === 'libraryexperiments' }" @click="nxpLibraryPeer">Experiments</button>
-        <button class="button-lib-data" v-bind:class="{ active: libAction === 'newexperiment' }" @click="nxpAdd">+ new NXP</button>
+        <button class="button-lib-data" v-bind:class="{ active: libAction === 'libraryexplorer' }" @click="networkLibraryShow">
+          Library
+        </button>
+        <button class="button-lib-data" v-bind:class="{ active: libAction === 'libraryupload' }" @click="networkUploadShow">
+          Upload
+        </button>
+        <button class="button-lib-data" v-bind:class="{ active: libAction === 'libraryexperiments' }" @click="nxpLibraryPeer">
+          Experiments
+        </button>
+        <button class="button-lib-data" v-bind:class="{ active: libAction === 'newexperiment' }" @click="nxpAdd">
+          + new NXP
+        </button>
       </template>
       <template #body>
         <space-upload v-if="uploadStatus === true"></space-upload>
@@ -52,7 +61,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 
   const storeAI = aiInterfaceStore()
-  const bboxStore = bentoboxStore()
+  const storeBentobox = bentoboxStore()
   const storeLibrary = libraryStore()
   const showModal = ref(true)
   
@@ -93,6 +102,15 @@ import { libraryStore } from '@/stores/libraryStore.js'
     }
   }
 
+  const networkUploadShow = () => {
+    storeLibrary.uploadStatus = !storeLibrary.uploadStatus
+    if (storeLibrary.uploadStatus === true) {
+      libAction.value = 'libraryupload'
+    } else {
+      libAction.value = ''
+    }
+  }
+
   const nxpLibraryPeer = () => {
     storeLibrary.libPeerview = !storeLibrary.libPeerview
     if (storeLibrary.libPeerview === true) {
@@ -115,6 +133,12 @@ import { libraryStore } from '@/stores/libraryStore.js'
     }
     // send message to HOP to create genesis NXP contract structure
     if (storeLibrary.newNXP === true) {
+      // setup gensis open tools data structure
+      let modSettings = {}
+      modSettings.xaxis = ['time'] // mod.value.info.settings.xaxis
+      modSettings.yaxis = ['333']
+      modSettings.category = []
+      storeBentobox.openDataSettings['genesis-123579'] = modSettings
       storeLibrary.prepareGenesisModContracts()
       storeLibrary.saveSuccessnxp = false
     }
@@ -153,6 +177,10 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
     #return-modal-close {
       justify-content: right;
+    }
+
+    .button-lib-data {
+      margin-left: 1em;
     }
 
     .active {

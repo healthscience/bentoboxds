@@ -31,16 +31,22 @@
         <div class="reply-text-chart">
           <div class="right-chat">
               <div class="bb-commentary">
-                Commentary:  new dataed and analyssed, looks like a standard Tuesday.  Average heart rate, XX normal day.  Predictions on going.
+                <div id="text-summary">
+                  Commentary:  beebee to bring attention to something or summarise some charts etc.
+                </div>
                 <bento-box :bboxid="commentaryBox"></bento-box>
               </div>
             <div class="bb-commentary-spaces">
-              Click on space for detailed commentary for that context.
-              <div class="space-list" v-for="sis in spaceList">
-                <button
-                    class="flat-history"  @click="spaceCommentary(sis)"> {{ sis.name }}
-                  </button>
+              <div class="space-commentary-text">
+                Click on space for detailed commentary for that context.
               </div>
+              <div class="space-container-buttons">
+                <div class="space-list" v-for="sis in spaceList">
+                  <button
+                      class="space-commentary-button"  @click="spaceCommentary(sis)"> {{ sis.name }}
+                    </button>
+                  </div>
+            </div>
             </div>
           </div>
         </div>
@@ -90,8 +96,22 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     storeLibrary.libraryStatus = true
   }
 
-  const spaceCommentary = () => {
+  const spaceCommentary = (spaceID) => {
     console.log('agent review of this space')
+    storeAI.bentospaceState = !storeAI.bentospaceState
+    storeAI.liveBspace = spaceID
+    // make button green
+    let spaceLiveList = []
+    for (let spi of storeBentobox.spaceList) {
+      if (spi.spaceid === spaceID.spaceid) {
+        spi.active = true
+        spaceLiveList.push(spi)
+      } else {
+        spi.active = false
+        spaceLiveList.push(spi)
+      }
+    }
+    storeBentobox.spaceList = spaceLiveList
   }
 
 </script>
@@ -107,7 +127,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   .beebee-reply {
     display: grid;
     grid-template-columns: 1fr 4fr 1fr;
-    background-color: #d8d7e2;
+    background-color:  #d8d7e2;
     width: 90%;
     border-radius: 25px;
     margin-top: .5em;
@@ -126,6 +146,33 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
   .bb-commentary {
     padding: 1em;
+    border-radius: 25px;
+    background-color: rgb(245, 243, 241);
+  }
+
+  #text-summary {
+    display: grid;
+    grid-template-columns: 1fr;
+    padding: 1.4em;
+  }
+
+  .bb-commentary-text {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .space-commentary-text {
+    padding: 1.4em;
+  }
+
+  .space-container-buttons {
+    display: block;
+  }
+
+  .space-list{
+    display: inline;
+    padding: 0.5em;
   }
 
  }

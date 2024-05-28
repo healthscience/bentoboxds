@@ -114,6 +114,7 @@ const formContribute = [
         authrequired: false,
         type: '',
         filename: '',
+        path: '',
         sqlitetablename: '',
         baseapi: '',
         jsonpath: '',
