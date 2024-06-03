@@ -127,8 +127,11 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
 const handleDate = () => {
   let dateChange = boxDate.value
+  console.log('change of date')
+  console.log(dateChange)
   // now change date
-  mutDate.value = DateTime.now(dateChange)
+  mutDate.value = DateTime.fromJSDate(dateChange).toMillis()
+  console.log(mutDate.value)
   // console.log(bbaba)
   // console.log(dateChange)
   // console.log(boxDate.value)
@@ -166,11 +169,21 @@ const handleDate = () => {
     let computeChanges = {}
     // controls
     if (selectedTimeBundle.value === 'single') {
-      computeChanges.controls = { date: mutDate.value}
+      computeChanges.controls = { date: mutDate.value, rangedate: [mutDate.value]}
     } else if (selectedTimeBundle.value === 'range') {
-      computeChanges.controls = { date: boxDaterange }
+      let timeMills = []
+      for (let tm of boxDaterange.value) {
+        let tmm = DateTime.fromJSDate(tm).toMillis()
+        timeMills.push(tmm)
+      }
+      computeChanges.controls = { date: mutDate.value, rangedate: timeMills }
     } else if (selectedTimeBundle.value === 'multi') {
-      computeChanges.controls = { date: boxDaterange }
+      let timeMills = []
+      for (let tm of boxDaterange.value) {
+        let tmm = DateTime.fromJSDate(tm).toMillis()
+        timeMills.push(tmm)
+      }
+      computeChanges.controls = { date: mutDate.value, rangedate: timeMills }
     }
     // any settings changes?
     moduleUpdate.compute = computeChanges
@@ -188,31 +201,35 @@ const handleDate = () => {
     updateECS.changes = moduleUpdate
     HOPcontext.update = updateECS
     // close the calendar options and dispay date summary selected
+    console.log('update time')
+    console.log(moduleUpdate.compute)
+    console.log(HOPcontext)
     storeAI.actionHelpAskUpdate(HOPcontext)
     setDateStatus.value = false
   }
 
   const setShiftTimeData = (seg) => {
     if (seg.text.word === '+day') {
-      let updateDate = boxDate.value.plus({ days: 1 })
-      boxDate.value = updateDate  
+      let dateNew = DateTime.fromJSDate(boxDate.value)
+      let updateDate = dateNew.plus({ days: 1 })
+      boxDate.value = updateDate.toJSDate()
     } else if (seg.text.word === '-day') {
-      let updateDate = boxDate.value.minus({ days: 1 })
-      boxDate.value = updateDate
+      let updateDate = DateTime.fromJSDate(boxDate.value).minus({ days: 1 })
+      boxDate.value = updateDate.toJSDate()
     } else if (seg.text.word === '+week') {
-        let updateDate = boxDate.value.minus({ weeks: 1 })
-        boxDate.value = updateDate
+        let updateDate = DateTime.fromJSDate(boxDate.value).minus({ weeks: 1 })
+        boxDate.value = updateDate.toJSDate()
     } else if (seg.text.word === '-week') {
-        let updateDate = boxDate.value.minus({ weeks: 1 })
-        boxDate.value = updateDate
+        let updateDate = DateTime.fromJSDate(boxDate.value).minus({ weeks: 1 })
+        boxDate.value = updateDate.toJSDate()
     } else if (seg.text.word === '+year') {
-        let updateDate = boxDate.value.minus({ year: 1 })
-        boxDate.value = updateDate
+        let updateDate = DateTime.fromJSDate(boxDate.value).minus({ year: 1 })
+        boxDate.value = updateDate.toJSDate()
     } else if (seg.text.word === '-year') {
-        let updateDate = boxDate.value.minus({ year: 1 })
-        boxDate.value = updateDate
+        let updateDate = DateTime.fromJSDate(boxDate.value).minus({ year: 1 })
+        boxDate.value = updateDate.toJSDate()
     }
-
+    mutDate.value = DateTime.fromJSDate(boxDate.value).toMillis()
   }
 
   const viewCalendarSeettings = () => {

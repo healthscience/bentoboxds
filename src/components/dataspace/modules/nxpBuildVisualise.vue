@@ -1,6 +1,6 @@
 <template>
   <div id="visualise-nxp-build">
-    <header>VISUALISE BUILDER:</header>
+    <header>VISUALISE BUILDER:</header> {{ livePackaging }}
     <div id="prime-visualise-build" v-if="props.refFocus === 'visualise'">
       <header>Type of visualisation:</header>
       <div  v-if="refContractVisualise">
@@ -30,7 +30,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import OpendataTool from '@/components/bentobox/tools/opendataTools.vue'
+import OpendataTool from '@/components/bentobox/tools/opendataToolsBuild.vue'
 import { libraryStore } from '@/stores/libraryStore.js'
 
 
@@ -44,6 +44,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   /* computed */
   const refContractVisualise = computed (() => {
+
     return storeLibrary.newnxp.visualiseLive
   })
 

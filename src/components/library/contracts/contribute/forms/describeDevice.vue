@@ -8,9 +8,11 @@
         <button @click="setDevicequery">Query path</button>
       </div>
     </div>
-    <div class="device-info" v-if="deviceQuery === true">
-      <label for="tidy">Device query</label>
-      <input type="text" v-model="storeLibrary.newPackagingForm.device.query">
+    <div class="device-select" v-if="deviceQuery === true">
+      <div id="desribe-source-device">
+        <describe-datastructure></describe-datastructure>
+      </div>
+      <!--<input type="text" v-model="storeLibrary.newPackagingForm.device.query">-->
     </div>
     <div id="device-manual"  v-if="deviceManual === true">
       <div class="device-info">
@@ -35,6 +37,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import DescribeDatastructure from '@/components/library/contracts/contribute/forms/describeDeviceStructure.vue'
 import { libraryStore } from '@/stores/libraryStore.js'
 
   const storeLibrary = libraryStore()
@@ -55,7 +58,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
 #describe-device {
   display: grid;
   grid-template-columns: 1fr;
-  width: 800px;
   border-top: 2px solid lightgrey;
   padding-top: 2em;
   border-bottom: 2px solid lightgrey;
@@ -75,9 +77,14 @@ import { libraryStore } from '@/stores/libraryStore.js'
 }
 
 .device-info label {
-  border: 0px solid red;
   margin-right: 1em;
   justify-self: end;
   padding-bottom: .4em;
 }
+
+#desribe-source-device {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
 </style>

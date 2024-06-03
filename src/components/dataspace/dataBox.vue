@@ -2,7 +2,7 @@
   <Teleport to="body">
     <!-- use the modal component, pass in the prop -->
     <modal-data :show="dataBoxStatus" @close="closedataBox">
-      <template #header>
+      <template #header>dd {{ dataBoxStatus }}
         <!-- The code below goes into the header slot -->
         <div id="space-modal-header">
           <button

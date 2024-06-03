@@ -11,6 +11,12 @@
       </select>
     </div>
     <div class="package-form-item">
+      <label for="package-source-data">Data source:</label>
+      <div id="source-location">
+        <source-builder></source-builder>
+      </div>
+    </div>
+    <div class="package-form-item">
       <label for="package-add-name">Name:</label>
       <input id="package-mapping-name" @input="nameSave" @paste="nameSave" @keyup="nameSave" v-model="storeLibrary.newPackagingForm.name" placeholder="package mapping name" required="" type="text">
     </div>
@@ -19,30 +25,27 @@
       <textarea name="message" cols="40" rows="2" required="" id="package-mapping-description" @input="descriptionSave" @paste="descriptionSave" @keyup="descriptionSave" v-model="storeLibrary.newPackagingForm.description"></textarea>
     </div>
     <div class="package-form-item">
-      <label for="package-source-data">Data source:</label>
-      <div id="source-location">
-        <source-builder></source-builder>
-      </div>
-    </div>
-    <div class="package-form-item">
       <label for="tidy">Authorisation required?</label>
       <input type="checkbox" id="auth-access" v-model="storeLibrary.newPackagingForm.authrequired">
     </div>
-    <div class="package-form-item">Authorisation
+    <div class="package-form-item-single">Authorisation
       <describe-auth v-if="storeLibrary.newPackagingForm.authrequired === true"></describe-auth>
     </div>
-    <div id="desribe-data" v-if="datasourceLive === true">
+    <div id="desribe-data" class="package-form-item-single" v-if="datasourceLive === true">
       <div id="sqlite-table-name" v-if="filetypeLive === 'sqlite'">
         <label for="add-code-name">SQLite table name: </label>
         <input type="text"  id="table-name-sqlite" placeholder="" required  v-model="storeLibrary.newPackagingForm.sqlitetable" />
       </div>
+      <div id="desribe-source-data" class="package-form-item-single">
+        <describe-datastructure></describe-datastructure>
+      </div>
       <div class="package-column-item">
+        <div class="package-column-item">
         <label for="add-code-name">Column builder</label>
         <input type="text"  id="package-base-address" placeholder="column" required  v-model="storeLibrary.newPackagingForm.columns" />
         <a href='#' id="add-column" @click.prevent="columnsSave" >Add column </a>
         <a href='#' id="auto-column" @click.prevent="columnsAuto" > Auto add</a>
       </div>
-      <div class="package-column-item">
         <describe-data></describe-data>
       </div>
       <!-- <li class="package-form-item">
@@ -60,7 +63,7 @@
       <div class="pack-info" v-for="dty of tidyCount" :key="dty.id" >
         <describe-tidy :tidyid=dty></describe-tidy>
       </div>
-      <div class="package-form-item">DEVICE INFO
+      <div class="package-form-item-single">DEVICE
         <describe-device></describe-device>
       </div>
     </div>
@@ -71,6 +74,7 @@
 import SourceBuilder from '@/components/library/contracts/contribute/source/sourceBuilder.vue'
 import DescribeDevice from '@/components/library/contracts/contribute/forms/describeDevice.vue'
 import DescribeAuth from '@/components/library/contracts/contribute/forms/describeAuth.vue'
+import DescribeDatastructure from '@/components/library/contracts/contribute/forms/describeSourceStructure.vue'
 import DescribeData from '@/components/library/contracts/contribute/forms/describeData.vue'
 import DescribeCategory from '@/components/library/contracts/contribute/forms/describeCategory.vue'
 import DescribeTidy from '@/components/library/contracts/contribute/forms/describeTidy.vue'
@@ -167,7 +171,8 @@ const storeLibrary = libraryStore()
   #newpackage-view {
     display: grid;
     grid-template-columns: 1fr;
-    font-size: 1.2em;
+    font-size: 1em;
+    width: 80vw;
   }
 
   .package-form-item {
@@ -178,9 +183,18 @@ const storeLibrary = libraryStore()
   }
 
   .package-form-item label {
-    border: 0px solid red;
     margin-right: 1em;
     justify-self: end;
+  }
+
+  .package-form-item-single {
+    display: grid;
+    grid-template-columns: 1fr;
+    margin: 1em;
+  }
+
+  .select-package-source {
+    width: 20%;
   }
 
   .pack-info {
@@ -195,7 +209,6 @@ const storeLibrary = libraryStore()
 
   #auto-column {
     margin-left: 2em;
-    border: 1px solid red;
   }
 
   .package-column-item {

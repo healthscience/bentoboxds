@@ -21,6 +21,7 @@ export const libraryStore = defineStore('librarystore', {
     startLibrary: false,
     libraryMessage: '',
     uploadStatus: false,
+    describeSource: {},
     restStatus: false,
     peerExperimentList: {
       columns: ['id', 'name', 'description', 'time', 'device', 'action'],
@@ -64,7 +65,9 @@ export const libraryStore = defineStore('librarystore', {
     },
     newDatafile: {
       columns: [],
-      path: ''
+      devicecolumns: [],
+      path: '',
+      device: []
     },
     newPackagingForm:
     {
@@ -84,6 +87,8 @@ export const libraryStore = defineStore('librarystore', {
       tidyCount: 0,
       category: {},
       tidy: {},
+      devicesList: [],
+      deviceColumns: [],
       device:
       {
         id: '',
@@ -99,6 +104,7 @@ export const libraryStore = defineStore('librarystore', {
         mobileapp: ''
       }
     },
+    joinOptions: {},
     fileBund: {},
     fileBundleList: [],
     linesLimit: {},
@@ -157,9 +163,10 @@ export const libraryStore = defineStore('librarystore', {
       this.sendMessage('get-results')
     },
     processReply (message, questionStart) {
+      console.log('library process')
+      // console.log(message)
       if (message.action === 'save-file') {
-        console.log('file data save info')
-        console.log(message)
+        this.describeSource = message.data
         // set message
         if (message.task === 'sqlite') {
           // need to extract out to chat prepare utility TODO
@@ -192,6 +199,22 @@ export const libraryStore = defineStore('librarystore', {
           this.newDatafile.columns = message.data.columns
           this.newDatafile.path = 'sqlite'
           this.newDatafile.file = message.data.path
+        }
+      } else if (message.action === 'source') {
+        if (message.reftype === 'sqlite') {
+          // what is data
+          let desribesD = Object.keys(message.data)
+          for (let dd of desribesD) {
+            if (dd === 'headers') {
+              this.newDatafile.columns = message.data.headers
+            }
+            if (dd === 'tables') {
+              this.newDatafile.devicecolumns = message.data.tables.headers
+            }
+            if (dd === 'devices') {
+              this.newDatafile.device = message.data.devices
+            }
+          }
         }
       } else if (message.type === 'library-open') {
       } else if (message.type === 'publiclibrary') {
@@ -313,6 +336,7 @@ export const libraryStore = defineStore('librarystore', {
       let time = date.toLocaleTimeString()
       boxID.time =  time
       let contractQuery = this.utilLibrary.matchNXPcontract(contract.id, this.peerLibraryNXP)
+      let bbidHash = hashObject(boxID)
       let libMessageout = {}
       libMessageout.type = 'library'
       libMessageout.action = 'contracts'
@@ -320,11 +344,24 @@ export const libraryStore = defineStore('librarystore', {
       libMessageout.privacy = 'private'
       libMessageout.task = 'assemble'
       libMessageout.data = contractQuery
-      libMessageout.bbid = hashObject(boxID)
+      libMessageout.bbid = bbidHash
       // keep track of message
       this.storeAI.helpchatHistory.push(libMessageout)
-      console.log('view jioned NXP')
-      console.log(libMessageout)
+      // prepare historypair for receiving HOP data
+      let pairBB = {}
+      let question = {}
+      question.data = { active: true }
+      question.bbid = bbidHash
+      pairBB.question = question
+      let reply = {}
+      reply.time = new Date()
+      reply.type = 'experiment'
+      reply.data = {}
+      pairBB.reply = reply
+      this.storeAI.historyPair[this.storeAI.chatAttention] = []
+      this.storeAI.historyPair[this.storeAI.chatAttention].push(pairBB)
+      // console.log('view jioned NXP')
+      // console.log(libMessageout)
       this.sendSocket.send_message(libMessageout)
     },
     prepareGenesisModContracts (message) {

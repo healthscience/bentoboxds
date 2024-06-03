@@ -264,7 +264,7 @@ const boxToolsShow = computed(() => {
     color: white;
     text-align: center;
     cursor: pointer;
-    z-index: 9;
+    z-index: 3;
   }
 
   .space-button {
@@ -273,10 +273,15 @@ const boxToolsShow = computed(() => {
   
   #spaces-list {
     display: grid;
-    position: absolute;
-    left: -99px;
+    position: relative;
+    top: 0;
+    left: -109px;
     border: 0px solid red;
-    z-index: 4;
+    z-index: 22;
+  }
+
+  .elect-space-save {
+    z-index: 44;
   }
 
   #bentobox-cell {

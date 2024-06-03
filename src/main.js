@@ -7,11 +7,11 @@ import router from './router'
 import VueDragscroll from 'vue-dragscroll'
 import i18n from "./i18n"
 
-import './assets/main.css'
+
 
 import VueDatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
-
+import './assets/main.css'
 
 const app = createApp(App)
 

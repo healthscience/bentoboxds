@@ -102,7 +102,7 @@ const saveFiles = (files) => {
 		if (file.file.type === 'text/csv') {
 			storeLibrary.csvpreviewLive = true
 			const reader = new FileReader()
-			reader.onload = function (event) {  // = (event) => { // = function () {
+			reader.onload = function () {
 				const lines = reader.result 
 				let splitLines = lines.split(/\r\n|\n/)
 				storeLibrary.linesLimit = splitLines.slice(0, 40)
@@ -117,6 +117,10 @@ const saveFiles = (files) => {
 					question.data = { "count": storeAI.qcount, "text": "Upload of file", "active": true, "time": new Date() }
 					let hashQuestion = hashObject(question.data + file.file.name)
 					// extract headers assume first line
+					const localHeaderExtract = (lineOne) => {
+						let headerInfo = lineOne.split(',')
+						return headerInfo
+					}
 					headerLocal[hashQuestion] = localHeaderExtract(splitLines[0])
 					let fileContent = reader.result
 					storeLibrary.fileBund.content = fileContent
@@ -143,7 +147,7 @@ const saveFiles = (files) => {
 
 			
 			const reader2 = new FileReader();
-  		reader2.readAsArrayBuffer(f);
+  		reader2.readAsArrayBuffer(file.file);
 		}	else if (file.file.type !== 'text/csv') {
 			// check for pdf file 
 			if (file.file.type !== 'application/pdf') {

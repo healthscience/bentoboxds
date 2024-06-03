@@ -23,9 +23,6 @@ import { ref, computed } from 'vue'
   const storeLibrary = libraryStore()
 
   // a computed ref
-  const uploadStatus = computed(() => {
-    return storeLibrary.uploadStatus
-  })
 
   /* data */
 
@@ -50,6 +47,7 @@ import { ref, computed } from 'vue'
       // storeLibrary.sourceDataSelected = !storeLibrary.sourceDataSelected
       storeLibrary.newPackagingForm.type = 'rest'
     }
+    console.log(storeLibrary.newPackagingForm.type)
   }
 
 </script>

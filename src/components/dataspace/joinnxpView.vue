@@ -1,5 +1,4 @@
 <template>
-      
   <div id="nxp-join-nxp" v-for="gmod in genesisNXP.modules">
     <div class="nxp-question" v-if="gmod?.value?.style === 'question'">
       Network Experiment: {{ gmod.value.info.value.concept.name }}
@@ -75,10 +74,11 @@
     <div id="visualise-options" v-if="gmod?.value?.style === 'visualise'">
       <!-- preview visualisation -->
       <header class="module-header">Visualisation</header>
-      <div id="vis-builder">{{ gmod }}
+      <div id="vis-builder">
         {{ gmod?.value?.info?.value?.computational?.name }}
         <!--<chart-builder class="vis-area" v-if="NXPJoinModuleVisualise" :shellID="shellID" :moduleCNRL="moduleCNRL" :moduleType="moduleType" :mData="mData" ></chart-builder>-->
       </div>
+      <opendata-tool :bboxid="'genesis-123579'" :setOptions="settingsOptions"></opendata-tool>
     </div>
   </div>
   <div id="join-button">
@@ -93,6 +93,7 @@
 </template>
 
 <script setup>
+import OpendataTool from '@/components/bentobox/tools/opendataToolsJoin.vue'
 import { ref, computed } from 'vue'
 import { DateTime, Interval } from 'luxon'
 import VueDatePicker from '@vuepic/vue-datepicker'
@@ -111,6 +112,22 @@ import { libraryStore } from '@/stores/libraryStore.js'
     // take genNXP id and get full nxp contract
     let nxpGENcontract = storeLibrary.matchGenesisContract(storeLibrary.joinSelected)
     return nxpGENcontract
+  })
+
+  const settingsOptions = computed(() => {
+    let nxpGENcontract = storeLibrary.matchGenesisContract(storeLibrary.joinSelected)
+    let settingsOptions = {}
+    let matchPack = {}
+    for (let mod of nxpGENcontract.modules) {
+      if(mod.value.style === 'packaging') {
+        matchPack = mod
+      }
+    }
+    settingsOptions.devices = matchPack.value.info.value.concept.devicesList
+    settingsOptions.xaxis = ['time'] // matchPack.value.info.value.concept.
+    settingsOptions.yaxis = matchPack.value.info.value.concept.tablestructure
+    settingsOptions.category = matchPack.value.info.value.concept.category
+    return settingsOptions
   })
 
   const joinFeedbackActive = computed(() => {
@@ -133,7 +150,10 @@ import { libraryStore } from '@/stores/libraryStore.js'
       let luxTime = DateTime.local(boxDate.value)
       millsDate = luxTime.toMillis()
       // update compute contract settings
-      storeLibrary.prepareJoinNXPMessage(genesisNXP, millsDate)
+      let settingsJoin = {}
+      settingsJoin = storeLibrary.joinOptions
+      settingsJoin.time = millsDate
+      storeLibrary.prepareJoinNXPMessage(genesisNXP, settingsJoin)
     } else {
       // prompt to select date
       storeLibrary.joinFeedback = true

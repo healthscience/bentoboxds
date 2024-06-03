@@ -92,7 +92,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
   }
 
   #library-datatypes {
-    border: 2px solid blue;
+    border: 1px solid blue;
   }
 
   #match-datatypes {
