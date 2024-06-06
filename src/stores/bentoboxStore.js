@@ -185,10 +185,12 @@ export const bentoboxStore = defineStore('bentostore', {
               // console.log('no locat d oroords')
             }
           }
-          this.chatList = chatMenu
-          if (this.chatList.length !== 0) {
-            this.chatList.push({ name:'latest', chatid:'0123456543210', active: true })
+          if (chatMenu.length > 0) {
+            this.chatList = chatMenu
           }
+          /* if (this.chatList.length !== 0) {
+            this.chatList.push({ name:'latest', chatid:'0123456543210', active: true })
+          } */
           // set the chat list live
           this.storeAI.historyList = 'history'
           this.storeAI.chatAttention = this.chatList[0].chatid
