@@ -55,7 +55,7 @@
             </div>
           </div>
           <div id="update-manual">
-            <button id="update-chart" @click.prevent="updateKbundle($event)">Update</button>
+            <button id="update-chart" @click.prevent="updateHOPquery($event)">Update</button>
           </div>
         </div>
       </div>
@@ -127,17 +127,11 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
 const handleDate = () => {
   let dateChange = boxDate.value
-  console.log('change of date')
-  console.log(dateChange)
   // now change date
   mutDate.value = DateTime.fromJSDate(dateChange).toMillis()
-  console.log(mutDate.value)
-  // console.log(bbaba)
-  // console.log(dateChange)
-  // console.log(boxDate.value)
 }
 
-  const updateKbundle = () => {
+  const updateHOPquery = () => {
     // prepare update for HOP
     // what time period is active, single, pick or range? Or update via open data settings?
     let hopTime = []
@@ -201,10 +195,10 @@ const handleDate = () => {
     updateECS.changes = moduleUpdate
     HOPcontext.update = updateECS
     // close the calendar options and dispay date summary selected
-    console.log('update time')
-    console.log(moduleUpdate.compute)
-    console.log(HOPcontext)
-    storeAI.actionHelpAskUpdate(HOPcontext)
+    // console.log('update time')
+    // console.log(moduleUpdate.compute)
+    // console.log(HOPcontext)
+    storeLibrary.updateHOPqueryContracts(HOPcontext)
     setDateStatus.value = false
   }
 
@@ -230,6 +224,8 @@ const handleDate = () => {
         boxDate.value = updateDate.toJSDate()
     }
     mutDate.value = DateTime.fromJSDate(boxDate.value).toMillis()
+    // auto update on click
+    updateHOPquery()
   }
 
   const viewCalendarSeettings = () => {

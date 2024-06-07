@@ -223,20 +223,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         this.beebeeReply.active = false
       }
     },
-    actionHelpAskUpdate (HOPq) {
-      // let hashQuestion = hashObject(this.inputAskHistory[this.qcount])
-      let aiMessageout = {}
-      aiMessageout.type = 'safeflow'
-      aiMessageout.reftype = 'ignore'
-      aiMessageout.action = 'updatenetworkexperiment'
-      aiMessageout.data = HOPq
-      aiMessageout.bbid = HOPq.bbid
-      console.log('update exp out')
-      console.log(aiMessageout)
-      this.sendMessageHOP(aiMessageout)
-      this.helpchatHistory.push(aiMessageout)
-      this.qcount++
-    },
     processReply (received) {
       if (received.action === 'agent-task') {
         if (received.task === 'cale-evolution') {
@@ -364,9 +350,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.hopSummary.push({ HOPid: HOPshell, summary: dataSummary })
     },
     processHOPdata (dataHOP) {
-      console.log('HOP data in')
-      console.log(dataHOP)
-      console.log(this.historyPair)
       // match input id to bbid
       // is the data for past or future or no data
       if (dataHOP.data.data === 'none') {
@@ -394,7 +377,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       } else if (dataHOP.context.input.update !== 'predict-future') {
         this.dataBoxStatus = false
         let matchBBID = this.liveChatUtil.matchHOPbbid(dataHOP.data.context.shell, this.bbidHOPid)
-        console.log(matchBBID)
         this.bentoboxList['space1'] = []
         // this.expandBentobox[matchBBID] = true
         this.beebeeChatLog[matchBBID] = true

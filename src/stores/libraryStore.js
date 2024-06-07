@@ -163,7 +163,7 @@ export const libraryStore = defineStore('librarystore', {
       this.sendMessage('get-results')
     },
     processReply (message, questionStart) {
-      console.log('library process')
+      // console.log('library process')
       // console.log(message)
       if (message.action === 'save-file') {
         this.describeSource = message.data
@@ -291,9 +291,6 @@ export const libraryStore = defineStore('librarystore', {
       }
     },
     prepareExperimentSettings (bboxid) {
-      console.log('peperpepreprpeprepeprpeprerpe')
-      console.log(bboxid)
-      console.log(this.storeAI.boxLibSummary)
       // let NXPcontract = storeLibrary.prepareExperimentSummary(props.bboxid)
       // let NXPcontract = this.storeAI.boxLibSummary[bboxid].data
       // let key = Object.keys(this.storeAI.boxLibSummary[bboxid].data)
@@ -308,7 +305,6 @@ export const libraryStore = defineStore('librarystore', {
       datatypeContext.yaxis = [11, 22, 33]
       datatypeContext.category = [22, 22, 22]
       this.storeBentoBox.openDataSettings[bboxid] = datatypeContext
-      console.log('ovooveoroeovovoer')
       // this.openDataSettings[bboxid] = extractedSettings
     },
     prepareJoinNXPMessage (genContract, settings) {
@@ -389,6 +385,21 @@ export const libraryStore = defineStore('librarystore', {
     },
     prepPublicNXPlist () {
       this.listPublicNXP = this.utilLibrary.preparePublicNXPlist(this.publicLibrary.referenceContracts)
+    },
+    updateHOPqueryContracts (HOPq) {
+      // let hashQuestion = hashObject(this.inputAskHistory[this.qcount])
+      let aiMessageout = {}
+      aiMessageout.type = 'library'
+      aiMessageout.reftype = 'ignore'
+      aiMessageout.action = 'contracts'
+      aiMessageout.task = 'update-hopquery'
+      aiMessageout.data = HOPq
+      aiMessageout.bbid = HOPq.bbid
+      // console.log('LIB--update QUERY out')
+      // console.log(aiMessageout)
+      this.sendSocket.send_message(aiMessageout)
+      this.storeAI.helpchatHistory.push(aiMessageout)
+      this.storeAI.qcount++
     },
     matchGenesisContract (gid)  {
       let genesisContract = this.utilLibrary.matchPublicNXPcontract(gid.id, this.publicLibrary.networkExpModules)
