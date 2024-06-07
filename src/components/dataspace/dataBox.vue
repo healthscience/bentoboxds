@@ -2,7 +2,7 @@
   <Teleport to="body">
     <!-- use the modal component, pass in the prop -->
     <modal-data :show="dataBoxStatus" @close="closedataBox">
-      <template #header>dd {{ dataBoxStatus }}
+      <template #header>
         <!-- The code below goes into the header slot -->
         <div id="space-modal-header">
           <button
@@ -16,16 +16,16 @@
           <div id="return-modal-close" @click="closedataBox">return</div>
         </div>
         <h3>Data Box</h3>
-        <button class="button-lib-data" v-bind:class="{ active: libAction === 'libraryexplorer' }" @click="networkLibraryShow">
+        <button class="button-lib-data" v-bind:class="{ active: libraryStatus === true }" @click="networkLibraryShow">
           Library
         </button>
-        <button class="button-lib-data" v-bind:class="{ active: libAction === 'libraryupload' }" @click="networkUploadShow">
+        <button class="button-lib-data" v-bind:class="{ active: uploadLive === true }" @click="networkUploadShow">
           Upload
         </button>
-        <button class="button-lib-data" v-bind:class="{ active: libAction === 'libraryexperiments' }" @click="nxpLibraryPeer">
+        <button class="button-lib-data" v-bind:class="{ active: libraryExperiments === true }" @click="nxpLibraryPeer">
           Experiments
         </button>
-        <button class="button-lib-data" v-bind:class="{ active: libAction === 'newexperiment' }" @click="nxpAdd">
+        <button class="button-lib-data" v-bind:class="{ active: newModulebuild === true }" @click="nxpAdd">
           + new NXP
         </button>
       </template>
@@ -66,6 +66,14 @@ import { libraryStore } from '@/stores/libraryStore.js'
   const showModal = ref(true)
   
   let libAction = ref('libraryexplorer')
+  let dataBoardStatus = ref(
+    {
+      libraryexplorer: true,
+      libraryupload: false,
+      libraryexperiments: false,
+      newexperiment: false
+     }
+  )
 
   const uploadStatus = computed(() => {
     return storeLibrary.uploadStatus
@@ -88,6 +96,14 @@ import { libraryStore } from '@/stores/libraryStore.js'
     return storeLibrary.libraryStatus
   })
 
+  const libraryExperiments = computed(() => {
+    return storeLibrary.libPeerview
+  })
+
+  const newModulebuild = computed(() => {
+    return storeLibrary.newNXP
+  })
+
   const closedataBox = () => {
     storeAI.dataBoxStatus = !storeAI.dataBoxStatus
     storeLibrary.uploadStatus = false
@@ -95,29 +111,14 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   const networkLibraryShow = () => {
     storeLibrary.libraryStatus = !storeLibrary.libraryStatus
-    if (storeLibrary.libraryStatus === true) {
-      libAction.value = 'libraryexplorer'
-    } else {
-      libAction.value = ''
-    }
   }
 
   const networkUploadShow = () => {
     storeLibrary.uploadStatus = !storeLibrary.uploadStatus
-    if (storeLibrary.uploadStatus === true) {
-      libAction.value = 'libraryupload'
-    } else {
-      libAction.value = ''
-    }
   }
 
   const nxpLibraryPeer = () => {
     storeLibrary.libPeerview = !storeLibrary.libPeerview
-    if (storeLibrary.libPeerview === true) {
-      libAction.value = 'libraryexperiments'
-    } else {
-      libAction.value = ''
-    }
     // prepare public library for table list view
     if (storeLibrary.publicLibrary.referenceContracts !== undefined) {
       storeLibrary.prepPublicNXPlist()
@@ -126,11 +127,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   const nxpAdd = () => {
     storeLibrary.newNXP = !storeLibrary.newNXP
-    if (storeLibrary.newNXP === true) {
-      libAction.value = 'newexperiment'
-    } else {
-      libAction.value = ''
-    }
     // send message to HOP to create genesis NXP contract structure
     if (storeLibrary.newNXP === true) {
       // setup gensis open tools data structure

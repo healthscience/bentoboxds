@@ -80,6 +80,11 @@ const checkElectron = () => {
 const saveFiles = (files) => {
 	for (let file of files) {
 		/* upload file data flow */
+		// check if file type given? if not extract file extention (different browser different info NOTE)
+		if (file.file.type.length === 0) {
+			// take file name and get extension and add 
+			// file.file.type = 'sqlite'
+		}
 		// let fileData = uploadFiles(files)
 		// send data to HOP to save in Holepunch
 		let sourceLocation = ''
@@ -148,7 +153,7 @@ const saveFiles = (files) => {
 			
 			const reader2 = new FileReader();
   		reader2.readAsArrayBuffer(file.file);
-		}	else if (file.file.type !== 'text/csv') {
+		}  else if (file.file.type !== 'text/csv') {
 			// check for pdf file 
 			if (file.file.type !== 'application/pdf') {
 				let fileSave = {}

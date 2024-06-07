@@ -3,7 +3,6 @@
     <header>Board Builder</header>
     <module-builder></module-builder>
     <button class="contribute-nxp-button" @click="contributeNXP" >Contribute</button>
-    {{ storeLibrary.newnxp }}
     <div v-if="savenxpSuccess" class="newnxp-form-feeback">
         <div id="hop-feedback">
           New network experiment saved.
@@ -42,6 +41,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
     #build-new-nxp {
       display: grid;
       grid-template-columns: 1fr;
+      background-color: rgb(247, 234, 206);
     }
 
     .contribute-nxp-button {

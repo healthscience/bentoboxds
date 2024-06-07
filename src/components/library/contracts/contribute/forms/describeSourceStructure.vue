@@ -18,6 +18,10 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   const storeLibrary = libraryStore()
 
+  const props = defineProps({
+    fileTypeIn: String
+  })
+
   let tableChoice = ref('')
 
   /* computed */
@@ -27,19 +31,25 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   /*  methods */
   const selectdbTable = () => {
-    console.log('table select')
+    // console.log('table select')
   }
 
   const showTables = () => {
     // send message to HOP to get columsn for this table
+    // file type coming from library or chat UI?
+    let fileType = ''
+    if (storeLibrary.newPackagingForm.type.length > 0) {
+      fileType = storeLibrary.newPackagingForm.type
+    } else {
+      fileType = props.fileTypeIn
+    }
     let messageHOP = {}
     messageHOP.type = 'library'
     messageHOP.action = 'source'
-    messageHOP.reftype = storeLibrary.newPackagingForm.type
+    messageHOP.reftype = fileType
     messageHOP.privacy = 'private'
     messageHOP.task = 'GET'
     messageHOP.data = { query: 'tables', db: storeLibrary.describeSource.path, table: tableChoice.value.name }
-    console.log(messageHOP)
     storeLibrary.sendMessage(messageHOP)
   }
 

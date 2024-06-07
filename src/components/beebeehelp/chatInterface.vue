@@ -41,18 +41,37 @@
                     </div>
                     <div v-if="chati.reply?.data?.prompt?.length > 0" class="bee-prompt-question">
                       {{ chati.reply.data.prompt }}
-                      <div class="data-options"  v-for="(dopt, index) in chati.reply?.data?.options">
-                        <div v-if="typeof dopt === 'string'">
-                          <button class="data-option-select" @click.prevent="dataOptionVis(index, dopt, chati.reply.bbid)">
-                            {{ dopt }}
-                          </button>
-                         </div>
-                         <div v-else>
+                      <!-- if csv file, show column to chart else sql need to select table then columns to chart-->
+                      <div id="type-data-options" v-if="chati.reply?.data?.filedata.type !== 'sqlite'">
+                        <div class="data-options"  v-for="(dopt, index) in chati.reply?.data?.options">
+                          <div v-if="typeof dopt === 'string'">
                             <button class="data-option-select" @click.prevent="dataOptionVis(index, dopt, chati.reply.bbid)">
-                              {{ dopt.name }}
+                              {{ dopt }}
                             </button>
-                         </div>
-                        <button class="data-option-select" :class="{ active: index === isDateColumn }" @click.prevent="dateOptionSelect(index, dopt, chati.reply.bbid)">date</button>
+                          </div>
+                          <div v-else>
+                              <button class="data-option-select" @click.prevent="dataOptionVis(index, dopt, chati.reply.bbid)">
+                                {{ dopt.name }}
+                              </button>
+                          </div>
+                          <button class="data-option-select" :class="{ active: index === isDateColumn }" @click.prevent="dateOptionSelect(index, dopt, chati.reply.bbid)">date</button>
+                        </div>
+                      </div>
+                      <div v-else>
+                        <describe-datastructure :fileTypeIn="chati.reply?.data?.filedata.type"></describe-datastructure>
+                        <div class="data-options"  v-for="(dopt, index) in storeLibrary.newDatafile.columns">
+                          <div v-if="typeof dopt === 'string'">
+                            <button class="data-option-select" @click.prevent="dataOptionVis(index, dopt, chati.reply.bbid)">
+                              {{ dopt }}
+                            </button>
+                          </div>
+                          <div v-else>
+                              <button class="data-option-select" @click.prevent="dataOptionVis(index, dopt, chati.reply.bbid)">
+                                {{ dopt.name }}
+                              </button>
+                          </div>
+                          <button class="data-option-select" :class="{ active: index === isDateColumn }" @click.prevent="dateOptionSelect(index, dopt, chati.reply.bbid)">date</button>
+                        </div>
                       </div>
                     </div>
                 </div>
@@ -99,6 +118,7 @@ import WelcomeBeebee from '@/components/beebeehelp/welcomeBeebee.vue'
 import inputBox from '@/components/beebeehelp/inputBox.vue'
 import SpaceUpload from '@/components/dataspace/upload/uploadSpace.vue'
 import CsvPreview from '@/components/dataspace/upload/csvPreview.vue'
+import DescribeDatastructure from '@/components/library/contracts/contribute/forms/describeSourceStructure.vue'
 import BentoBox from '@/components/bentobox/baseBox.vue'
 import { ref, computed, onMounted } from 'vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
