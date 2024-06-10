@@ -35,6 +35,8 @@ import { libraryStore } from '@/stores/libraryStore.js'
   }
 
   const showTables = () => {
+    // keep track of active table selected
+    storeLibrary.newDatafile.tableSelected = tableChoice.value.name
     // send message to HOP to get columsn for this table
     // file type coming from library or chat UI?
     let fileType = ''

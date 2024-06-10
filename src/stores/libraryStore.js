@@ -67,7 +67,11 @@ export const libraryStore = defineStore('librarystore', {
       columns: [],
       devicecolumns: [],
       path: '',
-      device: []
+      device: [],
+      tableSelected: '',
+      devicetableSelected: '',
+      deviceSelected: '',
+      deviceID: ''
     },
     newPackagingForm:
     {
@@ -179,8 +183,7 @@ export const libraryStore = defineStore('librarystore', {
 					let hashQuestion = hashObject(question.data + message.data.path)
 					// extract headers assume first line
 					let headerLocal = {}
-          headerLocal[hashQuestion] = message.data.columns // localHeaderExtract(splitLines[0])
-
+          headerLocal[hashQuestion] = message.data.columns
 					question.bbid = hashQuestion
 					let bbReply = {}
 					bbReply.type = 'bbai-reply'

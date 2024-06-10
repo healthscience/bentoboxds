@@ -9,13 +9,22 @@
       </select>
       <button id="" @click="showDevices">Show devices</button>
     </div> 
-    <div id="devices-list">
+    <div id="devices-list" v-if="props.fileTypeIn !== 'sqlite'">
       <select class="select-table-db" id="" v-model="deviceChoice" @change="selectDevice()">
          <option class="tables-options" selected=""  v-for="dev in dbDevices" :value="dev">
           {{ dev }}
           </option>
       </select>
-    </div> -- {{ deviceColumns }}
+    </div>
+    <div id="devices-list" v-if="props.fileTypeIn === 'sqlite'">
+      <div class="select-table-db" id="">
+         <div class="tables-options"v-for="dev in dbDevices" :value="dev">
+          <div class="tables-column-options" v-for="(coli, index) in dev" :value="dev">
+            <button class="tables-column-buttons" @click="columnItem(coli)">{{ coli }} {{ index }}</button>
+          </div>
+         </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -24,6 +33,12 @@ import { ref, computed } from 'vue'
 import { libraryStore } from '@/stores/libraryStore.js'
 
   const storeLibrary = libraryStore()
+
+  const props = defineProps({
+    fileTypeIn: String
+  })
+
+  const emit = defineEmits(['deviceFilter', 'deviceId'])
 
   let tableChoice = ref('')
   let deviceChoice = ref('')
@@ -49,14 +64,22 @@ import { libraryStore } from '@/stores/libraryStore.js'
   /*  methods */
   const selectdbTalbe = () => {
     console.log('table select')
+    storeLibrary.newDatafile.devicetableSelected = tableChoice.value.name
   }
 
   const showDevices = () => {
+    // file type coming from library or chat UI?
+    let fileType = ''
+    if (storeLibrary.newPackagingForm.type.length > 0) {
+      fileType = storeLibrary.newPackagingForm.type
+    } else {
+      fileType = props.fileTypeIn
+    }
     // send message to HOP to get columsn for this table
     let messageHOP = {}
     messageHOP.type = 'library'
     messageHOP.action = 'source'
-    messageHOP.reftype = storeLibrary.newPackagingForm.type
+    messageHOP.reftype = fileType
     messageHOP.privacy = 'private'
     messageHOP.task = 'GET'
     messageHOP.data = { query: 'devices', db: storeLibrary.describeSource.path, table: tableChoice.value.name }
@@ -66,6 +89,19 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   const selectDevice = () => {
     console.log('device')
+    console.log(deviceChoice.value)
+    storeLibrary.newDatafile.deviceSelected = deviceChoice.value
+    // need form query if beebee chat UI flow
+    if (props.fileTypeIn.length > 0) {
+      emit('deviceFilter')
+    }
+  }
+
+  const columnItem = (coli) => {
+    console.log('col item')
+    console.log(coli)
+    storeLibrary.newDatafile.deviceID = coli
+    emit('deviceId')
   }
 
 </script>
@@ -92,5 +128,28 @@ import { libraryStore } from '@/stores/libraryStore.js'
   .select-table-db {
     width: 100%;
   }
+
+  .tables-options {
+    display: grid;
+    grid-auto-flow: column;
+    /*grid-auto-columns: 100px;
+    grid-template-columns: repeat(auto-fill);*/
+  }
+
+  .tables-column-options {
+    display: grid;
+  }
+
+  .tables-column-buttons {
+    display: grid;
+    grid-auto-flow: row;
+    grid-auto-rows: 100px;
+    grid-template-rows: repeat(auto-fill);
+    width: auto;
+    padding-left: 1em;
+    margin-left: 0.4em;
+    margin-bottom: 1em;;
+  }
+
 }
 </style>

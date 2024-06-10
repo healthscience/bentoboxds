@@ -72,6 +72,22 @@
                           </div>
                           <button class="data-option-select" :class="{ active: index === isDateColumn }" @click.prevent="dateOptionSelect(index, dopt, chati.reply.bbid)">date</button>
                         </div>
+                        <div id="further-filter">Want to further filter the data query?  Select a column</div>
+                        <div class="data-options"  v-for="(dopt, index) in storeLibrary.newDatafile.columns">
+                          <div v-if="typeof dopt === 'string'">
+                            <button class="data-option-select" @click.prevent="dataOptionFilter(index, dopt, chati.reply.bbid)">
+                              {{ dopt }}
+                            </button>
+                          </div>
+                          <div v-else>
+                              <button class="data-option-select" @click.prevent="dataOptionFilter(index, dopt, chati.reply.bbid)">
+                                {{ dopt.name }}
+                              </button>
+                          </div>
+                        </div>
+                        <div id="filter-options" v-if="filterActive === true">ddd
+                          <describe-devicestructure :fileTypeIn="chati.reply?.data?.filedata.type" @device-filter="filterdeviceEvent()" @device-id="choicedeviceEvent()"></describe-devicestructure>
+                        </div>
                       </div>
                     </div>
                 </div>
@@ -119,6 +135,7 @@ import inputBox from '@/components/beebeehelp/inputBox.vue'
 import SpaceUpload from '@/components/dataspace/upload/uploadSpace.vue'
 import CsvPreview from '@/components/dataspace/upload/csvPreview.vue'
 import DescribeDatastructure from '@/components/library/contracts/contribute/forms/describeSourceStructure.vue'
+import DescribeDevicestructure from '@/components/library/contracts/contribute/forms/describeDeviceStructure.vue'
 import BentoBox from '@/components/bentobox/baseBox.vue'
 import { ref, computed, onMounted } from 'vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
@@ -126,7 +143,12 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   // const askStart = ref('What would you like to chart?')
   let chartStyle = ref('')
+  let columnFilter = ref('')
+  let columnLive = ref('')
+  let datecolLive = ref('')
+  let bbidLive = ref('')
   let isDateColumn = ref(0)
+  let filterActive = ref(false)
 
   const storeAI = aiInterfaceStore()
   const storeLibrary = libraryStore()
@@ -197,16 +219,72 @@ import { libraryStore } from '@/stores/libraryStore.js'
   }
 
   const dataOptionVis = (did, colName, bbid) => {
+    // keep track of live selections
+    datecolLive.value = did
+    columnLive.value = colName
+    bbidLive.value = bbid
     let dataCode = {}
     dataCode.id = did
+    dataCode.tablename = storeLibrary.newDatafile.tableSelected
+    dataCode.devicetablename = ''
     dataCode.name = colName
     dataCode.timestamp = isDateColumn.value
+    dataCode.device = ''
+    dataCode.deviceCol = ''
+    dataCode.timerange = []
     dataCode.bbid = bbid
+    // console.log('blind file start')
+    // console.log(dataCode)
+    // console.log(storeLibrary.newDatafile)
     storeAI.submitAsk(dataCode)
+  }
+
+  
+  const dataOptionFilter = (did, colName, bbid) => {
+    columnFilter.value = colName
+    filterActive.value = true
   }
 
   const dateOptionSelect = (did, colName, bbid) => {
     isDateColumn.value = did
+  }
+
+  const filterdeviceEvent = () => {
+    console.log('device selected')
+    let dataCode = {}
+    dataCode.id = datecolLive.value
+    dataCode.tablename = storeLibrary.newDatafile.tableSelected
+    dataCode.devicetablename = storeLibrary.newDatafile.devicetableSelected
+    dataCode.name = columnLive.value
+    dataCode.timestamp = isDateColumn.value
+    dataCode.device = storeLibrary.newDatafile.deviceSelected
+    dataCode.deviceID = storeLibrary.newDatafile.deviceID
+    dataCode.deviceCol = columnFilter.value
+    dataCode.timerange = []
+    dataCode.bbid = bbidLive.value
+    console.log('blind file start')
+    console.log(dataCode)
+    console.log(storeLibrary.newDatafile)
+    storeAI.submitAsk(dataCode)
+  }
+
+  const choicedeviceEvent = () => {
+    console.log('device id selected')
+    let dataCode = {}
+    dataCode.id = datecolLive.value
+    dataCode.tablename = storeLibrary.newDatafile.tableSelected
+    dataCode.devicetablename = storeLibrary.newDatafile.devicetableSelected
+    dataCode.name = columnLive.value
+    dataCode.timestamp = isDateColumn.value
+    dataCode.device = storeLibrary.newDatafile.deviceSelected
+    dataCode.deviceID = storeLibrary.newDatafile.deviceID
+    dataCode.deviceCol = columnFilter.value
+    dataCode.timerange = []
+    dataCode.bbid = bbidLive.value
+    console.log('device CHoice===================')
+    console.log(dataCode)
+    console.log(storeLibrary.newDatafile)
+    storeAI.submitAsk(dataCode)
   }
 
 </script>
