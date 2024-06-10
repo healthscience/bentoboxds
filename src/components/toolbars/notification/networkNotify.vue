@@ -72,9 +72,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 }
 
 .box {
-  width: 100%;
-  height: 100%;
-  position: absolute;
+  position: relative;
   top: 10;
   left: 0;
   opacity: 0.7;
@@ -107,13 +105,12 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   }
 
   .box {
-    width: 100%;
-    height: 100%;
-    position: absolute;
-    top: 10;
+    top: 10px;
     left: 0;
-    opacity: 0.7;
+    opacity: 0.9;
+    width: 130%;
     background: #e5baca;
+    padding: .4em;
   }
 
   .active {

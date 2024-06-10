@@ -67,8 +67,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   const updateBoxLocation = (location) => {
     /* drag drop move resize */
     let updateBox = {}
-    updateBox.tW = 880
-    updateBox.tH = 480
+    updateBox.tW = '100%' // 880
+    updateBox.tH = '100%' // 480
     updateBox.handlers = ref(["r", "rb", "b", "lb", "l", "lt", "t", "rt"])
     updateBox.left = location.left // ref(`calc(2% - ${tW / 2}px)`) // set posotion on space
     updateBox.top = location.top // ref(`calc(8% - ${tH / 2}px)`)  // set position on space
@@ -222,12 +222,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   z-index: 9;
 }
 
-#bentobox-cell {
-  display: block;
-  border: 0px solid grey;
-  z-index: 9;
-}
-
 #bb-toolbar {
   display: grid;
   grid-template-columns: 5fr 1fr 1fr 1fr 1fr;
@@ -244,36 +238,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 #bentobox-holder {
   position: relative;
   border: 1px solid rgb(128, 128, 128);
-}
-
-#peer-bentobox {
-  position: relative;
-  border: 1px solid grey;
-  display: grid;
-  grid-template-columns: 1fr;
-  margin: 1em;
-}
-
-#bento-past {
-  position: relative;
-  border: 2px dashed blue;
-  min-width: 10vw;
-  min-height: 10vh;
-}
-
-#bento-future {
-  position: relative;
-  border:1px dashed orange;
-  min-width: 10vw;
-  min-height: 10vh;
-}
-
-
-#bb-expand-size {
-  display: block;
-  width: 100%;
-  background-color:  rgb(141, 145, 226);
-  color: blue;
 }
 
 .active {
@@ -304,13 +268,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     z-index: 9;
   }
 
-  #bentobox-cell {
-    display: block;
-    min-height: inherit;
-    min-width: inherit;
-    z-index: 9;
-  }
-
   #bb-toolbar {
     display: grid;
     grid-template-columns: 5fr 1fr 1fr 1fr 1fr;
@@ -336,54 +293,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     min-width: inherit; */
   }
 
-  #peer-bentobox {
-    position: relative;
-    border: 1px solid grey;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    margin: 1em;
-  }
-
-  #network-bentobox {
-    border: 1px solid grey;
-    display: none;
-    grid-template-columns: 1fr 1fr;
-    margin: 1em;
-  }
-
-  #past-box, #future-box {
-    position: relative;
-    border:1px dashed blue;
-  }
-  
-  #past-box {
-    background-color: rgb(236, 236, 243);
-  }
-
-  #future-box {
-    background-color:#fff4f4;
-  }
-
-  #bento-past {
-    position: relative;
-    border:1px dashed blue;
-    height: auto;
-    width: auto;
-  }
-
-  #bento-future {
-    position: relative;
-    border: 2px dashed orange;
-    height: auto;
-    width: auto;
-  }
-
-  #bb-expand-size {
-    position: relative;
-    width: 100%;
-    height: 40px;
-    background-color: rgb(141, 145, 226);
-  }
   #beebee-tooblar.active {
     display: grid;
     background-color: rgb(105, 216, 105);

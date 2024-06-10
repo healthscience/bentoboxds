@@ -183,6 +183,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
       background-color: rgb(113, 172, 114);
       border: 1px solid green;
     }
+
   }
 
 </style>

@@ -9,7 +9,7 @@
           <div v-if="chati.question?.data?.active === true" class="left-chat"> {{ chati.question?.data?.text }} </div>
           <span class="left-chat">{{ chati.question?.data?.time }}</span>
         </div>
-        <div class="beebee-reply" v-bind:class="{ active: chati.reply.network === true }">
+        <div class="beebee-reply" v-bind:class="{ networkactive: chati.reply.network === true }">
           <span class="right-time">{{ chati.reply.time }}</span>
           <div class="reply-text-chart">
             <div class="right-chat">
@@ -365,6 +365,9 @@ import { libraryStore } from '@/stores/libraryStore.js'
       background-color: green;
     }
 
+    .networkactive {
+      background-color: rgb(227, 243, 218);
+    }
   }
 
 </style>
