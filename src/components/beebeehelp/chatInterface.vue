@@ -35,9 +35,12 @@
                   <div class="beeebee-text">
                     {{ chati.reply?.data?.text}}
                     </div>
-                    <div v-if="chati.reply?.data?.filedata" class="bee-file-data">{{ chati.reply.data.filedata }}
-                      {{ chati.reply.data.filedata.type }} - {{ chati.reply.data.filedata.file?.name }} -- {{ chati.reply.data.filedata.columns}}
-                      <csv-preview v-if="storeLibrary.csvpreviewLive === true" :summarydata="chati.reply.data.filedata.grid"></csv-preview>
+                    <div v-if="chati.reply?.data?.filedata" class="bee-file-data">
+                      <div class="file-feedback-csv">
+                        {{ chati.reply.data.filedata.type }} - {{ chati.reply.data.filedata.file?.name }} -- {{ chati.reply.data.filedata.columns }}
+                      </div>
+                      <button id="csv-file-summary" @click="viewSummaryCSV(chati.reply.bbid)">view summary</button>
+                      <csv-preview v-if="storeLibrary.csvpreviewLive === summaryCSVState" :summarydata="chati.reply.data.filedata.grid"></csv-preview>
                     </div>
                     <div v-if="chati.reply?.data?.prompt?.length > 0" class="bee-prompt-question">
                       {{ chati.reply.data.prompt }}
@@ -149,6 +152,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
   let bbidLive = ref('')
   let isDateColumn = ref(0)
   let filterActive = ref(false)
+  let summaryCSVState = ref(false) // need to make per bbid in store TEMP
 
   const storeAI = aiInterfaceStore()
   const storeLibrary = libraryStore()
@@ -239,6 +243,9 @@ import { libraryStore } from '@/stores/libraryStore.js'
     storeAI.submitAsk(dataCode)
   }
 
+  const viewSummaryCSV = (bbid) => {
+    summaryCSVState.value = !summaryCSVState.value
+  }
   
   const dataOptionFilter = (did, colName, bbid) => {
     columnFilter.value = colName
@@ -445,6 +452,11 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
     .networkactive {
       background-color: rgb(227, 243, 218);
+    }
+
+    .file-feedback-csv {
+      display: grid;
+      grid-template-columns: 1fr;
     }
   }
 

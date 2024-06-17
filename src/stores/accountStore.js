@@ -16,7 +16,7 @@ export const accountStore = defineStore('account', {
     publickeyDrive: [],
     publicKeysList: [],
     sharePubkey: '',
-    agentList: [{ name: 'cale-gpt4all', active: false }, {name: 'cale-evolution', active: false }]
+    agentList: [{ name: 'cale-gpt4all', active: false, loading: false }, {name: 'cale-evolution', active: false, loading: false }]
   }),
   actions: {
     processReply (received) {
@@ -84,6 +84,7 @@ export const accountStore = defineStore('account', {
         if (agent.name === data.name) {
           if (data.status === 'loaded') {
             agent.active = true
+            agent.loading = false
           } else if (data.status === 'closed') {
             agent.active = false
           }

@@ -1,4 +1,7 @@
-<template>csv viewer length = {{ summarydata?.length }}
+<template>
+  <div id="length-summary">
+    csv viewer length = {{ summarydata?.length }}
+  </div>
   <div id="data-viewer">
     <div class="csv-section" id="summary-content">
       <ul v-for="(value, index) in summarydata" :key="value.id">

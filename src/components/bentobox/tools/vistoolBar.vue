@@ -28,6 +28,8 @@
     <div id="chart-style-tools" class="network-tools">
         <button class="chart-type" @click.prevent="chartSelect()">Bar</button>
         <button class="chart-type" @click.prevent="chartSelect()">Line</button>
+        <button class="chart-type" @click.prevent="chartSelect()">Simulation</button>
+        <button class="chart-type" @click.prevent="chartSelect()">Table</button>
       <!--<li>
         <button @click.prevent="chartSelect()">Mixed</button>
       </li>

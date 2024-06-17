@@ -573,9 +573,9 @@ import { libraryStore } from '@/stores/libraryStore.js'
   }
   /* modules css */
   #bentobox-modules {
+    position: relative;
     display: grid;
     grid-template-columns: 1fr;
-    grid-area: bbmodules;
     cursor: default;
   }
 
