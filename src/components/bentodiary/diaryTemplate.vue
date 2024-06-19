@@ -1,9 +1,11 @@
 <template>
+
   <Teleport to="body">
-    <!-- use the modal component, pass in the prop -->
     <modal-Diary :show="bentoDiaryStatus" @close="closeBentoDiary">
+      <div id="simpleblock" ref="simpleblock">ddfdf</div>
+      Smart diary please
+      <div id="ecdiary" ref="ecdiary" class="col">diaryplease</div>
       <template #header>
-        <!-- The code below goes into the header slot -->
         <div id="Diary-modal-header">
           <button
             type="button"
@@ -18,9 +20,7 @@
         </div>
       </template>
       <template #body>
-        <div class="diary-background">
-          Smart AI diary please
-        </div>
+        <!--<div id="ecdiary">Diary Please parentnenen</div>-->
       </template>
       <template #footer>
       </template>
@@ -36,8 +36,11 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
-  
+
+
   let beebeeDiary = ref(false)
+  //const simpleblock = ref(null)
+
 
   const bentoDiaryStatus = computed(() => {
     return storeAI.bentodiaryState
@@ -58,6 +61,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   const setzoomScale = (change) => {
     storeBentobox.scaleZoom = storeBentobox.scaleZoom + change
   }
+
 </script>
 
 <style scoped>

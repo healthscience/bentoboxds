@@ -202,6 +202,8 @@ import { libraryStore } from '@/stores/libraryStore.js'
   })
 
   const targetId = ref(null)
+  console.log('target id')
+  console.log(targetId)
 
   const scrollToElement = () =>  {
     const el = document.getElementById('buttommove')
