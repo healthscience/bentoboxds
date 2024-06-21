@@ -58,7 +58,6 @@ export const diaryStore = defineStore('diarystore', {
   }),
   actions: {
       createEvents () {
-        console.log('create vent start')
       let days = [];
       for (let i = 0; i < 7; ++i) {
           let day = new Date();
@@ -80,10 +79,7 @@ export const diaryStore = defineStore('diarystore', {
           {start: days[5] + " 18:00", end: days[5] + " 21:00", resourceId: 2, title: "", color: "#B29DD9"},
           {start: days[1], end: days[3], resourceId: 1, title: "All-day events can be displayed at the top", color: "#B29DD9", allDay: true}
         ]
-        console.log('papapapap')
         this.eventList.events = events
-        console.log(this.eventList)
-        return true
     },
 
     pad (num) {

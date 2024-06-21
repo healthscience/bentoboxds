@@ -35,7 +35,8 @@ import { libraryStore } from '@/stores/libraryStore.js'
   const storeLibrary = libraryStore()
 
   const props = defineProps({
-    fileTypeIn: String
+    fileTypeIn: String,
+    bboxid: String
   })
 
   const emit = defineEmits(['deviceFilter', 'deviceId'])
@@ -63,7 +64,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
   })
   /*  methods */
   const selectdbTalbe = () => {
-    console.log('table select')
     storeLibrary.newDatafile.devicetableSelected = tableChoice.value.name
   }
 
@@ -75,6 +75,8 @@ import { libraryStore } from '@/stores/libraryStore.js'
     } else {
       fileType = props.fileTypeIn
     }
+    // set bboxid for this interaction
+    storeLibrary.liveBBox = props.bboxid
     // send message to HOP to get columsn for this table
     let messageHOP = {}
     messageHOP.type = 'library'
@@ -88,8 +90,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
   }
 
   const selectDevice = () => {
-    console.log('device')
-    console.log(deviceChoice.value)
     storeLibrary.newDatafile.deviceSelected = deviceChoice.value
     // need form query if beebee chat UI flow
     if (props.fileTypeIn.length > 0) {
@@ -98,8 +98,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
   }
 
   const columnItem = (coli) => {
-    console.log('col item')
-    console.log(coli)
     storeLibrary.newDatafile.deviceID = coli
     emit('deviceId')
   }

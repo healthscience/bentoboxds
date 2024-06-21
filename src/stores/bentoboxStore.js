@@ -75,6 +75,8 @@ export const bentoboxStore = defineStore('bentostore', {
       if (message.reftype.trim() === 'chat-history') {
         if (message.action.trim() === 'start') {
           // set the saved chats for peer
+          console.log('start box info bentobox')
+          console.log(message)
           let chatMenu = []
           for (let cm of message.data) {
             if(cm?.value?.chat) {
@@ -99,11 +101,16 @@ export const bentoboxStore = defineStore('bentostore', {
                     hopDataChart.labels = cm.value?.visData[pairCount]?.labels
                     this.storeAI.visData[pair.reply.bbid] = hopDataChart
                     if (cm.value?.hop !== undefined) {
-                      let summaryHOP = cm.value?.hop[0]
-                      summaryHOP.bbid = pair.reply.bbid
-                      console.log('start HOP summary')
-                      console.log(summaryHOP)
-                      this.storeAI.hopSummary.push({ HOPid: pair.reply.bbid, summary: summaryHOP })
+                      console.log(cm.value)
+                      if (cm.value.hop.length === 0) {
+                        console.log('no HOP data')
+                      } else {
+                        let summaryHOP = cm.value?.hop[0]
+                        summaryHOP.bbid = pair.reply.bbid
+                        console.log('start HOP summary')
+                        console.log(summaryHOP)
+                        this.storeAI.hopSummary.push({ HOPid: pair.reply.bbid, summary: summaryHOP })
+                      }
                     }
                   }
                   // set box detail setings
@@ -187,6 +194,22 @@ export const bentoboxStore = defineStore('bentostore', {
           }
           if (chatMenu.length > 0) {
             this.chatList = chatMenu
+          } else {
+            // save latest first time only
+            let saveData = {}
+            saveData.pair = []
+            saveData.chat = this.chatList[0]
+            saveData.visData = []
+            saveData.hop = []
+            let saveBentoBoxsetting = {}
+            saveBentoBoxsetting.type = 'bentobox'
+            saveBentoBoxsetting.reftype = 'chat-history'
+            saveBentoBoxsetting.action = 'save'
+            saveBentoBoxsetting.task = 'save'
+            saveBentoBoxsetting.data = saveData
+            saveBentoBoxsetting.bbid = ''
+            this.storeAI.sendMessageHOP(saveBentoBoxsetting)
+            // this.storeAI.prepareBentoBoxSave(saveBentoBoxsetting)
           }
           /* if (this.chatList.length !== 0) {
             this.chatList.push({ name:'latest', chatid:'0123456543210', active: true })

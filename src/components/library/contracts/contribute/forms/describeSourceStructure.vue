@@ -19,7 +19,8 @@ import { libraryStore } from '@/stores/libraryStore.js'
   const storeLibrary = libraryStore()
 
   const props = defineProps({
-    fileTypeIn: String
+    fileTypeIn: String,
+    bboxid: String
   })
 
   let tableChoice = ref('')
@@ -45,6 +46,8 @@ import { libraryStore } from '@/stores/libraryStore.js'
     } else {
       fileType = props.fileTypeIn
     }
+    // set bboxid for this interaction
+    storeLibrary.liveBBox = props.bboxid
     let messageHOP = {}
     messageHOP.type = 'library'
     messageHOP.action = 'source'

@@ -57,7 +57,6 @@ import { computed } from 'vue'
   }
 
   const openBentoDiary = () => {
-    console.log('open AI diary please')
     diaryActive.value = !diaryActive.value
     storeAI.bentodiaryState = !storeAI.bentodiaryState
   }

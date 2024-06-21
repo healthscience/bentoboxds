@@ -40,7 +40,6 @@ import { diaryStore } from '@/stores/diaryStore.js'
   let ec = ref({})
 
   onMounted(() => {
-    console.log('mounted')
     storeDiary.createEvents()
   })
 

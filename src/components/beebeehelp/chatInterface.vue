@@ -61,7 +61,7 @@
                         </div>
                       </div>
                       <div v-else>
-                        <describe-datastructure :fileTypeIn="chati.reply?.data?.filedata.type"></describe-datastructure>
+                        <describe-datastructure :bboxid="chati.reply.bbid" :fileTypeIn="chati.reply?.data?.filedata.type"></describe-datastructure>
                         <div class="data-options"  v-for="(dopt, index) in storeLibrary.newDatafile.columns">
                           <div v-if="typeof dopt === 'string'">
                             <button class="data-option-select" @click.prevent="dataOptionVis(index, dopt, chati.reply.bbid)">
@@ -89,7 +89,7 @@
                           </div>
                         </div>
                         <div id="filter-options" v-if="filterActive === true">ddd
-                          <describe-devicestructure :fileTypeIn="chati.reply?.data?.filedata.type" @device-filter="filterdeviceEvent()" @device-id="choicedeviceEvent()"></describe-devicestructure>
+                          <describe-devicestructure :bboxid="chati.reply.bbid" :fileTypeIn="chati.reply?.data?.filedata.type" @device-filter="filterdeviceEvent()" @device-id="choicedeviceEvent()"></describe-devicestructure>
                         </div>
                       </div>
                     </div>
@@ -97,7 +97,7 @@
               </div>
               <div v-else-if="chati.reply.type === 'upload'">
                 {{ chati.reply.data.text }}
-                <button id="upload-button" @click="uploadButton">Click to upload file</button>
+                <!--<button id="upload-button" @click="uploadButton">Click to upload file</button>-->
                 <space-upload></space-upload>
               </div>
               <div v-else-if="chati.reply.type === 'library-peerlibrary'">
@@ -147,6 +147,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
   // const askStart = ref('What would you like to chart?')
   let chartStyle = ref('')
   let columnFilter = ref('')
+  let deviceFilter = ref('')
   let columnLive = ref('')
   let datecolLive = ref('')
   let bbidLive = ref('')
@@ -202,8 +203,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
   })
 
   const targetId = ref(null)
-  console.log('target id')
-  console.log(targetId)
 
   const scrollToElement = () =>  {
     const el = document.getElementById('buttommove')
@@ -250,7 +249,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
   }
   
   const dataOptionFilter = (did, colName, bbid) => {
-    columnFilter.value = colName
+    deviceFilter.value = colName
     filterActive.value = true
   }
 
@@ -268,7 +267,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
     dataCode.timestamp = isDateColumn.value
     dataCode.device = storeLibrary.newDatafile.deviceSelected
     dataCode.deviceID = storeLibrary.newDatafile.deviceID
-    dataCode.deviceCol = columnFilter.value
+    dataCode.deviceCol = deviceFilter.value
     dataCode.timerange = []
     dataCode.bbid = bbidLive.value
     console.log('blind file start')
@@ -287,7 +286,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
     dataCode.timestamp = isDateColumn.value
     dataCode.device = storeLibrary.newDatafile.deviceSelected
     dataCode.deviceID = storeLibrary.newDatafile.deviceID
-    dataCode.deviceCol = columnFilter.value
+    dataCode.deviceCol = deviceFilter.value
     dataCode.timerange = []
     dataCode.bbid = bbidLive.value
     console.log('device CHoice===================')

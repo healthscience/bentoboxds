@@ -115,6 +115,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   /*  computed */
   const deviceList = computed(() => {
+    console.log(storeBentobox.openDataSettings[props.bboxid].devices)
     return [{ device_name: 'aaa', device_mac: 'pdodld' }]
   })
 

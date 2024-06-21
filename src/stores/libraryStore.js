@@ -35,6 +35,7 @@ export const libraryStore = defineStore('librarystore', {
     peerLibraryNXP: [],
     newRefcontractForm: {},
     genesisModules: [],
+    liveBBox: '',
     saveSuccessnxp: false,
     newnxp: {
       questionLive: [],
@@ -205,17 +206,24 @@ export const libraryStore = defineStore('librarystore', {
         }
       } else if (message.action === 'source') {
         if (message.reftype === 'sqlite') {
+          console.log('sqlite query')
+          console.log(message)
+          // set open data x and y axis , category, device etc.
+          this.storeBentoBox.openDataSettings[this.liveBBox] = {}
           // what is data
           let desribesD = Object.keys(message.data)
           for (let dd of desribesD) {
             if (dd === 'headers') {
               this.newDatafile.columns = message.data.headers
+              this.storeBentoBox.openDataSettings[this.liveBBox].yaxis = this.newDatafile.columns
             }
             if (dd === 'tables') {
               this.newDatafile.devicecolumns = message.data.tables.headers
+              this.storeBentoBox.openDataSettings[this.liveBBox].yaxis = this.newDatafile.devicecolumns
             }
             if (dd === 'devices') {
               this.newDatafile.device = message.data.devices
+              this.storeBentoBox.openDataSettings[this.liveBBox].devices = this.newDatafile.device
             }
           }
         }

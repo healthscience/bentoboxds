@@ -126,6 +126,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.beginChat = true
     },
     submitAsk (dataInfo) {
+      console.log('start sub new HOPquery')
+      console.log(dataInfo)
       // remove start boxes
       this.startChat = false
       this.historyBar = true
@@ -144,6 +146,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         lastQuestion[0].reply.data.content = lastQuestion.reply.data.grid // this.storeLibrary.linesLimit
         this.actionFileAskInput(lastQuestion[0].reply)
       } else if (dataInfo?.id) {
+        console.log('id match')
         // if bbid match to that
         let matchBBox = {}
         let questionCount = []
@@ -251,6 +254,9 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           pairBB.reply = received
           this.historyPair[this.chatAttention].push(pairBB)
         }
+      } else if (received.action === 'no-data') {
+        console.log('no data for this quer')
+        console.log(received)
       } else {
         // match to question via bbid
         if (received.data) {
