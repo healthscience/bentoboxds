@@ -10,11 +10,20 @@
       <button id="" @click="showDevices">Show devices</button>
     </div> 
     <div id="devices-list" v-if="props.fileTypeIn !== 'sqlite'">
-      <select class="select-table-db" id="" v-model="deviceChoice" @change="selectDevice()">
+      <!--<select class="select-table-db" id="" v-model="deviceChoice" @change="selectDevice()">
          <option class="tables-options" selected=""  v-for="dev in dbDevices" :value="dev">
           {{ dev }}
           </option>
-      </select>
+      </select>-->
+      <div id="devices-list">
+      <div class="select-table-db" id="">
+         <div class="tables-options"v-for="dev in dbDevices" :value="dev">
+          <div class="tables-column-options" v-for="(coli, index) in dev" :value="dev">
+            <button class="tables-column-buttons" @click="columnItem(coli)">{{ coli }} {{ index }}</button>
+          </div>
+         </div>
+      </div>
+    </div>
     </div>
     <div id="devices-list" v-if="props.fileTypeIn === 'sqlite'">
       <div class="select-table-db" id="">

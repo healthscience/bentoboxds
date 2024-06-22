@@ -108,7 +108,6 @@ const saveChatname = () => {
 }
 
 const saveChatHistory = (chat) => {
-  console.log(chat)
   let saveBentoBoxsetting = {}
   saveBentoBoxsetting.type = 'bentobox'
   saveBentoBoxsetting.reftype = 'chat-history'

@@ -45,22 +45,22 @@
                     <div v-if="chati.reply?.data?.prompt?.length > 0" class="bee-prompt-question">
                       {{ chati.reply.data.prompt }}
                       <!-- if csv file, show column to chart else sql need to select table then columns to chart-->
-                      <div id="type-data-options" v-if="chati.reply?.data?.filedata.type !== 'sqlite'">
+                      <div id="type-data-options" v-if="chati.reply?.data?.filedata.type !== 'sqlite'">fileddd {{ chati.reply.data.opitons }}
                         <div class="data-options"  v-for="(dopt, index) in chati.reply?.data?.options">
                           <div v-if="typeof dopt === 'string'">
-                            <button class="data-option-select" @click.prevent="dataOptionVis(index, dopt, chati.reply.bbid)">
+                            <button class="data-option-select" @click.prevent="dataOptionVis(index, dopt, chati.reply.bbid, chati.reply?.data?.options)">
                               {{ dopt }}
                             </button>
                           </div>
-                          <div v-else>
-                              <button class="data-option-select" @click.prevent="dataOptionVis(index, dopt, chati.reply.bbid)">
+                          <div v-else>ddd22
+                              <button class="data-option-select" @click.prevent="dataOptionVis(index, dopt, chati.reply.bbid, chati.reply?.data?.options )">
                                 {{ dopt.name }}
                               </button>
                           </div>
                           <button class="data-option-select" :class="{ active: index === isDateColumn }" @click.prevent="dateOptionSelect(index, dopt, chati.reply.bbid)">date</button>
                         </div>
                       </div>
-                      <div v-else>
+                      <div v-else>333
                         <describe-datastructure :bboxid="chati.reply.bbid" :fileTypeIn="chati.reply?.data?.filedata.type"></describe-datastructure>
                         <div class="data-options"  v-for="(dopt, index) in storeLibrary.newDatafile.columns">
                           <div v-if="typeof dopt === 'string'">
@@ -97,8 +97,7 @@
               </div>
               <div v-else-if="chati.reply.type === 'upload'">
                 {{ chati.reply.data.text }}
-                <!--<button id="upload-button" @click="uploadButton">Click to upload file</button>-->
-                <space-upload></space-upload>
+                <button id="upload-button" @click="uploadButton">Click to upload file</button>
               </div>
               <div v-else-if="chati.reply.type === 'library-peerlibrary'">
                 <button @click="openLibrary">open library</button>
@@ -135,7 +134,6 @@
 <script setup>
 import WelcomeBeebee from '@/components/beebeehelp/welcomeBeebee.vue'
 import inputBox from '@/components/beebeehelp/inputBox.vue'
-import SpaceUpload from '@/components/dataspace/upload/uploadSpace.vue'
 import CsvPreview from '@/components/dataspace/upload/csvPreview.vue'
 import DescribeDatastructure from '@/components/library/contracts/contribute/forms/describeSourceStructure.vue'
 import DescribeDevicestructure from '@/components/library/contracts/contribute/forms/describeDeviceStructure.vue'
@@ -223,7 +221,9 @@ import { libraryStore } from '@/stores/libraryStore.js'
     storeLibrary.libraryStatus = true
   }
 
-  const dataOptionVis = (did, colName, bbid) => {
+  const dataOptionVis = (did, colName, bbid, options) => {
+    console.log('dataoitons------------------')
+    console.log(options)
     // keep track of live selections
     datecolLive.value = did
     columnLive.value = colName
@@ -233,6 +233,10 @@ import { libraryStore } from '@/stores/libraryStore.js'
     dataCode.tablename = storeLibrary.newDatafile.tableSelected
     dataCode.devicetablename = ''
     dataCode.name = colName
+    // what is name of date column?
+    console.log(storeLibrary.newPackagingForm.apicolumns)
+    console.log(storeLibrary.newDatafile.columns)
+    dataCode.timestampname = options[isDateColumn.value]
     dataCode.timestamp = isDateColumn.value
     dataCode.device = ''
     dataCode.deviceCol = ''

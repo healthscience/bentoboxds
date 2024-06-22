@@ -15,13 +15,14 @@
       </div>
     </div>
     <div id="match-datatypes">
-      <header>Drag datatype to column name</header>
+      <header>Drag datatype to column name</header>dds {{ storeLibrary.newDatafile }}
       <div
         v-for='col in storeLibrary?.newDatafile?.columns'
         :key='col.id'
       >
         <div class="col-name">
-          <h3>{{ col.name }}</h3>
+          <h3 v-if="col.name">{{ col.name }}</h3>
+          <h3 v-else=>{{ col }}</h3>
           <div class="list-group" :list="storeLibrary.newLists[col.cid]" group="matchdt" 
             v-on:dragover.prevent
             v-on:drop="handleDrop($event, 'match-column', col.cid)"
@@ -50,6 +51,9 @@ import { libraryStore } from '@/stores/libraryStore.js'
   }
 
   const handleDrop = (event, targetContainer, dti) => {
+    console.log('dddddddd')
+    console.log(dti)
+    console.log(storeLibrary.newDatafile.columns)
     const itemData = JSON.parse(event.dataTransfer.getData('application/json'))
     // make pair of column source name and ref DT contract hash ie key
     if (targetContainer === 'match-column') {
@@ -57,6 +61,8 @@ import { libraryStore } from '@/stores/libraryStore.js'
       let matchRefDT =  storeLibrary.newLists[dti]
       // the column name
       let columnName = storeLibrary.newDatafile.columns[dti]
+      console.log('colum new hodler')
+      console.log(columnName)
       // match id to datatype
       let matchDatatype = itemData
       storeLibrary.newListsave[columnName.name] = {}
@@ -77,8 +83,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
       storeLibrary.newPackagingForm.apicolumns = storeLibrary.newDatafile.columns
       storeLibrary.newPackagingForm.apicolHolder = storeLibrary.newListsave
     }
-    console.log('packaing new forming')
-    console.log(storeLibrary.newPackagingForm)
   }
 
 </script>
