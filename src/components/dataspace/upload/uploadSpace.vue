@@ -14,7 +14,7 @@
 					</span>
 				</span>
 				
-			</label>ffff---{{ files.length }}
+			</label>
 			<div class="image-list" v-show="files.length">
 				<file-preview v-for="file of files" :key="file.id" :file="file" tag="li" @remove-file="removeFileEvent(file)"/>
 			</div>
@@ -327,6 +327,12 @@ const saveFiles = (files) => {
 	const localHeaderExtract = (lineOne) => {
 		let headerInfo = lineOne.split(',')
 		return headerInfo
+	}
+	// need to close databox if enter from chat
+	if (storeLibrary.libraryStatus === false) {
+		storeAI.dataBoxStatus = false
+    storeLibrary.uploadStatus = false
+    storeLibrary.libraryStatus = false
 	}
 }
 </script>

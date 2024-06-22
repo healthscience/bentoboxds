@@ -198,11 +198,14 @@ class LibraryUtility { //  extends EventEmitter {
     let modSettings = {}
     for (let mod of modulesList) {
       if (mod.value.style === 'compute') {
+        console.log(mod)
         modSettings.xaxis = ['time'] // mod.value.info.settings.xaxis
         modSettings.yaxis = mod.value.info.settings.yaxis
         modSettings.category = mod.value.info.settings.category
+        modSettings.devices = mod.value.info.settings.devices
       }
     }
+    console.log(modSettings)
     return modSettings
   }
 

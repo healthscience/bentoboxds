@@ -274,10 +274,10 @@ const boxToolsShow = computed(() => {
   #spaces-list {
     display: grid;
     position: relative;
-    top: 0;
+    /*top: 0;
     left: -109px;
-    border: 0px solid red;
-    z-index: 22;
+    border: 0px solid red; */
+    z-index: 52;
   }
 
   .elect-space-save {
@@ -292,6 +292,7 @@ const boxToolsShow = computed(() => {
   }
 
   #bb-toolbar {
+    position: relative;
     display: grid;
     grid-template-columns: 4fr 1fr 1fr 1fr 1fr 1fr;
     width: 100%;
@@ -384,11 +385,11 @@ const boxToolsShow = computed(() => {
   }
 
   #share-form {
+    position: relative;
     background-color: rgb(224, 227, 243);
     border-bottom: 2px solid rgb(167, 199, 209);
     padding: 1em;
     padding-left: 4em;
-    z-index: 4;
   }
 
 }

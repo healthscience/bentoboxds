@@ -7,7 +7,7 @@
         <select class="select-device-id" id="device-mapping-build" v-model="deviceSettings.devices">
           <option value="none" >please select</option>
           <option v-for="dev in deviceList">
-            {{ dev.device_name + ' ' + dev.device_mac }}
+            {{ dev }}
           </option>
         </select>
       </div>
@@ -42,7 +42,7 @@
           <select id="yaxis-mapping-build" v-model="deviceSettings.yaxis" multiple>
             <option value="none" selected="">please select</option>
             <option v-for="colpairy in opendataSettingsLive.yaxis">
-            {{ colpairy }}
+            {{ colpairy.column }}
             </option>
           </select>
         </div>
@@ -116,7 +116,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   /*  computed */
   const deviceList = computed(() => {
     console.log(storeBentobox.openDataSettings[props.bboxid].devices)
-    return [{ device_name: 'aaa', device_mac: 'pdodld' }]
+    return storeBentobox.openDataSettings[props.bboxid].devices // [{ device_name: 'aaa', device_mac: 'pdodld' }]
   })
 
   const computeList = computed(() => {
@@ -151,6 +151,10 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     height: 200px;
     background-color: rgb(224, 227, 243);
     z-index: 4;
+  }
+
+  .select-device-id {
+    width: 120px;
   }
 
   .knowledge-item {

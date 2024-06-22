@@ -124,6 +124,7 @@ const visToolbarStatus = computed(() => {
 <style scoped>
 
 #vis-tools {
+  position: relative;
   display: grid;
   grid-template-columns: 1fr;
   background-color:rgb(224, 227, 243);

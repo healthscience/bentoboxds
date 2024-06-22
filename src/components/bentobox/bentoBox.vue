@@ -157,9 +157,9 @@ import { libraryStore } from '@/stores/libraryStore.js'
   let isExpandDragging = ref(false)
   let isNetworkExpandDragging = ref(false)
   let liveBoxNow = ref('block')
-  let liveBoxFuture = ref('block')
-  let liveBoxNetNow = ref('block')
-  let liveBoxNetFuture = ref('block')
+  let liveBoxFuture = ref('none')
+  let liveBoxNetNow = ref('none')
+  let liveBoxNetFuture = ref('none')
 
   let event = ref('')
   let timerPress = ref(0)
@@ -436,7 +436,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
     'boxnow vertdragbar boxfuture'
     'expand expand expand';
     grid-template-rows: 1fr 300px 30px;
-    grid-template-columns: 4fr 6px 1fr;
+    grid-template-columns: 4fr 6px .5fr;
     height: auto;
     width: var(--bentoboxWidth);
     border: 2px solid rgb(141, 145, 226);
@@ -520,6 +520,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
   }
 
   #box-future {
+    display: none;
     background-color: rgb(241, 238, 231);
     grid-area: boxfuture;
     overflow: hidden;
@@ -543,6 +544,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
 
   #networkbox-now {
+    display: none;
     background-color: rgb(245, 247, 245);
     grid-area: netboxnow;
     overflow: hidden;
@@ -550,6 +552,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
   }
 
   #networkbox-future {
+    display: none;
     background-color: rgb(241, 238, 231);
     grid-area: netboxfuture;
     overflow: hidden;
