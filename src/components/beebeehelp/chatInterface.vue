@@ -62,9 +62,9 @@
                       </div>
                       <div v-else>333
                         <describe-datastructure :bboxid="chati.reply.bbid" :fileTypeIn="chati.reply?.data?.filedata.type"></describe-datastructure>
-                        <div class="data-options"  v-for="(dopt, index) in storeLibrary.newDatafile.columns">
+                        <div class="data-options"  v-for="(dopt, index) in storeLibrary.newDatafile.columns">{{ dopt }}
                           <div v-if="typeof dopt === 'string'">
-                            <button class="data-option-select" @click.prevent="dataOptionVis(index, dopt, chati.reply.bbid)">
+                            <button class="data-option-select" @click.prevent="dataOptionVis(index, dopt, chati.reply.bbid, chati.reply?.data?.options )">
                               {{ dopt }}
                             </button>
                           </div>
@@ -223,27 +223,30 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   const dataOptionVis = (did, colName, bbid, options) => {
     console.log('dataoitons------------------')
-    console.log(options)
+    let dateColSelected = ''
+    if (options === undefined) {
+      dateColSelected = 'TIMESTAMP'
+    } else {
+      dateColSelected = options[isDateColumn.value]
+    }
     // keep track of live selections
     datecolLive.value = did
     columnLive.value = colName
     bbidLive.value = bbid
     let dataCode = {}
     dataCode.id = did
-    dataCode.tablename = storeLibrary.newDatafile.tableSelected
+    dataCode.deviceTable = storeLibrary.newDatafile.deviceTable
     dataCode.devicetablename = ''
     dataCode.name = colName
     // what is name of date column?
-    console.log(storeLibrary.newPackagingForm.apicolumns)
-    console.log(storeLibrary.newDatafile.columns)
-    dataCode.timestampname = options[isDateColumn.value]
+    dataCode.timestampname = dateColSelected
     dataCode.timestamp = isDateColumn.value
     dataCode.device = ''
     dataCode.deviceCol = ''
     dataCode.timerange = []
     dataCode.bbid = bbid
-    // console.log('blind file start')
-    // console.log(dataCode)
+    console.log('blind file start')
+    console.log(dataCode)
     // console.log(storeLibrary.newDatafile)
     storeAI.submitAsk(dataCode)
   }
@@ -265,8 +268,8 @@ import { libraryStore } from '@/stores/libraryStore.js'
     console.log('device selected')
     let dataCode = {}
     dataCode.id = datecolLive.value
-    dataCode.tablename = storeLibrary.newDatafile.tableSelected
-    dataCode.devicetablename = storeLibrary.newDatafile.devicetableSelected
+    dataCode.deviceTable = storeLibrary.newDatafile.deviceTable
+    dataCode.devicetablename = storeLibrary.newDatafile.sqlitetablename
     dataCode.name = columnLive.value
     dataCode.timestamp = isDateColumn.value
     dataCode.device = storeLibrary.newDatafile.deviceSelected
@@ -284,8 +287,8 @@ import { libraryStore } from '@/stores/libraryStore.js'
     console.log('device id selected')
     let dataCode = {}
     dataCode.id = datecolLive.value
-    dataCode.tablename = storeLibrary.newDatafile.tableSelected
-    dataCode.devicetablename = storeLibrary.newDatafile.devicetableSelected
+    dataCode.deviceTable = storeLibrary.newDatafile.deviceTable
+    dataCode.devicetablename = storeLibrary.newDatafile.sqlitetablename
     dataCode.name = columnLive.value
     dataCode.timestamp = isDateColumn.value
     dataCode.device = storeLibrary.newDatafile.deviceSelected

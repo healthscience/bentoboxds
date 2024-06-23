@@ -30,9 +30,9 @@
     </div>
     <div class="package-form-item-single">Authorisation
       <describe-auth v-if="storeLibrary.newPackagingForm.authrequired === true"></describe-auth>
-    </div>ssss {{ datasourceLive }}
+    </div>
     <div id="desribe-data" class="package-form-item-single" v-if="datasourceLive === true">
-      <div id="sqlite-table-name" v-if="filetypeLive === 'sqlite'">
+      <div id="sqlite-table-name" v-if="filetypeLive === 'sqlite'"><!--not being used??-->
         <label for="add-code-name">SQLite table name: </label>
         <input type="text"  id="table-name-sqlite" placeholder="" required  v-model="storeLibrary.newPackagingForm.sqlitetable" />
       </div>

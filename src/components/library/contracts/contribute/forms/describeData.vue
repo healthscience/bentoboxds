@@ -15,14 +15,23 @@
       </div>
     </div>
     <div id="match-datatypes">
-      <header>Drag datatype to column name</header>dds {{ storeLibrary.newDatafile }}
+      <header>Drag datatype to column name</header>
       <div
         v-for='col in storeLibrary?.newDatafile?.columns'
         :key='col.id'
       >
         <div class="col-name">
-          <h3 v-if="col.name">{{ col.name }}</h3>
-          <h3 v-else=>{{ col }}</h3>
+          <div class="desribe-source-cols" v-if="col.name">
+            <div class="source-data-assess">
+              {{ col.name }}
+            </div>
+            <div class="source-data-assess">
+              <button id="id-column-device" :class="{ active: deviceCol.name === col.name }" @click=identifyDeviceCol(col)>device</button>
+            </div>
+          </div>
+          <div v-else >
+          {{ col }}
+          </div>
           <div class="list-group" :list="storeLibrary.newLists[col.cid]" group="matchdt" 
             v-on:dragover.prevent
             v-on:drop="handleDrop($event, 'match-column', col.cid)"
@@ -45,15 +54,14 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   const storeLibrary = libraryStore()
 
+  let deviceCol = ref('')
+
   /* computed */
   const handleDragStart = (event, itemData) => {
     event.dataTransfer.setData('application/json', JSON.stringify(itemData))
   }
 
   const handleDrop = (event, targetContainer, dti) => {
-    console.log('dddddddd')
-    console.log(dti)
-    console.log(storeLibrary.newDatafile.columns)
     const itemData = JSON.parse(event.dataTransfer.getData('application/json'))
     // make pair of column source name and ref DT contract hash ie key
     if (targetContainer === 'match-column') {
@@ -61,8 +69,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
       let matchRefDT =  storeLibrary.newLists[dti]
       // the column name
       let columnName = storeLibrary.newDatafile.columns[dti]
-      console.log('colum new hodler')
-      console.log(columnName)
       // match id to datatype
       let matchDatatype = itemData
       storeLibrary.newListsave[columnName.name] = {}
@@ -85,6 +91,13 @@ import { libraryStore } from '@/stores/libraryStore.js'
     }
   }
 
+  const identifyDeviceCol = (col) => {
+    console.log('device column if more than one')
+    console.log(col)
+    deviceCol.value = col
+    storeLibrary.newPackagingForm.sourcedevicecol = col
+  }
+
 </script>
 
 <style scoped>
@@ -101,6 +114,13 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   #match-datatypes {
     border: 2px solid green;
+  }
+
+  .desribe-source-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    font-size: 1.2em;
+    font-weight: bold;
   }
 
   .col-name {
@@ -150,6 +170,10 @@ import { libraryStore } from '@/stores/libraryStore.js'
     border: 2px solid orange;
     background-color: #E6ECEC;
     font-size: 1.2em;
+  }
+
+  .active {
+    background-color: rgb(113, 172, 114);
   }
 }
 </style>

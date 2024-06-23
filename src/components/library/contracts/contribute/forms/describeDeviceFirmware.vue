@@ -1,13 +1,13 @@
 <template>
   <div id="describe-data-structure">
-    Please select the device table:
+    Please select the firmware history table:
     <div id="tables-available">
       <select class="select-table-db" id="" v-model="tableChoice" @change="selectdbTalbe()">
-        <option class="tables-options" selected=""  v-for="tab in dbTables" :value="tab">
+        <option class="tables-options" v-for="tab in dbTables" :value="tab">
           {{ tab.name }}
           </option>
       </select>
-      <button id="" @click="showDevices()">Show devices</button>
+      <button id="" @click="showDevices()">Show firmware</button>
     </div> 
     <div id="devices-list" v-if="props.fileTypeIn !== 'sqlite'">
       <!--<select class="select-table-db" id="" v-model="deviceChoice" @change="selectDevice()">
@@ -73,11 +73,15 @@ import { libraryStore } from '@/stores/libraryStore.js'
   })
   /*  methods */
   const selectdbTalbe = () => {
-    storeLibrary.newDatafile.sqlitetablename = tableChoice.value.name
+    console.log('tableChoice')
+    console.log(tableChoice.value)
+    storeLibrary.newDatafile.firmwareQuery = tableChoice.value.name
   }
 
   const showDevices = () => {
-    storeLibrary.newPackagingForm.deviceQuery = tableChoice.value.name
+    console.log('tableChoicedeviceeeee')
+    console.log(tableChoice.value)
+    storeLibrary.newPackagingForm.firmwareQuery = tableChoice.value.name
     // file type coming from library or chat UI?
     let fileType = ''
     if (storeLibrary.newPackagingForm.type.length > 0) {
@@ -95,7 +99,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
     messageHOP.privacy = 'private'
     messageHOP.task = 'GET'
     messageHOP.data = { query: 'devices', db: storeLibrary.describeSource.path, table: tableChoice.value.name }
-    console.log('messageHOP device query')
     console.log(messageHOP)
     storeLibrary.sendMessage(messageHOP)
   }
@@ -109,12 +112,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
   }
 
   const columnItem = (coli, index) => {
-    console.log(coli)
-    console.log(index)
-    storeLibrary.newDatafile.deviceID = coli
-    storeLibrary.newPackagingForm.deviceColumnID = index
-    console.log(dbDevices.value)
-    emit('deviceId')
+    // emit('deviceId')
   }
 
 </script>

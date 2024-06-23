@@ -56,6 +56,9 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
       } else if (NXPcontract === 'Join') {
         storeLibrary.joinSelected = board
         storeLibrary.joinNXP = true
+        storeLibrary.uploadStatus = true
+        // need to look at queries and perform them
+
       } else {
         // preview network experiment
         // this.$store.dispatch('actionJOINViewexperiment', board)

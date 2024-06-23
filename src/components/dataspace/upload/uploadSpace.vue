@@ -35,7 +35,7 @@ import DropZone from '@/components/dataspace/upload/dropZone.vue'
 import FilePreview from '@/components/dataspace/upload/filePreview.vue'
 import { libraryStore } from '@/stores/libraryStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
-import { ref, shallowRef } from "vue"
+import { ref, shallowRef, computed } from "vue"
 
 	const file = shallowRef(null)
 	let headerLocal = ref({})
@@ -48,18 +48,16 @@ import useFileList from '@/components/dataspace/upload/compositions/fileList.js'
 const { files, addFiles, removeFile } = useFileList()
 
 	/* computed */
+	const uploadStatus = computed(() => {
+    return storeLibrary.uploadStatus
+  })
 
 	/* methods */
 	function onInputChange(e) {
-		console.log('on cha nge file')
-		console.log(e)
-		console.log(e.target.files[0])
 		file.value = e.target.files[0]
 		let fileName = file.value.name
 		storeLibrary.fileBund.name = fileName
 		let addF = addFiles(e.target.files)
-		console.log('after files')
-		console.log(files.value)
 		//e.target.value = null // reset so that selecting the same file again will still cause it to fire this change
 	}
 
@@ -185,7 +183,7 @@ const saveFiles = (files) => {
 			const reader2 = new FileReader();
   		reader2.readAsArrayBuffer(file.file)
 		} else if (file.file.type !== 'text/csv') {
-			// check for pdf file 
+			// check for pdf file  i.e. sqlite file
 			if (file.file.type !== 'application/pdf' && file.file.type !== 'application/json') {
 				let fileSave = {}
 				fileSave.name = file.file.name
@@ -207,16 +205,33 @@ const saveFiles = (files) => {
 				reader2.readAsDataURL(file.file)
 				reader2.onload = function (e) {
 					fileSave.content = e.target.result
-					// localthis.filepath = e.target.result
-					// prepare message structure
-					let messageHOP = {}
-					messageHOP.type = 'library'
-					messageHOP.action = 'contracts'
-					messageHOP.reftype = 'save-file'
-					messageHOP.privacy = 'private'
-					messageHOP.task = 'PUT'
-					messageHOP.data = fileSave
-					storeLibrary.sendMessage(messageHOP)
+					// is this for join nxp module?
+					if (storeLibrary.joinNXP !== true) {
+						// prepare message structure
+						let messageHOP = {}
+						messageHOP.type = 'library'
+						messageHOP.action = 'contracts'
+						messageHOP.reftype = 'save-file'
+						messageHOP.privacy = 'private'
+						messageHOP.task = 'PUT'
+						messageHOP.data = fileSave
+						// close the upload
+						storeLibrary.uploadStatus = false
+						storeLibrary.sendMessage(messageHOP)
+					} else {
+						console.log('yes upload as part of join process')
+						// prepare message for join NXP module process i.e. HOPquery structure already setup by genesis
+						let messageHOP = {}
+						messageHOP.type = 'library'
+						messageHOP.action = 'contracts'
+						messageHOP.reftype = 'save-file'
+						messageHOP.privacy = 'private'
+						messageHOP.task = 'PUT'
+						messageHOP.data = fileSave
+						// close the upload
+						storeLibrary.uploadStatus = false
+						storeLibrary.joinNXPprocess(messageHOP)
+					}
 				}
 			} else if (file.file.type === 'application/json') {
 		  	  // build for chat and library upload

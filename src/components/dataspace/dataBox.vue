@@ -30,7 +30,7 @@
         </button>
       </template>
       <template #body>
-        <space-upload v-if="uploadStatus === true"></space-upload>
+        <space-upload v-if="uploadStatus === true && joinNXPStatus !== true"></space-upload>
         <rest-upload v-if="restStatus === true"></rest-upload>
         <csv-preview v-if="storeLibrary.csvpreviewLive === true"></csv-preview>
         <div v-if="libraryStatus === true">
@@ -77,6 +77,10 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   const uploadStatus = computed(() => {
     return storeLibrary.uploadStatus
+  })
+
+  const joinNXPStatus = computed(() => {
+    return  storeLibrary.joinNXP
   })
 
   const restStatus = computed(() => {

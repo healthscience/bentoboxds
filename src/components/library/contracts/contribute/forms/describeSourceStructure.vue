@@ -36,8 +36,10 @@ import { libraryStore } from '@/stores/libraryStore.js'
   }
 
   const showTables = () => {
+    storeLibrary.newPackagingForm.sqlitetablename = tableChoice.value.name
+    storeLibrary.newPackagingForm.tableQuery = tableChoice.value.name
     // keep track of active table selected
-    storeLibrary.newDatafile.tableSelected = tableChoice.value.name
+    storeLibrary.newDatafile.deviceTable = tableChoice.value.name
     // send message to HOP to get columsn for this table
     // file type coming from library or chat UI?
     let fileType = ''

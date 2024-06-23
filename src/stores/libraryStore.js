@@ -69,7 +69,7 @@ export const libraryStore = defineStore('librarystore', {
       devicecolumns: [],
       path: '',
       device: [],
-      tableSelected: '',
+      deviceTable: '',
       devicetableSelected: '',
       deviceSelected: '',
       deviceID: ''
@@ -80,6 +80,8 @@ export const libraryStore = defineStore('librarystore', {
       type: '',
       filename: '',
       path: '',
+      tableQuery: '',
+      sourcedevicecol: '',
       sqlitetablename: '',
       baseapi: '',
       jsonpath: '',
@@ -92,6 +94,9 @@ export const libraryStore = defineStore('librarystore', {
       tidyCount: 0,
       category: {},
       tidy: {},
+      deviceQuery: '',
+      firmwareQuery: '',
+      deviceColumnID: '',
       devicesList: [],
       deviceColumns: [],
       device:
@@ -167,47 +172,71 @@ export const libraryStore = defineStore('librarystore', {
       this.sendMessage('get-library')
       this.sendMessage('get-results')
     },
+    joinNXPprocess (message) {
+      // need to query source table?? (just to check?) need to query devices to get list personal to peer
+      console.log('prepare JOIN message to HOP')
+      console.log(message)
+      // send message to HOP to get columsn for this table
+      let messageHOP = {}
+      messageHOP.type = 'library'
+      messageHOP.action = 'source'
+      messageHOP.reftype = message.data.type
+      messageHOP.privacy = 'private'
+      messageHOP.task = 'GET'
+      // messageHOP.data = { query: 'devices', db: storeLibrary.describeSource.path, table: tableChoice.value.name }
+      //storeLibrary.sendMessage(messageHOP)
+      this.sendMessage(message)
+    },
     processReply (message, questionStart) {
-      // console.log('library process')
-      // console.log(message)
+      console.log('library process')
+      console.log(message)
       if (message.action === 'save-file') {
         this.describeSource = message.data
         // set message
-        if (message.task === 'sqlite') {
-          // need to extract out to chat prepare utility TODO
-					this.storeAI.qcount++
-					let question = {}
-					question.type ='bbai'
-					question.reftype = 'ignore'
-					question.action = 'question'
-					question.data = { "count": this.storeAI.qcount, "text": "Upload of file", "active": true, "time": new Date() }
-					let hashQuestion = hashObject(question.data + message.data.path)
-					// extract headers assume first line
-					let headerLocal = {}
-          headerLocal[hashQuestion] = message.data.columns
-					question.bbid = hashQuestion
-					let bbReply = {}
-					bbReply.type = 'bbai-reply'
-					bbReply.data = { text: 'Summary of tables in SQLite file, heading are:', filedata: { type: 'sqlite', file: message.data.path, columns: 'one', grid: [] }, prompt: 'Select data table to chart:', options: headerLocal[hashQuestion], }
-					bbReply.bbid = hashQuestion
-					let newPair = {}
-					newPair.question = question
-					newPair.reply = bbReply
-					this.storeAI.historyPair[this.storeAI.chatAttention].push(newPair)
-          this.newDatafile.columns = message.data.columns
-          this.newDatafile.path = 'sqlite'
-          this.newDatafile.file = message.data.path
+        if (this.joinNXP !== true) {
+          if (message.task === 'sqlite') {
+            console.log('not JOIN')
+            // is this part of joining a NXP module?
+
+            // need to extract out to chat prepare utility TODO
+            this.storeAI.qcount++
+            let question = {}
+            question.type ='bbai'
+            question.reftype = 'ignore'
+            question.action = 'question'
+            question.data = { "count": this.storeAI.qcount, "text": "Upload of file", "active": true, "time": new Date() }
+            let hashQuestion = hashObject(question.data + message.data.path)
+            // extract headers assume first line
+            let headerLocal = {}
+            headerLocal[hashQuestion] = message.data.columns
+            question.bbid = hashQuestion
+            let bbReply = {}
+            bbReply.type = 'bbai-reply'
+            bbReply.data = { text: 'Summary of tables in SQLite file, heading are:', filedata: { type: 'sqlite', file: message.data.path, columns: 'one', grid: [] }, prompt: 'Select data table to chart:', options: headerLocal[hashQuestion], }
+            bbReply.bbid = hashQuestion
+            let newPair = {}
+            newPair.question = question
+            newPair.reply = bbReply
+            this.storeAI.historyPair[this.storeAI.chatAttention].push(newPair)
+            this.newDatafile.columns = message.data.columns
+            this.newDatafile.path = 'sqlite'
+            this.newDatafile.file = message.data.path
+          } else {
+            this.libraryMessage = message.data
+            this.newPackagingForm.apicolumns = message.data.data.headerinfo.splitwords
+            this.newDatafile.columns = message.data.columns
+            this.newDatafile.path = 'sqlite'
+            this.newDatafile.file = message.data.path
+          }
         } else {
-          this.libraryMessage = message.data
-          this.newPackagingForm.apicolumns = message.data.data.headerinfo.splitwords
-          this.newDatafile.columns = message.data.columns
-          this.newDatafile.path = 'sqlite'
-          this.newDatafile.file = message.data.path
+          // package of join source and device data
+          console.log('join info package on queries')
+          console.log(message)
         }
       } else if (message.action === 'source') {
+        console.log('source ')
         if (message.reftype === 'sqlite') {
-          console.log('sqlite query')
-          console.log(message)
+          console.log('slqie withi source')
           // set open data x and y axis , category, device etc.
           this.storeBentoBox.openDataSettings[this.liveBBox] = {}
           // what is data
