@@ -176,16 +176,16 @@ export const libraryStore = defineStore('librarystore', {
       // need to query source table?? (just to check?) need to query devices to get list personal to peer
       console.log('prepare JOIN message to HOP')
       console.log(message)
+      this.sendMessage(message)
       // send message to HOP to get columsn for this table
-      let messageHOP = {}
+      /* let messageHOP = {}
       messageHOP.type = 'library'
       messageHOP.action = 'source'
       messageHOP.reftype = message.data.type
       messageHOP.privacy = 'private'
-      messageHOP.task = 'GET'
+      messageHOP.task = 'GET' */
       // messageHOP.data = { query: 'devices', db: storeLibrary.describeSource.path, table: tableChoice.value.name }
       //storeLibrary.sendMessage(messageHOP)
-      this.sendMessage(message)
     },
     processReply (message, questionStart) {
       console.log('library process')
@@ -232,11 +232,18 @@ export const libraryStore = defineStore('librarystore', {
           // package of join source and device data
           console.log('join info package on queries')
           console.log(message)
+          // this.joinOptions.yaxis = message.data.tables
+          // this.joinOptions.yaxis = ['time']
         }
       } else if (message.action === 'source') {
         console.log('source ')
         if (message.reftype === 'sqlite') {
           console.log('slqie withi source')
+          if (this.joinNXP === true) {
+            console.log('yes in joine')
+            console.log(message.data)
+            this.devicesJoin = message.data.devices
+          }
           // set open data x and y axis , category, device etc.
           this.storeBentoBox.openDataSettings[this.liveBBox] = {}
           // what is data

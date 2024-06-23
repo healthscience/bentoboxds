@@ -102,7 +102,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
         matchPack = mod
       }
     }
-    settingsOptions.devices = matchPack.value.info.value.concept.devicesList
+    settingsOptions.devices = storeLibrary.devicesJoin // matchPack.value.info.value.concept.devicesList
     settingsOptions.xaxis = ['time'] // matchPack.value.info.value.concept.
     settingsOptions.yaxis = matchPack.value.info.value.concept.tablestructure
     settingsOptions.category = matchPack.value.info.value.concept.category
@@ -130,7 +130,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
     messageHOP.reftype = 'sqlite' // message.data.type
     messageHOP.privacy = 'private'
     messageHOP.task = 'GET'
-    messageHOP.data = { query: 'devices', db: moduleCont.concpet.filename, table: moduleCont.concept.devicequery }
+    messageHOP.data = { query: 'devices', db: moduleCont.concept.filename, table: moduleCont.concept.devicequery }
     console.log(messageHOP)
     // send
     storeLibrary.sendMessage(messageHOP)
@@ -180,6 +180,12 @@ import { libraryStore } from '@/stores/libraryStore.js'
       justify-self: center;
       width: 30%;
       margin-top: 1em;
+    }
+
+    #join-feedback {
+      padding: 1em;
+      font-size: 1.2em;
+      color: red;
     }
 
   }
