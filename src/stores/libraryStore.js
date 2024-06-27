@@ -354,11 +354,14 @@ export const libraryStore = defineStore('librarystore', {
       this.storeBentoBox.openDataSettings[bboxid] = datatypeContext
       // this.openDataSettings[bboxid] = extractedSettings
     },
-    prepareJoinNXPMessage (genContract, settings) {
-      //let updateJoinSettings = this.utilLibrary.updateSettings(genContract, settings)
+    prepareJoinNXPMessage (genContract, settingsTime, settingsInfo) {
+      // let updateJoinSettings = this.utilLibrary.updateSettings(genContract, settings)
+      console.log('LIBstore--parePAIN ')
+      console.log(settingsTime)
+      console.log(settingsInfo)
       let updateJoinSettings = {}
       updateJoinSettings.genesisnxp = genContract.value
-      updateJoinSettings.updates = settings
+      updateJoinSettings.updates = settingsTime
       let libMessageout = {}
       libMessageout.type = 'library'
       libMessageout.action = 'contracts'
@@ -367,6 +370,8 @@ export const libraryStore = defineStore('librarystore', {
       libMessageout.task = 'join'
       libMessageout.data = updateJoinSettings
       libMessageout.bbid = 'lib' + genContract.value.exp.key
+      console.log('prepare JOIN message NXP')
+      console.log(libMessageout)
       this.sendSocket.send_message(libMessageout)
     },
     prepareLibraryViewMessage (contract, action) {
@@ -442,8 +447,8 @@ export const libraryStore = defineStore('librarystore', {
       aiMessageout.task = 'update-hopquery'
       aiMessageout.data = HOPq
       aiMessageout.bbid = HOPq.bbid
-      // console.log('LIB--update QUERY out')
-      // console.log(aiMessageout)
+      console.log('LIB--update QUERY out')
+      console.log(aiMessageout)
       this.sendSocket.send_message(aiMessageout)
       this.storeAI.helpchatHistory.push(aiMessageout)
       this.storeAI.qcount++

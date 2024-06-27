@@ -181,6 +181,7 @@ const handleDate = () => {
     }
     // any settings changes?
     moduleUpdate.compute = computeChanges
+    // prepare HOPquery
     let entityID = Object.keys(storeAI.boxLibSummary[props.bboxid].data)
     let HOPcontext = {}
     HOPcontext.entityUUID = storeAI.boxLibSummary[props.bboxid].data[entityID[0]].shellID

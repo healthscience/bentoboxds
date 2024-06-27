@@ -1,5 +1,5 @@
 <template>
-  <div id="nxp-join-nxp" v-for="gmod in genesisNXP.modules">gg--{{ gmod }}
+  <div id="nxp-join-nxp" v-for="gmod in genesisNXP.modules">
     <div class="nxp-question" v-if="gmod?.value?.style === 'question'">
       Network Experiment: {{ gmod.value.info.value.concept.name }}
     </div>
@@ -12,6 +12,7 @@
       <div class="join-device-select">
         <button @click="querySourceDataDevices(gmod.value.info.value)">Show devices</button>
       </div>
+      <div v-if="storeLibrary?.devicesJoin !== undefined">Devices number: {{ storeLibrary.devicesJoin.length }}</div>
     </div>
     <div id="compute-options" v-if="gmod?.value?.style === 'compute'">
       <header class="module-header">Compute</header>
@@ -49,7 +50,7 @@
       <!-- preview visualisation -->
       <header class="module-header">Visualisation</header>
       <div id="vis-builder">
-        {{ gmod?.value?.info?.value?.computational?.name }}
+        {{ gmod?.value?.info?.value?.computational?.name }} Set default toolbar:
         <!--<chart-builder class="vis-area" v-if="NXPJoinModuleVisualise" :shellID="shellID" :moduleCNRL="moduleCNRL" :moduleType="moduleType" :mData="mData" ></chart-builder>-->
       </div>
       <opendata-tool :bboxid="'genesis-123579'" :setOptions="settingsOptions"></opendata-tool>
@@ -127,7 +128,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
     let messageHOP = {}
     messageHOP.type = 'library'
     messageHOP.action = 'source'
-    messageHOP.reftype = 'sqlite' // message.data.type
+    messageHOP.reftype = moduleCont.concept.path
     messageHOP.privacy = 'private'
     messageHOP.task = 'GET'
     messageHOP.data = { query: 'devices', db: moduleCont.concept.filename, table: moduleCont.concept.devicequery }
@@ -141,13 +142,15 @@ import { libraryStore } from '@/stores/libraryStore.js'
     let millsDate
     // check date has been selected
     if (boxDate.value !== null) {
-      let luxTime = DateTime.local(boxDate.value)
+      console.log(boxDate.value)
+      let luxTime = DateTime.fromJSDate(boxDate.value).startOf('day')
       millsDate = luxTime.toMillis()
+      console.log(millsDate)
       // update compute contract settings
       let settingsJoin = {}
       settingsJoin = storeLibrary.joinOptions
       settingsJoin.time = millsDate
-      storeLibrary.prepareJoinNXPMessage(genesisNXP, settingsJoin)
+      storeLibrary.prepareJoinNXPMessage(genesisNXP, settingsJoin, settingsOptions)
     } else {
       // prompt to select date
       storeLibrary.joinFeedback = true

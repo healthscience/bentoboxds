@@ -146,6 +146,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   }
 
   #open-data-tools {
+    position: relative;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
     height: 200px;

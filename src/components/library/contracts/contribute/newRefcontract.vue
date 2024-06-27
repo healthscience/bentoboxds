@@ -77,13 +77,15 @@ const formContribute = [
     } else if (contractformType.value.type === 'compute') {
       refContract.data = storeLibrary.newComputeForm
     } else if (contractformType.value.type === 'packaging') {
+      console.log('BB-Libstore--packaing info bundel')
+      console.log(storeLibrary.newPackagingForm)
       refContract.data = storeLibrary.newPackagingForm
     } else if (contractformType.value.type === 'visualise') {
       refContract.data = storeLibrary.newVisualiseForm
     }
     console.log('save ref contract new')
     console.log(refContract)
-    storeLibrary.sendMessage(refContract)
+    // storeLibrary.sendMessage(refContract)
     // reset the form data
     if (contractformType.value.type === 'question') {
     storeLibrary.questionForm = { primary: null, name: '' }
