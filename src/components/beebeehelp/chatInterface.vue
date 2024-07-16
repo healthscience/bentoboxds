@@ -143,7 +143,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 
   // const askStart = ref('What would you like to chart?')
-  let chartStyle = ref('')
+  // let chartStyle = ref('')
   let columnFilter = ref('')
   let deviceFilter = ref('')
   let columnLive = ref('')
@@ -156,10 +156,11 @@ import { libraryStore } from '@/stores/libraryStore.js'
   const storeAI = aiInterfaceStore()
   const storeLibrary = libraryStore()
 
+  /*
   const chartBuild = style => {
     storeAI.beebeeChatLog = true
     chartStyle.value = style
-  }
+  } */
 
   /* computed */
   const libraryAvailable = computed (() => {
@@ -222,7 +223,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
   }
 
   const dataOptionVis = (did, colName, bbid, options) => {
-    console.log('dataoitons------------------')
     let dateColSelected = ''
     if (options === undefined) {
       dateColSelected = 'TIMESTAMP'
@@ -245,9 +245,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
     dataCode.deviceCol = ''
     dataCode.timerange = []
     dataCode.bbid = bbid
-    console.log('blind file start')
-    console.log(dataCode)
-    // console.log(storeLibrary.newDatafile)
     storeAI.submitAsk(dataCode)
   }
 
@@ -265,7 +262,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
   }
 
   const filterdeviceEvent = () => {
-    console.log('device selected')
     let dataCode = {}
     dataCode.id = datecolLive.value
     dataCode.deviceTable = storeLibrary.newDatafile.deviceTable
@@ -277,14 +273,10 @@ import { libraryStore } from '@/stores/libraryStore.js'
     dataCode.deviceCol = deviceFilter.value
     dataCode.timerange = []
     dataCode.bbid = bbidLive.value
-    console.log('blind file start')
-    console.log(dataCode)
-    console.log(storeLibrary.newDatafile)
     storeAI.submitAsk(dataCode)
   }
 
   const choicedeviceEvent = () => {
-    console.log('device id selected')
     let dataCode = {}
     dataCode.id = datecolLive.value
     dataCode.deviceTable = storeLibrary.newDatafile.deviceTable
@@ -296,9 +288,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
     dataCode.deviceCol = deviceFilter.value
     dataCode.timerange = []
     dataCode.bbid = bbidLive.value
-    console.log('device CHoice===================')
-    console.log(dataCode)
-    console.log(storeLibrary.newDatafile)
     storeAI.submitAsk(dataCode)
   }
 

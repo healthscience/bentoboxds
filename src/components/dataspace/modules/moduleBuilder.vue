@@ -103,7 +103,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
         }
       }
     } else {
-      console.log('dro ref is true')
       handleRefDrop(event, targetContainer)
     }
   }

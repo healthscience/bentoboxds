@@ -92,8 +92,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
   }
 
   const identifyDeviceCol = (col) => {
-    console.log('device column if more than one')
-    console.log(col)
     deviceCol.value = col
     storeLibrary.newPackagingForm.sourcedevicecol = col
   }

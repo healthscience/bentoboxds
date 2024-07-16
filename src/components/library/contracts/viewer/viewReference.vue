@@ -163,7 +163,7 @@
                       <ul v-if="index === 'tidy'" >
                         <header>Tidy rules:</header>
                         <li v-for="ipv in pi" :key="ipv.key" >
-                            {{ ipv.tidy }} -- {{ ipv.datatype }} -- {{ ipv.code }}
+                            {{ ipv.tidy }} -- {{ ipv.datatype }} -- {{ ipv.tidycode }}
                         </li>
                       </ul>
                     </li>

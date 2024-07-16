@@ -205,7 +205,6 @@ class LibraryUtility { //  extends EventEmitter {
         modSettings.devices = mod.value.info.settings.devices
       }
     }
-    console.log(modSettings)
     return modSettings
   }
 

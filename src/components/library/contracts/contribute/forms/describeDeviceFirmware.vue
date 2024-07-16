@@ -73,14 +73,10 @@ import { libraryStore } from '@/stores/libraryStore.js'
   })
   /*  methods */
   const selectdbTalbe = () => {
-    console.log('tableChoice')
-    console.log(tableChoice.value)
     storeLibrary.newDatafile.firmwareQuery = tableChoice.value.name
   }
 
   const showDevices = () => {
-    console.log('tableChoicedeviceeeee')
-    console.log(tableChoice.value)
     storeLibrary.newPackagingForm.firmwareQuery = tableChoice.value.name
     // file type coming from library or chat UI?
     let fileType = ''
@@ -99,7 +95,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
     messageHOP.privacy = 'private'
     messageHOP.task = 'GET'
     messageHOP.data = { query: 'devices', db: storeLibrary.describeSource.path, table: tableChoice.value.name }
-    console.log(messageHOP)
     storeLibrary.sendMessage(messageHOP)
   }
 

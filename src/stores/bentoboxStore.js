@@ -54,6 +54,8 @@ export const bentoboxStore = defineStore('bentostore', {
   actions: {
     // since we rely on `this`, we cannot use an arrow function
     setChartstyle (id, style) {
+      console.log('chart style')
+      console.log(style)
       if (style !== undefined) {
       this.chartStyle[id] = style
       } else {
@@ -69,14 +71,10 @@ export const bentoboxStore = defineStore('bentostore', {
       this.locY = loc.y
     },
     processReply (message) {
-      // console.log('message bentobox')
-      // console.log(message)
       // prepare chat menu and pairs
       if (message.reftype.trim() === 'chat-history') {
         if (message.action.trim() === 'start') {
           // set the saved chats for peer
-          console.log('start box info bentobox')
-          console.log(message)
           let chatMenu = []
           for (let cm of message.data) {
             if(cm?.value?.chat) {
@@ -101,14 +99,11 @@ export const bentoboxStore = defineStore('bentostore', {
                     hopDataChart.labels = cm.value?.visData[pairCount]?.labels
                     this.storeAI.visData[pair.reply.bbid] = hopDataChart
                     if (cm.value?.hop !== undefined) {
-                      console.log(cm.value)
                       if (cm.value.hop.length === 0) {
                         console.log('no HOP data')
                       } else {
                         let summaryHOP = cm.value?.hop[0]
                         summaryHOP.bbid = pair.reply.bbid
-                        console.log('start HOP summary')
-                        console.log(summaryHOP)
                         this.storeAI.hopSummary.push({ HOPid: pair.reply.bbid, summary: summaryHOP })
                       }
                     }
@@ -127,7 +122,6 @@ export const bentoboxStore = defineStore('bentostore', {
                   this.boxToolStatus[pair.reply.bbid] = boxSettings
                   this.devicesettings[pair.reply.bbid] = {}
                   this.devicesettings[pair.reply.bbid] = this.settings
-                  console.log('device settings set')
                   this.chartStyle[pair.reply.bbid] = 'line'
                   pairCount++
                 }
@@ -250,7 +244,6 @@ export const bentoboxStore = defineStore('bentostore', {
         updateBox.dragSelector = ref('.drag-container-1, .drag-container-2')
         this.locationBbox[space][bbox] = updateBox
         this.locationStart+= 40
-        console.log(this.locationStart)
       }
     },
     saveLayoutSpace (spaceID) {

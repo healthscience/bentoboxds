@@ -148,6 +148,7 @@ export const libraryStore = defineStore('librarystore', {
       firmware: '',
       mobileapp: ''
     },
+    tidyOption: false,
     sourceDataSelected: false,
     newLists: {},
     newListsave: {},
@@ -174,8 +175,6 @@ export const libraryStore = defineStore('librarystore', {
     },
     joinNXPprocess (message) {
       // need to query source table?? (just to check?) need to query devices to get list personal to peer
-      console.log('prepare JOIN message to HOP')
-      console.log(message)
       this.sendMessage(message)
       // send message to HOP to get columsn for this table
       /* let messageHOP = {}
@@ -188,14 +187,11 @@ export const libraryStore = defineStore('librarystore', {
       //storeLibrary.sendMessage(messageHOP)
     },
     processReply (message, questionStart) {
-      console.log('library process')
-      console.log(message)
       if (message.action === 'save-file') {
         this.describeSource = message.data
         // set message
         if (this.joinNXP !== true) {
           if (message.task === 'sqlite') {
-            console.log('not JOIN')
             // is this part of joining a NXP module?
 
             // need to extract out to chat prepare utility TODO
@@ -231,17 +227,12 @@ export const libraryStore = defineStore('librarystore', {
         } else {
           // package of join source and device data
           console.log('join info package on queries')
-          console.log(message)
           // this.joinOptions.yaxis = message.data.tables
           // this.joinOptions.yaxis = ['time']
         }
       } else if (message.action === 'source') {
-        console.log('source ')
         if (message.reftype === 'sqlite') {
-          console.log('slqie withi source')
           if (this.joinNXP === true) {
-            console.log('yes in joine')
-            console.log(message.data)
             this.devicesJoin = message.data.devices
           }
           // set open data x and y axis , category, device etc.
@@ -354,14 +345,12 @@ export const libraryStore = defineStore('librarystore', {
       this.storeBentoBox.openDataSettings[bboxid] = datatypeContext
       // this.openDataSettings[bboxid] = extractedSettings
     },
-    prepareJoinNXPMessage (genContract, settingsTime, settingsInfo) {
+    prepareJoinNXPMessage (genContract, setControls, settingsInfo) {
       // let updateJoinSettings = this.utilLibrary.updateSettings(genContract, settings)
-      console.log('LIBstore--parePAIN ')
-      console.log(settingsTime)
-      console.log(settingsInfo)
+      setControls.opendata = settingsInfo
       let updateJoinSettings = {}
       updateJoinSettings.genesisnxp = genContract.value
-      updateJoinSettings.updates = settingsTime
+      updateJoinSettings.updates = setControls
       let libMessageout = {}
       libMessageout.type = 'library'
       libMessageout.action = 'contracts'
@@ -370,7 +359,7 @@ export const libraryStore = defineStore('librarystore', {
       libMessageout.task = 'join'
       libMessageout.data = updateJoinSettings
       libMessageout.bbid = 'lib' + genContract.value.exp.key
-      console.log('prepare JOIN message NXP')
+      console.log('join NXP++++++++++++++')
       console.log(libMessageout)
       this.sendSocket.send_message(libMessageout)
     },
@@ -408,8 +397,7 @@ export const libraryStore = defineStore('librarystore', {
       pairBB.reply = reply
       this.storeAI.historyPair[this.storeAI.chatAttention] = []
       this.storeAI.historyPair[this.storeAI.chatAttention].push(pairBB)
-      // console.log('view jioned NXP')
-      // console.log(libMessageout)
+      this.storeAI.chatBottom++
       this.sendSocket.send_message(libMessageout)
     },
     prepareGenesisModContracts (message) {
@@ -447,7 +435,7 @@ export const libraryStore = defineStore('librarystore', {
       aiMessageout.task = 'update-hopquery'
       aiMessageout.data = HOPq
       aiMessageout.bbid = HOPq.bbid
-      console.log('LIB--update QUERY out')
+      console.log('UPqueryupdate')
       console.log(aiMessageout)
       this.sendSocket.send_message(aiMessageout)
       this.storeAI.helpchatHistory.push(aiMessageout)

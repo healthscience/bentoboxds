@@ -34,7 +34,6 @@
         </div>
       </div>
       <div id="bento-past" v-if="quantSelect['now']">
-        <!--<div id="past-box">past toolbar <button id="full-past-toolbar">Tools</button></div>-->
         <bar-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'bar'" :chartData="chartData"></bar-chart>-
         <line-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'line'" :chartData="chartData"></line-chart>
       </div>
@@ -59,8 +58,6 @@
             </option>
           </select>
           <button id="full-future-toolbar" @click="predictFuture()">Predict</button>
-        <!--<button id="full-future-toolbar" @click="predictFuture()">Predict</button>-->
-        <!-- <div id="future-box">future toolbar <button id="full-future-toolbar">full</button></div>-->
         <bar-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'bar'" :chartData="chartfutureData" ></bar-chart>
         <line-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'line'" :chartData="chartfutureData"></line-chart>
       </div>
@@ -82,7 +79,6 @@
         </div>
       </div>
       <div id="bento-past" v-if="quantSelect['nnow']">
-        <!--<div id="past-box">past toolbar <button id="full-past-toolbar">Tools</button></div>-->
         <bar-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'bar'" :chartData="chartData"></bar-chart>-
         <line-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'line'" :chartData="chartData"></line-chart>
       </div>
@@ -107,7 +103,6 @@
             </option>
           </select>
           <button id="full-future-toolbar" @click="predictFuture()">Predict</button>
-        <!--<div id="future-box">future toolbar <button id="full-future-toolbar">full</button></div>-->
         <bar-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'bar'" :chartData="chartfutureData" ></bar-chart>
         <line-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'line'" :chartData="chartfutureData"></line-chart>
       </div>
@@ -352,8 +347,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
   }
 
   const selectPredModel = (model) => {
-    console.log(model)
-    console.log(modelFuture)
   }
 
   /* computed */
@@ -563,8 +556,8 @@ import { libraryStore } from '@/stores/libraryStore.js'
     position: relative;
     height: 80%;
     min-width: 20vw;
-    margin: 2em;
-    border: 0px solid orange;
+    margin: 1em;
+    border: 1px solid orange;
   }
 
   #bento-future {

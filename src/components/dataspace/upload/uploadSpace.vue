@@ -219,7 +219,6 @@ const saveFiles = (files) => {
 						storeLibrary.uploadStatus = false
 						storeLibrary.sendMessage(messageHOP)
 					} else {
-						console.log('yes upload as part of join process')
 						// prepare message for join NXP module process i.e. HOPquery structure already setup by genesis
 						let messageHOP = {}
 						messageHOP.type = 'library'

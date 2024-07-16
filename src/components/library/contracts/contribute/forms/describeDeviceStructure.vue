@@ -95,8 +95,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
     messageHOP.privacy = 'private'
     messageHOP.task = 'GET'
     messageHOP.data = { query: 'devices', db: storeLibrary.describeSource.path, table: tableChoice.value.name }
-    console.log('messageHOP device query')
-    console.log(messageHOP)
     storeLibrary.sendMessage(messageHOP)
   }
 
@@ -109,11 +107,8 @@ import { libraryStore } from '@/stores/libraryStore.js'
   }
 
   const columnItem = (coli, index) => {
-    console.log(coli)
-    console.log(index)
     storeLibrary.newDatafile.deviceID = coli
     storeLibrary.newPackagingForm.deviceColumnID = index
-    console.log(dbDevices.value)
     emit('deviceId')
   }
 

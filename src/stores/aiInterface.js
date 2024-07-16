@@ -61,7 +61,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       vistoolsstatus: { active: false },
       scalezoom: 1,
       location: {},
-      chartstyle: 'line'
+      chartstyle: 'line',
+      legends: true
     },
     liveFutureCollection: { active: false },
     visData: {},
@@ -80,7 +81,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     countNotifications: 0,
     notifList: [],
     boxLibSummary: {},
-    boxModelUpdate: {}
+    boxModelUpdate: {},
+    computeModuleLast: {}
   }),
   actions: {
     sendMessageHOP (message) {
@@ -126,8 +128,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.beginChat = true
     },
     submitAsk (dataInfo) {
-      console.log('start sub new HOPquery')
-      console.log(dataInfo)
       // remove start boxes
       this.startChat = false
       this.historyBar = true
@@ -256,7 +256,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         }
       } else if (received.action === 'no-data') {
         console.log('no data for this quer')
-        console.log(received)
       } else {
         // match to question via bbid
         if (received.data) {
@@ -283,11 +282,11 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
                 vistoolsstatus: { active: false },
                 scalezoom: 1,
                 location: {},
-                chartstyle: 'line'
+                storeBentoboxstoreBentobox: 'line'
               } */
               this.storeBentoBox.devicesettings[received.bbid] = {}
               this.storeBentoBox.devicesettings[received.bbid] = this.storeBentoBox.settings
-              this.storeBentoBox.chartStyle[received.bbid] = 'line'
+              this.storeBentoBox.chartStyle[received.bbid] = this.boxSettings.chartstyle  // 'line'
             } else {
               let pairBB = {}
               pairBB.question = questionStart
@@ -344,7 +343,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       hopDataChart.datasets = [ { data: dataNetwork.data.datasets[0].data } ]
       hopDataChart.labels = dataNetwork.data.labels
       this.visData[matchBBID] = hopDataChart
-      this.storeBentoBox.setChartstyle(matchBBID, 'line')
+      this.storeBentoBox.setChartstyle(matchBBID, dataHOP.context.moduleorder.visualise.value.info.settings.visualise)
       this.expandBentobox[matchBBID] = false
       this.beebeeChatLog[matchBBID] = true
       this.bentoboxList['space1'] = []
@@ -357,6 +356,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.hopSummary.push({ HOPid: HOPshell, summary: dataSummary })
     },
     processHOPdata (dataHOP) {
+      console.log('process IN HOP Data')
+      console.log(dataHOP)
       // match input id to bbid
       // is the data for past or future or no data
       if (dataHOP.data.data === 'none') {
@@ -366,16 +367,18 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         this.dataBoxStatus = false
         // stil produce a bentobox
         let boxID = this.liveChatUtil.matchHOPbbid(dataHOP.context.dataprint.shell, this.bbidHOPid)
+        // update the latest compute module contract back from HOP
+        this.computeModuleLast[boxID] = dataHOP.context.tempComputeMod.info
         // set open data toolbar
         let opendataToolbar = this.liveChatUtil.setOpendataToolbar()
         this.storeBentoBox.boxToolStatus[boxID] = {}
         this.storeBentoBox.boxToolStatus[boxID] = opendataToolbar
         let pairBB = this.liveChatUtil.prepareChatQandA(boxID, matchSummary)        
         let hopDataChart = {}
-        hopDataChart.datasets = [ { label: 'datatype', data: [] } ]
+        hopDataChart.datasets = [ { label: 'datatype11', data: [] } ]
         hopDataChart.labels = []
         this.visData[boxID] = hopDataChart
-        this.storeBentoBox.setChartstyle(boxID, 'line')
+        this.storeBentoBox.setChartstyle(boxID, dataHOP.context.moduleorder.visualise.value.info.settings.visualise)
         // this.expandBentobox[boxID] = true
         this.beebeeChatLog[boxID] = true
         // feed the chat
@@ -384,11 +387,15 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       } else if (dataHOP.context.input.update !== 'predict-future') {
         this.dataBoxStatus = false
         let matchBBID = this.liveChatUtil.matchHOPbbid(dataHOP.data.context.shell, this.bbidHOPid)
+        // update the latest compute module contract back from HOP
+        if (dataHOP.context.tempComputeMod !== undefined) {
+          this.computeModuleLast[matchBBID] = dataHOP.context.tempComputeMod.info
+        }
         this.bentoboxList['space1'] = []
         // this.expandBentobox[matchBBID] = true
         this.beebeeChatLog[matchBBID] = true
         let hopDataChart = {}
-        hopDataChart.datasets = [ { label: 'datatype', data: dataHOP.data.data.chartPackage.datasets[0].data } ]
+        hopDataChart.datasets = dataHOP.data.data.chartPackage.datasets // [ { label: dataHOP.data.data.chartPackage.datasets[0].label, data: dataHOP.data.data.chartPackage.datasets[0].data } ]
         hopDataChart.labels = dataHOP.data.data.chartPackage.labels
         this.visData[matchBBID] = hopDataChart
         this.storeBentoBox.setChartstyle(matchBBID, dataHOP.context.moduleorder.visualise.value.info.settings.visualise)
@@ -454,8 +461,21 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
       let NXPcontract = this.boxLibSummary[boxid].data
       let key = Object.keys(this.boxLibSummary[boxid].data)
-      let modulesContracts = NXPcontract[key].modules
-      let extractedOD = this.storeLibrary.utilLibrary.moduleExtractSettings(modulesContracts)
+      // now update compute contract to latest one back from HOP
+      let computeLatestModules = []
+      for (let mod of this.boxLibSummary[boxid].data[key[0]].modules) {
+        if (mod.value.style === 'compute') {
+          let lastMod = this.computeModuleLast[boxid]
+          computeLatestModules.push(lastMod)
+        } else {
+          computeLatestModules.push(mod)
+        }
+      }
+      this.boxLibSummary[boxid].data.modules = computeLatestModules
+      // let modulesContracts = NXPcontract[key[0]].modules
+      let extractedOD = this.storeLibrary.utilLibrary.moduleExtractSettings(computeLatestModules)
+      console.log('extracted settings default')
+      console.log(extractedOD)
       this.storeBentoBox.openDataSettings[boxid] = extractedOD
       return true
     },

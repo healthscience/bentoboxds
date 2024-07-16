@@ -75,8 +75,6 @@ export const accountStore = defineStore('account', {
       shareInfo.reftype = 'null'
       shareInfo.privacy = 'private'
       shareInfo.data = shareContext
-      console.log('share')
-      console.log(shareInfo)
       this.sendMessageHOP(shareInfo)
     },
     processAgentStatus (data) {

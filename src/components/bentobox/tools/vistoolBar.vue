@@ -27,10 +27,10 @@
       </div>
     </div>
     <div id="chart-style-tools" class="network-tools">
-        <button class="chart-type" @click.prevent="chartSelect()">Bar</button>
-        <button class="chart-type" @click.prevent="chartSelect()">Line</button>
-        <button class="chart-type" @click.prevent="chartSelect()">Simulation</button>
-        <button class="chart-type" @click.prevent="chartSelect()">Table</button>
+        <button class="chart-type" @click.prevent="chartSelect('bar')"  v-bind:class="{ active: storeBentobox.chartStyle[props.bboxid] === 'bar'}">Bar</button>
+        <button class="chart-type" @click.prevent="chartSelect('line')" v-bind:class="{ active: storeBentobox.chartStyle[props.bboxid] ===  'line' }">Line</button>
+        <button class="chart-type" @click.prevent="chartSelect('simulation')" v-bind:class="{ active: storeBentobox.chartStyle[props.bboxid] === 'simulation' }">Simulation</button>
+        <button class="chart-type" @click.prevent="chartSelect('table')" v-bind:class="{ active: storeBentobox.chartStyle[props.bboxid] === 'table' }">Table</button>
       <!--<li>
         <button @click.prevent="chartSelect()">Mixed</button>
       </li>
@@ -81,7 +81,6 @@ const selectedTimeFormat = ref('timeseries')
 
 /* methods */
 const openDataToolbar = () => {
-  console.log('open toolba r clicke')
  // storeBentobox.boxToolStatus[props.bboxid].opendatatools.active = !storeBentobox.boxToolStatus[props.bboxid].opendatatools.active
  storeBentobox.bbToolbarOpendata[props.bboxid] = !storeBentobox.bbToolbarOpendata[props.bboxid]
  storeAI.prepareLibrarySummary(props.bboxid)
@@ -96,27 +95,48 @@ const viewMap = () => {
 }
 
 const setTimeFormat = () => {
-  console.log('set time format')
+    // get the library contracts
+    storeAI.prepareLibrarySummary(props.bboxid)
+    // no summary if already save  NEED other way to set contect
+    // what updates are there moduels?  Device/source, compute, vis controls or settings?
+    let moduleUpdate = {}
+    let computeChanges = {}
+    // controls
+    if (selectedTimeFormat.value === 'timeseries') {
+      computeChanges.controls = { timeformat: selectedTimeFormat.value }
+    } else if (selectedTimeFormat.value === 'overlay') {
+      computeChanges.controls = { timeformat: selectedTimeFormat.value }
+    }
+    // any settings changes?
+    moduleUpdate.compute = computeChanges
+    // prepare HOPquery
+    let entityID = Object.keys(storeAI.boxLibSummary[props.bboxid].data)
+    let HOPcontext = {}
+    HOPcontext.entityUUID = storeAI.boxLibSummary[props.bboxid].data[entityID[0]].shellID
+    HOPcontext.bbid = props.bboxid
+    // HOPcontext.modules = storeAI.boxLibSummary[props.bboxid].data[entityID[0]].modules
+    HOPcontext.exp = { key: entityID[0], update: storeAI.boxLibSummary[props.bboxid].data }
+    HOPcontext.update = {}
+    let updateECS = {}
+    updateECS.entityUUID = storeAI.boxLibSummary[props.bboxid].data[entityID[0]].shellID
+    updateECS.input = 'refUpdate'
+    updateECS.modules = storeAI.boxLibSummary[props.bboxid].data.modules // storeAI.updateHOPqueryContracts[props.bboxid].data[entityID[0]].modules
+    updateECS.changes = moduleUpdate
+    HOPcontext.update = updateECS
+    // close the calendar options and dispay date summary selected
+    storeLibrary.updateHOPqueryContracts(HOPcontext)
 }
 
 const labelsSelect = () => {
-  // this.liveData.data.chartOptions.legend.display = !this.liveData.data.chartOptions.legend.display
-  let legendContext = {}
-  legendContext.shellID = '' // this.shellID
-  legendContext.moduleCNRL = '' // this.moduleCNRL
-  legendContext.moduleType = '' // this.moduleType
-  legendContext.mData = '' // his.mData
-  // this.$store.dispatch('actionLegendStatus', legendContext)
+  storeAI.boxSettings.legends = !storeAI.boxSettings.legends
 }
 
 const tidySelect = () => {
   tidyData.value = !tidyData.value
+  libraryStore.tidyOption = tidyData.value
   // get the modules to update HOPquery
   storeAI.prepareLibrarySummary(props.bboxid)
-  console.log('exsting HOPquery')
   let entityID = Object.keys(storeAI.boxLibSummary[props.bboxid].data)
-  console.log(entityID)
-  console.log(props.bboxid)
   // match box to HOPid
   let matchHOPid = ''
   for (let hpbid of storeAI.bbidHOPid) {
@@ -124,18 +144,12 @@ const tidySelect = () => {
       matchHOPid = hpbid.HOPid
     }
   }
-  // console.log(storeLibrary.peerExperimentList)
-  console.log(matchHOPid)
-  console.log(storeAI.hopSummary)
-  console.log(storeAI.hopSummary)
   let existingNXP = {}
   for (let summaryMatch of storeAI.hopSummary) {
     if (summaryMatch.HOPid === matchHOPid) {
       existingNXP = summaryMatch.summary
     }
   }
-  console.log(existingNXP.data)
-  console.log(Object.keys(existingNXP.data))
   let expID = Object.keys(existingNXP.data)
   // prepare structure for updates
   // any settings changes?
@@ -157,8 +171,9 @@ const tidySelect = () => {
   storeLibrary.updateHOPqueryContracts(HOPcontext)
 }
 
-const chartSelect = () => {
-  console.log('char ttype')
+const chartSelect = (chartstyle) => {
+  // storeAI.boxSettings.chartstyle = chartstyle
+  storeBentobox.chartStyle[props.bboxid] = chartstyle
 }
 
 /*  computed */

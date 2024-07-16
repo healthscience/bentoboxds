@@ -105,7 +105,6 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   }
 
   const spaceCommentary = (spaceID) => {
-    console.log('agent review of this space')
     storeAI.bentospaceState = !storeAI.bentospaceState
     storeAI.liveBspace = spaceID
     // make button green

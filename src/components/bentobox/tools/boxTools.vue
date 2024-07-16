@@ -29,7 +29,7 @@
           Tools
         </button>
       </div>
-      <div class="bb-bar-main">
+      <div class="bb-bar-main" v-if="expandFocus !== true">
         <button @click="clickExpandBentobox(props.bboxid)">
          expand
         </button>
@@ -91,14 +91,18 @@ const timeformatoptions = ref([
 const selectedTimeFormat = ref('timeseries')
 
 
-const clickVisTools = (boxid) => {
-  storeBentobox.boxtoolsShow[boxid] = !storeBentobox.boxtoolsShow[boxid]
-}
+  const clickVisTools = (boxid) => {
+    storeBentobox.boxtoolsShow[boxid] = !storeBentobox.boxtoolsShow[boxid]
+  }
 
-/* computed */
-const boxToolsShow = computed(() => {
-  return storeBentobox.boxtoolsShow[props.bboxid]
-})
+  /* computed */
+  const boxToolsShow = computed(() => {
+    return storeBentobox.boxtoolsShow[props.bboxid]
+  })
+
+  const expandFocus = computed(() => {
+    return storeAI.expandBentobox[props.bboxid]    
+  })
 
   /* methods */
   const openLibrary = () => {
@@ -148,7 +152,7 @@ const boxToolsShow = computed(() => {
     let NXPcontract = {}
     NXPcontract.key = Object.keys(storeAI?.boxLibSummary[props.bboxid].data)
     let modKeys = []
-    for (let mod of storeAI.boxLibSummary[props.bboxid].data[NXPcontract.key].modules) {
+    for (let mod of storeAI.boxLibSummary[props.bboxid].data.modules) { // [NXPcontract.key].modules) {
       modKeys.push(mod.key)
     }
     NXPcontract.modules = modKeys

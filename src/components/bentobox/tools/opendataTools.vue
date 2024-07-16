@@ -4,7 +4,7 @@
       <div id="context-devices" class="live-kelement">
         <header>Devices:</header>
         <label for="devices-select"></label>
-        <select class="select-device-id" id="device-mapping-build" v-model="deviceSettings.devices">
+        <select class="select-device-id" id="device-mapping-build" v-model="deviceSettings.device">
           <option value="none" >please select</option>
           <option v-for="dev in deviceList">
             {{ dev }}
@@ -50,15 +50,16 @@
     </div>
     <div id="live-context-category" class="knowledge-item">
       <header>Category</header>
-          <div id="cat-items">
-            <label for="category-select"></label>
-            <select class="select-category-id" id="category-mapping-build" v-model="deviceSettings.category">
-              <option value="please" selected="">Please select</option>
-              <option v-for="catL in opendataSettingsLive.category">
-                {{ catL }}
-              </option>
-            </select>
-          </div>
+        <div id="cat-items">
+          <label for="category-select"></label>
+          <select class="select-category-id" id="category-mapping-build" v-model="deviceSettings.category">
+            <option value="please" selected="">Please select</option>
+            <option v-for="catL in opendataSettingsLive.category">
+              {{ catL }}
+            </option>
+          </select>
+        </div>
+        <button id="update-open-data" @click="updateOpenDataHOP()">update</button>
         <div v-if="feedback.categories" class="feedback">---</div>
     </div>
     <!--<div id="context-time" class="live-kelement knowledge-item">
@@ -102,8 +103,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   let feedback = ref([])
   let deviceSettings = ref( {
-      devices: ['mac'],
-      xaxis: ['time'],
+      device: {},
+      xaxis: '',
       yaxis: [],
       category: ''
     })
@@ -115,8 +116,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   /*  computed */
   const deviceList = computed(() => {
-    console.log(storeBentobox.openDataSettings[props.bboxid].devices)
-    return storeBentobox.openDataSettings[props.bboxid].devices // [{ device_name: 'aaa', device_mac: 'pdodld' }]
+    return storeBentobox.openDataSettings[props.bboxid].devices
   })
 
   const computeList = computed(() => {
@@ -127,11 +127,51 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     return storeBentobox.openDataSettings[props.bboxid]
   })
 
-
   const resolution = computed(() => {
     let resolutionOptions =  [22, 22, 22]
     return resolutionOptions
   })
+
+  /* methods */
+  const updateOpenDataHOP = () => {
+    console.log('open data update')
+    console.log(deviceSettings)
+    // get the library contracts
+    storeAI.prepareLibrarySummary(props.bboxid)
+    console.log('latest summary ++++++++++')
+    console.log(storeAI.boxLibSummary[props.bboxid])
+    // no summary if already save  NEED other way to set contect
+    // what updates are there moduels?  Device/source, compute, vis controls or settings?
+    let moduleUpdate = {}
+    let computeChanges = {}
+    let selectedDevice = deviceSettings.value.device
+    let mutDate = ''
+    let tidyOp = true
+    // controls
+    computeChanges.controls = { device: selectedDevice, tidy: tidyOp, category: false }
+    computeChanges.settings = { xaxis: deviceSettings.xaxis, yaxis: deviceSettings.yaxis }
+
+    // any settings changes?
+    moduleUpdate.compute = computeChanges
+    // prepare HOPquery
+    let HOPcontext = {}
+    let entityID = Object.keys(storeAI.boxLibSummary[props.bboxid].data)
+    HOPcontext.entityUUID = storeAI.boxLibSummary[props.bboxid].data[entityID[0]].shellID
+    HOPcontext.bbid = props.bboxid
+    // HOPcontext.modules = storeAI.boxLibSummary[props.bboxid].data[entityID[0]].modules
+    HOPcontext.exp = { key: entityID[0], update: storeAI.boxLibSummary[props.bboxid].data }
+    HOPcontext.update = {}
+    let updateECS = {}
+    updateECS.entityUUID = storeAI.boxLibSummary[props.bboxid].data[entityID[0]].shellID
+    updateECS.input = 'refUpdate'
+    updateECS.modules = storeAI.boxLibSummary[props.bboxid].data[entityID[0]].modules
+    updateECS.changes = moduleUpdate
+    HOPcontext.update = updateECS
+    console.log('opend ata update---------')
+    console.log(HOPcontext)
+    // close the calendar options and dispay date summary selected
+    storeLibrary.updateHOPqueryContracts(HOPcontext)
+  }
 
 </script>
 
@@ -167,6 +207,14 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     height: 80px;
     overflow-y: scroll;
   }
+
+  #update-open-data {
+    margin-top: 4em;
+    font-size: 1.2em;
+    padding-left: 2em;
+    padding-right: 2em;
+  }
+
 }
 
 </style>

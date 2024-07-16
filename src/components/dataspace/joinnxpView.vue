@@ -53,6 +53,7 @@
         {{ gmod?.value?.info?.value?.computational?.name }} Set default toolbar:
         <!--<chart-builder class="vis-area" v-if="NXPJoinModuleVisualise" :shellID="shellID" :moduleCNRL="moduleCNRL" :moduleType="moduleType" :mData="mData" ></chart-builder>-->
       </div>
+      <chart-toolbar></chart-toolbar>
       <opendata-tool :bboxid="'genesis-123579'" :setOptions="settingsOptions"></opendata-tool>
     </div>
   </div>
@@ -69,6 +70,7 @@
 
 <script setup>
 import SpaceUpload from '@/components/dataspace/upload/uploadSpace.vue'
+import ChartToolbar from '@/components/bentobox/tools/chartBarJoin.vue'
 import OpendataTool from '@/components/bentobox/tools/opendataToolsJoin.vue'
 import { ref, computed } from 'vue'
 import { DateTime, Interval } from 'luxon'
@@ -123,16 +125,13 @@ import { libraryStore } from '@/stores/libraryStore.js'
   }
 
   const querySourceDataDevices = (moduleCont) => {
-    console.log('yes show me the devices I have for this data source')
-    console.log(moduleCont)
     let messageHOP = {}
     messageHOP.type = 'library'
     messageHOP.action = 'source'
-    messageHOP.reftype = moduleCont.concept.path
+    messageHOP.reftype = 'sqlite' // moduleCont.concept.path
     messageHOP.privacy = 'private'
     messageHOP.task = 'GET'
     messageHOP.data = { query: 'devices', db: moduleCont.concept.filename, table: moduleCont.concept.devicequery }
-    console.log(messageHOP)
     // send
     storeLibrary.sendMessage(messageHOP)
   }
@@ -142,15 +141,16 @@ import { libraryStore } from '@/stores/libraryStore.js'
     let millsDate
     // check date has been selected
     if (boxDate.value !== null) {
-      console.log(boxDate.value)
       let luxTime = DateTime.fromJSDate(boxDate.value).startOf('day')
       millsDate = luxTime.toMillis()
-      console.log(millsDate)
       // update compute contract settings
-      let settingsJoin = {}
-      settingsJoin = storeLibrary.joinOptions
-      settingsJoin.time = millsDate
-      storeLibrary.prepareJoinNXPMessage(genesisNXP, settingsJoin, settingsOptions)
+      console.log('slelect controls')
+      let controlsJoin = {}
+      controlsJoin = storeLibrary.joinOptions
+      controlsJoin.time = millsDate
+      controlsJoin.tidy = true
+      controlsJoin.resolution = 'default'
+      storeLibrary.prepareJoinNXPMessage(genesisNXP, controlsJoin, settingsOptions)
     } else {
       // prompt to select date
       storeLibrary.joinFeedback = true

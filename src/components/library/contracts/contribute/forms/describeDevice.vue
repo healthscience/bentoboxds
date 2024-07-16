@@ -7,15 +7,15 @@
       <div id="manual-device-info">
         <button @click="setDevicequery()">Device query</button>
       </div>
-      <div id="manual-device-info">
-        <button @click="setDeviceFirmwareHistory()">Firmware history</button>
-      </div>
     </div>
     <div class="device-select" v-if="deviceQuery === true">
       <div id="desribe-source-device">
         <describe-datastructure></describe-datastructure>
       </div>
       <!--<input type="text" v-model="storeLibrary.newPackagingForm.device.query">-->
+    </div>
+    <div id="firmware-device-info">
+        <button @click="setDeviceFirmwareHistory()">Firmware history</button>
     </div>
     <div class="device-select" v-if="deviceFirmware === true">
       <div id="desribe-source-device">

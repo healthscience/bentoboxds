@@ -76,13 +76,13 @@
       <module-view v-if="viewType === 'module-view'">
         <template v-slot:header>
           <div v-if="cd.value.info?.moduleinfo">
-          Module info:
+          Module info peer:
           <div class="key-hash"> {{ cd.key }} </div>
           <div class="value-info"> {{ cd.value.info.moduleinfo.name }} </div>
           <div class="value-info-small">{{ cd.value.info }}</div>
         </div>
         <div v-else>
-          Module info:
+          Module info peer:  == {{ cd }}
           <div class="key-hash"> {{ cd.key }} </div>
           <div class="key-hash">type: {{ cd.value.type }} link-- {{ cd.value.link }}</div>
           <div class="value-info-small"> {{ cd.value.info }} </div>
