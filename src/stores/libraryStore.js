@@ -364,6 +364,8 @@ export const libraryStore = defineStore('librarystore', {
       this.sendSocket.send_message(libMessageout)
     },
     prepareLibraryViewMessage (contract, action) {
+      console.log('view nxp')
+      console.log(contract)
       // create a bbid
       let boxID = {}
       boxID.contract = contract
@@ -395,7 +397,7 @@ export const libraryStore = defineStore('librarystore', {
       reply.type = 'experiment'
       reply.data = {}
       pairBB.reply = reply
-      this.storeAI.historyPair[this.storeAI.chatAttention] = []
+      // this.storeAI.historyPair[this.storeAI.chatAttention] = []
       this.storeAI.historyPair[this.storeAI.chatAttention].push(pairBB)
       this.storeAI.chatBottom++
       this.sendSocket.send_message(libMessageout)

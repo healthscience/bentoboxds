@@ -74,9 +74,11 @@ import { DateTime, Interval } from 'luxon'
 import { ref, computed, onMounted, onBeforeMount, shallowRef } from 'vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { libraryStore } from '@/stores/libraryStore.js'
+import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
   const storeAI = aiInterfaceStore()
   const storeLibrary = libraryStore()
+  const storeBentobox = bentoboxStore()
 
   const props = defineProps({
     bboxid: String
@@ -139,6 +141,9 @@ const handleDate = () => {
 }
 
   const updateHOPquery = () => {
+    console.log('what are the open data seetings sayinsg')
+    console.log(storeBentobox.openDataSettings[props.bboxid])
+    console.log(storeBentobox.openDataControls[props.bboxid])
     // prepare update for HOP
     // what time period is active, single, pick or range? Or update via open data settings?
     let hopTime = []
@@ -167,17 +172,38 @@ const handleDate = () => {
     let moduleUpdate = {}
     let computeChanges = {}
     let selectedDevice = ''
-    // controls
-    if (selectedTimeBundle.value === 'single') {
-      let timeMills = hopTime
-      computeChanges.controls = { device: selectedDevice, date: timeMills[0], rangedate: timeMills, tidy: tidyOp.value, category: false }
-    } else if (selectedTimeBundle.value === 'range') {
-      let timeMills = hopTime
-      computeChanges.controls = { device: selectedDevice, date: timeMills[0], rangedate: timeMills, tidy: tidyOp.value, category: false  }
-    } else if (selectedTimeBundle.value === 'multi') {
-      let timeMills = hopTime
-      computeChanges.controls = { device: selectedDevice, date: timeMills[0], rangedate: timeMills, tidy: tidyOp.value, category: false }
+    let currentYaxis = []
+    if (storeBentobox.openDataControls[props.bboxid] !== undefined) {
+      if (storeBentobox.openDataControls[props.bboxid].yaxis.length > 0) {
+        for (let ya of storeBentobox.openDataControls[props.bboxid].yaxis) {
+          currentYaxis.push(ya)
+        }
+        // controls
+        if (selectedTimeBundle.value === 'single') {
+          let timeMills = hopTime
+          computeChanges.controls = { device: selectedDevice, yaxis: currentYaxis, date: timeMills[0], rangedate: timeMills, tidy: tidyOp.value, category: false }
+        } else if (selectedTimeBundle.value === 'range') {
+          let timeMills = hopTime
+          computeChanges.controls = { device: selectedDevice, yaxis: currentYaxis, date: timeMills[0], rangedate: timeMills, tidy: tidyOp.value, category: false  }
+        } else if (selectedTimeBundle.value === 'multi') {
+          let timeMills = hopTime
+          computeChanges.controls = { device: selectedDevice, yaxis: currentYaxis, date: timeMills[0], rangedate: timeMills, tidy: tidyOp.value, category: false }
+        }
+      }
+    } else {
+      // controls
+      if (selectedTimeBundle.value === 'single') {
+        let timeMills = hopTime
+        computeChanges.controls = { device: selectedDevice, date: timeMills[0], rangedate: timeMills, tidy: tidyOp.value, category: false }
+      } else if (selectedTimeBundle.value === 'range') {
+        let timeMills = hopTime
+        computeChanges.controls = { device: selectedDevice, date: timeMills[0], rangedate: timeMills, tidy: tidyOp.value, category: false  }
+      } else if (selectedTimeBundle.value === 'multi') {
+        let timeMills = hopTime
+        computeChanges.controls = { device: selectedDevice, date: timeMills[0], rangedate: timeMills, tidy: tidyOp.value, category: false }
+      }
     }
+
     // any settings changes?
     moduleUpdate.compute = computeChanges
     // prepare HOPquery

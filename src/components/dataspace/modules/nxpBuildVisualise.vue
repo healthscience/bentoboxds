@@ -1,6 +1,6 @@
 <template>
   <div id="visualise-nxp-build">
-    <header>VISUALISE BUILDER:</header> {{ livePackaging }}
+    <header>VISUALISE BUILDER:</header>
     <div id="prime-visualise-build" v-if="props.refFocus === 'visualise'">
       <header>Type of visualisation:</header>
       <div  v-if="refContractVisualise">

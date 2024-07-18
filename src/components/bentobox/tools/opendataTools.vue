@@ -4,10 +4,15 @@
       <div id="context-devices" class="live-kelement">
         <header>Devices:</header>
         <label for="devices-select"></label>
-        <select class="select-device-id" id="device-mapping-build" v-model="deviceSettings.device">
+        <select class="select-device-id" id="device-mapping-build" v-model="opendataSettings.device">
           <option value="none" >please select</option>
           <option v-for="dev in deviceList">
-            {{ dev }}
+            <div v-if="dev?.NAME">
+              {{ dev.NAME }}
+            </div>
+            <div v-else>
+              {{ dev }}
+            </div>
           </option>
         </select>
       </div>
@@ -15,7 +20,7 @@
     <div id="context-compute" class="knowledge-item">
       <header>Compute:</header>
       <label for="compute-select"></label>
-      <select class="select-compute-id" id="compute-mapping-build" v-model="deviceSettings.compute">
+      <select class="select-compute-id" id="compute-mapping-build" v-model="opendataSettings.compute">
         <option value="none" >please select</option>
         <option v-for="compL in computeList">
           {{ compL.value.computational.name }}
@@ -27,7 +32,7 @@
         <header>X-axis</header>
         <div v-if="opendataSettingsLive.xaxis.length > 0">
           <label for="xaxis-select"></label>
-          <select class="select-xaxis-id" id="xaxis-mapping-build" v-model="deviceSettings.xaxis">
+          <select class="select-xaxis-id" id="xaxis-mapping-build" v-model="opendataSettings.xaxis">
             <option value="none" selected="">please select</option>
             <option v-for="colpair in opendataSettingsLive.xaxis">
             {{ colpair }}
@@ -39,9 +44,9 @@
         <header>Y-axis</header>
         <div v-if="opendataSettingsLive.yaxis.length > 0">
           <label for="yaxis-select"></label>
-          <select id="yaxis-mapping-build" v-model="deviceSettings.yaxis" multiple>
+          <select id="yaxis-mapping-build" v-model="opendataSettings.yaxis" multiple>
             <option value="none" selected="">please select</option>
-            <option v-for="colpairy in opendataSettingsLive.yaxis">
+            <option v-for="colpairy in opendataSettingsLive.yaxis" :value="colpairy">
             {{ colpairy.column }}
             </option>
           </select>
@@ -52,10 +57,10 @@
       <header>Category</header>
         <div id="cat-items">
           <label for="category-select"></label>
-          <select class="select-category-id" id="category-mapping-build" v-model="deviceSettings.category">
+          <select class="select-category-id" id="category-mapping-build" v-model="opendataSettings.category">
             <option value="please" selected="">Please select</option>
             <option v-for="catL in opendataSettingsLive.category">
-              {{ catL }}
+              {{ catL.category }}
             </option>
           </select>
         </div>
@@ -66,7 +71,7 @@
       <header>Time Period:</header>
           <div id="time-items">
             <label for="time-select"></label>
-            <select class="select-time-id" id="time-mapping-build" v-model="deviceSettings.timeperiod">
+            <select class="select-time-id" id="time-mapping-build" v-model="opendataSettings.timeperiod">
               <option value="none" selected="">please select</option>
               <option v-for="t in time">
                 {{ t.text }}
@@ -80,7 +85,7 @@
         <div class="live-item"></div>
           <div id="resolution-items">
             <label for="resolution-select"></label>
-            <select class="select-resolution-id" id="resolution-mapping-build" v-model="deviceSettings.resolution">
+            <select class="select-resolution-id" id="resolution-mapping-build" v-model="opendataSettings.resolution">
               <option value="none" selected="">please select</option>
               <option v-for="rs in resolution">
                 {{ rs.text }}
@@ -102,7 +107,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   const storeBentobox = bentoboxStore()
 
   let feedback = ref([])
-  let deviceSettings = ref( {
+  let opendataSettings = ref( {
       device: {},
       xaxis: '',
       yaxis: [],
@@ -135,7 +140,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   /* methods */
   const updateOpenDataHOP = () => {
     console.log('open data update')
-    console.log(deviceSettings)
+    console.log(opendataSettings.value)
     // get the library contracts
     storeAI.prepareLibrarySummary(props.bboxid)
     console.log('latest summary ++++++++++')
@@ -144,13 +149,14 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     // what updates are there moduels?  Device/source, compute, vis controls or settings?
     let moduleUpdate = {}
     let computeChanges = {}
-    let selectedDevice = deviceSettings.value.device
+    let selectedDevice = opendataSettings.value.device
     let mutDate = ''
     let tidyOp = true
     // controls
-    computeChanges.controls = { device: selectedDevice, tidy: tidyOp, category: false }
-    computeChanges.settings = { xaxis: deviceSettings.xaxis, yaxis: deviceSettings.yaxis }
-
+    computeChanges.controls = { xaxis: opendataSettings.value.xaxis, yaxis: opendataSettings.value.yaxis, device: selectedDevice, tidy: tidyOp, category: false }
+    computeChanges.settings = { xaxis: opendataSettings.value.xaxis, yaxis: opendataSettings.value.yaxis }
+    // keep track of latest controls for other toolbars context
+    storeBentobox.openDataControls[props.bboxid] = computeChanges.controls
     // any settings changes?
     moduleUpdate.compute = computeChanges
     // prepare HOPquery

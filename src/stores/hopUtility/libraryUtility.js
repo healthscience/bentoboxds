@@ -198,11 +198,16 @@ class LibraryUtility { //  extends EventEmitter {
     let modSettings = {}
     for (let mod of modulesList) {
       if (mod.value.style === 'compute') {
-        console.log(mod)
-        modSettings.xaxis = ['time'] // mod.value.info.settings.xaxis
-        modSettings.yaxis = mod.value.info.settings.yaxis
-        modSettings.category = mod.value.info.settings.category
+        // modSettings.xaxis = ['time'] // mod.value.info.settings.xaxis
+        // modSettings.yaxis = mod.value.info.settings.yaxis
+        // modSettings.category = mod.value.info.settings.category
         modSettings.devices = mod.value.info.settings.devices
+      } else if (mod.value.style === 'packaging') {
+        console.log('packaigna base')
+        console.log(mod.value.info.value)
+        modSettings.xaxis = ['time'] // mod.value.info.settings.xaxis
+        modSettings.yaxis = mod.value.info.value.concept.tablestructure
+        modSettings.category = mod.value.info.value.concept.category
       }
     }
     return modSettings

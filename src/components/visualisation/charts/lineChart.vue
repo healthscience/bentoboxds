@@ -42,12 +42,12 @@ const props = defineProps({
             type: 'time',
             /* time: {
               unit: 'month'
-            } */
+            }
             time: {
               displayFormats: {
                quarter: 'MMM YYYY'
               }
-            }
+            } */
           },
           y: {
             beginAtZero: true

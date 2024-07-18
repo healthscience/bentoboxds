@@ -428,7 +428,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
     'bentobox-tools bentobox-tools bentobox-tools'
     'boxnow vertdragbar boxfuture'
     'expand expand expand';
-    grid-template-rows: 1fr 300px 30px;
+    grid-template-rows: 1fr 500px 30px;
     grid-template-columns: 4fr 6px .5fr;
     height: auto;
     width: var(--bentoboxWidth);
@@ -503,7 +503,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
     background-color: rgb(245, 247, 245);
     grid-area: boxnow;
     overflow: hidden;
-    min-height: 30vh;
+    min-height: 500px;
   }
 
   #vertdragbar {
@@ -517,7 +517,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
     background-color: rgb(241, 238, 231);
     grid-area: boxfuture;
     overflow: hidden;
-    min-height: 30vh;
+    min-height: 500px;
   }
 
   #expand {
@@ -541,7 +541,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
     background-color: rgb(245, 247, 245);
     grid-area: netboxnow;
     overflow: hidden;
-    min-height: 30vh;
+    min-height: 40vh;
   }
 
   #networkbox-future {
@@ -549,12 +549,12 @@ import { libraryStore } from '@/stores/libraryStore.js'
     background-color: rgb(241, 238, 231);
     grid-area: netboxfuture;
     overflow: hidden;
-    min-height: 30vh;
+    min-height: 40vh;
   }
 
   #bento-past {
     position: relative;
-    height: 80%;
+    height: 90%;
     min-width: 20vw;
     margin: 1em;
     border: 1px solid orange;

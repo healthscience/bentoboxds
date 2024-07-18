@@ -48,34 +48,34 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   }
 
   const actionBoard = (board, NXPcontract) => {
-      if (NXPcontract === 'View') {
-        storeLibrary.prepareLibraryViewMessage(board, 'networkexperiment')
-        storeAI.dataBoxStatus = true
-        // this.$store.dispatch('actionHOPoutState', board)
-        // this.$store.dispatch('actionDashboardState', board)
-      } else if (NXPcontract === 'Join') {
-        storeLibrary.joinSelected = board
-        storeLibrary.joinNXP = true
-        storeLibrary.uploadStatus = true
-        // need to look at queries and perform them
+    if (NXPcontract === 'View') {
+      storeLibrary.prepareLibraryViewMessage(board, 'networkexperiment')
+      storeAI.dataBoxStatus = true
+      // this.$store.dispatch('actionHOPoutState', board)
+      // this.$store.dispatch('actionDashboardState', board)
+    } else if (NXPcontract === 'Join') {
+      storeLibrary.joinSelected = board
+      storeLibrary.joinNXP = true
+      storeLibrary.uploadStatus = true
+      // need to look at queries and perform them
 
-      } else {
-        // preview network experiment
-        // this.$store.dispatch('actionJOINViewexperiment', board)
-        // this.refContractLookup()
-      }
+    } else {
+      // preview network experiment
+      // this.$store.dispatch('actionJOINViewexperiment', board)
+      // this.refContractLookup()
     }
+  }
 
-    const removeExp = (exp) => {
-      storeLibrary.removeExpModContract(exp.id, props.privacy)
-      if (props.privacy === 'private') {
-        let index = storeLibrary.peerExperimentList.data.indexOf(exp.id)
-        storeLibrary.peerExperimentList.data.splice(index, 1)
-      } else if (props.privacy === 'public') {
-        let index = storeLibrary.listPublicNXP.data.indexOf(exp.id)
-        storeLibrary.listPublicNXP.data.splice(index, 1)
-      }
+  const removeExp = (exp) => {
+    storeLibrary.removeExpModContract(exp.id, props.privacy)
+    if (props.privacy === 'private') {
+      let index = storeLibrary.peerExperimentList.data.indexOf(exp.id)
+      storeLibrary.peerExperimentList.data.splice(index, 1)
+    } else if (props.privacy === 'public') {
+      let index = storeLibrary.listPublicNXP.data.indexOf(exp.id)
+      storeLibrary.listPublicNXP.data.splice(index, 1)
     }
+  }
 
 </script>
 

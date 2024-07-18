@@ -38,6 +38,7 @@ export const bentoboxStore = defineStore('bentostore', {
     boxtoolsShow: {},
     vistoolsStatus : {},
     openDataSettings: {},
+    openDataControls: {},
     locationStart: 90,
     scaleZoom: 1,
     locationBbox: {
@@ -89,6 +90,7 @@ export const bentoboxStore = defineStore('bentostore', {
                 this.boxtoolsShow[cm.key] = false
                 this.bbToolbarOpendata[cm.key] = false
                 this.openDataSettings[cm.key] = {}
+                this.openDataControls[cm.key] = {}
                 // loop over boxids for this chat
                 let pairCount = 0
                 for (let pair of cm?.value?.pair) {
