@@ -375,6 +375,7 @@ export const libraryStore = defineStore('librarystore', {
       let time = date.toLocaleTimeString()
       boxID.time =  time
       let contractQuery = this.utilLibrary.matchNXPcontract(contract.id, this.peerLibraryNXP)
+      console.log(contractQuery)
       let bbidHash = hashObject(boxID)
       let libMessageout = {}
       libMessageout.type = 'library'
@@ -395,11 +396,26 @@ export const libraryStore = defineStore('librarystore', {
       let reply = {}
       reply.time = new Date()
       reply.type = 'experiment'
-      reply.data = {}
+      reply.data = contract.id
       pairBB.reply = reply
       // this.storeAI.historyPair[this.storeAI.chatAttention] = []
       this.storeAI.historyPair[this.storeAI.chatAttention].push(pairBB)
       this.storeAI.chatBottom++
+      console.log('exisign experiemnt view')
+      console.log(libMessageout)
+      this.sendSocket.send_message(libMessageout)
+    },
+    prepareLibraryViewFromContract (bbid, contractID) {
+      let contractQuery = this.utilLibrary.matchNXPcontract(contractID, this.peerLibraryNXP)
+      console.log(contractQuery)
+      let libMessageout = {}
+      libMessageout.type = 'library'
+      libMessageout.action = 'contracts'
+      libMessageout.reftype = 'experiment'
+      libMessageout.privacy = 'private'
+      libMessageout.task = 'assemble'
+      libMessageout.data = contractQuery
+      libMessageout.bbid = bbid
       this.sendSocket.send_message(libMessageout)
     },
     prepareGenesisModContracts (message) {

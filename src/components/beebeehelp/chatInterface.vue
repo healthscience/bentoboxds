@@ -3,7 +3,7 @@
     <!-- Natural Language Chat -->
     <div id="natlang-ai">
       <welcome-beebee></welcome-beebee>
-      <div id="conversation" v-if="beginChat === true"  v-for="chati in chatPairs">
+      <div id="conversation" v-if="beginChat === true"  v-for="chati in chatPairs">cp--{{ chati }}
         <div class="peer-ask">
           <img class="left-chat-peer" src="../.././assets/peerlogo.png" alt="Avatar">
           <div v-if="chati.question?.data?.active === true" class="left-chat"> {{ chati.question?.data?.text }} </div>
@@ -13,7 +13,10 @@
           <span class="right-time">{{ chati.reply.time }}</span>
           <div class="reply-text-chart">
             <div class="right-chat">
-              {{ chati.reply.type }}  {{ chati.reply.action }}
+              {{ chati.reply.type }} {{ chati.reply.action }}
+              <div v-if="chati.reply.type === 'experiment' && chati.reply.data">
+                <button @click="viewSaveExperiment(chati.question.bbid, chati.reply.data)">View experiment</button>
+              </div>
               <div v-if="chati.reply.type === 'hopquery'">
                 <span>Datatype: {{ chati.data.library.text }} for month {{ chati.data.time.words.day }} day {{ chati.data.time.words.month }}</span>---
                 <button id="new-query" @click.prevent="beebeeChartSpace(chati.data)">yes, produce chart</button>
@@ -52,7 +55,7 @@
                               {{ dopt }}
                             </button>
                           </div>
-                          <div v-else>ddd22
+                          <div v-else>
                               <button class="data-option-select" @click.prevent="dataOptionVis(index, dopt, chati.reply.bbid, chati.reply?.data?.options )">
                                 {{ dopt.name }}
                               </button>
@@ -60,7 +63,7 @@
                           <button class="data-option-select" :class="{ active: index === isDateColumn }" @click.prevent="dateOptionSelect(index, dopt, chati.reply.bbid)">date</button>
                         </div>
                       </div>
-                      <div v-else>333
+                      <div v-else>
                         <describe-datastructure :bboxid="chati.reply.bbid" :fileTypeIn="chati.reply?.data?.filedata.type"></describe-datastructure>
                         <div class="data-options"  v-for="(dopt, index) in storeLibrary.newDatafile.columns">{{ dopt }}
                           <div v-if="typeof dopt === 'string'">
@@ -208,6 +211,10 @@ import { libraryStore } from '@/stores/libraryStore.js'
     if (el) {
       el.scrollIntoView({ block: "end" })
     }
+  }
+
+  const viewSaveExperiment = (bbid, contractID) => {
+    storeLibrary.prepareLibraryViewFromContract(bbid, contractID)
   }
 
   const uploadButton = () =>  {

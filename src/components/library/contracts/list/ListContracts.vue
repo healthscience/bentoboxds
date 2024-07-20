@@ -47,8 +47,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     this.sortOrders[key] = this.sortOrders[key] * -1
   }
 
-  const actionBoard = (board, NXPcontract) => {
-    if (NXPcontract === 'View') {
+  const actionBoard = (board, actionType) => {
+    if (actionType === 'View') {
       storeLibrary.prepareLibraryViewMessage(board, 'networkexperiment')
       storeAI.dataBoxStatus = true
       // this.$store.dispatch('actionHOPoutState', board)
