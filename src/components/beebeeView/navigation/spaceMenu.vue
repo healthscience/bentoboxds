@@ -100,6 +100,8 @@ const saveSpacename = () => {
 }
 
 const saveSpaceHistory = (space) => {
+  console.log('space hishto r start save')
+  console.log(space)
   let saveBentoBoxsetting = {}
   saveBentoBoxsetting.type = 'bentobox'
   saveBentoBoxsetting.reftype = 'space-history'
@@ -126,6 +128,8 @@ const deleteSpaceHistory = (space) => {
   delBentoBoxsetting.task = 'delete'
   delBentoBoxsetting.data = space
   delBentoBoxsetting.bbid = ''
+  console.log('dleelel sapce')
+  console.log(delBentoBoxsetting)
   storeAI.sendMessageHOP(delBentoBoxsetting)
 }
 </script>

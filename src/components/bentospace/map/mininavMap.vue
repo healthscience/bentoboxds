@@ -9,13 +9,14 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { mapStore } from '@/stores/mapStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
+import { mapminiStore } from '@/stores/mapStore.js'
 
-  const storeMap = mapStore()
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
+  const storeMmap = mapminiStore()
+  
   
   let openmini = ref(false)
   let offRight = ref('-400px')
@@ -30,7 +31,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   const setMinmapcanvas = () => {
     let c = document.getElementById('minimap-canvas')
     let ctx = c.getContext('2d')
-    // this.$store.dispatch('actionSetminmap', ctx)
+    storeMmap.actionSetminmaph(ctx)
   }
 
   const mouseMiniSelect = (e) => {

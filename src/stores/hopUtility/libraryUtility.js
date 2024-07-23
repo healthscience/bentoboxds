@@ -203,8 +203,6 @@ class LibraryUtility { //  extends EventEmitter {
         // modSettings.category = mod.value.info.settings.category
         modSettings.devices = mod.value.info.settings.devices
       } else if (mod.value.style === 'packaging') {
-        console.log('packaigna base')
-        console.log(mod.value.info.value)
         modSettings.xaxis = ['time'] // mod.value.info.settings.xaxis
         modSettings.yaxis = mod.value.info.value.concept.tablestructure
         modSettings.category = mod.value.info.value.concept.category

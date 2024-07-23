@@ -3,7 +3,7 @@
     <!-- Natural Language Chat -->
     <div id="natlang-ai">
       <welcome-beebee></welcome-beebee>
-      <div id="conversation" v-if="beginChat === true"  v-for="chati in chatPairs">cp--{{ chati }}
+      <div id="conversation" v-if="beginChat === true"  v-for="chati in chatPairs">
         <div class="peer-ask">
           <img class="left-chat-peer" src="../.././assets/peerlogo.png" alt="Avatar">
           <div v-if="chati.question?.data?.active === true" class="left-chat"> {{ chati.question?.data?.text }} </div>

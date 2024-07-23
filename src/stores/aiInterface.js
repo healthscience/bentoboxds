@@ -146,7 +146,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         lastQuestion[0].reply.data.content = lastQuestion.reply.data.grid // this.storeLibrary.linesLimit
         this.actionFileAskInput(lastQuestion[0].reply)
       } else if (dataInfo?.id) {
-        console.log('id match')
         // if bbid match to that
         let matchBBox = {}
         let questionCount = []
@@ -456,10 +455,15 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
             this.boxLibSummary[boxid] = hi.summary.summary
           }
         } else {
-          this.boxLibSummary[boxid] = hi.summary.summary
+          if (hi.summary.summary === undefined) {
+            this.boxLibSummary[boxid] = hi.summary
+
+          } else {
+            this.boxLibSummary[boxid] = hi.summary.summary
+          }
         }
       }
-      let NXPcontract = this.boxLibSummary[boxid].data
+      // let NXPcontract = this.boxLibSummary[boxid].data
       let key = Object.keys(this.boxLibSummary[boxid].data)
       // now update compute contract to latest one back from HOP
       let computeLatestModules = []
@@ -474,8 +478,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.boxLibSummary[boxid].data.modules = computeLatestModules
       // let modulesContracts = NXPcontract[key[0]].modules
       let extractedOD = this.storeLibrary.utilLibrary.moduleExtractSettings(computeLatestModules)
-      console.log('extracted settings default')
-      console.log(extractedOD)
       this.storeBentoBox.openDataSettings[boxid] = extractedOD
       return true
     },
@@ -509,16 +511,23 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     prepareSpaceSave (message) {
       let boxidPerspace = this.bentoboxList[message.data.spaceid]
       let visDataperSpace = []
+      let locationPerSpace = []
       for (let bbi of boxidPerspace) {
-        let visD = this.visData[bbi]
+        let visD = this.visData[bbi.bboxid]
         visDataperSpace.push(visD)
+        // current location to save
+        locationPerSpace.push({ bboxid: bbi.bboxid, location: this.storeBentoBox.locationBbox[message.data.spaceid][bbi.bboxid] })
       }
+
       let saveData = {}
       saveData.pair = {}
       saveData.space = message.data
+      saveData.location = locationPerSpace
       saveData.visData = visDataperSpace
       saveData.bboxlist = boxidPerspace
       message.data = saveData
+      console.log('what is save on location???')
+      console.log(message)
       this.sendSocket.send_message(message)
     },
     prepareAI (message) {

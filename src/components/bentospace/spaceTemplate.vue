@@ -35,7 +35,7 @@
           <div id="bento-space" v-bind:style="{ transform: 'scale(' + zoomscaleValue + ')' }">
             <!-- location for bentobox - es -->
             <div id="bento-layout" v-for="bbox in storeAI.bentoboxList[storeAI.liveBspace.spaceid]">
-             <bento-boxspace :bboxid="bbox"></bento-boxspace>
+             <bento-boxspace :bboxid="bbox.bboxid" :contractid="bbox.contract"></bento-boxspace>
             </div>
           </div>
         </div>
@@ -61,6 +61,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   
   let beebeeSpace = ref(false)
 
+  /* computed */
   const bentospaceStatus = computed(() => {
     return storeAI.bentospaceState
   })

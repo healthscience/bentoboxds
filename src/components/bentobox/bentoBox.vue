@@ -1,4 +1,9 @@
 <template>
+  <div id="bentobox-data-live" v-if="typeof storeAI.visData[props.bboxid] === 'undefined'">
+    <button @click="viewSaveExperiment(props.bboxid, props.contractid)">View experiment</button>
+  </div>
+  <div v-else>
+  </div>
   <div id="bentobox-quants" ref="bentoboxQuants" @mouseup.prevent="EndDrag()" @mousemove.prevent="OnDrag($event)">
     <div id="bentobox-tools">
       <box-tools :bboxid="props.bboxid"></box-tools>
@@ -134,6 +139,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
   
   const props = defineProps({
     bboxid: String,
+    contractid: String,
     bbwidth: String
   })
 
@@ -369,16 +375,8 @@ import { libraryStore } from '@/stores/libraryStore.js'
     return storeAI.tempLabelData[props.bboxid]
   })
 
-   const chartData = computed(() => {
+  const chartData = computed(() => {
     return storeAI.visData[props.bboxid]
-    /* {
-      // labels: dataLabel.value, // [ 'January', 'February', 'March' ],
-      // datasets: [ { data: dataValues.value } ]
-    } */
-   })
-
-   const boxToolsShow = computed(() => {
-    return storeBentobox.boxtoolsShow[props.bboxid]
   })
 
   const computeList = computed(() => {
@@ -415,12 +413,30 @@ import { libraryStore } from '@/stores/libraryStore.js'
     modulesShow.value = !modulesShow.value
   }
 
+  const viewSaveExperiment = (bbid, contractID) => {
+    storeLibrary.prepareLibraryViewFromContract(bbid, contractID)
+  }
+
 </script>
 
 <style scoped>
 
 
 @media (min-width: 1024px) {
+
+  #bentobox-data-live {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-self: center;
+  }
+
+  #bentobox-data-live button {
+    font-size: 1.2em;
+    background-color:rgb(113, 172, 114);
+    padding: .3em;
+    margin: 1em;
+    color: white;
+  }
 
   #bentobox-quants {
     display: grid;

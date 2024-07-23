@@ -53,7 +53,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
       storeAI.dataBoxStatus = true
       // this.$store.dispatch('actionHOPoutState', board)
       // this.$store.dispatch('actionDashboardState', board)
-    } else if (NXPcontract === 'Join') {
+    } else if (actionType === 'Join') {
       storeLibrary.joinSelected = board
       storeLibrary.joinNXP = true
       storeLibrary.uploadStatus = true

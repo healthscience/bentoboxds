@@ -11,11 +11,6 @@
         <button class="space-button" @click="clickAddbentoSpace(props.bboxid)">
           + space
         </button>
-      </div>
-      <div class="bb-bar-main">
-        <button @click="clickShareSpace(props.bboxid)" v-bind:class="{ active: shareForm}">
-          share
-        </button>
         <div id="spaces-list" v-if="shareSelect">
           <select class="select-space-save" id="space-options-save" v-model="spaceSave" @change="selectBentoSpace()">
             <option selected="" v-for="sp in spaceList" :value="sp.spaceid">
@@ -23,6 +18,11 @@
             </option>
           </select>
         </div>
+      </div>
+      <div class="bb-bar-main">
+        <button @click="clickShareSpace(props.bboxid)" v-bind:class="{ active: shareForm}">
+          share
+        </button>
       </div>
       <div class="bb-bar-main">
         <button @click="clickVisTools(props.bboxid)" v-bind:class="{ active: boxToolsShow}">
@@ -125,11 +125,22 @@ const selectedTimeFormat = ref('timeseries')
     shareSelect.value = !shareSelect.value
   }
 
+  const clickSummaryLibSilent = (boxid) => {
+      storeAI.prepareLibrarySummary(boxid)
+    }
+
   const selectBentoSpace = () => {
-    storeAI.bentoboxList[spaceSave.value].push(props.bboxid)
+    // clickSummaryLibSilent(props.bboxid)
+    let bidPair = { bboxid: props.bboxid, contract: expLibrarySummary.value.key[0]}
+    // check object set in list
+    if (Object.keys(storeAI.bentoboxList[spaceSave.value]).length === 0) {
+      storeAI.bentoboxList[spaceSave.value] = []
+    }
+    storeAI.bentoboxList[spaceSave.value].push(bidPair)
     clickAddbentoSpace(props.bboxid)
     // add location default if not already set?
     storeBentobox.setLocationBbox(spaceSave.value, props.bboxid)
+    spaceSave.value = 0
   }
 
   const clickShareSpace = (boxid) => {
@@ -149,15 +160,19 @@ const selectedTimeFormat = ref('timeseries')
   * library summary
   */
   const expLibrarySummary = computed(() => {
-    let NXPcontract = {}
-    NXPcontract.key = Object.keys(storeAI?.boxLibSummary[props.bboxid].data)
-    let modKeys = []
-    for (let mod of storeAI.boxLibSummary[props.bboxid].data.modules) { // [NXPcontract.key].modules) {
-      modKeys.push(mod.key)
+    if (storeAI?.boxLibSummary[props.bboxid].data === undefined) {
+      return false
+    } else {
+      let NXPcontract = {}
+      NXPcontract.key = Object.keys(storeAI?.boxLibSummary[props.bboxid].data)
+      let modKeys = []
+      for (let mod of storeAI.boxLibSummary[props.bboxid].data.modules) { // [NXPcontract.key].modules) {
+        modKeys.push(mod.key)
+      }
+      NXPcontract.modules = modKeys
+      return NXPcontract
+      // return Object.keys(storeAI.boxLibSummary.data)
     }
-    NXPcontract.modules = modKeys
-    return NXPcontract
-    // return Object.keys(storeAI.boxLibSummary.data)
   })
 
 

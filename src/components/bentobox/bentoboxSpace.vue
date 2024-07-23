@@ -9,8 +9,8 @@
     :max-height="spaceLocation.tH | checkEmpty"
     :min-width="minW | checkEmpty"
     :min-height="minH | checkEmpty"
-    :width="width"
-    :height="height"
+    :width="spaceLocation.width"
+    :height="spaceLocation.height"
     :left="spaceLocation.left"
     :top="spaceLocation.top"
     @resize:move="eHandler"
@@ -22,7 +22,7 @@
   >
     <!-- bentobox -->
     <div id="bb-toolbar" v-bind:class="{ active: bboxActive }">Active bar</div>
-    <bento-box :bboxid="props.bboxid" :bbwidth="bentoboxWidth"></bento-box>
+    <bento-box :bboxid="props.bboxid" :contractid="props.contractid" :bbwidth="bentoboxWidth"></bento-box>
     <button id="bb-remove" @click="removeBboxSpace">remove</button>
   </vue-resizable>
 </template>
@@ -38,7 +38,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   const storeBentobox = bentoboxStore()
 
   const props = defineProps({
-    bboxid: String
+    bboxid: String,
+    contractid: String
   })
 
   let bentoboxWidth = '30vw'
@@ -49,10 +50,10 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   const tW = 880
   const tH = 440
   const handlers = ref(["r", "rb", "b", "lb", "l", "lt", "t", "rt"])
-  let left = ref(`calc(2% - ${tW / 2}px)`)
-  let top = ref(`calc(8% - ${tH / 2}px)`)
-  let height = ref('fit-content')
-  let width = ref('fit-content')
+  // let left = ref(`calc(2% - ${tW / 2}px)`)
+  // let top = ref(`calc(8% - ${tH / 2}px)`)
+  // let height = ref('fit-content')
+  // let width = ref('fit-content')
   let maxW = ref('100%')
   let maxH = ref('100%')
   let minW = ref('20vw')
@@ -72,16 +73,19 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     updateBox.handlers = ref(["r", "rb", "b", "lb", "l", "lt", "t", "rt"])
     updateBox.left = location.left // ref(`calc(2% - ${tW / 2}px)`) // set posotion on space
     updateBox.top = location.top // ref(`calc(8% - ${tH / 2}px)`)  // set position on space
-    updateBox.height = ref('fit-content')
-    updateBox.width = ref('fit-content')
-    updateBox.maxW = ref('100%')
-    updateBox.maxH = ref('100%')
-    updateBox.minW = ref('20vw')
-    updateBox.minH = ref('20vh')
-    updateBox.fit = ref(false)
-    updateBox.event = ref('')
-    updateBox.dragSelector = ref('#bb-toolbar, .drag-container-2')
+    updateBox.height = location.height
+    updateBox.width = location.width
+    updateBox.maxW = maxW.value
+    updateBox.maxH = maxH.value
+    updateBox.minW = minW.value
+    updateBox.minH = minH.value
+    updateBox.fit = fit.value
+    updateBox.event = ''
+    updateBox.dragSelector = dragSelector.value
+    console.log(updateBox)
     storeBentobox.locationBbox[storeAI.liveBspace.spaceid][props.bboxid] = updateBox
+    console.log('storeed')
+    console.log(storeBentobox.locationBbox[storeAI.liveBspace.spaceid][props.bboxid])
   }
 
   const eHandler = (data) => {
@@ -133,7 +137,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     let currentSpaceBboxes = storeAI.bentoboxList[storeAI.liveBspace.spaceid]
     let updateBblist = []
     for (let bb of currentSpaceBboxes) {
-      if (bb !== props.bboxid) {
+      if (bb.bboxid !== props.bboxid) {
         updateBblist.push(bb)
       }
     }
@@ -205,7 +209,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   width: 150px;
   height: 150px;
   padding: 0;
-  border: 4px solid rgb(106, 114, 224);
+  border: 4px solid red; /*rgb(106, 114, 224);*/
   font-weight: normal;
   color: #0d0d0d;
   position: relative;
@@ -248,8 +252,9 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   .resizable {
     background-position: top left;
-    width: 150px;
-    height: 150px;
+    min-width: 150px;
+    min-height: 150px;
+    height: auto;
     padding: 0;
     border: 4px solid rgb(106, 114, 224);
     font-weight: normal;
