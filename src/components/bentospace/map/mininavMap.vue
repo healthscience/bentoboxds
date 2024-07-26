@@ -3,12 +3,12 @@
     <div id="minimap" class="minmove-right" v-bind:style="{ right: offRight }">
       <canvas v-if="openminib === true" id="minimap-canvas" @click="mouseMiniSelect($event)" ></canvas>
     </div>
-    <button id="open-mini" @click.prevent="setMiniMapShow">map</button>
+    <button id="open-mini" @click.prevent="setMiniMapShow" :class="{ active: openmini}">map</button>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { mapminiStore } from '@/stores/mapStore.js'
@@ -17,25 +17,35 @@ import { mapminiStore } from '@/stores/mapStore.js'
   const storeBentobox = bentoboxStore()
   const storeMmap = mapminiStore()
   
+  const props = defineProps({
+    spaceid: String,
+    bboxid: String
+  })
   
   let openmini = ref(false)
   let offRight = ref('-400px')
   let openminib = ref(true)
 
+  // onMounted Hook: Executes logic after component is mounted
+  onMounted(() => {
+    setMinmapcanvas()
+  })
+
   /* computed */
   const spaceCoord = computed(() => {
-    return storeMap.liveSpaceCoord
+    return {} // storeMmap.liveSpaceCoord
   })
 
   /* methods */
   const setMinmapcanvas = () => {
     let c = document.getElementById('minimap-canvas')
     let ctx = c.getContext('2d')
-    storeMmap.actionSetminmaph(ctx)
+    storeMmap.actionSetminmap(ctx)
+    storeMmap.actionPostionCoord(props.spaceid)
   }
 
   const mouseMiniSelect = (e) => {
-    // this.$store.dispatch('actionMMapMove', e)
+    storeMmap.actionMMapMove(e)
   }
 
   const setMiniMapShow = () => {
@@ -88,14 +98,18 @@ import { mapminiStore } from '@/stores/mapStore.js'
     position: fixed;
     bottom: 10px;
     right: 20px;
-    z-index: 31;
+    z-index: 61;
     display: grid;
     justify-content: center;
     place-self: start;
     align-self: start;
     height: 2em;
     width: 5em;
-    background-color: white;
+    /* background-color: white; */
+  }
+
+  .active {
+    background-color:rgb(113, 172, 114);
   }
 }
 </style>

@@ -33,9 +33,11 @@ import BentoBox from  '@/components/bentobox/bentoBox.vue'
 import { ref, computed, onMounted } from 'vue'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
+import { mapminiStore } from '@/stores/mapStore.js'
 
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
+  const storeMmap = mapminiStore()
 
   const props = defineProps({
     bboxid: String,
@@ -82,10 +84,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     updateBox.fit = fit.value
     updateBox.event = ''
     updateBox.dragSelector = dragSelector.value
-    console.log(updateBox)
     storeBentobox.locationBbox[storeAI.liveBspace.spaceid][props.bboxid] = updateBox
-    console.log('storeed')
-    console.log(storeBentobox.locationBbox[storeAI.liveBspace.spaceid][props.bboxid])
+    storeMmap.actionDashBmove(updateBox)
   }
 
   const eHandler = (data) => {
@@ -142,6 +142,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
       }
     }
     storeAI.bentoboxList[storeAI.liveBspace.spaceid] = updateBblist
+    // update miniMap of removal
+    storeMmap.actionDashBRemove(props.bboxid)
   }
 
   const expandModules = () => {

@@ -92,6 +92,8 @@ const checkElectron = () => {
 
 const saveFiles = (files) => {
 	for (let file of files) {
+		console.log('what type of file')
+		console.log(file)
 		/* upload file data flow */
 		// check if file type given? if not extract file extention (different browser different info NOTE)
 		if (file.file.type.length === 0) {
@@ -182,7 +184,71 @@ const saveFiles = (files) => {
 			reader.readAsText(file.file)
 			const reader2 = new FileReader();
   		reader2.readAsArrayBuffer(file.file)
+		} else if (file.file.type === 'image/png') {
+			console.log('image file 1')
+			storeLibrary.imagepreviewLive = true
+			// get file data via reader
+			const readerImage = new FileReader()
+			// await read and responsed file image data
+			readerImage.onload = function () {
+			const fileContent = readerImage.result
+			console.log(fileContent.length)
+
+			if (storeAI.dataBoxStatus !== true) {
+				// prepare chat to view image data
+				storeAI.qcount++
+				let question = {}
+				question.type ='bbai'
+				question.reftype = 'ignore'
+				question.action = 'question'
+				question.data = { "count": storeAI.qcount, "text": "Image file has been uploaded", "active": true, "time": new Date() }
+				let hashQuestion = hashObject(question.data + file.file.name)
+
+				storeLibrary.fileBund.content = fileContent
+				// build for chart interface
+				question.bbid = hashQuestion
+				let bbReply = {}
+				bbReply.type = 'bbai-reply'
+				bbReply.data = { text: 'Image file preview', filedata: { type: 'image/png', file: fileBundle, columns: 'one', grid: fileContent }, prompt: 'Happy with image?', options: null, }
+				bbReply.bbid = hashQuestion
+				let newPair = {}
+				newPair.question = question
+				newPair.reply = bbReply
+				storeAI.historyPair[storeAI.chatAttention].push(newPair)
+			} else {
+				// build for library upload
+				storeLibrary.newPackagingForm.apicolumns = null
+				storeLibrary.newDatafile.columns = null
+				storeLibrary.newDatafile.path = 'image/png'
+				storeLibrary.newDatafile.file = 'image/png'
+			}
+
+
+			// save the Image to data store
+			let fileSave = {}
+			fileSave.file = file
+			fileSave.content = fileContent
+			fileSave.info = 'image' // lineBundle
+			fileSave.type = file.file.type
+			// prepare message structure
+			let messageHOP = {}
+			messageHOP.type = 'library'
+			messageHOP.action = 'contracts'
+			messageHOP.reftype = 'save-file'
+			messageHOP.privacy = 'private'
+			messageHOP.task = 'PUT'
+			messageHOP.data = fileSave
+			// send to HOP
+			// storeLibrary.sendMessage(messageHOP)
+			}
+			readerImage.onerror = function() {
+				console.log('erroro with file')
+				console.log(readerImage.error)
+			}
+			readerImage.readAsDataURL(file.file)
 		} else if (file.file.type !== 'text/csv') {
+			console.log('not textcsv')
+			console.log(file.file.type)
 			// check for pdf file  i.e. sqlite file
 			if (file.file.type !== 'application/pdf' && file.file.type !== 'application/json') {
 				let fileSave = {}

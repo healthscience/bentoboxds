@@ -36,14 +36,15 @@
                 </div>
                 <div v-if="chati.reply.data?.type !== 'library-peerlibrary'">
                   <div class="beeebee-text">
-                    {{ chati.reply?.data?.text}}
+                    {{ chati.reply?.data?.text}} tt--{{ chati.reply.data?.type }}
                     </div>
                     <div v-if="chati.reply?.data?.filedata" class="bee-file-data">
                       <div class="file-feedback-csv">
                         {{ chati.reply.data.filedata.type }} - {{ chati.reply.data.filedata.file?.name }} -- {{ chati.reply.data.filedata.columns }}
                       </div>
-                      <button id="csv-file-summary" @click="viewSummaryCSV(chati.reply.bbid)">view summary</button>
-                      <csv-preview v-if="storeLibrary.csvpreviewLive === summaryCSVState" :summarydata="chati.reply.data.filedata.grid"></csv-preview>
+                      <button id="csv-file-summary" @click="viewSummaryCSV(chati.reply.bbid)">view summary</button>ss {{ storeLibrary.csvpreviewLive }} == {{ summaryCSVState }}
+                      <csv-preview v-if="storeLibrary.imagepreviewLive !== true && storeLibrary.csvpreviewLive === summaryCSVState" :summarydata="chati.reply.data.filedata.grid"></csv-preview>
+                      <image-preview v-if="storeLibrary.imagepreviewLive === true && summaryCSVState === false" :summaryimagedata="chati.reply.data.filedata.grid"></image-preview>
                     </div>
                     <div v-if="chati.reply?.data?.prompt?.length > 0" class="bee-prompt-question">
                       {{ chati.reply.data.prompt }}
@@ -138,6 +139,7 @@
 import WelcomeBeebee from '@/components/beebeehelp/welcomeBeebee.vue'
 import inputBox from '@/components/beebeehelp/inputBox.vue'
 import CsvPreview from '@/components/dataspace/upload/csvPreview.vue'
+import ImagePreview from '@/components/dataspace/upload/imagePreview.vue'
 import DescribeDatastructure from '@/components/library/contracts/contribute/forms/describeSourceStructure.vue'
 import DescribeDevicestructure from '@/components/library/contracts/contribute/forms/describeDeviceStructure.vue'
 import BentoBox from '@/components/bentobox/baseBox.vue'

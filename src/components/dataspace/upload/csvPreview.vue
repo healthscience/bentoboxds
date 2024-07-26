@@ -66,7 +66,6 @@
 
 <script setup>
 import { ref } from 'vue'
-// import { computed } from 'vue'
 import { libraryStore } from '@/stores/libraryStore.js'
 
   const storeLibrary = libraryStore() 

@@ -119,6 +119,7 @@ export const libraryStore = defineStore('librarystore', {
     fileBundleList: [],
     linesLimit: {},
     csvpreviewLive: false,
+    imagepreviewLive: false,
     lineBundle:
     {
       cnumber: '',

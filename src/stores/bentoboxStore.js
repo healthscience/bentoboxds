@@ -126,6 +126,7 @@ export const bentoboxStore = defineStore('bentostore', {
                   pairCount++
                 }
               } else {
+                // BENTOSPACES setup on start
                 // add to menu list  no duplicate and TODO set one as active
                 if (this.spaceList[0].spaceid !== cm.value.space.spaceid) {
                   this.spaceList.push(cm.value.space)
@@ -256,6 +257,21 @@ export const bentoboxStore = defineStore('bentostore', {
         this.locationBbox[space][bbox] = updateBox
         this.locationStart+= 40
       }
+    },
+    setMiniMap (spaceid, bboxid) {
+      // setup miniMap  (should be per space  just one for NOW TODO UPSDATE)
+      // let c = document.getElementById('minimap-canvas')
+      // let ctx = c.getContext('2d')
+      // this.storeMmap.actionSetminmaph(ctx)
+      let cords = this.locationBbox[spaceid][bboxid]
+      // inform mini map of info
+      let mMapinfo = {}
+      mMapinfo.bboxid = bboxid
+      mMapinfo.spaceid = spaceid
+      mMapinfo.nxp = ''
+      mMapinfo.coord = cords
+      mMapinfo.type = 'saved'
+      this.storeMmap.actionPostionCoord(mMapinfo)
     },
     saveLayoutSpace (spaceID) {
       // save layout per space

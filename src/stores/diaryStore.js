@@ -90,8 +90,6 @@ export const diaryStore = defineStore('diarystore', {
       if (received.action === 'diary-agent') {
       }
     },
-    shareProtocol (boxid) {
-    },
     sendMessageHOP (message) {
       this.sendSocket.send_message(message)
     }

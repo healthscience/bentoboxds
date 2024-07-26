@@ -32,50 +32,68 @@ export const accountStore = defineStore('account', {
         this.networkInfo.publickey = received.data.publickey
       }
     },
-    shareProtocol (boxid) {
+    shareProtocol (boxid, shareType) {
       // set peer live
-      let peerDetails = {}
-      peerDetails.name = 'peer'
-      peerDetails.publickey = this.sharePubkey
-      peerDetails.datastores = ''
-      // check if peer already added
-      if (this.warmPeers.length > 0) {
-        for (let wp of this.warmPeers) {
-          if (wp.publickey === peerDetails.publickey) {
-            
-          } else {
-            this.warmPeers.push(peerDetails)
+      if (shareType === 'privatechart') {
+        let peerDetails = {}
+        peerDetails.name = 'peer'
+        peerDetails.publickey = this.sharePubkey
+        peerDetails.datastores = ''
+        // check if peer already added
+        if (this.warmPeers.length > 0) {
+          for (let wp of this.warmPeers) {
+            if (wp.publickey === peerDetails.publickey) {
+              
+            } else {
+              this.warmPeers.push(peerDetails)
+            }
+          }
+        } else {
+          this.warmPeers.push(peerDetails)
+        }
+        let shareContext = {}
+        // need to lookup nxp from boxid
+        let sfMatch = {}
+        for (let histMatch of this.storeAI.bbidHOPid) {
+          if (histMatch.bbid === boxid) {
+            sfMatch = histMatch
           }
         }
-      } else {
-        this.warmPeers.push(peerDetails)
-      }
-      let shareContext = {}
-      // need to lookup nxp from boxid
-      let sfMatch = {}
-      for (let histMatch of this.storeAI.bbidHOPid) {
-        if (histMatch.bbid === boxid) {
-          sfMatch = histMatch
+        // match to summary from SafeFlow (could be first time or saved)
+        let sfSummary = {}
+        for (let sumSF of this.storeAI.hopSummary) {
+          if (sumSF.summary.bbid === boxid) {
+            sfSummary = sumSF
+          }
         }
+        shareContext.hop = sfSummary.summary
+        shareContext.publickey = this.sharePubkey
+        shareContext.data = this.storeAI.visData[boxid]
+        let shareInfo = {}
+        shareInfo.type = 'network'
+        shareInfo.action = 'share'
+        shareInfo.task = 'peer-join'
+        shareInfo.reftype = 'null'
+        shareInfo.privacy = 'private'
+        shareInfo.data = shareContext
+        this.sendMessageHOP(shareInfo)
+      } else if (shareType === 'publicboard') {
+        console.log('board public')
+        let shareContext = {}
+        shareContext.hop = '' // sfSummary.summary
+        shareContext.publickey = '' // this.sharePubkey
+        shareContext.data = '' // this.storeAI.visData[boxid]
+        let shareInfo = {}
+        shareInfo.type = 'network'
+        shareInfo.action = 'share'
+        shareInfo.task = 'peer-board'
+        shareInfo.reftype = 'null'
+        shareInfo.privacy = 'public'
+        shareInfo.data = shareContext
+        console.log('share pub board')
+        console.log(shareInfo)
+        this.sendMessageHOP(shareInfo)
       }
-      // match to summary from SafeFlow (could be first time or saved)
-      let sfSummary = {}
-      for (let sumSF of this.storeAI.hopSummary) {
-        if (sumSF.summary.bbid === boxid) {
-          sfSummary = sumSF
-        }
-      }
-      shareContext.hop = sfSummary.summary
-      shareContext.publickey = this.sharePubkey
-      shareContext.data = this.storeAI.visData[boxid]
-      let shareInfo = {}
-      shareInfo.type = 'network'
-      shareInfo.action = 'share'
-      shareInfo.task = 'peer-join'
-      shareInfo.reftype = 'null'
-      shareInfo.privacy = 'private'
-      shareInfo.data = shareContext
-      this.sendMessageHOP(shareInfo)
     },
     processAgentStatus (data) {
       for (let agent of this.agentList) {
