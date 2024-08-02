@@ -139,12 +139,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   /* methods */
   const updateOpenDataHOP = () => {
-    console.log('open data update')
-    console.log(opendataSettings.value)
     // get the library contracts
     storeAI.prepareLibrarySummary(props.bboxid)
-    console.log('latest summary ++++++++++')
-    console.log(storeAI.boxLibSummary[props.bboxid])
     // no summary if already save  NEED other way to set contect
     // what updates are there moduels?  Device/source, compute, vis controls or settings?
     let moduleUpdate = {}
@@ -173,8 +169,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     updateECS.modules = storeAI.boxLibSummary[props.bboxid].data[entityID[0]].modules
     updateECS.changes = moduleUpdate
     HOPcontext.update = updateECS
-    console.log('opend ata update---------')
-    console.log(HOPcontext)
     // close the calendar options and dispay date summary selected
     storeLibrary.updateHOPqueryContracts(HOPcontext)
   }

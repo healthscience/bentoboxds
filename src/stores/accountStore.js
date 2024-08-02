@@ -2,12 +2,14 @@ import { defineStore } from 'pinia'
 import { useSocketStore } from '@/stores/socket.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { libraryStore } from '@/stores/libraryStore.js'
+import PeersUtility from '@/stores/hopUtility/peersUtility.js'
 
 export const accountStore = defineStore('account', {
   state: () => ({
     sendSocket: useSocketStore(),
     storeAI: aiInterfaceStore(),
     storeLibrary: libraryStore(),
+    utilPeers: new PeersUtility(),
     accountMenu: 'Sign-in',
     accountStatus: false,
     peerauth: false,
@@ -16,6 +18,7 @@ export const accountStore = defineStore('account', {
     publickeyDrive: [],
     publicKeysList: [],
     sharePubkey: '',
+    shareBoardNXP: {},
     agentList: [{ name: 'cale-gpt4all', active: false, loading: false }, {name: 'cale-evolution', active: false, loading: false }]
   }),
   actions: {
@@ -39,18 +42,7 @@ export const accountStore = defineStore('account', {
         peerDetails.name = 'peer'
         peerDetails.publickey = this.sharePubkey
         peerDetails.datastores = ''
-        // check if peer already added
-        if (this.warmPeers.length > 0) {
-          for (let wp of this.warmPeers) {
-            if (wp.publickey === peerDetails.publickey) {
-              
-            } else {
-              this.warmPeers.push(peerDetails)
-            }
-          }
-        } else {
-          this.warmPeers.push(peerDetails)
-        }
+        this.warmPeers = this.utilPeers.checkPeerMatch(this.warmPeers, peerDetails)
         let shareContext = {}
         // need to lookup nxp from boxid
         let sfMatch = {}
@@ -79,10 +71,24 @@ export const accountStore = defineStore('account', {
         this.sendMessageHOP(shareInfo)
       } else if (shareType === 'publicboard') {
         console.log('board public')
+        // the public library key to allow discover
+        let publicLibrary = ''
+        for (let hbee of this.publicKeysList) {
+          if (hbee.store === 'publiclibrary') {
+            publicLibrary = hbee.pubkey
+          }
+        }
+        let peerDetails = {}
+        peerDetails.name = 'peer'
+        peerDetails.publickey = this.sharePubkey
+        peerDetails.datastores = publicLibrary
+        peerDetails.boardID = this.shareBoardNXP.id
+        peerDetails.boardname = this.shareBoardNXP.name
+        this.warmPeers = this.utilPeers.checkPeerMatch(this.warmPeers, peerDetails)
+        // now build public library info to be share (replicated)
         let shareContext = {}
-        shareContext.hop = '' // sfSummary.summary
-        shareContext.publickey = '' // this.sharePubkey
-        shareContext.data = '' // this.storeAI.visData[boxid]
+        shareContext.publickey = peerDetails.publickey
+        shareContext.data = peerDetails
         let shareInfo = {}
         shareInfo.type = 'network'
         shareInfo.action = 'share'

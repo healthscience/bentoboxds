@@ -141,9 +141,6 @@ const handleDate = () => {
 }
 
   const updateHOPquery = () => {
-    console.log('what are the open data seetings sayinsg')
-    console.log(storeBentobox.openDataSettings[props.bboxid])
-    console.log(storeBentobox.openDataControls[props.bboxid])
     // prepare update for HOP
     // what time period is active, single, pick or range? Or update via open data settings?
     let hopTime = []

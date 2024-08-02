@@ -22,7 +22,7 @@
           </div>
         </div>
         <div class="share-protocol-nxp" v-if="shareProtocol">
-          Share {{ shareBoardID.name }}
+          <div class="share-board-summary">Share {{ shareBoardID.name }}</div>
           <share-protocol :shareType="'publicboard'"></share-protocol>
         </div>
       </div>
@@ -35,7 +35,9 @@ import { ref, computed } from 'vue'
 import ShareProtocol from '@/components/bentobox/tools/shareForm.vue'
 import { libraryStore } from '@/stores/libraryStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
+import { accountStore } from '@/stores/accountStore.js'
 
+  const storeAccount = accountStore()
   const storeLibrary = libraryStore()
   const storeAI = aiInterfaceStore()
 
@@ -73,9 +75,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   }
 
   const sharePubExp = (pubBoard) => {
-    console.log('share public with peer')
-    console.log(pubBoard)
     shareBoardID.value = pubBoard
+    storeAccount.shareBoardNXP = shareBoardID.value
     shareProtocol.value = !shareProtocol.value
   }
 
@@ -234,6 +235,11 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
     .remove-warn {
       color: red;
+    }
+
+    .share-board-summary {
+      font-size: 1.2em;
+      font-weight: bold;
     }
   }
 </style>

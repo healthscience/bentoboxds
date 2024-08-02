@@ -41,8 +41,8 @@
       <label for="sharepeer"></label>
       <input type="input" id="sharekey" placeholder="publickey" v-model="storeAccount.sharePubkey" autofocus>
       <button id="share-send" type="submit">
-      Send invite
-    </button>
+        Send invite
+      </button>
     </form>
   </div>
   <bb-tools v-if="boxToolsShow" :bboxid="props.bboxid"></bb-tools>
@@ -123,6 +123,7 @@ const selectedTimeFormat = ref('timeseries')
   const clickAddbentoSpace = (boxid) => {
     // show the space list
     shareSelect.value = !shareSelect.value
+    storeAI.prepareLibrarySummary(boxid)
   }
 
   const clickSummaryLibSilent = (boxid) => {
@@ -160,6 +161,9 @@ const selectedTimeFormat = ref('timeseries')
   * library summary
   */
   const expLibrarySummary = computed(() => {
+    console.log('libsummary')
+    console.log(props.bboxid)
+    console.log(storeAI.boxLibSummary)
     if (storeAI?.boxLibSummary[props.bboxid].data === undefined) {
       return false
     } else {

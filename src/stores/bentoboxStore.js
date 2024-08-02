@@ -166,7 +166,6 @@ export const bentoboxStore = defineStore('bentostore', {
                 // check for location spaces info. already saved
                 if (cm?.value?.location) {
                   // add to menu list
-                  // console.log(cm?.value)
                   // this.spaceList.push(cm.value.space)
                   // set bbox settings
                   this.storeAI.bentoboxList[cm.value.space.spaceid] = cm?.value?.bboxlist

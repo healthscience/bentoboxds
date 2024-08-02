@@ -334,7 +334,27 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         this.chatBottom++
       } else if (received.action === 'warm-peer-new') {
         this.storeAcc.warmPeers.push(received.data)
+      } else if (received.action === 'network-publib-board') {
+        // create a notification accept public board and save?
       }
+    },
+    preparePublicConfirm (item) {
+      // produce a pair for the current chat
+      let newBBID = '23232'
+      let pairBB = {}
+      let question = {}
+      question.bbid = newBBID 
+      question.data = { active: true, text: 'Please confirm adding board to public library' }
+      pairBB.question = question
+      let reply = {}
+      reply.time = new Date()
+      reply.type = item.action
+      reply.data = { text: item.data }
+      reply.network = true
+      pairBB.reply = reply
+      this.historyPair[this.chatAttention].push(pairBB)
+      this.beginChat = true
+      this.chatBottom++
     },
     processPeerData (dataNetwork) {
       let matchBBID = dataNetwork.hop.bbid
@@ -342,7 +362,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       hopDataChart.datasets = [ { data: dataNetwork.data.datasets[0].data } ]
       hopDataChart.labels = dataNetwork.data.labels
       this.visData[matchBBID] = hopDataChart
-      this.storeBentoBox.setChartstyle(matchBBID, dataHOP.context.moduleorder.visualise.value.info.settings.visualise)
+      this.storeBentoBox.setChartstyle(matchBBID, 'line')
       this.expandBentobox[matchBBID] = false
       this.beebeeChatLog[matchBBID] = true
       this.bentoboxList['space1'] = []
@@ -355,8 +375,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.hopSummary.push({ HOPid: HOPshell, summary: dataSummary })
     },
     processHOPdata (dataHOP) {
-      console.log('process IN HOP Data')
-      console.log(dataHOP)
+      // console.log('process IN HOP Data')
+      // console.log(dataHOP)
       // match input id to bbid
       // is the data for past or future or no data
       if (dataHOP.data.data === 'none') {
@@ -526,8 +546,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       saveData.visData = visDataperSpace
       saveData.bboxlist = boxidPerspace
       message.data = saveData
-      console.log('what is save on location???')
-      console.log(message)
       this.sendSocket.send_message(message)
     },
     prepareAI (message) {

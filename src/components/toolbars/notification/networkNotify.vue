@@ -31,6 +31,10 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   }
 
   const viewItemNotify = (item) => {
+    if (item.action === 'network-publib-board') {
+      // create a message for beebee to display
+      storeAI.preparePublicConfirm(item)
+    }
     storeAI.startChat = false
     // reset count of notifications
     storeAI.countNotifications = 0

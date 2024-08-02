@@ -275,8 +275,6 @@ class LibraryUtility { //  extends EventEmitter {
     return refContract
   }
 
-
-
 }
 
 export default LibraryUtility

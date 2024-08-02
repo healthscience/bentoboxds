@@ -13,9 +13,12 @@
           <span class="right-time">{{ chati.reply.time }}</span>
           <div class="reply-text-chart">
             <div class="right-chat">
-              {{ chati.reply.type }} {{ chati.reply.action }}
+              {{ chati.reply.type }} {{ chati.reply.action }}aa
               <div v-if="chati.reply.type === 'experiment' && chati.reply.data">
                 <button @click="viewSaveExperiment(chati.question.bbid, chati.reply.data)">View experiment</button>
+              </div>
+              <div v-if="chati.reply.type === 'network-publib-board'">
+                {{ chati.reply.data.text.boardname }}<button @click="publibLibAdd(chati.reply.data.text)"> yes add this board to public library</button>
               </div>
               <div v-if="chati.reply.type === 'hopquery'">
                 <span>Datatype: {{ chati.data.library.text }} for month {{ chati.data.time.words.day }} day {{ chati.data.time.words.month }}</span>---
@@ -217,6 +220,12 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   const viewSaveExperiment = (bbid, contractID) => {
     storeLibrary.prepareLibraryViewFromContract(bbid, contractID)
+  }
+
+  const publibLibAdd = (board) => {
+    console.log('add to public library')
+    console.log(board)
+    storeLibrary.confrimAddPublicLibrary(board)
   }
 
   const uploadButton = () =>  {

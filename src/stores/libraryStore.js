@@ -168,6 +168,22 @@ export const libraryStore = defineStore('librarystore', {
       for (let contract of defaultConts) {
         this.sendMessage(contract)
       }
+      // send message to HOP to update live refcontracts i.e. will be empty of first time use
+      this.refreshPublibary()   
+    },
+    refreshPublibary () {
+      // message to update master lib in HOP itself  ( TODO auto update per change)
+      // put in timier for now
+      setTimeout(() => {
+        let messageHOP = {}
+        messageHOP.type = 'library'
+        messageHOP.action = 'contracts'
+        messageHOP.reftype = 'refresh-publiclibrary'
+        messageHOP.privacy = 'public'
+        messageHOP.task = 'GET'
+        messageHOP.data = {}
+        this.sendSocket.send_message(messageHOP)
+      }, "2000")
     },
     startLibrary () {
       // ask network library for contracts via HOP
@@ -186,6 +202,16 @@ export const libraryStore = defineStore('librarystore', {
       messageHOP.task = 'GET' */
       // messageHOP.data = { query: 'devices', db: storeLibrary.describeSource.path, table: tableChoice.value.name }
       //storeLibrary.sendMessage(messageHOP)
+    },
+    confrimAddPublicLibrary (message) {
+      let messageHOP = {}
+      messageHOP.type = 'library'
+      messageHOP.action = 'contracts'
+      messageHOP.reftype = 'confirm-add'
+      messageHOP.privacy = 'public'
+      messageHOP.task = 'PUT'
+      messageHOP.data = message
+     this.sendSocket.send_message(messageHOP)
     },
     processReply (message, questionStart) {
       if (message.action === 'save-file') {
@@ -360,13 +386,9 @@ export const libraryStore = defineStore('librarystore', {
       libMessageout.task = 'join'
       libMessageout.data = updateJoinSettings
       libMessageout.bbid = 'lib' + genContract.value.exp.key
-      console.log('join NXP++++++++++++++')
-      console.log(libMessageout)
       this.sendSocket.send_message(libMessageout)
     },
     prepareLibraryViewMessage (contract, action) {
-      console.log('view nxp')
-      console.log(contract)
       // create a bbid
       let boxID = {}
       boxID.contract = contract
@@ -376,7 +398,6 @@ export const libraryStore = defineStore('librarystore', {
       let time = date.toLocaleTimeString()
       boxID.time =  time
       let contractQuery = this.utilLibrary.matchNXPcontract(contract.id, this.peerLibraryNXP)
-      console.log(contractQuery)
       let bbidHash = hashObject(boxID)
       let libMessageout = {}
       libMessageout.type = 'library'
@@ -402,13 +423,10 @@ export const libraryStore = defineStore('librarystore', {
       // this.storeAI.historyPair[this.storeAI.chatAttention] = []
       this.storeAI.historyPair[this.storeAI.chatAttention].push(pairBB)
       this.storeAI.chatBottom++
-      console.log('exisign experiemnt view')
-      console.log(libMessageout)
       this.sendSocket.send_message(libMessageout)
     },
     prepareLibraryViewFromContract (bbid, contractID) {
       let contractQuery = this.utilLibrary.matchNXPcontract(contractID, this.peerLibraryNXP)
-      console.log(contractQuery)
       let libMessageout = {}
       libMessageout.type = 'library'
       libMessageout.action = 'contracts'
@@ -454,8 +472,6 @@ export const libraryStore = defineStore('librarystore', {
       aiMessageout.task = 'update-hopquery'
       aiMessageout.data = HOPq
       aiMessageout.bbid = HOPq.bbid
-      console.log('UPqueryupdate')
-      console.log(aiMessageout)
       this.sendSocket.send_message(aiMessageout)
       this.storeAI.helpchatHistory.push(aiMessageout)
       this.storeAI.qcount++
