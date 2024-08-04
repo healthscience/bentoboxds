@@ -61,7 +61,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
 /* methods */
 const setTimeFormat = () => {
   storeLibrary.joinOptions.timeformat = selectedTimeFormat.value
-  console.log(storeLibrary.joinOptions.selectedTimeFormat)
 }
 
 const labelsSelect = () => {

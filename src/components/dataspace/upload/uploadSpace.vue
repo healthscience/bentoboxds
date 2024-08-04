@@ -92,8 +92,6 @@ const checkElectron = () => {
 
 const saveFiles = (files) => {
 	for (let file of files) {
-		console.log('what type of file')
-		console.log(file)
 		/* upload file data flow */
 		// check if file type given? if not extract file extention (different browser different info NOTE)
 		if (file.file.type.length === 0) {
@@ -178,21 +176,18 @@ const saveFiles = (files) => {
 				}
 			}
 			reader.onerror = function() {
-				console.log('erroro with file')
 				console.log(reader.error)
 			}
 			reader.readAsText(file.file)
 			const reader2 = new FileReader();
   		reader2.readAsArrayBuffer(file.file)
 		} else if (file.file.type === 'image/png') {
-			console.log('image file 1')
 			storeLibrary.imagepreviewLive = true
 			// get file data via reader
 			const readerImage = new FileReader()
 			// await read and responsed file image data
 			readerImage.onload = function () {
 			const fileContent = readerImage.result
-			console.log(fileContent.length)
 
 			if (storeAI.dataBoxStatus !== true) {
 				// prepare chat to view image data
@@ -242,13 +237,10 @@ const saveFiles = (files) => {
 			// storeLibrary.sendMessage(messageHOP)
 			}
 			readerImage.onerror = function() {
-				console.log('erroro with file')
 				console.log(readerImage.error)
 			}
 			readerImage.readAsDataURL(file.file)
 		} else if (file.file.type !== 'text/csv') {
-			console.log('not textcsv')
-			console.log(file.file.type)
 			// check for pdf file  i.e. sqlite file
 			if (file.file.type !== 'application/pdf' && file.file.type !== 'application/json') {
 				let fileSave = {}

@@ -254,7 +254,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           this.historyPair[this.chatAttention].push(pairBB)
         }
       } else if (received.action === 'no-data') {
-        console.log('no data for this quer')
+        console.log('no data')
       } else {
         // match to question via bbid
         if (received.data) {
@@ -292,7 +292,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
               pairBB.reply = received
               // is the peer signed in?
               if (this.storeAcc.peerauth === false) {
-                console.log('not signed in')
               } else {
                 this.historyPair[this.chatAttention].push(pairBB)
                 this.storeBentoBox.boxToolStatus[received.bbid] = this.boxSettings

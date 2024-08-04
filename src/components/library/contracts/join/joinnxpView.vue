@@ -144,7 +144,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
       let luxTime = DateTime.fromJSDate(boxDate.value).startOf('day')
       millsDate = luxTime.toMillis()
       // update compute contract settings
-      console.log('slelect controls')
       let controlsJoin = {}
       controlsJoin = storeLibrary.joinOptions
       controlsJoin.time = millsDate

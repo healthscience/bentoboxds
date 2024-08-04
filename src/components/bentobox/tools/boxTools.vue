@@ -149,7 +149,6 @@ const selectedTimeFormat = ref('timeseries')
   }
 
   const chartSelect = () => {
-    console.log('char ttype')
   }
 
   /*  computed */
@@ -161,9 +160,6 @@ const selectedTimeFormat = ref('timeseries')
   * library summary
   */
   const expLibrarySummary = computed(() => {
-    console.log('libsummary')
-    console.log(props.bboxid)
-    console.log(storeAI.boxLibSummary)
     if (storeAI?.boxLibSummary[props.bboxid].data === undefined) {
       return false
     } else {

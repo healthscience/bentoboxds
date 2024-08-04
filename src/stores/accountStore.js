@@ -70,7 +70,6 @@ export const accountStore = defineStore('account', {
         shareInfo.data = shareContext
         this.sendMessageHOP(shareInfo)
       } else if (shareType === 'publicboard') {
-        console.log('board public')
         // the public library key to allow discover
         let publicLibrary = ''
         for (let hbee of this.publicKeysList) {
@@ -96,8 +95,6 @@ export const accountStore = defineStore('account', {
         shareInfo.reftype = 'null'
         shareInfo.privacy = 'public'
         shareInfo.data = shareContext
-        console.log('share pub board')
-        console.log(shareInfo)
         this.sendMessageHOP(shareInfo)
       }
     },

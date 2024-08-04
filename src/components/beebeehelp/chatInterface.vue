@@ -223,8 +223,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
   }
 
   const publibLibAdd = (board) => {
-    console.log('add to public library')
-    console.log(board)
     storeLibrary.confrimAddPublicLibrary(board)
   }
 
