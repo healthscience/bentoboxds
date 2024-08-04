@@ -1,21 +1,10 @@
 <template>
-  <div id="vis-tools">
-    <div id="grap-map" class="network-tools">
-      <div class="context-network">
-        <button id="network-graph" @click="viewNetworkGrpah()" v-bind:class="{ active: storeBentobox.networkGraph }">graph</button>
-      </div>
-      <div class="context-network">
-        <button id="network-graph" @click="viewMap()" v-bind:class="{ active: storeBentobox.geoMap }">map</button>
-      </div>
-    </div>
-    <div class="network-tools">
-      <calendar-tool :bboxid="props.bboxid"></calendar-tool>
-    </div>
+  <div id="chart-toolbar">
     <div class="network-tools">
       <div id="chart-options">
         <div class="chart-calendar-update">
           <select v-model="selectedTimeFormat" @change.prevent="setTimeFormat()">
-            <option class="data-vis-action" v-for="tfoption in timeformatoptions" v-bind:value="tfoption.value" :key='tfoption.id' :selected="selectedChartnumber">
+            <option class="data-vis-action" v-for="tfoption in timeformatoptions" v-bind:value="tfoption.value" :key='tfoption.id' :selectedd="selectedChartnumber">
             {{ tfoption.text }}
             </option>
           </select>
@@ -27,10 +16,10 @@
       </div>
     </div>
     <div id="chart-style-tools" class="network-tools">
-        <button class="chart-type" @click.prevent="chartSelect('bar')"  v-bind:class="{ active: storeBentobox.chartStyle[props.bboxid] === 'bar'}">Bar</button>
-        <button class="chart-type" @click.prevent="chartSelect('line')" v-bind:class="{ active: storeBentobox.chartStyle[props.bboxid] ===  'line' }">Line</button>
-        <button class="chart-type" @click.prevent="chartSelect('simulation')" v-bind:class="{ active: storeBentobox.chartStyle[props.bboxid] === 'simulation' }">Simulation</button>
-        <button class="chart-type" @click.prevent="chartSelect('table')" v-bind:class="{ active: storeBentobox.chartStyle[props.bboxid] === 'table' }">Table</button>
+        <button class="chart-type" @click.prevent="chartSelect()">Bar</button>
+        <button class="chart-type" @click.prevent="chartSelect()">Line</button>
+        <button class="chart-type" @click.prevent="chartSelect()">Simulation</button>
+        <button class="chart-type" @click.prevent="chartSelect()">Table</button>
       <!--<li>
         <button @click.prevent="chartSelect()">Mixed</button>
       </li>
@@ -38,22 +27,10 @@
         <button @click.prevent="labelsSelect()">Labels</button>
       </div>-->
     </div>
-    <div class="network-tools">
-      <button href="#" id="opendata-space" @click.prevent="openDataToolbar()"  v-bind:class="{ active: visToolbarStatus }">open data</button>
-    </div>
   </div>
-  <div class="network-tools" id="open-knowledge">
-    <opendata-tool v-if="visToolbarStatus === true" :bboxid="props.bboxid"></opendata-tool>
-  </div>
-  <!--<div id="feedback-time" v-if="feedbackmessage !== 'clear'" v-bind:class="{ active: feedbackActive }">
-    {{ feedbackmessage }}
-  </div>-->
 </template>
 
 <script setup>
-
-import CalendarTool from '@/components/bentobox/tools/calendarTools.vue'
-import OpendataTool from '@/components/bentobox/tools/opendataTools.vue'
 import { ref, computed } from 'vue'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
@@ -95,40 +72,17 @@ const viewMap = () => {
 }
 
 const setTimeFormat = () => {
-    // get the library contracts
-    storeAI.prepareLibrarySummary(props.bboxid)
-    // no summary if already save  NEED other way to set contect
-    // what updates are there moduels?  Device/source, compute, vis controls or settings?
-    let moduleUpdate = {}
-    let computeChanges = {}
-    // controls
-    if (selectedTimeFormat.value === 'timeseries') {
-      computeChanges.controls = { timeformat: selectedTimeFormat.value }
-    } else if (selectedTimeFormat.value === 'overlay') {
-      computeChanges.controls = { timeformat: selectedTimeFormat.value }
-    }
-    // any settings changes?
-    moduleUpdate.compute = computeChanges
-    // prepare HOPquery
-    let entityID = Object.keys(storeAI.boxLibSummary[props.bboxid].data)
-    let HOPcontext = {}
-    HOPcontext.entityUUID = storeAI.boxLibSummary[props.bboxid].data[entityID[0]].shellID
-    HOPcontext.bbid = props.bboxid
-    // HOPcontext.modules = storeAI.boxLibSummary[props.bboxid].data[entityID[0]].modules
-    HOPcontext.exp = { key: entityID[0], update: storeAI.boxLibSummary[props.bboxid].data }
-    HOPcontext.update = {}
-    let updateECS = {}
-    updateECS.entityUUID = storeAI.boxLibSummary[props.bboxid].data[entityID[0]].shellID
-    updateECS.input = 'refUpdate'
-    updateECS.modules = storeAI.boxLibSummary[props.bboxid].data.modules // storeAI.updateHOPqueryContracts[props.bboxid].data[entityID[0]].modules
-    updateECS.changes = moduleUpdate
-    HOPcontext.update = updateECS
-    // close the calendar options and dispay date summary selected
-    storeLibrary.updateHOPqueryContracts(HOPcontext)
+  console.log('set time format')
 }
 
 const labelsSelect = () => {
-  storeAI.boxSettings.legends = !storeAI.boxSettings.legends
+  // this.liveData.data.chartOptions.legend.display = !this.liveData.data.chartOptions.legend.display
+  let legendContext = {}
+  legendContext.shellID = '' // this.shellID
+  legendContext.moduleCNRL = '' // this.moduleCNRL
+  legendContext.moduleType = '' // this.moduleType
+  legendContext.mData = '' // his.mData
+  // this.$store.dispatch('actionLegendStatus', legendContext)
 }
 
 const tidySelect = () => {
@@ -171,9 +125,8 @@ const tidySelect = () => {
   storeLibrary.updateHOPqueryContracts(HOPcontext)
 }
 
-const chartSelect = (chartstyle) => {
-  // storeAI.boxSettings.chartstyle = chartstyle
-  storeBentobox.chartStyle[props.bboxid] = chartstyle
+const chartSelect = () => {
+  console.log('char ttype')
 }
 
 /*  computed */

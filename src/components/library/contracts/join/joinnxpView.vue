@@ -5,39 +5,14 @@
     </div>
     <div id="data-options" v-if="gmod?.value?.style === 'packaging'">
       <!-- select data source -->
-      <header class="module-header">Data</header>
+      <header class="module-header">Data</header>join state {{ storeLibrary.joinNXP }}
       {{ gmod?.value?.info?.value?.concept?.name }}
-      <!--<div class="data-select-datasource" v-if="NXPJoinModuleData.length !== 0">
-        <div class="data-select-item right">
-          <label for="data-select-source">Select Data Contract</label>
-        </div>
-        <div class="data-select-item peerinput">
-          <select class="data-data-source" @change="sourceSelect" v-model="selectJoin.source" id="">Please select
-            <option v-for="ds in NXPJoinModuleData" :key="ds.key" v-bind:value="ds.option.key">
-              {{ ds.option.value.concept.name }}
-            </option>
-          </select>
-        </div>
+      <div>please upload your {{ gmod.value.info.value.concept.path }} file.</div>
+      <space-upload v-if="uploadStatus"></space-upload>
+      <div class="join-device-select">
+        <button @click="querySourceDataDevices(gmod.value.info.value)">Show devices</button>
       </div>
-      <div id="data-source-options" v-if="selectJoin.source.length > 1">
-        <div class="data-select-item peerinput">1
-          <label class="data-button">Select file to upload</label>
-          <input class="data-button" type="file" @change="loadTextFromFile">
-        </div>
-        <div class="data-select-item peerinput">2
-          <button class="data-button" id="networkdata" @click="askHOPDataNXP">Sync data</button>
-        </div>
-        <div class="data-select-item peerinput">3
-          <div id="file-upload-interface" v-if="filebutton === true">
-          <button class="data-button" id="uploadfile" @click="uploadFileNXP">Yes, add this file</button>
-          </div>
-        </div>
-        <div class="data-select-item peerinput">4
-          <div id="sync-progress-interface" v-if="askDataNXP === true">
-            The data will be saved to this accounts datastore. Progress bar
-          </div>
-        </div>
-      </div> -->
+      <div v-if="storeLibrary?.devicesJoin !== undefined">Devices number: {{ storeLibrary.devicesJoin.length }}</div>
     </div>
     <div id="compute-options" v-if="gmod?.value?.style === 'compute'">
       <header class="module-header">Compute</header>
@@ -75,9 +50,10 @@
       <!-- preview visualisation -->
       <header class="module-header">Visualisation</header>
       <div id="vis-builder">
-        {{ gmod?.value?.info?.value?.computational?.name }}
+        {{ gmod?.value?.info?.value?.computational?.name }} Set default toolbar:
         <!--<chart-builder class="vis-area" v-if="NXPJoinModuleVisualise" :shellID="shellID" :moduleCNRL="moduleCNRL" :moduleType="moduleType" :mData="mData" ></chart-builder>-->
       </div>
+      <chart-toolbar></chart-toolbar>
       <opendata-tool :bboxid="'genesis-123579'" :setOptions="settingsOptions"></opendata-tool>
     </div>
   </div>
@@ -93,6 +69,8 @@
 </template>
 
 <script setup>
+import SpaceUpload from '@/components/dataspace/upload/uploadSpace.vue'
+import ChartToolbar from '@/components/bentobox/tools/chartBarJoin.vue'
 import OpendataTool from '@/components/bentobox/tools/opendataToolsJoin.vue'
 import { ref, computed } from 'vue'
 import { DateTime, Interval } from 'luxon'
@@ -107,7 +85,11 @@ import { libraryStore } from '@/stores/libraryStore.js'
   let calActive = ref(true)
   let localFeedback = ref('None')
 
-  // a computed ref
+	/* computed */
+	const uploadStatus = computed(() => {
+    return storeLibrary.uploadStatus
+  })
+
   const genesisNXP = computed(() => {
     // take genNXP id and get full nxp contract
     let nxpGENcontract = storeLibrary.matchGenesisContract(storeLibrary.joinSelected)
@@ -123,7 +105,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
         matchPack = mod
       }
     }
-    settingsOptions.devices = matchPack.value.info.value.concept.devicesList
+    settingsOptions.devices = storeLibrary.devicesJoin // matchPack.value.info.value.concept.devicesList
     settingsOptions.xaxis = ['time'] // matchPack.value.info.value.concept.
     settingsOptions.yaxis = matchPack.value.info.value.concept.tablestructure
     settingsOptions.category = matchPack.value.info.value.concept.category
@@ -142,18 +124,32 @@ import { libraryStore } from '@/stores/libraryStore.js'
     calActive.value = !calActive.value
   }
 
+  const querySourceDataDevices = (moduleCont) => {
+    let messageHOP = {}
+    messageHOP.type = 'library'
+    messageHOP.action = 'source'
+    messageHOP.reftype = 'sqlite' // moduleCont.concept.path
+    messageHOP.privacy = 'private'
+    messageHOP.task = 'GET'
+    messageHOP.data = { query: 'devices', db: moduleCont.concept.filename, table: moduleCont.concept.devicequery }
+    // send
+    storeLibrary.sendMessage(messageHOP)
+  }
+
   const joinNXPBoard = () => {
     // update date settings and prepare private contracts and save in peer library
     let millsDate
     // check date has been selected
     if (boxDate.value !== null) {
-      let luxTime = DateTime.local(boxDate.value)
+      let luxTime = DateTime.fromJSDate(boxDate.value).startOf('day')
       millsDate = luxTime.toMillis()
       // update compute contract settings
-      let settingsJoin = {}
-      settingsJoin = storeLibrary.joinOptions
-      settingsJoin.time = millsDate
-      storeLibrary.prepareJoinNXPMessage(genesisNXP, settingsJoin)
+      let controlsJoin = {}
+      controlsJoin = storeLibrary.joinOptions
+      controlsJoin.time = millsDate
+      controlsJoin.tidy = true
+      controlsJoin.resolution = 'default'
+      storeLibrary.prepareJoinNXPMessage(genesisNXP, controlsJoin, settingsOptions)
     } else {
       // prompt to select date
       storeLibrary.joinFeedback = true
@@ -186,6 +182,12 @@ import { libraryStore } from '@/stores/libraryStore.js'
       justify-self: center;
       width: 30%;
       margin-top: 1em;
+    }
+
+    #join-feedback {
+      padding: 1em;
+      font-size: 1.2em;
+      color: red;
     }
 
   }

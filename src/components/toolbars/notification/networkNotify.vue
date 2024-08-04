@@ -1,11 +1,9 @@
 <template>
-  <div id="notification-update">
-    <div class="bb-align not-align not-round" v-bind:class="{ active: checkAcitve }" @click="viewNotifications">N. {{ storeAI.countNotifications }}</div>
-    <div class="box" v-if="storeAI.notifList.length > 0 && notifActive === true">
-      <div v-for='noti in storeAI.notifList' :key='noti.id'>
-        <div class="notification-item" @click="viewItemNotify(noti)">
-          {{ noti.action }}
-        </div>
+  <div class="bb-align not-align not-round" v-bind:class="{ active: checkAcitve }" @click="viewNotifications">N. {{ storeAI.countNotifications }}</div>
+  <div class="box" v-if="storeAI.notifList.length > 0 && notifActive === true">
+    <div v-for='noti in storeAI.notifList' :key='noti.id'>
+      <div class="notification-item" @click="viewItemNotify(noti)">
+        {{ noti.action }}
       </div>
     </div>
   </div>
@@ -33,6 +31,10 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   }
 
   const viewItemNotify = (item) => {
+    if (item.action === 'network-publib-board') {
+      // create a message for beebee to display
+      storeAI.preparePublicConfirm(item)
+    }
     storeAI.startChat = false
     // reset count of notifications
     storeAI.countNotifications = 0
@@ -74,9 +76,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 }
 
 .box {
-  width: 100%;
-  height: 100%;
-  position: absolute;
+  position: relative;
   top: 10;
   left: 0;
   opacity: 0.7;
@@ -92,12 +92,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 }
 
 @media (min-width: 1024px) {
-
-    #notification-update {
-      display: grid;
-      grid-template-columns: 1fr;
-      z-index: 12;
-    }
 
     .not-round {
     background-color:rgb(123, 102, 102);
@@ -115,18 +109,16 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   }
 
   .box {
-    position: relative;
     top: 10px;
     left: 0;
-    opacity: 0.88;
-    background: #e5baca;
+    opacity: 0.9;
     width: 130%;
+    background: #e5baca;
     padding: .4em;
   }
 
   .active {
     background-color: red;
-    top: 20px;
   }
 }
 

@@ -5,9 +5,12 @@
         <div class="modal-header">
           <slot name="header">default header</slot>
         </div>
-
         <div class="modal-body">
-          <slot name="body">default body</slot>
+          <div id="ecdiary">Diary Please {{ smartDiary }}</div>
+          <slot name="body">
+            
+            default body
+          </slot>
         </div>
 
         <div class="modal-footer">
@@ -25,35 +28,62 @@
 </template>
 
 <script setup>
-const props = defineProps({
-  show: Boolean
-})
+import { ref, nextTick, computed, onMounted, onUpdated } from 'vue'
+import { diaryStore } from '@/stores/diaryStore.js'
+
+  const storeDiary = diaryStore()  
+
+  const props = defineProps({
+    show: Boolean
+  })
+
+  let ec = ref({})
+
+  onMounted(() => {
+    storeDiary.createEvents()
+  })
+
+  onUpdated(() => {
+      let smartCal = document.getElementById('ecdiary')
+      ec = new EventCalendar(smartCal, eventDiary.value)
+  })
+
+  /* computed */
+  const eventDiary = computed(() => {
+    return storeDiary.eventList
+  })
+
+  const smartDiary = computed(() => {
+    return storeDiary.diarySmart
+  })
+
 </script>
 
 <style scoped>
 .modal-mask {
   position: fixed;
-  z-index: 12;
+  z-index: 9;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  margin-top: .8em;
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   transition: opacity 0.3s ease;
+  opacity: 1;
 }
 
 .modal-container {
-  width: 94vw;
-  height: 98vh;
+  z-index: 10;
+  width: 92vw;
+  height: 92vh;
   margin: auto;
   padding: 20px 30px;
-  background-color: #fff;
+  background: white;
   border-radius: 2px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   transition: all 0.3s ease;
-  overflow-y: scroll;
+  overflow: scroll;
 }
 
 .modal-header h3 {
