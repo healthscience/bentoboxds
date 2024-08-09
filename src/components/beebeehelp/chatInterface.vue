@@ -13,7 +13,7 @@
           <span class="right-time">{{ chati.reply.time }}</span>
           <div class="reply-text-chart">
             <div class="right-chat">
-              {{ chati.reply.type }} {{ chati.reply.action }}aa
+              {{ chati.reply.type }} {{ chati.reply.action }} aa
               <div v-if="chati.reply.type === 'experiment' && chati.reply.data">
                 <button @click="viewSaveExperiment(chati.question.bbid, chati.reply.data)">View experiment</button>
               </div>
@@ -39,7 +39,7 @@
                 </div>
                 <div v-if="chati.reply.data?.type !== 'library-peerlibrary'">
                   <div class="beeebee-text">
-                    {{ chati.reply?.data?.text}} tt--{{ chati.reply.data?.type }}
+                    {{ chati.reply?.data?.text}} tt-- {{ chati.reply.data?.type }}
                     </div>
                     <div v-if="chati.reply?.data?.filedata" class="bee-file-data">
                       <div class="file-feedback-csv">
@@ -50,16 +50,17 @@
                       <image-preview v-if="storeLibrary.imagepreviewLive === true && summaryCSVState === false" :summaryimagedata="chati.reply.data.filedata.grid"></image-preview>
                     </div>
                     <div v-if="chati.reply?.data?.prompt?.length > 0" class="bee-prompt-question">
-                      {{ chati.reply.data.prompt }}
+                      {{ chati.reply.data.prompt }} ==pp
                       <!-- if csv file, show column to chart else sql need to select table then columns to chart-->
-                      <div id="type-data-options" v-if="chati.reply?.data?.filedata.type !== 'sqlite'">fileddd {{ chati.reply.data.opitons }}
+                      <div id="type-data-options" v-if="chati.reply?.data?.filedata.type !== 'sqlite'">options1 {{ chati.reply.data.opitons }}
                         <div class="data-options"  v-for="(dopt, index) in chati.reply?.data?.options">
-                          <div v-if="typeof dopt === 'string'">
+                          <!-- csv or json format -->
+                          <div v-if="typeof dopt === 'string'">str
                             <button class="data-option-select" @click.prevent="dataOptionVis(index, dopt, chati.reply.bbid, chati.reply?.data?.options)">
                               {{ dopt }}
                             </button>
                           </div>
-                          <div v-else>
+                          <div v-else>nostr
                               <button class="data-option-select" @click.prevent="dataOptionVis(index, dopt, chati.reply.bbid, chati.reply?.data?.options )">
                                 {{ dopt.name }}
                               </button>
@@ -67,7 +68,7 @@
                           <button class="data-option-select" :class="{ active: index === isDateColumn }" @click.prevent="dateOptionSelect(index, dopt, chati.reply.bbid)">date</button>
                         </div>
                       </div>
-                      <div v-else>
+                      <div v-else> <!-- sqlite data structure -->
                         <describe-datastructure :bboxid="chati.reply.bbid" :fileTypeIn="chati.reply?.data?.filedata.type"></describe-datastructure>
                         <div class="data-options"  v-for="(dopt, index) in storeLibrary.newDatafile.columns">{{ dopt }}
                           <div v-if="typeof dopt === 'string'">
@@ -95,7 +96,7 @@
                               </button>
                           </div>
                         </div>
-                        <div id="filter-options" v-if="filterActive === true">ddd
+                        <div id="filter-options" v-if="filterActive === true">filter
                           <describe-devicestructure :bboxid="chati.reply.bbid" :fileTypeIn="chati.reply?.data?.filedata.type" @device-filter="filterdeviceEvent()" @device-id="choicedeviceEvent()"></describe-devicestructure>
                         </div>
                       </div>
