@@ -55,8 +55,8 @@
                       <div id="type-data-options" v-if="chati.reply?.data?.filedata.type !== 'sqlite'">options1 {{ chati.reply.data.opitons }}
                         <div class="data-options"  v-for="(dopt, index) in chati.reply?.data?.options">
                           <!-- csv or json format -->
-                          <div v-if="typeof dopt === 'string'">str
-                            <button class="data-option-select" @click.prevent="dataOptionVis(index, dopt, chati.reply.bbid, chati.reply?.data?.options)">
+                          <div v-if="typeof dopt === 'string'">str --
+                            <button class="data-option-select" @click.prevent="dataOptionVis(index, dopt, chati.reply.bbid, chati.reply?.data?.options, chati.reply?.data?.filedata.size)">
                               {{ dopt }}
                             </button>
                           </div>
@@ -239,30 +239,38 @@ import { libraryStore } from '@/stores/libraryStore.js'
     storeLibrary.libraryStatus = true
   }
 
-  const dataOptionVis = (did, colName, bbid, options) => {
-    let dateColSelected = ''
-    if (options === undefined) {
-      dateColSelected = 'TIMESTAMP'
+  const dataOptionVis = (did, colName, bbid, options, size) => {
+    // is it a large file?
+    console.log(size)
+    if (size === 'large') {
+      console.log('large file csv')
     } else {
-      dateColSelected = options[isDateColumn.value]
+      console.log('small file')
+
+      let dateColSelected = ''
+      if (options === undefined) {
+        dateColSelected = 'TIMESTAMP'
+      } else {
+        dateColSelected = options[isDateColumn.value]
+      }
+      // keep track of live selections
+      datecolLive.value = did
+      columnLive.value = colName
+      bbidLive.value = bbid
+      let dataCode = {}
+      dataCode.id = did
+      dataCode.deviceTable = storeLibrary.newDatafile.deviceTable
+      dataCode.devicetablename = ''
+      dataCode.name = colName
+      // what is name of date column?
+      dataCode.timestampname = dateColSelected
+      dataCode.timestamp = isDateColumn.value
+      dataCode.device = ''
+      dataCode.deviceCol = ''
+      dataCode.timerange = []
+      dataCode.bbid = bbid
+      storeAI.submitAsk(dataCode)
     }
-    // keep track of live selections
-    datecolLive.value = did
-    columnLive.value = colName
-    bbidLive.value = bbid
-    let dataCode = {}
-    dataCode.id = did
-    dataCode.deviceTable = storeLibrary.newDatafile.deviceTable
-    dataCode.devicetablename = ''
-    dataCode.name = colName
-    // what is name of date column?
-    dataCode.timestampname = dateColSelected
-    dataCode.timestamp = isDateColumn.value
-    dataCode.device = ''
-    dataCode.deviceCol = ''
-    dataCode.timerange = []
-    dataCode.bbid = bbid
-    storeAI.submitAsk(dataCode)
   }
 
   const viewSummaryCSV = (bbid) => {

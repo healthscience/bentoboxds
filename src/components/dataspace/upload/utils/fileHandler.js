@@ -1,7 +1,4 @@
 'use strict'
-
-import { defaultInjectManifestVitePlugins } from "vite-plugin-pwa"
-
 /**
 *  FileHandler
 *
@@ -29,16 +26,23 @@ class FileHandler {
   handleLargeFile = function (file, type, storeLibrary) {
 		let localthis = this
     // chunck the file and pass on to appropriate parser for file type
+		let chCount = 0
       function callback (data) {
+				console.log('fist data check')
+				// console.log(data)
 				let dataHolder = {}
 				dataHolder.filesize = fileSize
 				dataHolder.offset = offset
+				dataHolder.firstchunk = firstChunk
 				dataHolder.chunk = data
 				dataHolder.file = file
 				dataHolder.type = type
-				localthis.saveStreamDataHop(storeLibrary, dataHolder)
+				if (chCount === 0) {
+					localthis.saveStreamDataHop(storeLibrary, dataHolder)
+				}
       }
       var fileSize   = file.size
+			let firstChunk = false
       var chunkSize  = 64 * 1024 * 200 // bytes
       var offset     = 0
       var self       = this // we need a reference to the current object
@@ -46,17 +50,21 @@ class FileHandler {
   
       var readEventHandler = function(evt) {
           if (evt.target.error == null) {
-              offset += evt.target.result.length
-              callback(evt.target.result) // callback for handling read chunk
+						if (offset === 0) {
+							firstChunk = true
+						} else {
+							firstChunk = false
+						}
+            offset += evt.target.result.length
+            callback(evt.target.result) // callback for handling read chunk
           } else {
-              console.log("Read error: " + evt.target.error)
-              return
+						console.log("Read error: " + evt.target.error)
+						return
           }
           if (offset >= fileSize) {
-              console.log("Done reading file")
-              return
-          }
-  
+						console.log("Done reading file")
+						return
+					}
           // of to the next chunk
           chunkReaderBlock(offset, chunkSize, file)
       }
@@ -159,6 +167,7 @@ class FileHandler {
 		messageHOP.data = chunk
 		// close the upload
 		storeLibrary.uploadStatus = false
+		console.log(messageHOP)
 		storeLibrary.sendMessage(messageHOP)
 	}
 

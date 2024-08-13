@@ -5,6 +5,7 @@ import LibraryUtility from '@/stores/hopUtility/libraryUtility.js'
 import { bentoboxStore } from "@/stores/bentoboxStore.js"
 import { useSocketStore } from '@/stores/socket.js'
 import hashObject from 'object-hash'
+import ChatUtilty from '@/stores/hopUtility/chatUtility.js'
 
 export const libraryStore = defineStore('librarystore', {
   state: () => ({
@@ -18,6 +19,7 @@ export const libraryStore = defineStore('librarystore', {
     storeBentoBox: bentoboxStore(),
     utilLibrary: new LibraryUtility(),
     sendSocket: useSocketStore(),
+    liveChatUtil: new ChatUtilty(),
     startLibrary: false,
     libraryMessage: '',
     uploadStatus: false,
@@ -257,6 +259,16 @@ export const libraryStore = defineStore('librarystore', {
           // this.joinOptions.yaxis = message.data.tables
           // this.joinOptions.yaxis = ['time']
         }
+      } else if (message.action === 'PUT-stream') {
+        console.log('info back from lrage file save assume csv for now')
+        console.log(message)
+        this.storeAI.qcount++
+        let chatPair = this.liveChatUtil.setlargeUploadChat(message, this.storeAI.qcount)
+        this.storeAI.historyPair[this.storeAI.chatAttention].push(chatPair)
+        this.newDatafile.columns = message.data.columns
+        this.newDatafile.path = 'csv'
+        this.newDatafile.file = message.data.path
+
       } else if (message.action === 'source') {
         if (message.reftype === 'sqlite') {
           if (this.joinNXP === true) {
