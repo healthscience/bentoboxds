@@ -147,6 +147,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         this.actionFileAskInput(lastQuestion[0].reply)
       } else if (dataInfo?.id) {
         // if bbid match to that
+        console.log('one')
         let matchBBox = {}
         let questionCount = []
         for (let hpair of this.historyPair[this.chatAttention]) {
@@ -159,12 +160,14 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           matchBBox = questionCount[0]
         }
         if (matchBBox) {
+          console.log('two match')
           let lastQuestion = matchBBox
           lastQuestion.reply.data.content = matchBBox.reply.data.filedata.grid
           lastQuestion.reply.data.context = dataInfo
           this.currentQuestion = lastQuestion
           this.actionFileAskInput(lastQuestion.reply)
         } else {
+          console.log('three')
           // need to check if same pair but different data type context?
           let checkCurrentQ = Object.keys(this.currentQuestion)
           if (checkCurrentQ.length > 0) {
@@ -180,8 +183,13 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           }
         }
       } else {
-       this.actionHelpAskInput()
+        console.log('four')
+        this.actionHelpAskInput()
       }
+    },
+    largeFilesubmitAsk (dataInfo) {
+      console.log('large file prep')
+      console.log(dataInfo)
     },
     actionFileAskInput (fileData) {
       let aiMessageout = {}

@@ -260,15 +260,12 @@ export const libraryStore = defineStore('librarystore', {
           // this.joinOptions.yaxis = ['time']
         }
       } else if (message.action === 'PUT-stream') {
-        console.log('info back from lrage file save assume csv for now')
-        console.log(message)
         this.storeAI.qcount++
         let chatPair = this.liveChatUtil.setlargeUploadChat(message, this.storeAI.qcount)
         this.storeAI.historyPair[this.storeAI.chatAttention].push(chatPair)
         this.newDatafile.columns = message.data.columns
         this.newDatafile.path = 'csv'
         this.newDatafile.file = message.data.path
-
       } else if (message.action === 'source') {
         if (message.reftype === 'sqlite') {
           if (this.joinNXP === true) {

@@ -144,8 +144,8 @@ import WelcomeBeebee from '@/components/beebeehelp/welcomeBeebee.vue'
 import inputBox from '@/components/beebeehelp/inputBox.vue'
 import CsvPreview from '@/components/dataspace/upload/csvPreview.vue'
 import ImagePreview from '@/components/dataspace/upload/imagePreview.vue'
-import DescribeDatastructure from '@/components/library/contracts/contribute/forms/describeSourceStructure.vue'
-import DescribeDevicestructure from '@/components/library/contracts/contribute/forms/describeDeviceStructure.vue'
+import DescribeDatastructure from '@/components/library/contracts/contribute/forms/packaging/describeSourceStructure.vue'
+import DescribeDevicestructure from '@/components/library/contracts/contribute/forms/packaging/describeDeviceStructure.vue'
 import BentoBox from '@/components/bentobox/baseBox.vue'
 import { ref, computed, onMounted } from 'vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
@@ -243,10 +243,32 @@ import { libraryStore } from '@/stores/libraryStore.js'
     // is it a large file?
     console.log(size)
     if (size === 'large') {
-      console.log('large file csv')
+      let dateColSelected = ''
+      if (options === undefined) {
+          dateColSelected = 'TIMESTAMP'
+        } else {
+          dateColSelected = options[isDateColumn.value]
+        }
+        // keep track of live selections
+        datecolLive.value = did
+        columnLive.value = colName
+        bbidLive.value = bbid
+        let dataCode = {}
+        dataCode.size = 'large'
+        dataCode.id = did
+        dataCode.deviceTable = storeLibrary.newDatafile.deviceTable
+        dataCode.devicetablename = ''
+        dataCode.name = colName
+        // what is name of date column?
+        dataCode.timestampname = dateColSelected
+        dataCode.timestamp = isDateColumn.value
+        dataCode.device = ''
+        dataCode.deviceCol = ''
+        dataCode.timerange = []
+        dataCode.bbid = bbid
+        console.log(dataCode)
+        storeAI.largeFilesubmitAsk(dataCode)
     } else {
-      console.log('small file')
-
       let dateColSelected = ''
       if (options === undefined) {
         dateColSelected = 'TIMESTAMP'
