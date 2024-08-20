@@ -17,9 +17,7 @@
     <div id="match-datatypes">
       <header>Drag datatype to column name</header>
       <div
-        v-for='col in storeLibrary?.newDatafile?.columns'
-        :key='col.id'
-      >
+        v-for='col in storeLibrary?.newDatafile?.columns' :key='col.id'>
         <div class="col-name">
           <div class="desribe-source-cols" v-if="col.name">
             <div class="source-data-assess">
@@ -62,10 +60,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
   }
 
   const handleDrop = (event, targetContainer, dti) => {
-    console.log('drop handle')
-    console.log(dti)
     const itemData = JSON.parse(event.dataTransfer.getData('application/json'))
-    console.log(itemData)
     // make pair of column source name and ref DT contract hash ie key
     if (targetContainer === 'match-column') {
       // the reference contract

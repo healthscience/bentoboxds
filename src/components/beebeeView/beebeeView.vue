@@ -2,8 +2,8 @@
   <div id="beebee-shaper">
     <div class="bento-history">
       <div id="bento-ai-diary">
+        <button id="cues-button" @click="openBentoCues()" :class="{ active: cuesActive === true }">Cues</button>
         <button id="diary-button" @click="openBentoDiary()" :class="{ active: diaryActive === true }">Diary</button>
-
       </div>
       <div class="history-buttons">
         <div class="history">
@@ -20,6 +20,7 @@
       <div class="beebee-home">
         <beebee-chat></beebee-chat>
        </div>
+       <bento-cues></bento-cues>
        <bento-space></bento-space>
        <bento-diary></bento-diary>
     </div>
@@ -29,6 +30,7 @@
 <script setup>
 import { ref } from 'vue'
 import ChatMenu from '@/components/beebeeView/navigation/chatMenu.vue'
+import BentoCues from '@/components/bentocues/healthCues.vue'
 import SpaceMenu from '@/components/beebeeView/navigation/spaceMenu.vue'
 import BeebeeChat from '@/components/beebeehelp/chatInterface.vue'
 import BentoSpace from '@/components/bentospace/spaceTemplate.vue'
@@ -41,6 +43,7 @@ import { computed } from 'vue'
   const storeBentobox = bentoboxStore()
 
   let diaryActive = ref(false)
+  let cuesActive = ref(false)
 
   const historyActive = computed(() => {
     return storeBentobox.historyActive
@@ -54,6 +57,11 @@ import { computed } from 'vue'
   let historyType = (type) => {
     storeAI.historyList = type
     storeBentobox.historyActive = !storeBentobox.historyActive // true
+  }
+
+  const openBentoCues = () => {
+    cuesActive.value = !cuesActive.value
+    storeAI.bentocuesState = !storeAI.bentocuesState
   }
 
   const openBentoDiary = () => {

@@ -95,7 +95,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
     messageHOP.privacy = 'private'
     messageHOP.task = 'GET'
     messageHOP.data = { query: 'devices', db: storeLibrary.describeSource.path, table: tableChoice.value.name }
-    console.log(messageHOP)
     storeLibrary.sendMessage(messageHOP)
   }
 

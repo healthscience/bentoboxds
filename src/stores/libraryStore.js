@@ -160,7 +160,8 @@ export const libraryStore = defineStore('librarystore', {
     moduleNxpActive: 'question',
     dtcolumns: [],
     fileSaveStatus: false,
-    fileFeedback: ''
+    fileFeedback: '',
+    devicesJoin: []
   }),
   actions: {
     // since we rely on `this`, we cannot use an arrow function
@@ -263,7 +264,14 @@ export const libraryStore = defineStore('librarystore', {
         this.storeAI.qcount++
         let chatPair = this.liveChatUtil.setlargeUploadChat(message, this.storeAI.qcount)
         this.storeAI.historyPair[this.storeAI.chatAttention].push(chatPair)
-        this.newDatafile.columns = message.data.columns
+        // structure header to id, name object
+        let structureHeader = []
+        let countC = 1
+        for (let col of message.data.columns) {
+          structureHeader.push({ cid: countC, name: col})
+          countC++
+        }
+        this.newDatafile.columns = structureHeader  // need to be in object format
         this.newDatafile.path = 'csv'
         this.newDatafile.file = message.data.path
       } else if (message.action === 'source') {

@@ -74,6 +74,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     futureNumberData: {},
     beebeeChatLog: {},
     bentospaceState: false,
+    bentocuesState: false,
     bentodiaryState: false,
     longPress: false,
     liveBspace: '',
