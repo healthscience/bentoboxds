@@ -3,14 +3,13 @@
 
 <Teleport to="body">
     <modal-cues :show="bentoCuesStatus" @close="closeBentoCues">
-      <div id="simpleblock" ref="simpleblock">Cues</div>
       Cues
       <template #header>
         <div id="cues-modal-header">
           <button
             type="button"
             class="btn-green"
-            @click="closeBentoDiary"
+            @click="closeBentoCues"
             aria-label="Close modal"
           >
             Close
@@ -20,17 +19,28 @@
         </div>
       </template>
       <template #body>
-        <div class="pie">
-          <button style="transform: rotate(0deg) skewY(30deg)">
-            <span style="transform: skewY(-30deg) rotate(60deg)" class="text">1</span>    
-          </button>
-          <button style="transform: rotate(120deg) skewY(30deg)">
-            <span style="transform: skewY(-30deg) rotate(60deg)" class="text">2</span>
-          </button>
-          <button style="transform: rotate(240deg) skewY(30deg)">
-            <span style="transform: skewY(-30deg) rotate(60deg)"class="text">3</span>
-          </button>
+        <div id="bento-cues">
+          <div id="cues-wheel">
+            <div class="pie">
+              <button style="transform: rotate(0deg) skewY(30deg)" @click="cueSelect('environment')">
+                <span style="transform: skewY(-30deg) rotate(0deg)" class="text">Environment</span>    
+              </button>
+              <button style="transform: rotate(90deg) skewY(30deg)" @click="cueSelect('body')">
+                <span style="transform: skewY(-30deg) rotate(270deg)" class="text">Body</span>
+              </button>
+              <button style="transform: rotate(180deg) skewY(30deg)" @click="cueSelect('mind')">
+                <span style="transform: skewY(-30deg) rotate(60deg)"class="text">Mind</span>
+              </button>
+              <button style="transform: rotate(270deg) skewY(30deg)" @click="cueSelect('nature')">
+                <span style="transform: skewY(-30deg) rotate(60deg)"class="text">Nature</span>
+              </button>
+            </div>
+          </div>
+          <div id="filter-cues">
+            Filters: price, biomarkers, devices (home, clinic), Motivation etc.
+          </div>
         </div>
+
       </template>
       <template #footer>
       </template>
@@ -59,6 +69,9 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     storeAI.bentocuesState = !storeAI.bentocuesState
   }
 
+  const cueSelect = (cue) => {
+    console.log('cue' + cue)
+  }
 </script>
 
 <style scoped>
@@ -67,13 +80,20 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
   @media (min-width: 1024px) {
 
+    #bento-cues {
+      display: grid;
+      grid-template-columns: 3fr 2fr;
+      border: 1px solid green;
+    }
+
     .pie {
       background-color: rgba(0, 0, 0, 0.5);
       position: relative;
-      width: 150px;
-      height: 150px;
+      width: 300px;
+      height: 300px;
       border-radius: 50%;
       overflow: hidden;
+      margin: 100px;
 
       button,
       button:focus {
@@ -95,7 +115,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
         .text {
           position: absolute;
           bottom: 30px;
-          padding: 0px;
+          padding: 20px;
           color: #333;
           left: 30px;
         }
