@@ -40,7 +40,7 @@
 <style scoped>
 .modal-mask {
   position: fixed;
-  z-index: 9;
+  z-index: 8;
   top: 0;
   left: 0;
   width: 100%;
@@ -52,7 +52,7 @@
 }
 
 .modal-container {
-  z-index: 10;
+  z-index: 8;
   width: 92vw;
   height: 92vh;
   margin: auto;

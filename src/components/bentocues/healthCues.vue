@@ -24,10 +24,12 @@
             <div id="wheel-tools">
               <button id="simple-wheel" @click="selectWheel('simple')">Simple</button>
               <button id="simple-segments" @click="selectWheel('segments')">Segments</button>
+              <button id="simple-segments" @click="selectWheel('aging')">Aging</button>
             </div>
             <div class="pie" v-if="wheelType === 'simple'">
-              <button style="transform: rotate(0deg) skewY(30deg)" @click="cueSelect('environment')">
-                <span style="transform: skewY(-30deg) rotate(0deg)" class="text">Environment</span>    
+              <pie-chartcues :chartData="cuesHolistic" :options="{}" ></pie-chartcues>
+              <!--<button style="transform: rotate(0deg) skewY(0deg)" @click="cueSelect('environment')">
+                <span style="transform: skewY(0deg) rotate(0deg)" class="text">Environment</span>    
               </button>
               <button style="transform: rotate(90deg) skewY(30deg)" @click="cueSelect('human')">
                 <span style="transform: skewY(-30deg) rotate(270deg)" class="text">Body</span>
@@ -37,10 +39,11 @@
               </button>
               <button style="transform: rotate(270deg) skewY(30deg)" @click="cueSelect('nature')">
                 <span style="transform: skewY(-30deg) rotate(60deg)"class="text">Nature</span>
-              </button>
+              </button>-->
             </div>
             <div class="pie-segments" v-if="wheelType === 'segments'">
-              <div class="circle">
+              <pie-chartcues :chartData="cuesSegments" :options="{}" ></pie-chartcues>
+              <!--<div class="circle">
                 <div class="cue-seg"><div class="text" @click="cueSelect('farming')">Farming</div></div>
                 <div class="cue-seg"><div class="text" @click="cueSelect('buildings')">Buildings</div></div>
                 <div class="cue-seg"><div class="text" @click="cueSelect('money')">Money</div></div>
@@ -53,7 +56,11 @@
                 <div class="cue-seg"><div class="text" @click="cueSelect('universe')">Universe</div></div>
                 <div class="cue-seg"><div class="text" @click="cueSelect('weather')">Climate/weather</div></div>
                 <div class="cue-seg"><div class="text" @click="cueSelect('water')">Water/Air quality</div></div>
-              </div>
+              </div>-->
+            </div>
+            <div class="pie-segments" v-if="wheelType === 'aging'">
+              <pie-chartcues :chartData="cuesData" :options="{}" ></pie-chartcues>
+              Source: <a href="https://peterattiamd.com/the-challenges-of-defining-aging/" target="_blank">All marks of aging</a>
             </div>
           </div>
           <div id="filter-cues">
@@ -94,22 +101,23 @@
           <div id="cue-bentobox">
             Expand cue -- {{ cueActive }}
             <div id="cue-type" v-if="cueActive === 'body'">
-              <div class="pie-segments">
+              <pie-chartcues :chartData="cuesBody" :options="{}" ></pie-chartcues>
+              <!--<div class="pie-segments">
                 <div class="circle-human">
-                  <div class="cue-seg-human"><div class="text">Hallmark1</div></div>
-                  <div class="cue-seg-human"><div class="text">Hallmark2</div></div>
-                  <div class="cue-seg-human"><div class="text">Hallmark3</div></div>
-                  <div class="cue-seg-human"><div class="text">Hallmark4</div></div>
-                  <div class="cue-seg-human"><div class="text">Hallmark5</div></div>
-                  <div class="cue-seg-human"><div class="text">Hallmark6</div></div>
-                  <div class="cue-seg-human"><div class="text">Hallmark7</div></div>
-                  <div class="cue-seg-human"><div class="text" @click="cueSelect('blood')">Blood</div></div>
-                  <div class="cue-seg-human"><div class="text">Hallmark9</div></div>
-                  <div class="cue-seg-human"><div class="text">Hallmark10</div></div>
-                  <div class="cue-seg-human"><div class="text">Hallmark11</div></div>
-                  <div class="cue-seg-human"><div class="text">Hallmark12</div></div>
+                  <div class="cue-seg-human"><div class="text">Brain</div></div>
+                  <div class="cue-seg-human"><div class="text"@click="spaceSelect('')">Skin</div></div>
+                  <div class="cue-seg-human"><div class="text">Heart</div></div>
+                  <div class="cue-seg-human"><div class="text">Immune system</div></div>
+                  <div class="cue-seg-human"><div class="text"></div></div>
+                  <div class="cue-seg-human"><div class="text">Muscle mass</div></div>
+                  <div class="cue-seg-human"><div class="text">Inflamation</div></div>
+                  <div class="cue-seg-human"><div class="text" @click="spaceSelect('b6e81d8bed9758b538aa25c13239968813b17f5a')">Blood</div></div>
+                  <div class="cue-seg-human"><div class="text">hormones</div></div>
+                  <div class="cue-seg-human"><div class="text">Epigenomics</div></div>
+                  <div class="cue-seg-human"><div class="text">Cellular</div></div>
+                  <div class="cue-seg-human"><div class="text">Telomere</div></div>
                 </div>
-              </div>
+              </div>-->
             </div>
           </div>
         </div>
@@ -124,6 +132,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import ModalCues from '@/components/bentocues/cuesModal.vue'
+import PieChartcues from '@/components/visualisation/charts/doughnutChart.vue'  // pieChart.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
@@ -137,6 +146,55 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     return storeAI.bentocuesState
   })
 
+  const cuesHolistic = computed(() => {
+    let testPie = {
+      labels: ['Nature', 'Environment', 'Social', 'Self'],
+      datasets: [
+        {
+        backgroundColor: ['#191fe7', '#920914', '#09921c', '#560992'],
+        data: [90, 90, 90, 90]
+        }
+      ]}
+    return testPie
+  })
+
+
+  const cuesSegments = computed(() => {
+    let testPie = {
+      labels: ['Farming', 'Buildings', 'Money', 'Work', 'Lifestyle', 'Food', 'Movement', 'Body', 'Sleep', 'Sleep/mind', 'Universe', 'Climate/weather'],
+      datasets: [
+        {
+        backgroundColor: ['#191fe7', '#920914', '#09921c', '#560992', '#17c8d1', '#f08113', '#61819c', '#e66553', '#8bf5b0', '#999999', '#999999' ,'#999999', '#999999'],
+        data: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]
+        }
+      ]}
+    return testPie
+  })
+
+  const cuesBody = computed(() => {
+    let testPie = {
+      labels: ['Brain', 'Skin', 'Heart', 'Immunesystem', 'Cardio', 'Muscle mass', 'Inflamation', 'Blood', 'Hormones', 'Sight', 'Mouth/teeth'],
+
+      datasets: [
+        {
+        backgroundColor: ['#191fe7', '#920914', '#09921c', '#560992', '#17c8d1', '#f08113', '#61819c', '#e66553', '#8bf5b0', '#999999' ,'#999999', '#999999'],
+        data: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]
+        }
+      ]}
+    return testPie
+  })
+
+  const cuesData = computed(() => {
+    let testPie = {
+      labels: ['Genomic instability', 'Telomere attrition', 'Epigenetic alterations', 'Loss of proteostasis', 'Deregulated nutrient-sensing', 'Mitochondrial dysfunction', 'Cellular senescence', 'Stem cell exhaustion', 'Altered intercellular communication', 'besearch'],
+      datasets: [
+        {
+        backgroundColor: ['#191fe7', '#920914', '#09921c', '#560992', '#17c8d1', '#f08113', '#61819c', '#e66553', '#8bf5b0', '#999999'],
+        data: [36, 36, 36, 36, 36, 36, 36, 36, 36, 36]
+        }
+      ]}
+    return testPie
+  })
 
   /* methods */
 
@@ -144,9 +202,15 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     storeAI.bentocuesState = !storeAI.bentocuesState
   }
 
-  const cueSelect = (cue) => {
-    console.log('cue' + cue)
-    cueActive.value = cue
+  const cueSelect = (cueID) => {
+    console.log('cue' + cueID)
+    cueActive.value = cueID
+  }
+
+  const spaceSelect = (spaceID) => {
+    console.log('spaceid' + spaceID)
+    storeAI.bentospaceState = !storeAI.bentospaceState
+    storeAI.liveBspace = {name: 'blood', spaceid: spaceID}
   }
 
   const selectWheel = (type) => {
@@ -164,7 +228,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
     #bento-cues {
       display: grid;
-      grid-template-columns: 3fr 2fr;
+      grid-template-columns: 3fr 1fr;
       border: 1px solid green;
     }
 
@@ -197,8 +261,8 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
         }
         .text {
           position: absolute;
-          bottom: 30px;
-          padding: 20px;
+          bottom: 0px;
+          padding: 0px;
           color: #333;
           left: 30px;
         }
@@ -295,7 +359,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
         -ms-transform: rotate(330deg) skewY(-60deg);
       transform: rotate(330deg) skewY(-60deg);    
     }
-    /** colors */
+    /** colors  https://meinwordpress-ho-maei0r3bcn.live-website.com */
 
     .cue-seg:first-child .text {
         background: green; 
