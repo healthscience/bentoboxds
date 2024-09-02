@@ -110,6 +110,23 @@ export const accountStore = defineStore('account', {
         }
       }
     },
+    setJTW (token) {
+      this.sendSocket.jwt = token
+      // need to setup pub/private key schnorr sign utilities
+      this.peerauth = true
+      this.storeAI.startChat = false
+      this.accountStatus = false
+      // send message to get history of chats, spaces, peers
+      let saveBentoBoxsetting = {}
+      saveBentoBoxsetting.type = 'bentobox'
+      saveBentoBoxsetting.reftype = 'chat-history'
+      saveBentoBoxsetting.action = 'start'
+      saveBentoBoxsetting.task = 'start'
+      saveBentoBoxsetting.data = ''
+      saveBentoBoxsetting.bbid = ''
+      this.storeAI.sendMessageHOP(saveBentoBoxsetting)
+      storeAccount.accountMenu = 'account'
+    },
     sendMessageHOP (message) {
       this.sendSocket.send_message(message)
     }

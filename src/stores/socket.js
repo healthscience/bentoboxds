@@ -17,7 +17,8 @@ export const useSocketStore = defineStore({
     connection_ready: false,
     connection_error: false,
     connection_loss: false,
-    messages: []
+    messages: [],
+    jwt: ''
   }),
   actions: {
     // since we rely on `this`, we cannot use an arrow function
@@ -85,6 +86,9 @@ export const useSocketStore = defineStore({
     
     },
     send_message (data) {
+      console.log('send message')
+      console.log(this.jwt)
+      data.jwt = this.jwt // '12358132134'
       this.websocket.send(JSON.stringify(data))
       // keep list of message per session live?
       // this.messages.push( { from: "send", message: to_send.message } )

@@ -73,8 +73,10 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   }
 
   const selfVerify = () => {
+    // cloud token temp solution
+    storeAccount.setJTW(selfpwInput)
     // need to setup pub/private key schnorr sign utilities
-    storeAccount.peerauth = true
+    /* storeAccount.peerauth = true
     storeAI.startChat = false
     storeAccount.accountStatus = false
     // send message to get history of chats, spaces, peers
@@ -86,7 +88,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     saveBentoBoxsetting.data = ''
     saveBentoBoxsetting.bbid = ''
     storeAI.sendMessageHOP(saveBentoBoxsetting)
-    storeAccount.accountMenu = 'account'
+    storeAccount.accountMenu = 'account' */
   }
 
   const disconnectHOP= () => {
