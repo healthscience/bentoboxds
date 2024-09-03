@@ -125,7 +125,7 @@ export const accountStore = defineStore('account', {
       saveBentoBoxsetting.data = ''
       saveBentoBoxsetting.bbid = ''
       this.storeAI.sendMessageHOP(saveBentoBoxsetting)
-      storeAccount.accountMenu = 'account'
+      this.accountMenu = 'account'
     },
     sendMessageHOP (message) {
       this.sendSocket.send_message(message)
