@@ -25,6 +25,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     qcount: 0,
     dataBoxStatus: false,
     chatBottom: 0,
+    beebeeContext: 'chat',
+    oracleData: { type: 'oracle', action: 'decision', elements: [{ label: 'muscle mass', datasets: { backgroundColor: '#01923c', data: 30 }}, { label: 'brain', datasets: { backgroundColor: '#71923c', data: 30 }}]},
     askQuestion: {
       text: ''
     },
@@ -129,64 +131,71 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.beginChat = true
     },
     submitAsk (dataInfo) {
-      // remove start boxes
-      this.startChat = false
-      this.historyBar = true
-      let saveQ = {}
-      saveQ.count = this.qcount
-      saveQ.text = this.askQuestion.text
-      saveQ.active = true
-      let date = new Date()
-      // get the time as a string
-      let time = date.toLocaleTimeString()
-      saveQ.time = time
-      this.inputAskHistory.push(saveQ)
-      // provide feedback else forward to beebeeLogic via HOP
-      if (this.askQuestion.text === 'yes') {
-        let lastQuestion = this.historyPair[this.chatAttention].slice(-1)
-        lastQuestion[0].reply.data.content = lastQuestion.reply.data.grid // this.storeLibrary.linesLimit
-        this.actionFileAskInput(lastQuestion[0].reply)
-      } else if (dataInfo?.id) {
-        // if bbid match to that
-        console.log('one')
-        let matchBBox = {}
-        let questionCount = []
-        for (let hpair of this.historyPair[this.chatAttention]) {
-          if (hpair.reply.bbid === dataInfo.bbid) {
-            matchBBox = hpair
-            questionCount.push(hpair)
+      // check for context of beebee default is Chat, other option spaces, cues(decisions)
+      if (this.beebeeContext === 'chat') {
+        console.log('standard chat interface')
+        // remove start boxes
+        this.startChat = false
+        this.historyBar = true
+        let saveQ = {}
+        saveQ.count = this.qcount
+        saveQ.text = this.askQuestion.text
+        saveQ.active = true
+        let date = new Date()
+        // get the time as a string
+        let time = date.toLocaleTimeString()
+        saveQ.time = time
+        this.inputAskHistory.push(saveQ)
+        // provide feedback else forward to beebeeLogic via HOP
+        if (this.askQuestion.text === 'yes') {
+          let lastQuestion = this.historyPair[this.chatAttention].slice(-1)
+          lastQuestion[0].reply.data.content = lastQuestion.reply.data.grid // this.storeLibrary.linesLimit
+          this.actionFileAskInput(lastQuestion[0].reply)
+        } else if (dataInfo?.id) {
+          // if bbid match to that
+          console.log('one')
+          let matchBBox = {}
+          let questionCount = []
+          for (let hpair of this.historyPair[this.chatAttention]) {
+            if (hpair.reply.bbid === dataInfo.bbid) {
+              matchBBox = hpair
+              questionCount.push(hpair)
+            }
           }
-        }
-        if (questionCount.length > 1) {
-          matchBBox = questionCount[0]
-        }
-        if (matchBBox) {
-          console.log('two match')
-          let lastQuestion = matchBBox
-          lastQuestion.reply.data.content = matchBBox.reply.data.filedata.grid
-          lastQuestion.reply.data.context = dataInfo
-          this.currentQuestion = lastQuestion
-          this.actionFileAskInput(lastQuestion.reply)
-        } else {
-          console.log('three')
-          // need to check if same pair but different data type context?
-          let checkCurrentQ = Object.keys(this.currentQuestion)
-          if (checkCurrentQ.length > 0) {
-            let lastQuestion = this.currentQuestion
-            lastQuestion[0].reply.data.context = dataInfo
-            this.actionFileAskInput(lastQuestion[0].reply)
-          } else {
-            let lastQuestion = this.historyPair[this.chatAttention].slice(-1)
-            lastQuestion[0].reply.data.content = this.storeLibrary.linesLimit
-            lastQuestion[0].reply.data.context = dataInfo
+          if (questionCount.length > 1) {
+            matchBBox = questionCount[0]
+          }
+          if (matchBBox) {
+            console.log('two match')
+            let lastQuestion = matchBBox
+            lastQuestion.reply.data.content = matchBBox.reply.data.filedata.grid
+            lastQuestion.reply.data.context = dataInfo
             this.currentQuestion = lastQuestion
-            this.actionFileAskInput(lastQuestion[0].reply)
+            this.actionFileAskInput(lastQuestion.reply)
+          } else {
+            console.log('three')
+            // need to check if same pair but different data type context?
+            let checkCurrentQ = Object.keys(this.currentQuestion)
+            if (checkCurrentQ.length > 0) {
+              let lastQuestion = this.currentQuestion
+              lastQuestion[0].reply.data.context = dataInfo
+              this.actionFileAskInput(lastQuestion[0].reply)
+            } else {
+              let lastQuestion = this.historyPair[this.chatAttention].slice(-1)
+              lastQuestion[0].reply.data.content = this.storeLibrary.linesLimit
+              lastQuestion[0].reply.data.context = dataInfo
+              this.currentQuestion = lastQuestion
+              this.actionFileAskInput(lastQuestion[0].reply)
+            }
           }
+        } else {
+          console.log('four')
+          this.actionHelpAskInput()
         }
-      } else {
-        console.log('four')
-        this.actionHelpAskInput()
+      } else if (this.beebeeContext === 'cues-decision') {
+        console.log('new cues decision')
       }
+
     },
     largeFilesubmitAsk (dataInfo) {
       console.log('large file prep')

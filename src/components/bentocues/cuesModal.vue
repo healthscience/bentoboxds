@@ -40,7 +40,7 @@
 <style scoped>
 .modal-mask {
   position: fixed;
-  z-index: 8;
+  z-index: 9;
   top: 0;
   left: 0;
   width: 100%;
@@ -52,7 +52,7 @@
 }
 
 .modal-container {
-  z-index: 8;
+  z-index: 9;
   width: 92vw;
   height: 92vh;
   margin: auto;
@@ -64,7 +64,7 @@
   overflow: scroll;
 }
 
-.modal-header h3 {
+.modal-header {
   margin-top: 0;
   color: #42b983;
 }
