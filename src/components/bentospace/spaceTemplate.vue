@@ -37,6 +37,8 @@
             <div id="bento-layout" v-for="bbox in storeAI.bentoboxList[storeAI.liveBspace.spaceid]">
              <bento-boxspace :bboxid="bbox.bboxid" :contractid="bbox.contract"></bento-boxspace>
             </div>
+            <!--video / image /  decision  / cues etc  to compliment bentobox-->
+            <media-box></media-box>
           </div>
         </div>
         <mininav-map :spaceid="storeAI.liveBspace.spaceid" :bboxid="'null'"></mininav-map>
@@ -51,6 +53,7 @@
 import { ref, computed } from 'vue'
 import ModalSpace from '@/components/bentospace/spaceModal.vue'
 import BentoBoxspace from '@/components/bentobox/bentoboxSpace.vue'
+import MediaBox from '@/components/bentospace/video/videoPlayer.vue'
 import BeebeeAi from '@/components/beebeehelp/inputBox.vue'
 import MininavMap from '@/components/bentospace/map/mininavMap.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
