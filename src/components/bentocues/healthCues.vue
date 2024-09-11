@@ -334,7 +334,8 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     } else if (segID.label === 'Hotel1') {
       spaceSelect('6b58a76357424b4a7382f3c891b07db74c8d871a', segID.label)
     } else if (segID.label === 'Freshwater change') {
-      console.log('freshshsh')
+      spaceSelect('9e71b5fc3f1ea1c4e08a75478ef2ffcb7b43d7ff', segID.label)
+    } else if (segID.label === 'immunine system') {
       spaceSelect('9e71b5fc3f1ea1c4e08a75478ef2ffcb7b43d7ff', segID.label)
     }
 

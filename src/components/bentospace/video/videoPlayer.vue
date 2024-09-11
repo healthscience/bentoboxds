@@ -20,10 +20,10 @@
     @drag:start="eHandlerTimerStart"
     @drag:end="eHandlerTimerStop"
   >
-    <!-- video player -->
-    <div class="media-box">
+    <!-- video player _UXk_ynCNUs?si=p3ADxeJypZ5M3yW_   cXQcSB4hLfA-->
+    <div class="media-box">dd {{ props.bsmedia }}
       <vue-plyr>
-        <div data-plyr-provider="youtube" data-plyr-embed-id="cXQcSB4hLfA"></div>
+        <div data-plyr-provider="youtube" :data-plyr-embed-id=props.bsmedia></div>
      </vue-plyr>
       <button id="bb-remove" @click="removeBboxSpace">remove</button>
     </div>
@@ -42,8 +42,8 @@ const storeAI = aiInterfaceStore()
 // const storeMmap = mapminiStore()
 
   const props = defineProps({
-    bboxid: String,
-    contractid: String
+    bsmedia: String,
+    bstag: String
   })
 
   let bentoboxWidth = '30vw'

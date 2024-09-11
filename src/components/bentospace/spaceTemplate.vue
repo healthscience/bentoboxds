@@ -22,6 +22,21 @@
         <button id="open-beebee" @click.prevent="setShowBeeBee">beebee</button>
         <div id="space-toolbar">
           <div id="beebee-help"></div>
+          <div id="media-tools">
+            <button @click="addBentoMedia()">+ media</button>
+            <div id="bento-media" v-if="spaceMedia === true">
+              <h3>Bento Media tools</h3>
+              <div id="bento-media-video">
+                <form id="add-video-form" @submit.prevent="videoAdd()">
+                  <label for="video"></label>
+                  <input type="input" id="video-add" name="video" placeholder="add video url" v-model="videoURLadd" autofocus>
+                </form>
+                <button id="bento-media-task" type="submit" @click.prevent="videoAdd()">
+                  + add
+                </button>
+              </div>
+          </div>
+        </div>
           <div id="space-bar">space bar</div>
           <div class="scale-item scalebuttons">
             <label>Scale</label>
@@ -37,8 +52,10 @@
             <div id="bento-layout" v-for="bbox in storeAI.bentoboxList[storeAI.liveBspace.spaceid]">
              <bento-boxspace :bboxid="bbox.bboxid" :contractid="bbox.contract"></bento-boxspace>
             </div>
-            <!--video / image /  decision  / cues etc  to compliment bentobox-->
-            <media-box></media-box>
+            <!--video / image /  decision  / cues etc  to compliment bentobox-->ee {{ storeBentobox.videoMedia[storeAI.liveBspace.spaceid] }}
+            <div id="bento-layout" v-for="bmedia in storeBentobox.videoMedia[storeAI.liveBspace.spaceid]">
+              <media-box :bstag="bmedia.tag" :bsmedia="bmedia.id"></media-box>
+            </div>
           </div>
         </div>
         <mininav-map :spaceid="storeAI.liveBspace.spaceid" :bboxid="'null'"></mininav-map>
@@ -71,6 +88,8 @@ import { mapminiStore } from '@/stores/mapStore.js'
       y: 10
     }
   )
+  let spaceMedia = ref(false)
+  let videoURLadd = ref('')
 
   /* computed */
   const bentospaceStatus = computed(() => {
@@ -105,13 +124,29 @@ import { mapminiStore } from '@/stores/mapStore.js'
     }
   }
 
+  const addBentoMedia = () => {
+    console.log('add media')
+    spaceMedia.value = !spaceMedia.value
+  }
+
+  const videoAdd = () => {
+    console.log('take in video url and add to space')
+    console.log(videoURLadd)
+    // assume youtube and extract id
+    let videoSplit = videoURLadd.value.split('/')
+    console.log(videoSplit)
+    storeBentobox.videoMedia[storeAI.liveBspace.spaceid] = []
+    storeBentobox.videoMedia[storeAI.liveBspace.spaceid].push({ tag: 'video', id: videoSplit[3]})
+    spaceMedia.value = false
+  }
+
 </script>
 
 <style scoped>
 
 #space-toolbar {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 3fr 1fr;
   background-color: antiquewhite;
 }
 
@@ -184,6 +219,22 @@ import { mapminiStore } from '@/stores/mapStore.js'
     grid-template-columns: 1fr 1fr 1fr 1fr;
     justify-self: end;
   }
+
+  /*  media bar  */
+  #bento-media {
+    position: absolute;
+    z-index: 33;
+    top: 10;
+    left: 20;
+    border-bottom: 1px solid lightgrey;
+    border-left: 1px solid lightgrey;
+    border-right: 1px solid lightgrey;
+    padding: 1em;
+    background: rgb(176, 176, 204);
+    width: 300px;
+    opacity: .8;
+  }
+
 }
 
 </style>
