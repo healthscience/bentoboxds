@@ -26,7 +26,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     dataBoxStatus: false,
     chatBottom: 0,
     beebeeContext: 'chat',
-    oracleData: { type: 'oracle', action: 'decision', elements: [{ label: 'muscle mass', datasets: { backgroundColor: '#01923c', data: 30 }}, { label: 'brain', datasets: { backgroundColor: '#71923c', data: 30 }}]},
+    decisionDoughnutCue: false,
+    oracleData: { type: 'oracle', action: 'decision', elements: [{ label: 'muscle mass', datasets: { backgroundColor: '#01923c', data: 30 }}, { label: 'brain', datasets: { backgroundColor: '#71923c', data: 30 }}], concerns: [{ label: 'kidneys', datasets: { backgroundColor: '#b90e28', data: 30 }}, { label: 'pee more', datasets: { backgroundColor: '#e62643', data: 30 }}]},
     askQuestion: {
       text: ''
     },
@@ -194,6 +195,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         }
       } else if (this.beebeeContext === 'cues-decision') {
         console.log('new cues decision')
+        this.decisionDoughnutCue = true
       }
 
     },

@@ -22,28 +22,90 @@
         <div id="bento-cues">
           <div id="cues-wheel">
             <div id="wheel-tools">
-              <button class="cue-select-btn" id="decision-doughnut" @click="selectWheel('decision')">+ Decision</button>
+              <button class="cue-select-btn" id="decision-start" @click="selectWheel('decision')">+ Decision</button>
               <button class="cue-select-btn" id="simple-wheel" @click="selectWheel('simple')">Simple</button>
               <button class="cue-select-btn" id="simple-segments" @click="selectWheel('segments')">Segments</button>
               <button class="cue-select-btn" id="simple-segments" @click="selectWheel('aging')">Aging</button>
             </div>
-            <div class="pie" v-if="wheelType === 'decision'">
+            <div id="decision-doughnut" class="pie" v-if="wheelType === 'decision'">
               <beebee-ai v-if="beebeeCues"></beebee-ai>
-              <pie-chartcues v-if="cuesDecision.labels.length > 0" :cueType="'simple'" :chartData="cuesDecision" :options="{}" @segmentClick="cueSelect"></pie-chartcues>
-              <div id="decision-elements">
-                Suggested benefits/reasons:
-                <div class="decision-elements" v-for="ditem of oracleItems">
-                  <button class="decision-element-btn" @click="addDecisionElement(ditem)">{{ ditem.label }}</button>
+              <div id="cues-decision-flow" v-if="decisionDlive === true">
+                <h3>Decision cue</h3>
+                <div id="decision-doughnut-cues">
+                  <div id="doughnut-size">
+                    <pie-chartcues v-if="cuesDecision.labels.length > 0" :cueType="'simple'" :chartData="cuesDecision" :options="{}" @segmentClick="cueSelect"></pie-chartcues>
+                  </div>
+                  <div id="cue-drill-in">
+                    decision cue -- {{ cueActive }}
+                    <div id="cue-type" v-if="cueActive.length > 0 && decisionCues[cueActive] !== undefined">
+                      <pie-chartcues :chartData="decisionCues[cueActive]" :options="{}" @segmentClick="cueSelect" ></pie-chartcues>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div id="decision-risks">
-                Risks: upset stommach 
-              </div>
-              <div id="decision-biomarkers" v-if="bioMarker.state === true">
-                Biomarkers recommend per segment
-              </div>
-              <div id="decision-diary">
-                Time line diary MINI CALENDAR MODAL view
+                <div id="decision-reason">
+                  <div id="positive-reason" class="reason-container">
+                    <h3>Postive</h3>
+                    <div class="decision-elements" v-for="ditem of oracleItems">
+                      <button class="decision-element-btn" @click="addDecisionElement(ditem)">{{ ditem.label }}</button>
+                    </div>
+                    <div id="peer-add-positive">
+                      <form id="add-positive-form" @submit.prevent="positiveAdd()">
+                        <label for="benefit"></label><!--  v-on:keyup="storeAI.actionNatlangIn($event)" -->
+                       <input type="input" id="positiveadd" name="cuepositive" placeholder="positive expectations" v-model="positivePeeradd" autofocus>
+                      </form>
+                      <button id="natlang-ask" type="submit" @click="positiveAdd()">
+                        + add
+                      </button>
+                    </div>
+                  </div>
+                  <div id="negative-reason" class="reason-container">
+                    <h3>Concerns</h3>
+                    <div id="decision-risks">
+                      <div class="decision-elements" v-for="ditem of oracleConerns">
+                        <button class="decision-element-btn" @click.prevent="addDecisionElement(ditem)">{{ ditem.label }}</button>
+                      </div>
+                    </div>
+                    <div id="peer-add-concern">
+                      <form id="add-positive-form" @submit.prevent="concernAdd()">
+                        <label for="benefit"></label><!--  v-on:keyup="storeAI.actionNatlangIn($event)" -->
+                       <input type="input" id="positiveadd" name="cuepositive" placeholder="positive expectations" v-model="concernPeeradd" autofocus>
+                      </form>
+                      <button id="natlang-ask" type="submit" @click.prevent="concernAdd()">
+                        + add
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div id="decision-biomarkers" v-if="bioMarker.state === true">
+                  <h3>Biomarkers</h3>
+                  <div id="positive-reason" class="reason-container">
+                    <h3>Postive</h3>
+                    <div class="decision-elements" v-for="ditem of oracleBioMItems">
+                      <button class="decision-element-btn" @click="addDecisionElement(ditem)">{{ ditem.label }}</button>
+                    </div>
+                  </div>
+                  <div id="negative-reason" class="reason-container">
+                    <h3>Concerns</h3>
+                    <div id="decision-risks">
+                      <div class="decision-elements" v-for="ditem of oracleBioMConerns">
+                        <button class="decision-element-btn" @click="addDecisionElement(ditem)">{{ ditem.label }}</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div id="decision-risk">
+                  <h3>Risk expectations</h3>
+                </div>
+                <div id="decision-make">
+                  <h3>Make decision</h3>
+                </div>
+                <div id="decision-diary">
+                  <h3>Time line diary</h3>
+                   MINI CALENDAR MODAL view
+                </div>
+                <div id="decision-diary">
+                  <h3>Recomend network N=1 boards</h3>
+                </div>
               </div>
             </div>
             <div class="pie" v-if="wheelType === 'simple'">
@@ -134,13 +196,31 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   let beebeeCues = ref(false)
   let cuesDecision = ref({ labels: [], datasets: [] })
   let bioMarker = ref({ name: 'Off', state: false })
+  let positivePeeradd = ref('')
+  let concernPeeradd = ref('')
 
   const bentoCuesStatus = computed(() => {
     return storeAI.bentocuesState
   })
 
+  const decisionDlive = computed(() => {
+    return storeAI.decisionDoughnutCue
+  })
+
   const oracleItems = computed(() => {
     return storeAI.oracleData.elements
+  })
+
+  const oracleConerns = computed(() => {
+    return storeAI.oracleData.concerns
+  })
+
+  const oracleBioMItems = computed(() => {
+    return storeAI.oracleData.elementsBioM
+  })
+
+  const oracleBioMConerns = computed(() => {
+    return storeAI.oracleData.concernsBioM
   })
 
   const cuesHolistic = computed(() => {
@@ -219,6 +299,27 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     return testPie
   })
 
+  const decisionCues = computed(() => {
+    let testPie = {}
+    testPie['muscle mass'] = {
+      labels: ['movement', 'strength', 'immunine system', 'bone density', 'grip', 'heart cardio'],
+      datasets: [
+        {
+        backgroundColor: ['#191fe7', '#920914', '#09921c', '#560992', '#17c8d1', '#f08113'],
+        data: [36, 36, 36, 36, 36, 36]
+        }
+      ]}
+      testPie['brain'] = {
+      labels: ['fog', 'concentration', 'better sleep', 'prevent cog decline'],
+      datasets: [
+        {
+        backgroundColor: ['#191fe7', '#920914', '#09921c', '#560992'],
+        data: [36, 36, 36, 36]
+        }
+      ]}
+    return testPie
+  })
+
   /* methods */
 
   const closeBentoCues = () => {
@@ -266,11 +367,9 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     let updatePie = {}
     updatePie.labels = []
     updatePie.datasets = []
-
     // current labels
     let currentLabels = cuesDecision.value.labels
     let currentDatasets = cuesDecision.value.datasets
-
     let newColor
     let newData
     // new array for color and data
@@ -278,36 +377,40 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
       newColor = [ditem.datasets.backgroundColor]
       newData = [ditem.datasets.data]
     } else {
-      console.log('elese')
-      console.log(currentDatasets[0])
       let existing = currentDatasets[0]
       newColor = existing['backgroundColor'].concat([ditem.datasets.backgroundColor])
       newData = existing['data'].concat([ditem.datasets.data])
     }
-    console.log('uddapa soloosososos')
-    console.log(newColor)
-    console.log(newData)
-
     // add to arrays
     currentLabels.push(ditem.label)
     currentDatasets = [{ backgroundColor: newColor, data: newData }]
-    console.log('afafafafafa')
-    console.log(currentLabels)
-    console.log(currentDatasets)
     let updatePieObj = {}
     updatePieObj.labels = currentLabels
     updatePieObj.datasets = currentDatasets
     cuesDecision.value = updatePieObj
-    console.log(cuesDecision)
+  }
+
+  const positiveAdd =  () => {
+    console.log('postive add peer')
+    console.log(positivePeeradd)
+    let newPositve = { label: positivePeeradd.value, datasets: { backgroundColor: '#6ab866', data: 30 }}
+    addDecisionElement(newPositve)
+    storeAI.oracleData.elements.push(newPositve)
+  }
+
+  const concernAdd =  () => {
+    console.log('concern add peer')
+    console.log(concernPeeradd)
+    let newConcern = { label: concernPeeradd.value, datasets: { backgroundColor: '#deb8bd', data: 30 }}
+    addDecisionElement(newConcern)
+    storeAI.oracleData.concerns.push(newConcern)
   }
 
   const biomarkerSwitch = () => {
-    console.log('biomarker')
-    console.log(bioMarker.value)
     if (bioMarker.value.state === true) {
-      bioMarker.value = { name: 'On', state: false }
+      bioMarker.value = { name: 'Off', state: false }
     } else {
-      bioMarker.value = { name: 'Off', state: true }
+      bioMarker.value = { name: 'On', state: true }
     }
   }
 
@@ -330,7 +433,68 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
       padding: .4em;
     }
 
+    #wheel-tools {
+      margin: 1em;
+    }
+
+    #cues-decision-flow {
+      border: 0px solid red;
+    }
+
     /* four basic quadrants */
+    #decision-doughnut {
+      border: 1px solid blue;
+      min-height: 60vh;
+    }
+
+    #decision-doughnut-cues {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    #decision-reason {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    #decision-biomarkers {
+      min-height: 10vh;
+      margin:1em;
+    }
+
+    #decision-diary {
+      min-height: 10vh;
+      margin:1em;
+    }
+
+    .reason-container {
+      padding: 1.2em;
+      margin: 1.2em;
+      border: 1px solid lightblue;
+    }
+
+    #peer-add-positive {
+      background-color: #e6e7e7;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      justify-items: center;
+      margin-top: 2em;
+    } 
+
+    #peer-add-concern {
+      background-color: #e6e7e7;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      justify-items: center;
+      margin-top: 2em;
+    } 
+
+    /* four basic quadrants */
+    #doughnut-size {
+      min-height: 40vh;
+      min-width: 40vw;
+    }
+
     .pie {
       position: relative;
     }
@@ -351,6 +515,11 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     .decision-element-btn {
       margin-left: 1em;
       padding: .4em;
+    }
+
+    /*  fliters  */
+    #filter-cues {
+      margin-left: 2em;
     }
 
   }

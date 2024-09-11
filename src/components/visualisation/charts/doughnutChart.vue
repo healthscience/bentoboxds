@@ -74,9 +74,9 @@ const chartspace = ref(null)
 <style scoped>
 
 #interact-cue {
-  height: 50vh;
-  width: 50vw;
-  border: 1px solid red;
+  height: 40vh;
+  width: 30vw;
+  border: 0px solid red;
 }
 
 </style>
