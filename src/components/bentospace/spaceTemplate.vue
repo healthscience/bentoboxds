@@ -127,16 +127,13 @@ import { mapminiStore } from '@/stores/mapStore.js'
   }
 
   const addBentoMedia = () => {
-    console.log('add media')
     spaceMedia.value = !spaceMedia.value
   }
 
   const videoAdd = () => {
-    console.log('take in video url and add to space')
-    console.log(videoURLadd)
     // assume youtube and extract id
     let videoSplit = videoURLadd.value.split('/')
-    console.log(videoSplit)
+    // console.log(videoSplit)
     // set mbox in boxstore and add to media list
     // check if holder setup
     if (storeBentobox.locationMbox[storeAI.liveBspace.spaceid] === undefined) {
@@ -150,6 +147,7 @@ import { mapminiStore } from '@/stores/mapStore.js'
       storeBentobox.videoMedia[storeAI.liveBspace.spaceid].push({ tag: 'video', id: videoSplit[3]})
     }
     spaceMedia.value = false
+    videoURLadd.value = ''
   }
 
 </script>

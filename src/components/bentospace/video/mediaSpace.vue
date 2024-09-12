@@ -21,9 +21,11 @@
     @drag:end="eHandlerTimerStop"
   >
     <!-- bentobox -->
-    <div id="bm-toolbar" v-bind:class="{ active: bboxActive }">--</div>
+    <div id="media-holder">
+      <div id="bm-toolbar" v-bind:class="{ active: bboxActive }">--</div>
       <media-box :bstag="props.bstag" :bsmedia="props.bsmedia"></media-box>
-    <button id="bb-remove" @click="removeBboxSpace">remove</button>
+    </div>
+    <button id="bm-remove" @click="removeMboxSpace">remove</button>
   </vue-resizable>
 </template>
 
@@ -68,8 +70,6 @@ import { mapminiStore } from '@/stores/mapStore.js'
 
   /* methods */
   const updateBoxLocation = (location) => {
-    console.log('update')
-    console.log(location)
     /* drag drop move resize */
     let updateBox = {}
     updateBox.tW = '100%' // 880
@@ -86,13 +86,11 @@ import { mapminiStore } from '@/stores/mapStore.js'
     updateBox.fit = fit.value
     updateBox.event = ''
     updateBox.dragSelector = dragSelector.value
-    storeBentobox.locationBbox[storeAI.liveBspace.spaceid][props.bsmedia] = updateBox
+    storeBentobox.locationMbox[storeAI.liveBspace.spaceid][props.bsmedia] = updateBox
     storeMmap.actionDashBmove(updateBox)
   }
 
   const eHandler = (data) => {
-    console.log('event heander media space')
-    console.log(data)
     /* width = data.width;
     height = data.height;
     left = data.left;
@@ -135,18 +133,18 @@ import { mapminiStore } from '@/stores/mapStore.js'
     // }
   }
 
-  const removeBboxSpace = () => {
+  const removeMboxSpace = () => {
     // remove from spaceList and location
-    let currentSpaceBboxes = storeAI.bentoboxList[storeAI.liveBspace.spaceid]
-    let updateBblist = []
-    for (let bb of currentSpaceBboxes) {
-      if (bb.bboxid !== props.bboxid) {
-        updateBblist.push(bb)
+    let currentSpaceMboxes = storeBentobox.videoMedia[storeAI.liveBspace.spaceid]
+    let updateMblist = []
+    for (let bm of currentSpaceMboxes) {
+      if (bm.id !== props.bsmedia) {
+        updateMblist.push(bm)
       }
     }
-    storeAI.bentoboxList[storeAI.liveBspace.spaceid] = updateBblist
+    storeBentobox.videoMedia[storeAI.liveBspace.spaceid] = updateMblist
     // update miniMap of removal
-    storeMmap.actionDashBRemove(props.bboxid)
+    // storeMmap.actionDashBRemove(props.bboxid)
   }
 
   const expandModules = () => {
@@ -160,50 +158,6 @@ import { mapminiStore } from '@/stores/mapStore.js'
 
   const checkEmpty = computed((value) => {
     return typeof value !== "number" ? 0 : value;
-  })
-
-  /* data flow work */
-    // const dataValues = ref([2, 4, 7])
-  /* const dataValues = computed(() => {
-    return storeAI.tempNumberData[props.bboxid]
-  })
-
-  const dataLabel = computed(() => {
-    return storeAI.tempLabelData[props.bboxid]
-  }) */
-
-  const chartData = computed(() => {
-    return storeAI.visData[props.bboxid]
-    /* {
-      // labels: dataLabel.value, // [ 'January', 'February', 'March' ],
-      // datasets: [ { data: dataValues.value } ]
-    } */
-   })
-
-     /*
-  * predict future
-  */
-  const predictFuture = () => {
-    storeAI.prepareFuture(props.bboxid)
-  }
-
-  const futureBox = computed(() => {
-    return storeAI.activeFuture[props.bboxid]
-  })
-
-  const futuredataValues = computed(() => {
-    return storeAI.futureNumberData[props.bboxid]
-  })
-
-  const futuredataLabel = computed(() => {
-    return storeAI.futureLabelData[props.bboxid]
-  })
-
-  const chartfutureData = computed(() => {
-    return {
-      labels: futuredataLabel.value,
-      datasets: [ { data: futuredataValues.value } ]
-    }
   })
 
 </script>
@@ -278,6 +232,14 @@ import { mapminiStore } from '@/stores/mapStore.js'
     text-align: center;
     cursor: pointer;
     z-index: 9;
+  }
+
+  #bm-remove {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr;
+    height:'100px';
+    border: 2px solid red;
   }
 
   #bm-toolbar {

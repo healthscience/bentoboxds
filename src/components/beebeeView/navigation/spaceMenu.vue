@@ -57,7 +57,6 @@ const newSpacemenu = () => {
 }
 
 const bentoSpaceOpen = (spaceID) => {
-  console.log(spaceID)
   storeAI.bentospaceState = !storeAI.bentospaceState
   storeAI.liveBspace = spaceID
   // make button green

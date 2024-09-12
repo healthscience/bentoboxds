@@ -152,6 +152,7 @@ import { mapminiStore } from '@/stores/mapStore.js'
 
   /* computed */
   const spaceLocation = computed(() => {
+    console.log(storeBentobox.locationBbox[storeAI.liveBspace.spaceid][props.bboxid])
     return storeBentobox.locationBbox[storeAI.liveBspace.spaceid][props.bboxid]
   })
 
