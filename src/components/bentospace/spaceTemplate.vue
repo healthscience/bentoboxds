@@ -49,12 +49,14 @@
         <div id="bentospace-holder" v-dragscroll.noleft.noright="true" @click="whereMinmap($event)">
           <div id="bento-space" v-bind:style="{ transform: 'scale(' + zoomscaleValue + ')' }">
             <!-- location for bentobox - es -->
-            <div id="bento-layout" v-for="bbox in storeAI.bentoboxList[storeAI.liveBspace.spaceid]">
-             <bento-boxspace :bboxid="bbox.bboxid" :contractid="bbox.contract"></bento-boxspace>
-            </div>
-            <!--video / image /  decision  / cues etc  to compliment bentobox-->ee {{ storeBentobox.videoMedia[storeAI.liveBspace.spaceid] }}
-            <div id="bento-layout" v-for="bmedia in storeBentobox.videoMedia[storeAI.liveBspace.spaceid]">
-              <media-box :bstag="bmedia.tag" :bsmedia="bmedia.id"></media-box>
+            <div id="space-bento-items">
+              <div id="bento-layout" v-for="bbox in storeAI.bentoboxList[storeAI.liveBspace.spaceid]">
+                <bento-boxspace :bboxid="bbox.bboxid" :contractid="bbox.contract"></bento-boxspace>
+              </div>
+              <!--video / image /  decision  / cues etc  to compliment bentobox-->
+              <div id="bento-media-space" v-for="bmedia in storeBentobox.videoMedia[storeAI.liveBspace.spaceid]">
+                <media-space :bstag="bmedia.tag" :bsmedia="bmedia.id"></media-space>
+              </div>
             </div>
           </div>
         </div>
@@ -70,7 +72,7 @@
 import { ref, computed } from 'vue'
 import ModalSpace from '@/components/bentospace/spaceModal.vue'
 import BentoBoxspace from '@/components/bentobox/bentoboxSpace.vue'
-import MediaBox from '@/components/bentospace/video/videoPlayer.vue'
+import MediaSpace from '@/components/bentospace/video/mediaSpace.vue'
 import BeebeeAi from '@/components/beebeehelp/inputBox.vue'
 import MininavMap from '@/components/bentospace/map/mininavMap.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
@@ -135,8 +137,18 @@ import { mapminiStore } from '@/stores/mapStore.js'
     // assume youtube and extract id
     let videoSplit = videoURLadd.value.split('/')
     console.log(videoSplit)
-    storeBentobox.videoMedia[storeAI.liveBspace.spaceid] = []
-    storeBentobox.videoMedia[storeAI.liveBspace.spaceid].push({ tag: 'video', id: videoSplit[3]})
+    // set mbox in boxstore and add to media list
+    // check if holder setup
+    if (storeBentobox.locationMbox[storeAI.liveBspace.spaceid] === undefined) {
+      storeBentobox.locationMbox[storeAI.liveBspace.spaceid] = {}
+    }
+    storeBentobox.setLocationMbox(storeAI.liveBspace.spaceid, videoSplit[3])
+    if (storeBentobox.videoMedia[storeAI.liveBspace.spaceid]) {
+      storeBentobox.videoMedia[storeAI.liveBspace.spaceid].push({ tag: 'video', id: videoSplit[3]})
+    } else {
+      storeBentobox.videoMedia[storeAI.liveBspace.spaceid] = []
+      storeBentobox.videoMedia[storeAI.liveBspace.spaceid].push({ tag: 'video', id: videoSplit[3]})
+    }
     spaceMedia.value = false
   }
 
@@ -191,7 +203,11 @@ import { mapminiStore } from '@/stores/mapStore.js'
       z-index: 2;
     }
 
-    #pace-modal-header {
+    #space-bento-items {
+      position: relative;
+    }
+
+    #space-modal-header {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
     }
@@ -220,6 +236,20 @@ import { mapminiStore } from '@/stores/mapStore.js'
     justify-self: end;
   }
 
+  #bento-layout {
+    position: relative;
+    border: 3px solid purple;
+    height: 1px;
+    width: 1px;
+  }
+
+  #bento-media-space {
+    position: relative;
+    border: 2px solid green;
+    height: 1px;
+    width: 1px;
+  }
+
   /*  media bar  */
   #bento-media {
     position: absolute;
@@ -234,6 +264,7 @@ import { mapminiStore } from '@/stores/mapStore.js'
     width: 300px;
     opacity: .8;
   }
+
 
 }
 

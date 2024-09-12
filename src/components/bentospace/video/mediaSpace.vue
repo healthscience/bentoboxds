@@ -21,16 +21,16 @@
     @drag:end="eHandlerTimerStop"
   >
     <!-- bentobox -->
-    <div id="bb-toolbar" v-bind:class="{ active: bboxActive }">Active bar</div>
-    <bento-box :bboxid="props.bboxid" :contractid="props.contractid" :bbwidth="bentoboxWidth"></bento-box>
+    <div id="bm-toolbar" v-bind:class="{ active: bboxActive }">--</div>
+      <media-box :bstag="props.bstag" :bsmedia="props.bsmedia"></media-box>
     <button id="bb-remove" @click="removeBboxSpace">remove</button>
   </vue-resizable>
 </template>
 
 <script setup>
 import VueResizable from 'vue-resizable'
-import BentoBox from  '@/components/bentobox/bentoBox.vue' 
-import { ref, computed} from 'vue'
+import MediaBox from '@/components/bentospace/video/videoPlayer.vue'
+import { ref, computed } from 'vue'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { mapminiStore } from '@/stores/mapStore.js'
@@ -40,8 +40,8 @@ import { mapminiStore } from '@/stores/mapStore.js'
   const storeMmap = mapminiStore()
 
   const props = defineProps({
-    bboxid: String,
-    contractid: String
+    bstag: String,
+    bsmedia: String
   })
 
   let bentoboxWidth = '30vw'
@@ -62,12 +62,14 @@ import { mapminiStore } from '@/stores/mapStore.js'
   let minH = ref('20vh')
   let fit = ref(false)
   let event = ref('')
-  const dragSelector = ref('#bb-toolbar, .drag-container-2')
+  const dragSelector = ref('#media-bar, .drag-container-2')
   let timerPress = ref(0)
 
 
   /* methods */
   const updateBoxLocation = (location) => {
+    console.log('update')
+    console.log(location)
     /* drag drop move resize */
     let updateBox = {}
     updateBox.tW = '100%' // 880
@@ -84,12 +86,13 @@ import { mapminiStore } from '@/stores/mapStore.js'
     updateBox.fit = fit.value
     updateBox.event = ''
     updateBox.dragSelector = dragSelector.value
-    storeBentobox.locationBbox[storeAI.liveBspace.spaceid][props.bboxid] = updateBox
+    storeBentobox.locationBbox[storeAI.liveBspace.spaceid][props.bsmedia] = updateBox
     storeMmap.actionDashBmove(updateBox)
   }
 
   const eHandler = (data) => {
-    // console.log(data)
+    console.log('event heander media space')
+    console.log(data)
     /* width = data.width;
     height = data.height;
     left = data.left;
@@ -152,7 +155,7 @@ import { mapminiStore } from '@/stores/mapStore.js'
 
   /* computed */
   const spaceLocation = computed(() => {
-    return storeBentobox.locationBbox[storeAI.liveBspace.spaceid][props.bboxid]
+    return storeBentobox.locationMbox[storeAI.liveBspace.spaceid][props.bsmedia]
   })
 
   const checkEmpty = computed((value) => {
@@ -228,9 +231,11 @@ import { mapminiStore } from '@/stores/mapStore.js'
   z-index: 9;
 }
 
-#bb-toolbar {
+#bm-toolbar {
   display: grid;
-  grid-template-columns: 5fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  width: 100%;
 }
 
 #bb-network-graph {
@@ -275,9 +280,10 @@ import { mapminiStore } from '@/stores/mapStore.js'
     z-index: 9;
   }
 
-  #bb-toolbar {
+  #bm-toolbar {
     display: grid;
-    grid-template-columns: 5fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr;
+    justify-items: center;
     width: 100%;
     /* background-color:rgb(141, 145, 226); */
   }
