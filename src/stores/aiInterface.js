@@ -558,7 +558,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         locationPerSpace.push({ bboxid: bbi.bboxid, location: this.storeBentoBox.locationBbox[message.data.spaceid][bbi.bboxid] })
       }
       // build media info per space
-      // let bmMediaPerspace = []
+      let bmMediaPerspace = this.storeBentoBox.locationMbox[message.data.spaceid]
       let saveData = {}
       saveData.pair = {}
       saveData.space = message.data
@@ -566,8 +566,10 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       saveData.visData = visDataperSpace
       saveData.bboxlist = boxidPerspace
       // save media boxes
-      // saveData.bmoxlist = bmMediaPerspace
+      saveData.mboxlist = bmMediaPerspace
       message.data = saveData
+      console.log('save space info')
+      console.log(message)
       this.sendSocket.send_message(message)
     },
     prepareAI (message) {

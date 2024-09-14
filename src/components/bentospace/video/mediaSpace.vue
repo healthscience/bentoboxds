@@ -22,7 +22,7 @@
   >
     <!-- bentobox -->
     <div id="media-holder">
-      <div id="bm-toolbar" v-bind:class="{ active: bboxActive }">--</div>
+      <div id="bm-toolbar" v-bind:class="{ active: bboxActive }">-</div>
       <media-box :bstag="props.bstag" :bsmedia="props.bsmedia"></media-box>
     </div>
     <button id="bm-remove" @click="removeMboxSpace">remove</button>
@@ -153,7 +153,11 @@ import { mapminiStore } from '@/stores/mapStore.js'
 
   /* computed */
   const spaceLocation = computed(() => {
-    return storeBentobox.locationMbox[storeAI.liveBspace.spaceid][props.bsmedia]
+    if (storeBentobox.locationMbox[storeAI.liveBspace.spaceid][props.bsmedia] !== undefined) {
+      return storeBentobox.locationMbox[storeAI.liveBspace.spaceid][props.bsmedia]
+    } else {
+      return {}
+    }
   })
 
   const checkEmpty = computed((value) => {

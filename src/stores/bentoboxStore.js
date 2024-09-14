@@ -136,6 +136,7 @@ export const bentoboxStore = defineStore('bentostore', {
                   this.spaceList.push(cm.value.space)
                 }
                 this.storeAI.liveBspace = cm.value.space
+                // prepare the bentobox location for space
                 if (cm.value.bboxlist.length > 0) {
                   this.storeAI.bentoboxList[cm.value.space.spaceid] = cm.value.bboxlist
                   // set the default or save location of box in space
@@ -166,7 +167,19 @@ export const bentoboxStore = defineStore('bentostore', {
                 } else {
                   this.storeAI.bentoboxList[cm.value.space.spaceid] = {}
                 }
-
+                // prepare the mediabox location for space
+                if (cm.value?.mboxlist) {
+                  this.locationMbox[cm.value.space.spaceid] = []
+                  // turn object into array of keys
+                  let mediaboxKeys = Object.keys(cm.value.mboxlist)
+                  let mBoxList = []
+                  for (let mbkey of mediaboxKeys) {
+                    mBoxList.push({ tag: 'video', id: mbkey })
+                    // this.locationMbox[cm.value.space.spaceid].push({ tag: 'video', id: mbkey })
+                  }
+                  this.videoMedia[cm.value.space.spaceid] = mBoxList
+                  this.locationMbox[cm.value.space.spaceid] = cm.value.mboxlist
+                }
                 // check for location spaces info. already saved
                 if (cm?.value?.location) {
                   // add to menu list
