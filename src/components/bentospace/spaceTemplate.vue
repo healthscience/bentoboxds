@@ -35,8 +35,18 @@
                   + add
                 </button>
               </div>
+            </div>
           </div>
-        </div>
+          <div id="decision-tools">
+            <button @click="addCueDecision()">+ decision</button>
+            <div id="bento-cue-decicion" v-if="spaceDecision === true">
+              <h3>Bento Cue Decision</h3>
+              <div id="bento-cue-decision">
+                Decision doughnut please
+                <decision-cue></decision-cue>
+              </div>
+            </div>
+          </div>
           <div id="space-bar">space bar</div>
           <div class="scale-item scalebuttons">
             <label>Scale</label>
@@ -73,6 +83,7 @@ import { ref, computed } from 'vue'
 import ModalSpace from '@/components/bentospace/spaceModal.vue'
 import BentoBoxspace from '@/components/bentobox/bentoboxSpace.vue'
 import MediaSpace from '@/components/bentospace/video/mediaSpace.vue'
+import DecisionCue from '@/components/bentocues/decisions/decisionCues.vue'
 import BeebeeAi from '@/components/beebeehelp/inputBox.vue'
 import MininavMap from '@/components/bentospace/map/mininavMap.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
@@ -92,6 +103,7 @@ import { mapminiStore } from '@/stores/mapStore.js'
   )
   let spaceMedia = ref(false)
   let videoURLadd = ref('')
+  let spaceDecision = ref(false)
 
   /* computed */
   const bentospaceStatus = computed(() => {
@@ -154,13 +166,19 @@ import { mapminiStore } from '@/stores/mapStore.js'
     videoURLadd.value = ''
   }
 
+  const addCueDecision = () => {
+    console.log('decision doughnut please')
+    spaceDecision.value = !spaceDecision.value
+    storeAI.decisionDoughnutCue = !storeAI.decisionDoughnutCue
+  }
+
 </script>
 
 <style scoped>
 
 #space-toolbar {
   display: grid;
-  grid-template-columns: 1fr 1fr 3fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 3fr 1fr;
   background-color: antiquewhite;
 }
 
