@@ -211,7 +211,8 @@ import { mapminiStore } from '@/stores/mapStore.js'
 
     #space-modal-header {
       display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
+      grid-template-columns: 1fr 8fr 1fr;
+
     }
 
     #return-modal-close {

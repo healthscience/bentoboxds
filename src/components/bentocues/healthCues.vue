@@ -23,9 +23,54 @@
           <div id="cues-wheel">
             <div id="wheel-tools">
               <button class="cue-select-btn" id="decision-start" @click="selectWheel('decision')">+ Decision</button>
+              <button class="cue-select-btn" id="decision-start" @click="selectWheel('newcue')">+ Cue</button>
               <button class="cue-select-btn" id="simple-wheel" @click="selectWheel('simple')">Simple</button>
               <button class="cue-select-btn" id="simple-segments" @click="selectWheel('segments')">Segments</button>
               <button class="cue-select-btn" id="simple-segments" @click="selectWheel('aging')">Aging</button>
+            </div>
+            <div id="cue-doughnut" class="pie" v-if="wheelType === 'newcue'">
+              <div id="new-cue-space">
+                <form id="add-cue-form" @submit.prevent="cueAdd()">
+                  <label for="benefit"></label><!--  v-on:keyup="storeAI.actionNatlangIn($event)" -->
+                  <input type="input" id="cuesegadd" name="cuepadd" placeholder="cue name" v-model="cueSegment" autofocus>
+                </form>
+                <ColorPicker v-model:pureColor="pureColor" format="hex" shape="square" />
+                <button id="cue-add" type="submit" @click="cueAdd()">
+                  + cue
+                </button>
+              </div>
+              <div id="build-cues">
+                <div id="name-cue-wheel">
+                  OPTI JUV MED
+                </div>
+                <div id="new-doughnut-cues">
+                  <div id="doughnut-size-add">
+                    <pie-chartcues v-if="cuesNew.labels.length > 0" :cueType="'new'" :chartData="cuesNew" :options="{}" @segmentClick="cueSelectAdd"></pie-chartcues>
+                  </div>
+                  <div id="sub-wheel">sub segment</div>
+                </div>
+                <div id="addMarker">
+                  <button @click="addSubCue()">Add sub cue</button>
+                  <button @click="addSegMarker()">Add marker</button>
+                  <div id="attach-marker" v-if="cueMarkerSelect === true">
+                    <form id="marker-cue-form" @submit.prevent="cueAttachMarker()">
+                      <label for="cuemarker"></label><!--  v-on:keyup="storeAI.actionNatlangIn($event)" -->
+                      <input type="input" id="cuemarker" name="cuemarker" placeholder="marker name" v-model="cueMarker" autofocus>
+                    </form>
+                    <button id="cue-add-marker" type="submit" @click="cueAttachMarker()">
+                      Attach marker
+                    </button>
+                  </div>
+                  <div id="select-marker-list">
+                    <select class="select-model-save" id="bbox-model-save" v-model="markerSelected" @change="attachMarker()">
+                     <option selected="" v-for="ctest in cueMarkerTest" :value="ctest.test">
+                      {{ ctest.test }}
+                      </option>
+                    </select>
+                  <button id="select-market-cue" @click="attachMarker()"> + marker</button>
+                  </div>
+                </div>
+              </div>
             </div>
             <div id="decision-doughnut" class="pie" v-if="wheelType === 'decision'">
               <beebee-ai v-if="beebeeCues"></beebee-ai>
@@ -194,10 +239,16 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   let wheelType = ref('simple')
   let cueActive = ref('whole')
   let beebeeCues = ref(false)
+  let cuesNew = ref({ labels: [], datasets: [] })
   let cuesDecision = ref({ labels: [], datasets: [] })
   let bioMarker = ref({ name: 'Off', state: false })
   let positivePeeradd = ref('')
   let concernPeeradd = ref('')
+  let cueSegment = ref('')
+  let pureColor = ref('')
+  let cueMarkerSelect = ref(false)
+  let cueMarker = ref('')
+  let markerSelected = ref('')
 
   const bentoCuesStatus = computed(() => {
     return storeAI.bentocuesState
@@ -238,7 +289,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
   const cuesSegments = computed(() => {
     let testPie = {
-      labels: ['Farming', 'Buildings', 'Money', 'Work', 'Lifestyle', 'Food', 'Movement', 'Body', 'Culture', 'Sleep/mind', 'Universe', 'Climate/weather'],
+      labels: ['Farming', 'Buildings', 'Culture', 'Money', 'Work', 'Lifestyle', 'Food', 'Movement', 'Body', 'Sleep/mind', 'Universe', 'Climate/weather'],
       datasets: [
         {
         backgroundColor: ['#098133', '#920914', '#09921c', '#560992', '#17c8d1', '#f08113', '#61819c', '#e66553', '#8bf5b0', '#999999', '#000000' ,'#191fe7', '#999999'],
@@ -320,10 +371,45 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     return testPie
   })
 
+  // temp mark list
+  const cueMarkerTest = computed(() => {
+    let testMarkers = []
+    testMarkers = [{ category: 'immunesystem', test: 'Antinuclear Antibodies (ANA) Screen' }, { category: 'immunesystem', test: 'Celiac Disease (Comprehensive Panel)' }, { category: 'immunesystem', test: 'Antinuclear Antibodies (ANA) Pattern' }, { category: 'immunesystem', test: 'Antinuclear Antibodies (ANA) Titer' }]
+    return testMarkers 
+  })
+
   /* methods */
+  const cueAdd = () => {
+    let newSegment = { label: cueSegment.value, datasets: { backgroundColor: pureColor.value, data: 30 }}
+    addCueSegment(newSegment)
+    cueSegment.value = ''
+  }
+
+  const addSubCue = () => {
+    console.log('create new sub cue')
+  }
+
+  const addSegMarker = () => {
+    console.log('attach marker to cue')
+    cueMarkerSelect.value = true
+  }
+
+  const cueAttachMarker = () => {
+    console.log('marker attache')
+  }
+
+  const attachMarker = () => {
+    console.log('list attach marker')
+  }
 
   const closeBentoCues = () => {
     storeAI.bentocuesState = !storeAI.bentocuesState
+  }
+
+  const cueSelectAdd = (type, seg) => {
+    console.log('new seg add biomarker')
+    console.log(type)
+    console.log(seg)
   }
 
   const cueSelect = (cueID, segID) => {
@@ -357,10 +443,41 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
       // bring beebee to life
       beebeeCues.value = true
       storeAI.beebeeContext = 'cues-decision'
+    } else if (wheelType.value === 'newcue') {
+      console.log('new cue cycle')
     } else {
       beebeeCues.value = false
     }
   }
+
+  const addCueSegment = (cSeg) => {
+    console.log(cSeg)
+    let updatePie = {}
+    updatePie.labels = []
+    updatePie.datasets = []
+    // current labels
+    let currentLabels = cuesNew.value.labels
+    let currentDatasets = cuesNew.value.datasets
+    let newColor
+    let newData
+    // new array for color and data
+    if (currentDatasets.length === 0) {
+      newColor = [cSeg.datasets.backgroundColor]
+      newData = [cSeg.datasets.data]
+    } else {
+      let existing = currentDatasets[0]
+      newColor = existing['backgroundColor'].concat([cSeg.datasets.backgroundColor])
+      newData = existing['data'].concat([cSeg.datasets.data])
+    }
+    // add to arrays
+    currentLabels.push(cSeg.label)
+    currentDatasets = [{ backgroundColor: newColor, data: newData }]
+    let updatePieObj = {}
+    updatePieObj.labels = currentLabels
+    updatePieObj.datasets = currentDatasets
+    cuesNew.value = updatePieObj
+  }
+
 
   const addDecisionElement = (ditem) => {
     // add data to doughnut
@@ -392,16 +509,12 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   }
 
   const positiveAdd =  () => {
-    console.log('postive add peer')
-    console.log(positivePeeradd)
     let newPositve = { label: positivePeeradd.value, datasets: { backgroundColor: '#6ab866', data: 30 }}
     addDecisionElement(newPositve)
     storeAI.oracleData.elements.push(newPositve)
   }
 
   const concernAdd =  () => {
-    console.log('concern add peer')
-    console.log(concernPeeradd)
     let newConcern = { label: concernPeeradd.value, datasets: { backgroundColor: '#deb8bd', data: 30 }}
     addDecisionElement(newConcern)
     storeAI.oracleData.concerns.push(newConcern)
@@ -432,6 +545,40 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     .cue-select-btn {
       margin-left: .6em;
       padding: .4em;
+    }
+
+    #cue-doughnut {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+
+    #new-cue-space {
+      display: grid;
+      grid-template-columns: 3fr 1fr 2fr;
+    }
+
+    #build-cues {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+
+    #add-cue-form {
+      display: grid;
+      align-self: end;
+      margin-left: 2em;
+    }
+
+    #add-cue-form input{
+      width: 40vw;
+      font-size: 1.2em;
+    }
+
+    #cue-add {
+      display: grid;
+      justify-items: start;
+      margin-left: .1em;
+      font-size: 1.2em;
+      width: 100px;
     }
 
     #wheel-tools {
@@ -491,6 +638,12 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     } 
 
     /* four basic quadrants */
+    #new-doughnut-cues {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+
     #doughnut-size {
       min-height: 40vh;
       min-width: 40vw;
