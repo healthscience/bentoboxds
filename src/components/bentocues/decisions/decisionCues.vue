@@ -1,5 +1,5 @@
 <template>
-  <div id="cues-decision-flow" v-if="decisionDlive === true">
+  <div id="cues-decision-flow">
   <h3>Decision cue</h3>
   <div id="decision-doughnut-cues">
     <div id="doughnut-size">
@@ -14,35 +14,39 @@
   </div>
   <div id="decision-reason">
     <div id="positive-reason" class="reason-container">
-      <h3>Postive</h3>
+      <div id="peer-add-positive">
+        <h3>Postive</h3>
+        <div id="positive-holder">
+          <form id="add-positive-form" @submit.prevent="positiveAdd()">
+            <label for="benefit"></label><!--  v-on:keyup="storeAI.actionNatlangIn($event)" -->
+            <input type="input" id="positiveadd" name="cuepositive" placeholder="positive expectations" v-model="positivePeeradd" autofocus>
+          </form>
+          <button id="natlang-ask" type="submit" @click="positiveAdd()">
+            + add
+          </button>
+        </div>
+      </div>
       <div class="decision-elements" v-for="ditem of oracleItems">
         <button class="decision-element-btn" @click="addDecisionElement(ditem)">{{ ditem.label }}</button>
-      </div>
-      <div id="peer-add-positive">
-        <form id="add-positive-form" @submit.prevent="positiveAdd()">
-          <label for="benefit"></label><!--  v-on:keyup="storeAI.actionNatlangIn($event)" -->
-          <input type="input" id="positiveadd" name="cuepositive" placeholder="positive expectations" v-model="positivePeeradd" autofocus>
-        </form>
-        <button id="natlang-ask" type="submit" @click="positiveAdd()">
-          + add
-        </button>
       </div>
     </div>
     <div id="negative-reason" class="reason-container">
       <h3>Concerns</h3>
-      <div id="decision-risks">
+      <div id="peer-add-concern">
+        <div id="concern-holder">
+          <form id="add-positive-form" @submit.prevent="concernAdd()">
+            <label for="benefit"></label><!--  v-on:keyup="storeAI.actionNatlangIn($event)" -->
+            <input type="input" id="positiveadd" name="cuepositive" placeholder="positive expectations" v-model="concernPeeradd" autofocus>
+          </form>
+          <button id="natlang-ask" type="submit" @click.prevent="concernAdd()">
+            + add
+          </button>
+        </div>
+        <div id="decision-risks">
         <div class="decision-elements" v-for="ditem of oracleConerns">
           <button class="decision-element-btn" @click.prevent="addDecisionElement(ditem)">{{ ditem.label }}</button>
         </div>
       </div>
-      <div id="peer-add-concern">
-        <form id="add-positive-form" @submit.prevent="concernAdd()">
-          <label for="benefit"></label><!--  v-on:keyup="storeAI.actionNatlangIn($event)" -->
-          <input type="input" id="positiveadd" name="cuepositive" placeholder="positive expectations" v-model="concernPeeradd" autofocus>
-        </form>
-        <button id="natlang-ask" type="submit" @click.prevent="concernAdd()">
-          + add
-        </button>
       </div>
     </div>
   </div>
@@ -81,6 +85,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import PieChartcues from '@/components/visualisation/charts/doughnutChart.vue'  // pieChart.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
@@ -91,6 +96,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   let cueActive = ref('decision')
   let positivePeeradd = ref('')
   let concernPeeradd = ref('')
+  let bioMarker = ref({ name: 'Off', state: false })
 
   /* computed */
   const decisionDlive = computed(() => {
@@ -99,6 +105,27 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
   const oracleItems = computed(() => {
     return storeAI.oracleData.elements
+  })
+
+  const decisionCues = computed(() => {
+    let testPie = {}
+    testPie['muscle mass'] = {
+      labels: ['movement', 'strength', 'immunine system', 'bone density', 'grip', 'heart cardio'],
+      datasets: [
+        {
+        backgroundColor: ['#191fe7', '#920914', '#09921c', '#560992', '#17c8d1', '#f08113'],
+        data: [36, 36, 36, 36, 36, 36]
+        }
+      ]}
+      testPie['brain'] = {
+      labels: ['fog', 'concentration', 'better sleep', 'prevent cog decline'],
+      datasets: [
+        {
+        backgroundColor: ['#191fe7', '#920914', '#09921c', '#560992'],
+        data: [36, 36, 36, 36]
+        }
+      ]}
+    return testPie
   })
 
   /* methods */
@@ -164,9 +191,35 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 @media (min-width: 1024px) {
 
   #cues-decision-flow {
-    z-index: 55;
+    display: grid;
+    grid-template-columns: 1fr;
+    border: 1px solid red;
+    width: 60vw;
+    height: 80vh;
+    background: rgb(176, 176, 204);
+    opacity: .9;
+    overflow-y: scroll;
   }
 
+  #decision-doughnut-cues {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  #decision-reason {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .reason-container {
+    background-color: white;
+  }
+
+  #positive-holder, #concern-holder{
+    display: grid;
+    grid-template-columns: 5fr 1fr;
+    width: 80%;
+  }
 }
 
 </style>

@@ -40,11 +40,13 @@
           <div id="decision-tools">
             <button @click="addCueDecision()">+ decision</button>
             <div id="bento-cue-decicion" v-if="spaceDecision === true">
-              <h3>Bento Cue Decision</h3>
-              <div id="bento-cue-decision">
-                Decision doughnut please
                 <decision-cue></decision-cue>
-              </div>
+            </div>
+          </div>
+          <div id="research-tools">
+            <button @click="addCueResearch()">+ research</button>
+            <div id="bento-cue-decicion" v-if="spaceResearch === true">
+                <research-cue></research-cue>
             </div>
           </div>
           <div id="space-bar">space bar</div>
@@ -67,6 +69,10 @@
               <div id="bento-media-space" v-for="bmedia in storeBentobox.videoMedia[storeAI.liveBspace.spaceid]">
                 <media-space :bstag="bmedia.tag" :bsmedia="bmedia.id"></media-space>
               </div>
+              <!-- research media -->
+              <div id="bento-research-space" v-for="rmedia in storeBentobox.researchMedia[storeAI.liveBspace.spaceid]">
+                <research-space :bstag="rmedia.tag" :bsmedia="rmedia.id"></research-space>
+              </div>
             </div>
           </div>
         </div>
@@ -83,7 +89,9 @@ import { ref, computed } from 'vue'
 import ModalSpace from '@/components/bentospace/spaceModal.vue'
 import BentoBoxspace from '@/components/bentobox/bentoboxSpace.vue'
 import MediaSpace from '@/components/bentospace/video/mediaSpace.vue'
+import ResearchSpace from '@/components/bentospace/research/researchSpace.vue'
 import DecisionCue from '@/components/bentocues/decisions/decisionCues.vue'
+import ResearchCue from '@/components/bentocues/research/researchCues.vue'
 import BeebeeAi from '@/components/beebeehelp/inputBox.vue'
 import MininavMap from '@/components/bentospace/map/mininavMap.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
@@ -104,6 +112,7 @@ import { mapminiStore } from '@/stores/mapStore.js'
   let spaceMedia = ref(false)
   let videoURLadd = ref('')
   let spaceDecision = ref(false)
+  let spaceResearch = ref(false)
 
   /* computed */
   const bentospaceStatus = computed(() => {
@@ -169,7 +178,11 @@ import { mapminiStore } from '@/stores/mapStore.js'
   const addCueDecision = () => {
     console.log('decision doughnut please')
     spaceDecision.value = !spaceDecision.value
-    storeAI.decisionDoughnutCue = !storeAI.decisionDoughnutCue
+    // storeAI.decisionDoughnutCue = !storeAI.decisionDoughnutCue
+  }
+
+  const addCueResearch = () => {
+    spaceResearch.value = !spaceResearch.value
   }
 
 </script>
@@ -178,7 +191,7 @@ import { mapminiStore } from '@/stores/mapStore.js'
 
 #space-toolbar {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 3fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr 3fr 1fr;
   background-color: antiquewhite;
 }
 
@@ -202,6 +215,35 @@ import { mapminiStore } from '@/stores/mapStore.js'
 
 #return-modal-close {
   text-align: right;
+}
+
+/*  media bar  */
+#bento-media {
+  position: absolute;
+  z-index: 33;
+  top: 10;
+  left: 20;
+  border-bottom: 1px solid lightgrey;
+  border-left: 1px solid lightgrey;
+  border-right: 1px solid lightgrey;
+  padding: 1em;
+  background: rgb(176, 176, 204);
+  width: 300px;
+  opacity: .8;
+}
+
+/* decision tools */
+#bento-cue-decicion {
+  position: absolute;
+  z-index: 33;
+  width: auto;
+  margin-left: -120px;
+  border-bottom: 1px solid lightgrey;
+  border-left: 1px solid lightgrey;
+  border-right: 1px solid lightgrey;
+  padding: 1em;
+  background: rgb(176, 176, 204);
+  opacity: .98;
 }
 
   @media (min-width: 1024px) {
@@ -286,6 +328,35 @@ import { mapminiStore } from '@/stores/mapStore.js'
     opacity: .8;
   }
 
+  /* decision tools */
+  #bento-cue-decicion {
+    position: absolute;
+    z-index: 33;
+    width: auto;
+    height: auto;
+    margin-left: -120px;
+    border-bottom: 1px solid lightgrey;
+    border-left: 1px solid lightgrey;
+    border-right: 1px solid lightgrey;
+    padding: 1em;
+    background: rgb(176, 176, 204);
+    opacity: .98;
+  }
+
+  /* research tools */
+  #bento-cue-research {
+    position: absolute;
+    z-index: 33;
+    width: auto;
+    height: auto;
+    margin-left: -120px;
+    border-bottom: 1px solid lightgrey;
+    border-left: 1px solid lightgrey;
+    border-right: 1px solid lightgrey;
+    padding: 1em;
+    background: rgb(176, 176, 204);
+    opacity: .98;
+  }
 
 }
 

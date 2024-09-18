@@ -47,6 +47,9 @@ export const bentoboxStore = defineStore('bentostore', {
     locationMbox: {
       91919191: {}
     },
+    locationRbox: {
+      81819191: {}
+    },
     boxLocation:
     {
       x: 200,
@@ -54,7 +57,8 @@ export const bentoboxStore = defineStore('bentostore', {
     },
     locX: 140,
     locY: 140,
-    videoMedia: {}
+    videoMedia: {},
+    researchMedia: {}
   }),
   actions: {
     // since we rely on `this`, we cannot use an arrow function
@@ -297,6 +301,34 @@ export const bentoboxStore = defineStore('bentostore', {
         updateBox.event = ''
         updateBox.dragSelector = '#bb-toolbar, .drag-container-2'
         this.locationMbox[space][mbox] = updateBox
+        this.locationStart+= 40
+      }
+    },
+    setLocationRbox (space, mbox) {
+      console.log(space)
+      console.log(mbox)
+      // check not already set
+      let spaceLive = this.locationMbox[space]
+      if (mbox in spaceLive) {
+      } else {
+        const tW = 840
+        const tH = 440
+        let updateBox = {}
+        updateBox.tW = tW
+        updateBox.tH = tH
+        updateBox.handlers = ["r", "rb", "b", "lb", "l", "lt", "t", "rt"]
+        updateBox.left = '90px' // ref(`calc(2% - ${tW / 2}px)`)
+        updateBox.top = this.locationStart + 'px' // ref(`calc(8% - ${tH / 2}px)`)
+        updateBox.height = 'auto'
+        updateBox.width = '20vw'
+        updateBox.maxW = '100%'
+        updateBox.maxH = '100%'
+        updateBox.minW = '20vw'
+        updateBox.minH = '20vh'
+        updateBox.fit = false
+        updateBox.event = ''
+        updateBox.dragSelector = '#bb-toolbar, .drag-container-2'
+        this.locationRbox[space][mbox] = updateBox
         this.locationStart+= 40
       }
     },
