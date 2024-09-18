@@ -1,7 +1,15 @@
 <template>
   <div id="research-box">
     <div id="research-bar" >
-     Research Bar
+      <div id="box-bar">
+        Research Bar
+      </div>
+      <div id="decision-tools">
+        <button @click="addCueDecision()">+ decision</button>
+        <div id="bento-cue-decicion" v-if="spaceDecision === true">
+            <decision-cue></decision-cue>
+        </div>
+      </div>
     </div>
       URL brwoser please {{ props.bstag }}  {{ props.bsresearch }}
       <iframe id="paper-view" ref="paperpub" :src="props.bsresearch"></iframe>
@@ -9,6 +17,7 @@
 </template>
 
 <script setup>
+import DecisionCue from '@/components/bentocues/decisions/decisionCues.vue'
 import { ref, computed } from 'vue'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
@@ -17,6 +26,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
   const storeLibrary = libraryStore()
+  let spaceDecision = ref(false)
   
   const props = defineProps({
     bstag: String,
@@ -24,6 +34,11 @@ import { libraryStore } from '@/stores/libraryStore.js'
   })
 
   /* methods */
+  const addCueDecision = () => {
+    console.log('decision doughnut please')
+    spaceDecision.value = !spaceDecision.value
+    // storeAI.decisionDoughnutCue = !storeAI.decisionDoughnutCue
+  }
 
 
   /* computed */
@@ -51,7 +66,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   #research-bar {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
     justify-items: center;
     align-items: center;
     width: 100%;

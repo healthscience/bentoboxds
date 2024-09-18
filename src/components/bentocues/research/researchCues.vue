@@ -14,6 +14,9 @@
       <button class="research-paper-item" @click="viewRsearch(pap)">
         {{ pap }}
       </button>
+      <button class="research-paper-source" @click="viewSourcePaper(pap)">
+        View source
+      </button>
     </div>
   </div>
 </template>
@@ -64,6 +67,11 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     }
     //  need to emit to close one component up
     // spaceResearch.value = false
+  }
+
+  const viewSourcePaper = (paper) => {
+    // visit source in new tab
+    window.open(paper, '_blank')
   }
 
 </script>

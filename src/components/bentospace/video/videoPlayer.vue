@@ -1,7 +1,15 @@
 <template>
   <div id="media-box">
     <div id="media-bar" >
-      BentoMedia Bar
+      <div id="b0x-bar">
+        BentoMedia Bar
+      </div>
+      <div id="decision-tools">
+        <button @click="addCueDecision()">+ decision</button>
+        <div id="bento-cue-decicion" v-if="spaceDecision === true">
+            <decision-cue></decision-cue>
+        </div>
+      </div>
     </div>
     <vue-plyr>
       <div data-plyr-provider="youtube" :data-plyr-embed-id=props.bsmedia></div>
@@ -10,6 +18,7 @@
 </template>
 
 <script setup>
+import DecisionCue from '@/components/bentocues/decisions/decisionCues.vue'
 import { ref, computed } from 'vue'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
@@ -18,6 +27,8 @@ import { libraryStore } from '@/stores/libraryStore.js'
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
   const storeLibrary = libraryStore()
+
+  let spaceDecision = ref(false)
   
   const props = defineProps({
     bstag: String,
@@ -25,6 +36,11 @@ import { libraryStore } from '@/stores/libraryStore.js'
   })
 
   /* methods */
+  const addCueDecision = () => {
+    console.log('decision doughnut please')
+    spaceDecision.value = !spaceDecision.value
+    // storeAI.decisionDoughnutCue = !storeAI.decisionDoughnutCue
+  }
 
 
   /* computed */
@@ -52,7 +68,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   #media-bar {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
     justify-items: center;
     align-items: center;
     width: 100%;
