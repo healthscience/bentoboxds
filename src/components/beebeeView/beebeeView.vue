@@ -134,7 +134,6 @@ import { computed } from 'vue'
       grid-template-columns: 1fr 7fr;
       height: 100%;
       width: 100%;
-      border: 2px solid red;
     }
 
     .bento-history {

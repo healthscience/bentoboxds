@@ -74,6 +74,28 @@ export const cuesStore = defineStore('cues', {
         }
       ]
     },
+    cuesLongevity: {
+      labels: [
+        { name:'Genomic instability', spaceid:'0704981111', active: false, expand: true, glueup: 'Longevity', gluedown: 'cuesLongevity' },
+        { name:'Telomere attrition', spaceid:'0704981112', active: false, expand: true, glueup: 'Longevity', gluedown: 'cuesLongevity' },
+        { name:'Epigenetic alterations', spaceid:'0704981113', active: false, expand: true, glueup: 'Longevity', gluedown: 'cuesLongevity' },
+        { name:'Loss of proteostasis', spaceid:'0704981114', active: false, expand: true, glueup: 'Longevity', gluedown: 'cuesLongevity' },
+        { name:'Deregulated nutrient-sensing', spaceid:'0704981115', active: false, expand: true, glueup: 'Longevity', gluedown: 'cuesLongevity' },
+        { name:'Mitochondrial dysfunction', spaceid:'0704981116', active: false, expand: true, glueup: 'Longevity', gluedown: 'cuesLongevity' },
+        { name:'Cellular senescence', spaceid:'0704981117', active: false, expand: true, glueup: 'Longevity', gluedown: 'cuesLongevity' },
+        { name:'Stem cell exhaustion', spaceid:'0704981118', active: false, expand: true, glueup: 'Longevity', gluedown: 'cuesLongevity' },
+        { name:'Altered intercellular communication', spaceid:'0704981119', active: false, expand: true, glueup: 'Longevity', gluedown: 'cuesLongevity' },
+        { name:'besearch', spaceid:'0704981120', active: false, expand: true, glueup: 'Longevity', gluedown: 'cuesLongevity' }
+      ],
+      datasets: [
+        {
+        backgroundColor: ['#d642cc' ,'#fa03ea', '#999999'],
+        data: [30, 30, 30]
+        }
+      ]
+    },
+    selectCues: {
+    },
     cuesSegments: {
       labels: ['Universe', 'Climate/weather', 'Biodiversity', 'Farming', 'Buildings', 'Travel', 'Money', 'Work', 'Music/Arts', 'Food', 'Movement', 'Sleep/mind'],
       datasets: [
@@ -101,7 +123,8 @@ export const cuesStore = defineStore('cues', {
         'Loss of proteostasis',
         'Deregulated nutrient-sensing',
         'Mitochondrial dysfunction',
-        'Cellular senescence', 'Stem cell exhaustion',
+        'Cellular senescence',
+        'Stem cell exhaustion',
         'Altered intercellular communication',
         'besearch'
       ],
@@ -116,6 +139,15 @@ export const cuesStore = defineStore('cues', {
   actions: {
     processReply (received) {
 
+    },
+    setSpaceGlue () {
+      this.selectCues = {
+        cuesNature: this.cuesNature,
+        cuesEnvironment: this.cuesEnvironment,
+        cuesCulture: this.cuesCulture,
+        cuesLife: this.cuesLife,
+        cuesLongevity: this.cuesLongevity
+      }
     }
   }
 })

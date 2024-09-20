@@ -31,8 +31,8 @@
         <button class="delete-chat-history" @click="deleteSpaceHistory(cue)">Del</button>
       </div>
       ---------
-      <div id="gule-cues" v-if="glueTarget === true && glueName === 'Nature'">
-        <div class="cues-list" v-for="cue in cuesNature">
+      <div id="gule-cues" v-if="glueTarget === true">
+        <div class="cues-list" v-for="cue in selectCues">{{ cue }}
           <div id="cue-holistic">
             <button class="flat-history"  v-bind:class="{ active: cue?.active }" @click="bentoSpaceOpen(cue)" @mouseover="hoverCheck(cue)" @mousemove="moveCheck(cue)"> {{ cue.name }}
             </button>
@@ -56,18 +56,23 @@ import hashObject from 'object-hash'
 import { cuesStore } from '@/stores/cuesStore.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
   const storeCues = cuesStore()
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
 
-  let saveChat = ref(false)
   let saveSpace = ref(false)
-  let newChatname = ref('')
   let newSpacename = ref('')
   let glueTarget = ref(false)
   let glueName = ref('')
+
+
+  /* on mount */
+  onMounted(() => {
+    storeCues.setSpaceGlue()
+  })
+
 
   /*  computed  */
   const spaceList = computed(() => {
@@ -76,6 +81,15 @@ import { ref, computed } from 'vue'
 
   const cuesList = computed(() => {
     return storeCues.cuesmenuList
+  })
+
+  const selectCues = computed(() => {
+    if (storeCues.selectCues[glueName.value] !== undefined) {
+      return storeCues.selectCues[glueName.value]
+    } else {
+      return []
+    }
+
   })
 
   const cuesNature = computed(() => {
@@ -110,7 +124,7 @@ import { ref, computed } from 'vue'
   const drillCue = (cuem) => {
     console.log(cuem)
     glueTarget.value = !glueTarget.value
-    glueName.value = cuem.name
+    glueName.value = cuem.gluedown
   }
 
   const bentoSpaceOpen = (spaceID) => {
