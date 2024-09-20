@@ -32,15 +32,15 @@
       </div>
       ---------
       <div id="gule-cues" v-if="glueTarget === true">
-        <div class="cues-list" v-for="cue in selectCues">{{ cue }}
-          <div id="cue-holistic">
-            <button class="flat-history"  v-bind:class="{ active: cue?.active }" @click="bentoSpaceOpen(cue)" @mouseover="hoverCheck(cue)" @mousemove="moveCheck(cue)"> {{ cue.name }}
+        <div class="cues-list" v-for="cues in selectCues">
+          <div id="cue-holistic" v-if="cue.gluedown === glueName">
+            <button class="flat-history"  v-bind:class="{ active: cues?.active }" @click="bentoSpaceOpen(cues)" @mouseover="hoverCheck(cues)" @mousemove="moveCheck(cues)"> {{ cues.name }}
             </button>
-            <span id="drill-cue" v-if="cue.expand === true">
-              <button class="drill-cue-history" @click="drillCue(cue)">c-></button>     
+            <span id="drill-cue" v-if="cues.expand === true">
+              <button class="drill-cue-history" @click="drillCue(cues)">c-></button>     
             </span>
-            <button class="save-chat-history" @click="saveSpaceHistory(cue)">save</button>
-            <button class="delete-chat-history" @click="deleteSpaceHistory(cue)">Del</button>
+            <button class="save-chat-history" @click="saveSpaceHistory(cues)">save</button>
+            <button class="delete-chat-history" @click="deleteSpaceHistory(cues)">Del</button>
           </div>
           <div id="gule-cues" v-if="glueTarget === true && glueName === 'Nature'">
             another drill down?
@@ -85,7 +85,7 @@ import { ref, computed, onMounted } from 'vue'
 
   const selectCues = computed(() => {
     if (storeCues.selectCues[glueName.value] !== undefined) {
-      return storeCues.selectCues[glueName.value]
+      return storeCues.selectCues[glueName.value].labels
     } else {
       return []
     }

@@ -37,9 +37,9 @@ export const cuesStore = defineStore('cues', {
     },
     cuesEnvironment: {
       labels: [
-        { name:'Farming', spaceid:'003981111', active: false, expand: true, glueup: 'Environment', gluedown: 'cuesEnvironment' },,
-        { name:'Buildings', spaceid:'000981111', active: false, expand: true, glueup: 'Environment', gluedown: 'cuesEnvironment' },
-        { name:'Travel', spaceid:'000981111', active: false, expand: true, glueup: 'Environment', gluedown: 'cuesEnvironment' }
+        { name:'Farming', spaceid:'003981111', active: false, expand: true, glueup: 'Environment', gluedown: 'cuesEnvironment' },
+        { name:'Buildings', spaceid:'003981112', active: false, expand: true, glueup: 'Environment', gluedown: 'cuesEnvironment' },
+        { name:'Travel', spaceid:'003981113', active: false, expand: true, glueup: 'Environment', gluedown: 'cuesEnvironment' }
       ],
       datasets: [
         {
@@ -63,8 +63,8 @@ export const cuesStore = defineStore('cues', {
     },
     cuesLife: {
       labels: [
-        { name:'Food', spaceid:'004981111', active: false, expand: true, glueup: 'Life', gluedown: 'cuesLife' },,
-        { name:'Movement', spaceid:'004981112', active: false, expand: true, glueup: 'Life', gluedown: 'cuesLife' },,
+        { name:'Food', spaceid:'004981111', active: false, expand: true, glueup: 'Life', gluedown: 'cuesLife' },
+        { name:'Movement', spaceid:'004981112', active: false, expand: true, glueup: 'Life', gluedown: 'cuesLife' },
         { name:'Sleep/mind', spaceid:'004981113', active: false, expand: true, glueup: 'Life', gluedown: 'cuesLife' }
       ],
       datasets: [
