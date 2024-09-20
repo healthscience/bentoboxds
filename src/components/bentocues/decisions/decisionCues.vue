@@ -1,5 +1,6 @@
 <template>
   <div id="cues-decision-flow">
+  <beebee-ai v-if="beebeeCues"></beebee-ai>
   <h3>Decision cue</h3>
   <div id="decision-doughnut-cues">
     <div id="doughnut-size">
@@ -85,6 +86,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import BeebeeAi from '@/components/beebeehelp/inputBox.vue'
 import PieChartcues from '@/components/visualisation/charts/doughnutChart.vue'  // pieChart.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
@@ -97,6 +99,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   let positivePeeradd = ref('')
   let concernPeeradd = ref('')
   let bioMarker = ref({ name: 'Off', state: false })
+  let beebeeCues = ref(false)
 
   /* computed */
   const decisionDlive = computed(() => {
@@ -105,6 +108,10 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
   const oracleItems = computed(() => {
     return storeAI.oracleData.elements
+  })
+
+  const oracleConerns = computed(() => {
+    return storeAI.oracleData.concerns
   })
 
   const decisionCues = computed(() => {

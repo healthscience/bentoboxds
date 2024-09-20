@@ -75,16 +75,14 @@ import { computed } from 'vue'
 #beebee-shaper {
   display: grid;
   grid-template-columns: 1fr;
-  top: 0%;
   width: 90vw;
   height: 94vh;
 }
 
 .bento-history {
-  margin-top: 5%;
   height: auto;
   display: grid;
-  justify-content: center;
+  justify-content: top;
 }
 
 .history-buttons {
@@ -134,18 +132,17 @@ import { computed } from 'vue'
     #beebee-shaper {
       display: grid;
       grid-template-columns: 1fr 7fr;
-      height: 90vh;
+      height: 100%;
       width: 100%;
-      border: 0px dashed rgb(0, 15, 128);
-      
+      border: 2px solid red;
     }
 
     .bento-history {
       display: grid;
       grid-template-columns: 1fr;
       grid-template-rows: 1fr 1fr 10fr;
-      margin-top: 8.5em;
-      height: 60vh;
+      margin-top: 4.5em;
+      height: 90%;
     }
 
     #bento-ai-diary {

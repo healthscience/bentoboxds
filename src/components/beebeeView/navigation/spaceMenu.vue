@@ -19,123 +19,182 @@
       <button class="save-chat-history" @click="saveSpaceHistory(sis)">save</button>
       <button class="delete-chat-history" @click="deleteSpaceHistory(sis)">Del</button>
     </div>
+    <h2>Cues</h2>
+    <div class="cues-list" v-for="cue in cuesList">
+      <div id="cue-holistic">
+        <button class="flat-history"  v-bind:class="{ active: cue?.active }" @click="bentoSpaceOpen(cue)" @mouseover="hoverCheck(cue)" @mousemove="moveCheck(cue)"> {{ cue.name }}
+        </button>
+        <span id="drill-cue" v-if="cue.expand === true">
+          <button class="drill-cue-history" @click="drillCue(cue)">c-></button>     
+        </span>
+        <button class="save-chat-history" @click="saveSpaceHistory(cue)">save</button>
+        <button class="delete-chat-history" @click="deleteSpaceHistory(cue)">Del</button>
+      </div>
+      ---------
+      <div id="gule-cues" v-if="glueTarget === true && glueName === 'Nature'">
+        <div class="cues-list" v-for="cue in cuesNature">
+          <div id="cue-holistic">
+            <button class="flat-history"  v-bind:class="{ active: cue?.active }" @click="bentoSpaceOpen(cue)" @mouseover="hoverCheck(cue)" @mousemove="moveCheck(cue)"> {{ cue.name }}
+            </button>
+            <span id="drill-cue" v-if="cue.expand === true">
+              <button class="drill-cue-history" @click="drillCue(cue)">c-></button>     
+            </span>
+            <button class="save-chat-history" @click="saveSpaceHistory(cue)">save</button>
+            <button class="delete-chat-history" @click="deleteSpaceHistory(cue)">Del</button>
+          </div>
+          <div id="gule-cues" v-if="glueTarget === true && glueName === 'Nature'">
+            another drill down?
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import hashObject from 'object-hash'
+import { cuesStore } from '@/stores/cuesStore.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { ref, computed } from 'vue'
 
-const storeAI = aiInterfaceStore()
-const storeBentobox = bentoboxStore()
+  const storeCues = cuesStore()
+  const storeAI = aiInterfaceStore()
+  const storeBentobox = bentoboxStore()
 
-let saveChat = ref(false)
-let saveSpace = ref(false)
-let newChatname = ref('')
-let newSpacename = ref('')
+  let saveChat = ref(false)
+  let saveSpace = ref(false)
+  let newChatname = ref('')
+  let newSpacename = ref('')
+  let glueTarget = ref(false)
+  let glueName = ref('')
 
+  /*  computed  */
+  const spaceList = computed(() => {
+    return storeBentobox.spaceList
+  })
 
-const spaceList = computed(() => {
-  return storeBentobox.spaceList
-})
+  const cuesList = computed(() => {
+    return storeCues.cuesmenuList
+  })
 
+  const cuesNature = computed(() => {
+    return storeCues.cuesNature.labels
+  })
 
-const hoverCheck = (sis) => {
-  // console.log('hover id')
-  // console.log(sis)
-}
+  const cuesLongevity = computed(() => {
+    return storeCues.cuesLongevity.labels
+  })
 
-const moveCheck = (sis) => {
-  // console.log('move id')
-  // console.log(sis)
-}
+  const cuesBiomarkers = computed(() => {
+    return storeCues.cuesBiomarkers.labels
+  })
 
-const newSpacemenu = () => {
-  saveSpace.value = !saveSpace.value
-}
+  cuesBiomarkers
 
-const bentoSpaceOpen = (spaceID) => {
-  storeAI.bentospaceState = !storeAI.bentospaceState
-  storeAI.liveBspace = spaceID
-  // make button green
-  let spaceLiveList = []
-  for (let spi of storeBentobox.spaceList) {
-    if (spi.spaceid === spaceID.spaceid) {
-      spi.active = true
-      spaceLiveList.push(spi)
-    } else {
-      spi.active = false
-      spaceLiveList.push(spi)
-    }
+  /* methods */
+  const hoverCheck = (sis) => {
+    // console.log('hover id')
+    // console.log(sis)
   }
-  storeBentobox.spaceList = spaceLiveList
-}
 
-const saveSpacename = () => {
-  saveSpace.value = !saveSpace.value
-  let spaceID = hashObject(newSpacename.value + new Date())
-  let newSpaceItem = {}
-  newSpaceItem.name = newSpacename.value
-  newSpaceItem.spaceid = spaceID
-  newSpaceItem.active = false
-  storeBentobox.spaceList.push(newSpaceItem)
-  storeAI.bentoboxList[spaceID] = []
-  newSpacename.value = ''
-  // make this the active space
-  storeAI.liveBspace = newSpaceItem
-  let spaceLiveList = []
-  for (let spi of storeBentobox.spaceList) {
-    if (spi.spaceid === spaceID) {
-      spi.active = true
-      spaceLiveList.push(spi)
-    } else {
-      spi.active = false
-      spaceLiveList.push(spi)
-    }
+  const moveCheck = (sis) => {
+    // console.log('move id')
+    // console.log(sis)
   }
-  storeBentobox.spaceList = spaceLiveList
-  storeBentobox.locationBbox[spaceID] = {}
-}
 
-const saveSpaceHistory = (space) => {
-  let saveBentoBoxsetting = {}
-  saveBentoBoxsetting.type = 'bentobox'
-  saveBentoBoxsetting.reftype = 'space-history'
-  saveBentoBoxsetting.action = 'save'
-  saveBentoBoxsetting.task = 'save'
-  saveBentoBoxsetting.data = space
-  saveBentoBoxsetting.bbid = ''
-  storeAI.prepareSpaceSave(saveBentoBoxsetting)
-}
-
-const deleteSpaceHistory = (space) => {
-  // remove form chat list and delete message
-  let updateSpacelist = []
-  for (let sp of storeBentobox.spaceList) {
-    if (sp.spaceid !== space.spaceid) {
-      updateSpacelist.push(sp)
-    }
+  const newSpacemenu = () => {
+    saveSpace.value = !saveSpace.value
   }
-  storeBentobox.spaceList = updateSpacelist
-  let delBentoBoxsetting = {}
-  delBentoBoxsetting.type = 'bentobox'
-  delBentoBoxsetting.reftype = 'space-history'
-  delBentoBoxsetting.action = 'delete'
-  delBentoBoxsetting.task = 'delete'
-  delBentoBoxsetting.data = space
-  delBentoBoxsetting.bbid = ''
-  console.log('dleelel sapce')
-  console.log(delBentoBoxsetting)
-  storeAI.sendMessageHOP(delBentoBoxsetting)
-}
+
+  const drillCue = (cuem) => {
+    console.log(cuem)
+    glueTarget.value = !glueTarget.value
+    glueName.value = cuem.name
+  }
+
+  const bentoSpaceOpen = (spaceID) => {
+    storeAI.bentospaceState = !storeAI.bentospaceState
+    storeAI.liveBspace = spaceID
+    // make button green
+    let spaceLiveList = []
+    for (let spi of storeBentobox.spaceList) {
+      if (spi.spaceid === spaceID.spaceid) {
+        spi.active = true
+        spaceLiveList.push(spi)
+      } else {
+        spi.active = false
+        spaceLiveList.push(spi)
+      }
+    }
+    storeBentobox.spaceList = spaceLiveList
+  }
+
+  const saveSpacename = () => {
+    saveSpace.value = !saveSpace.value
+    let spaceID = hashObject(newSpacename.value + new Date())
+    let newSpaceItem = {}
+    newSpaceItem.name = newSpacename.value
+    newSpaceItem.spaceid = spaceID
+    newSpaceItem.active = false
+    storeBentobox.spaceList.push(newSpaceItem)
+    storeAI.bentoboxList[spaceID] = []
+    newSpacename.value = ''
+    // make this the active space
+    storeAI.liveBspace = newSpaceItem
+    let spaceLiveList = []
+    for (let spi of storeBentobox.spaceList) {
+      if (spi.spaceid === spaceID) {
+        spi.active = true
+        spaceLiveList.push(spi)
+      } else {
+        spi.active = false
+        spaceLiveList.push(spi)
+      }
+    }
+    storeBentobox.spaceList = spaceLiveList
+    storeBentobox.locationBbox[spaceID] = {}
+  }
+
+  const saveSpaceHistory = (space) => {
+    let saveBentoBoxsetting = {}
+    saveBentoBoxsetting.type = 'bentobox'
+    saveBentoBoxsetting.reftype = 'space-history'
+    saveBentoBoxsetting.action = 'save'
+    saveBentoBoxsetting.task = 'save'
+    saveBentoBoxsetting.data = space
+    saveBentoBoxsetting.bbid = ''
+    storeAI.prepareSpaceSave(saveBentoBoxsetting)
+  }
+
+  const deleteSpaceHistory = (space) => {
+    // remove form chat list and delete message
+    let updateSpacelist = []
+    for (let sp of storeBentobox.spaceList) {
+      if (sp.spaceid !== space.spaceid) {
+        updateSpacelist.push(sp)
+      }
+    }
+    storeBentobox.spaceList = updateSpacelist
+    let delBentoBoxsetting = {}
+    delBentoBoxsetting.type = 'bentobox'
+    delBentoBoxsetting.reftype = 'space-history'
+    delBentoBoxsetting.action = 'delete'
+    delBentoBoxsetting.task = 'delete'
+    delBentoBoxsetting.data = space
+    delBentoBoxsetting.bbid = ''
+    console.log('dleelel sapce')
+    console.log(delBentoBoxsetting)
+    storeAI.sendMessageHOP(delBentoBoxsetting)
+  }
 </script>
 
 <style scoped>
-.spaces {
-  display: relative;
-  height: 2em;
+#space-menu {
+  display: grid;
+  grid-template-columns: 1fr;
+  height: 100%;
+  overflow-y: scroll;
 }
 
 .create-space {
@@ -169,11 +228,6 @@ const deleteSpaceHistory = (space) => {
 
     .menulive {
       background-color: 1px solid green;
-    }
-    .spaces {
-      position: relative;
-      height: 2em;
-      border: 0px dashed blue;
     }
 
     .live-drop-zone {

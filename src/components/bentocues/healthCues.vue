@@ -26,133 +26,12 @@
               <button class="cue-select-btn" id="decision-start" @click="selectWheel('newcue')">+ Cue</button>
               <button class="cue-select-btn" id="simple-wheel" @click="selectWheel('simple')">Simple</button>
               <button class="cue-select-btn" id="simple-segments" @click="selectWheel('segments')">Segments</button>
-              <button class="cue-select-btn" id="simple-segments" @click="selectWheel('aging')">Aging</button>
+              <button class="cue-select-btn" id="simple-segments" @click="selectWheel('aging')">Longevity</button>
             </div>
-            <div id="cue-doughnut" class="pie" v-if="wheelType === 'newcue'">
-              <div id="new-cue-space">
-                <form id="add-cue-form" @submit.prevent="cueAdd()">
-                  <label for="benefit"></label><!--  v-on:keyup="storeAI.actionNatlangIn($event)" -->
-                  <input type="input" id="cuesegadd" name="cuepadd" placeholder="cue name" v-model="cueSegment" autofocus>
-                </form>
-                <ColorPicker v-model:pureColor="pureColor" format="hex" shape="square" />
-                <button id="cue-add" type="submit" @click="cueAdd()">
-                  + cue
-                </button>
-              </div>
-              <div id="build-cues">
-                <div id="name-cue-wheel">
-                  OPTI JUV MED
-                </div>
-                <div id="new-doughnut-cues">
-                  <div id="doughnut-size-add">
-                    <pie-chartcues v-if="cuesNew.labels.length > 0" :cueType="'new'" :chartData="cuesNew" :options="{}" @segmentClick="cueSelectAdd"></pie-chartcues>
-                  </div>
-                  <div id="sub-wheel">sub segment</div>
-                </div>
-                <div id="addMarker">
-                  <button @click="addSubCue()">Add sub cue</button>
-                  <button @click="addSegMarker()">Add marker</button>
-                  <div id="attach-marker" v-if="cueMarkerSelect === true">
-                    <form id="marker-cue-form" @submit.prevent="cueAttachMarker()">
-                      <label for="cuemarker"></label><!--  v-on:keyup="storeAI.actionNatlangIn($event)" -->
-                      <input type="input" id="cuemarker" name="cuemarker" placeholder="marker name" v-model="cueMarker" autofocus>
-                    </form>
-                    <button id="cue-add-marker" type="submit" @click="cueAttachMarker()">
-                      Attach marker
-                    </button>
-                  </div>
-                  <div id="select-marker-list">
-                    <select class="select-model-save" id="bbox-model-save" v-model="markerSelected" @change="attachMarker()">
-                     <option selected="" v-for="ctest in cueMarkerTest" :value="ctest.test">
-                      {{ ctest.test }}
-                      </option>
-                    </select>
-                  <button id="select-market-cue" @click="attachMarker()"> + marker</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div id="decision-doughnut" class="pie" v-if="wheelType === 'decision'">
-              <beebee-ai v-if="beebeeCues"></beebee-ai>
-              <div id="cues-decision-flow" v-if="decisionDlive === true">
-                <h3>Decision cue</h3>
-                <div id="decision-doughnut-cues">
-                  <div id="doughnut-size">
-                    <pie-chartcues v-if="cuesDecision.labels.length > 0" :cueType="'simple'" :chartData="cuesDecision" :options="{}" @segmentClick="cueSelect"></pie-chartcues>
-                  </div>
-                  <div id="cue-drill-in">
-                    decision cue -- {{ cueActive }}
-                    <div id="cue-type" v-if="cueActive.length > 0 && decisionCues[cueActive] !== undefined">
-                      <pie-chartcues :chartData="decisionCues[cueActive]" :options="{}" @segmentClick="cueSelect" ></pie-chartcues>
-                    </div>
-                  </div>
-                </div>
-                <div id="decision-reason">
-                  <div id="positive-reason" class="reason-container">
-                    <h3>Postive</h3>
-                    <div class="decision-elements" v-for="ditem of oracleItems">
-                      <button class="decision-element-btn" @click="addDecisionElement(ditem)">{{ ditem.label }}</button>
-                    </div>
-                    <div id="peer-add-positive">
-                      <form id="add-positive-form" @submit.prevent="positiveAdd()">
-                        <label for="benefit"></label><!--  v-on:keyup="storeAI.actionNatlangIn($event)" -->
-                       <input type="input" id="positiveadd" name="cuepositive" placeholder="positive expectations" v-model="positivePeeradd" autofocus>
-                      </form>
-                      <button id="natlang-ask" type="submit" @click="positiveAdd()">
-                        + add
-                      </button>
-                    </div>
-                  </div>
-                  <div id="negative-reason" class="reason-container">
-                    <h3>Concerns</h3>
-                    <div id="decision-risks">
-                      <div class="decision-elements" v-for="ditem of oracleConerns">
-                        <button class="decision-element-btn" @click.prevent="addDecisionElement(ditem)">{{ ditem.label }}</button>
-                      </div>
-                    </div>
-                    <div id="peer-add-concern">
-                      <form id="add-positive-form" @submit.prevent="concernAdd()">
-                        <label for="benefit"></label><!--  v-on:keyup="storeAI.actionNatlangIn($event)" -->
-                       <input type="input" id="positiveadd" name="cuepositive" placeholder="positive expectations" v-model="concernPeeradd" autofocus>
-                      </form>
-                      <button id="natlang-ask" type="submit" @click.prevent="concernAdd()">
-                        + add
-                      </button>
-                    </div>
-                  </div>
-                </div>
-                <div id="decision-biomarkers" v-if="bioMarker.state === true">
-                  <h3>Biomarkers</h3>
-                  <div id="positive-reason" class="reason-container">
-                    <h3>Postive</h3>
-                    <div class="decision-elements" v-for="ditem of oracleBioMItems">
-                      <button class="decision-element-btn" @click="addDecisionElement(ditem)">{{ ditem.label }}</button>
-                    </div>
-                  </div>
-                  <div id="negative-reason" class="reason-container">
-                    <h3>Concerns</h3>
-                    <div id="decision-risks">
-                      <div class="decision-elements" v-for="ditem of oracleBioMConerns">
-                        <button class="decision-element-btn" @click="addDecisionElement(ditem)">{{ ditem.label }}</button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div id="decision-risk">
-                  <h3>Risk expectations</h3>
-                </div>
-                <div id="decision-make">
-                  <h3>Make decision</h3>
-                </div>
-                <div id="decision-diary">
-                  <h3>Time line diary</h3>
-                   MINI CALENDAR MODAL view
-                </div>
-                <div id="decision-diary">
-                  <h3>Recomend network N=1 boards</h3>
-                </div>
-              </div>
-            </div>
+            <!-- new cue -->
+            <new-cue v-if="wheelType === 'newcue'"></new-cue>
+            <!-- decision cues -->
+            <decision-cue v-if="wheelType === 'decision'"></decision-cue>
             <div class="pie" v-if="wheelType === 'simple'">
               <pie-chartcues :cueType="'simple'" :chartData="cuesHolistic" :options="{}" @segmentClick="cueSelect"></pie-chartcues>
             </div>
@@ -206,7 +85,7 @@
           </div>
           <div id="cue-bentobox">
             Expand cue -- {{ cueActive }}
-            <div id="cue-type" v-if="cueActive === 'Body'">
+            <div id="cue-type" v-if="cueActive === 'Movement'">
               <pie-chartcues :chartData="cuesBody" :options="{}" @segmentClick="cueSelect" ></pie-chartcues>
             </div>
             <div id="cue-type" v-if="cueActive === 'Buildings'">
@@ -217,7 +96,6 @@
             </div>
           </div>
         </div>
-
       </template>
       <template #footer>
       </template>
@@ -227,89 +105,38 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import BeebeeAi from '@/components/beebeehelp/inputBox.vue'
+import DecisionCue from '@/components/bentocues/decisions/decisionCues.vue'
+import NewCue from '@/components/bentocues/buildcue/newCue.vue'
 import ModalCues from '@/components/bentocues/cuesModal.vue'
-import PieChartcues from '@/components/visualisation/charts/doughnutChart.vue'  // pieChart.vue'
+import PieChartcues from '@/components/visualisation/charts/doughnutChart.vue'
+import { cuesStore } from '@/stores/cuesStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
+  const storeCues = cuesStore()
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
 
   let wheelType = ref('simple')
   let cueActive = ref('whole')
   let beebeeCues = ref(false)
-  let cuesNew = ref({ labels: [], datasets: [] })
   let cuesDecision = ref({ labels: [], datasets: [] })
   let bioMarker = ref({ name: 'Off', state: false })
-  let positivePeeradd = ref('')
-  let concernPeeradd = ref('')
-  let cueSegment = ref('')
-  let pureColor = ref('')
-  let cueMarkerSelect = ref(false)
-  let cueMarker = ref('')
-  let markerSelected = ref('')
 
   const bentoCuesStatus = computed(() => {
     return storeAI.bentocuesState
   })
 
-  const decisionDlive = computed(() => {
-    return storeAI.decisionDoughnutCue
-  })
-
-  const oracleItems = computed(() => {
-    return storeAI.oracleData.elements
-  })
-
-  const oracleConerns = computed(() => {
-    return storeAI.oracleData.concerns
-  })
-
-  const oracleBioMItems = computed(() => {
-    return storeAI.oracleData.elementsBioM
-  })
-
-  const oracleBioMConerns = computed(() => {
-    return storeAI.oracleData.concernsBioM
-  })
-
   const cuesHolistic = computed(() => {
-    let testPie = {
-      labels: ['Nature', 'Environment', 'Culture', 'Life'],
-      datasets: [
-        {
-        backgroundColor: ['#09921c', '#920914', '#191fe7', '#560992'],
-        data: [90, 90, 90, 90]
-        }
-      ]}
-    return testPie
+    return storeCues.hopCues
   })
-
 
   const cuesSegments = computed(() => {
-    let testPie = {
-      labels: ['Farming', 'Buildings', 'Culture', 'Money', 'Work', 'Lifestyle', 'Food', 'Movement', 'Body', 'Sleep/mind', 'Universe', 'Climate/weather'],
-      datasets: [
-        {
-        backgroundColor: ['#098133', '#920914', '#09921c', '#560992', '#17c8d1', '#f08113', '#61819c', '#e66553', '#8bf5b0', '#999999', '#000000' ,'#191fe7', '#999999'],
-        data: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]
-        }
-      ]}
-    return testPie
+    return storeCues.cuesSegments
   })
 
   const cuesNature = computed(() => {
-    let testPie = {
-      labels: ['Novel entities', 'Ozone depletion', 'Aresol loading', 'Ocean acidification', 'Bio geochemical flows', 'Freshwater change', 'Landsystem change', 'Biosphere integrity', 'Climate change CO2', 'Climate radiating forcing', 'Besearch', 'Besearch'],
-
-      datasets: [
-        {
-        backgroundColor: ['#191fe7', '#920914', '#09921c', '#560992', '#17c8d1', '#f08113', '#61819c', '#e66553', '#8bf5b0', '#181fe7' ,'#174fe7', '#999999'],
-        data: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]
-        }
-      ]}
-    return testPie
+    return storeCues.natureBoundries
   })
 
   const cuesBody = computed(() => {
@@ -339,15 +166,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   })
 
   const cuesData = computed(() => {
-    let testPie = {
-      labels: ['Genomic instability', 'Telomere attrition', 'Epigenetic alterations', 'Loss of proteostasis', 'Deregulated nutrient-sensing', 'Mitochondrial dysfunction', 'Cellular senescence', 'Stem cell exhaustion', 'Altered intercellular communication', 'besearch'],
-      datasets: [
-        {
-        backgroundColor: ['#191fe7', '#920914', '#09921c', '#560992', '#17c8d1', '#f08113', '#61819c', '#e66553', '#8bf5b0', '#999999'],
-        data: [36, 36, 36, 36, 36, 36, 36, 36, 36, 36]
-        }
-      ]}
-    return testPie
+    return storeCues.longevityCues
   })
 
   const decisionCues = computed(() => {
@@ -371,45 +190,11 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     return testPie
   })
 
-  // temp mark list
-  const cueMarkerTest = computed(() => {
-    let testMarkers = []
-    testMarkers = [{ category: 'immunesystem', test: 'Antinuclear Antibodies (ANA) Screen' }, { category: 'immunesystem', test: 'Celiac Disease (Comprehensive Panel)' }, { category: 'immunesystem', test: 'Antinuclear Antibodies (ANA) Pattern' }, { category: 'immunesystem', test: 'Antinuclear Antibodies (ANA) Titer' }]
-    return testMarkers 
-  })
 
   /* methods */
-  const cueAdd = () => {
-    let newSegment = { label: cueSegment.value, datasets: { backgroundColor: pureColor.value, data: 30 }}
-    addCueSegment(newSegment)
-    cueSegment.value = ''
-  }
-
-  const addSubCue = () => {
-    console.log('create new sub cue')
-  }
-
-  const addSegMarker = () => {
-    console.log('attach marker to cue')
-    cueMarkerSelect.value = true
-  }
-
-  const cueAttachMarker = () => {
-    console.log('marker attache')
-  }
-
-  const attachMarker = () => {
-    console.log('list attach marker')
-  }
 
   const closeBentoCues = () => {
     storeAI.bentocuesState = !storeAI.bentocuesState
-  }
-
-  const cueSelectAdd = (type, seg) => {
-    console.log('new seg add biomarker')
-    console.log(type)
-    console.log(seg)
   }
 
   const cueSelect = (cueID, segID) => {
@@ -450,34 +235,6 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     }
   }
 
-  const addCueSegment = (cSeg) => {
-    console.log(cSeg)
-    let updatePie = {}
-    updatePie.labels = []
-    updatePie.datasets = []
-    // current labels
-    let currentLabels = cuesNew.value.labels
-    let currentDatasets = cuesNew.value.datasets
-    let newColor
-    let newData
-    // new array for color and data
-    if (currentDatasets.length === 0) {
-      newColor = [cSeg.datasets.backgroundColor]
-      newData = [cSeg.datasets.data]
-    } else {
-      let existing = currentDatasets[0]
-      newColor = existing['backgroundColor'].concat([cSeg.datasets.backgroundColor])
-      newData = existing['data'].concat([cSeg.datasets.data])
-    }
-    // add to arrays
-    currentLabels.push(cSeg.label)
-    currentDatasets = [{ backgroundColor: newColor, data: newData }]
-    let updatePieObj = {}
-    updatePieObj.labels = currentLabels
-    updatePieObj.datasets = currentDatasets
-    cuesNew.value = updatePieObj
-  }
-
   const addDecisionElement = (ditem) => {
     // add data to doughnut
     console.log(ditem)
@@ -505,18 +262,6 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     updatePieObj.labels = currentLabels
     updatePieObj.datasets = currentDatasets
     cuesDecision.value = updatePieObj
-  }
-
-  const positiveAdd =  () => {
-    let newPositve = { label: positivePeeradd.value, datasets: { backgroundColor: '#6ab866', data: 30 }}
-    addDecisionElement(newPositve)
-    storeAI.oracleData.elements.push(newPositve)
-  }
-
-  const concernAdd =  () => {
-    let newConcern = { label: concernPeeradd.value, datasets: { backgroundColor: '#deb8bd', data: 30 }}
-    addDecisionElement(newConcern)
-    storeAI.oracleData.concerns.push(newConcern)
   }
 
   const biomarkerSwitch = () => {
