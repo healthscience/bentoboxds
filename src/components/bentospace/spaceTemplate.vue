@@ -49,6 +49,12 @@
                 <research-cue></research-cue>
             </div>
           </div>
+          <div id="research-tools">
+            <button @click="addCueMarker()">+ marker</button>
+            <div id="bento-cue-decicion" v-if="spaceMarker === true">
+                <marker-cue></marker-cue>
+            </div>
+          </div>
           <div id="space-bar">space bar</div>
           <div class="scale-item scalebuttons">
             <label>Scale</label>
@@ -73,6 +79,10 @@
               <div id="bento-research-space" v-for="rmedia in storeBentobox.researchMedia[storeAI.liveBspace.spaceid]">
                 <research-space :bstag="rmedia.tag" :bsmedia="rmedia.id"></research-space>
               </div>
+                <!-- marker -->
+                <div id="bento-research-space" v-for="mkmedia in storeBentobox.markerMedia[storeAI.liveBspace.spaceid]">pp {{ mkmedia }}
+                <marker-space :bstag="mkmedia.tag" :bsmedia="mkmedia.id.marker"></marker-space>
+              </div>
             </div>
           </div>
         </div>
@@ -90,8 +100,10 @@ import ModalSpace from '@/components/bentospace/spaceModal.vue'
 import BentoBoxspace from '@/components/bentobox/bentoboxSpace.vue'
 import MediaSpace from '@/components/bentospace/video/mediaSpace.vue'
 import ResearchSpace from '@/components/bentospace/research/researchSpace.vue'
+import MarkerSpace from '@/components/bentospace/marker/markerSpace.vue'
 import DecisionCue from '@/components/bentocues/decisions/decisionCues.vue'
 import ResearchCue from '@/components/bentocues/research/researchCues.vue'
+import MarkerCue from '@/components/bentocues/marker/markerCues.vue'
 import BeebeeAi from '@/components/beebeehelp/inputBox.vue'
 import MininavMap from '@/components/bentospace/map/mininavMap.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
@@ -113,6 +125,7 @@ import { mapminiStore } from '@/stores/mapStore.js'
   let videoURLadd = ref('')
   let spaceDecision = ref(false)
   let spaceResearch = ref(false)
+  let spaceMarker = ref(false)
 
   /* computed */
   const bentospaceStatus = computed(() => {
@@ -185,13 +198,18 @@ import { mapminiStore } from '@/stores/mapStore.js'
     spaceResearch.value = !spaceResearch.value
   }
 
+  const addCueMarker = () => {
+    spaceMarker.value = !spaceMarker.value
+  }
+
+
 </script>
 
 <style scoped>
 
 #space-toolbar {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 3fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 3fr 1fr;
   background-color: antiquewhite;
 }
 

@@ -10,6 +10,7 @@ export const cuesStore = defineStore('cues', {
       { name:'Nature', spaceid:'000988111', active: false, expand: true, glueup: '', gluedown: 'cuesNature' },{ name:'Environment', spaceid:'000988112', active: false, expand: true, glueup: '', gluedown: 'cuesEnvironment' },
       { name:'Culture', spaceid:'000988113', active: false, expand: true, glueup: '', gluedown: 'cuesCulture' },
       { name:'Life', spaceid:'000988114', active: false, expand: true, glueup: '', gluedown: 'cuesLife'},
+      { name:'Body', spaceid:'002988114', active: false, expand: true, glueup: '', gluedown: 'cuesBody'},
       { name:'Longevity', spaceid:'000988115', active: false, expand: true, glueup: '', gluedown: 'cuesLongevity'},
       { name:'Biomarkers', spaceid:'000988116', active: false, expand: true, glueup: '', gluedown: 'cuesBiomarkers'}
     ],
@@ -66,6 +67,37 @@ export const cuesStore = defineStore('cues', {
         { name:'Food', spaceid:'004981111', active: false, expand: true, glueup: 'Life', gluedown: 'cuesLife' },
         { name:'Movement', spaceid:'004981112', active: false, expand: true, glueup: 'Life', gluedown: 'cuesLife' },
         { name:'Sleep/mind', spaceid:'004981113', active: false, expand: true, glueup: 'Life', gluedown: 'cuesLife' }
+      ],
+      datasets: [
+        {
+        backgroundColor: ['#d642cc' ,'#fa03ea', '#999999'],
+        data: [30, 30, 30]
+        }
+      ]
+    },
+    cuesBody: {
+      labels: [
+        { name:'Heart', spaceid:'024981111', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
+        { name:'Brain', spaceid:'024981112', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
+        { name:'Liver', spaceid:'024981113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
+        { name:'Thyroid', spaceid:'024981111', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
+        { name:'Immune sytem', spaceid:'024981112', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
+        { name:'Autoimmunity', spaceid:'024981113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
+        { name:'Metabolic', spaceid:'024981111', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
+        { name:'Nutrients', spaceid:'024981112', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
+        { name:'Stress', spaceid:'024981113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
+        { name:'Pancreas', spaceid:'024982113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
+        { name:'Blood', spaceid:'024983113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
+        { name:'Electrolytes', spaceid:'024984113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
+        { name:'Urine', spaceid:'024985113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
+        { name:'Allergies', spaceid:'024986113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
+        { name:'Sexual health', spaceid:'024987113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
+        { name:'Epigenetic clock', spaceid:'024988113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
+        { name:'', spaceid:'224981113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
+        { name:'', spaceid:'324981113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
+        { name:'', spaceid:'424981113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
+        { name:'', spaceid:'524981113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
+        { name:'', spaceid:'624981113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' }
       ],
       datasets: [
         {
@@ -146,7 +178,8 @@ export const cuesStore = defineStore('cues', {
         cuesEnvironment: this.cuesEnvironment,
         cuesCulture: this.cuesCulture,
         cuesLife: this.cuesLife,
-        cuesLongevity: this.cuesLongevity
+        cuesLongevity: this.cuesLongevity,
+        cuesBody: this.cuesBody
       }
     }
   }
