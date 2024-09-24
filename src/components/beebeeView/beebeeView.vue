@@ -12,6 +12,14 @@
         <div class="spaces">
           <button @click="historyType('space')" class="button-chat-menu" v-bind:class="{ active: historyList === 'space' }">Spaces</button>
         </div>
+        <div id="body-cues">
+          <button id="body-image" @click="viewBody()" class="button-chat-menu" :class="{ active: bodyDiagramShow === true }">Body</button>
+          <!--<Teleport to="body">-->
+              <div id="body-daigram-interactive">
+                <body-diagram v-if="bodyDiagramShow === true"></body-diagram>
+              </div>
+          <!--</Teleport>-->
+        </div>
       </div>
       <chat-menu v-if="historyActive ===  true"></chat-menu>
       <space-menu v-if="historyActive !==  true"></space-menu>
@@ -29,6 +37,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import BodyDiagram from '@/components/beebeeView/diagrams/bodyDiagram.vue'
 import ChatMenu from '@/components/beebeeView/navigation/chatMenu.vue'
 import BentoCues from '@/components/bentocues/healthCues.vue'
 import SpaceMenu from '@/components/beebeeView/navigation/spaceMenu.vue'
@@ -44,6 +53,7 @@ import { computed } from 'vue'
 
   let diaryActive = ref(false)
   let cuesActive = ref(false)
+  let bodyDiagramShow = ref(false)
 
   const historyActive = computed(() => {
     return storeBentobox.historyActive
@@ -67,6 +77,10 @@ import { computed } from 'vue'
   const openBentoDiary = () => {
     diaryActive.value = !diaryActive.value
     storeAI.bentodiaryState = !storeAI.bentodiaryState
+  }
+
+  const viewBody = () => {
+    bodyDiagramShow.value = !bodyDiagramShow.value
   }
 
 </script>
@@ -164,6 +178,7 @@ import { computed } from 'vue'
       height: 2em;
       border: 0px dashed blue;
     }
+
     .bentospace {
       display: grid;
       grid-template-columns: 1fr;
@@ -177,6 +192,7 @@ import { computed } from 'vue'
       background: linear-gradient(-90deg, rgba(0, 0, 0, .1) 1px, transparent 1px), linear-gradient(rgba(0, 0, 0, .1) 1px, transparent 1px);
       background-size: 60px 60px, 60px 60px;
     }
+
     .beebee-home {
       display: grid;
       grid-template-columns: 1fr;
@@ -185,6 +201,20 @@ import { computed } from 'vue'
 
     .button-chat-menu {
       width: 180px;
+    }
+
+    #body-cues {
+      position: relative;
+    }
+
+    #body-daigram-interactive {
+      position: absolute;
+      left: 210px;
+      top: 0;
+      background-color: white;
+      border: 2px solid rgb(69, 69, 230);
+      /* background-color: white; */
+      z-index: 88;
     }
 
   }

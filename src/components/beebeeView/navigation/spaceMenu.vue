@@ -46,21 +46,12 @@
             another drill down?
           </div>
         </div>
-        <div id="body-cues" v-if="cue.gluedown === glueName && glueName === 'cuesBody'">
-          <button id="body-image" @click="viewBody()">body diagram</button>
-          <Teleport to="body">
-            <div id="body-daigram-interactive">
-              <body-diagram v-if="bodyDiagramShow === true"></body-diagram>
-            </div>
-          </Teleport>
-        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import BodyDiagram from '@/components/beebeeView/diagrams/bodyDiagram.vue'
 import hashObject from 'object-hash'
 import { cuesStore } from '@/stores/cuesStore.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
@@ -75,7 +66,6 @@ import { ref, computed, onMounted } from 'vue'
   let newSpacename = ref('')
   let glueTarget = ref(false)
   let glueName = ref('')
-  let bodyDiagramShow = ref(false)
 
 
   /* on mount */
@@ -132,7 +122,6 @@ import { ref, computed, onMounted } from 'vue'
   }
 
   const drillCue = (cuem) => {
-    console.log(cuem)
     glueTarget.value = !glueTarget.value
     glueName.value = cuem.gluedown
   }
@@ -212,10 +201,6 @@ import { ref, computed, onMounted } from 'vue'
     storeAI.sendMessageHOP(delBentoBoxsetting)
   }
 
-  const viewBody = () => {
-    bodyDiagramShow.value = !bodyDiagramShow.value
-  }
-
 </script>
 
 <style scoped>
@@ -277,16 +262,6 @@ import { ref, computed, onMounted } from 'vue'
       position: relative;
     }
 
-    #body-cues {
-      position: relative;
-    }
-
-    #body-daigram-interactive {
-      position: absolute;
-      left: 100px;
-      top: 100px;
-      border: 1px solid red;
-    }
 
   }
 </style>
