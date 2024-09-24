@@ -79,6 +79,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     bentospaceState: false,
     bentocuesState: false,
     bentodiaryState: false,
+    bentoflakeState: false,
     longPress: false,
     liveBspace: '',
     bentoboxList: { '91919191': [] },

@@ -111,8 +111,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 #connect-hop {
   display: grid;
   grid-template-columns: 1fr;
-  padding-top: 4em;
-  min-height: 4vh;
+  padding-top: 0em;
+  min-height: 0vh;
 }
 
 #return-modal-close {
@@ -134,8 +134,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   #connect-hop {
     display: grid;
     grid-template-columns: 1fr;
-    padding-top: 4em;
-    min-height: 20vh;
+    padding-top: 0em;
+    min-height: 2vh;
   }
 
   #self-verify {
@@ -151,6 +151,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   #disconnect-signout {
     display: grid;
     justify-content: right;
+    height: 50px;
   }
 
   #disconnect-button {
