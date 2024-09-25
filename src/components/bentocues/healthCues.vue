@@ -22,12 +22,15 @@
         <div id="bento-cues">
           <div id="cues-wheel">
             <div id="wheel-tools">
+              <button class="cue-select-btn" id="bentopath" @click="selectWheel('bentopath')">+ Path</button>
               <button class="cue-select-btn" id="decision-start" @click="selectWheel('decision')">+ Decision</button>
               <button class="cue-select-btn" id="decision-start" @click="selectWheel('newcue')">+ Cue</button>
               <button class="cue-select-btn" id="simple-wheel" @click="selectWheel('simple')">Simple</button>
               <button class="cue-select-btn" id="simple-segments" @click="selectWheel('segments')">Segments</button>
               <button class="cue-select-btn" id="simple-segments" @click="selectWheel('aging')">Longevity</button>
             </div>
+            <!-- new bentopath -->
+            <bento-path v-if="wheelType === 'bentopath'"></bento-path>
             <!-- new cue -->
             <new-cue v-if="wheelType === 'newcue'"></new-cue>
             <!-- decision cues -->
@@ -105,6 +108,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import BentoPath from '@/components/bentocues/bentopath/storyTools.vue'
 import DecisionCue from '@/components/bentocues/decisions/decisionCues.vue'
 import NewCue from '@/components/bentocues/buildcue/newCue.vue'
 import ModalCues from '@/components/bentocues/cuesModal.vue'
@@ -224,7 +228,10 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   const selectWheel = (type) => {
     console.log('wheel' + type)
     wheelType.value = type
-    if (wheelType.value === 'decision') {
+    if (wheelType.value === 'bentopath') {
+      console.log('bento path story new please')
+      storeCues.bentopathState = true
+    } else if (wheelType.value === 'decision') {
       // bring beebee to life
       beebeeCues.value = true
       storeAI.beebeeContext = 'cues-decision'

@@ -6,6 +6,9 @@ import PeersUtility from '@/stores/hopUtility/peersUtility.js'
 
 export const cuesStore = defineStore('cues', {
   state: () => ({
+    bentopathState: false,
+    bentopathLife: [],
+    bentopathStages: [],
     cuesmenuList: [
       { name:'Nature', spaceid:'000988111', active: false, expand: true, glueup: '', gluedown: 'cuesNature' },{ name:'Environment', spaceid:'000988112', active: false, expand: true, glueup: '', gluedown: 'cuesEnvironment' },
       { name:'Culture', spaceid:'000988113', active: false, expand: true, glueup: '', gluedown: 'cuesCulture' },
@@ -93,11 +96,11 @@ export const cuesStore = defineStore('cues', {
         { name:'Allergies', spaceid:'024986113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
         { name:'Sexual health', spaceid:'024987113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
         { name:'Epigenetic clock', spaceid:'024988113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
-        { name:'', spaceid:'224981113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
-        { name:'', spaceid:'324981113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
-        { name:'', spaceid:'424981113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
-        { name:'', spaceid:'524981113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
-        { name:'', spaceid:'624981113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' }
+        { name:'Muscle', spaceid:'224911113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
+        { name:'Bones', spaceid:'324981113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
+        { name:'Fat', spaceid:'424982113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
+        { name:'Genes', spaceid:'524983113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
+        { name:'Epigenomics', spaceid:'624984113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },{ name:'Gastro. guts', spaceid:'624985113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },{ name:'Hair', spaceid:'624984113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },{ name:'Skin', spaceid:'624984113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },{ name:'Joints', spaceid:'624984113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },{ name:'Ears', spaceid:'624984113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },{ name:'Eyes', spaceid:'624984113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },{ name:'Mouth/teeth', spaceid:'624984113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },{ name:'', spaceid:'624984113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },{ name:'', spaceid:'624984113', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' }
       ],
       datasets: [
         {

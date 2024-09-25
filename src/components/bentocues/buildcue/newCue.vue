@@ -132,6 +132,5 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 @media (min-width: 1024px) {
 
   
-
 }
 </style>
