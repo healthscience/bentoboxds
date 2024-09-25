@@ -15,11 +15,9 @@
       <div v-if="stageType.id === 0" >
         text box - please write story
         <form id="stage_form" name="stage_form" method="post" action="#">
-          <ul>
-            <li class="stage-text">
-              <textarea required="" v-model="stageText" placeholder="write story"></textarea>
-            </li>
-          </ul>
+          <div class="stage-text">
+            <textarea required="" v-model="stageText" placeholder="write story"></textarea>
+          </div>
         </form>
       </div>
       <div v-if="stageType.id === 1" >
@@ -31,37 +29,43 @@
       <div v-if="stageType.id === 3" >
         <header>Experiment</header>
         <form id="experiment_form" name="experiment_form" method="post" action="#">
-          <ul>
-            <li class="stage-experiment">
-              <input required="" v-model="stageExperiment" @change="experimentLookup" placeholder="experiment reference">
-            </li>
-          </ul>
+          <div class="stage-experiment">
+            <input required="" v-model="stageExperiment" @change="experimentLookup" placeholder="experiment reference">
+          </div>
         </form>
+      </div>
+      <div v-if="stageType.id === 4">
+        Select a cue wheel please
       </div>
       <button @click.prevent="saveStage" class="button is-primary">Save</button>
     </div>
     <div v-if="stageActive === true" id="stage-display-preview">
       <header>Stage preview area {{ stageID }} </header>
-      <ul>
-        <li>
+        <div>
           Stage name: {{ stageName }}
-        </li>
-        <li>
+        </div>
+        <div>
           Type: {{ stageType }}
-        </li>
-        <li>
+        </div>
+        <div>
           Text: {{ stageText }}
-        </li>
-        <li>
+        </div>
+        <div>
           Experiment Reference {{ stageExperiment }}
-        </li>
-      </ul>
+        </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { cuesStore } from '@/stores/cuesStore.js'
+import { aiInterfaceStore } from '@/stores/aiInterface.js'
+import { bentoboxStore } from '@/stores/bentoboxStore.js'
+
+  const storeCues = cuesStore()
+  const storeAI = aiInterfaceStore()
+  const storeBentobox = bentoboxStore()
 
   const props = defineProps({
     stageID: Object,
@@ -72,6 +76,7 @@ import { ref, onMounted } from 'vue'
   let stageType = ''
   let stagetypeList = 
     ref([
+      { id: 4, name: 'Cue wheel' },
       { id: 0, name: 'Text' },
       { id: 1, name: 'Data' },
       { id: 2, name: 'Image' },
@@ -82,7 +87,7 @@ import { ref, onMounted } from 'vue'
 
    /* computed */   
   const liveStageCount = computed(() => {
-    return this.$store.state.stageCount
+    return storeCues.stageCount
   })
 
    /* methods */
@@ -91,22 +96,22 @@ import { ref, onMounted } from 'vue'
     console.log('save stage')
     // first stage if yes, save name of story
     console.log('stage count')
-    console.log(this.liveStageCount)
-    if (this.liveStageCount === 0) {
+    console.log(storeCues.stageCount)
+    if (storeCues.stageCount === 0) {
       // save story name and create holder for story
-      // this.$store.dispatch('actionNewstory')
+      storeCues.stageCount++
+      storeCues.pathRefContracts['name'] = ev
+      let pathSummary = {}
+      pathSummary.name = storeCues.pathName
+      pathSummary.id = storeCues.stageCount
+      console.log(pathSummary)
+      storeCues.bentopathLive.push(pathSummary)
+      console.log(storeCues.bentopathLive)
     }
-    let prepareStage = {}
-    prepareStage.type = 1
-    prepareStage.text = 2
-    prepareStage.data = 3
-    prepareStage.image = 4
-    prepareStage.Experiment = 5
-    // this.$store.dispatch('actionNewstage', prepareStage)
     // clear the forms
-    stageText.value = ''
-    stageName.value = ''
-    stageExperiment.value = ''
+    stageText = ''
+    stageName = ''
+    stageExperiment = ''
   }
 
   const statetypeSelect = () => {
@@ -115,7 +120,7 @@ import { ref, onMounted } from 'vue'
 
   const experimentLookup = () => {
     console.log('lookup reference contract')
-    console.log(this.stageExperiment)
+    console.log(stageExperiment.value)
   }
 
 </script>

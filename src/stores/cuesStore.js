@@ -7,8 +7,11 @@ import PeersUtility from '@/stores/hopUtility/peersUtility.js'
 export const cuesStore = defineStore('cues', {
   state: () => ({
     bentopathState: false,
-    bentopathLife: [],
+    pathName: '',
+    bentopathLive: [],
     bentopathStages: [],
+    stageCount: 0,
+    pathRefContracts: {},
     cuesmenuList: [
       { name:'Nature', spaceid:'000988111', active: false, expand: true, glueup: '', gluedown: 'cuesNature' },{ name:'Environment', spaceid:'000988112', active: false, expand: true, glueup: '', gluedown: 'cuesEnvironment' },
       { name:'Culture', spaceid:'000988113', active: false, expand: true, glueup: '', gluedown: 'cuesCulture' },

@@ -2,77 +2,83 @@
   <div class="bento-path">bpath
   <story-modal :show="bentopathStatus" @close="closeModal">
     <template #header>
-        <!-- The code below goes into the header slot -->
-        <div id="space-modal-header">
-          <button
-            type="button"
-            class="btn-green"
-            @click="closeModal"
-            aria-label="Close modal"
-          >
-            Close
-          </button>
-          <h3>BentoPath</h3>
-          <div id="return-modal-close" @click="closeModal">return</div>
-        </div>
-      </template>
-      <template #body>
+      <!-- The code below goes into the header slot -->
+      <div id="space-modal-header">
+        <button
+          type="button"
+          class="btn-green"
+          @click="closeModal"
+          aria-label="Close modal"
+        >
+          Close
+        </button>
+        <h3>BentoPath</h3>
+        <div id="return-modal-close" @click="closeModal">return</div>
+      </div>
+    </template>
+    <template #body>
       <div class="story-tools-holder">
         <div id="story-toolbar">
-          <ul>
-            <li class="tools-stage">
+            <div class="tools-stage">
               <a @click.prevent="listStory" href="" class="story-button">list</a>
-            </li>
-            <li class="tools-stage">
+            </div>
+            <div class="tools-stage">
               <a @click.prevent="newStory" href="" class="story-button">new</a>
-            </li>
-            <li class="tools-story">
-              Record</li>
-            <li>
-              <button @click.prevent="startStory" class="button is-primary">Play story</button>
-            </li>
-          </ul>
+            </div>
+            <div class="tools-story">
+              Record
+            </div>
+            <div class="play-path">
+              <button @click.prevent="startStory" class="button is-primary">Play</button>
+            </div>
         </div>
         <div v-if="storyListlive === true" id="story-list">
-          <header>List of saved stories</header>
-          <ul v-for="storyi of liveStorylist" :key="storyi.id" v-bind:value="storyi">
-            <li class="story-list-live">
+          <header>List of saved stories</header>pp{{ liveStorylist }}
+          <div v-for="storyi of liveStorylist" :key="storyi.id" v-bind:value="storyi">
+            <div class="story-list-live">
               {{ storyi.name }}
               <button @click.prevent="viewStory(storyi.id)" class="button is-primary">view</button>
-            </li>
-          </ul>
+            </div>
+          </div>
         </div>
         <div v-if="stageView === true" id="story-stages-summary">
-          Story name: {{ storyName }}
-          <ul>
-            <li class="tools-stage">
+           name: {{ storeCues.pathName }}
+            <div class="tools-stage">
               <a @click.prevent="addStorystage" href="" class="story-button">add</a>
-            </li>
-          </ul>
-          <ul v-for="stagei in storyStages" :key='stagei.id'>
-            <li class="story-stage">
+            </div>
+          <div v-for="stagei in storyStages" :key='stagei.id'>
+            <div class="story-stage">
               <story-stage :stageID="stagei"></story-stage>
-            </li>
-          </ul>
+            </div>
+          </div>
           <div class="clearFloat"></div>
         </div>
         <div v-if="viewBuildtools === true" id="new-story-holder">
           <div id="setup-new-story">
             <form id="story-name">
-              <label>Story Name</label>
-              <input name="query" v-model="storyName" @input="storyNameText" @change="storyNameText">
+              <label>Path name:</label>
+              <input name="query" v-model="storeCues.pathName">
             </form>
+              <!--beebee chat-->
+              <div id="chat-opening-path">
+                Please click on a cue on the cue dougnut and we will have chat about health.
+              </div>
+              <beebee-ai></beebee-ai>
+            </div>
+            <a @click.prevent="addStorystage" href="" class="story-button">add stage</a>
+            <story-buildstage :stageActive="addStageactive"></story-buildstage>
           </div>
-          <a @click.prevent="addStorystage" href="" class="story-button">add stage</a>
-          <story-buildstage :stageActive="addStageactive"></story-buildstage>
         </div>
-        </div>
+      </template>
+      <template #footer>
+        <div id="return-modal-close" @click="closeModal">return</div>
       </template>
     </story-modal>
   </div>
 </template>
 
 <script setup>
+import BeebeeAi from '@/components/beebeehelp/inputBox.vue'
 import StoryModal from '@/components/bentocues/bentopath/storyModal.vue'
 import StoryBuildstage from '@/components/bentocues/bentopath/buildStage.vue'
 import StoryStage from '@/components/bentocues/bentopath/viewStage.vue'
@@ -90,7 +96,6 @@ const props = defineProps({
   })
 
   let storyListlive = ref(false)
-  let storyName = ref('')
   let stageView = ref(true)
   let addStageactive = ref(false)
   let viewBuildtools = ref(false)
@@ -115,10 +120,11 @@ const props = defineProps({
   }
 
   const viewStory = (vs) => {
-    // this.$store.dispatch('actionLivestory', vs)
-    for (let sn of liveStorylist) {
+    console.log(vs)
+    console.log(liveStorylist.value)
+    for (let sn of liveStorylist.value) {
       if (sn.id === vs) {
-        storyName.value = sn.name
+        storeCues.pathName = sn.name
       }
     }
     storyListlive.value = false
@@ -136,10 +142,6 @@ const props = defineProps({
       viewBuildtools.value = true
     }
     addStageactive.value = !addStageactive.value
-  }
-
-  const storyNameText = () => {
-    // this.$store.dispatch('actionStoryname', this.storyName)
   }
 
   const closeModal = () => {
@@ -164,5 +166,27 @@ const props = defineProps({
 }
 .clearFloat {
   clear: both;
+}
+
+#story-toolbar {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+
+#return-modal-close {
+  display: grid;
+  grid-template-columns: 1fr;
+  text-align: right;
+}
+
+
+@media (min-width: 1024px) {
+
+  #space-modal-header {
+    display: grid;
+    grid-template-columns: 1fr 8fr 1fr;
+  }
+
 }
 </style>
