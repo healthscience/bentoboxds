@@ -32,7 +32,7 @@ const props = defineProps({
 <style scoped>
 .modal-mask {
   position: fixed;
-  z-index: 11;
+  z-index: 99;
   top: 0;
   left: 0;
   width: 100%;
@@ -51,6 +51,8 @@ const props = defineProps({
   border-radius: 2px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   transition: all 0.3s ease;
+  z-index: 99;
+  overflow-y: scroll;
 }
 
 .modal-header h3 {

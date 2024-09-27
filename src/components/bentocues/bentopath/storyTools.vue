@@ -1,5 +1,5 @@
 <template>
-  <div class="bento-path">bpath
+  <div class="bento-path">
   <story-modal :show="bentopathStatus" @close="closeModal">
     <template #header>
       <!-- The code below goes into the header slot -->
@@ -42,12 +42,12 @@
           </div>
         </div>
         <div v-if="stageView === true" id="story-stages-summary">
-           name: {{ storeCues.pathName }}
+           name: {{ storeCues.pathName }} {{ storyStages }}
             <div class="tools-stage">
               <a @click.prevent="addStorystage" href="" class="story-button">add</a>
             </div>
           <div v-for="stagei in storyStages" :key='stagei.id'>
-            <div class="story-stage">
+            <div class="story-stage">ss== {{ stagei }}
               <story-stage :stageID="stagei"></story-stage>
             </div>
           </div>
@@ -59,16 +59,14 @@
               <label>Path name:</label>
               <input name="query" v-model="storeCues.pathName">
             </form>
-              <!--beebee chat-->
-              <div id="chat-opening-path">
-                Please click on a cue on the cue dougnut and we will have chat about health.
-              </div>
-              <beebee-ai></beebee-ai>
-            </div>
             <a @click.prevent="addStorystage" href="" class="story-button">add stage</a>
             <story-buildstage :stageActive="addStageactive"></story-buildstage>
+            <div id="path-buttons">
+              <button @click.prevent="saveBpath" id="complete-path-button">Path complete & save</button>
+            </div>
           </div>
         </div>
+      </div>
       </template>
       <template #footer>
         <div id="return-modal-close" @click="closeModal">return</div>
@@ -142,6 +140,15 @@ const props = defineProps({
       viewBuildtools.value = true
     }
     addStageactive.value = !addStageactive.value
+  }
+
+  const saveBpath = () => {
+    console.log('path complete')
+    // save all stage and save to bentostore
+    console.log(storeCues.pathName)
+    storeCues.pathRefContracts[storeCues.pathName] = storeCues.bentopathStages
+    console.log(storeCues.pathRefContracts)
+    storeCues.pathName = ''
   }
 
   const closeModal = () => {
