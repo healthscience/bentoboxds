@@ -8,7 +8,7 @@
           <label for="stagetype-select">type</label>
           <select class="select-stage-id" id="stage-mapping-build" @change="statetypeSelect" v-model="stageType">
             <!-- <option value="none" selected="">please select</option> -->
-            <option v-for="stype in stagetypeList" :key="stype.id" v-bind:value="stype">
+            <option v-for="stype in stagetypeList" :key="stype.id" :value="stype">
               {{ stype.name }}
             </option>
           </select>
@@ -46,7 +46,7 @@
           Prompt and chat:
             <!--beebee chat-->
             <div id="chat-opening-path">
-              <input required="" v-model="stageExperiment" @change="experimentLookup" placeholder="prompt message .. .. .">
+              <input required="" v-model="stagePrompt" @change="experimentLookup" placeholder="prompt message .. .. .">
             </div>
             Reply
             <beebee-ai></beebee-ai>
@@ -94,7 +94,7 @@
           Prompt and chat
             <!--beebee chat-->
             <div id="chat-opening-path">
-              <input required="" v-model="stageExperimenttwo" @change="experimentLookup" placeholder="prompt message">
+              <input required="" v-model="stagePromptwo" @change="experimentLookup" placeholder="prompt message">
             </div>
             <beebee-ai></beebee-ai>
         </div>
@@ -149,11 +149,14 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
       { id: 0, name: 'Text' },
       { id: 1, name: 'Data' },
       { id: 2, name: 'Image' },
-      { id: 3, name: 'Experiment' }
+      { id: 3, name: 'Experiment' },
+      { id: 6, name: 'Questionnaire' }
     ])
   let stageText = ref('')
   let stageExperiment = ref('')
+  let stagePrompt = ref('')
   let stageExperimenttwo = ref('')
+  let stagePromptwo = ref('')
 
    /* computed */   
   const liveStageCount = computed(() => {
@@ -177,16 +180,16 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     pathSummary.stagename = stageName
     pathSummary.stagetype = stageType
     pathSummary.stagetypetwo = stageTypeTwo
-    pathSummary.id = storeCues.stageCount
-    pathSummary.comptypeone = stageExperiment
-    pathSummary.comptypetwo = stageExperimenttwo
+    pathSummary.stageid = storeCues.stageCount
+    pathSummary.promptone = stagePrompt
+    pathSummary.prompottwo = stagePromptwo
     storeCues.bentopathStages.push(pathSummary)
     // clear the forms
-    stageType.value = ''
-    stageText.value = ''
-    stageName.value = ''
-    stageExperiment.value = ''
-    stageExperimenttwo.value = ''
+    // stageType.value = ''
+    // stageText.value = ''
+    // stageName.value = ''
+    // stageExperiment.value = ''
+    // stageExperimenttwo.value = ''
   }
 
   const statetypeSelect = () => {

@@ -132,6 +132,7 @@ const props = defineProps({
     storeCues.pathRefContracts[storeCues.pathName] = pathHolder
     storeCues.pathName = ''
     storeCues.bentopathStages = []
+    storeCues.stageCount = 0
   }
 
   const closeModal = () => {
