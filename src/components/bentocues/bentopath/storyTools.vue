@@ -1,6 +1,6 @@
 <template>
   <div class="bento-path">
-  <story-modal :show="bentopathStatus" @close="closeModal">
+  <story-modal :show="bentopathStatus === true" @close="closeModal">
     <template #header>
       <!-- The code below goes into the header slot -->
       <div id="space-modal-header">
@@ -32,22 +32,14 @@
               <button @click.prevent="startStory" class="button is-primary">Play</button>
             </div>
         </div>
-        <div v-if="storyListlive === true" id="story-list">
-          <header>List of saved stories</header>pp{{ liveStorylist }}
-          <div v-for="storyi of liveStorylist" :key="storyi.id" v-bind:value="storyi">
-            <div class="story-list-live">
-              {{ storyi.name }}
-              <button @click.prevent="viewStory(storyi.id)" class="button is-primary">view</button>
-            </div>
-          </div>
-        </div>
+        <path-list v-if="livePathlist === true"></path-list>
         <div v-if="stageView === true" id="story-stages-summary">
            name: {{ storeCues.pathName }} {{ storyStages }}
             <div class="tools-stage">
               <a @click.prevent="addStorystage" href="" class="story-button">add</a>
             </div>
           <div v-for="stagei in storyStages" :key='stagei.id'>
-            <div class="story-stage">ss== {{ stagei }}
+            <div class="story-stage">
               <story-stage :stageID="stagei"></story-stage>
             </div>
           </div>
@@ -77,6 +69,7 @@
 
 <script setup>
 import BeebeeAi from '@/components/beebeehelp/inputBox.vue'
+import PathList from '@/components/bentocues/bentopath/viewPath.vue'
 import StoryModal from '@/components/bentocues/bentopath/storyModal.vue'
 import StoryBuildstage from '@/components/bentocues/bentopath/buildStage.vue'
 import StoryStage from '@/components/bentocues/bentopath/viewStage.vue'
@@ -93,7 +86,7 @@ const props = defineProps({
     solospace: String
   })
 
-  let storyListlive = ref(false)
+
   let stageView = ref(true)
   let addStageactive = ref(false)
   let viewBuildtools = ref(false)
@@ -103,29 +96,18 @@ const props = defineProps({
     return storeCues.bentopathState
   })
 
-  const liveStorylist = computed(() => {
-    return storeCues.bentopathLive
-  })
 
   const storyStages = computed(() => {
     return storeCues.bentopathStages
   })
   
+  const livePathlist = computed(() => {
+    return storeCues.bentopathLive
+  })
 
   /* methods */
   const listStory = () => {
-    storyListlive.value = !storyListlive.value
-  }
-
-  const viewStory = (vs) => {
-    console.log(vs)
-    console.log(liveStorylist.value)
-    for (let sn of liveStorylist.value) {
-      if (sn.id === vs) {
-        storeCues.pathName = sn.name
-      }
-    }
-    storyListlive.value = false
+    storeCues.pathListActive = !storeCues.pathListActive
   }
 
   const newStory = () => {
@@ -143,12 +125,13 @@ const props = defineProps({
   }
 
   const saveBpath = () => {
-    console.log('path complete')
     // save all stage and save to bentostore
-    console.log(storeCues.pathName)
-    storeCues.pathRefContracts[storeCues.pathName] = storeCues.bentopathStages
-    console.log(storeCues.pathRefContracts)
+    let pathHolder = {}
+    pathHolder.pathname = storeCues.pathName
+    pathHolder.stages = storeCues.bentopathStages
+    storeCues.pathRefContracts[storeCues.pathName] = pathHolder
     storeCues.pathName = ''
+    storeCues.bentopathStages = []
   }
 
   const closeModal = () => {
@@ -159,10 +142,6 @@ const props = defineProps({
 </script>
 
 <style scoped>
-#story-list {
-  border: 1px solid lightgrey;
-  margin: 1em;
-}
 #story-stages-summary {
   border: 1px solid lightgrey;
   margin: 1em;

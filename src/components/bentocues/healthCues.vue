@@ -22,15 +22,18 @@
         <div id="bento-cues">
           <div id="cues-wheel">
             <div id="wheel-tools">
-              <button class="cue-select-btn" id="bentopath" @click="selectWheel('bentopath')">+ Path</button>
+              <button class="cue-select-btn" id="bentopath" @click="selectWheel('bentopath')">Paths</button>
+              <button class="cue-select-btn" id="newbentopath" @click="selectWheel('newbentopath')">+ Path</button>
               <button class="cue-select-btn" id="decision-start" @click="selectWheel('decision')">+ Decision</button>
               <button class="cue-select-btn" id="decision-start" @click="selectWheel('newcue')">+ Cue</button>
               <button class="cue-select-btn" id="simple-wheel" @click="selectWheel('simple')">Simple</button>
               <button class="cue-select-btn" id="simple-segments" @click="selectWheel('segments')">Segments</button>
               <button class="cue-select-btn" id="simple-segments" @click="selectWheel('aging')">Longevity</button>
             </div>
+            <!-- view bento paths -->dd {{ wheelType }}
+            <path-list v-if="wheelType === 'bentopath'"></path-list>
             <!-- new bentopath -->
-            <bento-path v-if="wheelType === 'bentopath'"></bento-path>
+            <bento-path v-if="wheelType === 'newbentopath'">rtrtr</bento-path>
             <!-- new cue -->
             <new-cue v-if="wheelType === 'newcue'"></new-cue>
             <!-- decision cues -->
@@ -108,6 +111,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import PathList from '@/components/bentocues/bentopath/viewPath.vue'
 import BentoPath from '@/components/bentocues/bentopath/storyTools.vue'
 import DecisionCue from '@/components/bentocues/decisions/decisionCues.vue'
 import NewCue from '@/components/bentocues/buildcue/newCue.vue'
@@ -229,6 +233,8 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     console.log('wheel' + type)
     wheelType.value = type
     if (wheelType.value === 'bentopath') {
+      storeCues.pathListActive = !storeCues.pathListActive  
+    } else if (wheelType.value === 'newbentopath') {
       console.log('bento path story new please')
       storeCues.bentopathState = true
     } else if (wheelType.value === 'decision') {

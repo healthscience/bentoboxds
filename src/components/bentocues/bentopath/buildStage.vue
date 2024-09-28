@@ -180,8 +180,6 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     pathSummary.id = storeCues.stageCount
     pathSummary.comptypeone = stageExperiment
     pathSummary.comptypetwo = stageExperimenttwo
-    console.log(pathSummary)
-    storeCues.bentopathLive.push(pathSummary)
     storeCues.bentopathStages.push(pathSummary)
     // clear the forms
     stageType.value = ''
