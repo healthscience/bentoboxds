@@ -22,32 +22,19 @@
         <div id="bento-cues">
           <div id="cues-wheel">
             <div id="wheel-tools">
-              <button class="cue-select-btn" id="bentopath" @click="selectWheel('bentopath')">Paths</button>
-              <button class="cue-select-btn" id="newbentopath" @click="selectWheel('newbentopath')">+ Path</button>
-              <button class="cue-select-btn" id="decision-start" @click="selectWheel('decision')">+ Decision</button>
-              <button class="cue-select-btn" id="decision-start" @click="selectWheel('newcue')">+ Cue</button>
-              <button class="cue-select-btn" id="simple-wheel" @click="selectWheel('simple')">Simple</button>
-              <button class="cue-select-btn" id="simple-segments" @click="selectWheel('segments')">Segments</button>
-              <button class="cue-select-btn" id="simple-segments" @click="selectWheel('aging')">Longevity</button>
+              <button class="cue-select-btn" id="bentopath" @click="selectWheel('bentopath')" v-bind:class="{ active: wheelType === 'bentopath' }">Paths</button>
+              <button class="cue-select-btn" id="newbentopath" @click="selectWheel('newbentopath')" v-bind:class="{ active: wheelType === 'newbentopath' }">+ Path</button>
+              <button class="cue-select-btn" id="decision-start" @click="selectWheel('decision')" v-bind:class="{ active: wheelType === 'decision' }">+ Decision</button>
+              <button class="cue-select-btn" id="decision-start" @click="selectWheel('newcue')" v-bind:class="{ active: wheelType === 'newcue' }">+ Cue</button>
             </div>
-            <!-- view bento paths -->dd {{ wheelType }}
+            <!-- view bento paths -->
             <path-list v-if="wheelType === 'bentopath'"></path-list>
             <!-- new bentopath -->
-            <bento-path v-if="wheelType === 'newbentopath'">rtrtr</bento-path>
+            <bento-path v-if="wheelType === 'newbentopath'"></bento-path>
             <!-- new cue -->
             <new-cue v-if="wheelType === 'newcue'"></new-cue>
             <!-- decision cues -->
             <decision-cue v-if="wheelType === 'decision'"></decision-cue>
-            <div class="pie" v-if="wheelType === 'simple'">
-              <pie-chartcues :cueType="'simple'" :chartData="cuesHolistic" :options="{}" @segmentClick="cueSelect"></pie-chartcues>
-            </div>
-            <div class="pie-segments" v-if="wheelType === 'segments'">
-              <pie-chartcues :cueType="'segments'" :chartData="cuesSegments" :options="{}" @segmentClick="cueSelect"></pie-chartcues>
-            </div>
-            <div class="pie-segments" v-if="wheelType === 'aging'">
-              <pie-chartcues :cueType="'aging'" :chartData="cuesData" :options="{}" @segmentClick="cueSelect"></pie-chartcues>
-              Source: <a href="https://peterattiamd.com/the-challenges-of-defining-aging/" target="_blank">All marks of aging</a>
-            </div>
           </div>
           <div id="filter-cues">
             <header>Filters</header>
@@ -89,18 +76,6 @@
               </div>
             </div>
           </div>
-          <div id="cue-bentobox">
-            Expand cue -- {{ cueActive }}
-            <div id="cue-type" v-if="cueActive === 'Movement'">
-              <pie-chartcues :chartData="cuesBody" :options="{}" @segmentClick="cueSelect" ></pie-chartcues>
-            </div>
-            <div id="cue-type" v-if="cueActive === 'Buildings'">
-              <pie-chartcues :chartData="cuesBuilding" :options="{}" @segmentClick="cueSelect" ></pie-chartcues>
-            </div>
-            <div id="cue-type" v-if="cueActive === 'Climate/weather'">
-              <pie-chartcues :chartData="cuesNature" :options="{}" @segmentClick="cueSelect" ></pie-chartcues>
-            </div>
-          </div>
         </div>
       </template>
       <template #footer>
@@ -116,7 +91,6 @@ import BentoPath from '@/components/bentocues/bentopath/storyTools.vue'
 import DecisionCue from '@/components/bentocues/decisions/decisionCues.vue'
 import NewCue from '@/components/bentocues/buildcue/newCue.vue'
 import ModalCues from '@/components/bentocues/cuesModal.vue'
-import PieChartcues from '@/components/visualisation/charts/doughnutChart.vue'
 import { cuesStore } from '@/stores/cuesStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
@@ -125,7 +99,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
 
-  let wheelType = ref('simple')
+  let wheelType = ref('bentopath')
   let cueActive = ref('whole')
   let beebeeCues = ref(false)
   let cuesDecision = ref({ labels: [], datasets: [] })
@@ -133,48 +107,6 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
   const bentoCuesStatus = computed(() => {
     return storeAI.bentocuesState
-  })
-
-  const cuesHolistic = computed(() => {
-    return storeCues.hopCues
-  })
-
-  const cuesSegments = computed(() => {
-    return storeCues.cuesSegments
-  })
-
-  const cuesNature = computed(() => {
-    return storeCues.natureBoundries
-  })
-
-  const cuesBody = computed(() => {
-    let testPie = {
-      labels: ['Brain', 'Skin', 'Heart', 'Immunesystem', 'Cardio', 'Muscle mass', 'Inflamation', 'Blood', 'Hormones', 'Sight', 'Mouth/teeth'],
-
-      datasets: [
-        {
-        backgroundColor: ['#191fe7', '#920914', '#09921c', '#560992', '#17c8d1', '#f08113', '#61819c', '#e66553', '#8bf5b0', '#999999' ,'#999999', '#999999'],
-        data: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]
-        }
-      ]}
-    return testPie
-  })
-
-  const cuesBuilding = computed(() => {
-    let testPie = {
-      labels: ['Hotel1', 'Hotel2', 'Hotel3', 'Hotel4', 'Hotel5', 'Hotel6', 'Hotel7', 'Hotel8', 'Hotel9', 'Hotel10', 'Hotel11'],
-
-      datasets: [
-        {
-        backgroundColor: ['#191fe7', '#920914', '#09921c', '#560992', '#17c8d1', '#f08113', '#61819c', '#e66553', '#8bf5b0', '#999999' ,'#999999', '#999999'],
-        data: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]
-        }
-      ]}
-    return testPie
-  })
-
-  const cuesData = computed(() => {
-    return storeCues.longevityCues
   })
 
   const decisionCues = computed(() => {
@@ -239,7 +171,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
       storeCues.bentopathState = true
     } else if (wheelType.value === 'decision') {
       // bring beebee to life
-      beebeeCues.value = true
+      beebeeCues.value = !beebeeCues.value
       storeAI.beebeeContext = 'cues-decision'
     } else if (wheelType.value === 'newcue') {
       console.log('new cue cycle')
@@ -289,7 +221,9 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
 <style scoped>
 
-
+  .active {
+    background-color: rgb(113, 172, 114);
+  }
 
   @media (min-width: 1024px) {
 

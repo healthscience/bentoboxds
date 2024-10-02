@@ -18,6 +18,11 @@ import { computed } from 'vue'
 
   const storeAI = aiInterfaceStore()
 
+  const props = defineProps({
+    prompt: Object
+   })
+
+  /* computed */
   const beebeeAIStatus = computed(() => {
     return storeAI.helpchatAsk
   })

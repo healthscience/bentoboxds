@@ -76,6 +76,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     futureLabelData: {},
     futureNumberData: {},
     beebeeChatLog: {},
+    historySpacePair: {},
+    bentochatState: false,
     bentospaceState: false,
     bentocuesState: false,
     bentodiaryState: false,
@@ -194,6 +196,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           console.log('four')
           this.actionHelpAskInput()
         }
+      } else if (this.beebeeContext === 'chatspace') {
+        console.log('chat space input')
       } else if (this.beebeeContext === 'cues-decision') {
         console.log('new cues decision')
         this.decisionDoughnutCue = true

@@ -127,6 +127,7 @@ import { ref, computed, onMounted } from 'vue'
   }
 
   const bentoSpaceOpen = (spaceID) => {
+    storeAI.beebeeContext = 'chatspace'
     storeAI.bentospaceState = !storeAI.bentospaceState
     storeAI.liveBspace = spaceID
     // make button green

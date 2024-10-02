@@ -18,7 +18,7 @@
         </div>
       </template>
       <template #body>
-        <beebee-ai v-if="beebeeSpace"></beebee-ai>
+        <beebee-ai></beebee-ai>
         <button id="open-beebee" @click.prevent="setShowBeeBee">beebee</button>
         <div id="space-toolbar">
           <div id="beebee-help"></div>
@@ -104,7 +104,7 @@ import MarkerSpace from '@/components/bentospace/marker/markerSpace.vue'
 import DecisionCue from '@/components/bentocues/decisions/decisionCues.vue'
 import ResearchCue from '@/components/bentocues/research/researchCues.vue'
 import MarkerCue from '@/components/bentocues/marker/markerCues.vue'
-import BeebeeAi from '@/components/beebeehelp/inputBox.vue'
+import BeebeeAi from '@/components/beebeehelp/spaceChat.vue'
 import MininavMap from '@/components/bentospace/map/mininavMap.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
@@ -138,10 +138,13 @@ import { mapminiStore } from '@/stores/mapStore.js'
 
   /* methods */
   const setShowBeeBee = () => {
-    beebeeSpace.value = !beebeeSpace.value
+    // beebeeSpace.value = !beebeeSpace.value
+    console.log('open space chat pel\seS')
+    storeAI.bentochatState = !storeAI.bentochatState
   }
 
   const closeBentoSpace = () => {
+    storeAI.beebeeContext = 'chat'
     storeAI.bentospaceState = !storeAI.bentospaceState
     // save the current layout on close
     storeBentobox.saveLayoutSpace(storeAI.liveBspace.spaceid)

@@ -7,7 +7,7 @@ import PeersUtility from '@/stores/hopUtility/peersUtility.js'
 export const cuesStore = defineStore('cues', {
   state: () => ({
     bentopathState: false,
-    pathListActive: false,
+    pathListActive: true,
     pathName: '',
     bentopathLive: [],
     bentopathStages: [],
