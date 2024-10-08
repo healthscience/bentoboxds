@@ -39,7 +39,8 @@
           </form>
         </div>
         <div class="component-type" v-if="stageType.id === 4">
-          Select a cue wheel please
+          <button id="new-cue-stage" @click="newCueButton()">+ Cue</button>{{ newcueStage  }}DD
+          <new-cue v-if="newcueStage === true"></new-cue>
           <pie-chartcues :cueType="'simple'" :chartData="cuesHolistic" :options="{}" @segmentClick="cueSelect"></pie-chartcues>
         </div>
         <div class="component-type" v-if="stageType.id === 5">
@@ -87,7 +88,8 @@
           </form>
         </div>
         <div class="component-type" v-if="stageTypeTwo.id === 4">
-          Cue wheel
+          Tools please or select 
+          <new-cue></new-cue>
           <pie-chartcues :cueType="'simple'" :chartData="cuesHolistic" :options="{}" @segmentClick="cueSelect"></pie-chartcues>
         </div>
         <div class="component-type" v-if="stageTypeTwo.id === 5">
@@ -123,6 +125,7 @@
 
 <script setup>
 import BeebeeAi from '@/components/beebeehelp/inputBox.vue'
+import NewCue from '@/components/bentocues/buildcue/newCue.vue'
 import PieChartcues from '@/components/visualisation/charts/doughnutChart.vue'
 import { ref, computed, onMounted } from 'vue'
 import { cuesStore } from '@/stores/cuesStore.js'
@@ -138,6 +141,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     stageActive: null
   })
 
+  let newcueStage = ref(false)
   let stageName = ref('')
   let stageType = ref({})
   let stageTypeTwo = ref({})
@@ -169,6 +173,11 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
 
    /* methods */
+  const newCueButton = () => {
+    console.log('clicck')
+    newcueStage.value = !newcueStage.value
+  }
+
   const saveStage = () => {
     console.log('save stage')
     // save story name and create holder for story

@@ -82,6 +82,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     bentocuesState: false,
     bentodiaryState: false,
     bentoflakeState: false,
+    bentographState: false,
     longPress: false,
     liveBspace: '',
     bentoboxList: { '91919191': [] },
@@ -197,7 +198,9 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           this.actionHelpAskInput()
         }
       } else if (this.beebeeContext === 'chatspace') {
-        console.log('chat space input')
+        console.log('chat space input conrtext')
+      } else if (this.beebeeContext === 'graph') {
+        console.log('social knowleget graph context')
       } else if (this.beebeeContext === 'cues-decision') {
         console.log('new cues decision')
         this.decisionDoughnutCue = true

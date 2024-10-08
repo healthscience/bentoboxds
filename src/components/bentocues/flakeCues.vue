@@ -18,6 +18,18 @@
       </template>
       <template #body>
         <div class="main">
+          <div id="cues-holistic">
+            <div id="juv-holder">
+              <div id="health-Rejuvenation">Rejuvenation</div>
+             <button id="health-optimisation" @click="juvCycle()">Options</button>
+            </div>
+            <div id="opti-holder">
+              <div id="health-optimisation">Optimisation</div>
+             <button id="health-optimisation" @click="optiCycle()">Start</button>
+            </div>
+          </div>
+          <beebee-ai></beebee-ai>
+          <button id="open-beebee" @click.prevent="setShowBeeBee">beebee</button>
           <div id="bento-flake">
             <div class="container-flake">
               <span v-for="flake in bFlakes">
@@ -28,6 +40,7 @@
         </div>
       </template>
       <template #footer>
+        Flake hex
       </template>
     </modal-cues>
   </Teleport>
@@ -35,8 +48,8 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import BeebeeAi from '@/components/beebeehelp/spaceChat.vue'
 import ModalCues from '@/components/bentocues/cuesModal.vue'
-import PieChartcues from '@/components/visualisation/charts/doughnutChart.vue'
 import { cuesStore } from '@/stores/cuesStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
@@ -65,19 +78,51 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     console.log(crystal)
   }
 
+  const setShowBeeBee = () => {
+    // beebeeSpace.value = !beebeeSpace.value
+    storeAI.bentochatState = !storeAI.bentochatState
+  }
+
+  const juvCycle = () => {
+    setShowBeeBee()
+  }
+
+  const optiCycle = () => {
+    setShowBeeBee()
+  }
+
 </script>
 
 <style scoped>
 
+#open-beebee {
+  position: fixed;
+  bottom: 10px;
+  right: 120px;
+  z-index: 31;
+  display: grid;
+  justify-content: center;
+  place-self: start;
+  align-self: start;
+  height: 2em;
+  width: 5em;
+  background-color: white;
+}
 
+#cues-holistic {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
 
   @media (min-width: 1024px) {
 
     #bento-flake {
       display: grid;
       grid-template-columns: 3fr 1fr;
-      border: 1px solid green;
+      border: 1px solid lightgrey;
+      min-height: 60vh;
       height: 100%;
+      margin-top: 2em;
     }
 
     /* four basic quadrants */

@@ -1,14 +1,13 @@
 import { defineStore } from 'pinia'
-import { useSocketStore } from '@/stores/socket.js'
-import { aiInterfaceStore } from '@/stores/aiInterface.js'
-import { libraryStore } from '@/stores/libraryStore.js'
-import PeersUtility from '@/stores/hopUtility/peersUtility.js'
 
 export const cuesStore = defineStore('cues', {
   state: () => ({
     bentopathState: false,
     pathListActive: true,
+    cuesList: [],
     pathName: '',
+    activeCueSegment: {},
+    activeDougnnutData: {},
     bentopathLive: [],
     bentopathStages: [],
     stageCount: 0,
@@ -23,6 +22,15 @@ export const cuesStore = defineStore('cues', {
     ],
     hopCues: {
       labels: ['Nature', 'Environment', 'Culture', 'Life'],
+      datasets: [
+        {
+        backgroundColor: ['#09921c', '#920914', '#191fe7', '#560992'],
+        data: [90, 90, 90, 90]
+        }
+      ]
+    },
+    hopCuesTest: {
+      labels: ['Nature2', 'Environment2', 'Culture2', 'Life2'],
       datasets: [
         {
         backgroundColor: ['#09921c', '#920914', '#191fe7', '#560992'],
@@ -146,7 +154,15 @@ export const cuesStore = defineStore('cues', {
     },
     natureBoundries: {
       labels: ['Novel entities', 'Ozone depletion', 'Aresol loading', 'Ocean acidification', 'Bio geochemical flows', 'Freshwater change', 'Landsystem change', 'Biosphere integrity', 'Climate change CO2', 'Climate radiating forcing', 'Besearch', 'Besearch'],
-
+      datasets: [
+        {
+        backgroundColor: ['#191fe7', '#920914', '#09921c', '#560992', '#17c8d1', '#f08113', '#61819c', '#e66553', '#8bf5b0', '#181fe7' ,'#174fe7', '#999999'],
+        data: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]
+        }
+      ]
+    },
+    natureBoundriesTwo: {
+      labels: ['TWOovel entities', 'Ozone depletion', 'Aresol loading', 'Ocean acidification', 'Bio geochemical flows', 'Freshwater change', 'Landsystem change', 'Biosphere integrity', 'Climate change CO2', 'Climate radiating forcing', 'Besearch', 'Besearch'],
       datasets: [
         {
         backgroundColor: ['#191fe7', '#920914', '#09921c', '#560992', '#17c8d1', '#f08113', '#61819c', '#e66553', '#8bf5b0', '#181fe7' ,'#174fe7', '#999999'],

@@ -68,7 +68,6 @@
 </template>
 
 <script setup>
-import BeebeeAi from '@/components/beebeehelp/inputBox.vue'
 import PathList from '@/components/bentocues/bentopath/viewPath.vue'
 import StoryModal from '@/components/bentocues/bentopath/storyModal.vue'
 import StoryBuildstage from '@/components/bentocues/bentopath/buildStage.vue'

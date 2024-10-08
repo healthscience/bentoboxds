@@ -1,21 +1,27 @@
 <template>
   <div id="interact-cue">
-    <Pie  v-if="loaded" id="inter-chart-id"  ref="chartspace" :data="chartData" :options="options" />
+    <Pie  v-if="loaded" id="inter-chart-id"  ref="chartspace" :data="props.chartData" :options="options" />
   </div>
 </template>
 
 <script setup>
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
 import { Pie } from 'vue-chartjs'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { cuesStore } from '@/stores/cuesStore.js'
 
-ChartJS.register(ArcElement, Tooltip, Legend)
+  const storeCues = cuesStore()
+
+  ChartJS.register(ArcElement, Tooltip, Legend)
 
   const emit = defineEmits(['segmentClick'])
   
   const props = defineProps({
     cueType: String,
-    chartData: Object
+    chartData: {
+      type: Object,
+      required: true
+    }
   })
 
 const chartspace = ref(null)
@@ -23,7 +29,7 @@ const chartspace = ref(null)
   let loaded = ref(false)
 
   onMounted(() => {
-
+    console.log('opeons allal')
     options = {
       cutout: '40%',
       responsive: true,
@@ -51,7 +57,7 @@ const chartspace = ref(null)
         console.log('click pie')
         // console.log(Object.keys(chartspace.value.chart.$context.chart.tooltip))
         // console.log(chartspace)
-        const chart = chartspace
+        let chart = chartspace
         console.log(
           chartspace.value.chart.$context.chart.tooltip.dataPoints
           /*chart.getElementsAtEventForMode(
@@ -62,12 +68,23 @@ const chartspace = ref(null)
           ) */
         )
         emit('segmentClick', props.cueType, chartspace.value.chart.$context.chart.tooltip.dataPoints[0])
+        // storeCues.activeCueSegment = { type: props.cueType, selection: chartspace.value.chart.$context.chart.tooltip.dataPoints[0] }
       },
     }
 
     loaded.value = true
-
+    console.log(loaded)
   })
+
+  /* computed */
+  const updateChartData = computed(() => {
+    return props.chartData
+  })
+
+  const updateDough = computed(() => {
+    return storeCues.activeDougnnutData
+  })
+
 
 </script>
 

@@ -5,6 +5,7 @@
         <button id="cues-button" @click="openBentoCues()" :class="{ active: cuesActive === true }">Cues</button>
         <button id="diary-button" @click="openBentoDiary()" :class="{ active: diaryActive === true }">Diary</button>
         <button id="flake-button" @click="openBentoFlake()" :class="{ active: flakeActive === true }">Flake</button>
+        <button id="graph-button" @click="openBentoGraph()" :class="{ active: graphActive === true }">Graph</button>
       </div>
       <div class="history-buttons">
         <div class="history">
@@ -29,10 +30,11 @@
       <div class="beebee-home">
         <beebee-chat></beebee-chat>
        </div>
-       <bento-flake></bento-flake>
        <bento-cues></bento-cues>
        <bento-space></bento-space>
        <bento-diary></bento-diary>
+       <bento-flake></bento-flake>
+       <bento-graph v-if="bentoGraphStatus === true"></bento-graph>
     </div>
   </div>
 </template>
@@ -43,6 +45,7 @@ import BodyDiagram from '@/components/beebeeView/diagrams/bodyDiagram.vue'
 import ChatMenu from '@/components/beebeeView/navigation/chatMenu.vue'
 import BentoCues from '@/components/bentocues/healthCues.vue'
 import BentoFlake from '@/components/bentocues/flakeCues.vue'
+import BentoGraph from '@/components/bentocues/graphCues.vue'
 import SpaceMenu from '@/components/beebeeView/navigation/spaceMenu.vue'
 import BeebeeChat from '@/components/beebeehelp/chatInterface.vue'
 import BentoSpace from '@/components/bentospace/spaceTemplate.vue'
@@ -57,7 +60,12 @@ import { computed } from 'vue'
   let diaryActive = ref(false)
   let cuesActive = ref(false)
   let flakeActive = ref(false)
+  let graphActive = ref(false)
   let bodyDiagramShow = ref(false)
+
+  const bentoGraphStatus = computed(() => {
+    return storeAI.bentographState
+  })
 
   const historyActive = computed(() => {
     return storeBentobox.historyActive
@@ -86,6 +94,12 @@ import { computed } from 'vue'
   const openBentoFlake = () => {
     flakeActive.value = !flakeActive.value
     storeAI.bentoflakeState = !storeAI.bentoflakeState
+  }
+
+  const openBentoGraph = () => {
+    storeAI.beebeeContext = 'graph'
+    graphActive.value = !graphActive.value
+    storeAI.bentographState = !storeAI.bentographState
   }
 
   const viewBody = () => {

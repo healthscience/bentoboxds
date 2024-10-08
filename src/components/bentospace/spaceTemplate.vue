@@ -21,7 +21,23 @@
         <beebee-ai></beebee-ai>
         <button id="open-beebee" @click.prevent="setShowBeeBee">beebee</button>
         <div id="space-toolbar">
-          <div id="beebee-help"></div>
+          <!--<div id="beebee-help"></div>-->
+          <div id="cues-connector">
+            <button @click="cueConnect()">Cue connector</button>
+          </div>
+          <div id="add-context">
+            <button @click="contextAdd()">+ context</button>
+          </div>
+          <div id="space-bar">space bar</div>
+          <div class="scale-item scalebuttons">
+            <label>Scale</label>
+            <!--<input type="range" min="0.1" max="2" step="0.1" v-model.number="scalelocal" @change="setzoomScale">-->
+            <button class="point-change" @click="setzoomScale(-0.05)">-</button>
+            {{ Math.round(zoomscaleValue * 100) }} %
+            <button class="point-change" @click="setzoomScale(0.05)">+</button>
+          </div>
+        </div>
+        <div id="space-context-tools" v-if="contextTools === true">
           <div id="media-tools">
             <button @click="addBentoMedia()">+ media</button>
             <div id="bento-media" v-if="spaceMedia === true">
@@ -54,14 +70,6 @@
             <div id="bento-cue-decicion" v-if="spaceMarker === true">
                 <marker-cue></marker-cue>
             </div>
-          </div>
-          <div id="space-bar">space bar</div>
-          <div class="scale-item scalebuttons">
-            <label>Scale</label>
-            <!--<input type="range" min="0.1" max="2" step="0.1" v-model.number="scalelocal" @change="setzoomScale">-->
-            <button class="point-change" @click="setzoomScale(-0.05)">-</button>
-            {{ Math.round(zoomscaleValue * 100) }} %
-            <button class="point-change" @click="setzoomScale(0.05)">+</button>
           </div>
         </div>
         <div id="bentospace-holder" v-dragscroll.noleft.noright="true" @click="whereMinmap($event)">
@@ -121,6 +129,7 @@ import { mapminiStore } from '@/stores/mapStore.js'
       y: 10
     }
   )
+  let contextTools = ref(false)
   let spaceMedia = ref(false)
   let videoURLadd = ref('')
   let spaceDecision = ref(false)
@@ -205,6 +214,13 @@ import { mapminiStore } from '@/stores/mapStore.js'
     spaceMarker.value = !spaceMarker.value
   }
 
+  const cueConnect = () => {
+    console.log('cue connect please')
+  }
+
+  const contextAdd = () => {
+    contextTools.value = !contextTools.value
+  }
 
 </script>
 
@@ -212,8 +228,13 @@ import { mapminiStore } from '@/stores/mapStore.js'
 
 #space-toolbar {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 3fr 1fr;
+  grid-template-columns: 1fr 1fr 2fr 1fr;
   background-color: antiquewhite;
+}
+
+#space-context-tools {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
 }
 
 #bentospace-holder {
