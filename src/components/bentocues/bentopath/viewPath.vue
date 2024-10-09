@@ -1,9 +1,5 @@
 <template>
-  <div id="cues-holistic">
-    <button class="cue-select-btn" id="simple-wheel" @click="selectCue('simple')" v-bind:class="{ active: wheelType === 'simple' }">Holistic</button>
-    <button class="cue-select-btn" id="simple-segments" @click="selectCue('segments')" v-bind:class="{ active: wheelType === 'segments' }">Segments</button>
-    <button class="cue-select-btn" id="simple-segments" @click="selectCue('aging')" v-bind:class="{ active: wheelType === 'aging' }">Longevity</button>
-  </div>
+  <cues-prepared></cues-prepared>
   <div v-if="pathListlive === true" id="story-list">
     <header>List of saved stories</header>
     <div v-for="storyi of livePathlist" :key="storyi.id" :value="storyi">
@@ -11,18 +7,6 @@
         {{ storyi }}
         <button @click.prevent="viewPath(storyi)" class="button is-primary">view</button>
        </div>
-    </div>
-  </div>
-  <div id="view-cues">
-    <div class="pie" v-if="cueType === 'simple'">
-      <pie-chartcues :cueType="'simple'" :chartData="cuesHolistic" :options="{}" @segmentClick="cueSelect"></pie-chartcues>
-    </div>
-    <div class="pie-segments" v-if="cueType === 'segments'">
-      <pie-chartcues :cueType="'segments'" :chartData="cuesSegments" :options="{}" @segmentClick="cueSelect"></pie-chartcues>
-    </div>
-    <div class="pie-segments" v-if="cueType === 'aging'">
-      <pie-chartcues :cueType="'aging'" :chartData="cuesData" :options="{}" @segmentClick="cueSelect"></pie-chartcues>
-      Source: <a href="https://peterattiamd.com/the-challenges-of-defining-aging/" target="_blank">All marks of aging</a>
     </div>
   </div>
   <div id="bentopath-cues" v-if="pathCues === true">
@@ -52,6 +36,7 @@
 </template>
 
 <script setup>
+import CuesPrepared from '@/components/bentocues/prepareCues.vue' 
 import BeebeeAi from '@/components/beebeehelp/inputBox.vue'
 import PieChartcues from '@/components/visualisation/charts/doughnutChart.vue'
 import { ref, computed, nextTick, reactive } from 'vue'
@@ -177,11 +162,15 @@ import { cuesStore } from '@/stores/cuesStore.js'
 </script>
 
 <style scoped>
+
 #story-list {
   border: 1px solid lightgrey;
   margin: 1em;
 }
 
+@media (min-width: 1024px) {
 
+
+}
 
 </style>

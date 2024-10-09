@@ -22,11 +22,13 @@
         <div id="bento-cues">
           <div id="cues-wheel">
             <div id="wheel-tools">
+              <button class="cue-select-btn" id="decision-start" @click="selectWheel('newcue')" v-bind:class="{ active: wheelType === 'newcue' }">+ Cue</button>
               <button class="cue-select-btn" id="bentopath" @click="selectWheel('bentopath')" v-bind:class="{ active: wheelType === 'bentopath' }">Paths</button>
               <button class="cue-select-btn" id="newbentopath" @click="selectWheel('newbentopath')" v-bind:class="{ active: wheelType === 'newbentopath' }">+ Path</button>
               <button class="cue-select-btn" id="decision-start" @click="selectWheel('decision')" v-bind:class="{ active: wheelType === 'decision' }">+ Decision</button>
-              <button class="cue-select-btn" id="decision-start" @click="selectWheel('newcue')" v-bind:class="{ active: wheelType === 'newcue' }">+ Cue</button>
             </div>
+            <!-- existing cues -->
+            <cues-prepared v-if="wheelType === 'cues'"></cues-prepared>
             <!-- view bento paths -->
             <path-view v-if="wheelType === 'bentopath'"></path-view>
             <!-- new bentopath -->
@@ -86,6 +88,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import CuesPrepared from '@/components/bentocues/prepareCues.vue' 
 import PathView from '@/components/bentocues/bentopath/viewPath.vue'
 import BentoPath from '@/components/bentocues/bentopath/storyTools.vue'
 import DecisionCue from '@/components/bentocues/decisions/decisionCues.vue'
@@ -99,7 +102,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
 
-  let wheelType = ref('bentopath')
+  let wheelType = ref('cues')
   let cueActive = ref('whole')
   let beebeeCues = ref(false)
   let cuesDecision = ref({ labels: [], datasets: [] })

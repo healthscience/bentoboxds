@@ -14,7 +14,7 @@
 
         <div class="modal-footer">
           <slot name="footer">
-            default footer
+            Cues
             <button
               class="modal-default-button"
               @click="$emit('close')"

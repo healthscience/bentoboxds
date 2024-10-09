@@ -39,9 +39,10 @@
           </form>
         </div>
         <div class="component-type" v-if="stageType.id === 4">
+          Select a cue or build a new cue
+          <cues-prepared></cues-prepared>
           <button id="new-cue-stage" @click="newCueButton()">+ Cue</button>{{ newcueStage  }}DD
           <new-cue v-if="newcueStage === true"></new-cue>
-          <pie-chartcues :cueType="'simple'" :chartData="cuesHolistic" :options="{}" @segmentClick="cueSelect"></pie-chartcues>
         </div>
         <div class="component-type" v-if="stageType.id === 5">
           Prompt and chat:
@@ -91,9 +92,9 @@
           </form>
         </div>
         <div class="component-type" v-if="stageTypeTwo.id === 4">
-          Tools please or select 
-          <new-cue></new-cue>
-          <pie-chartcues :cueType="'simple'" :chartData="cuesHolistic" :options="{}" @segmentClick="cueSelect"></pie-chartcues>
+          Select a cue or build a new cue
+          <cues-prepared></cues-prepared>
+          <new-cue v-if="newcueStage === true"></new-cue>
         </div>
         <div class="component-type" v-if="stageTypeTwo.id === 5">
           Prompt and chat
@@ -127,6 +128,7 @@
 </template>
 
 <script setup>
+import CuesPrepared from '@/components/bentocues/prepareCues.vue' 
 import BeebeeAi from '@/components/beebeehelp/inputBox.vue'
 import NewCue from '@/components/bentocues/buildcue/newCue.vue'
 import PieChartcues from '@/components/visualisation/charts/doughnutChart.vue'
