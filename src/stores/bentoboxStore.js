@@ -62,7 +62,8 @@ export const bentoboxStore = defineStore('bentostore', {
     locY: 140,
     videoMedia: {},
     researchMedia: {},
-    markerMedia: {}
+    markerMedia: {},
+    prductMedia: {}
   }),
   actions: {
     // since we rely on `this`, we cannot use an arrow function

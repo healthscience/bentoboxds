@@ -23,10 +23,13 @@
         <div id="space-toolbar">
           <!--<div id="beebee-help"></div>-->
           <div id="cues-connector">
-            <button @click="cueConnect()">Cue connector</button>
+            <button @click="cueConnect()" v-bind:class="{ active: cuesTools === true }">Cue connector</button>
+          </div>
+          <div id="decision-tools">
+            <button @click="addCueDecision()" v-bind:class="{ active: spaceDecision === true }">+ decision</button>
           </div>
           <div id="add-context">
-            <button @click="contextAdd()">+ context</button>
+            <button @click="contextAdd()" v-bind:class="{ active: contextTools === true }">+ context</button>
           </div>
           <div id="space-bar">space bar</div>
           <div class="scale-item scalebuttons">
@@ -53,27 +56,35 @@
               </div>
             </div>
           </div>
-          <div id="decision-tools">
-            <button @click="addCueDecision()">+ decision</button>
-            <div id="bento-cue-decicion" v-if="spaceDecision === true">
-                <decision-cue></decision-cue>
-            </div>
-          </div>
           <div id="research-tools">
             <button @click="addCueResearch()">+ research</button>
-            <div id="bento-cue-decicion" v-if="spaceResearch === true">
+            <div id="bento-cue-research" v-if="spaceResearch === true">
                 <research-cue></research-cue>
             </div>
           </div>
-          <div id="research-tools">
+          <div id="marker-tools">
             <button @click="addCueMarker()">+ marker</button>
-            <div id="bento-cue-decicion" v-if="spaceMarker === true">
+            <div id="bento-cue-marker" v-if="spaceMarker === true">
                 <marker-cue></marker-cue>
+            </div>
+          </div>
+          <div id="product-tools">
+            <button @click="addCueProduct()">+ product</button>
+            <div id="bento-cue-product" v-if="spaceProduct === true">
+                <!-- need product view or link to source etc. -->
             </div>
           </div>
         </div>
         <div id="bentospace-holder" v-dragscroll.noleft.noright="true" @click="whereMinmap($event)">
           <div id="bento-space" v-bind:style="{ transform: 'scale(' + zoomscaleValue + ')' }">
+            <div id="cues-context-tools" v-if="cuesTools === true">
+              cues tools please
+              <!-- view bento paths -->
+              <path-view v-if="wheelType === 'bentopath'"></path-view>
+            </div>
+            <div id="bento-cue-decicion" v-if="spaceDecision === true">
+              <decision-cue></decision-cue>
+            </div>
             <!-- location for bentobox - es -->
             <div id="space-bento-items">
               <div id="bento-layout" v-for="bbox in storeAI.bentoboxList[storeAI.liveBspace.spaceid]">
@@ -91,6 +102,10 @@
                 <div id="bento-research-space" v-for="mkmedia in storeBentobox.markerMedia[storeAI.liveBspace.spaceid]">pp {{ mkmedia }}
                 <marker-space :bstag="mkmedia.tag" :bsmedia="mkmedia.id.marker"></marker-space>
               </div>
+              <!-- product -->
+              <!--<div id="bento-product-space" v-for="mkproduct in storeBentobox.productMedia[storeAI.liveBspace.spaceid]">pp {{ mkprodcut }}-->
+                <!--<product-space :bstag="mkproduct.tag" :bsmedia="mkproduct.id.marker"></product-space>-->
+              <!--</div>-->
             </div>
           </div>
         </div>
@@ -105,6 +120,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import ModalSpace from '@/components/bentospace/spaceModal.vue'
+import PathView from '@/components/bentocues/bentopath/viewPath.vue'
 import BentoBoxspace from '@/components/bentobox/bentoboxSpace.vue'
 import MediaSpace from '@/components/bentospace/video/mediaSpace.vue'
 import ResearchSpace from '@/components/bentospace/research/researchSpace.vue'
@@ -129,12 +145,15 @@ import { mapminiStore } from '@/stores/mapStore.js'
       y: 10
     }
   )
+  let wheelType = ref('bentopath')
+  let cuesTools = ref(false)
   let contextTools = ref(false)
   let spaceMedia = ref(false)
   let videoURLadd = ref('')
   let spaceDecision = ref(false)
   let spaceResearch = ref(false)
   let spaceMarker = ref(false)
+  let spaceProduct = ref(false)
 
   /* computed */
   const bentospaceStatus = computed(() => {
@@ -214,8 +233,12 @@ import { mapminiStore } from '@/stores/mapStore.js'
     spaceMarker.value = !spaceMarker.value
   }
 
+  const addCueProduct = () => {
+    spaceProduct.value = !spaceProduct.value
+  }
+
   const cueConnect = () => {
-    console.log('cue connect please')
+    cuesTools.value = !cuesTools.value
   }
 
   const contextAdd = () => {
@@ -226,15 +249,31 @@ import { mapminiStore } from '@/stores/mapStore.js'
 
 <style scoped>
 
+.active {
+  background-color: rgb(113, 172, 114);
+}
+
 #space-toolbar {
   display: grid;
-  grid-template-columns: 1fr 1fr 2fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 2fr 1fr;
   background-color: antiquewhite;
+}
+
+#cues-context-tools {
+  display: absolute;
+  left: 0;
+  top: 0;
+  border: 1px solid lightgrey;
+  height: 460px;
+  width: 460px;
+  background-color: white;
 }
 
 #space-context-tools {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
+  margin-top: 1em;
+  margin-bottom: .6em;
 }
 
 #bentospace-holder {
@@ -277,9 +316,10 @@ import { mapminiStore } from '@/stores/mapStore.js'
 /* decision tools */
 #bento-cue-decicion {
   position: absolute;
+  left: 0;
+  top: 0;
   z-index: 33;
   width: auto;
-  margin-left: -120px;
   border-bottom: 1px solid lightgrey;
   border-left: 1px solid lightgrey;
   border-right: 1px solid lightgrey;
@@ -376,7 +416,7 @@ import { mapminiStore } from '@/stores/mapStore.js'
     z-index: 33;
     width: auto;
     height: auto;
-    margin-left: -120px;
+    margin-left: 0px;
     border-bottom: 1px solid lightgrey;
     border-left: 1px solid lightgrey;
     border-right: 1px solid lightgrey;

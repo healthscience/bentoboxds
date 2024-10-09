@@ -35,7 +35,7 @@ const props = defineProps({
   z-index: 11;
   top: 0;
   left: 0;
-  width: 100%;
+  width: 94%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
   display: flex;

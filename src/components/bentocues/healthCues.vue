@@ -28,7 +28,7 @@
               <button class="cue-select-btn" id="decision-start" @click="selectWheel('newcue')" v-bind:class="{ active: wheelType === 'newcue' }">+ Cue</button>
             </div>
             <!-- view bento paths -->
-            <path-list v-if="wheelType === 'bentopath'"></path-list>
+            <path-view v-if="wheelType === 'bentopath'"></path-view>
             <!-- new bentopath -->
             <bento-path v-if="wheelType === 'newbentopath'"></bento-path>
             <!-- new cue -->
@@ -86,7 +86,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import PathList from '@/components/bentocues/bentopath/viewPath.vue'
+import PathView from '@/components/bentocues/bentopath/viewPath.vue'
 import BentoPath from '@/components/bentocues/bentopath/storyTools.vue'
 import DecisionCue from '@/components/bentocues/decisions/decisionCues.vue'
 import NewCue from '@/components/bentocues/buildcue/newCue.vue'
