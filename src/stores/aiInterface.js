@@ -6,6 +6,7 @@ import { bentoboxStore } from "@/stores/bentoboxStore.js"
 import { libraryStore } from '@/stores/libraryStore.js'
 import DataPraser from '@/stores/hopUtility/dataParse.js'
 import ChatUtilty from '@/stores/hopUtility/chatUtility.js'
+import ChatspaceUtilty from '@/stores/hopUtility/chatspaceUtility.js'
 import { accountStore } from "@/stores/accountStore.js"
 
 export const aiInterfaceStore = defineStore('beebeeAIstore', {
@@ -16,6 +17,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     storeLibrary: libraryStore(),
     liveDataParse: new DataPraser(),
     liveChatUtil: new ChatUtilty(),
+    liveChatspaceUtil: new ChatspaceUtilty(),
     startChat: true,
     chatAttention: '',
     historyList: '',
@@ -47,6 +49,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     helpchatHistory: shallowRef([]),
     currentQuestion: {},
     historyPair: {},
+    chatSpacePair: {},
     bbidHOPid: [],
     hopSummary: [],
     futurePids: [],
@@ -199,13 +202,20 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         }
       } else if (this.beebeeContext === 'chatspace') {
         console.log('chat space input conrtext')
+        console.log(this.askQuestion)
+        let spaceChatPrep = this.liveChatspaceUtil.prepareChatQandA(this.askQuestion, this.liveBspace)
+        // check if array set
+        if (this.chatSpacePair[this.liveBspace.spaceid] === undefined) {
+          this.chatSpacePair[this.liveBspace.spaceid] = []
+        }
+        this.chatSpacePair[this.liveBspace.spaceid].push(spaceChatPrep)
+        this.askQuestion.text = ''
       } else if (this.beebeeContext === 'graph') {
         console.log('social knowleget graph context')
       } else if (this.beebeeContext === 'cues-decision') {
         console.log('new cues decision')
         this.decisionDoughnutCue = true
       }
-
     },
     largeFilesubmitAsk (dataInfo) {
       console.log('large file prep')

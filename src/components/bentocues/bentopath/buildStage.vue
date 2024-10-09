@@ -19,8 +19,8 @@
         <div class="component-type" v-if="stageType.id === 0" >
           text box - please write story
           <form id="stage_form" name="stage_form" method="post" action="#">
-            <div class="prompt-text">
-              <textarea class="prompt-width" required="" v-model="stageText" placeholder="write prompt"></textarea>
+            <div class="message-text">
+              <textarea class="prompt-width" required="" v-model="stageTextmessage" placeholder="write message"></textarea>
             </div>
           </form>
         </div>
@@ -46,8 +46,11 @@
         <div class="component-type" v-if="stageType.id === 5">
           Prompt and chat:
             <!--beebee chat-->
+            <div class="prompt-text">
+              <textarea class="prompt-width" required="" v-model="stagePrompt" placeholder="write prompt"></textarea>
+            </div>
             <div id="chat-opening-path">
-              <input required="" v-model="stagePrompt" @change="experimentLookup" placeholder="prompt message .. .. .">
+              <input required="" v-model="stageTextmessage" @change="experimentLookup" placeholder="agent message .. .. .">
             </div>
             Reply
             <beebee-ai></beebee-ai>
@@ -157,8 +160,9 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
       { id: 6, name: 'Questionnaire' }
     ])
   let stageText = ref('')
-  let stageExperiment = ref('')
   let stagePrompt = ref('')
+  let stageTextmessage = ref('')
+  let stageExperiment = ref('')
   let stageExperimenttwo = ref('')
   let stagePromptwo = ref('')
 
@@ -240,6 +244,13 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
 .prompt-text, .prompt-width {
   display: grid;
+  grid-template-columns: 1fr;
+}
+
+textarea {
+  display: grid;
+  grid-template-columns: 1fr;
+  margin-bottom: 1em;
 }
 
 #stage-component-one, #stage-component-two {
