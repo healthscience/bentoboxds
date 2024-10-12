@@ -1,5 +1,4 @@
 <template>
-  <cues-prepared></cues-prepared>
   <div v-if="pathListlive === true" id="story-list">
     <header>List of saved stories</header>
     <div v-for="storyi of livePathlist" :key="storyi.id" :value="storyi">
@@ -18,25 +17,9 @@
       <beebee-ai v-if="ctype.stagetypetwo.id === 5" :prompt="ctype"></beebee-ai>
     </div>
   </div>
-  <div id="cue-bentobox">
-    Expand cue:  {{ cueActive }}
-    <div id="cue-type" v-if="cueActive === 'segdown'">
-      <pie-chartcues v-if="liveDoughData" :chartData="liveDoughData" :options="{}" @segmentClick="cueSelect" ></pie-chartcues>
-    </div>
-    <div id="cue-type" v-if="cueActive === 'Movement'">
-      <pie-chartcues :chartData="cuesBody" :options="{}" @segmentClick="cueSelect" ></pie-chartcues>
-    </div>
-    <div id="cue-type" v-if="cueActive === 'Buildings'">
-      <pie-chartcues :chartData="cuesBuilding" :options="{}" @segmentClick="cueSelect" ></pie-chartcues>
-    </div>
-    <div id="cue-type" v-if="cueActive === 'Climate/weather'">
-      <pie-chartcues :chartData="cuesNature" :options="{}" @segmentClick="cueSelect" ></pie-chartcues>
-    </div>
-  </div>
 </template>
 
 <script setup>
-import CuesPrepared from '@/components/bentocues/prepareCues.vue' 
 import BeebeeAi from '@/components/beebeehelp/inputBox.vue'
 import PieChartcues from '@/components/visualisation/charts/doughnutChart.vue'
 import { ref, computed, nextTick, reactive } from 'vue'
@@ -47,8 +30,6 @@ import { cuesStore } from '@/stores/cuesStore.js'
   let cueType = ref('')
   let pathCues = ref(false)
   let stagesLive = ref([])
-  let wheelType = ref('')
-  let cueActive = ref('')
 
   /* computed */
   const pathListlive = computed(() => {
@@ -64,94 +45,10 @@ import { cuesStore } from '@/stores/cuesStore.js'
     return pathKeys
   })
 
-  const cuesSelection = computed(() => {
-    return storeCues.activeCueSegment
-  })
-
-
-  const cuesHolistic = computed(() => {
-    return storeCues.hopCues
-  })
-
-  const cuesSegments = computed(() => {
-    return storeCues.cuesSegments
-  })
-
-  const cuesNature = computed(() => {
-    return storeCues.natureBoundries
-  })
-
-  const cuesEnvironment = computed(() => {
-    return storeCues.cuesEnvironment
-  })
-
-  const cuesCulture = computed(() => {
-    return storeCues.cuesCulture
-  })
-
-  const cuesLife = computed(() => {
-    return storeCues.cuesLife
-  })
-
-  const cuesBody = computed(() => {
-    let testPie = {
-      labels: ['Brain', 'Skin', 'Heart', 'Immunesystem', 'Cardio', 'Muscle mass', 'Inflamation', 'Blood', 'Hormones', 'Sight', 'Mouth/teeth'],
-      datasets: [
-        {
-        backgroundColor: ['#191fe7', '#920914', '#09921c', '#560992', '#17c8d1', '#f08113', '#61819c', '#e66553', '#8bf5b0', '#999999' ,'#999999', '#999999'],
-        data: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]
-        }
-      ]}
-    return testPie
-  })
-
-  const cuesBuilding = computed(() => {
-    let testPie = {
-      labels: ['Hotel1', 'Hotel2', 'Hotel3', 'Hotel4', 'Hotel5', 'Hotel6', 'Hotel7', 'Hotel8', 'Hotel9', 'Hotel10', 'Hotel11'],
-
-      datasets: [
-        {
-        backgroundColor: ['#191fe7', '#920914', '#09921c', '#560992', '#17c8d1', '#f08113', '#61819c', '#e66553', '#8bf5b0', '#999999' ,'#999999', '#999999'],
-        data: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]
-        }
-      ]}
-    return testPie
-  })
-
-  const cuesData = computed(() => {
-    return storeCues.longevityCues
-  })
-
-  const liveDoughData = computed(() => {
-    return storeCues.activeDougnnutData
-  })
-
   /* methods */
-  const selectCue = (type) => {
-    console.log('wheel' + type)
-    cueType.value = type
-  }
-
-  const cueSelect = async (segType, segInfo) => {
-    console.log('event from cue seg')
-    // match seg to data set
-    cueActive.value = 'segdown'
-    if (segInfo.label === 'Nature') {
-      storeCues.activeDougnnutData = cuesNature
-    } else if (segInfo.label === 'Environment') {
-      storeCues.activeDougnnutData = cuesNature
-    } else if (segInfo.label === 'Culture') {
-      storeCues.activeDougnnutData = cuesNature
-    } else if (segInfo.label === 'Life') {
-      storeCues.activeDougnnutData = cuesLife
-    }
-  }
-
   const viewPath = (vs) => {
-    console.log(vs)
     // match to cue
     let livePath = storeCues.pathRefContracts[vs]
-    console.log(livePath)
     stagesLive = livePath
     // go through stages and present stage1
     // storeCues.pathListActive = false

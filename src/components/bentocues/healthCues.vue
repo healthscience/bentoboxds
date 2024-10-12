@@ -22,6 +22,7 @@
         <div id="bento-cues">
           <div id="cues-wheel">
             <div id="wheel-tools">
+              <button class="cue-select-btn" id="decision-start" @click="selectWheel('cues')" v-bind:class="{ active: wheelType === 'cues' }">Cues</button>
               <button class="cue-select-btn" id="decision-start" @click="selectWheel('newcue')" v-bind:class="{ active: wheelType === 'newcue' }">+ Cue</button>
               <button class="cue-select-btn" id="bentopath" @click="selectWheel('bentopath')" v-bind:class="{ active: wheelType === 'bentopath' }">Paths</button>
               <button class="cue-select-btn" id="newbentopath" @click="selectWheel('newbentopath')" v-bind:class="{ active: wheelType === 'newbentopath' }">+ Path</button>
@@ -135,7 +136,6 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
 
   /* methods */
-
   const closeBentoCues = () => {
     storeAI.bentocuesState = !storeAI.bentocuesState
   }
@@ -165,51 +165,19 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   }
 
   const selectWheel = (type) => {
-    console.log('wheel' + type)
     wheelType.value = type
     if (wheelType.value === 'bentopath') {
-      storeCues.pathListActive = !storeCues.pathListActive  
+      storeCues.pathListActive = true 
     } else if (wheelType.value === 'newbentopath') {
-      console.log('bento path story new please')
       storeCues.bentopathState = true
     } else if (wheelType.value === 'decision') {
       // bring beebee to life
       beebeeCues.value = !beebeeCues.value
       storeAI.beebeeContext = 'cues-decision'
     } else if (wheelType.value === 'newcue') {
-      console.log('new cue cycle')
     } else {
       beebeeCues.value = false
     }
-  }
-
-  const addDecisionElement = (ditem) => {
-    // add data to doughnut
-    console.log(ditem)
-    let updatePie = {}
-    updatePie.labels = []
-    updatePie.datasets = []
-    // current labels
-    let currentLabels = cuesDecision.value.labels
-    let currentDatasets = cuesDecision.value.datasets
-    let newColor
-    let newData
-    // new array for color and data
-    if (currentDatasets.length === 0) {
-      newColor = [ditem.datasets.backgroundColor]
-      newData = [ditem.datasets.data]
-    } else {
-      let existing = currentDatasets[0]
-      newColor = existing['backgroundColor'].concat([ditem.datasets.backgroundColor])
-      newData = existing['data'].concat([ditem.datasets.data])
-    }
-    // add to arrays
-    currentLabels.push(ditem.label)
-    currentDatasets = [{ backgroundColor: newColor, data: newData }]
-    let updatePieObj = {}
-    updatePieObj.labels = currentLabels
-    updatePieObj.datasets = currentDatasets
-    cuesDecision.value = updatePieObj
   }
 
   const biomarkerSwitch = () => {

@@ -31,10 +31,31 @@
           <beebee-ai></beebee-ai>
           <button id="open-beebee" @click.prevent="setShowBeeBee">beebee</button>
           <div id="bento-flake">
-            <div class="container-flake">
-              <span v-for="flake in bFlakes">
-                <div class="flake-cue" :style="{ backgroundColor: flake.cuecolor }" @click="viewCrystal(flake)">{{ flake.name }}</div>
-              </span>
+            <div id="bento-flake-center">
+            </div>
+            <div class="bento-flake-quant">
+              <div id="cues-one" class="container-flake">
+                <span v-for="flake in bFlakes">
+                  <div class="flake-cue" :style="{ backgroundColor: flake.cuecolor }" @click="viewCrystal(flake)">{{ flake.name }}</div>
+                </span>
+              </div>
+              <div id="cues-two" class="container-flake">
+                <span v-for="flake in bFlakes">
+                  <div class="flake-cue" :style="{ backgroundColor: flake.cuecolor }" @click="viewCrystal(flake)">{{ flake.name }}</div>
+                </span>
+              </div>
+            </div>
+            <div class="bento-flake-quant">
+              <div id="cues-three" class="container-flake">
+                <span v-for="flake in bFlakes">
+                  <div class="flake-cue" :style="{ backgroundColor: flake.cuecolor }" @click="viewCrystal(flake)">{{ flake.name }}</div>
+                </span>
+              </div>
+              <div id="cues-four" class="container-flake">
+                <span v-for="flake in bFlakes">
+                  <div class="flake-cue" :style="{ backgroundColor: flake.cuecolor }" @click="viewCrystal(flake)">{{ flake.name }}</div>
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -114,15 +135,77 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   grid-template-columns: 1fr 1fr;
 }
 
+#bento-flake {
+  display: grid;
+  grid-template-columns: 1fr;
+  background: #faf5ec;
+  border-radius: 50%;
+  align-items: center;
+  text-align: center;
+  opacity: 90%;
+  box-shadow: inset 0px 0px 0px 300px rgb(238, 222, 222);
+}
+
+#bento-flake-center {
+  position: fixed;
+  display: grid;
+  border: 0px solid rgb(5, 29, 170);
+  background: #faf5ec;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  opacity: 90%;
+}
+
+.container-flake {
+  border: 1px solid lightgray;
+  width: 30vw;
+}
+
+#cues-one {
+  transform: rotate(30deg)
+}
+
+#cues-two {
+  position: relative;
+  left: 100px;
+  top: 0px;
+  transform: rotate(320deg)
+}
+
+#cues-three {
+  margin-top: 120px;
+  margin-left: 0px;
+  transform: rotate(-30deg)
+}
+
+#cues-four {
+  position: relative;
+  left: 100px;
+  top: 120px;
+  transform: rotate(30deg)
+}
   @media (min-width: 1024px) {
 
     #bento-flake {
       display: grid;
-      grid-template-columns: 3fr 1fr;
-      border: 1px solid lightgrey;
+      grid-template-columns: 1fr;
+      border: 1px solid black;
       min-height: 60vh;
       height: 100%;
       margin-top: 2em;
+    }
+
+    .bento-flake-quant {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      margin-top: 120px;
+      margin-left: 80px;
     }
 
     /* four basic quadrants */

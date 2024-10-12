@@ -2,10 +2,10 @@
   <div id="beebee-shaper">
     <div class="bento-history">
       <div id="bento-ai-diary">
-        <button id="cues-button" @click="openBentoCues()" :class="{ active: cuesActive === true }">Cues</button>
-        <button id="diary-button" @click="openBentoDiary()" :class="{ active: diaryActive === true }">Diary</button>
-        <button id="flake-button" @click="openBentoFlake()" :class="{ active: flakeActive === true }">Flake</button>
-        <button id="graph-button" @click="openBentoGraph()" :class="{ active: graphActive === true }">Graph</button>
+        <button id="cues-button" class="cue-cues" @click="openBentoCues()" :class="{ active: cuesActive === true }">Cues</button>
+        <button id="flake-button" class="cue-cues" @click="openBentoFlake()" :class="{ active: flakeActive === true }">Flake</button>
+        <button id="graph-button" class="cue-cues" @click="openBentoGraph()" :class="{ active: graphActive === true }">Graph</button>
+        <button id="diary-button" class="cue-cues" @click="openBentoDiary()" :class="{ active: diaryActive === true }">Diary</button>
       </div>
       <div class="history-buttons">
         <div class="history">
@@ -162,6 +162,10 @@ import { computed } from 'vue'
 
 .button-chat-menu {
   width: 120px;
+}
+
+.cue-cues {
+  margin-right: .2em;
 }
 
   @media (min-width: 1024px) {

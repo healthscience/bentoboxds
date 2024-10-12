@@ -21,7 +21,25 @@
         <div id="doughnut-size-add">
           <pie-chartcues v-if="cuesNew.labels.length > 0" :cueType="'new'" :chartData="cuesNew" :options="{}" @segmentClick="cueSelectAdd"></pie-chartcues>
         </div>
-        <div id="sub-wheel">sub segment</div>
+        <div id="sub-wheel" v-if="subNewSeg === true">
+          sub segment
+          <div id="sub-cue-space">
+            Cue segment: {{ subSegLabel }}
+            <div id="build-segments">
+              <form id="add-cue-segment" @submit.prevent="cueAdd()">
+                <label for="benefit"></label><!--  v-on:keyup="storeAI.actionNatlangIn($event)" -->
+                <input type="input" id="cuesegadd" name="cuepadd" placeholder="segment name" v-model="cueSegment" autofocus>
+              </form>
+              <ColorPicker v-model:pureColor="pureColor" format="hex" shape="square" />
+              <button id="cue-add-sub" type="submit" @click="cueAddSub()">
+                + cue
+              </button>
+            </div>
+            <div id="doughnut-sub-add">
+              <pie-chartcues v-if="cuesNewSub.labels.length > 0" :cueType="'new'" :chartData="cuesNewSub" :options="{}" @segmentClick="cueSelectAddSub"></pie-chartcues>
+            </div>
+          </div>
+        </div>
       </div>
       <!--<div id="name-cue-wheel">
         OPTI JUV MED
@@ -75,16 +93,20 @@ import { cuesStore } from '@/stores/cuesStore.js'
   let cueMarker = ref('')
   let markerSelected = ref('')
   let cuesNew = ref({ labels: [], datasets: [] })
-
+  let cuesNewSub = ref({ labels: [], datasets: [] })
+  let subNewSeg = ref(false)
+  let subSegLabel = ref('')
 
   /* computed */
+
+
+  /* methods */
   const cueAdd = () => {
     let newSegment = { label: cueSegment.value, datasets: { backgroundColor: pureColor.value, data: 30 }}
     addCueSegment(newSegment)
     cueSegment.value = ''
   }
 
-  /* methods */
   const addCueSegment = (cSeg) => {
     let updatePie = {}
     updatePie.labels = []
@@ -112,10 +134,51 @@ import { cuesStore } from '@/stores/cuesStore.js'
     cuesNew.value = updatePieObj
   }
 
+  const cueAddSub = () => {
+    console.log('sub cue add please')
+    let newSegment = { label: cueSegment.value, datasets: { backgroundColor: pureColor.value, data: 30 }}
+    addCueSegmentSub(newSegment)
+    cueSegment.value = ''
+  }
+
+
+  const addCueSegmentSub = (cSeg) => {
+    let updatePie = {}
+    updatePie.labels = []
+    updatePie.datasets = []
+    // current labels
+    let currentLabels = cuesNew.value.labels
+    let currentDatasets = cuesNew.value.datasets
+    let newColor
+    let newData
+    // new array for color and data
+    if (currentDatasets.length === 0) {
+      newColor = [cSeg.datasets.backgroundColor]
+      newData = [cSeg.datasets.data]
+    } else {
+      let existing = currentDatasets[0]
+      newColor = existing['backgroundColor'].concat([cSeg.datasets.backgroundColor])
+      newData = existing['data'].concat([cSeg.datasets.data])
+    }
+    // add to arrays
+    currentLabels.push(cSeg.label)
+    currentDatasets = [{ backgroundColor: newColor, data: newData }]
+    let updatePieObj = {}
+    updatePieObj.labels = currentLabels
+    updatePieObj.datasets = currentDatasets
+    cuesNewSub.value = updatePieObj
+  }
+
   const cueSelectAdd = (type, seg) => {
     console.log('new seg add biomarker')
     console.log(type)
-    console.log(seg)
+    console.log(seg.chart.$context.chart.tooltip.dataPoints[0])
+    subNewSeg.value = true
+    subSegLabel.value = seg.chart.$context.chart.tooltip.dataPoints[0].label
+  }
+
+  const cueSelectAddSub = () => {
+    console.log('no sub sub for now')
   }
 
   const addSubCue = () => {
@@ -137,14 +200,13 @@ import { cuesStore } from '@/stores/cuesStore.js'
 
   const saveCues = () => {
     console.log('save cues')
-    console.log(cueName.value)
-    console.log(cuesNew.value)
     // 1 create new datatype ref contract and auto look up wikipedia API if internet 2. save cues info. seperate vis info plus relationship e.g cue name and via cue connection if present
     // uuid for cue wheel
     let cueID = hashObject(cueName.value + new Date())
     let newCue= {}
     newCue.name = cueName.value
     newCue.cueid = cueID
+    newCue.relationship = cuesNew
     newCue.active = false
     storeCues.cuesList.push(newCue)
     // build data cue holder
