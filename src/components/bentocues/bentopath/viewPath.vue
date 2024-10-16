@@ -36,6 +36,10 @@ import { cuesStore } from '@/stores/cuesStore.js'
     return storeCues.pathListActive
   })
 
+  const cuesHolistic = computed(() => {
+    return storeCues.hopCues
+  })
+
   const bentoPaths = computed (() => {
     return storeCues.pathRefContracts
   })

@@ -31,8 +31,8 @@
           <beebee-ai></beebee-ai>
           <button id="open-beebee" @click.prevent="setShowBeeBee">beebee</button>
           <div id="bento-flake">
-            <div id="bento-flake-center">
-            </div>
+            <!--<div id="bento-flake-center">
+            </div>-->
             <div class="bento-flake-quant">
               <div id="cues-one" class="container-flake">
                 <span v-for="flake in bFlakes">
@@ -40,19 +40,19 @@
                 </span>
               </div>
               <div id="cues-two" class="container-flake">
-                <span v-for="flake in bFlakes">
+                <span v-for="flake in bFlakesTwo">
                   <div class="flake-cue" :style="{ backgroundColor: flake.cuecolor }" @click="viewCrystal(flake)">{{ flake.name }}</div>
                 </span>
               </div>
             </div>
             <div class="bento-flake-quant">
               <div id="cues-three" class="container-flake">
-                <span v-for="flake in bFlakes">
+                <span v-for="flake in bFlakesThree">
                   <div class="flake-cue" :style="{ backgroundColor: flake.cuecolor }" @click="viewCrystal(flake)">{{ flake.name }}</div>
                 </span>
               </div>
               <div id="cues-four" class="container-flake">
-                <span v-for="flake in bFlakes">
+                <span v-for="flake in bFlakesFour">
                   <div class="flake-cue" :style="{ backgroundColor: flake.cuecolor }" @click="viewCrystal(flake)">{{ flake.name }}</div>
                 </span>
               </div>
@@ -85,7 +85,22 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   })
 
   const bFlakes = computed(() => {
+    let flakesList = [{ cue: 1, name: 'heart', cuecolor: 'red' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'green' }, { cue: 1, name: 'swimming', cuecolor: 'red' }, { cue: 1, name: 'blood', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'green' }, { cue: 1, name: 'swimming', cuecolor: 'green' }, { cue: 1, name: 'blood', cuecolor: 'green' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'red' }, { cue: 1, name: 'blood', cuecolor: 'green' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'green' }, { cue: 1, name: 'swimming', cuecolor: 'green' }, { cue: 1, name: 'blood', cuecolor: 'green' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'green' }, { cue: 1, name: 'swimming', cuecolor: 'green' }, { cue: 1, name: 'blood', cuecolor: 'green' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'green' }, { cue: 1, name: 'swimming', cuecolor: 'green' }, { cue: 1, name: 'blood', cuecolor: 'green' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'green' }, { cue: 1, name: 'blood', cuecolor: 'green' }]
+    return flakesList
+  })
+
+  const bFlakesTwo = computed(() => {
     let flakesList = [{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'red' }, { cue: 1, name: 'blood', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'red' }, { cue: 1, name: 'blood', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'red' }, { cue: 1, name: 'blood', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'red' }, { cue: 1, name: 'blood', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'red' }, { cue: 1, name: 'blood', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'red' }, { cue: 1, name: 'blood', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'red' }, { cue: 1, name: 'blood', cuecolor: 'orange' }]
+    return flakesList
+  })
+
+  const bFlakesThree = computed(() => {
+    let flakesList = [{ cue: 1, name: 'heart', cuecolor: 'red' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'green' }, { cue: 1, name: 'swimming', cuecolor: 'red' }, { cue: 1, name: 'blood', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'green' }, { cue: 1, name: 'swimming', cuecolor: 'green' }, { cue: 1, name: 'blood', cuecolor: 'green' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'red' }, { cue: 1, name: 'blood', cuecolor: 'green' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'green' }, { cue: 1, name: 'swimming', cuecolor: 'green' }, { cue: 1, name: 'blood', cuecolor: 'green' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'green' }, { cue: 1, name: 'swimming', cuecolor: 'green' }, { cue: 1, name: 'blood', cuecolor: 'green' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'green' }, { cue: 1, name: 'swimming', cuecolor: 'green' }, { cue: 1, name: 'blood', cuecolor: 'green' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'green' }, { cue: 1, name: 'blood', cuecolor: 'green' }]
+    return flakesList
+  })
+
+  const bFlakesFour = computed(() => {
+    let flakesList = [{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'orange' }, { cue: 1, name: 'blood', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'orange' }, { cue: 1, name: 'blood', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'red' }, { cue: 1, name: 'blood', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'orange' }, { cue: 1, name: 'blood', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'red' }, { cue: 1, name: 'blood', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'orange' }, { cue: 1, name: 'blood', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'red' }, { cue: 1, name: 'blood', cuecolor: 'orange' }]
     return flakesList
   })
 
@@ -105,10 +120,12 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   }
 
   const juvCycle = () => {
+    storeAI.liveBspace = { name: 'juv' }
     setShowBeeBee()
   }
 
   const optiCycle = () => {
+    storeAI.liveBspace = { name: 'opti' }
     setShowBeeBee()
   }
 

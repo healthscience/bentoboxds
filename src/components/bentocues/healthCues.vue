@@ -24,6 +24,7 @@
             <div id="wheel-tools">
               <button class="cue-select-btn" id="decision-start" @click="selectWheel('cues')" v-bind:class="{ active: wheelType === 'cues' }">Cues</button>
               <button class="cue-select-btn" id="decision-start" @click="selectWheel('newcue')" v-bind:class="{ active: wheelType === 'newcue' }">+ Cue</button>
+              <button class="cue-select-btn" id="decision-start" @click="selectWheel('newrelationships')" v-bind:class="{ active: wheelType === 'newrelationship' }">+ Relationships</button>
               <button class="cue-select-btn" id="bentopath" @click="selectWheel('bentopath')" v-bind:class="{ active: wheelType === 'bentopath' }">Paths</button>
               <button class="cue-select-btn" id="newbentopath" @click="selectWheel('newbentopath')" v-bind:class="{ active: wheelType === 'newbentopath' }">+ Path</button>
               <button class="cue-select-btn" id="decision-start" @click="selectWheel('decision')" v-bind:class="{ active: wheelType === 'decision' }">+ Decision</button>
@@ -36,6 +37,8 @@
             <bento-path v-if="wheelType === 'newbentopath'"></bento-path>
             <!-- new cue -->
             <new-cue v-if="wheelType === 'newcue'"></new-cue>
+            <!-- new relationships -->
+            <new-relationships v-if="wheelType === 'newrelationships'"></new-relationships>
             <!-- decision cues -->
             <decision-cue v-if="wheelType === 'decision'"></decision-cue>
           </div>
@@ -89,11 +92,12 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import CuesPrepared from '@/components/bentocues/prepareCues.vue' 
+import CuesPrepared from '@/components/bentocues/prepareCues.vue'
 import PathView from '@/components/bentocues/bentopath/viewPath.vue'
 import BentoPath from '@/components/bentocues/bentopath/storyTools.vue'
 import DecisionCue from '@/components/bentocues/decisions/decisionCues.vue'
 import NewCue from '@/components/bentocues/buildcue/newCue.vue'
+import NewRelationships from '@/components/bentocues/relationships/newRelationships.vue' 
 import ModalCues from '@/components/bentocues/cuesModal.vue'
 import { cuesStore } from '@/stores/cuesStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'

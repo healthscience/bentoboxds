@@ -13,7 +13,7 @@
           >
             Close
           </button>
-          <div id="spacechat">SpaceChat # {{ storeAI.liveBspace.name }}</div>
+          <div id="spacechat">CueChat # {{ storeAI.liveBspace.name }}</div>
           <div id="return-modal-close" @click="closeBentoChat">return</div>
         </div>
       </template>

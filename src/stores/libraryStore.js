@@ -315,7 +315,9 @@ export const libraryStore = defineStore('librarystore', {
         } else {
           this.publicLibrary = message
         }
-      } else if (message.action === 'referenc-contract') {
+      } else if (message.action === 'reference-contract') {
+        console.log('ref save success')
+        console.log(message)
         // call HOP to get latest changes to public library
         this.sendMessage('get-public-library')
       } else if (message.action === 'peer-library') {
