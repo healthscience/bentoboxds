@@ -12,6 +12,8 @@ export const cuesStore = defineStore('cues', {
     bentopathStages: [],
     stageCount: 0,
     pathRefContracts: {},
+    cueColumnA: {},
+    cueColumnB: {},
     cuesmenuList: [
       { name:'Nature', spaceid:'000988111', active: false, expand: true, glueup: '', gluedown: 'cuesNature' },{ name:'Environment', spaceid:'000988112', active: false, expand: true, glueup: '', gluedown: 'cuesEnvironment' },
       { name:'Culture', spaceid:'000988113', active: false, expand: true, glueup: '', gluedown: 'cuesCulture' },
