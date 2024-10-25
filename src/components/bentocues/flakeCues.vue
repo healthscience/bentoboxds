@@ -31,9 +31,26 @@
           <beebee-ai></beebee-ai>
           <button id="open-beebee" @click.prevent="setShowBeeBee">beebee</button>
           <div id="bento-flake">
+            <!-- make three by three grid to postion branches from -->
+            <div class="center-grid">1</div>
+            <div class="center-grid">2</div>
+            <div class="center-grid">3</div>
+            <div class="center-grid">4</div>
+            <div id="center-flake" class="center-grid singularity">5
+              <div class="cues-segs" v-for="cueseg of cuesFlakes.cues" :style="cuesBBitems[cueseg]">
+                  center {{ cuesBBitems[cueseg].transform }}
+                <div class="cues-status flake-cue" v-for="cstatus of cuesStatus"  :style="{ backgroundColor: cstatus.cuecolor }" @click="viewCrystal(cstatus)">
+                  {{ cstatus.name }}
+                </div>
+              </div>
+            </div>
+            <div class="center-grid">6</div>
+            <div class="center-grid">7</div>
+            <div class="center-grid">8</div>
+            <div class="center-grid">9</div>
             <!--<div id="bento-flake-center">
-            </div>-->
-            <div class="bento-flake-quant">
+            </div>--> 
+            <!--<div class="bento-flake-quant">
               <div id="cues-one" class="container-flake">
                 <span v-for="flake in bFlakes">
                   <div class="flake-cue" :style="{ backgroundColor: flake.cuecolor }" @click="viewCrystal(flake)">{{ flake.name }}</div>
@@ -56,7 +73,7 @@
                   <div class="flake-cue" :style="{ backgroundColor: flake.cuecolor }" @click="viewCrystal(flake)">{{ flake.name }}</div>
                 </span>
               </div>
-            </div>
+            </div>-->
           </div>
         </div>
       </template>
@@ -79,9 +96,40 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
 
-
   const bentoFlakeStatus = computed(() => {
     return storeAI.bentoflakeState
+  })
+
+  const flakePosition  = computed(() => {
+    let transportPos  = [30, 60, 90, 120]
+    let posSeg = { transform: 'rotate(' + transportPos[0] + 'deg)'}
+    return posSeg
+  })
+
+  const cuesFlakes = computed(() => {
+    let cuesF = { cues: ['nature', 'environment', 'culture', 'life', 'nature2', 'environment2', 'culture2', 'life2'] }
+    // need to map to sub cues and then to N=1/decisions to show boundry state ie. low just right  concern
+    return cuesF
+  })
+
+  const cuesBBitems = computed(() => {
+    let branchItems =
+    {
+      nature: { transform: 'rotate('  + '0' + 'deg)'},
+      environment: { transform: 'rotate(' + '10' + 'deg)'},
+      culture: { transform: 'rotate(' + '20' + 'deg)'},
+      life: { transform: 'rotate(' + '30' + 'deg)'},
+      nature2: { transform: 'rotate('  + '40' + 'deg)'},
+      environment2: { transform: 'rotate(' + '50' + 'deg)'},
+      culture2: { transform: 'rotate(' + '60' + 'deg)'},
+      life2: { transform: 'rotate(' + '70' + 'deg)'},
+    }
+    return branchItems
+  })
+
+  const cuesStatus = computed(() => {
+    let flakesList = [ { cue: 1, name: 'swimming', cuecolor: 'green' }, { cue: 1, name: 'blood', cuecolor: 'green' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'green' }, { cue: 1, name: 'swimming', cuecolor: 'green' }, { cue: 1, name: 'blood', cuecolor: 'green' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'orange' }, { cue: 1, name: 'sleep', cuecolor: 'red' }]
+    return flakesList
   })
 
   const bFlakes = computed(() => {
@@ -158,7 +206,6 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   background: #faf5ec;
   border-radius: 50%;
   align-items: center;
-  text-align: center;
   opacity: 90%;
   box-shadow: inset 0px 0px 0px 300px rgb(238, 222, 222);
 }
@@ -211,11 +258,43 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
     #bento-flake {
       display: grid;
-      grid-template-columns: 1fr;
+      grid-template-columns: 1fr 1fr 1fr;
       border: 1px solid black;
       min-height: 60vh;
       height: 100%;
       margin-top: 2em;
+    }
+
+    .center-grid {
+      height: 20vh;
+      border: 2px solid blue;
+    }
+
+    #center-flake {
+      display: grid;
+    }
+
+    .singularity {
+      position: relative;
+      display: grid;
+      justify-content: center;
+      align-items: center;
+      background-color: orange;
+    }
+
+    .cues-segs {
+      display: inline;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 50vw;
+      padding-left: 100px;
+      transform-origin: top left;
+    }
+
+    .cues-status {
+      display: inline;
+      border: 2px solid pink;
     }
 
     .bento-flake-quant {
@@ -265,7 +344,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
     .main {
       display: grid;
-      --s: 60px;  /* size  */
+      --s: 32px;  /* size  */
       --m: 4px;    /* margin */
       --f: calc(1.732 * var(--s) + 4 * var(--m)  - 1px);
     }
