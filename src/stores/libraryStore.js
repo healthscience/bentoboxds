@@ -116,6 +116,10 @@ export const libraryStore = defineStore('librarystore', {
         mobileapp: ''
       }
     },
+    videoURLadd: '',
+    researchURLadd: '',
+    markerURLadd: '',
+    productURLadd: '',
     joinOptions: {},
     fileBund: {},
     fileBundleList: [],

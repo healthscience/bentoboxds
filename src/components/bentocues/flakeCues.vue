@@ -19,6 +19,9 @@
       <template #body>
         <div class="main">
           <div id="cues-holistic">
+            <div id="cues-connector">
+              <button @click="cueConnect()" v-bind:class="{ active: cuesTools === true }">Cues</button>
+            </div>
             <div id="juv-holder">
               <div id="health-Rejuvenation">Rejuvenation</div>
              <button id="health-optimisation" @click="juvCycle()">Options</button>
@@ -28,52 +31,30 @@
              <button id="health-optimisation" @click="optiCycle()">Start</button>
             </div>
           </div>
+          <div id="cues-context-tools" v-if="cuesTools === true">
+            <!-- existing cues -->
+            <cues-prepared v-if="wheelType === 'cues'"></cues-prepared>
+          </div>
           <beebee-ai></beebee-ai>
           <button id="open-beebee" @click.prevent="setShowBeeBee">beebee</button>
           <div id="bento-flake">
             <!-- make three by three grid to postion branches from -->
-            <div class="center-grid">1</div>
-            <div class="center-grid">2</div>
-            <div class="center-grid">3</div>
-            <div class="center-grid">4</div>
-            <div id="center-flake" class="center-grid singularity">5
+            <div class="center-grid"></div>
+            <div class="center-grid"></div>
+            <div class="center-grid"></div>
+            <div class="center-grid"></div>
+            <div id="center-flake" class="center-grid singularity">cues
               <div class="cues-segs" v-for="cueseg of cuesFlakes.cues" :style="cuesBBitems[cueseg]">
-                  center {{ cuesBBitems[cueseg].transform }}
+                  --------------------
                 <div class="cues-status flake-cue" v-for="cstatus of cuesStatus"  :style="{ backgroundColor: cstatus.cuecolor }" @click="viewCrystal(cstatus)">
                   {{ cstatus.name }}
                 </div>
               </div>
             </div>
-            <div class="center-grid">6</div>
-            <div class="center-grid">7</div>
-            <div class="center-grid">8</div>
-            <div class="center-grid">9</div>
-            <!--<div id="bento-flake-center">
-            </div>--> 
-            <!--<div class="bento-flake-quant">
-              <div id="cues-one" class="container-flake">
-                <span v-for="flake in bFlakes">
-                  <div class="flake-cue" :style="{ backgroundColor: flake.cuecolor }" @click="viewCrystal(flake)">{{ flake.name }}</div>
-                </span>
-              </div>
-              <div id="cues-two" class="container-flake">
-                <span v-for="flake in bFlakesTwo">
-                  <div class="flake-cue" :style="{ backgroundColor: flake.cuecolor }" @click="viewCrystal(flake)">{{ flake.name }}</div>
-                </span>
-              </div>
-            </div>
-            <div class="bento-flake-quant">
-              <div id="cues-three" class="container-flake">
-                <span v-for="flake in bFlakesThree">
-                  <div class="flake-cue" :style="{ backgroundColor: flake.cuecolor }" @click="viewCrystal(flake)">{{ flake.name }}</div>
-                </span>
-              </div>
-              <div id="cues-four" class="container-flake">
-                <span v-for="flake in bFlakesFour">
-                  <div class="flake-cue" :style="{ backgroundColor: flake.cuecolor }" @click="viewCrystal(flake)">{{ flake.name }}</div>
-                </span>
-              </div>
-            </div>-->
+            <div class="center-grid"></div>
+            <div class="center-grid"></div>
+            <div class="center-grid"></div>
+            <div class="center-grid"></div>
           </div>
         </div>
       </template>
@@ -88,6 +69,7 @@
 import { ref, computed } from 'vue'
 import BeebeeAi from '@/components/beebeehelp/spaceChat.vue'
 import ModalCues from '@/components/bentocues/cuesModal.vue'
+import CuesPrepared from '@/components/bentocues/prepareCues.vue'
 import { cuesStore } from '@/stores/cuesStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
@@ -96,6 +78,10 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
 
+  let cuesTools = ref(false)
+  let wheelType = ref('cues')
+
+  /* computed */
   const bentoFlakeStatus = computed(() => {
     return storeAI.bentoflakeState
   })
@@ -107,7 +93,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   })
 
   const cuesFlakes = computed(() => {
-    let cuesF = { cues: ['nature', 'environment', 'culture', 'life', 'nature2', 'environment2', 'culture2', 'life2'] }
+    let cuesF = { cues: ['nature', 'environment', 'culture', 'life', 'nature2', 'environment2', 'culture2', 'life2', 'nature3', 'environment3', 'culture3', 'life3', 'nature4', 'environment4', 'culture4', 'life4', 'nature5', 'environment5', 'culture5', 'life5', 'nature6', 'environment6', 'culture6', 'life6', 'nature7', 'environment7', 'culture7', 'life7', 'nature8', 'environment8', 'culture8', 'life8', 'nature9', 'environment9', 'culture9', 'life9'] }
     // need to map to sub cues and then to N=1/decisions to show boundry state ie. low just right  concern
     return cuesF
   })
@@ -123,6 +109,34 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
       environment2: { transform: 'rotate(' + '50' + 'deg)'},
       culture2: { transform: 'rotate(' + '60' + 'deg)'},
       life2: { transform: 'rotate(' + '70' + 'deg)'},
+      nature3: { transform: 'rotate('  + '80' + 'deg)'},
+      environment3: { transform: 'rotate(' + '90' + 'deg)'},
+      culture3: { transform: 'rotate(' + '100' + 'deg)'},
+      life3: { transform: 'rotate(' + '110' + 'deg)'},
+      nature4: { transform: 'rotate('  + '120' + 'deg)'},
+      environment4: { transform: 'rotate(' + '130' + 'deg)'},
+      culture4: { transform: 'rotate(' + '140' + 'deg)'},
+      life4: { transform: 'rotate(' + '150' + 'deg)'},
+      nature5: { transform: 'rotate('  + '160' + 'deg)'},
+      environment5: { transform: 'rotate(' + '170' + 'deg)'},
+      culture5: { transform: 'rotate(' + '180' + 'deg)'},
+      life5: { transform: 'rotate(' + '190' + 'deg)'},
+      nature6: { transform: 'rotate('  + '200' + 'deg)'},
+      environment6: { transform: 'rotate(' + '210' + 'deg)'},
+      culture6: { transform: 'rotate(' + '220' + 'deg)'},
+      life6: { transform: 'rotate(' + '230' + 'deg)'},
+      nature7: { transform: 'rotate('  + '240' + 'deg)'},
+      environment7: { transform: 'rotate(' + '250' + 'deg)'},
+      culture7: { transform: 'rotate(' + '260' + 'deg)'},
+      life7: { transform: 'rotate(' + '270' + 'deg)'},
+      nature8: { transform: 'rotate('  + '280' + 'deg)'},
+      environment8: { transform: 'rotate(' + '290' + 'deg)'},
+      culture8: { transform: 'rotate(' + '300' + 'deg)'},
+      life8: { transform: 'rotate(' + '310' + 'deg)'},
+      nature9: { transform: 'rotate('  + '320' + 'deg)'},
+      environment9: { transform: 'rotate(' + '330' + 'deg)'},
+      culture9: { transform: 'rotate(' + '340' + 'deg)'},
+      life9: { transform: 'rotate(' + '350' + 'deg)'}
     }
     return branchItems
   })
@@ -132,29 +146,13 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     return flakesList
   })
 
-  const bFlakes = computed(() => {
-    let flakesList = [{ cue: 1, name: 'heart', cuecolor: 'red' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'green' }, { cue: 1, name: 'swimming', cuecolor: 'red' }, { cue: 1, name: 'blood', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'green' }, { cue: 1, name: 'swimming', cuecolor: 'green' }, { cue: 1, name: 'blood', cuecolor: 'green' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'red' }, { cue: 1, name: 'blood', cuecolor: 'green' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'green' }, { cue: 1, name: 'swimming', cuecolor: 'green' }, { cue: 1, name: 'blood', cuecolor: 'green' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'green' }, { cue: 1, name: 'swimming', cuecolor: 'green' }, { cue: 1, name: 'blood', cuecolor: 'green' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'green' }, { cue: 1, name: 'swimming', cuecolor: 'green' }, { cue: 1, name: 'blood', cuecolor: 'green' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'green' }, { cue: 1, name: 'blood', cuecolor: 'green' }]
-    return flakesList
-  })
-
-  const bFlakesTwo = computed(() => {
-    let flakesList = [{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'red' }, { cue: 1, name: 'blood', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'red' }, { cue: 1, name: 'blood', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'red' }, { cue: 1, name: 'blood', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'red' }, { cue: 1, name: 'blood', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'red' }, { cue: 1, name: 'blood', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'red' }, { cue: 1, name: 'blood', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'red' }, { cue: 1, name: 'blood', cuecolor: 'orange' }]
-    return flakesList
-  })
-
-  const bFlakesThree = computed(() => {
-    let flakesList = [{ cue: 1, name: 'heart', cuecolor: 'red' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'green' }, { cue: 1, name: 'swimming', cuecolor: 'red' }, { cue: 1, name: 'blood', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'green' }, { cue: 1, name: 'swimming', cuecolor: 'green' }, { cue: 1, name: 'blood', cuecolor: 'green' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'red' }, { cue: 1, name: 'blood', cuecolor: 'green' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'green' }, { cue: 1, name: 'swimming', cuecolor: 'green' }, { cue: 1, name: 'blood', cuecolor: 'green' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'green' }, { cue: 1, name: 'swimming', cuecolor: 'green' }, { cue: 1, name: 'blood', cuecolor: 'green' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'green' }, { cue: 1, name: 'swimming', cuecolor: 'green' }, { cue: 1, name: 'blood', cuecolor: 'green' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'green' }, { cue: 1, name: 'blood', cuecolor: 'green' }]
-    return flakesList
-  })
-
-  const bFlakesFour = computed(() => {
-    let flakesList = [{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'orange' }, { cue: 1, name: 'blood', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'orange' }, { cue: 1, name: 'blood', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'red' }, { cue: 1, name: 'blood', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'orange' }, { cue: 1, name: 'blood', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'red' }, { cue: 1, name: 'blood', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'orange' }, { cue: 1, name: 'blood', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'orange' }, { cue: 1, name: 'swimming', cuecolor: 'red' }, { cue: 1, name: 'blood', cuecolor: 'orange' }]
-    return flakesList
-  })
-
   /* methods */
   const closeBentoFlake = () => {
     storeAI.bentoflakeState = !storeAI.bentoflakeState
+  }
+
+  const cueConnect = () => {
+    cuesTools.value = !cuesTools.value
   }
 
   const viewCrystal = (crystal) => {
@@ -197,7 +195,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
 #cues-holistic {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr;
 }
 
 #bento-flake {
@@ -260,14 +258,15 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
       border: 1px solid black;
-      min-height: 60vh;
+      margin-top: 240px;
+      border-radius: 50%;
+
       height: 100%;
-      margin-top: 2em;
     }
 
     .center-grid {
       height: 20vh;
-      border: 2px solid blue;
+      border: 0px solid blue;
     }
 
     #center-flake {
@@ -279,6 +278,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
       display: grid;
       justify-content: center;
       align-items: center;
+      border-radius: 50%;
       background-color: orange;
     }
 

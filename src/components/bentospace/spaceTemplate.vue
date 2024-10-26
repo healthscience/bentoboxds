@@ -23,7 +23,7 @@
         <div id="space-toolbar">
           <!--<div id="beebee-help"></div>-->
           <div id="cues-connector">
-            <button @click="cueConnect()" v-bind:class="{ active: cuesTools === true }">Cue connector</button>
+            <button @click="cueConnect()" v-bind:class="{ active: cuesTools === true }">Cues</button>
           </div>
           <div id="decision-tools">
             <button @click="addCueDecision()" v-bind:class="{ active: spaceDecision === true }">+ decision</button>
@@ -41,6 +41,12 @@
           </div>
         </div>
         <div id="space-context-tools" v-if="contextTools === true">
+          <div id="n1-tools">
+            <button @click="addBentoN1()">+ N=1</button>
+            <div id="bento-n1" v-if="spaceN1setup === true">
+              New network experitment or join
+            </div>
+          </div>
           <div id="media-tools">
             <button @click="addBentoMedia()">+ media</button>
             <div id="bento-media" v-if="spaceMedia === true">
@@ -79,8 +85,8 @@
           <div id="bento-space" v-bind:style="{ transform: 'scale(' + zoomscaleValue + ')' }">
             <div id="cues-context-tools" v-if="cuesTools === true">
               cues tools please
-              <!-- view bento paths -->
-              <path-view v-if="wheelType === 'bentopath'"></path-view>
+              <!-- existing cues -->
+             <cues-prepared v-if="wheelType === 'cues'"></cues-prepared>
             </div>
             <div id="bento-cue-decicion" v-if="spaceDecision === true">
               <decision-cue></decision-cue>
@@ -120,7 +126,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import ModalSpace from '@/components/bentospace/spaceModal.vue'
-import PathView from '@/components/bentocues/bentopath/viewPath.vue'
+import CuesPrepared from '@/components/bentocues/prepareCues.vue'
 import BentoBoxspace from '@/components/bentobox/bentoboxSpace.vue'
 import MediaSpace from '@/components/bentospace/video/mediaSpace.vue'
 import ResearchSpace from '@/components/bentospace/research/researchSpace.vue'
@@ -137,17 +143,17 @@ import { mapminiStore } from '@/stores/mapStore.js'
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
   const storeMmap = mapminiStore()
-  
-  let beebeeSpace = ref(false)
+
   let mouseLive = ref(
     {
       x: 10,
       y: 10
     }
   )
-  let wheelType = ref('bentopath')
+  let wheelType = ref('cues')
   let cuesTools = ref(false)
   let contextTools = ref(false)
+  let spaceN1setup = ref(false)
   let spaceMedia = ref(false)
   let videoURLadd = ref('')
   let spaceDecision = ref(false)
@@ -189,6 +195,10 @@ import { mapminiStore } from '@/stores/mapStore.js'
     if (mo.target.id !== 'minimap') {
       storeMmap.actionPostionCoordMouse(mouseLive)
     }
+  }
+
+  const addBentoN1 = () => {
+    spaceN1setup.value = !spaceN1setup.value
   }
 
   const addBentoMedia = () => {
@@ -271,7 +281,7 @@ import { mapminiStore } from '@/stores/mapStore.js'
 
 #space-context-tools {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   margin-top: 1em;
   margin-bottom: .6em;
 }

@@ -38,6 +38,12 @@ import NewCompute from '@/components/library/contracts/contribute/forms/newCompu
 import NewUnits from '@/components/library/contracts/contribute/forms/newUnits.vue'
 import NewPackaging from '@/components/library/contracts/contribute/forms/newPackage.vue'
 import NewVisualise from '@/components/library/contracts/contribute/forms/newVisualise.vue'
+import NewMedia from '@/components/library/contracts/contribute/forms/newMedia.vue'
+import NewResearch from '@/components/library/contracts/contribute/forms/newResearch.vue'
+import NewMarker from '@/components/library/contracts/contribute/forms/newMarker.vue'
+import NewProduct from '@/components/library/contracts/contribute/forms/newProduct.vue'
+
+
 
 import { libraryStore } from '@/stores/libraryStore.js'
 import { ref, computed, markRaw} from 'vue'
@@ -50,7 +56,11 @@ const formContribute = [
   { type: 'compute', form: markRaw(NewCompute) },
   /* { type: 'units', form: shallowRef(NewUnits }, */
   { type: 'packaging', form: markRaw(NewPackaging) },
-  { type: 'visualise', form: markRaw(NewVisualise) }
+  { type: 'visualise', form: markRaw(NewVisualise) },
+  { type: 'media', form: markRaw(NewMedia) },
+  { type: 'research', form: markRaw(NewResearch) },
+  { type: 'marker', form: markRaw(NewMarker) },
+  { type: 'product', form: markRaw(NewProduct) }
 ]
 
   let contractformType = ref(markRaw({ type: 'question', form: NewDatatype }))
