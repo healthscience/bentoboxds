@@ -116,10 +116,6 @@ export const libraryStore = defineStore('librarystore', {
         mobileapp: ''
       }
     },
-    videoURLadd: '',
-    researchURLadd: '',
-    markerURLadd: '',
-    productURLadd: '',
     joinOptions: {},
     fileBund: {},
     fileBundleList: [],
@@ -145,6 +141,26 @@ export const libraryStore = defineStore('librarystore', {
       structureName: '',
       visHolder: [],
     },
+    newMediaForm: {
+      primary: true,
+      url: ''
+    },
+    newResearchForm: {
+      primary: true,
+      url: ''
+    },    
+    newMarkerForm: {
+      primary: true,
+      name: '',
+      url: '',
+      type: ''
+    },    
+    newProductForm: {
+      primary: true,
+      name: '',
+      url: '',
+      type: ''
+    },    
     deviceForm:
     {
       query: '',
