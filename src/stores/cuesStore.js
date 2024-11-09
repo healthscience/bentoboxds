@@ -7,6 +7,7 @@ export const cuesStore = defineStore('cues', {
     cuesList: [],
     pathName: '',
     activeCueSegment: {},
+    activeCue: '',
     activeDougnnutData: {},
     bentopathLive: [],
     bentopathStages: [],

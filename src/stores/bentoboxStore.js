@@ -1,10 +1,12 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
+import { cuesStore } from "@/stores/cuesStore.js"
 
 export const bentoboxStore = defineStore('bentostore', {
   state: () => ({
     storeAI: aiInterfaceStore(),
+    storeCues: cuesStore(),
     historyActive: false,
     chatList: [
       {
@@ -257,6 +259,12 @@ export const bentoboxStore = defineStore('bentostore', {
         } else if (message.action.trim() === 'save') {
           console.log('saved feedback')
         }
+      } else if (message.reftype.trim() === 'cues-history') {
+        let prepareCues = []
+        for (let sCue of message.data) {
+          prepareCues.push(sCue.value.concept)
+        }
+        this.storeCues.cuesList = prepareCues
       }
     },
     setLocationBbox (space, bbox) {

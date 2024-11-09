@@ -3,7 +3,7 @@
     <div id="new-cue-space">
       <form id="add-cue-form" @submit.prevent="cueAdd()">
         <label for="benefit"></label><!--  v-on:keyup="storeAI.actionNatlangIn($event)" -->
-        <input type="input" id="cuenameadd" name="cuename" placeholder="cue name" v-model="cueName" autofocus>
+        <input type="input" id="cuenameadd" name="cuename" placeholder="wheel name" v-model="cueName" autofocus>
       </form>
       <div id="build-segments">
         <div id="build-datatype">

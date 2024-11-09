@@ -7,8 +7,13 @@
       <div id="rel-one">
         <div id="select-cue-a">
           Select a Cue
-          <div class="cues-list" v-for="cue in cuesList">
-            <button>{{ cue.name }}</button>
+          <div class="cues-list" v-for="whCue in cuesList">
+            <button @click="expandWheel(whCue)">{{ whCue.name }}</button>
+            <div class="wheel-segment" v-if="cSegment === whCue.name">
+              <div class="expand-wheel" v-for="cue of wheelActive">
+                <button @click="selectCueMatch(cue)">{{ cue }}</button>
+              </div>
+            </div>
           </div>
         </div>
         <div id="doughnut-size-add" v-if="columnA === 'cueA'">
@@ -18,15 +23,22 @@
       <div id="relationship-glue">
         Relationship
         <div id="connection-glue">
-          <button>Down</button>
-          <button>Up</button>
-          <button>Equal</button>
-          <button>Unknown</button>
+          <button @click="glueType('down')">Down</button>
+          <button @click="glueType('up')">Up</button>
+          <button @click="glueType('equal')">Equal</button>
+          <button @click="glueType('unknown')">Unknown</button>
         </div>
       </div>
       <div id="rel-two">
-        <div id="select-cue-a">
-          Select a cue B
+        <div id="match-type">
+          <div class="match-source" @click="matchStyle('cue')">Cues</div>
+          <div class="match-source" @click="matchStyle('media')">Media</div>
+          <div class="match-source" @click="matchStyle('research')">Research</div>
+          <div class="match-source" @click="matchStyle('marker')">Markers</div>
+          <div class="match-source" @click="matchStyle('product')">Product</div>
+        </div>
+        <div id="select-cue-a" v-if="matchType === 'cue'">
+          Select a cue please
           <!-- existing cues -->
           <cues-prepared></cues-prepared>
         </div>
@@ -36,6 +48,7 @@
       </div>
     </div>
     <div id="glue-relationship">
+      selected {{ cuePrimary }} -- {{ glueMatch }} --- {{ secondWheel }}
       <button id="glue-type-button" @click="mapGlue">Glue relationship</button>
     </div>
   </div>
@@ -50,6 +63,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 import { cuesStore } from '@/stores/cuesStore.js'
+import { clearUserProjection } from 'ol/proj'
 
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
@@ -58,6 +72,11 @@ import { cuesStore } from '@/stores/cuesStore.js'
 
   let columnA = ref(false)
   let columnB = ref(false)
+  let matchType = ref('cue')
+  let cSegment = ref('')
+  let wheelActive = ref([])
+  let cuePrimary = ref('')
+  let glueMatch = ref('')
 
   /*  computed  */
   const cuesColA = computed(() => {
@@ -69,7 +88,11 @@ import { cuesStore } from '@/stores/cuesStore.js'
   })
 
   const cuesList = computed(() => {
-    return storeCues.cuesmenuList
+    return storeCues.cuesList // cuesmenuList
+  })
+
+  const secondWheel = computed(() => {
+    return storeCues.activeDougnnutData
   })
 
 
@@ -83,6 +106,24 @@ import { cuesStore } from '@/stores/cuesStore.js'
 
   const mapGlue = () => {
     console.log('glue relationsips pelease')
+  }
+
+  const expandWheel = (wheel) => {
+    cSegment.value = wheel.name
+    wheelActive = wheel.relationship.labels
+  }
+
+  const matchStyle = (mstyle) => {
+    matchType.value = mstyle
+  }
+
+  const selectCueMatch= (cue) => {
+    // make this cue color green ie active
+    cuePrimary.value = cue
+  }
+
+  const glueType = (glue) => {
+    glueMatch.value = glue
   }
 
 </script>
@@ -117,6 +158,29 @@ import { cuesStore } from '@/stores/cuesStore.js'
 #glue-type-button {
   margin-top: 1em;
   font-size: 1.2em;
+}
+
+#match-type {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+  margin-bottom: 1em;
+}
+
+.match-source {
+  border: 1px solid lightblue;
+  margin-left: .6em;
+  margin-right: .6em;
+  padding-left: .6em;
+  padding-right: .6em;
+}
+
+.expand-wheel {
+  display: grid;
+  grid-template-columns: 1fr;
+  border: 1px solid lightblue;
+  margin-left: 1em;
+  margin-bottom: .4em;
+  cursor: pointer;
 }
 
 @media (min-width: 1024px) {

@@ -24,6 +24,9 @@
   <div id="cue-bentobox">
     <div id="cue-type" v-if="cueActive === 'segdown'">
       <pie-chartcues v-if="liveDoughData" :chartData="liveDoughData" :options="{}" @segmentClick="cueSelect" ></pie-chartcues>
+      <div id="remove-cue">
+        <button id="remove-cue-delete" @click="removeCue()">Delete</button>
+      </div>
     </div>
     <div id="cue-type" v-if="cueActive === 'Movement'">
       <pie-chartcues :chartData="cuesBody" :options="{}" @segmentClick="cueSelect" ></pie-chartcues>
@@ -41,8 +44,10 @@
 import PieChartcues from '@/components/visualisation/charts/doughnutChart.vue'
 import { ref, computed } from 'vue'
 import { cuesStore } from '@/stores/cuesStore.js'
+import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   const storeCues = cuesStore()
+  const storeAI = aiInterfaceStore()
 
   let cueType = ref('')
   let wheelType = ref('')
@@ -126,7 +131,31 @@ import { cuesStore } from '@/stores/cuesStore.js'
   const viewCue = (cue) => {
     cueActive.value = 'segdown'
     let cueRelData = cue.relationship
+    storeCues.activeCue = cue.cuid
     storeCues.activeDougnnutData = cueRelData
+  }
+
+  const removeCue = () => {
+    // delete cue
+    console.log(storeCues.activeCue)
+    let liveCuesUpdate = []
+    for (let cl of storeCues.cuesList) {
+      console.log(cl)
+      if (cl.key === storeCues.activeCue) {
+        liveCuesUpdate.push(cl)
+      }
+    }
+    storeCues.cuesList = liveCuesUpdate
+    // message to HOP to delete cue
+    let cueMessage = {}
+    cueMessage.type = 'library'
+    cueMessage.reftype = 'cue-history'
+    cueMessage.action = 'cues'
+    cueMessage.task = 'DEL'
+    cueMessage.privacy = 'private'
+    cueMessage.data = { cueid: storeCues.activeCue }
+    cueMessage.bbid = ''
+    storeAI.sendMessageHOP(cueMessage)
   }
 
   const cueSelect = async (segType, segInfo) => {

@@ -53,6 +53,12 @@
         </div>
       </div>
     </div>
+    <div id="marker-holder" @click="showExpandMarkers()" v-bind:class="{ active: expandMarkers }">
+      Markers
+    </div>
+    <div id="show-markers" v-if="expandMarkers === true">
+      Coming soon
+    </div>
   </div>
 </template>
 
@@ -72,6 +78,7 @@ import { ref, computed, onMounted } from 'vue'
   let glueTarget = ref(false)
   let glueName = ref('')
   let expandCues = ref(false)
+  let expandMarkers = ref(false)
 
   /* on mount */
   onMounted(() => {
@@ -128,6 +135,10 @@ import { ref, computed, onMounted } from 'vue'
 
   const showExpandCues = () => {
     expandCues.value = !expandCues.value
+  }
+
+  const showExpandMarkers = () => {
+    expandMarkers.value = !expandMarkers.value
   }
 
   const drillCue = (cuem) => {
@@ -249,7 +260,7 @@ import { ref, computed, onMounted } from 'vue'
   padding: .5em;
 }
 
-#cues-holder {
+#cues-holder, #marker-holder {
   margin-top: 1em;
   cursor: pointer;
   padding-top: .2em;
