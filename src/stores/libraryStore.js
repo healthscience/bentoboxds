@@ -143,7 +143,9 @@ export const libraryStore = defineStore('librarystore', {
     },
     newMediaForm: {
       primary: true,
-      url: ''
+      url: '',
+      context: '',
+      relationship: []
     },
     newResearchForm: {
       primary: true,

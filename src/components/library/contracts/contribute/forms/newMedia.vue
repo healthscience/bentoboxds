@@ -4,6 +4,7 @@
       <form id="add-video-form">
         <label for="video"></label>
         <input type="input" id="video-add" name="video" placeholder="add video url" v-model="storeLibrary.newMediaForm.url" autofocus>
+        <input type="input" id="video-context" name="video-context" placeholder="add context" v-model="storeLibrary.newMediaForm.context" autofocus>
       </form>
     </div>
   </div>
@@ -29,6 +30,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
 input {
   width: 40vw;
+  margin-bottom: 1em;
 }
 
   @media (min-width: 1024px) {

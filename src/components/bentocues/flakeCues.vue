@@ -46,7 +46,7 @@
             <div id="center-flake" class="center-grid singularity">cues
               <div class="cues-segs" v-for="cueseg of cuesFlakes.cues" :style="cuesBBitems[cueseg]">
                   --------------------
-                <div class="cues-status flake-cue" v-for="cstatus of cuesStatus"  :style="{ backgroundColor: cstatus.cuecolor }" @click="viewCrystal(cstatus)">
+                <div class="cues-status flake-cue" v-for="cstatus of cuesStatus"  :style="{ backgroundColor: cstatus.cuecolor }" @click="viewCueHex(cstatus)">
                   {{ cstatus.name }}
                 </div>
               </div>
@@ -142,7 +142,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   })
 
   const cuesStatus = computed(() => {
-    let flakesList = [ { cue: 1, name: 'swimming', cuecolor: 'green' }, { cue: 1, name: 'blood', cuecolor: 'green' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'green' }, { cue: 1, name: 'swimming', cuecolor: 'green' }, { cue: 1, name: 'blood', cuecolor: 'green' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'orange' }, { cue: 1, name: 'sleep', cuecolor: 'red' }]
+    let flakesList = [ { cue: 1, name: 'posture', cuecolor: 'red' }, { cue: 1, name: 'sleep', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'green' }, { cue: 1, name: 'swimming', cuecolor: 'green' }, { cue: 1, name: 'blood', cuecolor: 'green' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'orange' }, { cue: 1, name: 'sleep', cuecolor: 'red' }]
     return flakesList
   })
 
@@ -155,9 +155,22 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     cuesTools.value = !cuesTools.value
   }
 
-  const viewCrystal = (crystal) => {
+  const viewCueHex = (cue) => {
     console.log('one crystal color')
-    console.log(crystal)
+    console.log(cue)
+
+    storeAI.beebeeContext = 'bentoflake'
+    storeAI.bentospaceState = !storeAI.bentospaceState
+    let tempSpace = {}
+    tempSpace.active = true
+    tempSpace.name = 'nmn'
+    tempSpace.spaceid = 'f6b145fd4b8f507622b597537b0e5e5459da2189'
+    storeAI.liveBspace = tempSpace // cue.spaceID
+    // make button green
+    let spaceLiveList = []
+    storeBentobox.spaceList = spaceLiveList
+
+
   }
 
   const setShowBeeBee = () => {
@@ -260,7 +273,6 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
       border: 1px solid black;
       margin-top: 240px;
       border-radius: 50%;
-
       height: 100%;
     }
 
@@ -358,6 +370,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
       margin: var(--m);
       height: calc(var(--s)*1.1547); 
       display: inline-block;
+      cursor: pointer;
       font-size:initial;
       clip-path: polygon(0% 25%, 0% 75%, 50% 100%, 100% 75%, 100% 25%, 50% 0%);
       background: red;

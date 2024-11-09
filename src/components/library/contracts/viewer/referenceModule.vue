@@ -107,7 +107,7 @@ import { accountStore } from '@/stores/accountStore.js'
   let startRefContract = ref(
     {
       active: false,
-      text: 'New Reference Contract'
+      text: '+ New Reference Contract'
     }
   )
 

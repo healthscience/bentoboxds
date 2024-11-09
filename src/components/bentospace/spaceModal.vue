@@ -32,7 +32,7 @@ const props = defineProps({
 <style scoped>
 .modal-mask {
   position: fixed;
-  z-index: 11;
+  z-index: 101;
   top: 0;
   left: 0;
   width: 94%;

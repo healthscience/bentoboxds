@@ -19,31 +19,36 @@
       <button class="save-chat-history" @click="saveSpaceHistory(sis)">save</button>
       <button class="delete-chat-history" @click="deleteSpaceHistory(sis)">Del</button>
     </div>
-    <h2>Cues</h2>
-    <div class="cues-list" v-for="cue in cuesList">
-      <div id="cue-holistic">
-        <button class="flat-history"  v-bind:class="{ active: cue?.active }" @click="bentoSpaceOpen(cue)" @mouseover="hoverCheck(cue)" @mousemove="moveCheck(cue)"> {{ cue.name }}
-        </button>
-        <span id="drill-cue" v-if="cue.expand === true">
-          <button class="drill-cue-history" @click="drillCue(cue)">c-></button>     
-        </span>
-        <button class="save-chat-history" @click="saveSpaceHistory(cue)">save</button>
-        <button class="delete-chat-history" @click="deleteSpaceHistory(cue)">Del</button>
-      </div>
-      ---------
-      <div id="gule-cues" v-if="glueTarget === true">
-        <div class="cues-list" v-for="cues in selectCues">
-          <div id="cue-holistic" v-if="cue.gluedown === glueName">
-            <button class="flat-history"  v-bind:class="{ active: cues?.active }" @click="bentoSpaceOpen(cues)" @mouseover="hoverCheck(cues)" @mousemove="moveCheck(cues)"> {{ cues.name }}
-            </button>
-            <span id="drill-cue" v-if="cues.expand === true">
-              <button class="drill-cue-history" @click="drillCue(cues)">c-></button>     
-            </span>
-            <button class="save-chat-history" @click="saveSpaceHistory(cues)">save</button>
-            <button class="delete-chat-history" @click="deleteSpaceHistory(cues)">Del</button>
-          </div>
-          <div id="gule-cues" v-if="glueTarget === true && glueName === 'Nature'">
-            another drill down?
+    <div id="cues-holder" @click="showExpandCues()" v-bind:class="{ active: expandCues }">
+      Cues
+    </div>
+    <div id="show-cues" v-if="expandCues === true">
+      LIst here if clicked
+      <div class="cues-list" v-for="cue in cuesList">
+        <div id="cue-holistic">
+          <button class="flat-history"  v-bind:class="{ active: cue?.active }" @click="bentoSpaceOpen(cue)" @mouseover="hoverCheck(cue)" @mousemove="moveCheck(cue)"> {{ cue.name }}
+          </button>
+          <span id="drill-cue" v-if="cue.expand === true">
+            <button class="drill-cue-history" @click="drillCue(cue)">c-></button>     
+          </span>
+          <button class="save-chat-history" @click="saveSpaceHistory(cue)">save</button>
+          <button class="delete-chat-history" @click="deleteSpaceHistory(cue)">Del</button>
+        </div>
+        ---------
+        <div id="gule-cues" v-if="glueTarget === true">
+          <div class="cues-list" v-for="cues in selectCues">
+            <div id="cue-holistic" v-if="cue.gluedown === glueName">
+              <button class="flat-history"  v-bind:class="{ active: cues?.active }" @click="bentoSpaceOpen(cues)" @mouseover="hoverCheck(cues)" @mousemove="moveCheck(cues)"> {{ cues.name }}
+              </button>
+              <span id="drill-cue" v-if="cues.expand === true">
+                <button class="drill-cue-history" @click="drillCue(cues)">c-></button>     
+              </span>
+              <button class="save-chat-history" @click="saveSpaceHistory(cues)">save</button>
+              <button class="delete-chat-history" @click="deleteSpaceHistory(cues)">Del</button>
+            </div>
+            <div id="gule-cues" v-if="glueTarget === true && glueName === 'Nature'">
+              another drill down?
+            </div>
           </div>
         </div>
       </div>
@@ -66,7 +71,7 @@ import { ref, computed, onMounted } from 'vue'
   let newSpacename = ref('')
   let glueTarget = ref(false)
   let glueName = ref('')
-
+  let expandCues = ref(false)
 
   /* on mount */
   onMounted(() => {
@@ -104,7 +109,7 @@ import { ref, computed, onMounted } from 'vue'
     return storeCues.cuesBiomarkers.labels
   })
 
-  cuesBiomarkers
+  /* cuesBiomarkers */
 
   /* methods */
   const hoverCheck = (sis) => {
@@ -121,12 +126,17 @@ import { ref, computed, onMounted } from 'vue'
     saveSpace.value = !saveSpace.value
   }
 
+  const showExpandCues = () => {
+    expandCues.value = !expandCues.value
+  }
+
   const drillCue = (cuem) => {
     glueTarget.value = !glueTarget.value
     glueName.value = cuem.gluedown
   }
 
   const bentoSpaceOpen = (spaceID) => {
+    console.log(spaceID)
     storeAI.beebeeContext = 'chatspace'
     storeAI.bentospaceState = !storeAI.bentospaceState
     storeAI.liveBspace = spaceID
@@ -208,9 +218,10 @@ import { ref, computed, onMounted } from 'vue'
 #space-menu {
   display: grid;
   grid-template-columns: 1fr;
-  height: 100%;
+  height: auto;
   overflow-y: scroll;
   overflow-x: visible;
+  align-self: start;
 }
 
 .create-space {
@@ -218,6 +229,17 @@ import { ref, computed, onMounted } from 'vue'
   background-color: white;
   border: 1px dashed grey;
   margin-bottom: 1em;
+  height: 40px;
+  border: 1px dashed lightblue;
+}
+
+#ask-ai-form {
+  border: 1px solid lightblue;
+}
+
+#space-form-save {
+  border: 1px dashed lightblue;
+  height: 120px;
 }
 
 .flat-history {
@@ -227,8 +249,22 @@ import { ref, computed, onMounted } from 'vue'
   padding: .5em;
 }
 
+#cues-holder {
+  margin-top: 1em;
+  cursor: pointer;
+  padding-top: .2em;
+  border-top: 1px solid lightblue;
+  border-bottom: 1px solid lightblue;
+  height: 30px;
+  font-weight: bold;
+}
+
 .active {
   background-color: rgb(113, 172, 114);
+}
+
+.history-list {
+  height: 42px;
 }
 
 /* .history-list:first-child {
