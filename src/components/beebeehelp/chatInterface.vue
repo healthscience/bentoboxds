@@ -491,7 +491,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
     }
 
     .active {
-      background-color: green;
+      background-color: rgb(113, 172, 114);
     }
 
     .networkactive {

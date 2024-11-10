@@ -27,11 +27,12 @@
           <button @click="glueType('up')">Up</button>
           <button @click="glueType('equal')">Equal</button>
           <button @click="glueType('unknown')">Unknown</button>
+          <button @click="glueType('compute')">Compute</button>
         </div>
       </div>
       <div id="rel-two">
         <div id="match-type">
-          <div class="match-source" @click="matchStyle('cue')">Cues</div>
+          <div class="match-source" @click="matchStyle('cue')" v-bind:class="{ active: matchType === 'cue' }">Cues</div>
           <div class="match-source" @click="matchStyle('media')">Media</div>
           <div class="match-source" @click="matchStyle('research')">Research</div>
           <div class="match-source" @click="matchStyle('marker')">Markers</div>
@@ -106,6 +107,18 @@ import { clearUserProjection } from 'ol/proj'
 
   const mapGlue = () => {
     console.log('glue relationsips pelease')
+    let relTriplet = {}
+    relTriplet.primary = cuePrimary
+    relTriplet.glue = glueMatch.value
+    relTriplet.secondary = secondWheel // need to expand for a cue segs
+    const cueContract = {}
+    cueContract.type = 'library'
+    cueContract.action = 'cues'
+    cueContract.reftype = 'relationship'
+    cueContract.task = 'PUT'
+    cueContract.privacy = 'public'
+    cueContract.data = relTriplet
+    // storeLibrary.sendMessage(cueContract)
   }
 
   const expandWheel = (wheel) => {
@@ -181,6 +194,11 @@ import { clearUserProjection } from 'ol/proj'
   margin-left: 1em;
   margin-bottom: .4em;
   cursor: pointer;
+}
+
+
+.active {
+  background-color: rgb(113, 172, 114);
 }
 
 @media (min-width: 1024px) {

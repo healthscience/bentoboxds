@@ -55,6 +55,9 @@ export const bentoboxStore = defineStore('bentostore', {
     locationMarkerbox: {
       84819191: {}
     },
+    locationProductbox: {
+      3319191: {}
+    },
     boxLocation:
     {
       x: 200,
@@ -65,7 +68,7 @@ export const bentoboxStore = defineStore('bentostore', {
     videoMedia: {},
     researchMedia: {},
     markerMedia: {},
-    prductMedia: {}
+    productMedia: {}
   }),
   actions: {
     // since we rely on `this`, we cannot use an arrow function
@@ -85,6 +88,8 @@ export const bentoboxStore = defineStore('bentostore', {
       this.locY = loc.y
     },
     processReply (message) {
+      console.log('start')
+      console.log(message)
       // prepare chat menu and pairs
       if (message.reftype.trim() === 'chat-history') {
         if (message.action.trim() === 'start') {
@@ -265,6 +270,15 @@ export const bentoboxStore = defineStore('bentostore', {
           prepareCues.push(sCue.value.concept)
         }
         this.storeCues.cuesList = prepareCues
+      } else if (message.reftype.trim() === 'research-history') {
+        console.log('research history')
+        console.log(message)
+      } else if (message.reftype.trim() === 'marker-history') {
+        console.log('marker history')
+        console.log(message)
+      } else if (message.reftype.trim() === 'product-history') {
+        console.log('product history')
+        console.log(message)
       }
     },
     setLocationBbox (space, bbox) {

@@ -32,9 +32,9 @@
           <div class="right-chat">
               <div class="bb-commentary">
                 <div id="text-summary">
-                  Commentary:  beebee to bring attention to something or summarise some charts etc.
+                  Commentary:  beebee commentary coming soon
                 </div>
-                <bento-box :bboxid="commentaryBox"></bento-box>
+                <!--<bento-box :bboxid="commentaryBox"></bento-box>-->
               </div>
               <div class="bb-commentary-spaces">
                 <div class="space-commentary-text">

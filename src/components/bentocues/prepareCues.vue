@@ -141,7 +141,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     let liveCuesUpdate = []
     for (let cl of storeCues.cuesList) {
       console.log(cl)
-      if (cl.key === storeCues.activeCue) {
+      if (cl.key !== storeCues.activeCue) {
         liveCuesUpdate.push(cl)
       }
     }

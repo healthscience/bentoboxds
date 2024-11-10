@@ -10,7 +10,7 @@
       + add marker
     </button>
   </div>
-  <div id="marker-paper-list">
+  <div id="marker-paper-list">dd{{ markerMatch }}
     <div id="marker-paper-select" v-for="mark in markerMatch" :value="mark.id">
       <button class="marker-paper-item" @click="viewMarker(mark)">
         {{ mark }}
@@ -25,28 +25,39 @@
 <script setup>
 import { ref, computed} from 'vue'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
+import { cuesStore } from '@/stores/cuesStore.js'
+import { libraryStore } from '@/stores/libraryStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   const storeAI = aiInterfaceStore()
+  const storeLibrary = libraryStore()
+  const storeCues = cuesStore()
   const storeBentobox = bentoboxStore()
 
   let markerURLadd = ref('')
   let markerTest = ref('')
   let spacemarker = ref(false)
-  let markerMatch = ref([])
 
 
-    /* computed */
-    const markerMedia = computed(() => {
-      return storeBentobox.markerMedia
-    })
+  /* computed */
+  const markerMatch= computed(() => {
+    return storeCues.markerMatch
+  })
 
   /* methods */
-
   const markerAdd = () => {
     // assume youtube and extract id
     if (markerURLadd.value.length > 0) {
-      markerMatch.value.push({ marker: markerURLadd.value, lab: markerTest.value })
+      storeCues.markerMatch.push({ marker: markerURLadd.value, lab: markerTest.value })
+      // save and add to space ledger
+      const cueMContract = {}
+      cueMContract.type = 'library'
+      cueMContract.action = 'marker'
+      cueMContract.reftype = 'marker-cues'
+      cueMContract.task = 'PUT'
+      cueMContract.privacy = 'public'
+      cueMContract.data = storeCues.markerMatch
+      storeLibrary.sendMessage(cueMContract)
       markerURLadd.value = ''
     }
   }
@@ -80,5 +91,19 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 </script>
 
 <style scoped>
+
+#bento-marker-task {
+  margin-top: 1em;
+}
+
+
+#marker-paper-list {
+  height: 200px;
+  border: 1px solid red;
+}
+@media (min-width: 1024px) {
+
+
+}
 
 </style>

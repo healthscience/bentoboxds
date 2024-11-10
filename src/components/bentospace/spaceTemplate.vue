@@ -29,7 +29,10 @@
             <button @click="addCueDecision()" v-bind:class="{ active: spaceDecision === true }">+ decision</button>
           </div>
           <div id="add-context">
-            <button @click="contextAdd()" v-bind:class="{ active: contextTools === true }">+ context</button>
+            <button @click="contextAdd()" v-bind:class="{ active: contextTools === true }">+ content</button>
+          </div>
+          <div id="share-network">
+            <button @click="shareSpace()" v-bind:class="{ active: shareTools === true }">+ share</button>
           </div>
           <div id="space-bar">space bar</div>
           <div class="scale-item scalebuttons">
@@ -42,13 +45,19 @@
         </div>
         <div id="space-context-tools" v-if="contextTools === true">
           <div id="n1-tools">
-            <button @click="addBentoN1()">+ N=1</button>
+            <button @click="addBentoN1()" v-bind:class="{ active: spaceN1setup === true }">+ N=1</button>
             <div id="bento-n1" v-if="spaceN1setup === true">
-              New network experitment or join
+              <div id="create-new-n1">
+                <button class="button-lib-data" @click="nxpAdd">
+                  + new experiment
+                </button>
+              </div>
+              <libraryexp-view v-if="storeLibrary.libPeerview === true"></libraryexp-view>
+              <newnxp-view v-if="storeLibrary.newNXP === true"></newnxp-view>
             </div>
           </div>
           <div id="media-tools">
-            <button @click="addBentoMedia()">+ media</button>
+            <button @click="addBentoMedia()" v-bind:class="{ active: spaceMedia === true }">+ media</button>
             <div id="bento-media" v-if="spaceMedia === true">
               <h3>Bento Media tools</h3>
               <div id="bento-media-video">
@@ -57,29 +66,33 @@
                   <input type="input" id="video-add" name="video" placeholder="add video url" v-model="videoURLadd" autofocus>
                 </form>
                 <button id="bento-media-task" type="submit" @click.prevent="videoAdd()">
-                  + add
+                   add 
                 </button>
               </div>
             </div>
           </div>
           <div id="research-tools">
-            <button @click="addCueResearch()">+ research</button>
+            <button @click="addCueResearch()" v-bind:class="{ active: spaceResearch === true }">+ research</button>
             <div id="bento-cue-research" v-if="spaceResearch === true">
                 <research-cue></research-cue>
             </div>
           </div>
           <div id="marker-tools">
-            <button @click="addCueMarker()">+ marker</button>
+            <button @click="addCueMarker()" v-bind:class="{ active: spaceMarker === true }">+ marker</button>
             <div id="bento-cue-marker" v-if="spaceMarker === true">
                 <marker-cue></marker-cue>
             </div>
           </div>
           <div id="product-tools">
-            <button @click="addCueProduct()">+ product</button>
+            <button @click="addCueProduct()" v-bind:class="{ active: spaceProduct === true }">+ product</button>
             <div id="bento-cue-product" v-if="spaceProduct === true">
-                <!-- need product view or link to source etc. -->
+                <product-cue></product-cue>
             </div>
           </div>
+        </div>
+        <div id="share-protocol" v-if="shareTools === true">
+          share protocol
+          <share-peers></share-peers>
         </div>
         <div id="bentospace-holder" v-dragscroll.noleft.noright="true" @click="whereMinmap($event)">
           <div id="bento-space" v-bind:style="{ transform: 'scale(' + zoomscaleValue + ')' }">
@@ -109,9 +122,9 @@
                 <marker-space :bstag="mkmedia.tag" :bsmedia="mkmedia.id.marker"></marker-space>
               </div>
               <!-- product -->
-              <!--<div id="bento-product-space" v-for="mkproduct in storeBentobox.productMedia[storeAI.liveBspace.spaceid]">pp {{ mkprodcut }}-->
-                <!--<product-space :bstag="mkproduct.tag" :bsmedia="mkproduct.id.marker"></product-space>-->
-              <!--</div>-->
+              <div id="bento-product-space" v-for="mkproduct in storeBentobox.productMedia[storeAI.liveBspace.spaceid]">pp {{ mkprodcut }}
+                <product-space :bstag="mkproduct.tag" :bsmedia="mkproduct.id.marker"></product-space>
+              </div>
             </div>
           </div>
         </div>
@@ -127,21 +140,28 @@
 import { ref, computed } from 'vue'
 import ModalSpace from '@/components/bentospace/spaceModal.vue'
 import CuesPrepared from '@/components/bentocues/prepareCues.vue'
+import LibraryexpView from '@/components/dataspace/libraryNXPView.vue'
+import NewnxpView from '@/components/dataspace/newnxpView.vue'
 import BentoBoxspace from '@/components/bentobox/bentoboxSpace.vue'
 import MediaSpace from '@/components/bentospace/video/mediaSpace.vue'
 import ResearchSpace from '@/components/bentospace/research/researchSpace.vue'
 import MarkerSpace from '@/components/bentospace/marker/markerSpace.vue'
+import ProductSpace from '@/components/bentospace/product/productSpace.vue'
 import DecisionCue from '@/components/bentocues/decisions/decisionCues.vue'
 import ResearchCue from '@/components/bentocues/research/researchCues.vue'
 import MarkerCue from '@/components/bentocues/marker/markerCues.vue'
+import ProductCue from '@/components/bentocues/product/productCues.vue'
 import BeebeeAi from '@/components/beebeehelp/spaceChat.vue'
+import SharePeers from '@/components/bentobox/tools/share/sharePeers.vue'
 import MininavMap from '@/components/bentospace/map/mininavMap.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
+import { libraryStore } from '@/stores/libraryStore.js'
 import { mapminiStore } from '@/stores/mapStore.js'
 
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
+  const storeLibrary = libraryStore()
   const storeMmap = mapminiStore()
 
   let mouseLive = ref(
@@ -153,6 +173,7 @@ import { mapminiStore } from '@/stores/mapStore.js'
   let wheelType = ref('cues')
   let cuesTools = ref(false)
   let contextTools = ref(false)
+  let shareTools = ref(false)
   let spaceN1setup = ref(false)
   let spaceMedia = ref(false)
   let videoURLadd = ref('')
@@ -199,6 +220,32 @@ import { mapminiStore } from '@/stores/mapStore.js'
 
   const addBentoN1 = () => {
     spaceN1setup.value = !spaceN1setup.value
+    storeLibrary.libPeerview = !storeLibrary.libPeerview
+    // prepare public library for table list view
+    if (storeLibrary.publicLibrary.referenceContracts !== undefined) {
+      storeLibrary.prepPublicNXPlist()
+    }
+  }
+
+  const nxpAdd = () => {
+    storeLibrary.newNXP = !storeLibrary.newNXP
+    // send message to HOP to create genesis NXP contract structure
+    if (storeLibrary.newNXP === true) {
+      // setup gensis open tools data structure
+      let modSettings = {}
+      modSettings.xaxis = ['time'] // mod.value.info.settings.xaxis
+      modSettings.yaxis = ['333']
+      modSettings.category = []
+      storeBentobox.openDataSettings['genesis-123579'] = modSettings
+      storeLibrary.prepareGenesisModContracts()
+      storeLibrary.saveSuccessnxp = false
+    }
+  }
+
+  const addCueDecision = () => {
+    console.log('decision doughnut please')
+    spaceDecision.value = !spaceDecision.value
+    // storeAI.decisionDoughnutCue = !storeAI.decisionDoughnutCue
   }
 
   const addBentoMedia = () => {
@@ -229,12 +276,6 @@ import { mapminiStore } from '@/stores/mapStore.js'
     videoURLadd.value = ''
   }
 
-  const addCueDecision = () => {
-    console.log('decision doughnut please')
-    spaceDecision.value = !spaceDecision.value
-    // storeAI.decisionDoughnutCue = !storeAI.decisionDoughnutCue
-  }
-
   const addCueResearch = () => {
     spaceResearch.value = !spaceResearch.value
   }
@@ -255,6 +296,10 @@ import { mapminiStore } from '@/stores/mapStore.js'
     contextTools.value = !contextTools.value
   }
 
+  const shareSpace = () => {
+    shareTools.value = !shareTools.value
+  }
+
 </script>
 
 <style scoped>
@@ -265,7 +310,7 @@ import { mapminiStore } from '@/stores/mapStore.js'
 
 #space-toolbar {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 2fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr 2fr 1fr;
   background-color: antiquewhite;
 }
 

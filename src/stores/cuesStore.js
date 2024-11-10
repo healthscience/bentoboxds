@@ -192,7 +192,10 @@ export const cuesStore = defineStore('cues', {
         data: [36, 36, 36, 36, 36, 36, 36, 36, 36, 36]
         }
       ]
-    }
+    },
+    researchPapers: [],
+    markerMatch: [],
+    productMatch: []
   }),
   actions: {
     processReply (received) {
