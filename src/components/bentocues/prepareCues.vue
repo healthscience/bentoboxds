@@ -125,6 +125,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   /* methods */
   const selectCue = (type) => {
     cueType.value = type
+    storeCues.activeCue = type
     cueActive.value = ''
   }
 

@@ -29,7 +29,6 @@ const chartspace = ref(null)
   let loaded = ref(false)
 
   onMounted(() => {
-    console.log('opeons allal')
     options = {
       cutout: '40%',
       responsive: true,
@@ -54,11 +53,10 @@ const chartspace = ref(null)
          }
       },
       onClick: (e) => {
-        console.log('click pie')
         // console.log(Object.keys(chartspace.value.chart.$context.chart.tooltip))
         // console.log(chartspace)
         let chart = chartspace
-        console.log(
+        /* console.log(
           chartspace.value.chart.$context.chart.tooltip.dataPoints
           /*chart.getElementsAtEventForMode(
             e,
@@ -66,14 +64,13 @@ const chartspace = ref(null)
             { intersect: true },
             false
           ) */
-        )
+        // )
         emit('segmentClick', props.cueType, chartspace.value.chart.$context.chart.tooltip.dataPoints[0])
         // storeCues.activeCueSegment = { type: props.cueType, selection: chartspace.value.chart.$context.chart.tooltip.dataPoints[0] }
       },
     }
 
     loaded.value = true
-    console.log(loaded)
   })
 
   /* computed */
