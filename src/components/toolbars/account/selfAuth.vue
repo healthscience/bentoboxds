@@ -74,7 +74,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   const selfVerify = () => {
     // cloud token temp solution
-    storeAccount.setJTW(selfpwInput)
+    storeAccount.setJTW(selfpwInput.value)
     // need to setup pub/private key schnorr sign utilities
     /* storeAccount.peerauth = true
     storeAI.startChat = false

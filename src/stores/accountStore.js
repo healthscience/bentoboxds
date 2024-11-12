@@ -111,6 +111,7 @@ export const accountStore = defineStore('account', {
       }
     },
     setJTW (token) {
+      console.log(token)
       this.sendSocket.jwt = token
       // need to setup pub/private key schnorr sign utilities
       this.peerauth = true
