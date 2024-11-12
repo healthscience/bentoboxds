@@ -26,6 +26,9 @@
                 <button id="self-auth" @click.prevent="selfVerify">Self Verify</button>
               </div>
             </form>
+            <div id="verify-feedback">
+              {{ verifyFeedback }}
+            </div>
           </div>
           <div v-else id="disconnect-signout">
             <button id="disconnect-button" @click="disconnectHOP">Disconnect and signout</button>
@@ -67,26 +70,32 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   const storeAI = aiInterfaceStore()
 
   let selfpwInput = ref('')
+  let verifyFeedback = ref('')
 
   const closeAccount = () => {
     storeAccount.accountStatus = !storeAccount.accountStatus
   }
 
   const selfVerify = () => {
+    console.log(selfpwInput)
+    verifyFeedback.value = ''
     // need to setup pub/private key schnorr sign utilities
-    storeAccount.peerauth = true
-    storeAI.startChat = false
-    storeAccount.accountStatus = false
-    // send message to get history of chats, spaces, peers
-    let saveBentoBoxsetting = {}
-    saveBentoBoxsetting.type = 'bentobox'
-    saveBentoBoxsetting.reftype = 'chat-history'
-    saveBentoBoxsetting.action = 'start'
-    saveBentoBoxsetting.task = 'start'
-    saveBentoBoxsetting.data = ''
-    saveBentoBoxsetting.bbid = ''
-    storeAI.sendMessageHOP(saveBentoBoxsetting)
-    storeAccount.accountMenu = 'account'
+    let pwCheck = selfpwInput.value
+    // take local info and auth HOP with that
+    if (pwCheck.length > 12) {
+      console.log('pass')
+      let saveBentoBoxsetting = {}
+      saveBentoBoxsetting.type = 'hop-auth'
+      saveBentoBoxsetting.reftype = 'self-auth'
+      saveBentoBoxsetting.action = 'start'
+      saveBentoBoxsetting.task = 'start'
+      saveBentoBoxsetting.data = { pw: pwCheck }
+      saveBentoBoxsetting.bbid = ''
+      storeAI.sendMessageHOP(saveBentoBoxsetting)
+    } else {
+      console.log(' too chsort')
+      verifyFeedback.value = 'password to short'
+    }
   }
 
   const disconnectHOP= () => {
@@ -119,6 +128,10 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   justify-content: right;
 }
 
+#verify-feedback {
+  margin-top: 1em;
+  color: red;
+}
 @media (min-width: 1024px) {
 
   #account-modal-header {

@@ -23,7 +23,25 @@ export const accountStore = defineStore('account', {
   }),
   actions: {
     processReply (received) {
-      if (received.action === 'hyperbee-pubkeys') {
+      if (received.action === 'hop-verify') {
+        console.log('now ask for start library and bentobox info')
+        // set token for subsequent HOP messages
+        this.sendSocket.jwt = received.data.jwt
+        // reply is verified
+        this.peerauth = true
+        this.storeAI.startChat = false
+        this.accountStatus = false
+        this.accountMenu = 'account'
+        // get starting account info.
+        let saveBentoBoxsetting = {}
+        saveBentoBoxsetting.type = 'bentobox'
+        saveBentoBoxsetting.reftype = 'chat-history'
+        saveBentoBoxsetting.action = 'start'
+        saveBentoBoxsetting.task = 'start'
+        saveBentoBoxsetting.data = ''
+        saveBentoBoxsetting.bbid = ''
+        this.storeAI.sendMessageHOP(saveBentoBoxsetting) 
+      } else if (received.action === 'hyperbee-pubkeys') {
         this.publicKeysList = received.data
         // ask for library
         this.storeLibrary.startLibrary()

@@ -12,6 +12,7 @@ export const useSocketStore = defineStore({
     aiStore: aiInterfaceStore(),
     libStore: libraryStore(),
     accStore: accountStore(),
+    jwt: '',
     count: 0,
     websocket: {},
     connection_ready: false,
@@ -49,10 +50,10 @@ export const useSocketStore = defineStore({
       }
     },
     onSocketMessage (evt) {
-      // console.log('ui socket')
+      console.log('ui socket')
       // we parse the json that we receive
       var received = JSON.parse(evt.data)
-      // console.log(received)
+      console.log(received)
       // keep in message log for session?
       this.messages.push(received)
       // parse and route to logic processing
@@ -85,6 +86,7 @@ export const useSocketStore = defineStore({
     
     },
     send_message (data) {
+      data.jwt = this.jwt
       this.websocket.send(JSON.stringify(data))
       // keep list of message per session live?
       // this.messages.push( { from: "send", message: to_send.message } )
