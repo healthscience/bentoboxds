@@ -330,7 +330,7 @@ export const libraryStore = defineStore('librarystore', {
             setupContracts.push(true)
           }
         }
-        let checkLogic = (element) => element  === true;
+        let checkLogic = (element) => element  === true
         let checkSetup = setupContracts.some(checkLogic)
         if (checkSetup === false) {
           this.startLibrary = true

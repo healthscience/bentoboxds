@@ -21,11 +21,11 @@
     @drag:end="eHandlerTimerStop"
   >
     <!-- bentobox -->
-    <div id="research-holder">
-      <div id="bm-toolbar" v-bind:class="{ active: bboxActive }">-</div>
+    <div id="marker-holder">
+      <div id="mkr-toolbar" v-bind:class="{ active: bboxActive }">-</div>
       <marker-box :bstag="props.bstag" :bsresearch="props.bsmedia"></marker-box>
     </div>
-    <button id="bm-remove" @click="removeRboxSpace">remove</button>
+    <button id="bm-remove" @click="removeMboxSpace">remove</button>
   </vue-resizable>
 </template>
 
@@ -46,14 +46,13 @@ import { mapminiStore } from '@/stores/mapStore.js'
     bsmedia: String
   })
 
-  let bentoboxWidth = '30vw'
   let bboxActive = ref(false)
   let modulesShow = ref(false)
 
   /* drag drop move resize */
   const tW = 880
   const tH = 440
-  const handlers = ref(["r", "rb", "b", "lb", "l", "lt", "t", "rt"])
+  const handlers = ["r", "rb", "b", "lb", "l", "lt", "t", "rt"]
   // let left = ref(`calc(2% - ${tW / 2}px)`)
   // let top = ref(`calc(8% - ${tH / 2}px)`)
   // let height = ref('fit-content')
@@ -64,9 +63,22 @@ import { mapminiStore } from '@/stores/mapStore.js'
   let minH = ref('20vh')
   let fit = ref(false)
   let event = ref('')
-  const dragSelector = ref('#research-bar, .drag-container-2')
+  const dragSelector = ref('#marker-bar, .drag-container-2')
   let timerPress = ref(0)
 
+
+  /* computed */
+  const spaceLocation = computed(() => {
+    if (storeBentobox.locationMarkerbox[storeAI.liveBspace.spaceid][props.bsmedia] !== undefined) {
+      return storeBentobox.locationMarkerbox[storeAI.liveBspace.spaceid][props.bsmedia]
+    } else {
+      return {}
+    }
+  })
+
+  const checkEmpty = computed((value) => {
+    return typeof value !== "number" ? 0 : value;
+  })
 
   /* methods */
   const updateBoxLocation = (location) => {
@@ -133,16 +145,16 @@ import { mapminiStore } from '@/stores/mapStore.js'
     // }
   }
 
-  const removeRboxSpace = () => {
+  const removeMboxSpace = () => {
     // remove from spaceList and location
-    let currentSpaceRboxes = storeBentobox.researchMedia[storeAI.liveBspace.spaceid]
-    let updateRblist = []
-    for (let bm of currentSpaceRboxes) {
+    let currentSpaceMboxes = storeBentobox.markerMedia[storeAI.liveBspace.spaceid]
+    let updateMblist = []
+    for (let bm of currentSpaceMboxes) {
       if (bm.id !== props.bsmedia) {
-        updateRblist.push(bm)
+        updateMblist.push(bm)
       }
     }
-    storeBentobox.markerMedia[storeAI.liveBspace.spaceid] = updateRblist
+    storeBentobox.markerMedia[storeAI.liveBspace.spaceid] = updateMblist
     // update miniMap of removal
     // storeMmap.actionDashBRemove(props.bboxid)
   }
@@ -151,18 +163,6 @@ import { mapminiStore } from '@/stores/mapStore.js'
     modulesShow.value = !modulesShow.value
   }
 
-  /* computed */
-  const spaceLocation = computed(() => {
-    if (storeBentobox.locationMarkerbox[storeAI.liveBspace.spaceid][props.bsmedia] !== undefined) {
-      return storeBentobox.locationMarkerbox[storeAI.liveBspace.spaceid][props.bsmedia]
-    } else {
-      return {}
-    }
-  })
-
-  const checkEmpty = computed((value) => {
-    return typeof value !== "number" ? 0 : value;
-  })
 
 </script>
 
@@ -189,7 +189,7 @@ import { mapminiStore } from '@/stores/mapStore.js'
   z-index: 9;
 }
 
-#bm-toolbar {
+#mkr-toolbar {
   display: grid;
   grid-template-columns: 1fr;
   justify-items: center;
@@ -246,7 +246,7 @@ import { mapminiStore } from '@/stores/mapStore.js'
     border: 2px solid red;
   }
 
-  #bm-toolbar {
+  #mkr-toolbar {
     display: grid;
     grid-template-columns: 1fr;
     justify-items: center;

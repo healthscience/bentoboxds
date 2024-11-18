@@ -1,5 +1,5 @@
 <template>
-  <div id="welcome" v-if="libraryAvailable === false">
+  <div id="welcome" v-if="libraryAvailable === false">{{ libraryAvailable }}
     <div class="beebee-reply">
       <span class="right-time">Today</span>
       <div class="reply-text-chart">
@@ -14,7 +14,7 @@
       </div>
     </div>
   </div>
-  <div v-else id="welcome-back">
+  <div v-else id="welcome-back">{{ libraryAvailable }}
     <div class="beebee-reply">
       <span class="right-time">Today</span>
         <div class="reply-text-chart">
@@ -33,6 +33,11 @@
               <div class="bb-commentary">
                 <div id="text-summary">
                   Commentary:  beebee commentary coming soon
+                </div>
+                <div id="oracle-attention">
+                  <div class="oracle-item" v-for="ori of oracleAttention">
+                    {{ ori.name }} -- {{ ori.oracle }}
+                  </div>
                 </div>
                 <!--<bento-box :bboxid="commentaryBox"></bento-box>-->
               </div>
@@ -90,6 +95,11 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
   const spaceList = computed(() => {
     return storeBentobox.spaceList
+  })
+
+  const oracleAttention  = computed(() => {
+    let oracleTest = [{ spaceid: 123221, name: 'cueOne', oracle: 'let me show you . . .'}, { spaceid: 223221, name: 'cueTwo', oracle: 'take a look at'}]
+    return oracleTest
   })
 
   /* methods */

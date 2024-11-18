@@ -77,13 +77,11 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   }
 
   const selfVerify = () => {
-    console.log(selfpwInput)
     verifyFeedback.value = ''
     // need to setup pub/private key schnorr sign utilities
     let pwCheck = selfpwInput.value
     // take local info and auth HOP with that
     if (pwCheck.length > 12) {
-      console.log('pass')
       let saveBentoBoxsetting = {}
       saveBentoBoxsetting.type = 'hop-auth'
       saveBentoBoxsetting.reftype = 'self-auth'
@@ -92,9 +90,9 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
       saveBentoBoxsetting.data = { pw: pwCheck }
       saveBentoBoxsetting.bbid = ''
       storeAI.sendMessageHOP(saveBentoBoxsetting)
+      selfpwInput.value = ''
     } else {
-      console.log(' too chsort')
-      verifyFeedback.value = 'password to short'
+      verifyFeedback.value = 'password incorrect, try again please.'
     }
   }
 

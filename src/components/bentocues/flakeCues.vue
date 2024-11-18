@@ -22,6 +22,9 @@
             <div id="cues-connector">
               <button @click="cueConnect()" v-bind:class="{ active: cuesTools === true }">Cues</button>
             </div>
+            <div id="cues-connector">
+              <button @click="cueCorridor()" v-bind:class="{ active: cuesCorridor === true }">Corridor</button>
+            </div>
             <div id="juv-holder">
               <div id="health-Rejuvenation">Rejuvenation</div>
              <button id="health-optimisation" @click="juvCycle()">Options</button>
@@ -41,6 +44,10 @@
           <div id="cues-context-tools" v-if="cuesTools === true">
             <!-- existing cues -->
             <cues-prepared v-if="wheelType === 'cues'"></cues-prepared>
+          </div>
+          <div id="cues-corridor-tools" v-if="cuesCorridor === true">
+            <!-- cues over time past future corridors of life -->
+             Coming soon cues over time, past, present and future
           </div>
           <beebee-ai></beebee-ai>
           <button id="open-beebee" @click.prevent="setShowBeeBee">beebee</button>
@@ -104,6 +111,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   const storeBentobox = bentoboxStore()
 
   let cuesTools = ref(false)
+  let cuesCorridor = ref(false)
   let wheelType = ref('cues')
   let stacksOpen = ref(false)
 
@@ -241,6 +249,10 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     cuesTools.value = !cuesTools.value
   }
 
+  const cueCorridor = () => {
+    cuesCorridor.value = !cuesCorridor.value
+  }
+
   const viewCueHex = (cue) => {
     console.log('one crystal color')
     console.log(cue)
@@ -280,7 +292,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
 #cues-holistic {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   background-color: antiquewhite;
 }
 

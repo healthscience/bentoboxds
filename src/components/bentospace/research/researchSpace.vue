@@ -22,7 +22,7 @@
   >
     <!-- bentobox -->
     <div id="research-holder">
-      <div id="bm-toolbar" v-bind:class="{ active: bboxActive }">-</div>
+      <div id="br-toolbar" v-bind:class="{ active: bboxActive }">-</div>
       <research-box :bstag="props.bstag" :bsresearch="props.bsmedia"></research-box>
     </div>
     <button id="bm-remove" @click="removeRboxSpace">remove</button>
@@ -67,6 +67,19 @@ import { mapminiStore } from '@/stores/mapStore.js'
   const dragSelector = ref('#research-bar, .drag-container-2')
   let timerPress = ref(0)
 
+  /* computed */
+  const spaceLocation = computed(() => {
+    if (storeBentobox.locationRbox[storeAI.liveBspace.spaceid][props.bsmedia] !== undefined) {
+      return storeBentobox.locationRbox[storeAI.liveBspace.spaceid][props.bsmedia]
+    } else {
+      return {}
+    }
+  })
+
+  const checkEmpty = computed((value) => {
+    return typeof value !== "number" ? 0 : value;
+  })
+
 
   /* methods */
   const updateBoxLocation = (location) => {
@@ -87,6 +100,8 @@ import { mapminiStore } from '@/stores/mapStore.js'
     updateBox.event = ''
     updateBox.dragSelector = dragSelector.value
     storeBentobox.locationRbox[storeAI.liveBspace.spaceid][props.bsmedia] = updateBox
+    console.log('research')
+    console.log(props.bsmedia)
     storeMmap.actionDashBmove(updateBox)
   }
 
@@ -150,20 +165,6 @@ import { mapminiStore } from '@/stores/mapStore.js'
   const expandModules = () => {
     modulesShow.value = !modulesShow.value
   }
-
-  /* computed */
-  const spaceLocation = computed(() => {
-    if (storeBentobox.locationRbox[storeAI.liveBspace.spaceid][props.bsmedia] !== undefined) {
-      return storeBentobox.locationRbox[storeAI.liveBspace.spaceid][props.bsmedia]
-    } else {
-      return {}
-    }
-  })
-
-  const checkEmpty = computed((value) => {
-    return typeof value !== "number" ? 0 : value;
-  })
-
 </script>
 
 <style scoped>
@@ -189,7 +190,7 @@ import { mapminiStore } from '@/stores/mapStore.js'
   z-index: 9;
 }
 
-#bm-toolbar {
+#br-toolbar {
   display: grid;
   grid-template-columns: 1fr;
   justify-items: center;
@@ -246,7 +247,7 @@ import { mapminiStore } from '@/stores/mapStore.js'
     border: 2px solid red;
   }
 
-  #bm-toolbar {
+  #br-toolbar {
     display: grid;
     grid-template-columns: 1fr;
     justify-items: center;

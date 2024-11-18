@@ -21,11 +21,11 @@
     @drag:end="eHandlerTimerStop"
   >
     <!-- bentobox -->
-    <div id="research-holder">
-      <div id="bm-toolbar" v-bind:class="{ active: bboxActive }">-</div>
-      <product-box :bstag="props.bstag" :bsresearch="props.bsmedia"></product-box>
+    <div id="product-holder">
+      <div id="bp-toolbar" v-bind:class="{ active: bboxActive }">product bar br ba rbar</div>
+        <product-box :bstag="props.bstag" :bsproduct="props.bsmedia"></product-box>
     </div>
-    <button id="bm-remove" @click="removeRboxSpace">remove</button>
+    <button id="bm-remove" @click="removePboxSpace">remove</button>
   </vue-resizable>
 </template>
 
@@ -64,8 +64,22 @@ import { mapminiStore } from '@/stores/mapStore.js'
   let minH = ref('20vh')
   let fit = ref(false)
   let event = ref('')
-  const dragSelector = ref('#research-bar, .drag-container-2')
+  const dragSelector = ref('#product-bar, .drag-container-2')
   let timerPress = ref(0)
+
+  /* computed */
+  const spaceLocation = computed(() => {
+    console.log(storeBentobox.locationProductbox[storeAI.liveBspace.spaceid][props.bsmedia])
+    if (storeBentobox.locationProductbox[storeAI.liveBspace.spaceid][props.bsmedia] !== undefined) {
+      return storeBentobox.locationProductbox[storeAI.liveBspace.spaceid][props.bsmedia]
+    } else {
+      return {}
+    }
+  })
+
+  const checkEmpty = computed((value) => {
+    return typeof value !== "number" ? 0 : value;
+  })
 
 
   /* methods */
@@ -85,7 +99,7 @@ import { mapminiStore } from '@/stores/mapStore.js'
     updateBox.minH = minH.value
     updateBox.fit = fit.value
     updateBox.event = ''
-    updateBox.dragSelector = dragSelector.value
+    updateBox.dragSelector = '#product-bar, .drag-container-2'
     storeBentobox.locationProductbox[storeAI.liveBspace.spaceid][props.bsmedia] = updateBox
     storeMmap.actionDashBmove(updateBox)
   }
@@ -133,11 +147,11 @@ import { mapminiStore } from '@/stores/mapStore.js'
     // }
   }
 
-  const removeRboxSpace = () => {
+  const removePboxSpace = () => {
     // remove from spaceList and location
-    let currentSpaceRboxes = storeBentobox.productMedia[storeAI.liveBspace.spaceid]
+    let currentSpacePboxes = storeBentobox.productMedia[storeAI.liveBspace.spaceid]
     let updateRblist = []
-    for (let bm of currentSpaceRboxes) {
+    for (let bm of currentSpacePboxes) {
       if (bm.id !== props.bsmedia) {
         updateRblist.push(bm)
       }
@@ -150,19 +164,6 @@ import { mapminiStore } from '@/stores/mapStore.js'
   const expandModules = () => {
     modulesShow.value = !modulesShow.value
   }
-
-  /* computed */
-  const spaceLocation = computed(() => {
-    if (storeBentobox.locationProductbox[storeAI.liveBspace.spaceid][props.bsmedia] !== undefined) {
-      return storeBentobox.locationProductbox[storeAI.liveBspace.spaceid][props.bsmedia]
-    } else {
-      return {}
-    }
-  })
-
-  const checkEmpty = computed((value) => {
-    return typeof value !== "number" ? 0 : value;
-  })
 
 </script>
 
@@ -189,19 +190,11 @@ import { mapminiStore } from '@/stores/mapStore.js'
   z-index: 9;
 }
 
-#bm-toolbar {
+#bp-toolbar {
   display: grid;
   grid-template-columns: 1fr;
   justify-items: center;
   width: 100%;
-}
-
-#bb-network-graph {
-  display: none;
-}
-
-#bb-world-map {
-  display: none;
 }
 
 #bentobox-holder {
@@ -246,20 +239,12 @@ import { mapminiStore } from '@/stores/mapStore.js'
     border: 2px solid red;
   }
 
-  #bm-toolbar {
+  #bp-toolbar {
     display: grid;
     grid-template-columns: 1fr;
     justify-items: center;
     width: 100%;
     /* background-color:rgb(141, 145, 226); */
-  }
-
-  #bb-network-graph {
-    display: none;
-  }
-
-  #bb-world-map {
-   display: none;
   }
 
   #bentobox-holder {

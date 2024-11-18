@@ -88,8 +88,8 @@ export const bentoboxStore = defineStore('bentostore', {
       this.locY = loc.y
     },
     processReply (message) {
-      console.log('start')
-      console.log(message)
+      // console.log('start')
+      // console.log(message)
       // prepare chat menu and pairs
       if (message.reftype.trim() === 'chat-history') {
         if (message.action.trim() === 'start') {
@@ -149,6 +149,8 @@ export const bentoboxStore = defineStore('bentostore', {
                 }
               } else {
                 // BENTOSPACES setup on start
+                console.log('bento space info start')
+                console.log(cm.value)
                 // add to menu list  no duplicate and TODO set one as active
                 if (this.spaceList[0].spaceid !== cm.value.space.spaceid) {
                   this.spaceList.push(cm.value.space)
@@ -177,6 +179,7 @@ export const bentoboxStore = defineStore('bentostore', {
                     updateBox.fit = false
                     updateBox.event = ''
                     updateBox.dragSelector = '.drag-container-1, .drag-container-2'
+                    // check if location holder is already prepared?
                     if (this.locationBbox[cm.value.space.spaceid] === undefined) {
                       this.locationBbox[cm.value.space.spaceid] = {}
                     }
@@ -198,7 +201,7 @@ export const bentoboxStore = defineStore('bentostore', {
                   this.videoMedia[cm.value.space.spaceid] = mBoxList
                   this.locationMbox[cm.value.space.spaceid] = cm.value.mboxlist
                 }
-                // check for location spaces info. already saved
+                // check for BentoBox location spaces info. already saved
                 if (cm?.value?.location) {
                   // add to menu list
                   // this.spaceList.push(cm.value.space)
@@ -273,12 +276,23 @@ export const bentoboxStore = defineStore('bentostore', {
       } else if (message.reftype.trim() === 'research-history') {
         console.log('research history')
         console.log(message)
+        let researchboxKeys = Object.keys(message.data)
+        let resBoxList = []
+        let tempSpaceID = 'f6b145fd4b8f507622b597537b0e5e5459da2189'
+        this.locationRbox[tempSpaceID] = {}
+        for (let rkey of message.data) {
+          resBoxList.push({ tag: 'research', id: rkey.value.concept[0] })
+          // this.locationMbox[cm.value.space.spaceid].push({ tag: 'video', id: mbkey })
+          this.setLocationRbox(tempSpaceID, rkey.value.concept[0])
+        }
+        this.researchMedia[tempSpaceID] = resBoxList
+
       } else if (message.reftype.trim() === 'marker-history') {
-        console.log('marker history')
-        console.log(message)
+        // console.log('marker history')
+        // console.log(message)
       } else if (message.reftype.trim() === 'product-history') {
-        console.log('product history')
-        console.log(message)
+        // console.log('product history')
+        // console.log(message)
       }
     },
     setLocationBbox (space, bbox) {
@@ -333,10 +347,37 @@ export const bentoboxStore = defineStore('bentostore', {
         this.locationStart+= 40
       }
     },
-    setLocationRbox (space, mbox) {
-      console.log(space)
-      console.log(mbox)
+    setLocationRbox (space, rbox) {
       // check not already set
+      let spaceLive = this.locationMbox[space]
+      if (rbox in spaceLive) {
+      } else {
+        const tW = 840
+        const tH = 440
+        let updateBox = {}
+        updateBox.tW = tW
+        updateBox.tH = tH
+        updateBox.handlers = ["r", "rb", "b", "lb", "l", "lt", "t", "rt"]
+        updateBox.left = '90px' // ref(`calc(2% - ${tW / 2}px)`)
+        updateBox.top = this.locationStart + 'px' // ref(`calc(8% - ${tH / 2}px)`)
+        updateBox.height = 'auto'
+        updateBox.width = '20vw'
+        updateBox.maxW = '100%'
+        updateBox.maxH = '100%'
+        updateBox.minW = '20vw'
+        updateBox.minH = '20vh'
+        updateBox.fit = false
+        updateBox.event = ''
+        updateBox.dragSelector = '#br-toolbar, .drag-container-2'
+        this.locationRbox[space][rbox] = updateBox
+        this.locationStart+= 40
+      }
+      console.log('research box prep over')
+      console.log(this.locationRbox)
+    },
+    setLocationMarkerbox (space, mbox) {
+      // check not already set
+      let mID = mbox
       let spaceLive = this.locationMbox[space]
       if (mbox in spaceLive) {
       } else {
@@ -356,17 +397,16 @@ export const bentoboxStore = defineStore('bentostore', {
         updateBox.minH = '20vh'
         updateBox.fit = false
         updateBox.event = ''
-        updateBox.dragSelector = '#bb-toolbar, .drag-container-2'
-        this.locationRbox[space][mbox] = updateBox
+        updateBox.dragSelector = '#marker-bar, .drag-container-2'
+        this.locationMarkerbox[space][mID] = updateBox
         this.locationStart+= 40
       }
     },
-    setLocationMarkerbox (space, mbox) {
-      console.log(space)
-      console.log(mbox)
+    setLocationProductbox (space, pbox) {
       // check not already set
-      let spaceLive = this.locationMarkerbox[space]
-      if (mbox in spaceLive) {
+      let pID = pbox
+      let spaceLive = this.locationProductbox[space]
+      if (pbox in spaceLive) {
       } else {
         const tW = 840
         const tH = 440
@@ -384,8 +424,8 @@ export const bentoboxStore = defineStore('bentostore', {
         updateBox.minH = '20vh'
         updateBox.fit = false
         updateBox.event = ''
-        updateBox.dragSelector = '#bb-toolbar, .drag-container-2'
-        this.locationMarkerbox[space][mbox] = updateBox
+        updateBox.dragSelector = '#product-bar, .drag-container-2'
+        this.locationProductbox[space][pID] = updateBox
         this.locationStart+= 40
       }
     },

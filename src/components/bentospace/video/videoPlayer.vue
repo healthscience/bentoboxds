@@ -1,7 +1,7 @@
 <template>
   <div id="media-box">
     <div id="media-bar" >
-      <div id="b0x-bar">
+      <div id="box-bar">
         BentoMedia Bar
       </div>
       <div id="decision-tools">

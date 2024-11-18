@@ -118,12 +118,12 @@
                 <research-space :bstag="rmedia.tag" :bsmedia="rmedia.id"></research-space>
               </div>
                 <!-- marker -->
-                <div id="bento-research-space" v-for="mkmedia in storeBentobox.markerMedia[storeAI.liveBspace.spaceid]">pp {{ mkmedia }}
-                <marker-space :bstag="mkmedia.tag" :bsmedia="mkmedia.id.marker"></marker-space>
+                <div id="bento-research-space" v-for="mkmedia in storeBentobox.markerMedia[storeAI.liveBspace.spaceid]">
+                <marker-space :bstag="mkmedia.tag" :bsmedia="mkmedia.id"></marker-space>
               </div>
               <!-- product -->
-              <div id="bento-product-space" v-for="mkproduct in storeBentobox.productMedia[storeAI.liveBspace.spaceid]">pp {{ mkprodcut }}
-                <product-space :bstag="mkproduct.tag" :bsmedia="mkproduct.id.marker"></product-space>
+              <div id="bento-product-space" v-for="mkproduct in storeBentobox.productMedia[storeAI.liveBspace.spaceid]">
+                <product-space :bstag="mkproduct.tag" :bsmedia="mkproduct.id"></product-space>
               </div>
             </div>
           </div>

@@ -10,10 +10,10 @@
       + add marker
     </button>
   </div>
-  <div id="marker-paper-list">dd{{ markerMatch }}
+  <div id="marker-paper-list">
     <div id="marker-paper-select" v-for="mark in markerMatch" :value="mark.id">
       <button class="marker-paper-item" @click="viewMarker(mark)">
-        {{ mark }}
+        {{ mark.marker }}
       </button>
       <button class="marker-paper-source" @click="viewSourceMarker(mark)">
         View source
@@ -40,7 +40,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
 
   /* computed */
-  const markerMatch= computed(() => {
+  const markerMatch = computed(() => {
     return storeCues.markerMatch
   })
 
@@ -63,18 +63,18 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   }
 
   const viewMarker = (marker) => {
-    console.log(marker)
+    let idMarker = marker.marker
     if (marker.marker.length > 0) {
       // check if holder setup
       if (storeBentobox.locationMarkerbox[storeAI.liveBspace.spaceid] === undefined) {
         storeBentobox.locationMarkerbox[storeAI.liveBspace.spaceid] = {}
       }
-      storeBentobox.setLocationMarkerbox(storeAI.liveBspace.spaceid, marker)
+      storeBentobox.setLocationMarkerbox(storeAI.liveBspace.spaceid, idMarker)
       if (storeBentobox.markerMedia[storeAI.liveBspace.spaceid]) {
-        storeBentobox.markerMedia[storeAI.liveBspace.spaceid].push({ tag: 'marker', id: marker })
+        storeBentobox.markerMedia[storeAI.liveBspace.spaceid].push({ tag: 'marker', id: idMarker })
       } else {
         storeBentobox.markerMedia[storeAI.liveBspace.spaceid] = []
-        storeBentobox.markerMedia[storeAI.liveBspace.spaceid].push({ tag: 'marker', id: marker })
+        storeBentobox.markerMedia[storeAI.liveBspace.spaceid].push({ tag: 'marker', id: idMarker })
       }
     } else {
       console.log('empty marker')

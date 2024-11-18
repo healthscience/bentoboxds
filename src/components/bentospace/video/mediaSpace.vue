@@ -87,6 +87,8 @@ import { mapminiStore } from '@/stores/mapStore.js'
     updateBox.event = ''
     updateBox.dragSelector = dragSelector.value
     storeBentobox.locationMbox[storeAI.liveBspace.spaceid][props.bsmedia] = updateBox
+    console.log('media')
+    console.log(props.bsmedia)
     storeMmap.actionDashBmove(updateBox)
   }
 
@@ -196,14 +198,6 @@ import { mapminiStore } from '@/stores/mapStore.js'
   width: 100%;
 }
 
-#bb-network-graph {
-  display: none;
-}
-
-#bb-world-map {
-  display: none;
-}
-
 #bentobox-holder {
   position: relative;
   border: 1px solid rgb(128, 128, 128);
@@ -252,14 +246,6 @@ import { mapminiStore } from '@/stores/mapStore.js'
     justify-items: center;
     width: 100%;
     /* background-color:rgb(141, 145, 226); */
-  }
-
-  #bb-network-graph {
-    display: none;
-  }
-
-  #bb-world-map {
-   display: none;
   }
 
   #bentobox-holder {

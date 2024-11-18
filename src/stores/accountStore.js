@@ -32,6 +32,8 @@ export const accountStore = defineStore('account', {
         this.storeAI.startChat = false
         this.accountStatus = false
         this.accountMenu = 'account'
+        // get start public library
+        this.storeLibrary.startLibrary()
         // get starting account info.
         let saveBentoBoxsetting = {}
         saveBentoBoxsetting.type = 'bentobox'
@@ -43,8 +45,6 @@ export const accountStore = defineStore('account', {
         this.storeAI.sendMessageHOP(saveBentoBoxsetting) 
       } else if (received.action === 'hyperbee-pubkeys') {
         this.publicKeysList = received.data
-        // ask for library
-        this.storeLibrary.startLibrary()
       } else if (received.action === 'drive-pubkeys') {
         this.publickeyDrive = received.data
       } else if (received.action === 'warm-peers') {

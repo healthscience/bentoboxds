@@ -101,7 +101,6 @@ import { ref, computed, onMounted } from 'vue'
     } else {
       return []
     }
-
   })
 
   const cuesNature = computed(() => {
@@ -218,8 +217,6 @@ import { ref, computed, onMounted } from 'vue'
     delBentoBoxsetting.task = 'delete'
     delBentoBoxsetting.data = space
     delBentoBoxsetting.bbid = ''
-    console.log('dleelel sapce')
-    console.log(delBentoBoxsetting)
     storeAI.sendMessageHOP(delBentoBoxsetting)
   }
 

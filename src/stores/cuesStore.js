@@ -195,11 +195,13 @@ export const cuesStore = defineStore('cues', {
     },
     researchPapers: [],
     markerMatch: [],
-    productMatch: []
+    productMatch: [],
+    oracleAttention: []
   }),
   actions: {
     processReply (received) {
-
+      console.log('oracle replies coming in, update bentobox')
+      console.log(received)
     },
     setSpaceGlue () {
       this.selectCues = {

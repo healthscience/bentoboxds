@@ -1,7 +1,7 @@
 <template>
-  <div id="research-box">
-    <div id="research-bar" >
-      <div id="box-bar">
+  <div id="marker-box">
+    <div id="marker-bar">
+      <div id="box-bar" >
         Marker Bar
       </div>
       <div id="decision-tools">
@@ -11,8 +11,9 @@
         </div>
       </div>
     </div>
+    <div id="marker-content">
       Marker: {{ props.bstag }}  {{ props.bsresearch }}
-      
+    </div>
   </div>
 </template>
 
@@ -33,15 +34,14 @@ import { libraryStore } from '@/stores/libraryStore.js'
     bsresearch: String
   })
 
+
+  /* computed */
+
   /* methods */
   const addCueDecision = () => {
-    console.log('decision doughnut please')
     spaceDecision.value = !spaceDecision.value
     // storeAI.decisionDoughnutCue = !storeAI.decisionDoughnutCue
   }
-
-
-  /* computed */
 
 
 </script>
@@ -52,9 +52,15 @@ import { libraryStore } from '@/stores/libraryStore.js'
   border: 1px solid lightblue;
 }
 
+
+#marker-content {
+  height: inherit;
+  width: inherit;
+}
+
 @media (min-width: 1024px) {
 
-  #research-box {
+  #marker-box {
     height: 300px;
     width: 100%;
   }
@@ -64,7 +70,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
     border: 1px solid lightblue;
   }
 
-  #research-bar {
+  #marker-bar {
     display: grid;
     grid-template-columns: 1fr 1fr;
     justify-items: center;
@@ -72,11 +78,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
     width: 100%;
     height: 3em;
     background-color:  rgb(141, 145, 226);
-  }
-
-  #paper-view {
-    width: 100%;
-    height: 100%;
   }
 
 }

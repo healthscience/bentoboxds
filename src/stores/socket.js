@@ -4,12 +4,14 @@ import { aiInterfaceStore } from "@/stores/aiInterface.js"
 import { libraryStore } from "@/stores/libraryStore.js"
 import { accountStore } from "@/stores/accountStore.js"
 import { bentoboxStore } from "@/stores/bentoboxStore.js"
+import { cuesStore } from "@/stores/cuesStore.js"
 
 export const useSocketStore = defineStore({
   id: "socket",
   state: () => ({
     bentoboxStore: bentoboxStore(),
     aiStore: aiInterfaceStore(),
+    storeCues: cuesStore(),
     libStore: libraryStore(),
     accStore: accountStore(),
     jwt: '',
@@ -50,10 +52,10 @@ export const useSocketStore = defineStore({
       }
     },
     onSocketMessage (evt) {
-      console.log('ui socket')
+      // console.log('ui socket')
       // we parse the json that we receive
       var received = JSON.parse(evt.data)
-      console.log(received)
+      // console.log(received)
       // keep in message log for session?
       this.messages.push(received)
       // parse and route to logic processing
@@ -63,6 +65,8 @@ export const useSocketStore = defineStore({
         this.libStore.processReply(received)
       } else if (received.type == 'publiclibrary') {
         this.libStore.processReply(received)
+      } else if (received.type == 'oracle') {
+        this.storeCues.processReply(received)
       } else if (received.type == 'upload') {
         this.aiStore.processReply(received)
       } else if (received.type == 'bbai-reply') {

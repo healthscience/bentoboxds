@@ -11,8 +11,7 @@
         </div>
       </div>
     </div>
-      Product: {{ props.bstag }}  {{ props.bsresearch }}
-      
+      {{ props.bstag }}  {{ props.bsproduct }}
   </div>
 </template>
 
@@ -30,7 +29,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
   
   const props = defineProps({
     bstag: String,
-    bsresearch: String
+    bsproduct: String
   })
 
   /* methods */
@@ -72,11 +71,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
     width: 100%;
     height: 3em;
     background-color:  rgb(141, 145, 226);
-  }
-
-  #paper-view {
-    width: 100%;
-    height: 100%;
   }
 
 }

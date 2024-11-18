@@ -37,6 +37,17 @@ import { libraryStore } from '@/stores/libraryStore.js'
     return storeBentobox.spaceList
   })
 
+  const peerWarmlist = computed(() => {
+    // warm peers filter to unique
+    let peerUnqiue = []
+    const uniquePeers = storeAccount.warmPeers.filter((value, index, self) =>
+      index === self.findIndex((t) => (
+          t.publickey === value.publickey
+      ))
+    )
+    return uniquePeers
+  })
+
   /* methods */
   const selectPeerShare = () => {
     storeAccount.sharePubkey = peerPshare.value 
