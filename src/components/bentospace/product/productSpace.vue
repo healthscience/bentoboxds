@@ -22,7 +22,7 @@
   >
     <!-- bentobox -->
     <div id="product-holder">
-      <div id="bp-toolbar" v-bind:class="{ active: bboxActive }">product bar br ba rbar</div>
+      <div id="bp-toolbar" v-bind:class="{ active: bboxActive }">product bar</div>
         <product-box :bstag="props.bstag" :bsproduct="props.bsmedia"></product-box>
     </div>
     <button id="bm-remove" @click="removePboxSpace">remove</button>
@@ -33,10 +33,12 @@
 import VueResizable from 'vue-resizable'
 import ProductBox from '@/components/bentospace/product/productViewer.vue'
 import { ref, computed } from 'vue'
+import { libraryStore } from '@/stores/libraryStore.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { mapminiStore } from '@/stores/mapStore.js'
 
+  const storeLibrary = libraryStore()
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
   const storeMmap = mapminiStore()
@@ -146,17 +148,28 @@ import { mapminiStore } from '@/stores/mapStore.js'
   }
 
   const removePboxSpace = () => {
+    console.log(props.bsmedia)
     // remove from spaceList and location
     let currentSpacePboxes = storeBentobox.productMedia[storeAI.liveBspace.spaceid]
+    console.log(currentSpacePboxes)
     let updateRblist = []
     for (let bm of currentSpacePboxes) {
-      if (bm.id !== props.bsmedia) {
+      if (bm.key !== props.bsmedia) {
         updateRblist.push(bm)
       }
     }
     storeBentobox.productMedia[storeAI.liveBspace.spaceid] = updateRblist
     // update miniMap of removal
     // storeMmap.actionDashBRemove(props.bboxid)
+    // delete from store
+    let delMessage = {}
+    delMessage.type = 'library'
+    delMessage.action = 'product'
+    delMessage.reftype = 'product'
+    delMessage.task = 'DEL'
+    delMessage.privacy = 'public'
+    delMessage.data = { id: props.bsmedia }
+    storeLibrary.sendMessage(delMessage)    
   }
 
   const expandModules = () => {

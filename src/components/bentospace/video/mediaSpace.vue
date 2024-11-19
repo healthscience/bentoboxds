@@ -33,10 +33,12 @@
 import VueResizable from 'vue-resizable'
 import MediaBox from '@/components/bentospace/video/videoPlayer.vue'
 import { ref, computed } from 'vue'
+import { libraryStore } from '@/stores/libraryStore.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { mapminiStore } from '@/stores/mapStore.js'
 
+  const storeLibrary = libraryStore()
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
   const storeMmap = mapminiStore()
@@ -68,6 +70,19 @@ import { mapminiStore } from '@/stores/mapStore.js'
   let timerPress = ref(0)
 
 
+  /* computed */
+  const spaceLocation = computed(() => {
+    if (storeBentobox.locationMbox[storeAI.liveBspace.spaceid][props.bsmedia] !== undefined) {
+      return storeBentobox.locationMbox[storeAI.liveBspace.spaceid][props.bsmedia]
+    } else {
+      return {}
+    }
+  })
+
+  const checkEmpty = computed((value) => {
+    return typeof value !== "number" ? 0 : value;
+  })
+
   /* methods */
   const updateBoxLocation = (location) => {
     /* drag drop move resize */
@@ -87,8 +102,6 @@ import { mapminiStore } from '@/stores/mapStore.js'
     updateBox.event = ''
     updateBox.dragSelector = dragSelector.value
     storeBentobox.locationMbox[storeAI.liveBspace.spaceid][props.bsmedia] = updateBox
-    console.log('media')
-    console.log(props.bsmedia)
     storeMmap.actionDashBmove(updateBox)
   }
 
@@ -147,24 +160,21 @@ import { mapminiStore } from '@/stores/mapStore.js'
     storeBentobox.videoMedia[storeAI.liveBspace.spaceid] = updateMblist
     // update miniMap of removal
     // storeMmap.actionDashBRemove(props.bboxid)
+    // delete from store
+    let delMessage = {}
+    delMessage.type = 'library'
+    delMessage.action = 'media'
+    delMessage.reftype = 'media'
+    delMessage.task = 'DEL'
+    delMessage.privacy = 'public'
+    delMessage.data = { id: props.bsmedia }
+    storeLibrary.sendMessage(delMessage)
   }
 
   const expandModules = () => {
     modulesShow.value = !modulesShow.value
   }
 
-  /* computed */
-  const spaceLocation = computed(() => {
-    if (storeBentobox.locationMbox[storeAI.liveBspace.spaceid][props.bsmedia] !== undefined) {
-      return storeBentobox.locationMbox[storeAI.liveBspace.spaceid][props.bsmedia]
-    } else {
-      return {}
-    }
-  })
-
-  const checkEmpty = computed((value) => {
-    return typeof value !== "number" ? 0 : value;
-  })
 
 </script>
 

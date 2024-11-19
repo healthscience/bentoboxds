@@ -115,15 +115,15 @@
               </div>
               <!-- research media -->
               <div id="bento-research-space" v-for="rmedia in storeBentobox.researchMedia[storeAI.liveBspace.spaceid]">
-                <research-space :bstag="rmedia.tag" :bsmedia="rmedia.id"></research-space>
+                <research-space :bstag="rmedia.tag" :bsmedia="rmedia.key"></research-space>
               </div>
                 <!-- marker -->
                 <div id="bento-research-space" v-for="mkmedia in storeBentobox.markerMedia[storeAI.liveBspace.spaceid]">
-                <marker-space :bstag="mkmedia.tag" :bsmedia="mkmedia.id"></marker-space>
+                <marker-space :bstag="mkmedia.tag" :bsmedia="mkmedia.key"></marker-space>
               </div>
               <!-- product -->
               <div id="bento-product-space" v-for="mkproduct in storeBentobox.productMedia[storeAI.liveBspace.spaceid]">
-                <product-space :bstag="mkproduct.tag" :bsmedia="mkproduct.id"></product-space>
+                <product-space :bstag="mkproduct.tag" :bsmedia="mkproduct.key"></product-space>
               </div>
             </div>
           </div>

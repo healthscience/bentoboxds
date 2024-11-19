@@ -33,10 +33,12 @@
 import VueResizable from 'vue-resizable'
 import ResearchBox from '@/components/bentospace/research/paperViewer.vue'
 import { ref, computed } from 'vue'
+import { libraryStore } from '@/stores/libraryStore.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { mapminiStore } from '@/stores/mapStore.js'
 
+  const storeLibrary = libraryStore()
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
   const storeMmap = mapminiStore()
@@ -100,8 +102,6 @@ import { mapminiStore } from '@/stores/mapStore.js'
     updateBox.event = ''
     updateBox.dragSelector = dragSelector.value
     storeBentobox.locationRbox[storeAI.liveBspace.spaceid][props.bsmedia] = updateBox
-    console.log('research')
-    console.log(props.bsmedia)
     storeMmap.actionDashBmove(updateBox)
   }
 
@@ -153,13 +153,22 @@ import { mapminiStore } from '@/stores/mapStore.js'
     let currentSpaceRboxes = storeBentobox.researchMedia[storeAI.liveBspace.spaceid]
     let updateRblist = []
     for (let bm of currentSpaceRboxes) {
-      if (bm.id !== props.bsmedia) {
+      if (bm.key !== props.bsmedia) {
         updateRblist.push(bm)
       }
     }
     storeBentobox.researchMedia[storeAI.liveBspace.spaceid] = updateRblist
     // update miniMap of removal
     // storeMmap.actionDashBRemove(props.bboxid)
+    // delete from store
+    let delMessage = {}
+    delMessage.type = 'library'
+    delMessage.action = 'research'
+    delMessage.reftype = 'research'
+    delMessage.task = 'DEL'
+    delMessage.privacy = 'public'
+    delMessage.data = { id: props.bsmedia }
+    storeLibrary.sendMessage(delMessage)
   }
 
   const expandModules = () => {

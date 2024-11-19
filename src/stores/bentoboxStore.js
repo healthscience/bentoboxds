@@ -274,38 +274,48 @@ export const bentoboxStore = defineStore('bentostore', {
         }
         this.storeCues.cuesList = prepareCues
       } else if (message.reftype.trim() === 'research-history') {
-        let researchboxKeys = Object.keys(message.data)
+        console.log('research history')
+        console.log(message)
         let resBoxList = []
-        let tempSpaceID = 'f6b145fd4b8f507622b597537b0e5e5459da2189'
-        this.locationRbox[tempSpaceID] = {}
+        let tempSpaceID = ''
         for (let rkey of message.data) {
-          resBoxList.push({ tag: 'research', id: rkey.value.concept[0] })
-          this.setLocationRbox(tempSpaceID, rkey.value.concept[0])
+          tempSpaceID = rkey.value.concept.spaceid
+          if (this.locationRbox[tempSpaceID] === undefined) {
+            this.locationRbox[tempSpaceID] = {}
+          }
+          resBoxList.push({ key: rkey.key, tag: 'research', id: rkey.value.concept })
+          this.setLocationRbox(tempSpaceID, rkey.key)
         }
         this.researchMedia[tempSpaceID] = resBoxList
+        this.storeCues.researchPapers = message.data
 
       } else if (message.reftype.trim() === 'marker-history') {
         let markerBoxList = []
-        let tempSpaceID = 'f6b145fd4b8f507622b597537b0e5e5459da2189'
-        this.locationMarkerbox[tempSpaceID] = {}
+        let tempSpaceID = ''
         for (let mkkey of message.data) {
-          markerBoxList.push({ tag: 'marker', id: mkkey.value.concept[0].marker })
-          this.setLocationMarkerbox(tempSpaceID, mkkey.value.concept[0].marker)
+          tempSpaceID = mkkey.value.concept.spaceid
+          if (this.locationMarkerbox[tempSpaceID] === undefined) {
+            this.locationMarkerbox[tempSpaceID] = {}
+          }
+          markerBoxList.push({ key: mkkey.key, tag: 'marker', id: mkkey.value.concept })
+          this.setLocationMarkerbox(tempSpaceID, mkkey.key)
         }
         this.markerMedia[tempSpaceID] = markerBoxList
-
+        this.storeCues.markerMatch = message.data
       } else if (message.reftype.trim() === 'product-history') {
+        let tempSpaceID = ''
         let productBoxList = []
-        let tempSpaceID = 'f6b145fd4b8f507622b597537b0e5e5459da2189'
-        this.locationProductbox[tempSpaceID] = {}
         for (let prokey of message.data) {
-          if(Array.isArray(prokey.value.concept)) {
-            console.log(prokey)
-            productBoxList.push({ tag: 'prodcut', id: prokey.value.concept[0].product })
-            this.setLocationProductbox(tempSpaceID, prokey.value.concept[0].product)
+          tempSpaceID = prokey.value.concept.spaceid
+          if (this.locationProductbox[tempSpaceID] === undefined) {
+            this.locationProductbox[tempSpaceID] = {}
           }
+          productBoxList.push({ key: prokey.key, tag: 'product', id: prokey.value.concept.product })
+          this.setLocationProductbox(tempSpaceID, prokey.key)
+  
         }
         this.productMedia[tempSpaceID] = productBoxList
+        this.storeCues.productMatch = message.data
       }
     },
     setLocationBbox (space, bbox) {
@@ -387,9 +397,11 @@ export const bentoboxStore = defineStore('bentostore', {
       }
     },
     setLocationMarkerbox (space, mbox) {
+      console.log(space)
+      console.log(mbox)
       // check not already set
       let mID = mbox
-      let spaceLive = this.locationMbox[space]
+      let spaceLive = this.locationMarkerbox[space]
       if (mbox in spaceLive) {
       } else {
         const tW = 840

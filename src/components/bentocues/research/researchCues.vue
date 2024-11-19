@@ -11,10 +11,10 @@
   </div>
   <div id="research-paper-list" v-if="researchPapers.length > 0">
     <div id="research-paper-select" v-for="pap in researchPapers" :value="pap.id">
-      <button class="research-paper-item" @click="viewResearch(pap)">
-        {{ pap }}
+      <button class="research-paper-item" @click="viewResearch(pap.research)">
+        {{ pap.value.concept.research }}
       </button>
-      <button class="research-paper-source" @click="viewSourcePaper(pap)">
+      <button class="research-paper-source" @click="viewSourcePaper(pap.research)">
         View source
       </button>
     </div>
@@ -23,10 +23,10 @@
 
 <script setup>
 import { ref, computed} from 'vue'
+import { libraryStore } from '@/stores/libraryStore.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { cuesStore } from '@/stores/cuesStore.js'
-import { libraryStore } from '@/stores/libraryStore.js'
 
   const storeLibrary = libraryStore()
   const storeAI = aiInterfaceStore()
@@ -43,7 +43,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
     })
 
     const researchPapers = computed(() => {
-      console.log(storeCues.researchPapers)
       return storeCues.researchPapers
     })
 
@@ -53,7 +52,8 @@ import { libraryStore } from '@/stores/libraryStore.js'
     // const spaceList.push(research info for this space only ie context)
     // assume youtube and extract id
     if (researchURLadd.value.length > 0) {
-      storeCues.researchPapers.push(researchURLadd.value)
+      let newResearch = { spaceid: storeAI.liveBspace.spaceid, research: researchURLadd.value }
+      storeCues.researchPapers.push({ key: 'rtemp', value: { concept: { spaceid: storeAI.liveBspace.spaceid, research: researchURLadd.value }}})
       // save to store
       const cueRContract = {}
       cueRContract.type = 'library'
@@ -61,7 +61,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
       cueRContract.reftype = 'research-cues'
       cueRContract.task = 'PUT'
       cueRContract.privacy = 'public'
-      cueRContract.data = storeCues.researchPapers
+      cueRContract.data = newResearch
       storeLibrary.sendMessage(cueRContract)
       researchURLadd.value = ''
     }
@@ -75,10 +75,10 @@ import { libraryStore } from '@/stores/libraryStore.js'
       }
       storeBentobox.setLocationRbox(storeAI.liveBspace.spaceid, paper)
       if (storeBentobox.researchMedia[storeAI.liveBspace.spaceid]) {
-        storeBentobox.researchMedia[storeAI.liveBspace.spaceid].push({ tag: 'paper', id: paper })
+        storeBentobox.researchMedia[storeAI.liveBspace.spaceid].push({  key: paper, tag: 'paper', id: paper })
       } else {
         storeBentobox.researchMedia[storeAI.liveBspace.spaceid] = []
-        storeBentobox.researchMedia[storeAI.liveBspace.spaceid].push({ tag: 'paper', id: paper })
+        storeBentobox.researchMedia[storeAI.liveBspace.spaceid].push({ key: paper, tag: 'paper', id: paper })
       }
     } else {
       console.log('empty URL')

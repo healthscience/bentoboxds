@@ -11,8 +11,10 @@
         </div>
       </div>
     </div>
-      URL brwoser please {{ props.bstag }}  {{ props.bsresearch }}
-      <iframe id="paper-view" ref="paperpub" :src="props.bsresearch"></iframe>
+    <div id="paper-viewer" v-if="researchContent !== undefined">
+      URL brwoser please {{ props.bstag }}  {{ props.bsresearch }} {{ researchContent.id.research }}
+      <iframe id="paper-view" ref="paperpub" :src="researchContent.id.research"></iframe>
+    </div>
   </div>
 </template>
 
@@ -35,14 +37,24 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   /* methods */
   const addCueDecision = () => {
-    console.log('decision doughnut please')
     spaceDecision.value = !spaceDecision.value
     // storeAI.decisionDoughnutCue = !storeAI.decisionDoughnutCue
   }
 
 
   /* computed */
-
+  const researchContent = computed(() => {
+    console.log(props.bsresearch)
+    console.log(storeBentobox.researchMedia[storeAI.liveBspace.spaceid])
+    let paperMatch = {}
+    for (let cpap of storeBentobox.researchMedia[storeAI.liveBspace.spaceid]) {
+      if (cpap.key === props.bsresearch) {
+        paperMatch = cpap
+      }
+    }
+    console.log(paperMatch)
+    return paperMatch
+  })
 
 </script>
 

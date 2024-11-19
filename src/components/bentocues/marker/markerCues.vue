@@ -13,7 +13,7 @@
   <div id="marker-paper-list">
     <div id="marker-paper-select" v-for="mark in markerMatch" :value="mark.id">
       <button class="marker-paper-item" @click="viewMarker(mark)">
-        {{ mark.marker }}
+        {{ mark.value.concept.marker }}
       </button>
       <button class="marker-paper-source" @click="viewSourceMarker(mark)">
         View source
@@ -36,8 +36,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   let markerURLadd = ref('')
   let markerTest = ref('')
-  let spacemarker = ref(false)
-
 
   /* computed */
   const markerMatch = computed(() => {
@@ -48,7 +46,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   const markerAdd = () => {
     // assume youtube and extract id
     if (markerURLadd.value.length > 0) {
-      storeCues.markerMatch.push({ marker: markerURLadd.value, lab: markerTest.value })
+      let newMarker = { spaceid: storeAI.liveBspace.spaceid, marker: markerURLadd.value, lab: markerTest.value }
+      storeCues.markerMatch.push({ key: 'tempmark', value: { concept: { spaceid: storeAI.liveBspace.spaceid, marker: markerURLadd.value, lab: markerTest.value }}})
       // save and add to space ledger
       const cueMContract = {}
       cueMContract.type = 'library'
@@ -56,7 +55,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
       cueMContract.reftype = 'marker-cues'
       cueMContract.task = 'PUT'
       cueMContract.privacy = 'public'
-      cueMContract.data = storeCues.markerMatch
+      cueMContract.data = newMarker
       storeLibrary.sendMessage(cueMContract)
       markerURLadd.value = ''
     }
@@ -71,10 +70,10 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
       }
       storeBentobox.setLocationMarkerbox(storeAI.liveBspace.spaceid, idMarker)
       if (storeBentobox.markerMedia[storeAI.liveBspace.spaceid]) {
-        storeBentobox.markerMedia[storeAI.liveBspace.spaceid].push({ tag: 'marker', id: idMarker })
+        storeBentobox.markerMedia[storeAI.liveBspace.spaceid].push({ key: idMarker, tag: 'marker', id: idMarker })
       } else {
         storeBentobox.markerMedia[storeAI.liveBspace.spaceid] = []
-        storeBentobox.markerMedia[storeAI.liveBspace.spaceid].push({ tag: 'marker', id: idMarker })
+        storeBentobox.markerMedia[storeAI.liveBspace.spaceid].push({ key: idMarker, tag: 'marker', id: idMarker })
       }
     } else {
       console.log('empty marker')

@@ -19,7 +19,7 @@
   <div id="product-paper-list">
     <div id="product-paper-select" v-for="product in productMatch" :value="product.prodid">
       <button class="product-paper-item" @click="viewproduct(product)">
-        {{ product.product }}
+        {{ product.value.concept.product }}
       </button>
       <button class="product-paper-source" @click="viewSourceproduct(product.ecomm)">
         View source
@@ -30,9 +30,9 @@
 
 <script setup>
 import { ref, computed} from 'vue'
+import { libraryStore } from '@/stores/libraryStore.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { cuesStore } from '@/stores/cuesStore.js'
-import { libraryStore } from '@/stores/libraryStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   const storeAI = aiInterfaceStore()
@@ -42,7 +42,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   let productURLadd = ref('')
   let productTest = ref('')
-  let spaceproduct = ref(false)
   let productCategory = ref('')
 
   /* computed */
@@ -63,7 +62,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   const productAdd = () => {
     // assume youtube and extract id
     if (productURLadd.value.length > 0) {
-      storeCues.productMatch.push({ product: productTest.value, ecomm: productURLadd.value })
+      let newProduct = { spaceid: storeAI.liveBspace.spaceid, pcategory: productCategory.value, product: productTest.value, ecomm: productURLadd.value }
+      storeCues.productMatch.push({ key: 'testpro', value: { concept: { spaceid: storeAI.liveBspace.spaceid, pcategory: productCategory.value, product: productTest.value, ecomm: productURLadd.value }}})
       // save and add to space ledger
       const cueMContract = {}
       cueMContract.type = 'library'
@@ -71,7 +71,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
       cueMContract.reftype = 'product-cues'
       cueMContract.task = 'PUT'
       cueMContract.privacy = 'public'
-      cueMContract.data = storeCues.productMatch
+      cueMContract.data = newProduct
       storeLibrary.sendMessage(cueMContract)
       productTest.value = ''
       productURLadd.value = ''
@@ -88,10 +88,10 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
       }
       storeBentobox.setLocationProductbox(storeAI.liveBspace.spaceid, productID)
       if (storeBentobox.productMedia[storeAI.liveBspace.spaceid]) {
-        storeBentobox.productMedia[storeAI.liveBspace.spaceid].push({ tag: 'product', id: productID })
+        storeBentobox.productMedia[storeAI.liveBspace.spaceid].push({ key: productID, tag: 'product', id: productID })
       } else {
         storeBentobox.productMedia[storeAI.liveBspace.spaceid] = []
-        storeBentobox.productMedia[storeAI.liveBspace.spaceid].push({ tag: 'product', id: productID })
+        storeBentobox.productMedia[storeAI.liveBspace.spaceid].push({ key: productID, tag: 'product', id: productID })
       }
     } else {
       console.log('empty product')

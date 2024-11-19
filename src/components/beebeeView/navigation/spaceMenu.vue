@@ -146,6 +146,7 @@ import { ref, computed, onMounted } from 'vue'
   }
 
   const bentoSpaceOpen = (spaceID) => {
+    console.log('open space')
     console.log(spaceID)
     storeAI.beebeeContext = 'chatspace'
     storeAI.bentospaceState = !storeAI.bentospaceState
@@ -188,6 +189,8 @@ import { ref, computed, onMounted } from 'vue'
     }
     storeBentobox.spaceList = spaceLiveList
     storeBentobox.locationBbox[spaceID] = {}
+    // check and update product boxes 
+    // storeBentobox.locationProductbox
   }
 
   const saveSpaceHistory = (space) => {

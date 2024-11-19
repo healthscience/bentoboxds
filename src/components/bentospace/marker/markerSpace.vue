@@ -33,10 +33,12 @@
 import VueResizable from 'vue-resizable'
 import MarkerBox from '@/components/bentospace/marker/markerViewer.vue'
 import { ref, computed } from 'vue'
+import { libraryStore } from '@/stores/libraryStore.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { mapminiStore } from '@/stores/mapStore.js'
 
+  const storeLibrary = libraryStore()
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
   const storeMmap = mapminiStore()
@@ -150,13 +152,22 @@ import { mapminiStore } from '@/stores/mapStore.js'
     let currentSpaceMboxes = storeBentobox.markerMedia[storeAI.liveBspace.spaceid]
     let updateMblist = []
     for (let bm of currentSpaceMboxes) {
-      if (bm.id !== props.bsmedia) {
+      if (bm.key !== props.bsmedia) {
         updateMblist.push(bm)
       }
     }
     storeBentobox.markerMedia[storeAI.liveBspace.spaceid] = updateMblist
     // update miniMap of removal
     // storeMmap.actionDashBRemove(props.bboxid)
+    // delete from store
+    let delMessage = {}
+    delMessage.type = 'library'
+    delMessage.action = 'marker'
+    delMessage.reftype = 'marker'
+    delMessage.task = 'DEL'
+    delMessage.privacy = 'public'
+    delMessage.data = { id: props.bsmedia }
+    storeLibrary.sendMessage(delMessage)    
   }
 
   const expandModules = () => {
