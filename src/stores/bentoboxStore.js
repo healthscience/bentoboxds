@@ -274,25 +274,38 @@ export const bentoboxStore = defineStore('bentostore', {
         }
         this.storeCues.cuesList = prepareCues
       } else if (message.reftype.trim() === 'research-history') {
-        console.log('research history')
-        console.log(message)
         let researchboxKeys = Object.keys(message.data)
         let resBoxList = []
         let tempSpaceID = 'f6b145fd4b8f507622b597537b0e5e5459da2189'
         this.locationRbox[tempSpaceID] = {}
         for (let rkey of message.data) {
           resBoxList.push({ tag: 'research', id: rkey.value.concept[0] })
-          // this.locationMbox[cm.value.space.spaceid].push({ tag: 'video', id: mbkey })
           this.setLocationRbox(tempSpaceID, rkey.value.concept[0])
         }
         this.researchMedia[tempSpaceID] = resBoxList
 
       } else if (message.reftype.trim() === 'marker-history') {
-        // console.log('marker history')
-        // console.log(message)
+        let markerBoxList = []
+        let tempSpaceID = 'f6b145fd4b8f507622b597537b0e5e5459da2189'
+        this.locationMarkerbox[tempSpaceID] = {}
+        for (let mkkey of message.data) {
+          markerBoxList.push({ tag: 'marker', id: mkkey.value.concept[0].marker })
+          this.setLocationMarkerbox(tempSpaceID, mkkey.value.concept[0].marker)
+        }
+        this.markerMedia[tempSpaceID] = markerBoxList
+
       } else if (message.reftype.trim() === 'product-history') {
-        // console.log('product history')
-        // console.log(message)
+        let productBoxList = []
+        let tempSpaceID = 'f6b145fd4b8f507622b597537b0e5e5459da2189'
+        this.locationProductbox[tempSpaceID] = {}
+        for (let prokey of message.data) {
+          if(Array.isArray(prokey.value.concept)) {
+            console.log(prokey)
+            productBoxList.push({ tag: 'prodcut', id: prokey.value.concept[0].product })
+            this.setLocationProductbox(tempSpaceID, prokey.value.concept[0].product)
+          }
+        }
+        this.productMedia[tempSpaceID] = productBoxList
       }
     },
     setLocationBbox (space, bbox) {
@@ -372,8 +385,6 @@ export const bentoboxStore = defineStore('bentostore', {
         this.locationRbox[space][rbox] = updateBox
         this.locationStart+= 40
       }
-      console.log('research box prep over')
-      console.log(this.locationRbox)
     },
     setLocationMarkerbox (space, mbox) {
       // check not already set

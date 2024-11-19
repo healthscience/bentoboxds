@@ -46,7 +46,6 @@ import { mapminiStore } from '@/stores/mapStore.js'
     bsmedia: String
   })
 
-  let bentoboxWidth = '30vw'
   let bboxActive = ref(false)
   let modulesShow = ref(false)
 
@@ -69,7 +68,6 @@ import { mapminiStore } from '@/stores/mapStore.js'
 
   /* computed */
   const spaceLocation = computed(() => {
-    console.log(storeBentobox.locationProductbox[storeAI.liveBspace.spaceid][props.bsmedia])
     if (storeBentobox.locationProductbox[storeAI.liveBspace.spaceid][props.bsmedia] !== undefined) {
       return storeBentobox.locationProductbox[storeAI.liveBspace.spaceid][props.bsmedia]
     } else {
