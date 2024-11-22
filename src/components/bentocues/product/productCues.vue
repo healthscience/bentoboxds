@@ -18,10 +18,10 @@
   </div>
   <div id="product-paper-list">
     <div id="product-paper-select" v-for="product in productMatch" :value="product.prodid">
-      <button class="product-paper-item" @click="viewproduct(product)">
+      <button class="product-paper-item" @click="viewproduct(product.value.concept.product)">
         {{ product.value.concept.product }}
       </button>
-      <button class="product-paper-source" @click="viewSourceproduct(product.ecomm)">
+      <button class="product-paper-source" @click="viewSourceproduct(product.value.concept.product)">
         View source
       </button>
     </div>
@@ -80,8 +80,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   const viewproduct = (product) => {
     console.log(product)
-    let productID = product.product
-    if (product.product.length > 0) {
+    let productID = product
+    if (product.length > 0) {
       // check if holder setup
       if (storeBentobox.locationProductbox[storeAI.liveBspace.spaceid] === undefined) {
         storeBentobox.locationProductbox[storeAI.liveBspace.spaceid] = {}

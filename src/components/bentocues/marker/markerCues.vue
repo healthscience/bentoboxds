@@ -12,10 +12,10 @@
   </div>
   <div id="marker-paper-list">
     <div id="marker-paper-select" v-for="mark in markerMatch" :value="mark.id">
-      <button class="marker-paper-item" @click="viewMarker(mark)">
+      <button class="marker-paper-item" @click="viewMarker(mark.value.concept.marker)">
         {{ mark.value.concept.marker }}
       </button>
-      <button class="marker-paper-source" @click="viewSourceMarker(mark)">
+      <button class="marker-paper-source" @click="viewSourceMarker(mark.value.concept.marker)">
         View source
       </button>
     </div>
@@ -62,8 +62,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   }
 
   const viewMarker = (marker) => {
-    let idMarker = marker.marker
-    if (marker.marker.length > 0) {
+    let idMarker = marker
+    if (idMarker.length > 0) {
       // check if holder setup
       if (storeBentobox.locationMarkerbox[storeAI.liveBspace.spaceid] === undefined) {
         storeBentobox.locationMarkerbox[storeAI.liveBspace.spaceid] = {}

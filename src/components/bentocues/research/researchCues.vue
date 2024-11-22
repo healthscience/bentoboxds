@@ -11,10 +11,10 @@
   </div>
   <div id="research-paper-list" v-if="researchPapers.length > 0">
     <div id="research-paper-select" v-for="pap in researchPapers" :value="pap.id">
-      <button class="research-paper-item" @click="viewResearch(pap.research)">
+      <button class="research-paper-item" @click="viewResearch(pap.value.concept.research)">
         {{ pap.value.concept.research }}
       </button>
-      <button class="research-paper-source" @click="viewSourcePaper(pap.research)">
+      <button class="research-paper-source" @click="viewSourcePaper(pap.value.concept.research)">
         View source
       </button>
     </div>
