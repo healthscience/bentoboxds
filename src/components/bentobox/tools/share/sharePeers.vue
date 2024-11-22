@@ -1,6 +1,6 @@
 <template>
   <div id="share-form">
-    <form id="ask-ai-form" @submit.prevent="storeAccount.shareProtocol(props.bboxid, 'privatechart')">
+    <form id="ask-ai-form" @submit.prevent="storeAccount.shareProtocol(props.bboxid,  props.bbcontext)">
       <label for="sharepeer"></label>
       <input type="input" id="sharekey" placeholder="publickey" v-model="storeAccount.sharePubkey" autofocus>
       <button id="share-send" type="submit">
@@ -31,6 +31,14 @@ import { libraryStore } from '@/stores/libraryStore.js'
   const storeLibrary = libraryStore()
 
   let peerPshare = ref('')
+
+  /* props */
+  const props = defineProps({
+    bboxid: String,
+    bbcontext: String
+  })
+
+  
 
   /*  computed */
   const spaceList = computed(() => {

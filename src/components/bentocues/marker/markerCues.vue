@@ -10,7 +10,7 @@
       + add marker
     </button>
   </div>
-  <div id="marker-paper-list">
+  <div id="marker-paper-list" v-if="markerMatch?.length > 0">
     <div id="marker-paper-select" v-for="mark in markerMatch" :value="mark.id">
       <button class="marker-paper-item" @click="viewMarker(mark.value.concept.marker)">
         {{ mark.value.concept.marker }}
@@ -39,7 +39,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   /* computed */
   const markerMatch = computed(() => {
-    return storeCues.markerMatch
+    return storeCues.markerMatch[storeAI.liveBspace.spaceid]
   })
 
   /* methods */
@@ -47,7 +47,11 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     // assume youtube and extract id
     if (markerURLadd.value.length > 0) {
       let newMarker = { spaceid: storeAI.liveBspace.spaceid, marker: markerURLadd.value, lab: markerTest.value }
-      storeCues.markerMatch.push({ key: 'tempmark', value: { concept: { spaceid: storeAI.liveBspace.spaceid, marker: markerURLadd.value, lab: markerTest.value }}})
+      // if first time setup object
+      if (storeCues.markerMatch[storeAI.liveBspace.spaceid] === undefined) {
+        storeCues.markerMatch[storeAI.liveBspace.spaceid] = []
+      }
+      storeCues.markerMatch[storeAI.liveBspace.spaceid].push({ key: 'tempmark', value: { concept: { spaceid: storeAI.liveBspace.spaceid, marker: markerURLadd.value, lab: markerTest.value }}})
       // save and add to space ledger
       const cueMContract = {}
       cueMContract.type = 'library'

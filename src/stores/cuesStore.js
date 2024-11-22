@@ -193,15 +193,15 @@ export const cuesStore = defineStore('cues', {
         }
       ]
     },
-    researchPapers: [],
-    markerMatch: [],
-    productMatch: [],
+    researchPapers: {},
+    markerMatch: {},
+    productMatch: {},
     oracleAttention: [] // [{ spaceid: 123221, name: 'cueOne', oracle: 'let me show you . . .'}, { spaceid: 223221, name: 'cueTwo', oracle: 'take a look at'}]
   }),
   actions: {
     processReply (received) {
-      console.log('oracle replies coming in, update bentobox')
-      console.log(received)
+      // console.log('oracle replies coming in, update bentobox')
+      // console.log(received)
     },
     setSpaceGlue () {
       this.selectCues = {

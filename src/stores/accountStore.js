@@ -3,6 +3,7 @@ import { useSocketStore } from '@/stores/socket.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 import PeersUtility from '@/stores/hopUtility/peersUtility.js'
+import SpaceUtility from '@/stores/hopUtility/spaceContentUtil.js'
 
 export const accountStore = defineStore('account', {
   state: () => ({
@@ -10,6 +11,7 @@ export const accountStore = defineStore('account', {
     storeAI: aiInterfaceStore(),
     storeLibrary: libraryStore(),
     utilPeers: new PeersUtility(),
+    utilSpacecontent: new SpaceUtility(),
     accountMenu: 'Sign-in',
     accountStatus: false,
     peerauth: false,
@@ -24,7 +26,6 @@ export const accountStore = defineStore('account', {
   actions: {
     processReply (received) {
       if (received.action === 'hop-verify') {
-        console.log('now ask for start library and bentobox info')
         // set token for subsequent HOP messages
         this.sendSocket.jwt = received.data.jwt
         // reply is verified
@@ -54,6 +55,9 @@ export const accountStore = defineStore('account', {
       }
     },
     shareProtocol (boxid, shareType) {
+      console.log('share pp topp')
+      console.log(boxid)
+      console.log(shareType)
       // set peer live
       if (shareType === 'privatechart') {
         let peerDetails = {}
@@ -87,6 +91,36 @@ export const accountStore = defineStore('account', {
         shareInfo.privacy = 'private'
         shareInfo.data = shareContext
         this.sendMessageHOP(shareInfo)
+      
+      } else if (shareType === 'cue-space') {
+        // gather space context and prepare share data
+        // need utilty for each putling together
+        let spaceContent = {}
+        spaceContent.n1 = this.utilSpacecontent.n1Match()
+        spaceContent.media = this.utilSpacecontent.mediaMatch()
+        spaceContent.research = this.utilSpacecontent.researchMatch()
+        spaceContent.markers = this.utilSpacecontent.markerMatch()
+        spaceContent.products = this.utilSpacecontent.productMatch()
+        let spaceDetails = {}
+        spaceDetails.name = 'peer'
+        spaceDetails.publickey = this.sharePubkey
+        spaceDetails.content = spaceContent
+        spaceDetails.spaceid = this.storeAI.liveBspace.spaceid
+        peer
+        this.warmPeers = this.utilPeers.checkPeerMatch(this.warmPeers, spaceDetails)
+        console.log('space data please')
+        let shareContext = {}
+        shareContext.publickey = spaceDetails.publickey
+        shareContext.data = spaceDetails
+        let shareInfo = {}
+        shareInfo.type = 'network'
+        shareInfo.action = 'share'
+        shareInfo.task = 'cue-space'
+        shareInfo.reftype = 'null'
+        shareInfo.privacy = 'private'
+        shareInfo.data = shareContext
+        console.log(shareInfo)
+        // this.sendMessageHOP(shareInfo)
       } else if (shareType === 'publicboard') {
         // the public library key to allow discover
         let publicLibrary = ''

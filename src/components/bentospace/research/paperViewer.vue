@@ -44,8 +44,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   /* computed */
   const researchContent = computed(() => {
-    console.log(props.bsresearch)
-    console.log(storeBentobox.researchMedia[storeAI.liveBspace.spaceid])
     let paperMatch = {}
     for (let cpap of storeBentobox.researchMedia[storeAI.liveBspace.spaceid]) {
       if (cpap.key === props.bsresearch) {

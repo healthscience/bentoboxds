@@ -40,7 +40,7 @@
                   </div>
                 </div>
                 <div v-else>
-                  beebee oracle has nothing to show.
+                  beebee oracle has nothing to show. View the holistic wheel  <img class="cues-holitic-wheel" src="../.././assets/cues-holistic-icon.png" alt="cues" @click=cuesHolistic()>
                 </div>
                 <!--<bento-box :bboxid="commentaryBox"></bento-box>-->
               </div>
@@ -110,6 +110,10 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   const setupLibrary = () => {
     // setup default time datatype contract, observation compute contract and chartjs visualise contract
     storeLibrary.defaultLibContracts()
+  }
+
+  const cuesHolistic = () => {
+    storeAI.bentoflakeState = !storeAI.bentoflakeState
   }
 
   const openLibrary = () => {

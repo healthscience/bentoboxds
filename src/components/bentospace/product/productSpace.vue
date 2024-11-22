@@ -148,10 +148,8 @@ import { mapminiStore } from '@/stores/mapStore.js'
   }
 
   const removePboxSpace = () => {
-    console.log(props.bsmedia)
     // remove from spaceList and location
     let currentSpacePboxes = storeBentobox.productMedia[storeAI.liveBspace.spaceid]
-    console.log(currentSpacePboxes)
     let updateRblist = []
     for (let bm of currentSpacePboxes) {
       if (bm.key !== props.bsmedia) {

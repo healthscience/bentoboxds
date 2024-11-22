@@ -13,7 +13,7 @@
           >
             Close
           </button>
-          <h3>BentoSpace # {{ storeAI.liveBspace.name }}</h3>
+          <h3>BentoSpace # {{ storeAI.liveBspace }}</h3>
           <div id="return-modal-close" @click="closeBentoSpace">return</div>
         </div>
       </template>
@@ -74,7 +74,7 @@
           <div id="research-tools">
             <button @click="addCueResearch()" v-bind:class="{ active: spaceResearch === true }">+ research</button>
             <div id="bento-cue-research" v-if="spaceResearch === true">
-                <research-cue></research-cue>
+                <research-cue :spaceid="storeAI.liveBspace.spaceid"></research-cue>
             </div>
           </div>
           <div id="marker-tools">
@@ -92,7 +92,7 @@
         </div>
         <div id="share-protocol" v-if="shareTools === true">
           share protocol
-          <share-peers></share-peers>
+          <share-peers :bbcontext="'cue-space'"></share-peers>
         </div>
         <div id="bentospace-holder" v-dragscroll.noleft.noright="true" @click="whereMinmap($event)">
           <div id="bento-space" v-bind:style="{ transform: 'scale(' + zoomscaleValue + ')' }">

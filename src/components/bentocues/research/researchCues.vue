@@ -9,7 +9,7 @@
       + add paper
     </button>
   </div>
-  <div id="research-paper-list" v-if="researchPapers.length > 0">
+  <div id="research-paper-list" v-if="researchPapers?.length > 0">
     <div id="research-paper-select" v-for="pap in researchPapers" :value="pap.id">
       <button class="research-paper-item" @click="viewResearch(pap.value.concept.research)">
         {{ pap.value.concept.research }}
@@ -36,15 +36,19 @@ import { cuesStore } from '@/stores/cuesStore.js'
   let researchURLadd = ref('')
   let spaceResearch = ref(false)
 
+  /* props */
+  const props = defineProps({
+    spaceid: String
+  })
 
-    /* computed */
-    const researchMedia = computed(() => {
-      return storeBentobox.researchMedia
-    })
+  /* computed */
+  const researchMedia = computed(() => {
+    return storeBentobox.researchMedia[props.spaceid]
+  })
 
-    const researchPapers = computed(() => {
-      return storeCues.researchPapers
-    })
+  const researchPapers = computed(() => {
+    return storeCues.researchPapers[props.spaceid]
+  })
 
   /* methods */
   const researchAdd = () => {
@@ -53,7 +57,11 @@ import { cuesStore } from '@/stores/cuesStore.js'
     // assume youtube and extract id
     if (researchURLadd.value.length > 0) {
       let newResearch = { spaceid: storeAI.liveBspace.spaceid, research: researchURLadd.value }
-      storeCues.researchPapers.push({ key: 'rtemp', value: { concept: { spaceid: storeAI.liveBspace.spaceid, research: researchURLadd.value }}})
+      // if first time setup object
+      if (storeCues.researchPapers[storeAI.liveBspace.spaceid] === undefined) {
+        storeCues.researchPapers[storeAI.liveBspace.spaceid] = []
+      }
+      storeCues.researchPapers[storeAI.liveBspace.spaceid].push({ key: 'rtemp', value: { concept: { spaceid: storeAI.liveBspace.spaceid, research: researchURLadd.value }}})
       // save to store
       const cueRContract = {}
       cueRContract.type = 'library'

@@ -16,7 +16,7 @@
       + add product
     </button>
   </div>
-  <div id="product-paper-list">
+  <div id="product-paper-list" v-if="productMatch?.length > 0">
     <div id="product-paper-select" v-for="product in productMatch" :value="product.prodid">
       <button class="product-paper-item" @click="viewproduct(product.value.concept.product)">
         {{ product.value.concept.product }}
@@ -51,7 +51,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   })
 
   const productMatch = computed(() => {
-    return storeCues.productMatch
+    return storeCues.productMatch[storeAI.liveBspace.spaceid]
   })
 
   /* methods */
@@ -63,7 +63,11 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     // assume youtube and extract id
     if (productURLadd.value.length > 0) {
       let newProduct = { spaceid: storeAI.liveBspace.spaceid, pcategory: productCategory.value, product: productTest.value, ecomm: productURLadd.value }
-      storeCues.productMatch.push({ key: 'testpro', value: { concept: { spaceid: storeAI.liveBspace.spaceid, pcategory: productCategory.value, product: productTest.value, ecomm: productURLadd.value }}})
+      // if first time setup object
+      if (storeCues.productMatch[storeAI.liveBspace.spaceid] === undefined) {
+        storeCues.productMatch[storeAI.liveBspace.spaceid] = []
+      }
+      storeCues.productMatch[storeAI.liveBspace.spaceid].push({ key: 'testpro', value: { concept: { spaceid: storeAI.liveBspace.spaceid, pcategory: productCategory.value, product: productTest.value, ecomm: productURLadd.value }}})
       // save and add to space ledger
       const cueMContract = {}
       cueMContract.type = 'library'

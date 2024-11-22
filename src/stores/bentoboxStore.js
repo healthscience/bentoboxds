@@ -94,8 +94,6 @@ export const bentoboxStore = defineStore('bentostore', {
       if (message.reftype.trim() === 'chat-history') {
         if (message.action.trim() === 'start') {
           // set the saved chats for peer
-          console.log('start data fro spaces store')
-          console.log(message.data)
           let chatMenu = []
           for (let cm of message.data) {
             if(cm?.value?.chat) {
@@ -149,8 +147,6 @@ export const bentoboxStore = defineStore('bentostore', {
                 }
               } else {
                 // BENTOSPACES setup on start
-                console.log('bento space info start')
-                console.log(cm.value)
                 // add to menu list  no duplicate and TODO set one as active
                 if (this.spaceList[0].spaceid !== cm.value.space.spaceid) {
                   this.spaceList.push(cm.value.space)
@@ -274,20 +270,20 @@ export const bentoboxStore = defineStore('bentostore', {
         }
         this.storeCues.cuesList = prepareCues
       } else if (message.reftype.trim() === 'research-history') {
-        console.log('research history')
-        console.log(message)
         let resBoxList = []
         let tempSpaceID = ''
         for (let rkey of message.data) {
           tempSpaceID = rkey.value.concept.spaceid
           if (this.locationRbox[tempSpaceID] === undefined) {
             this.locationRbox[tempSpaceID] = {}
+            this.researchMedia[tempSpaceID] = []
+            this.storeCues.researchPapers[tempSpaceID] = []
           }
           resBoxList.push({ key: rkey.key, tag: 'research', id: rkey.value.concept })
           this.setLocationRbox(tempSpaceID, rkey.key)
+          this.researchMedia[tempSpaceID].push({ key: rkey.key, tag: 'research', id: rkey.value.concept })
+          this.storeCues.researchPapers[tempSpaceID].push(rkey)
         }
-        this.researchMedia[tempSpaceID] = resBoxList
-        this.storeCues.researchPapers = message.data
 
       } else if (message.reftype.trim() === 'marker-history') {
         let markerBoxList = []
@@ -296,12 +292,16 @@ export const bentoboxStore = defineStore('bentostore', {
           tempSpaceID = mkkey.value.concept.spaceid
           if (this.locationMarkerbox[tempSpaceID] === undefined) {
             this.locationMarkerbox[tempSpaceID] = {}
+            this.markerMedia[tempSpaceID] = []
+            this.storeCues.markerMatch[tempSpaceID] = []
           }
           markerBoxList.push({ key: mkkey.key, tag: 'marker', id: mkkey.value.concept })
           this.setLocationMarkerbox(tempSpaceID, mkkey.key)
+          this.markerMedia[tempSpaceID].push({ key: mkkey.key, tag: 'marker', id: mkkey.value.concept })
+          this.storeCues.markerMatch[tempSpaceID].push(mkkey)
         }
-        this.markerMedia[tempSpaceID] = markerBoxList
-        this.storeCues.markerMatch = message.data
+
+
       } else if (message.reftype.trim() === 'product-history') {
         let tempSpaceID = ''
         let productBoxList = []
@@ -309,13 +309,14 @@ export const bentoboxStore = defineStore('bentostore', {
           tempSpaceID = prokey.value.concept.spaceid
           if (this.locationProductbox[tempSpaceID] === undefined) {
             this.locationProductbox[tempSpaceID] = {}
+            this.productMedia[tempSpaceID] = []
+            this.storeCues.productMatch[tempSpaceID] = []
           }
           productBoxList.push({ key: prokey.key, tag: 'product', id: prokey.value.concept.product })
           this.setLocationProductbox(tempSpaceID, prokey.key)
-  
+          this.productMedia[tempSpaceID].push({ key: prokey.key, tag: 'product', id: prokey.value.concept.product })
+          this.storeCues.productMatch[tempSpaceID].push(prokey)
         }
-        this.productMedia[tempSpaceID] = productBoxList
-        this.storeCues.productMatch = message.data
       }
     },
     setLocationBbox (space, bbox) {
@@ -397,8 +398,6 @@ export const bentoboxStore = defineStore('bentostore', {
       }
     },
     setLocationMarkerbox (space, mbox) {
-      console.log(space)
-      console.log(mbox)
       // check not already set
       let mID = mbox
       let spaceLive = this.locationMarkerbox[space]
