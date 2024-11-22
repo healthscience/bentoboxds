@@ -34,10 +34,13 @@
                 <div id="text-summary">
                   Commentary:  beebee commentary coming soon
                 </div>
-                <div id="oracle-attention">
+                <div id="oracle-attention" v-if="oracleAttention.length > 0">
                   <div class="oracle-item" v-for="ori of oracleAttention">
                     {{ ori.name }} -- {{ ori.oracle }}
                   </div>
+                </div>
+                <div v-else>
+                  beebee oracle has nothing to show.
                 </div>
                 <!--<bento-box :bboxid="commentaryBox"></bento-box>-->
               </div>
@@ -73,10 +76,12 @@
 <script setup>
 import { ref, computed } from 'vue'
 import BentoBox from '@/components/bentobox/baseBox.vue'
+import { cuesStore } from '@/stores/cuesStore.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
+  const storeCues = cuesStore()
   const storeLibrary = libraryStore()
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
@@ -98,8 +103,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   })
 
   const oracleAttention  = computed(() => {
-    let oracleTest = [{ spaceid: 123221, name: 'cueOne', oracle: 'let me show you . . .'}, { spaceid: 223221, name: 'cueTwo', oracle: 'take a look at'}]
-    return oracleTest
+    return storeCues.oracleAttention
   })
 
   /* methods */

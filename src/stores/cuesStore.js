@@ -196,7 +196,7 @@ export const cuesStore = defineStore('cues', {
     researchPapers: [],
     markerMatch: [],
     productMatch: [],
-    oracleAttention: []
+    oracleAttention: [] // [{ spaceid: 123221, name: 'cueOne', oracle: 'let me show you . . .'}, { spaceid: 223221, name: 'cueTwo', oracle: 'take a look at'}]
   }),
   actions: {
     processReply (received) {
