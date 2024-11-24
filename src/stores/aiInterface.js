@@ -351,6 +351,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     processNotification (received) {
+      console.log('process Notification')
+      console.log(received)
       this.countNotifications++
       this.notifList.push(received)
       // add to chart part list (do now or on requrest?)
@@ -384,7 +386,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         this.liveBspace = notCuespace // get from notificationspaceID
         // make button green
         let spaceLiveList = []
-        for (let spi of this.storeBentobox.spaceList) {
+        for (let spi of this.storeBentoBox.spaceList) {
           if (spi.spaceid === spaceID.spaceid) {
             spi.active = true
             spaceLiveList.push(spi)
@@ -393,8 +395,31 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
             spaceLiveList.push(spi)
           }
         }
-        this.storeBentobox.spaceList = spaceLiveList
+        this.storeBentoBox.spaceList = spaceLiveList
         // now setup N=1 media, research, markers, products
+        let contentTypes = Object.keys(received.data.content)
+        for (let spcont of contentTypes) {
+          // research
+          if (spcont === 'research') {
+            console.log('research coonetntet share psoe')
+            console.log(spcont)
+            console.log(received.data.content[spcont])
+            /* let resBoxList = []
+            let tempSpaceID = ''
+            for (let rkey of message.data) {
+              tempSpaceID = rkey.value.concept.spaceid
+              if (this.locationRbox[tempSpaceID] === undefined) {
+                this.locationRbox[tempSpaceID] = {}
+                this.researchMedia[tempSpaceID] = []
+                this.storeCues.researchPapers[tempSpaceID] = []
+              }
+              resBoxList.push({ key: rkey.key, tag: 'research', id: rkey.value.concept })
+              this.setLocationRbox(tempSpaceID, rkey.key)
+              this.researchMedia[tempSpaceID].push({ key: rkey.key, tag: 'research', id: rkey.value.concept })
+              this.storeCues.researchPapers[tempSpaceID].push(rkey) 
+            } */
+          }
+        }
       }
     },
     preparePublicConfirm (item) {

@@ -284,7 +284,6 @@ export const bentoboxStore = defineStore('bentostore', {
           this.researchMedia[tempSpaceID].push({ key: rkey.key, tag: 'research', id: rkey.value.concept })
           this.storeCues.researchPapers[tempSpaceID].push(rkey)
         }
-
       } else if (message.reftype.trim() === 'marker-history') {
         let markerBoxList = []
         let tempSpaceID = ''

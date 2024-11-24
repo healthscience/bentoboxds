@@ -57,9 +57,6 @@ export const accountStore = defineStore('account', {
       }
     },
     shareProtocol (boxid, shareType) {
-      console.log('share pp topp')
-      console.log(boxid)
-      console.log(shareType)
       // set peer live
       if (shareType === 'privatechart') {
         let peerDetails = {}
@@ -93,7 +90,6 @@ export const accountStore = defineStore('account', {
         shareInfo.privacy = 'private'
         shareInfo.data = shareContext
         this.sendMessageHOP(shareInfo)
-      
       } else if (shareType === 'cue-space') {
         // gather space context and prepare share data
         // need utilty for each putling together
@@ -109,7 +105,6 @@ export const accountStore = defineStore('account', {
         spaceDetails.content = spaceContent
         spaceDetails.spaceid = this.storeAI.liveBspace.spaceid
         this.warmPeers = this.utilPeers.checkPeerMatch(this.warmPeers, spaceDetails)
-        console.log('space data please')
         let shareContext = {}
         shareContext.publickey = spaceDetails.publickey
         shareContext.data = spaceDetails
