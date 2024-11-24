@@ -24,8 +24,8 @@ class SpaceContentutil {
   *
   *
   */
-  n1ConentMatch = function (inputHOP, summary) {
-    let n1Content = {}
+  n1Match = function (content) {
+    let n1Content = content
     return n1Content
   }
 
@@ -35,8 +35,8 @@ class SpaceContentutil {
   *
   *
   */
-  mediaMatch = function (inputHOP, summary) {
-    let mediaContent = {}
+  mediaMatch = function (content) {
+    let mediaContent = content
     return mediaContent
   }
 
@@ -46,8 +46,8 @@ class SpaceContentutil {
   *
   *
   */
-  researchMatch = function (inputHOP, summary) {
-    let researchContent = {}
+  researchMatch = function (content) {
+    let researchContent = content
     return researchContent
   }
 
@@ -57,8 +57,8 @@ class SpaceContentutil {
   *
   *
   */
-  markerMatch = function (inputHOP, summary) {
-    let markerContent = {}
+  markerMatch = function (content) {
+    let markerContent = content
     return markerContent
   }
 
@@ -68,8 +68,8 @@ class SpaceContentutil {
   *
   *
   */
-  productMatch = function (inputHOP, summary) {
-    let productContent = {}
+  productMatch = function (content) {
+    let productContent = content
     return productContent
   }
 

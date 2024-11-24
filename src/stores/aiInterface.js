@@ -373,6 +373,28 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         this.storeAcc.warmPeers.push(received.data)
       } else if (received.action === 'network-publib-board') {
         // create a notification accept public board and save?
+      } else if (received.action === 'cue-space') {
+        // populate space  check if cue needing setup then fill and notify
+        console.log('notification cue space from netwokr')
+        console.log(received)
+        // console.log(spaceID)
+        let notCuespace = ''
+        this.beebeeContext = 'chatspace'
+        this.bentospaceState = !this.bentospaceState
+        this.liveBspace = notCuespace // get from notificationspaceID
+        // make button green
+        let spaceLiveList = []
+        for (let spi of this.storeBentobox.spaceList) {
+          if (spi.spaceid === spaceID.spaceid) {
+            spi.active = true
+            spaceLiveList.push(spi)
+          } else {
+            spi.active = false
+            spaceLiveList.push(spi)
+          }
+        }
+        this.storeBentobox.spaceList = spaceLiveList
+        // now setup N=1 media, research, markers, products
       }
     },
     preparePublicConfirm (item) {

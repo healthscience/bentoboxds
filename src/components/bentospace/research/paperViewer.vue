@@ -50,7 +50,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
         paperMatch = cpap
       }
     }
-    console.log(paperMatch)
     return paperMatch
   })
 

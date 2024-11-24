@@ -300,8 +300,6 @@ export const bentoboxStore = defineStore('bentostore', {
           this.markerMedia[tempSpaceID].push({ key: mkkey.key, tag: 'marker', id: mkkey.value.concept })
           this.storeCues.markerMatch[tempSpaceID].push(mkkey)
         }
-
-
       } else if (message.reftype.trim() === 'product-history') {
         let tempSpaceID = ''
         let productBoxList = []

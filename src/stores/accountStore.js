@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { useSocketStore } from '@/stores/socket.js'
+import { cuesStore } from "@/stores/cuesStore.js"
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 import PeersUtility from '@/stores/hopUtility/peersUtility.js'
@@ -8,6 +9,7 @@ import SpaceUtility from '@/stores/hopUtility/spaceContentUtil.js'
 export const accountStore = defineStore('account', {
   state: () => ({
     sendSocket: useSocketStore(),
+    storeCues: cuesStore(),
     storeAI: aiInterfaceStore(),
     storeLibrary: libraryStore(),
     utilPeers: new PeersUtility(),
@@ -98,15 +100,14 @@ export const accountStore = defineStore('account', {
         let spaceContent = {}
         spaceContent.n1 = this.utilSpacecontent.n1Match()
         spaceContent.media = this.utilSpacecontent.mediaMatch()
-        spaceContent.research = this.utilSpacecontent.researchMatch()
-        spaceContent.markers = this.utilSpacecontent.markerMatch()
-        spaceContent.products = this.utilSpacecontent.productMatch()
+        spaceContent.research = this.utilSpacecontent.researchMatch(this.storeCues.researchPapers[this.storeAI.liveBspace.spaceid])
+        spaceContent.markers = this.utilSpacecontent.markerMatch(this.storeCues.markerMatch[this.storeAI.liveBspace.spaceid])
+        spaceContent.products = this.utilSpacecontent.productMatch(this.storeCues.productMatch[this.storeAI.liveBspace.spaceid])
         let spaceDetails = {}
-        spaceDetails.name = 'peer'
+        spaceDetails.name = 'cue-space'
         spaceDetails.publickey = this.sharePubkey
         spaceDetails.content = spaceContent
         spaceDetails.spaceid = this.storeAI.liveBspace.spaceid
-        peer
         this.warmPeers = this.utilPeers.checkPeerMatch(this.warmPeers, spaceDetails)
         console.log('space data please')
         let shareContext = {}
@@ -120,7 +121,7 @@ export const accountStore = defineStore('account', {
         shareInfo.privacy = 'private'
         shareInfo.data = shareContext
         console.log(shareInfo)
-        // this.sendMessageHOP(shareInfo)
+        this.sendMessageHOP(shareInfo)
       } else if (shareType === 'publicboard') {
         // the public library key to allow discover
         let publicLibrary = ''
