@@ -2,7 +2,7 @@
   <div id="list-space">
     <div id="network-keys">
       <div class="type-peer">Public key (network share):</div>
-      <div class="type-peer-key">{{ storeAccount.networkInfo.publickey }} <button @click="copyKey(peer.publickey)">copy</button></div> 
+      <div class="type-peer-key">{{ storeAccount.networkInfo.publickey }} <button @click="copyKey(storeAccount.networkInfo.publickey)">copy</button></div> 
     </div>
     <button type="button" class="btn" @click.prevent="addWarmpeer()">Add new</button>
     <div v-if="addWarm === true" id="add-warm-peer">

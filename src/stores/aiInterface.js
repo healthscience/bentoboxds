@@ -8,11 +8,13 @@ import DataPraser from '@/stores/hopUtility/dataParse.js'
 import ChatUtilty from '@/stores/hopUtility/chatUtility.js'
 import ChatspaceUtilty from '@/stores/hopUtility/chatspaceUtility.js'
 import { accountStore } from "@/stores/accountStore.js"
+import { cuesStore } from "@/stores/cuesStore.js"
 
 export const aiInterfaceStore = defineStore('beebeeAIstore', {
   state: () => ({
     storeAcc: accountStore(),
     sendSocket: useSocketStore(),
+    storeCues: cuesStore(),
     storeBentoBox: bentoboxStore(),
     storeLibrary: libraryStore(),
     liveDataParse: new DataPraser(),
