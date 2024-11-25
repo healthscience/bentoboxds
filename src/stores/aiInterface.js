@@ -402,6 +402,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     prepareCuespace (notItem) {
       console.log('show cue space notification')
       console.log(notItem)
+      let cueContract = notItem.data.data.content.cuecontract
       let notCuespace = ''
       this.beebeeContext = 'chatspace'
       this.bentospaceState = !this.bentospaceState
@@ -409,7 +410,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       // make button green
       let spaceLiveList = []
       for (let spi of this.storeBentoBox.spaceList) {
-        if (spi.spaceid === spaceID.spaceid) {
+        if (spi.spaceid === cueContract.spaceid) {
           spi.active = true
           spaceLiveList.push(spi)
         } else {
@@ -419,13 +420,14 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
       this.storeBentoBox.spaceList = spaceLiveList
       // now setup N=1 media, research, markers, products
-      let contentTypes = Object.keys(received.data.content)
+      let contentTypes = Object.keys(notItem.data.content)
+      console.log(contentTypes)
       for (let spcont of contentTypes) {
         // research
         if (spcont === 'research') {
           console.log('research coonetntet share psoe')
           console.log(spcont)
-          console.log(received.data.content[spcont])
+          console.log(notItems.data.content[spcont])
           /* let resBoxList = []
           let tempSpaceID = ''
           for (let rkey of message.data) {
