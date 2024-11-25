@@ -369,8 +369,11 @@ export const bentoboxStore = defineStore('bentostore', {
       }
     },
     setLocationRbox (space, rbox) {
+      console.log('set location')
+      console.log(space)
+      console.log(rbox)
       // check not already set
-      let spaceLive = this.locationMbox[space]
+      let spaceLive = this.locationRbox[space]
       if (rbox in spaceLive) {
       } else {
         const tW = 840
