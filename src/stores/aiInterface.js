@@ -420,14 +420,14 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
       this.storeBentoBox.spaceList = spaceLiveList
       // now setup N=1 media, research, markers, products
-      let contentTypes = Object.keys(notItem.data.content)
+      let contentTypes = Object.keys(notItem.data.data.content)
       console.log(contentTypes)
       for (let spcont of contentTypes) {
         // research
         if (spcont === 'research') {
           console.log('research coonetntet share psoe')
           console.log(spcont)
-          console.log(notItems.data.content[spcont])
+          console.log(notItem.data.data.content[spcont])
           /* let resBoxList = []
           let tempSpaceID = ''
           for (let rkey of message.data) {
