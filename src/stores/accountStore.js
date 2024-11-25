@@ -94,6 +94,8 @@ export const accountStore = defineStore('account', {
         // gather space context and prepare share data
         // need utilty for each putling together
         let spaceContent = {}
+        // get the cue contract spaceid NOTE
+        spaceContent.cuecontract = this.storeAI.liveBspace
         spaceContent.n1 = this.utilSpacecontent.n1Match()
         spaceContent.media = this.utilSpacecontent.mediaMatch()
         spaceContent.research = this.utilSpacecontent.researchMatch(this.storeCues.researchPapers[this.storeAI.liveBspace.spaceid])

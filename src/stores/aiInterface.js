@@ -379,47 +379,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         // populate space  check if cue needing setup then fill and notify
         console.log('notification cue space from netwokr')
         console.log(received)
-        // console.log(spaceID)
-        let notCuespace = ''
-        this.beebeeContext = 'chatspace'
-        this.bentospaceState = !this.bentospaceState
-        this.liveBspace = notCuespace // get from notificationspaceID
-        // make button green
-        let spaceLiveList = []
-        for (let spi of this.storeBentoBox.spaceList) {
-          if (spi.spaceid === spaceID.spaceid) {
-            spi.active = true
-            spaceLiveList.push(spi)
-          } else {
-            spi.active = false
-            spaceLiveList.push(spi)
-          }
-        }
-        this.storeBentoBox.spaceList = spaceLiveList
-        // now setup N=1 media, research, markers, products
-        let contentTypes = Object.keys(received.data.content)
-        for (let spcont of contentTypes) {
-          // research
-          if (spcont === 'research') {
-            console.log('research coonetntet share psoe')
-            console.log(spcont)
-            console.log(received.data.content[spcont])
-            /* let resBoxList = []
-            let tempSpaceID = ''
-            for (let rkey of message.data) {
-              tempSpaceID = rkey.value.concept.spaceid
-              if (this.locationRbox[tempSpaceID] === undefined) {
-                this.locationRbox[tempSpaceID] = {}
-                this.researchMedia[tempSpaceID] = []
-                this.storeCues.researchPapers[tempSpaceID] = []
-              }
-              resBoxList.push({ key: rkey.key, tag: 'research', id: rkey.value.concept })
-              this.setLocationRbox(tempSpaceID, rkey.key)
-              this.researchMedia[tempSpaceID].push({ key: rkey.key, tag: 'research', id: rkey.value.concept })
-              this.storeCues.researchPapers[tempSpaceID].push(rkey) 
-            } */
-          }
-        }
       }
     },
     preparePublicConfirm (item) {
@@ -439,6 +398,50 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.historyPair[this.chatAttention].push(pairBB)
       this.beginChat = true
       this.chatBottom++
+    },
+    prepareCuespace (notItem) {
+      console.log('show cue space notification')
+      console.log(notItem)
+      let notCuespace = ''
+      this.beebeeContext = 'chatspace'
+      this.bentospaceState = !this.bentospaceState
+      this.liveBspace = notCuespace // get from notificationspaceID
+      // make button green
+      let spaceLiveList = []
+      for (let spi of this.storeBentoBox.spaceList) {
+        if (spi.spaceid === spaceID.spaceid) {
+          spi.active = true
+          spaceLiveList.push(spi)
+        } else {
+          spi.active = false
+          spaceLiveList.push(spi)
+        }
+      }
+      this.storeBentoBox.spaceList = spaceLiveList
+      // now setup N=1 media, research, markers, products
+      let contentTypes = Object.keys(received.data.content)
+      for (let spcont of contentTypes) {
+        // research
+        if (spcont === 'research') {
+          console.log('research coonetntet share psoe')
+          console.log(spcont)
+          console.log(received.data.content[spcont])
+          /* let resBoxList = []
+          let tempSpaceID = ''
+          for (let rkey of message.data) {
+            tempSpaceID = rkey.value.concept.spaceid
+            if (this.locationRbox[tempSpaceID] === undefined) {
+              this.locationRbox[tempSpaceID] = {}
+              this.researchMedia[tempSpaceID] = []
+              this.storeCues.researchPapers[tempSpaceID] = []
+            }
+            resBoxList.push({ key: rkey.key, tag: 'research', id: rkey.value.concept })
+            this.setLocationRbox(tempSpaceID, rkey.key)
+            this.researchMedia[tempSpaceID].push({ key: rkey.key, tag: 'research', id: rkey.value.concept })
+            this.storeCues.researchPapers[tempSpaceID].push(rkey) 
+          } */
+        }
+      }
     },
     processPeerData (dataNetwork) {
       let matchBBID = dataNetwork.hop.bbid
