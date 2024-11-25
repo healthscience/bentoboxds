@@ -406,7 +406,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       let notCuespace = ''
       this.beebeeContext = 'chatspace'
       this.bentospaceState = !this.bentospaceState
-      this.liveBspace = notCuespace // get from notificationspaceID
+      this.liveBspace = cueContract // get from notificationspaceID
       // make button green
       let spaceLiveList = []
       for (let spi of this.storeBentoBox.spaceList) {
