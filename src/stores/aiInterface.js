@@ -432,14 +432,14 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           let tempSpaceID = ''
           for (let rkey of notItem.data.data.content[spcont]) {
             tempSpaceID = rkey.value.concept.spaceid
-            if (this.locationRbox[tempSpaceID] === undefined) {
-              this.locationRbox[tempSpaceID] = {}
-              this.researchMedia[tempSpaceID] = []
+            if (this.storeBentoBox.locationRbox[tempSpaceID] === undefined) {
+              this.storeBentoBox.locationRbox[tempSpaceID] = {}
+              this.storeBentoBox.researchMedia[tempSpaceID] = []
               this.storeCues.researchPapers[tempSpaceID] = []
             }
             resBoxList.push({ key: rkey.key, tag: 'research', id: rkey.value.concept })
-            this.setLocationRbox(tempSpaceID, rkey.key)
-            this.researchMedia[tempSpaceID].push({ key: rkey.key, tag: 'research', id: rkey.value.concept })
+            this.storeBentoBox.setLocationRbox(tempSpaceID, rkey.key)
+            this.storeBentoBox.researchMedia[tempSpaceID].push({ key: rkey.key, tag: 'research', id: rkey.value.concept })
             this.storeCues.researchPapers[tempSpaceID].push(rkey) 
           }
         }
