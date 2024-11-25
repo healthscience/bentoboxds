@@ -12,7 +12,7 @@
     </div>
     <div class="peer-list-set" v-for='peer in storeAccount.warmPeers' :key='peer.id'>
       <div class="peer-g">
-        Peer {{ peer.datastore }} --- {{ peer.name }} --- {{ peer.publickey }}
+        Peer {{ peer.datastore }} --- {{ peer.name }} --- {{ peer.publickey }} <button @click="copyKey(peer.publickey)">copy</button>
       </div>
     </div>
     <social-graph></social-graph>
@@ -43,6 +43,10 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
     storeAccount.warmPeers.push(peerPair)
   }
 
+  const copyKey = (key) => {
+    navigator.clipboard.writeText(key)
+  }
+
 </script>
 
 <style scoped>
@@ -50,6 +54,12 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
 #network-keys {
   padding: 1em;
 }
+
+.peer-list-set {
+  margin-left: 2em;
+  margin-bottom: 1em;
+}
+
 
 @media (min-width: 1024px) {
 

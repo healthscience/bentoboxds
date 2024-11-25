@@ -75,6 +75,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   width: 60px;
   margin-left: 20px;
   text-align: center;
+  cursor: pointer;
 }
 
 .box {
@@ -87,6 +88,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
 .notification-item {
   color: rgb(61, 44, 44);
+  cursor: pointer;
 }
 
 .active {
