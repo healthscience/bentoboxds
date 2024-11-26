@@ -428,10 +428,10 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         // research
         if (spcont === 'research') {
           this.storeBentoBox.prepareResearchSpace(notItem.data.data.content[spcont])
-        } else if (spcont === 'marker') {
-          this.prepareMarkerSpace(message.data)
-        } else if (spcont === 'product') {
-          this.prepareProductSpace(message.data)
+        } else if (spcont === 'markers') {
+          this.storeBentoBox.prepareMarkerSpace(notItem.data.data.content[spcont])
+        } else if (spcont === 'products') {
+          this.storeBentoBox.prepareProductSpace(notItem.data.data.content[spcont])
         }
       }
     },
