@@ -270,50 +270,59 @@ export const bentoboxStore = defineStore('bentostore', {
         }
         this.storeCues.cuesList = prepareCues
       } else if (message.reftype.trim() === 'research-history') {
-        let resBoxList = []
-        let tempSpaceID = ''
-        for (let rkey of message.data) {
-          tempSpaceID = rkey.value.concept.spaceid
-          if (this.locationRbox[tempSpaceID] === undefined) {
-            this.locationRbox[tempSpaceID] = {}
-            this.researchMedia[tempSpaceID] = []
-            this.storeCues.researchPapers[tempSpaceID] = []
-          }
-          resBoxList.push({ key: rkey.key, tag: 'research', id: rkey.value.concept })
-          this.setLocationRbox(tempSpaceID, rkey.key)
-          this.researchMedia[tempSpaceID].push({ key: rkey.key, tag: 'research', id: rkey.value.concept })
-          this.storeCues.researchPapers[tempSpaceID].push(rkey)
-        }
+        this.prepareResearchSpace(message.data)
       } else if (message.reftype.trim() === 'marker-history') {
-        let markerBoxList = []
-        let tempSpaceID = ''
-        for (let mkkey of message.data) {
-          tempSpaceID = mkkey.value.concept.spaceid
-          if (this.locationMarkerbox[tempSpaceID] === undefined) {
-            this.locationMarkerbox[tempSpaceID] = {}
-            this.markerMedia[tempSpaceID] = []
-            this.storeCues.markerMatch[tempSpaceID] = []
-          }
-          markerBoxList.push({ key: mkkey.key, tag: 'marker', id: mkkey.value.concept })
-          this.setLocationMarkerbox(tempSpaceID, mkkey.key)
-          this.markerMedia[tempSpaceID].push({ key: mkkey.key, tag: 'marker', id: mkkey.value.concept })
-          this.storeCues.markerMatch[tempSpaceID].push(mkkey)
-        }
+        this.prepareMarkerSpace(message.data)
       } else if (message.reftype.trim() === 'product-history') {
-        let tempSpaceID = ''
-        let productBoxList = []
-        for (let prokey of message.data) {
-          tempSpaceID = prokey.value.concept.spaceid
-          if (this.locationProductbox[tempSpaceID] === undefined) {
-            this.locationProductbox[tempSpaceID] = {}
-            this.productMedia[tempSpaceID] = []
-            this.storeCues.productMatch[tempSpaceID] = []
-          }
-          productBoxList.push({ key: prokey.key, tag: 'product', id: prokey.value.concept.product })
-          this.setLocationProductbox(tempSpaceID, prokey.key)
-          this.productMedia[tempSpaceID].push({ key: prokey.key, tag: 'product', id: prokey.value.concept.product })
-          this.storeCues.productMatch[tempSpaceID].push(prokey)
+        this.prepareProductSpace(message.data)
+      }
+    },
+    prepareResearchSpace (rData) {
+      let resBoxList = []
+      let tempSpaceID = ''
+      for (let rkey of rData) {
+        tempSpaceID = rkey.value.concept.spaceid
+        if (this.locationRbox[tempSpaceID] === undefined) {
+          this.locationRbox[tempSpaceID] = {}
+          this.researchMedia[tempSpaceID] = []
+          this.storeCues.researchPapers[tempSpaceID] = []
         }
+        resBoxList.push({ key: rkey.key, tag: 'research', id: rkey.value.concept })
+        this.setLocationRbox(tempSpaceID, rkey.key)
+        this.researchMedia[tempSpaceID].push({ key: rkey.key, tag: 'research', id: rkey.value.concept })
+        this.storeCues.researchPapers[tempSpaceID].push(rkey)
+      }
+    },
+    prepareMarkerSpace (mData) {
+      let markerBoxList = []
+      let tempSpaceID = ''
+      for (let mkkey of mData) {
+        tempSpaceID = mkkey.value.concept.spaceid
+        if (this.locationMarkerbox[tempSpaceID] === undefined) {
+          this.locationMarkerbox[tempSpaceID] = {}
+          this.markerMedia[tempSpaceID] = []
+          this.storeCues.markerMatch[tempSpaceID] = []
+        }
+        markerBoxList.push({ key: mkkey.key, tag: 'marker', id: mkkey.value.concept })
+        this.setLocationMarkerbox(tempSpaceID, mkkey.key)
+        this.markerMedia[tempSpaceID].push({ key: mkkey.key, tag: 'marker', id: mkkey.value.concept })
+        this.storeCues.markerMatch[tempSpaceID].push(mkkey)
+      }
+    },
+    prepareProductSpace (pData) {
+      let tempSpaceID = ''
+      let productBoxList = []
+      for (let prokey of pData) {
+        tempSpaceID = prokey.value.concept.spaceid
+        if (this.locationProductbox[tempSpaceID] === undefined) {
+          this.locationProductbox[tempSpaceID] = {}
+          this.productMedia[tempSpaceID] = []
+          this.storeCues.productMatch[tempSpaceID] = []
+        }
+        productBoxList.push({ key: prokey.key, tag: 'product', id: prokey.value.concept.product })
+        this.setLocationProductbox(tempSpaceID, prokey.key)
+        this.productMedia[tempSpaceID].push({ key: prokey.key, tag: 'product', id: prokey.value.concept.product })
+        this.storeCues.productMatch[tempSpaceID].push(prokey)
       }
     },
     setLocationBbox (space, bbox) {

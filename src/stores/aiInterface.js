@@ -427,23 +427,11 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       for (let spcont of contentTypes) {
         // research
         if (spcont === 'research') {
-          console.log('research coonetntet share psoe')
-          console.log(spcont)
-          console.log(notItem.data.data.content[spcont])
-          let resBoxList = []
-          let tempSpaceID = ''
-          for (let rkey of notItem.data.data.content[spcont]) {
-            tempSpaceID = rkey.value.concept.spaceid
-            if (this.storeBentoBox.locationRbox[tempSpaceID] === undefined) {
-              this.storeBentoBox.locationRbox[tempSpaceID] = {}
-              this.storeBentoBox.researchMedia[tempSpaceID] = []
-              this.storeCues.researchPapers[tempSpaceID] = []
-            }
-            resBoxList.push({ key: rkey.key, tag: 'research', id: rkey.value.concept })
-            this.storeBentoBox.setLocationRbox(tempSpaceID, rkey.key)
-            this.storeBentoBox.researchMedia[tempSpaceID].push({ key: rkey.key, tag: 'research', id: rkey.value.concept })
-            this.storeCues.researchPapers[tempSpaceID].push(rkey) 
-          }
+          this.storeBentoBox.prepareResearchSpace(notItem.data.data.content[spcont])
+        } else if (spcont === 'marker') {
+          this.prepareMarkerSpace(message.data)
+        } else if (spcont === 'product') {
+          this.prepareProductSpace(message.data)
         }
       }
     },
