@@ -99,7 +99,7 @@ export const accountStore = defineStore('account', {
         // get the cue contract spaceid NOTE
         spaceContent.cuecontract = this.storeAI.liveBspace
         spaceContent.n1 = this.utilSpacecontent.n1Match()
-        spaceContent.media = this.utilSpacecontent.mediaMatch(this.storeBentoBox.videoMedia[this.storeAI.liveBspace.spaceid])
+        spaceContent.media = this.utilSpacecontent.mediaMatch(this.storeCues.mediaMatch[this.storeAI.liveBspace.spaceid])
         spaceContent.research = this.utilSpacecontent.researchMatch(this.storeCues.researchPapers[this.storeAI.liveBspace.spaceid])
         spaceContent.markers = this.utilSpacecontent.markerMatch(this.storeCues.markerMatch[this.storeAI.liveBspace.spaceid])
         spaceContent.products = this.utilSpacecontent.productMatch(this.storeCues.productMatch[this.storeAI.liveBspace.spaceid])
@@ -119,7 +119,6 @@ export const accountStore = defineStore('account', {
         shareInfo.reftype = 'null'
         shareInfo.privacy = 'private'
         shareInfo.data = shareContext
-        console.log(shareInfo)
         this.sendMessageHOP(shareInfo)
       } else if (shareType === 'publicboard') {
         // the public library key to allow discover

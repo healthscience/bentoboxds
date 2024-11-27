@@ -162,7 +162,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           this.actionFileAskInput(lastQuestion[0].reply)
         } else if (dataInfo?.id) {
           // if bbid match to that
-          console.log('one')
           let matchBBox = {}
           let questionCount = []
           for (let hpair of this.historyPair[this.chatAttention]) {
@@ -617,8 +616,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       // save media boxes
       // saveData.mboxlist = bmMediaPerspace
       message.data = saveData
-      console.log('save space info')
-      console.log(message)
       this.sendSocket.send_message(message)
     },
     prepareAI (message) {

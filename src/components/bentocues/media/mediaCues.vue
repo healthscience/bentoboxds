@@ -11,11 +11,11 @@
     </button>
   </div>
   <div id="media-paper-list" v-if="mediaMatch?.length > 0">
-    <div id="media-paper-select" v-for="mark in mediaMatch" :value="mark.id">
-      <button class="media-paper-item" @click="viewmedia(mark.value.concept.media)">
-        {{ mark.value.concept.media }}
+    <div id="media-paper-select" v-for="med in mediaMatch" :value="med.id">
+      <button class="media-paper-item" @click="viewmedia(med.value.concept.media)">
+        {{ med.value.concept.media }}
       </button>
-      <button class="media-paper-source" @click="viewSourcemedia(mark.value.concept.media)">
+      <button class="media-paper-source" @click="viewSourcemedia(med.value.concept.media)">
         View source
       </button>
     </div>

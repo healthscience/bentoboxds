@@ -290,10 +290,9 @@ export const bentoboxStore = defineStore('bentostore', {
           this.locationMbox[tempSpaceID] = {}
           this.videoMedia[tempSpaceID] = []
           this.storeCues.mediaMatch[tempSpaceID] = []
-          console.log(this.storeCues.mediaMatch)
         }
         medBoxList.push({ key: mkey.key, tag: 'video', id: mkey.value.concept })
-        this.setLocationMbox(tempSpaceID, mkey.value.concept)
+        this.setLocationMbox(tempSpaceID, mkey.key)
         this.videoMedia[tempSpaceID].push({ key: mkey.key, tag: 'video', id: mkey.value.concept })
         this.storeCues.mediaMatch[tempSpaceID].push(mkey)
       }
@@ -373,8 +372,6 @@ export const bentoboxStore = defineStore('bentostore', {
       }
     },
     setLocationMbox (space, mbox) {
-      console.log('set media')
-      console.log(mbox)
       // check not already set
       let spaceLive = this.locationMbox[space]
       if (mbox in spaceLive) {

@@ -239,30 +239,6 @@ import { mapminiStore } from '@/stores/mapStore.js'
     // storeAI.decisionDoughnutCue = !storeAI.decisionDoughnutCue
   }
 
-  /* const videoAdd = () => {
-    // assume youtube and extract id
-    if (videoURLadd.value.length > 0) {
-      let videoSplit = videoURLadd.value.split('/')
-      // console.log(videoSplit)
-      // set mbox in boxstore and add to media list
-      // check if holder setup
-      if (storeBentobox.locationMbox[storeAI.liveBspace.spaceid] === undefined) {
-        storeBentobox.locationMbox[storeAI.liveBspace.spaceid] = {}
-      }
-      storeBentobox.setLocationMbox(storeAI.liveBspace.spaceid, videoSplit[3])
-      if (storeBentobox.videoMedia[storeAI.liveBspace.spaceid]) {
-        storeBentobox.videoMedia[storeAI.liveBspace.spaceid].push({ tag: 'video', id: videoSplit[3]})
-      } else {
-        storeBentobox.videoMedia[storeAI.liveBspace.spaceid] = []
-        storeBentobox.videoMedia[storeAI.liveBspace.spaceid].push({ tag: 'video', id: videoSplit[3]})
-      }
-    } else {
-      console.log('empty URL')
-    }
-    spaceMedia.value = false
-    videoURLadd.value = ''
-  } */
-
   const addCueMedia = () => {
     spaceMedia.value = !spaceMedia.value
   }
