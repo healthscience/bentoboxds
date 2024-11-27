@@ -413,8 +413,10 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       let contentTypes = Object.keys(notItem.data.data.content)
       console.log(contentTypes)
       for (let spcont of contentTypes) {
-        // research
-        if (spcont === 'research') {
+        // media, research etc.
+        if (spcont === 'media') {
+          this.storeBentoBox.prepareMediaSpace(notItem.data.data.content[spcont])
+        } else if (spcont === 'research') {
           this.storeBentoBox.prepareResearchSpace(notItem.data.data.content[spcont])
         } else if (spcont === 'markers') {
           this.storeBentoBox.prepareMarkerSpace(notItem.data.data.content[spcont])

@@ -277,6 +277,24 @@ export const bentoboxStore = defineStore('bentostore', {
         this.prepareProductSpace(message.data)
       }
     },
+    prepareMediaSpace (mData) {
+      console.log('media data prapare ')
+      console.log(mData)
+      let medBoxList = []
+      let tempSpaceID = ''
+      for (let mkey of mData) {
+        tempSpaceID = mkey.value.concept.spaceid
+        if (this.locationMbox[tempSpaceID] === undefined) {
+          this.locationMbox[tempSpaceID] = {}
+          this.videoMedia[tempSpaceID] = []
+          this.storeCues.mediaMatch[tempSpaceID] = []
+        }
+        medBoxList.push({ key: mkey.key, tag: 'video', id: mkey.value.concept })
+        this.setLocationMbox(tempSpaceID, rkey.value.concept)
+        this.videoMedia[tempSpaceID].push({ tag: 'video', id: rkey.value.concept })
+        this.storeCues.mediaMatch[tempSpaceID].push(mkey)
+      }
+    },
     prepareResearchSpace (rData) {
       let resBoxList = []
       let tempSpaceID = ''
@@ -352,6 +370,8 @@ export const bentoboxStore = defineStore('bentostore', {
       }
     },
     setLocationMbox (space, mbox) {
+      console.log('set media')
+      console.log(mBox)
       // check not already set
       let spaceLive = this.locationMbox[space]
       if (mbox in spaceLive) {

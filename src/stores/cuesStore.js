@@ -193,6 +193,7 @@ export const cuesStore = defineStore('cues', {
         }
       ]
     },
+    mediaMatch: {},
     researchPapers: {},
     markerMatch: {},
     productMatch: {},

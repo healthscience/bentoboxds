@@ -3,6 +3,7 @@ import { useSocketStore } from '@/stores/socket.js'
 import { cuesStore } from "@/stores/cuesStore.js"
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { libraryStore } from '@/stores/libraryStore.js'
+import { bentoboxStore } from "@/stores/bentoboxStore.js"
 import PeersUtility from '@/stores/hopUtility/peersUtility.js'
 import SpaceUtility from '@/stores/hopUtility/spaceContentUtil.js'
 
@@ -12,6 +13,7 @@ export const accountStore = defineStore('account', {
     storeCues: cuesStore(),
     storeAI: aiInterfaceStore(),
     storeLibrary: libraryStore(),
+    storeBentoBox: bentoboxStore(),
     utilPeers: new PeersUtility(),
     utilSpacecontent: new SpaceUtility(),
     accountMenu: 'Sign-in',
@@ -97,7 +99,7 @@ export const accountStore = defineStore('account', {
         // get the cue contract spaceid NOTE
         spaceContent.cuecontract = this.storeAI.liveBspace
         spaceContent.n1 = this.utilSpacecontent.n1Match()
-        spaceContent.media = this.utilSpacecontent.mediaMatch()
+        spaceContent.media = this.utilSpacecontent.mediaMatch(this.storeBentoBox.videoMedia[this.storeAI.liveBspace.spaceid])
         spaceContent.research = this.utilSpacecontent.researchMatch(this.storeCues.researchPapers[this.storeAI.liveBspace.spaceid])
         spaceContent.markers = this.utilSpacecontent.markerMatch(this.storeCues.markerMatch[this.storeAI.liveBspace.spaceid])
         spaceContent.products = this.utilSpacecontent.productMatch(this.storeCues.productMatch[this.storeAI.liveBspace.spaceid])
