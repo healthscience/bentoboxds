@@ -57,18 +57,9 @@
             </div>
           </div>
           <div id="media-tools">
-            <button @click="addBentoMedia()" v-bind:class="{ active: spaceMedia === true }">+ media</button>
-            <div id="bento-media" v-if="spaceMedia === true">
-              <h3>Bento Media tools</h3>
-              <div id="bento-media-video">
-                <form id="add-video-form" @submit.prevent="videoAdd()">
-                  <label for="video"></label>
-                  <input type="input" id="video-add" name="video" placeholder="add video url" v-model="videoURLadd" autofocus>
-                </form>
-                <button id="bento-media-task" type="submit" @click.prevent="videoAdd()">
-                   add 
-                </button>
-              </div>
+            <button @click="addCueMedia()" v-bind:class="{ active: spaceMedia === true }">+ media</button>
+            <div id="bento-cue-media" v-if="spaceMedia === true">
+              <media-cue></media-cue>
             </div>
           </div>
           <div id="research-tools">
@@ -111,7 +102,7 @@
               </div>
               <!--video / image /  decision  / cues etc  to compliment bentobox-->
               <div id="bento-media-space" v-for="bmedia in storeBentobox.videoMedia[storeAI.liveBspace.spaceid]">
-                <media-space :bstag="bmedia.tag" :bsmedia="bmedia.id"></media-space>
+                <media-space :bstag="bmedia.tag" :bsmedia="bmedia.key"></media-space>
               </div>
               <!-- research media -->
               <div id="bento-research-space" v-for="rmedia in storeBentobox.researchMedia[storeAI.liveBspace.spaceid]">
@@ -148,6 +139,7 @@ import ResearchSpace from '@/components/bentospace/research/researchSpace.vue'
 import MarkerSpace from '@/components/bentospace/marker/markerSpace.vue'
 import ProductSpace from '@/components/bentospace/product/productSpace.vue'
 import DecisionCue from '@/components/bentocues/decisions/decisionCues.vue'
+import MediaCue from '@/components/bentocues/media/mediaCues.vue'
 import ResearchCue from '@/components/bentocues/research/researchCues.vue'
 import MarkerCue from '@/components/bentocues/marker/markerCues.vue'
 import ProductCue from '@/components/bentocues/product/productCues.vue'
@@ -176,7 +168,6 @@ import { mapminiStore } from '@/stores/mapStore.js'
   let shareTools = ref(false)
   let spaceN1setup = ref(false)
   let spaceMedia = ref(false)
-  let videoURLadd = ref('')
   let spaceDecision = ref(false)
   let spaceResearch = ref(false)
   let spaceMarker = ref(false)
@@ -248,11 +239,7 @@ import { mapminiStore } from '@/stores/mapStore.js'
     // storeAI.decisionDoughnutCue = !storeAI.decisionDoughnutCue
   }
 
-  const addBentoMedia = () => {
-    spaceMedia.value = !spaceMedia.value
-  }
-
-  const videoAdd = () => {
+  /* const videoAdd = () => {
     // assume youtube and extract id
     if (videoURLadd.value.length > 0) {
       let videoSplit = videoURLadd.value.split('/')
@@ -274,6 +261,10 @@ import { mapminiStore } from '@/stores/mapStore.js'
     }
     spaceMedia.value = false
     videoURLadd.value = ''
+  } */
+
+  const addCueMedia = () => {
+    spaceMedia.value = !spaceMedia.value
   }
 
   const addCueResearch = () => {

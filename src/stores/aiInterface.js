@@ -411,7 +411,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.storeBentoBox.spaceList = spaceLiveList
       // now setup N=1 media, research, markers, products
       let contentTypes = Object.keys(notItem.data.data.content)
-      console.log(contentTypes)
       for (let spcont of contentTypes) {
         // media, research etc.
         if (spcont === 'media') {
@@ -608,7 +607,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         locationPerSpace.push({ bboxid: bbi.bboxid, location: this.storeBentoBox.locationBbox[message.data.spaceid][bbi.bboxid] })
       }
       // build media info per space
-      let bmMediaPerspace = this.storeBentoBox.locationMbox[message.data.spaceid]
+      // let bmMediaPerspace = this.storeBentoBox.locationMbox[message.data.spaceid]
       let saveData = {}
       saveData.pair = {}
       saveData.space = message.data
@@ -616,7 +615,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       saveData.visData = visDataperSpace
       saveData.bboxlist = boxidPerspace
       // save media boxes
-      saveData.mboxlist = bmMediaPerspace
+      // saveData.mboxlist = bmMediaPerspace
       message.data = saveData
       console.log('save space info')
       console.log(message)

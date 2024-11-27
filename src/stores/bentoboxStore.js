@@ -185,7 +185,7 @@ export const bentoboxStore = defineStore('bentostore', {
                   this.storeAI.bentoboxList[cm.value.space.spaceid] = {}
                 }
                 // prepare the mediabox location for space
-                if (cm.value?.mboxlist) {
+                /* if (cm.value?.mboxlist) {
                   this.locationMbox[cm.value.space.spaceid] = []
                   // turn object into array of keys
                   let mediaboxKeys = Object.keys(cm.value.mboxlist)
@@ -197,6 +197,7 @@ export const bentoboxStore = defineStore('bentostore', {
                   this.videoMedia[cm.value.space.spaceid] = mBoxList
                   this.locationMbox[cm.value.space.spaceid] = cm.value.mboxlist
                 }
+                */
                 // check for BentoBox location spaces info. already saved
                 if (cm?.value?.location) {
                   // add to menu list
@@ -269,6 +270,8 @@ export const bentoboxStore = defineStore('bentostore', {
           prepareCues.push(sCue.value.concept)
         }
         this.storeCues.cuesList = prepareCues
+      } else if (message.reftype.trim() === 'media-history') {
+        this.prepareMediaSpace(message.data)
       } else if (message.reftype.trim() === 'research-history') {
         this.prepareResearchSpace(message.data)
       } else if (message.reftype.trim() === 'marker-history') {
@@ -278,20 +281,20 @@ export const bentoboxStore = defineStore('bentostore', {
       }
     },
     prepareMediaSpace (mData) {
-      console.log('media data prapare ')
-      console.log(mData)
       let medBoxList = []
       let tempSpaceID = ''
       for (let mkey of mData) {
         tempSpaceID = mkey.value.concept.spaceid
+        this.locationMbox = {}
         if (this.locationMbox[tempSpaceID] === undefined) {
           this.locationMbox[tempSpaceID] = {}
           this.videoMedia[tempSpaceID] = []
           this.storeCues.mediaMatch[tempSpaceID] = []
+          console.log(this.storeCues.mediaMatch)
         }
         medBoxList.push({ key: mkey.key, tag: 'video', id: mkey.value.concept })
-        this.setLocationMbox(tempSpaceID, rkey.value.concept)
-        this.videoMedia[tempSpaceID].push({ tag: 'video', id: rkey.value.concept })
+        this.setLocationMbox(tempSpaceID, mkey.value.concept)
+        this.videoMedia[tempSpaceID].push({ key: mkey.key, tag: 'video', id: mkey.value.concept })
         this.storeCues.mediaMatch[tempSpaceID].push(mkey)
       }
     },
@@ -371,7 +374,7 @@ export const bentoboxStore = defineStore('bentostore', {
     },
     setLocationMbox (space, mbox) {
       console.log('set media')
-      console.log(mBox)
+      console.log(mbox)
       // check not already set
       let spaceLive = this.locationMbox[space]
       if (mbox in spaceLive) {

@@ -48,7 +48,6 @@ import { mapminiStore } from '@/stores/mapStore.js'
     bsmedia: String
   })
 
-  let bentoboxWidth = '30vw'
   let bboxActive = ref(false)
   let modulesShow = ref(false)
 
@@ -153,7 +152,7 @@ import { mapminiStore } from '@/stores/mapStore.js'
     let currentSpaceMboxes = storeBentobox.videoMedia[storeAI.liveBspace.spaceid]
     let updateMblist = []
     for (let bm of currentSpaceMboxes) {
-      if (bm.id !== props.bsmedia) {
+      if (bm.key !== props.bsmedia) {
         updateMblist.push(bm)
       }
     }
@@ -161,6 +160,7 @@ import { mapminiStore } from '@/stores/mapStore.js'
     // update miniMap of removal
     // storeMmap.actionDashBRemove(props.bboxid)
     // delete from store
+    console.log(props.bsmedia)
     let delMessage = {}
     delMessage.type = 'library'
     delMessage.action = 'media'
