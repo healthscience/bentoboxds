@@ -143,7 +143,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     submitAsk (dataInfo) {
       // check for context of beebee default is Chat, other option spaces, cues(decisions)
       if (this.beebeeContext === 'chat') {
-        console.log('standard chat interface')
         // remove start boxes
         this.startChat = false
         this.historyBar = true
@@ -176,14 +175,12 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
             matchBBox = questionCount[0]
           }
           if (matchBBox) {
-            console.log('two match')
             let lastQuestion = matchBBox
             lastQuestion.reply.data.content = matchBBox.reply.data.filedata.grid
             lastQuestion.reply.data.context = dataInfo
             this.currentQuestion = lastQuestion
             this.actionFileAskInput(lastQuestion.reply)
           } else {
-            console.log('three')
             // need to check if same pair but different data type context?
             let checkCurrentQ = Object.keys(this.currentQuestion)
             if (checkCurrentQ.length > 0) {
@@ -199,12 +196,9 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
             }
           }
         } else {
-          console.log('four')
           this.actionHelpAskInput()
         }
       } else if (this.beebeeContext === 'chatspace') {
-        console.log('chat space input conrtext')
-        console.log(this.askQuestion)
         let spaceChatPrep = this.liveChatspaceUtil.prepareChatQandA(this.askQuestion, this.liveBspace)
         // check if array set
         if (this.chatSpacePair[this.liveBspace.spaceid] === undefined) {
@@ -353,8 +347,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     processNotification (received) {
-      console.log('process Notification')
-      console.log(received)
       this.countNotifications++
       this.notifList.push(received)
       // add to chart part list (do now or on requrest?)
@@ -379,8 +371,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         // create a notification accept public board and save?
       } else if (received.action === 'cue-space') {
         // populate space  check if cue needing setup then fill and notify
-        console.log('notification cue space from netwokr')
-        console.log(received)
       }
     },
     preparePublicConfirm (item) {
@@ -402,8 +392,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.chatBottom++
     },
     prepareCuespace (notItem) {
-      console.log('show cue space notification')
-      console.log(notItem)
       let cueContract = notItem.data.data.content.cuecontract
       let notCuespace = ''
       this.beebeeContext = 'chatspace'
