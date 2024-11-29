@@ -232,6 +232,7 @@ class LibraryUtility { //  extends EventEmitter {
   */
   prepareDefaultContracts = function () {
     let libContracts = []
+    // library minimum
     let timeContract = this.prepareDefaultMessage('datatype')
     let computeContract = this.prepareDefaultMessage('compute')
     let visualiseContract = this.prepareDefaultMessage('visualise')
@@ -241,6 +242,26 @@ class LibraryUtility { //  extends EventEmitter {
     return libContracts
   }
 
+  /**
+  * default cues contracts
+  * @method prepareDefaultCues
+  *
+  */
+  prepareDefaultCues = function () {
+    let libContracts = []
+    // cues setup
+    let cuesDatatypes = this.prepareFirstCues('datatype-gaia')
+    libContracts.push(cuesDatatypes)
+    let cuesDatatypes2 = this.prepareFirstCues('datatype-nature')
+    libContracts.push(cuesDatatypes2)
+    let cuesDatatypes3 = this.prepareFirstCues('datatype-environment')
+    libContracts.push(cuesDatatypes3)
+    let cuesDatatypes4 = this.prepareFirstCues('datatype-culture')
+    libContracts.push(cuesDatatypes4)
+    let cuesDatatypes5 = this.prepareFirstCues('datatype-life')
+    libContracts.push(cuesDatatypes5)
+    return libContracts
+  }
 
   /**
   * prepare save contract message
@@ -285,6 +306,74 @@ class LibraryUtility { //  extends EventEmitter {
       visSettings.structureName = 'datasets'
       visSettings.visHolder = ''
       refContract.data = visSettings
+    }
+    return refContract
+
+  }
+  /**
+  * prepare all types of contracts to make cues
+  * @method prepareFirstCues
+  *
+  */
+  prepareFirstCues = function (contract) {
+    const refContract = {}
+    refContract.type = 'library'
+    refContract.action = 'contracts'
+    refContract.reftype = contract
+    refContract.task = 'PUT'
+    refContract.privacy = 'public'
+    if (contract === 'cue') {
+      refContract.data = {}
+    } else if (contract === 'datatype-gaia') {
+      let dtSettings = {}
+      dtSettings.primary =  true
+      dtSettings.name = 'gaia'
+      dtSettings.description = 'rolling out of universe'
+      dtSettings.wiki = 'https://en.wikipedia.org/wiki/Gaia_hypothesis'
+      dtSettings.rdf = 'https://dbpedia.org/page/Gaia_hypothesis'
+      dtSettings.measurement = 'Integer' 
+      dtSettings.datatypeType = 'datatype'
+      refContract.data = dtSettings
+    } else if (contract === 'datatype-nature') {
+      let dtSettings = {}
+      dtSettings.primary =  true
+      dtSettings.name = 'gaia'
+      dtSettings.description = 'rolling out of universe'
+      dtSettings.wiki = 'https://en.wikipedia.org/wiki/Nature'
+      dtSettings.rdf = 'https://dbpedia.org/page/Nature'
+      dtSettings.measurement = 'Integer' 
+      dtSettings.datatypeType = 'datatype'
+      refContract.data = dtSettings
+    } else if (contract === 'datatype-environment') {
+      let dtSettings = {}
+      dtSettings.primary =  true
+      dtSettings.name = 'environment'
+      dtSettings.description = 'man molding of nature'
+      dtSettings.wiki = 'https://en.wikipedia.org/wiki/Built_environment'
+      dtSettings.rdf = 'https://dbpedia.org/page/Built_environment'
+      dtSettings.measurement = 'Integer' 
+      dtSettings.datatypeType = 'datatype'
+      refContract.data = dtSettings
+    } else if (contract === 'datatype-culture') {
+      let dtSettings = {}
+      dtSettings.primary =  true
+      dtSettings.name = 'culture'
+      dtSettings.description = 'human innovation arts to tech'
+      dtSettings.wiki = 'https://en.wikipedia.org/wiki/Culture'
+      dtSettings.rdf = 'https://dbpedia.org/page/Culture'
+      dtSettings.measurement = 'Integer' 
+      dtSettings.datatypeType = 'datatype'
+      refContract.data = dtSettings
+    } else if (contract === 'datatype-life') {
+      let dtSettings = {}
+      dtSettings.primary =  true
+      dtSettings.name = 'life'
+      dtSettings.description = 'the game of life'
+      dtSettings.wiki = 'https://en.wikipedia.org/wiki/Life'
+      dtSettings.rdf = 'https://dbpedia.org/page/Life'
+      dtSettings.measurement = 'Integer' 
+      dtSettings.datatypeType = 'datatype'
+      refContract.data = dtSettings
     }
     return refContract
   }

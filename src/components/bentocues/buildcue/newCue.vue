@@ -202,7 +202,6 @@ import { cuesStore } from '@/stores/cuesStore.js'
   }
 
   const cueAddSub = () => {
-    console.log('sub cue add please sub')
     let newSegment = { refcontract: datatypeCueSub.value.key, label: datatypeCueSub.value.value.concept.name, datasets: { backgroundColor: pureColor.value, data: 30 }}
     addCueSegmentSub(newSegment)
     cueSegment.value = ''
@@ -267,19 +266,19 @@ import { cuesStore } from '@/stores/cuesStore.js'
   }
 
   const saveCues = () => {
-    console.log('save cues')
     // 1 create new datatype ref contract and auto look up wikipedia API if internet 2. save cues info. seperate vis info plus relationship e.g cue name and via cue connection if present
     // uuid for cue wheel
     let cueID = hashObject(cueName.value + new Date())
     let newCue= {}
     newCue.name = cueName.value
-    newCue.cueid = cueID
+    newCue.refdatatype = cueID
     newCue.relationship = cuesNew
     newCue.active = false
+    // should add when confirmed by library contracts OK  NB need to remove
     storeCues.cuesList.push(newCue)
     // build data cue holder
     let cueHolder = {}
-    cueHolder.cuid = cueID // ask LLM to prepare ref contract next release tiny LLM
+    cueHolder.refdatatype = cueID // ask LLM to prepare ref contract next release tiny LLM
     cueHolder.name = cueName.value
     cueHolder.relationship = cuesNew.value
     // storeLibrary.sendMessage(refContract)

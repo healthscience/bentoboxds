@@ -41,7 +41,7 @@
               <button class="flat-history"  v-bind:class="{ active: cues?.active }" @click="bentoSpaceOpen(cues)" @mouseover="hoverCheck(cues)" @mousemove="moveCheck(cues)"> {{ cues.name }}
               </button>
               <span id="drill-cue" v-if="cues.expand === true">
-                <button class="drill-cue-history" @click="drillCue(cues)">c-></button>     
+                <!--<button class="drill-cue-history" @click="drillCue(cues)">c-></button>-->     
               </span>
               <button class="save-chat-history" @click="saveSpaceHistory(cues)">save</button>
               <button class="delete-chat-history" @click="deleteSpaceHistory(cues)">Del</button>
@@ -103,10 +103,6 @@ import { ref, computed, onMounted } from 'vue'
     }
   })
 
-  const cuesNature = computed(() => {
-    return storeCues.cuesNature.labels
-  })
-
   const cuesLongevity = computed(() => {
     return storeCues.cuesLongevity.labels
   })
@@ -146,8 +142,6 @@ import { ref, computed, onMounted } from 'vue'
   }
 
   const bentoSpaceOpen = (spaceID) => {
-    console.log('open space')
-    console.log(spaceID)
     storeAI.beebeeContext = 'chatspace'
     storeAI.bentospaceState = !storeAI.bentospaceState
     storeAI.liveBspace = spaceID

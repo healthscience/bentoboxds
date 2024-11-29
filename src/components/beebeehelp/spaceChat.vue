@@ -43,13 +43,11 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   /* computed */
   const bentochatStatus = computed(() => {
-    console.log(storeAI.bentochatState)
     return storeAI.bentochatState
   })
 
   /* methods */
   const closeBentoChat = () => {
-    console.log('being clicked')
     storeAI.bentochatState = !storeAI.bentochatState
     // save the current layout on close
     // storeBentobox.saveLayoutSpace(storeAI.liveBspace.spaceid)

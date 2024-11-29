@@ -71,6 +71,9 @@ import { mapminiStore } from '@/stores/mapStore.js'
 
   /* computed */
   const spaceLocation = computed(() => {
+    console.log(storeBentobox.locationMbox)
+    console.log(storeAI.liveBspace.spaceid)
+    console.log(props.bsmedia)
     if (storeBentobox.locationMbox[storeAI.liveBspace.spaceid][props.bsmedia] !== undefined) {
       return storeBentobox.locationMbox[storeAI.liveBspace.spaceid][props.bsmedia]
     } else {

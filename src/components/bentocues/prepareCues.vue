@@ -4,11 +4,13 @@
     <button class="cue-select-btn" id="simple-segments" @click="selectCue('segments')" v-bind:class="{ active: wheelType === 'segments' }">Segments</button>
     <button class="cue-select-btn" id="simple-segments" @click="selectCue('aging')" v-bind:class="{ active: wheelType === 'aging' }">Longevity</button>
   </div>
+  <!-- list of active cue wheels made per account -->
   <div id="saved-cues">
     <div class="network-cues" v-for="ncue of cuesNetworkList" :value="ncue">
       <button class="cue-item" @click="viewCue(ncue)">{{ ncue.name }}</button>
     </div>
   </div>
+  <!-- default wheels holistic segments haulmarks aging -->
   <div id="view-cues" v-if="cueActive !== 'segdown'">
     <div class="pie" v-if="cueType === 'simple'">
       <pie-chartcues :cueType="'simple'" :chartData="cuesHolistic" :options="{}" @segmentClick="cueSelect"></pie-chartcues>
@@ -22,12 +24,14 @@
     </div>
   </div>
   <div id="cue-bentobox">
+    <!-- produce cue wheel based on active cue -->
     <div id="cue-type" v-if="cueActive === 'segdown'">
       <pie-chartcues v-if="liveDoughData" :chartData="liveDoughData" :options="{}" @segmentClick="cueSelect" ></pie-chartcues>
       <div id="remove-cue">
         <button id="remove-cue-delete" @click="removeCue()">Delete</button>
       </div>
     </div>
+    <!-- test
     <div id="cue-type" v-if="cueActive === 'Movement'">
       <pie-chartcues :chartData="cuesBody" :options="{}" @segmentClick="cueSelect" ></pie-chartcues>
     </div>
@@ -36,7 +40,7 @@
     </div>
     <div id="cue-type" v-if="cueActive === 'Climate/weather'">
       <pie-chartcues :chartData="cuesNature" :options="{}" @segmentClick="cueSelect" ></pie-chartcues>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -67,8 +71,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   })
 
   const cuesNetworkList = computed(() => {
-    // let testCues = [{ cueid: 123456, name: 'holistic' }]
-    // storeCues.cuesList = testCues
     return storeCues.cuesList
   })
 

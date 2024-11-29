@@ -283,9 +283,9 @@ export const bentoboxStore = defineStore('bentostore', {
     prepareMediaSpace (mData) {
       let medBoxList = []
       let tempSpaceID = ''
+      this.locationMbox = {}
       for (let mkey of mData) {
         tempSpaceID = mkey.value.concept.spaceid
-        this.locationMbox = {}
         if (this.locationMbox[tempSpaceID] === undefined) {
           this.locationMbox[tempSpaceID] = {}
           this.videoMedia[tempSpaceID] = []
