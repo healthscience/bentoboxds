@@ -8,7 +8,7 @@
         <div id="select-cue-a">
           Select a Cue
           <div class="cues-list" v-for="whCue in cuesList">
-            <button @click="expandWheel(whCue)">{{ whCue.name }}</button>
+            <button @click="expandWheel(whCue)">{{ whCue.value.computational.name }}</button>
             <div class="wheel-segment" v-if="cSegment === whCue.name">
               <div class="expand-wheel" v-for="cue of wheelActive">
                 <button @click="selectCueMatch(cue)">{{ cue }}</button>
@@ -64,7 +64,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 import { cuesStore } from '@/stores/cuesStore.js'
-import { clearUserProjection } from 'ol/proj'
 
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()

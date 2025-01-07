@@ -1,12 +1,16 @@
 import { defineStore } from 'pinia'
+import { useSocketStore } from '@/stores/socket.js'
 import CuesUtilty from '@/stores/hopUtility/cuesUtility.js'
 
 export const cuesStore = defineStore('cues', {
   state: () => ({
     cueUtil: new CuesUtilty(),
+    sendSocket: useSocketStore(),
     bentopathState: false,
     pathListActive: true,
     cuesList: [],
+    gaiaStart: false,
+    gaiaCount: 0,
     pathName: '',
     activeCueSegment: {},
     activeCue: '',
@@ -98,12 +102,31 @@ export const cuesStore = defineStore('cues', {
     researchPapers: {},
     markerMatch: {},
     productMatch: {},
-    oracleAttention: [] // [{ spaceid: 123221, name: 'cueOne', oracle: 'let me show you . . .'}, { spaceid: 223221, name: 'cueTwo', oracle: 'take a look at'}]
+    oracleAttention: [], // [{ spaceid: 123221, name: 'cueOne', oracle: 'let me show you . . .'}, { spaceid: 223221, name: 'cueTwo', oracle: 'take a look at'}]
+    waitingCues: []
   }),
   actions: {
     processReply (received) {
       // console.log('oracle replies coming in, update bentobox')
       // console.log(received)
+    },
+    prepareCueContract (cueInfo) {
+      let cueContract = this.cueUtil.prepareCuesContractPrime(cueInfo)
+      this.sendSocket.send_message(cueContract)
+    },
+    cueDisplayBuilder (cueData, dtContract) {
+      let cueDisplay = this.cueUtil.cueDisplayMake(cueData, dtContract)
+      return cueDisplay
+    },
+    cueGluePrepare (glueType) {
+      // match cue to its contract
+      let cueContract = {}
+      for (let cue of this.cuesList) {
+        if (cue.key === this.activeCue) {
+          cueContract = cue
+        }
+      }
+      this.activeDougnnutData = this.cueUtil.prepareGlueWheel(glueType, cueContract) 
     },
     setSpaceGlue () {
       // get data from library and use cue utility to prepare data for context
@@ -115,6 +138,16 @@ export const cuesStore = defineStore('cues', {
         cuesLongevity: this.cuesLongevity,
         cuesBody: this.cueUtil.cueTestWheels('cuesBody')
       }
-    }
+    },
+    prepareGaia () {
+      // get gaia datatype contract info.
+      let listDatatypes = this.cueUtil.prepareDTgaiaMessage()
+      for (let dtg of listDatatypes) {
+        this.sendSocket.send_message(dtg)
+      }
+      // need to listen save success and then prepare cue contracts
+      this.gaiaStart = true
+    } 
+    
   }
 })

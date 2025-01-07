@@ -1,17 +1,18 @@
 <template>
-    <div id="cues-holistic">
-    <button class="cue-select-btn" id="simple-wheel" @click="selectCue('simple')" v-bind:class="{ active: wheelType === 'simple' }">Holistic</button>
-    <button class="cue-select-btn" id="simple-segments" @click="selectCue('segments')" v-bind:class="{ active: wheelType === 'segments' }">Segments</button>
-    <button class="cue-select-btn" id="simple-segments" @click="selectCue('aging')" v-bind:class="{ active: wheelType === 'aging' }">Longevity</button>
-  </div>
   <!-- list of active cue wheels made per account -->
-  <div id="saved-cues">
+  <div id="saved-cues" v-if="cuesNetworkList.length > 0">dd {{ cuesNetworkList }}
     <div class="network-cues" v-for="ncue of cuesNetworkList" :value="ncue">
-      <button class="cue-item" @click="viewCue(ncue)">{{ ncue.name }}</button>
+      <button class="cue-item" @click="viewCue(ncue)">{{ ncue.value.computational[0].datatype.value.concept.name }}</button>
+    </div>
+  </div>
+  <!--start sync option -->
+  <div id="sync-cues" v-else>
+    <div id="sync-message">
+      Sync <a href="#" @click="gaiaSyncStart()">Gaia cues</a> or create new cues
     </div>
   </div>
   <!-- default wheels holistic segments haulmarks aging -->
-  <div id="view-cues" v-if="cueActive !== 'segdown'">
+  <div id="view-cues" v-if="cueActive !== 'concept'">
     <div class="pie" v-if="cueType === 'simple'">
       <pie-chartcues :cueType="'simple'" :chartData="cuesHolistic" :options="{}" @segmentClick="cueSelect"></pie-chartcues>
     </div>
@@ -23,24 +24,26 @@
       Source: <a href="https://peterattiamd.com/the-challenges-of-defining-aging/" target="_blank">All marks of aging</a>
     </div>
   </div>
-  <div id="cue-bentobox">
+  <div id="cue-bentobox" v-if="cueActive === 'concept'">
     <!-- produce cue wheel based on active cue -->
-    <div id="cue-type" v-if="cueActive === 'segdown'">
-      <pie-chartcues v-if="liveDoughData" :chartData="liveDoughData" :options="{}" @segmentClick="cueSelect" ></pie-chartcues>
-      <div id="remove-cue">
-        <button id="remove-cue-delete" @click="removeCue()">Delete</button>
+    <pie-chartcues v-if="liveDoughData" :chartData="liveDoughData" :options="{}" @segmentClick="cueSelect" ></pie-chartcues>
+    <div id="relationship-glue" v-if="cueSelectrel === false">
+      <div id="beebee-rel">
+        <div id="connection-glue">
+          <button @click="glueType('down')">Down</button>
+          <button @click="glueType('up')">Up</button>
+          <button @click="glueType('equal')">Equal</button>
+          <button @click="glueType('unknown')">Unknown</button>
+          <button @click="glueType('compute')">Compute</button>
+        </div>
+        <div id="beebee-feedback">
+          {{ beebeeFeedback }}
+        </div>
       </div>
     </div>
-    <!-- test
-    <div id="cue-type" v-if="cueActive === 'Movement'">
-      <pie-chartcues :chartData="cuesBody" :options="{}" @segmentClick="cueSelect" ></pie-chartcues>
+    <div id="remove-cue">
+      <button id="remove-cue-delete" @click="removeCue()">Delete</button>
     </div>
-    <div id="cue-type" v-if="cueActive === 'Buildings'">
-      <pie-chartcues :chartData="cuesBuilding" :options="{}" @segmentClick="cueSelect" ></pie-chartcues>
-    </div>
-    <div id="cue-type" v-if="cueActive === 'Climate/weather'">
-      <pie-chartcues :chartData="cuesNature" :options="{}" @segmentClick="cueSelect" ></pie-chartcues>
-    </div> -->
   </div>
 </template>
 
@@ -54,8 +57,10 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   const storeAI = aiInterfaceStore()
 
   let cueType = ref('')
+  let cueSelectrel = ref(false)
   let wheelType = ref('')
   let cueActive = ref('')
+  let beebeeFeedback = ref('')
 
   /* cumputed */
   const cuesHolistic = computed(() => {
@@ -82,41 +87,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     return storeCues.natureBoundries
   })
 
-  const cuesEnvironment = computed(() => {
-    return storeCues.cuesEnvironment
-  })
-
-  const cuesCulture = computed(() => {
-    return storeCues.cuesCulture
-  })
-
   const cuesLife = computed(() => {
     return storeCues.cuesLife
-  })
-
-  const cuesBody = computed(() => {
-    let testPie = {
-      labels: ['Brain', 'Skin', 'Heart', 'Immunesystem', 'Cardio', 'Muscle mass', 'Inflamation', 'Blood', 'Hormones', 'Sight', 'Mouth/teeth'],
-      datasets: [
-        {
-        backgroundColor: ['#191fe7', '#920914', '#09921c', '#560992', '#17c8d1', '#f08113', '#61819c', '#e66553', '#8bf5b0', '#999999' ,'#999999', '#999999'],
-        data: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]
-        }
-      ]}
-    return testPie
-  })
-
-  const cuesBuilding = computed(() => {
-    let testPie = {
-      labels: ['Hotel1', 'Hotel2', 'Hotel3', 'Hotel4', 'Hotel5', 'Hotel6', 'Hotel7', 'Hotel8', 'Hotel9', 'Hotel10', 'Hotel11'],
-
-      datasets: [
-        {
-        backgroundColor: ['#191fe7', '#920914', '#09921c', '#560992', '#17c8d1', '#f08113', '#61819c', '#e66553', '#8bf5b0', '#999999' ,'#999999', '#999999'],
-        data: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]
-        }
-      ]}
-    return testPie
   })
 
   const liveDoughData = computed(() => {
@@ -131,19 +103,24 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     cueActive.value = ''
   }
 
+  const gaiaSyncStart = () => {
+    // inform library to prepare gaia datatype contracts
+    storeCues.prepareGaia()
+  }
+
   const viewCue = (cue) => {
-    cueActive.value = 'segdown'
-    let cueRelData = cue.relationship
-    storeCues.activeCue = cue.cuid
-    storeCues.activeDougnnutData = cueRelData
+    console.log(cue)
+    console.log(cue.value.computational)
+    cueActive.value = 'concept'
+    let cueRelData = cue.value.computational
+    storeCues.activeCue = cue.key
+    storeCues.activeDougnnutData = storeCues.cueDisplayBUilder(cueRelData)
   }
 
   const removeCue = () => {
     // delete cue
-    console.log(storeCues.activeCue)
     let liveCuesUpdate = []
     for (let cl of storeCues.cuesList) {
-      console.log(cl)
       if (cl.key !== storeCues.activeCue) {
         liveCuesUpdate.push(cl)
       }
@@ -162,18 +139,20 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   }
 
   const cueSelect = async (segType, segInfo) => {
+    cueSelectrel.value = !cueSelectrel.value
     // match seg to data set
-    cueActive.value = 'segdown'
-    if (segInfo.label === 'Nature') {
-      storeCues.activeDougnnutData = cuesNature
-    } else if (segInfo.label === 'Environment') {
-      storeCues.activeDougnnutData = cuesNature
-    } else if (segInfo.label === 'Culture') {
-      storeCues.activeDougnnutData = cuesNature
-    } else if (segInfo.label === 'Life') {
-      storeCues.activeDougnnutData = cuesLife
-    }
+    console.log(segType)  
+    console.log(segInfo)
+    // what relationships for this cue?
+    cueActive.value = 'concept'
+
   }
+
+  const glueType = (glueType) => {
+    console.log(glueType)
+    storeCues.activeDougnnutData = storeCues.cueGluePrepare(glueType)
+  }
+
 
 </script>
 
@@ -184,6 +163,25 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   display: inline-block;
   margin-top: 1em;
   margin-right: .8em;
+}
+
+#sync-message {
+  margin: 2em;
+}
+
+#saved-cues {
+  margin: 2em;
+}
+
+#cue-bentobox {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 2em;
+
+}
+
+#relationship-glue {
+  border: 0px solid lightblue;
 }
 
 @media (min-width: 1024px) {

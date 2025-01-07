@@ -1,10 +1,12 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
+import { libraryStore } from '@/stores/libraryStore.js'
 import { cuesStore } from "@/stores/cuesStore.js"
 
 export const bentoboxStore = defineStore('bentostore', {
   state: () => ({
+    storeLibrary: libraryStore(),
     storeAI: aiInterfaceStore(),
     storeCues: cuesStore(),
     historyActive: false,
@@ -68,7 +70,8 @@ export const bentoboxStore = defineStore('bentostore', {
     videoMedia: {},
     researchMedia: {},
     markerMedia: {},
-    productMedia: {}
+    productMedia: {},
+    libraryCheck: false
   }),
   actions: {
     // since we rely on `this`, we cannot use an arrow function
@@ -265,11 +268,14 @@ export const bentoboxStore = defineStore('bentostore', {
           console.log('saved feedback')
         }
       } else if (message.reftype.trim() === 'cues-history') {
-        let prepareCues = []
-        for (let sCue of message.data) {
-          prepareCues.push(sCue.value.concept)
+        console.log('reference contractwa rrived')
+        if (this.storeLibrary.publicLibrary.referenceContracts !== undefined) {
+          this.libraryCheck = true
+          // expand cues via library
+          this.storeLibrary.preparePublicCues(message.data)
+        } else {
+          this.storeCues.waitingCues = message.data
         }
-        this.storeCues.cuesList = prepareCues
       } else if (message.reftype.trim() === 'media-history') {
         this.prepareMediaSpace(message.data)
       } else if (message.reftype.trim() === 'research-history') {

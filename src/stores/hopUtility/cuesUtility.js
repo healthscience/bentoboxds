@@ -17,6 +17,7 @@ class CuesUtility {
 
   constructor() {
     // super()
+    this.trackGaia = []
   }
 
   /**
@@ -147,6 +148,218 @@ class CuesUtility {
     }
 
     return testCues[testID]
+  }
+
+
+  /**
+  * prepare save cue contract
+  * @method prepareCuesContractPrime
+  *
+  */
+  prepareCuesContractPrime = function (cueInfo) {
+    console.log('prepareCuesContractPrime')
+    console.log(cueInfo)
+    // structure inputs for cue contract
+    const cueContract = {}
+    cueContract.type = 'library'
+    cueContract.action = 'cues'
+    cueContract.reftype = 'new-cues'
+    cueContract.task = 'PUT'
+    cueContract.privacy = 'public'
+    let cueHolder = {}
+    cueHolder.refdatatype = cueInfo.key // ask LLM to prepare ref contract next release tiny LLM
+    cueHolder.name = cueInfo.name
+    cueHolder.relationship = [{ glue: 'prime', datatype: cueInfo.contract.key, backgroundColor: cueInfo.color }]  // add display object on use? or save?
+    cueContract.data = cueHolder
+    return cueContract
+  }
+
+  /**
+  * take four down cues and add to gaia cue contract
+  * @method updataGaiaRelationships
+  *
+  */
+  updataGaiaRelationships = function (contract) {
+    const cueContract = {}
+    cueContract.type = 'library'
+    cueContract.action = 'cues'
+    cueContract.reftype = 'new-cues'
+    cueContract.task = 'PUT'
+    cueContract.privacy = 'public'
+    let cueHolder = {}
+    cueHolder.refdatatype = contract.key // ask LLM to prepare ref contract next release tiny LLM
+    cueHolder.name = contract.concept.name
+    for (let cue of this.trackGaia) {
+      cueHolder.relationship.push({ glue: 'down', datatype: cue, display: { labels: [''], datasets: [{ backgroundColor: [ 'blue' ], data: [ 360 ] }] } })
+    }
+    cueContract.data = cueHolder
+    return cueContract
+  }
+
+  /**
+   * parepare cue display data structure
+   * @method cueDisplayMake
+  */
+  cueDisplayMake = function (dataCue, dtContract) {
+    console.log('make cue how many to dispay based on relationshiop selected')
+    console.log(dataCue)
+    console.log(dtContract)
+    let displayData = {}
+    for (let cue of dataCue) {
+      displayData = { labels: dtContract.value.concept.name, datasets: [{ backgroundColor: dataCue.bakgroundcolor, data: dataCue.segment }] }
+    }
+    // { labels: [ dataCue.contract.value.concept.name], datasets: [{ backgroundColor: [colorCue], data: [ 360 ] }] }
+    return displayData
+  }
+
+  /* look at relationship type and update cue wheel
+  * @method prepareGlueWheel
+  *
+  */
+  prepareGlueWheel = function (glueType, cueData) {
+    console.log('build wheel based on glue type')
+    console.log(glueType)
+    console.log(cueData)
+    let glueClueData = {}
+    let beebeeFeedback = ''
+    let glueWheel = []
+    for (let cl of cueData.value.computational) {
+      console.log(cl)
+      if (cl) {
+        if (cl.glue === glueType) {
+          console.log(cl)
+          glueWheel.push(cl)
+          // prepare data label and dataset for wheel do maths for segments radius
+          // match datatype key to contract info to get name
+        } else {
+          console.log('no match')
+          beebeeFeedback = 'no match'
+        }
+      } else {
+        console.log('no relationship')
+      }
+    }
+    // prepare segment size
+    console.log(glueWheel)
+    let segmentSize = 0
+    let segmentNumber = guleWheel.length
+    if (segmentNumber > 0) {
+      segmentSize = 360 / segmentNumber
+    }
+    // loop over and prepare display data structure
+    let wheelDisplay = {}
+    let cueLabels = []
+    let cueDatasets = {}
+    let cueColors = []
+    let segList = []
+    for (let cue of glueWheel) {
+      // look up datatype contract
+      cueLabels.push(cue.name)
+      cueColors.push(cue.color)
+      segList.push(segmentSize)
+    }
+    cueDatasets = { backgroundColor: cueColors, data: segList }
+    wheelDisplay = { labels: cueLabels, datasets: cueDatasets }
+    glueClueData = {}
+    glueClueData.wheeldata = wheelDisplay
+    glueClueData.feedback = beebeeFeedback
+    return glueClueData
+  }
+
+
+  /* prepare save contract message
+  * @method prepareDTgaiaMessage
+  *
+  */
+  prepareDTgaiaMessage = function (contract) {
+    let gaiaJack = []
+    // gaia
+    const refContract = {}
+    refContract.type = 'library'
+    refContract.action = 'contracts'
+    refContract.reftype = 'datatype'
+    refContract.task = 'PUT'
+    refContract.privacy = 'public'
+    let dtSettings = {}
+    dtSettings.primary =  true
+    dtSettings.name = 'gaia'
+    dtSettings.description = 'sovereign intelligence'
+    dtSettings.wiki = 'https://en.wikipedia.org/wiki/Gaia_hypothesis'
+    dtSettings.rdf = 'https://dbpedia.org/page/Gaia_hypothesis'
+    dtSettings.measurement = 'Integer' 
+    dtSettings.datatypeType = 'datatype'
+    refContract.data = dtSettings
+    gaiaJack.push(refContract)
+    // nature
+    const refContract1 = {}
+    refContract1.type = 'library'
+    refContract1.action = 'contracts'
+    refContract1.reftype = 'datatype'
+    refContract1.task = 'PUT'
+    refContract1.privacy = 'public'
+    let dtSettings1 = {}
+    dtSettings1.primary =  true
+    dtSettings1.name = 'nature'
+    dtSettings1.description = 'rolling out of universe'
+    dtSettings1.wiki = 'https://en.wikipedia.org/wiki/Nature'
+    dtSettings1.rdf = 'https://dbpedia.org/page/Nature'
+    dtSettings1.measurement = 'Integer' 
+    dtSettings1.datatypeType = 'datatype'
+    refContract1.data = dtSettings1
+    gaiaJack.push(refContract1)
+    // environment
+    const refContract2 = {}
+    refContract2.type = 'library'
+    refContract2.action = 'contracts'
+    refContract2.reftype = 'datatype'
+    refContract2.task = 'PUT'
+    refContract2.privacy = 'public'
+    let dtSettings2 = {}
+    dtSettings2.primary =  true
+    dtSettings2.name = 'environment'
+    dtSettings2.description = ''
+    dtSettings2.wiki = 'https://en.wikipedia.org/wiki/Built_environment'
+    dtSettings2.rdf = 'https://dbpedia.org/page/Built_environment'
+    dtSettings2.measurement = 'Integer' 
+    dtSettings2.datatypeType = 'datatype'
+    refContract2.data = dtSettings2
+    gaiaJack.push(refContract2)
+    // culture
+    const refContract3 = {}
+    refContract3.type = 'library'
+    refContract3.action = 'contracts'
+    refContract3.reftype = 'datatype'
+    refContract3.task = 'PUT'
+    refContract3.privacy = 'public'
+    let dtSettings3 = {}
+    dtSettings3.primary =  true
+    dtSettings3.name = 'culture'
+    dtSettings3.description = 'humanity invention'
+    dtSettings3.wiki = 'https://en.wikipedia.org/wiki/Culture'
+    dtSettings3.rdf = 'https://dbpedia.org/page/Culture'
+    dtSettings3.measurement = 'Integer' 
+    dtSettings3.datatypeType = 'datatype'
+    refContract3.data = dtSettings3
+    gaiaJack.push(refContract3)
+    // life
+    const refContract4 = {}
+    refContract4.type = 'library'
+    refContract4.action = 'contracts'
+    refContract4.reftype ='datatype'
+    refContract4.task = 'PUT'
+    refContract4.privacy = 'public'
+    let dtSettings4 = {}
+    dtSettings4.primary =  true
+    dtSettings4.name = 'life'
+    dtSettings4.description = 'be alive'
+    dtSettings4.wiki = 'https://en.wikipedia.org/wiki/Life'
+    dtSettings4.rdf = 'https://dbpedia.org/page/Life'
+    dtSettings4.measurement = 'Integer' 
+    dtSettings4.datatypeType = 'datatype'
+    refContract4.data = dtSettings4
+    gaiaJack.push(refContract4)
+
+    return gaiaJack
   }
 
 

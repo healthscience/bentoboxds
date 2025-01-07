@@ -1,11 +1,11 @@
-import { ref, computed, shallowRef, defineAsyncComponent } from 'vue'
 import { defineStore } from 'pinia'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import LibraryUtility from '@/stores/hopUtility/libraryUtility.js'
-import { bentoboxStore } from "@/stores/bentoboxStore.js"
+import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { useSocketStore } from '@/stores/socket.js'
 import hashObject from 'object-hash'
 import ChatUtilty from '@/stores/hopUtility/chatUtility.js'
+import { cuesStore } from "@/stores/cuesStore.js"
 
 export const libraryStore = defineStore('librarystore', {
   state: () => ({
@@ -15,6 +15,7 @@ export const libraryStore = defineStore('librarystore', {
     joinNXP: false,
     joinSelected: {},
     joinFeedback: false,
+    storeCues: cuesStore(),
     storeAI: aiInterfaceStore(),
     storeBentoBox: bentoboxStore(),
     utilLibrary: new LibraryUtility(),
@@ -337,11 +338,36 @@ export const libraryStore = defineStore('librarystore', {
         } else {
           this.publicLibrary = message
         }
-      } else if (message.action === 'reference-contract') {
-        console.log('ref save success')
+        // check if start cues are here and needing processed
+        if (this.storeBentoBox.libraryCheck === false) {
+          // yes go ahead and expand cues
+          console.log('start cue ready check')
+          let updateCueExpand = []
+          for (let cueContract of this.storeCues.waitingCues) {
+            let expandDTCue = this.utilLibrary.expandCuesDT(cueContract.value.computational, this.publicLibrary.referenceContracts)
+            console.log('cues start expanded')
+            console.log(expandDTCue)
+            cueContract.value.computational = expandDTCue
+            updateCueExpand.push(cueContract)
+          }
+          this.storeCues.cuesList = updateCueExpand
+          console.log('cues start expanded')
+          console.log(this.storeCues.cuesList)
+          // this.storeCues.waitingCues = []
+        }
+      } else if (message.action === 'cue-contract') {
+        console.log('new cue contract save')
         console.log(message)
+        let expandDTCue = this.utilLibrary.expandCuesDT(message.data.value.computational, this.publicLibrary.referenceContracts)
+        console.log(expandDTCue)
+        // add to cues list
+        message.data.value.computational = expandDTCue
+        // this.storeCues.cuesList.push(message.data.value.computational)
+      } else if (message.action === 'reference-contract') {
         // call HOP to get latest changes to public library
         this.sendMessage('get-public-library')
+        // call HOP to get latest changes to results library
+        this.sendMessage('get-results')
       } else if (message.action === 'peer-library') {
         // prepare network experiment lists
         let newPair = {}

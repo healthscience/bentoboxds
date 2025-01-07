@@ -225,6 +225,25 @@ class LibraryUtility { //  extends EventEmitter {
     return modSettings
   }
 
+
+  /**
+  * expand out cue contract with datatypes
+  * @method expandCuesDT
+  *
+  */
+  expandCuesDT = function (cueList, publicLibrary) {
+    let expandDTCue = []
+    for (let relC of cueList) {
+      console.log('expand cue')
+      console.log(relC)
+      // match datatype key to contract
+      let dtContract = this.matchRefContract(relC.datatype, publicLibrary, 'datatype')
+      relC.datatype = dtContract
+      expandDTCue.push(relC)
+    }
+    return expandDTCue
+  }
+ 
   /**
   * default contracts for time datatype  observation compute  chartjs visualisation
   * @method prepareDefaultContracts
@@ -262,6 +281,8 @@ class LibraryUtility { //  extends EventEmitter {
     libContracts.push(cuesDatatypes5)
     return libContracts
   }
+
+
 
   /**
   * prepare save contract message

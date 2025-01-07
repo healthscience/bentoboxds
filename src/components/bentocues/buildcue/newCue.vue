@@ -3,7 +3,7 @@
     <div id="new-cue-space">
       <form id="add-cue-form" @submit.prevent="cueAdd()">
         <label for="benefit"></label><!--  v-on:keyup="storeAI.actionNatlangIn($event)" -->
-        <input type="input" id="cuenameadd" name="cuename" placeholder="wheel name" v-model="cueName" autofocus>
+        <input type="input" id="cuenameadd" name="cuename" placeholder="cue name" v-model="cueName" autofocus>
       </form>
       <div id="build-segments">
         <div id="build-datatype">
@@ -12,7 +12,7 @@
               {{ dtc.value.concept.name }}
             </option>
           </select>
-          <button id="new-datatype" @click="newDatatypeadd()">new</button>
+          <button id="new-datatype" @click="newDatatypeadd()">new datatype</button>
           <div id="new-datatype-contribute" v-if="newDatatype === true">
             <new-datatype></new-datatype>
             <button id="new-datatype-button" @click="contributeDatatype()">Add datatype to library</button>
@@ -24,9 +24,9 @@
           </div>
         </div>
         <ColorPicker v-model:pureColor="pureColor" format="hex" shape="square" />
-        <button id="cue-add" type="submit" @click="cueAdd()">
+        <!--<button id="cue-add" type="submit" @click="cueAdd()">
           + cue
-        </button>
+        </button>-->
       </div>
     </div>
     <div id="build-cues">
@@ -86,7 +86,7 @@
         </div>
       </div>-->
       <div id="save-cues-network">
-        <button id="save-cues-library" @click="saveCues()">Contribute cues</button>
+        <button id="save-cues-library" @click="saveCue()">Contribute cue</button>
       </div>
     </div>
   </div>
@@ -129,28 +129,16 @@ import { cuesStore } from '@/stores/cuesStore.js'
   })
 
   /* methods */
-  const selectDatatypeC = (dtc) => {
+  const selectDatatypeC = () => {
     console.log('data type cliected')
-    console.log(dtc)
     console.log(datatypeCue.value)
-    // now add to cue
-    // cueAdd()
-  }
 
-  const selectDatatypeCSub = (dtc) => {
-    console.log('data type cliected')
-    console.log(dtc)
-    console.log(datatypeCue.value)
-    // now add to cue
-    // cueAdd()
+    console.log(datatypeCue.value.value.concept)
+    cueName.value = datatypeCue.value.value.concept.name
   }
 
   const newDatatypeadd = () => {
     newDatatype.value = true
-  }
-
-  const newDatatypeaddsub = () => {
-    newDatatypesub.value = true
   }
 
   const contributeDatatype = () => {
@@ -167,12 +155,32 @@ import { cuesStore } from '@/stores/cuesStore.js'
     newDatatypesub.value = false
   }
 
+  const saveCue = () => {
+    let cueHolder = {}
+    cueHolder.name = cueName.value
+    cueHolder.contract = datatypeCue.value // ask LLM to prepare ref contract next release tiny LLM
+    cueHolder.color = pureColor.value
+    storeCues.prepareCueContract(cueHolder)
+  }
+
+
+  // move to relatioship ie wheel spiral building
+
   const cueAdd = () => {
     let newSegment = { refcontract: datatypeCue.value.key, label: datatypeCue.value.value.concept.name, datasets: { backgroundColor: pureColor.value, data: 30 }}
-    addCueSegment(newSegment)
+    // addCueSegment(newSegment)
     cueSegment.value = ''
     newDatatype.value = false
   }
+
+  const cueSelectAdd = (type, seg) => {
+    console.log('new seg add biomarker')
+    console.log(type)
+    console.log(seg.chart.$context.chart.tooltip.dataPoints[0])
+    subNewSeg.value = true
+    subSegLabel.value = seg.chart.$context.chart.tooltip.dataPoints[0].label
+  }
+
 
   const addCueSegment = (cSeg) => {
     let updatePie = {}
@@ -236,14 +244,6 @@ import { cuesStore } from '@/stores/cuesStore.js'
     cuesNewSub.value = updatePieObj
   }
 
-  const cueSelectAdd = (type, seg) => {
-    console.log('new seg add biomarker')
-    console.log(type)
-    console.log(seg.chart.$context.chart.tooltip.dataPoints[0])
-    subNewSeg.value = true
-    subSegLabel.value = seg.chart.$context.chart.tooltip.dataPoints[0].label
-  }
-
   const cueSelectAddSub = () => {
     console.log('no sub sub for now')
   }
@@ -265,7 +265,8 @@ import { cuesStore } from '@/stores/cuesStore.js'
     console.log('list attach marker')
   }
 
-  const saveCues = () => {
+
+  const saveCuesWheel = () => {
     // 1 create new datatype ref contract and auto look up wikipedia API if internet 2. save cues info. seperate vis info plus relationship e.g cue name and via cue connection if present
     // uuid for cue wheel
     let cueID = hashObject(cueName.value + new Date())
