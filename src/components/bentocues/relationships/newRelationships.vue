@@ -8,12 +8,12 @@
         <div id="select-cue-a">
           Select a Cue
           <div class="cues-list" v-for="whCue in cuesList">
-            <button @click="expandWheel(whCue)">{{ whCue.value.computational.name }}</button>
-            <div class="wheel-segment" v-if="cSegment === whCue.name">
+            <button  v-bind:class="{ active: cueSelect[whCue.key]?.active === true}" @click="selectCue(whCue.key)">{{ whCue.value.concept.name }}</button>
+            <!--<div class="wheel-segment" v-if="cSegment === whCue.name">
               <div class="expand-wheel" v-for="cue of wheelActive">
                 <button @click="selectCueMatch(cue)">{{ cue }}</button>
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
         <div id="doughnut-size-add" v-if="columnA === 'cueA'">
@@ -23,11 +23,11 @@
       <div id="relationship-glue">
         Relationship
         <div id="connection-glue">
-          <button @click="glueType('down')">Down</button>
-          <button @click="glueType('up')">Up</button>
-          <button @click="glueType('equal')">Equal</button>
-          <button @click="glueType('unknown')">Unknown</button>
-          <button @click="glueType('compute')">Compute</button>
+          <button v-bind:class="{ active: glueMatch === 'down'}" @click="glueType('down')">Down</button>
+          <button v-bind:class="{ active: glueMatch === 'up'}" @click="glueType('up')">Up</button>
+          <button v-bind:class="{ active: glueMatch === 'equal' }" @click="glueType('equal')">Equal</button>
+          <button v-bind:class="{ active: glueMatch === 'unknown' }" @click="glueType('unknown')">Unknown</button>
+          <button v-bind:class="{ active: glueMatch === 'compute' }" @click="glueType('compute')">Compute</button>
         </div>
       </div>
       <div id="rel-two">
@@ -41,15 +41,19 @@
         <div id="select-cue-a" v-if="matchType === 'cue'">
           Select a cue please
           <!-- existing cues -->
-          <cues-prepared></cues-prepared>
-        </div>
-        <div id="doughnut-size-add" v-if="columnB === 'cueB'">
-          <pie-chartcues v-if="cuesNew.labels.length > 0" :cueType="'view'" :chartData="cuesColB" :options="{}" @segmentClick="cueSelectAdd"></pie-chartcues>
+          <div class="cues-list" v-for="whCue in cuesList">
+            <button  v-bind:class="{ active: cueSelectRel[whCue.key]?.active === true}" @click="selectCueRel(whCue.key)">{{ whCue.value.concept.name }}</button>
+          </div>
         </div>
       </div>
     </div>
     <div id="glue-relationship">
-      selected {{ cuePrimary }} -- {{ glueMatch }} --- {{ secondWheel }}
+      <div id="glue-wheel">
+        <div id="doughnut-size-add" v-if="columnB === 'cueB'">
+          <pie-chartcues v-if="cuesNew.labels.length > 0" :cueType="'view'" :chartData="cuesColB" :options="{}" @segmentClick="cueSelectAdd"></pie-chartcues>
+        </div>
+      </div>
+      selected {{ cueSelect }} -- {{ glueMatch }} --- {{ cueSelectRel }}
       <button id="glue-type-button" @click="mapGlue">Glue relationship</button>
     </div>
   </div>
@@ -77,6 +81,9 @@ import { cuesStore } from '@/stores/cuesStore.js'
   let wheelActive = ref([])
   let cuePrimary = ref('')
   let glueMatch = ref('')
+  let cueSelect = ref({})
+  let cueSelectRel = ref({})
+  let primeCue = ref('')
 
   /*  computed  */
   const cuesColA = computed(() => {
@@ -127,6 +134,30 @@ import { cuesStore } from '@/stores/cuesStore.js'
 
   const matchStyle = (mstyle) => {
     matchType.value = mstyle
+  }
+
+  const selectCue = (cueKey) => {
+    if (cueSelect.value[cueKey] === undefined) {
+      cueSelect.value[cueKey] = { active: false}
+    }
+    primeCue.value = cueKey
+    cueSelect.value[cueKey].active = !cueSelect.value[cueKey].active
+  }
+
+  const selectCueRel = (cueKey) => {
+    if (cueSelectRel.value[cueKey] === undefined) {
+      cueSelectRel.value[cueKey] = { active: false}
+    }
+    cueSelectRel.value[cueKey].active = !cueSelectRel.value[cueKey].active
+    // add to data for pie-chart
+    let cueContract = {}
+    for (let c of storeCues.cuesList) {
+      if (c.key === cueKey) {
+        cueContract = c
+      }
+    }
+    let cueRelDisplay = storeCues.cueDisplayBuilder(primeCue.value, cueContract.value.computational, storeCues.cueColumnB)
+    storeCues.cueColumnB = cueRelDisplay
   }
 
   const selectCueMatch= (cue) => {

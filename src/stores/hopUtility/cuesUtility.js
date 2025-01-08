@@ -150,7 +150,6 @@ class CuesUtility {
     return testCues[testID]
   }
 
-
   /**
   * prepare save cue contract
   * @method prepareCuesContractPrime
@@ -167,9 +166,11 @@ class CuesUtility {
     cueContract.task = 'PUT'
     cueContract.privacy = 'public'
     let cueHolder = {}
-    cueHolder.refdatatype = cueInfo.key // ask LLM to prepare ref contract next release tiny LLM
-    cueHolder.name = cueInfo.name
-    cueHolder.relationship = [{ glue: 'prime', datatype: cueInfo.contract.key, backgroundColor: cueInfo.color }]  // add display object on use? or save?
+    let concept = {}
+    concept.name = cueInfo.name
+    concept.settings = { glue: 'prime', datatype: cueInfo.contract.key, backgroundColor: cueInfo.color }
+    cueHolder.concept = concept
+    cueHolder.computational = { relationship: [] } 
     cueContract.data = cueHolder
     return cueContract
   }
@@ -200,15 +201,37 @@ class CuesUtility {
    * parepare cue display data structure
    * @method cueDisplayMake
   */
-  cueDisplayMake = function (dataCue, dtContract) {
-    console.log('make cue how many to dispay based on relationshiop selected')
-    console.log(dataCue)
-    console.log(dtContract)
-    let displayData = {}
-    for (let cue of dataCue) {
-      displayData = { labels: dtContract.value.concept.name, datasets: [{ backgroundColor: dataCue.bakgroundcolor, data: dataCue.segment }] }
+  cueDisplayMake = function (cueKey, cueRel, existingRels) {
+    console.log('make cue how many to dispay based on relationship selected')
+    console.log(cueKey)
+    console.log(cueRel)
+    console.log(existingRels)
+    let existingLabels = []
+    let existingDatasets = []
+    // first time add?
+    if (Object.keys(existingRels).length === 0 ) {
+      existingRels = {
+        labels: [],
+        datasets: {
+          backgroundColor: [],
+          data: []
+        }
+      }
     }
-    // { labels: [ dataCue.contract.value.concept.name], datasets: [{ backgroundColor: [colorCue], data: [ 360 ] }] }
+    // capture existing label and dataset arrays
+    existingLabels = existingRels.labels
+    existingDatasets = existingRels.datasets
+    // is a prime or relationship structure coming in?
+    
+    // add new label and dataset
+    existingLabels.push(cueRel.value.concept.name)
+    existingDatasets.backgroundColor.push(cueRel.value.concept.settings.backgroundColor)
+    // size of each segment
+    let segUpdate = this.prepareSegmentSize(existingLabels.length)
+    existingDatasets.data = segUpdate
+    // structure needed{ labels: [ dataCue.contract.value.concept.name], datasets: [{ backgroundColor: [colorCue], data: [ 360 ] }] }
+    let displayData = {}
+    displayData = { labels: existingLabels, datasets: [{ backgroundColor: existingDatasets.backgroundColor, data: existingDatasets.data }] }
     return displayData
   }
 
@@ -266,6 +289,19 @@ class CuesUtility {
     return glueClueData
   }
 
+
+  /* prepare segment size
+  * @method prepareSegmentSize
+  *
+  */
+  prepareSegmentSize = function (noSegs) {
+    let segArray = []
+    let segmentSize = 360 / noSegs
+    for (let i = 0; i < noSegs; i++) {
+      segArray.push(segmentSize)
+    }
+    return segArray
+  }
 
   /* prepare save contract message
   * @method prepareDTgaiaMessage

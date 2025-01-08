@@ -1,8 +1,8 @@
 <template>
   <!-- list of active cue wheels made per account -->
-  <div id="saved-cues" v-if="cuesNetworkList.length > 0">dd {{ cuesNetworkList }}
+  <div id="saved-cues" v-if="cuesNetworkList.length > 0">
     <div class="network-cues" v-for="ncue of cuesNetworkList" :value="ncue">
-      <button class="cue-item" @click="viewCue(ncue)">{{ ncue.value.computational[0].datatype.value.concept.name }}</button>
+      <button class="cue-item" @click="viewCue(ncue.key, ncue)">{{ ncue.value.concept.name }}</button>
     </div>
   </div>
   <!--start sync option -->
@@ -26,7 +26,7 @@
   </div>
   <div id="cue-bentobox" v-if="cueActive === 'concept'">
     <!-- produce cue wheel based on active cue -->
-    <pie-chartcues v-if="liveDoughData" :chartData="liveDoughData" :options="{}" @segmentClick="cueSelect" ></pie-chartcues>
+    <pie-chartcues v-if="Object.keys(liveDoughData).length > 0" :chartData="liveDoughData" :options="{}" @segmentClick="cueSelect" ></pie-chartcues>
     <div id="relationship-glue" v-if="cueSelectrel === false">
       <div id="beebee-rel">
         <div id="connection-glue">
@@ -79,42 +79,21 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     return storeCues.cuesList
   })
 
-  const cuesSelection = computed(() => {
-    return storeCues.activeCueSegment
-  })
-
-  const cuesNature = computed(() => {
-    return storeCues.natureBoundries
-  })
-
-  const cuesLife = computed(() => {
-    return storeCues.cuesLife
-  })
-
   const liveDoughData = computed(() => {
     return storeCues.activeDougnnutData
   })
 
 
   /* methods */
-  const selectCue = (type) => {
-    cueType.value = type
-    storeCues.activeCue = type
-    cueActive.value = ''
-  }
-
   const gaiaSyncStart = () => {
     // inform library to prepare gaia datatype contracts
     storeCues.prepareGaia()
   }
 
-  const viewCue = (cue) => {
-    console.log(cue)
-    console.log(cue.value.computational)
+  const viewCue = (cueKey, cueR) => {
     cueActive.value = 'concept'
-    let cueRelData = cue.value.computational
-    storeCues.activeCue = cue.key
-    storeCues.activeDougnnutData = storeCues.cueDisplayBUilder(cueRelData)
+    storeCues.activeCue = cueKey
+    storeCues.activeDougnnutData = storeCues.cueDisplayBuilder(cueKey, cueR, {})
   }
 
   const removeCue = () => {
@@ -126,6 +105,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
       }
     }
     storeCues.cuesList = liveCuesUpdate
+    // remove wheel data
+    storeCues.activeDougnnutData = {}
     // message to HOP to delete cue
     let cueMessage = {}
     cueMessage.type = 'library'
@@ -141,8 +122,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   const cueSelect = async (segType, segInfo) => {
     cueSelectrel.value = !cueSelectrel.value
     // match seg to data set
-    console.log(segType)  
-    console.log(segInfo)
     // what relationships for this cue?
     cueActive.value = 'concept'
 

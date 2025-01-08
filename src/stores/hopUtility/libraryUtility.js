@@ -225,6 +225,18 @@ class LibraryUtility { //  extends EventEmitter {
     return modSettings
   }
 
+  /**
+  * expand single cue expand
+  * @method expandCuesDTSingle
+  *
+  */
+  expandCuesDTSingle = function (cueContract, publicLibrary) {
+    let expandDTCue = cueContract
+    // match datatype key to contract
+    let dtContract = this.matchRefContract(cueContract.value.concept.settings.datatype, publicLibrary, 'datatype')
+    expandDTCue.value.concept.settings.datatype = dtContract
+    return expandDTCue
+  }
 
   /**
   * expand out cue contract with datatypes

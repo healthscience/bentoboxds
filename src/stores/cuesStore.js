@@ -114,8 +114,8 @@ export const cuesStore = defineStore('cues', {
       let cueContract = this.cueUtil.prepareCuesContractPrime(cueInfo)
       this.sendSocket.send_message(cueContract)
     },
-    cueDisplayBuilder (cueData, dtContract) {
-      let cueDisplay = this.cueUtil.cueDisplayMake(cueData, dtContract)
+    cueDisplayBuilder (cueKey, cueRel, liveWheel) {
+      let cueDisplay = this.cueUtil.cueDisplayMake(cueKey, cueRel, liveWheel)
       return cueDisplay
     },
     cueGluePrepare (glueType) {

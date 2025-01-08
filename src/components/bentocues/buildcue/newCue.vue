@@ -130,10 +130,6 @@ import { cuesStore } from '@/stores/cuesStore.js'
 
   /* methods */
   const selectDatatypeC = () => {
-    console.log('data type cliected')
-    console.log(datatypeCue.value)
-
-    console.log(datatypeCue.value.value.concept)
     cueName.value = datatypeCue.value.value.concept.name
   }
 
