@@ -202,12 +202,8 @@ class CuesUtility {
    * @method cueDisplayMake
   */
   cueDisplayMake = function (cueKey, cueRel, existingRels) {
-    console.log('make cue how many to dispay based on relationship selected')
-    console.log(cueKey)
-    console.log(cueRel)
-    console.log(existingRels)
     let existingLabels = []
-    let existingDatasets = []
+    let existingDatasets = {}
     // first time add?
     if (Object.keys(existingRels).length === 0 ) {
       existingRels = {
@@ -220,9 +216,11 @@ class CuesUtility {
     }
     // capture existing label and dataset arrays
     existingLabels = existingRels.labels
-    existingDatasets = existingRels.datasets
-    // is a prime or relationship structure coming in?
-    
+    if (existingRels.datasets.length > 0) {
+      existingDatasets = existingRels.datasets[0]
+    } else {
+      existingDatasets = existingRels.datasets
+    }
     // add new label and dataset
     existingLabels.push(cueRel.value.concept.name)
     existingDatasets.backgroundColor.push(cueRel.value.concept.settings.backgroundColor)

@@ -8,12 +8,7 @@
         <div id="select-cue-a">
           Select a Cue
           <div class="cues-list" v-for="whCue in cuesList">
-            <button  v-bind:class="{ active: cueSelect[whCue.key]?.active === true}" @click="selectCue(whCue.key)">{{ whCue.value.concept.name }}</button>
-            <!--<div class="wheel-segment" v-if="cSegment === whCue.name">
-              <div class="expand-wheel" v-for="cue of wheelActive">
-                <button @click="selectCueMatch(cue)">{{ cue }}</button>
-              </div>
-            </div> -->
+            <button  v-bind:class="{ active: cueSelect[whCue.key]?.active === true}" @click="selectCue(whCue)">{{ whCue.value.concept.name }}</button>
           </div>
         </div>
         <div id="doughnut-size-add" v-if="columnA === 'cueA'">
@@ -49,12 +44,15 @@
     </div>
     <div id="glue-relationship">
       <div id="glue-wheel">
-        <div id="doughnut-size-add" v-if="columnB === 'cueB'">
-          <pie-chartcues v-if="cuesNew.labels.length > 0" :cueType="'view'" :chartData="cuesColB" :options="{}" @segmentClick="cueSelectAdd"></pie-chartcues>
+        <div id="doughnut-size-add" v-if="columnB === true">bb {{ cuesColB }}
+          <pie-chartcues v-if="cuesColB?.labels?.length > 0" :cueType="'view'" :chartData="cuesColB" :options="{}" @segmentClick="cueSelectAdd"></pie-chartcues>
         </div>
       </div>
-      selected {{ cueSelect }} -- {{ glueMatch }} --- {{ cueSelectRel }}
+      selected {{ cueSelect }} -- {{ glueMatch }} --- {{ cueSelectRel }}8888
       <button id="glue-type-button" @click="mapGlue">Glue relationship</button>
+    </div>
+    <div id="beebee-feedback" v-if="feedbackCount > 0">
+      {{ feedbackBeeBee }}
     </div>
   </div>
 </template>
@@ -84,6 +82,8 @@ import { cuesStore } from '@/stores/cuesStore.js'
   let cueSelect = ref({})
   let cueSelectRel = ref({})
   let primeCue = ref('')
+  let feedbackBeeBee = ref({})
+  let feedbackCount = ref(0)
 
   /*  computed  */
   const cuesColA = computed(() => {
@@ -112,19 +112,47 @@ import { cuesStore } from '@/stores/cuesStore.js'
   }
 
   const mapGlue = () => {
-    console.log('glue relationsips pelease')
-    let relTriplet = {}
-    relTriplet.primary = cuePrimary
-    relTriplet.glue = glueMatch.value
-    relTriplet.secondary = secondWheel // need to expand for a cue segs
-    const cueContract = {}
-    cueContract.type = 'library'
-    cueContract.action = 'cues'
-    cueContract.reftype = 'relationship'
-    cueContract.task = 'PUT'
-    cueContract.privacy = 'public'
-    cueContract.data = relTriplet
-    // storeLibrary.sendMessage(cueContract)
+    // loop over to extract keys of mappings
+    feedbackCount.value = 0
+    feedbackBeeBee.value = {}
+    // check three parts exist
+    if (Object.keys(primeCue.value).length === 0) {
+      feedbackBeeBee.value.primecue = 'Please select a primary cue'
+      feedbackCount.value++
+    }
+    if (glueMatch.value === '') {
+      feedbackBeeBee.value.glue = 'Please select a glue'
+      feedbackCount.value++
+    }
+    if (Object.keys(cueSelectRel.value).length === 0) {
+      feedbackBeeBee.value.cueRel = 'Please cues to map a relationship with'
+      feedbackCount.value++
+    }
+    if (feedbackCount.value === 0) {
+      let relCueActive = []
+      let keyCues = Object.keys(cueSelectRel.value)
+      for (let mcue of keyCues) {
+        if (cueSelectRel.value[mcue].active === true) {
+          relCueActive.push(mcue)
+        }
+      }
+      let relTriplet = {}
+      relTriplet.contract = primeCue.value
+      relTriplet.glue = glueMatch.value
+      relTriplet.relationships = relCueActive // need to expand for a cue segs
+      const cueContract = {}
+      cueContract.type = 'library'
+      cueContract.action = 'cues'
+      cueContract.reftype = 'relationship'
+      cueContract.task = 'UPDATE'
+      cueContract.privacy = 'public'
+      cueContract.data = relTriplet
+      console.log(cueContract)
+      // storeLibrary.sendMessage(cueContract)
+    } else {
+      // feedbackCount.value = 0
+      // feedbackBeeBee.value = {}
+    }
   }
 
   const expandWheel = (wheel) => {
@@ -137,15 +165,26 @@ import { cuesStore } from '@/stores/cuesStore.js'
   }
 
   const selectCue = (cueKey) => {
-    if (cueSelect.value[cueKey] === undefined) {
-      cueSelect.value[cueKey] = { active: false}
+    if (cueSelect.value[cueKey.key] === undefined) {
+      cueSelect.value[cueKey.key] = { active: false}
     }
     primeCue.value = cueKey
-    cueSelect.value[cueKey].active = !cueSelect.value[cueKey].active
+    cueSelect.value[cueKey.key].active = !cueSelect.value[cueKey.key].active
+    if (cueSelect.value[cueKey.key].active === false) {
+      // clear the pie wheel
+      storeCues.cueColumnB = {}
+      // reset rel cues to false
+      let relCues = Object.keys(cueSelectRel.value)
+      for (let rc of relCues) {
+        cueSelectRel.value[rc].active = false
+      }
+      // reset glue to empty
+      glueMatch.value = {}
+    }
   }
 
   const selectCueRel = (cueKey) => {
-    if (cueSelectRel.value[cueKey] === undefined) {
+    if (cueSelectRel.value[cueKey.key] === undefined) {
       cueSelectRel.value[cueKey] = { active: false}
     }
     cueSelectRel.value[cueKey].active = !cueSelectRel.value[cueKey].active
@@ -156,8 +195,20 @@ import { cuesStore } from '@/stores/cuesStore.js'
         cueContract = c
       }
     }
-    let cueRelDisplay = storeCues.cueDisplayBuilder(primeCue.value, cueContract.value.computational, storeCues.cueColumnB)
-    storeCues.cueColumnB = cueRelDisplay
+    // first time add or existing?
+    console.log('setucure ')
+    console.log(storeCues.cueColumnB)
+    if (storeCues.cueColumnB.length > 0) {
+      console.log('second')
+      let cueRelDisplay = storeCues.cueDisplayBuilder(primeCue.value.key, cueContract, storeCues.cueColumnB[0])
+      storeCues.cueColumnB = cueRelDisplay
+    } else {
+      let cueRelDisplay = storeCues.cueDisplayBuilder(primeCue.value.key, cueContract, storeCues.cueColumnB)
+      console.log('pie data')
+      console.log(cueRelDisplay)
+      storeCues.cueColumnB = cueRelDisplay
+    }
+    columnB.value = true
   }
 
   const selectCueMatch= (cue) => {
