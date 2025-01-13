@@ -50,10 +50,12 @@ import SpaceMenu from '@/components/beebeeView/navigation/spaceMenu.vue'
 import BeebeeChat from '@/components/beebeehelp/chatInterface.vue'
 import BentoSpace from '@/components/bentospace/spaceTemplate.vue'
 import BentoDiary from '@/components/bentodiary/diaryTemplate.vue'
+import { cuesStore } from '@/stores/cuesStore.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { computed } from 'vue'
 
+  const storeCues = cuesStore()
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
 
@@ -92,6 +94,7 @@ import { computed } from 'vue'
   }
 
   const openBentoFlake = () => {
+    storeCues.liveCueContext = 'flake'
     flakeActive.value = !flakeActive.value
     storeAI.bentoflakeState = !storeAI.bentoflakeState
   }

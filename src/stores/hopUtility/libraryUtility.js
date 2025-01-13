@@ -246,8 +246,6 @@ class LibraryUtility { //  extends EventEmitter {
   expandCuesDT = function (cueList, publicLibrary) {
     let expandDTCue = []
     for (let relC of cueList) {
-      console.log('expand cue')
-      console.log(relC)
       // match datatype key to contract
       let dtContract = this.matchRefContract(relC.datatype, publicLibrary, 'datatype')
       relC.datatype = dtContract

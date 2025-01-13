@@ -26,7 +26,7 @@
   </div>
   <div id="cue-bentobox" v-if="cueActive === 'concept'">
     <!-- produce cue wheel based on active cue -->
-    <pie-chartcues v-if="Object.keys(liveDoughData).length > 0" :chartData="liveDoughData" :options="{}" @segmentClick="cueSelect" ></pie-chartcues>
+    <pie-chartcues v-if="Object.keys(liveDoughData).length > 0" :chartData="liveDoughData" :options="{}" @segmentClick="cueSegSelect" ></pie-chartcues>
     <div id="relationship-glue" v-if="cueSelectrel === false">
       <div id="beebee-rel">
         <div id="connection-glue">
@@ -94,6 +94,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     cueActive.value = 'concept'
     storeCues.activeCue = cueKey
     storeCues.activeDougnnutData = storeCues.cueDisplayBuilder(cueKey, cueR, {})
+    // check in other context e.g. flake
+    storeCues.checkCueContext()
   }
 
   const removeCue = () => {
@@ -124,14 +126,27 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     // match seg to data set
     // what relationships for this cue?
     cueActive.value = 'concept'
+  }
+
+  const cueSegSelect = async (segType, segInfo) => {
+    // match seg to cue contract
+    let matchCue = storeCues.matchCueContractLabel(segInfo)
+    storeCues.activeCue = matchCue.key
+    storeCues.activeDougnnutData = storeCues.cueDisplayBuilder(matchCue.key, matchCue, {})
+    // what relationships for this cue?
+    cueActive.value = 'concept'
 
   }
 
   const glueType = (glueType) => {
-    console.log(glueType)
-    storeCues.activeDougnnutData = storeCues.cueGluePrepare(glueType)
+    let cogGlueDisplay = storeCues.cueGluePrepare(glueType)
+    storeCues.activeCueExpanded = cogGlueDisplay.expandedcues
+    if (cogGlueDisplay?.wheeldata?.labels.length > 1) {
+      storeCues.checkCueContext()
+      storeCues.activeDougnnutData = cogGlueDisplay.wheeldata
+    }
+    beebeeFeedback.value = cogGlueDisplay.feedback
   }
-
 
 </script>
 

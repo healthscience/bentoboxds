@@ -138,8 +138,9 @@ import { cuesStore } from '@/stores/cuesStore.js'
       }
       let relTriplet = {}
       relTriplet.contract = primeCue.value
-      relTriplet.glue = glueMatch.value
-      relTriplet.relationships = relCueActive // need to expand for a cue segs
+      let glueRel = {}
+      glueRel[glueMatch.value] = relCueActive
+      relTriplet.relationships = glueRel // { glue: glueMatch.value, cues: relCueActive }
       const cueContract = {}
       cueContract.type = 'library'
       cueContract.action = 'cues'
@@ -148,10 +149,12 @@ import { cuesStore } from '@/stores/cuesStore.js'
       cueContract.privacy = 'public'
       cueContract.data = relTriplet
       console.log(cueContract)
-      // storeLibrary.sendMessage(cueContract)
-    } else {
-      // feedbackCount.value = 0
-      // feedbackBeeBee.value = {}
+      storeLibrary.sendMessage(cueContract)
+      // need to update rel cue contract with opposite relationship, e.g  down to up  
+      // reset the form
+      primeCue.value = {}
+      glueMatch.value = ''
+      cueSelectRel.value = {}
     }
   }
 
@@ -180,6 +183,11 @@ import { cuesStore } from '@/stores/cuesStore.js'
       }
       // reset glue to empty
       glueMatch.value = {}
+    } else {
+      // loook up for existing cue relationships and form cue wheel
+      let cueRelDisplay = storeCues.cueDisplayBuilder(cueKey.key, cueKey, storeCues.cueColumnB)
+      storeCues.cueColumnB = cueRelDisplay
+      columnB.value = true
     }
   }
 
@@ -196,16 +204,11 @@ import { cuesStore } from '@/stores/cuesStore.js'
       }
     }
     // first time add or existing?
-    console.log('setucure ')
-    console.log(storeCues.cueColumnB)
     if (storeCues.cueColumnB.length > 0) {
-      console.log('second')
       let cueRelDisplay = storeCues.cueDisplayBuilder(primeCue.value.key, cueContract, storeCues.cueColumnB[0])
       storeCues.cueColumnB = cueRelDisplay
     } else {
       let cueRelDisplay = storeCues.cueDisplayBuilder(primeCue.value.key, cueContract, storeCues.cueColumnB)
-      console.log('pie data')
-      console.log(cueRelDisplay)
       storeCues.cueColumnB = cueRelDisplay
     }
     columnB.value = true

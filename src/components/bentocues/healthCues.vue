@@ -28,6 +28,7 @@
               <button class="cue-select-btn" id="bentopath" @click="selectWheel('bentopath')" v-bind:class="{ active: wheelType === 'bentopath' }">Paths</button>
               <button class="cue-select-btn" id="newbentopath" @click="selectWheel('newbentopath')" v-bind:class="{ active: wheelType === 'newbentopath' }">+ Path</button>
               <button class="cue-select-btn" id="decision-start" @click="selectWheel('decision')" v-bind:class="{ active: wheelType === 'decision' }">+ Decision</button>
+              <button class="cue-select-btn" id="decision-start" @click="selectWheel('clone')" v-bind:class="{ active: wheelType === 'clone' }">Clone</button>
             </div>
             <!-- existing cues -->
             <cues-prepared v-if="wheelType === 'cues'"></cues-prepared>
@@ -41,6 +42,8 @@
             <new-relationships v-if="wheelType === 'newrelationships'"></new-relationships>
             <!-- decision cues -->
             <decision-cue v-if="wheelType === 'decision'"></decision-cue>
+            <!-- clone cue -->
+            <clone-cue v-if="wheelType === 'clone'"></clone-cue>
           </div>
           <div id="filter-cues">
             <header>Filters</header>
@@ -97,7 +100,8 @@ import PathView from '@/components/bentocues/bentopath/viewPath.vue'
 import BentoPath from '@/components/bentocues/bentopath/storyTools.vue'
 import DecisionCue from '@/components/bentocues/decisions/decisionCues.vue'
 import NewCue from '@/components/bentocues/buildcue/newCue.vue'
-import NewRelationships from '@/components/bentocues/relationships/newRelationships.vue' 
+import NewRelationships from '@/components/bentocues/relationships/newRelationships.vue'
+import CloneCue from '@/components/bentocues/clone/cloneCue.vue'
 import ModalCues from '@/components/bentocues/cuesModal.vue'
 import { cuesStore } from '@/stores/cuesStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'

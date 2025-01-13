@@ -57,27 +57,11 @@
             <div class="center-grid"></div>
             <div class="center-grid"></div>
             <div class="center-grid"></div>
-            <div id="center-flake" class="center-grid singularity">cues
-              <div class="cue-holistic" v-if="cueBalance === 'simple'">
-                <div class="cues-segs" v-for="cueseg of cuesFlakesH.cues" :style="cuesBBitemsH[cueseg]">
+            <div id="center-flake" class="center-grid singularity">
+              <div class="cue-holistic" v-if="cueBalance.length > 0">
+                <div class="cues-segs" v-for="cue of cuesFlakesH" :style="cue.style">
                     --------------------
-                  <div class="cues-status flake-cue" v-for="cstatus of cuesStatusH"  :style="{ backgroundColor: cstatus.cuecolor }" @click="viewCueHex(cstatus)">
-                    {{ cstatus.name }}
-                  </div>
-                </div>
-              </div>
-              <div class="cue-segments" v-if="cueBalance === 'segments'">
-                <div class="cues-segs" v-for="cueseg of cuesFlakes.cues" :style="cuesBBitems[cueseg]">
-                    --------------------
-                  <div class="cues-status flake-cue" v-for="cstatus of cuesStatus"  :style="{ backgroundColor: cstatus.cuecolor }" @click="viewCueHex(cstatus)">
-                    {{ cstatus.name }}
-                  </div>
-                </div>
-              </div>
-              <div class="cue-hallmarks" v-if="cueBalance === 'aging'">
-                <div class="cues-segs" v-for="cueseg of cuesFlakesA.cues" :style="cuesBBitemsA[cueseg]">
-                    --------------------
-                  <div class="cues-status flake-cue" v-for="cstatus of cuesStatusA"  :style="{ backgroundColor: cstatus.cuecolor }" @click="viewCueHex(cstatus)">
+                  <div class="cues-status flake-cue" v-for="cstatus of cuesStatusH[cue.cue]"  :style="{ backgroundColor: cstatus.cuecolor }" @click="viewCueHex(cstatus)">
                     {{ cstatus.name }}
                   </div>
                 </div>
@@ -117,7 +101,6 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
   /* computed */
   const cueBalance = computed(() => {
-    console.log(storeCues.activeCue)
     return storeCues.activeCue
   })
 
@@ -132,9 +115,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   })
 
   const cuesFlakesH = computed(() => {
-    let cuesF = { cues: ['nature', 'environment', 'culture', 'life'] }
-    // need to map to sub cues and then to N=1/decisions to show boundry state ie. low just right  concern
-    return cuesF
+    return storeCues.cuesFlakeList
   })
 
   const cuesBBitemsH = computed(() => {
@@ -149,14 +130,17 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   })
 
   const cuesStatusH = computed(() => {
-    let flakesList = [ { cue: 1, name: 'posture', cuecolor: 'red' }, { cue: 1, name: 'sleep', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'green' }, { cue: 1, name: 'swimming', cuecolor: 'green' }, { cue: 1, name: 'blood', cuecolor: 'green' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'orange' }, { cue: 1, name: 'sleep', cuecolor: 'red' }]
+    /* const cuesBBitemsH = computed(() => {
+    let branchItems =
+    {
+      nature: { transform: 'rotate('  + '30' + 'deg)'},
+      environment: { transform: 'rotate(' + '120' + 'deg)'},
+      culture: { transform: 'rotate(' + '210' + 'deg)'},
+      life: { transform: 'rotate(' + '300' + 'deg)'}
+    }
+    return branchItems */
+    let flakesList = storeCues.flakeCues
     return flakesList
-  })
-
-  const cuesFlakes = computed(() => {
-    let cuesF = { cues: ['nature', 'environment', 'culture', 'life', 'nature2', 'environment2', 'culture2', 'life2', 'nature3', 'environment3', 'culture3', 'life3', 'nature4', 'environment4', 'culture4', 'life4', 'nature5', 'environment5', 'culture5', 'life5', 'nature6', 'environment6', 'culture6', 'life6', 'nature7', 'environment7', 'culture7', 'life7', 'nature8', 'environment8', 'culture8', 'life8', 'nature9', 'environment9', 'culture9', 'life9'] }
-    // need to map to sub cues and then to N=1/decisions to show boundry state ie. low just right  concern
-    return cuesF
   })
 
   const cuesBBitems = computed(() => {
@@ -202,17 +186,6 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     return branchItems
   })
 
-  const cuesStatus = computed(() => {
-    let flakesList = [ { cue: 1, name: 'posture', cuecolor: 'red' }, { cue: 1, name: 'sleep', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'green' }, { cue: 1, name: 'sleep', cuecolor: 'green' }, { cue: 1, name: 'swimming', cuecolor: 'green' }, { cue: 1, name: 'blood', cuecolor: 'green' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'courage', cuecolor: 'orange' }, { cue: 1, name: 'sleep', cuecolor: 'red' }]
-    return flakesList
-  })
-
-  const cuesFlakesA = computed(() => {
-    let cuesF = { cues: ['Genomicinstability', 'Telomereattrition', 'Epigeneticalterations', 'Lossofproteostasis', 'Deregulatednutrient-sensing', 'Mitochondrialdysfunction', 'Cellularsenescence', 'Stemcellexhaustion', 'Alteredintercellularcommunication', 'besearch'] }
-    // need to map to sub cues and then to N=1/decisions to show boundry state ie. low just right  concern
-    return cuesF
-  })
-
   const cuesBBitemsA = computed(() => {
     let branchItems =
     {
@@ -230,14 +203,10 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     return branchItems
   })
 
-  const cuesStatusA = computed(() => {
-    let flakesList = [ { cue: 1, name: 'inflammation', cuecolor: 'red' }, { cue: 1, name: 'sleep', cuecolor: 'orange' },{ cue: 1, name: 'heart', cuecolor: 'green' }, { cue: 1, name: 'skin', cuecolor: 'green' }, { cue: 1, name: 'muscle', cuecolor: 'green' }, { cue: 1, name: 'cognition', cuecolor: 'green' }, { cue: 1, name: 'blood', cuecolor: 'green' },{ cue: 1, name: 'telomlength', cuecolor: 'green' }, { cue: 1, name: 'epiclock', cuecolor: 'orange' }, { cue: 1, name: 'sleep', cuecolor: 'red' }]
-    return flakesList
-  })
-
   /* methods */
   const closeBentoFlake = () => {
     storeAI.bentoflakeState = !storeAI.bentoflakeState
+    storeCues.liveCueContext = 'menu'
   }
 
   const stackProtocols = () => {
