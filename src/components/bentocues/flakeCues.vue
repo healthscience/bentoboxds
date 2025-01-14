@@ -64,6 +64,9 @@
                   <div class="cues-status flake-cue" v-for="cstatus of cuesStatusH[cue.cue]"  :style="{ backgroundColor: cstatus.cuecolor }" @click="viewCueHex(cstatus)">
                     {{ cstatus.name }}
                   </div>
+                  <div class="cue-branch">
+                    {{  }}
+                  </div>
                 </div>
               </div>
             </div>
@@ -108,99 +111,13 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     return storeAI.bentoflakeState
   })
 
-  const flakePosition = computed(() => {
-    let transportPos  = [30, 60, 90, 120]
-    let posSeg = { transform: 'rotate(' + transportPos[0] + 'deg)'}
-    return posSeg
-  })
-
   const cuesFlakesH = computed(() => {
     return storeCues.cuesFlakeList
   })
 
-  const cuesBBitemsH = computed(() => {
-    let branchItems =
-    {
-      nature: { transform: 'rotate('  + '30' + 'deg)'},
-      environment: { transform: 'rotate(' + '120' + 'deg)'},
-      culture: { transform: 'rotate(' + '210' + 'deg)'},
-      life: { transform: 'rotate(' + '300' + 'deg)'}
-    }
-    return branchItems
-  })
-
   const cuesStatusH = computed(() => {
-    /* const cuesBBitemsH = computed(() => {
-    let branchItems =
-    {
-      nature: { transform: 'rotate('  + '30' + 'deg)'},
-      environment: { transform: 'rotate(' + '120' + 'deg)'},
-      culture: { transform: 'rotate(' + '210' + 'deg)'},
-      life: { transform: 'rotate(' + '300' + 'deg)'}
-    }
-    return branchItems */
     let flakesList = storeCues.flakeCues
     return flakesList
-  })
-
-  const cuesBBitems = computed(() => {
-    let branchItems =
-    {
-      nature: { transform: 'rotate('  + '0' + 'deg)'},
-      environment: { transform: 'rotate(' + '10' + 'deg)'},
-      culture: { transform: 'rotate(' + '20' + 'deg)'},
-      life: { transform: 'rotate(' + '30' + 'deg)'},
-      nature2: { transform: 'rotate('  + '40' + 'deg)'},
-      environment2: { transform: 'rotate(' + '50' + 'deg)'},
-      culture2: { transform: 'rotate(' + '60' + 'deg)'},
-      life2: { transform: 'rotate(' + '70' + 'deg)'},
-      nature3: { transform: 'rotate('  + '80' + 'deg)'},
-      environment3: { transform: 'rotate(' + '90' + 'deg)'},
-      culture3: { transform: 'rotate(' + '100' + 'deg)'},
-      life3: { transform: 'rotate(' + '110' + 'deg)'},
-      nature4: { transform: 'rotate('  + '120' + 'deg)'},
-      environment4: { transform: 'rotate(' + '130' + 'deg)'},
-      culture4: { transform: 'rotate(' + '140' + 'deg)'},
-      life4: { transform: 'rotate(' + '150' + 'deg)'},
-      nature5: { transform: 'rotate('  + '160' + 'deg)'},
-      environment5: { transform: 'rotate(' + '170' + 'deg)'},
-      culture5: { transform: 'rotate(' + '180' + 'deg)'},
-      life5: { transform: 'rotate(' + '190' + 'deg)'},
-      nature6: { transform: 'rotate('  + '200' + 'deg)'},
-      environment6: { transform: 'rotate(' + '210' + 'deg)'},
-      culture6: { transform: 'rotate(' + '220' + 'deg)'},
-      life6: { transform: 'rotate(' + '230' + 'deg)'},
-      nature7: { transform: 'rotate('  + '240' + 'deg)'},
-      environment7: { transform: 'rotate(' + '250' + 'deg)'},
-      culture7: { transform: 'rotate(' + '260' + 'deg)'},
-      life7: { transform: 'rotate(' + '270' + 'deg)'},
-      nature8: { transform: 'rotate('  + '280' + 'deg)'},
-      environment8: { transform: 'rotate(' + '290' + 'deg)'},
-      culture8: { transform: 'rotate(' + '300' + 'deg)'},
-      life8: { transform: 'rotate(' + '310' + 'deg)'},
-      nature9: { transform: 'rotate('  + '320' + 'deg)'},
-      environment9: { transform: 'rotate(' + '330' + 'deg)'},
-      culture9: { transform: 'rotate(' + '340' + 'deg)'},
-      life9: { transform: 'rotate(' + '350' + 'deg)'}
-    }
-    return branchItems
-  })
-
-  const cuesBBitemsA = computed(() => {
-    let branchItems =
-    {
-      Genomicinstability: { transform: 'rotate('  + '20' + 'deg)'},
-      Telomereattrition: { transform: 'rotate(' + '50' + 'deg)'},
-      Epigeneticalterations: { transform: 'rotate(' + '80' + 'deg)'},
-      Lossofproteostasis: { transform: 'rotate(' + '120' + 'deg)'},
-      Deregulatednutrient: { transform: 'rotate('  + '140' + 'deg)'},
-      Mitochondrialdysfunction: { transform: 'rotate(' + '180' + 'deg)'},
-      Cellularsenescence: { transform: 'rotate(' + '220' + 'deg)'},
-      Stemcellexhaustion: { transform: 'rotate(' + '260' + 'deg)'},
-      Alteredintercellularcommunication: { transform: 'rotate('  + '290' + 'deg)'},
-      besearch: { transform: 'rotate(' + '320' + 'deg)'}
-    }
-    return branchItems
   })
 
   /* methods */
@@ -213,7 +130,6 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     stacksOpen.value = !stacksOpen.value
   }
 
-
   const cueConnect = () => {
     cuesTools.value = !cuesTools.value
   }
@@ -223,9 +139,6 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   }
 
   const viewCueHex = (cue) => {
-    console.log('one crystal color')
-    console.log(cue)
-
     storeAI.beebeeContext = 'bentoflake'
     storeAI.bentospaceState = !storeAI.bentospaceState
     let tempSpace = {}
@@ -236,8 +149,6 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     // make button green
     let spaceLiveList = []
     storeBentobox.spaceList = spaceLiveList
-
-
   }
 
   const setShowBeeBee = () => {
@@ -307,6 +218,10 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 .container-flake {
   border: 1px solid lightgray;
   width: 30vw;
+}
+
+.cue-branch {
+  display: inline;
 }
 
 #cues-one {

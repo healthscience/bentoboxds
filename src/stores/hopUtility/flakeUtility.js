@@ -40,7 +40,6 @@ class FlakeUtility {
     let flakesListTest = [ { cue: 1, name: 'posture', cuecolor: 'red' }, { cue: 2, name: 'sleep', cuecolor: 'orange' },{ cue: 3, name: 'heart', cuecolor: 'green' }, { cue: 4, name: 'courage', cuecolor: 'green' }, { cue: 5, name: 'sleep', cuecolor: 'orange' }, { cue: 6, name: 'posture', cuecolor: 'red' }]
     // how many cues and how many bentoboxes per cue?  How to rate bentoboxes or besearch within?  Use SafeFlowECS or summaary saved.  Need to check state of besearch cyccles and state in done, inprogress or ongoing
     flakeCues = flakesListTest
-    console.log(flakeCues)
     return flakeCues
   } 
 

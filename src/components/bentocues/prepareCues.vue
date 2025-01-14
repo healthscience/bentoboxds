@@ -95,6 +95,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     storeCues.activeCue = cueKey
     storeCues.activeDougnnutData = storeCues.cueDisplayBuilder(cueKey, cueR, {})
     // check in other context e.g. flake
+    storeCues.glueRelActive = ''
     storeCues.checkCueContext()
   }
 

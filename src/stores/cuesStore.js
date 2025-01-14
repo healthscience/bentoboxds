@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { useSocketStore } from '@/stores/socket.js'
 import CuesUtilty from '@/stores/hopUtility/cuesUtility.js'
 import FlakeUtilty from '@/stores/hopUtility/flakeUtility.js'
+import { transformGeometryWithOptions } from 'ol/format/Feature'
 
 export const cuesStore = defineStore('cues', {
   state: () => ({
@@ -177,7 +178,10 @@ export const cuesStore = defineStore('cues', {
           }
         } else {
           // need to prepare/ map to sub cues and then to N=1/decisions to show boundry state ie. low just right  concern
-         this.prepareFlake()
+          console.log('glue up relationship in flake mode')
+          this.cuesFlakeList = []
+          this.flakeCuesList()
+          this.prepareFlake()
         }
       }
     },
@@ -201,6 +205,7 @@ export const cuesStore = defineStore('cues', {
     prepareFlake () {
       // let cueContract = this.cueUtil.cueMatch(this.activeCue, this.cuesList)
       this.flakeCues[this.activeCue] = this.flakeUtil.prepareFlakeCues(this.activeCue)
+      console.log(this.flakeCues)
     },
     prepareFlakeExpanded (cueKey) {
       this.flakeCues[cueKey] = this.flakeUtil.prepareFlakeCues(cueKey)
