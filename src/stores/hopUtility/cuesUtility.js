@@ -65,61 +65,6 @@ class CuesUtility {
   cueTestWheels = function (testID) {
 
     let testCues = {}
-    testCues.cuesNature = {
-      labels: [
-        { name:'Universe', spaceid:'000981111', active: false, expand: true, glueup: 'Nature', gluedown: 'cuesNature' },
-        { name:'Climate/weather', spaceid:'000982111', active: false, expand: true, glueup: 'Nature', gluedown: 'cuesNature' },
-        { name:'Biodiversity', spaceid:'000983111', active: false, expand: true, glueup: 'Nature', gluedown: 'cuesNature' }
-      ],
-      datasets: [
-        {
-        backgroundColor: ['#098133', '#6aee63', '#09921c'],
-        data: [30, 30, 30]
-        }
-      ]
-    }
-
-    testCues.cuesEnvironment = {
-      labels: [
-        { name:'Farming', spaceid:'003981111', active: false, expand: true, glueup: 'Environment', gluedown: 'cuesEnvironment' },
-        { name:'Buildings', spaceid:'003981112', active: false, expand: true, glueup: 'Environment', gluedown: 'cuesEnvironment' },
-        { name:'Travel', spaceid:'003981113', active: false, expand: true, glueup: 'Environment', gluedown: 'cuesEnvironment' }
-      ],
-      datasets: [
-        {
-        backgroundColor: ['#098133', '#6aee63', '#09921c'],
-        data: [30, 30, 30]
-        }
-      ]
-    },
-    testCues.cuesCulture = {
-      labels: [
-        { name:'Money', spaceid:'003981111', active: false, expand: true, glueup: 'Culture', gluedown: 'cuesCulture' },
-        { name:'Work', spaceid:'000381112', active: false, expand: true, glueup: 'Culture', gluedown: 'cuesCulture' },
-        { name:'Music/Arts', spaceid:'000381113', active: false, expand: true, glueup: 'Culture', gluedown: 'cuesCulture' }
-      ],
-      datasets: [
-        {
-        backgroundColor: ['#0a22e8', '#838ddc', '#d2d7f8'],
-        data: [30, 30, 30]
-        }
-      ]
-    }
-
-    testCues.cuesLife = {
-      labels: [
-        { name:'Food', spaceid:'004981111', active: false, expand: true, glueup: 'Life', gluedown: 'cuesLife' },
-        { name:'Movement', spaceid:'004981112', active: false, expand: true, glueup: 'Life', gluedown: 'cuesLife' },
-        { name:'Sleep/mind', spaceid:'004981113', active: false, expand: true, glueup: 'Life', gluedown: 'cuesLife' }
-      ],
-      datasets: [
-        {
-        backgroundColor: ['#d642cc' ,'#fa03ea', '#999999'],
-        data: [30, 30, 30]
-        }
-      ]
-    }
-
     testCues.cuesBody = {
       labels: [
         { name:'Heart', spaceid:'024981111', active: false, expand: true, glueup: 'Body', gluedown: 'cuesBody' },
@@ -173,7 +118,7 @@ class CuesUtility {
     concept.name = cueInfo.name
     concept.settings = { glue: 'prime', datatype: cueInfo.contract.key, backgroundColor: cueInfo.color }
     cueHolder.concept = concept
-    cueHolder.computational = { relationship: [] } 
+    cueHolder.computational = { relationships: [] } 
     cueContract.data = cueHolder
     return cueContract
   }
@@ -244,8 +189,9 @@ class CuesUtility {
     let glueClueData = {}
     let beebeeFeedback = ''
     let glueWheel = []
-    if (cueData.value.computational[glueType] !== undefined) {
-      for (let cl of cueData.value.computational[glueType]) {
+    console.log(cueData)
+    if (cueData.value.computational?.relationships[glueType] !== undefined) {
+      for (let cl of cueData.value.computational.relationships[glueType]) {
         // match to cue contract and extract name info for label
         if (cl) {
           const matchedItem = cueList.find(item => item.key === cl)
@@ -650,10 +596,10 @@ class CuesUtility {
     refContract.privacy = 'public'
     let dtSettings = {}
     dtSettings.primary =  true
-    dtSettings.name = ''
-    dtSettings.description = ''
-    dtSettings.wiki = 'https://en.wikipedia.org/wiki/'
-    dtSettings.rdf = 'https://dbpedia.org/page/'
+    dtSettings.name = 'Hallmarks of aging'
+    dtSettings.description = 'How to categorise aging'
+    dtSettings.wiki = 'https://en.wikipedia.org/wiki/Hallmarks_of_aging'
+    dtSettings.rdf = 'https://dbpedia.org/page/Hallmarks_of_aging'
     dtSettings.measurement = 'Integer' 
     dtSettings.datatypeType = 'datatype'
     refContract.data = dtSettings
@@ -667,10 +613,10 @@ class CuesUtility {
     refContract1.privacy = 'public'
     let dtSettings1 = {}
     dtSettings1.primary =  true
-    dtSettings1.name = ''
-    dtSettings1.description = ''
-    dtSettings1.wiki = 'https://en.wikipedia.org/wiki/'
-    dtSettings1.rdf = 'https://dbpedia.org/page/'
+    dtSettings1.name = 'Genome instability'
+    dtSettings1.description = 'Genome changes with time'
+    dtSettings1.wiki = 'https://en.wikipedia.org/wiki/Genome_instability'
+    dtSettings1.rdf = 'https://dbpedia.org/page/Genome_instability'
     dtSettings1.measurement = 'Integer' 
     dtSettings1.datatypeType = 'datatype'
     refContract1.data = dtSettings1
@@ -684,10 +630,10 @@ class CuesUtility {
     refContract2.privacy = 'public'
     let dtSettings2 = {}
     dtSettings2.primary =  true
-    dtSettings2.name = ''
-    dtSettings2.description = ''
-    dtSettings2.wiki = 'https://en.wikipedia.org/wiki/'
-    dtSettings2.rdf = 'https://dbpedia.org/page/'
+    dtSettings2.name = 'Telomere'
+    dtSettings2.description = 'Telomere length over time'
+    dtSettings2.wiki = 'https://en.wikipedia.org/wiki/Telomere#Shortening'
+    dtSettings2.rdf = 'https://dbpedia.org/page/Telomere#Shortening'
     dtSettings2.measurement = 'Integer' 
     dtSettings2.datatypeType = 'datatype'
     refContract2.data = dtSettings2
@@ -700,10 +646,10 @@ class CuesUtility {
     refContract3.privacy = 'public'
     let dtSettings3 = {}
     dtSettings3.primary =  true
-    dtSettings3.name = ''
-    dtSettings3.description = ''
-    dtSettings3.wiki = 'https://en.wikipedia.org/wiki/'
-    dtSettings3.rdf = 'https://dbpedia.org/page/'
+    dtSettings3.name = 'Epigenetics'
+    dtSettings3.description = 'Epigenetics changes with time'
+    dtSettings3.wiki = 'https://en.wikipedia.org/wiki/Epigenetics'
+    dtSettings3.rdf = 'https://dbpedia.org/page/Epigenetics'
     dtSettings3.measurement = 'Integer' 
     dtSettings3.datatypeType = 'datatype'
     refContract3.data = dtSettings3
@@ -717,10 +663,10 @@ class CuesUtility {
     refContract4.privacy = 'public'
     let dtSettings4 = {}
     dtSettings4.primary =  true
-    dtSettings4.name = ''
-    dtSettings4.description = ''
-    dtSettings4.wiki = 'https://en.wikipedia.org/wiki/'
-    dtSettings4.rdf = 'https://dbpedia.org/page/'
+    dtSettings4.name = 'Proteostasis'
+    dtSettings4.description = 'Proteostasis changes with time'
+    dtSettings4.wiki = 'https://en.wikipedia.org/wiki/Proteostasis#Proteostasis_and_aging'
+    dtSettings4.rdf = 'https://dbpedia.org/page/Proteostasis#Proteostasis_and_aging'
     dtSettings4.measurement = 'Integer' 
     dtSettings4.datatypeType = 'datatype'
     refContract4.data = dtSettings4
@@ -734,10 +680,10 @@ class CuesUtility {
     refContract5.privacy = 'public'
     let dtSettings5 = {}
     dtSettings5.primary =  true
-    dtSettings5.name = ''
-    dtSettings5.description = ''
-    dtSettings5.wiki = 'https://en.wikipedia.org/wiki/'
-    dtSettings5.rdf = 'https://dbpedia.org/page/'
+    dtSettings5.name = 'Nutrient sensing'
+    dtSettings5.description = 'Nutrient sensing changes with time'
+    dtSettings5.wiki = 'https://en.wikipedia.org/wiki/Nutrient_sensing'
+    dtSettings5.rdf = 'https://dbpedia.org/page/Nutrient_sensing'
     dtSettings5.measurement = 'Integer' 
     dtSettings5.datatypeType = 'datatype'
     refContract5.data = dtSettings5
@@ -750,10 +696,10 @@ class CuesUtility {
     refContract6.privacy = 'public'
     let dtSettings6 = {}
     dtSettings6.primary =  true
-    dtSettings6.name = ''
-    dtSettings6.description = ''
-    dtSettings6.wiki = 'https://en.wikipedia.org/wiki/'
-    dtSettings6.rdf = 'https://dbpedia.org/page/'
+    dtSettings6.name = 'Mitochondrion'
+    dtSettings6.description = 'Mitochondrion changes with time'
+    dtSettings6.wiki = 'https://en.wikipedia.org/wiki/Mitochondrion#Relationships_to_aging'
+    dtSettings6.rdf = 'https://dbpedia.org/page/Mitochondrion#Relationships_to_aging'
     dtSettings6.measurement = 'Integer' 
     dtSettings6.datatypeType = 'datatype'
     refContract6.data = dtSettings6
@@ -767,10 +713,10 @@ class CuesUtility {
     refContract7.privacy = 'public'
     let dtSettings7 = {}
     dtSettings7.primary =  true
-    dtSettings7.name = ''
-    dtSettings7.description = ''
-    dtSettings7.wiki = 'https://en.wikipedia.org/wiki/'
-    dtSettings7.rdf = 'https://dbpedia.org/page/'
+    dtSettings7.name = 'Cellular senescence'
+    dtSettings7.description = 'Cellular senescence changes with time'
+    dtSettings7.wiki = 'https://en.wikipedia.org/wiki/Cellular_senescence'
+    dtSettings7.rdf = 'https://dbpedia.org/page/Cellular_senescence'
     dtSettings7.measurement = 'Integer' 
     dtSettings7.datatypeType = 'datatype'
     refContract7.data = dtSettings7
@@ -784,10 +730,10 @@ class CuesUtility {
     refContract8.privacy = 'public'
     let dtSettings8 = {}
     dtSettings8.primary =  true
-    dtSettings8.name = ''
-    dtSettings8.description = ''
-    dtSettings8.wiki = 'https://en.wikipedia.org/wiki/'
-    dtSettings8.rdf = 'https://dbpedia.org/page/'
+    dtSettings8.name = 'Stem cell exhaustion'
+    dtSettings8.description = 'Stem cell exhaustion changes with time'
+    dtSettings8.wiki = 'https://en.wikipedia.org/wiki/Stem_cell'
+    dtSettings8.rdf = 'https://dbpedia.org/page/Stem_cell'
     dtSettings8.measurement = 'Integer' 
     dtSettings8.datatypeType = 'datatype'
     refContract8.data = dtSettings8
@@ -801,16 +747,55 @@ class CuesUtility {
     refContract9.privacy = 'public'
     let dtSettings9 = {}
     dtSettings9.primary =  true
-    dtSettings9.name = ''
-    dtSettings9.description = ''
-    dtSettings9.wiki = 'https://en.wikipedia.org/wiki/'
-    dtSettings9.rdf = 'https://dbpedia.org/page/'
+    dtSettings9.name = 'Inter-cellular communication'
+    dtSettings9.description = 'Inter-cellular communication changes with time'
+    dtSettings9.wiki = 'https://en.wikipedia.org/wiki/Cell_signaling'
+    dtSettings9.rdf = 'https://dbpedia.org/page/Cell_signaling'
     dtSettings9.measurement = 'Integer' 
     dtSettings9.datatypeType = 'datatype'
     refContract9.data = dtSettings9
     gaiaJack.push(refContract9)
     return gaiaJack
   }
+
+    /* prepare datatypes planet boundries
+  * @method prepareDTplanetMessage
+  *
+  */
+    prepareDTplanetMessage = function (contract) {
+      let planetBoundries = []
+      planetBoundries.push({ name: 'Earth planet boundaries', description: 'gaia', wikipedia: 'Planetary_boundaries' })
+      planetBoundries.push({ name: 'Ozone depletion', description: '', wikipedia: 'Ozone_depletion' })
+      planetBoundries.push({ name: 'Aresol loading', description: '', wikipedia: 'Aerosol' })
+      planetBoundries.push({ name: 'Ocean acidification', description: '', wikipedia: 'Ocean_acidification' })
+      planetBoundries.push({ name: 'Bio geochemical flows', description: '', wikipedia: 'Biogeochemistry' })
+      planetBoundries.push({ name: 'Freshwater change', description: '', wikipedia: 'Water_scarcity' })
+      planetBoundries.push({ name: 'Landsystem change', description: '', wikipedia: 'Land_use' })
+      planetBoundries.push({ name: 'Biosphere integrity', description: '', wikipedia: 'Biodiversity_loss' })
+      planetBoundries.push({ name: 'Climate change', description: '', wikipedia: 'Climate_change' })
+      planetBoundries.push({ name: 'Novel entities', description: '', wikipedia: 'Pollution' })
+      
+      let gaiaJack = []
+      for (let wiki of planetBoundries) {
+        const refContract = {}
+        refContract.type = 'library'
+        refContract.action = 'contracts'
+        refContract.reftype = 'datatype'
+        refContract.task = 'PUT'
+        refContract.privacy = 'public'
+        let dtSettings = {}
+        dtSettings.primary =  true
+        dtSettings.name = wiki.name
+        dtSettings.description = wiki.description
+        dtSettings.wiki = 'https://en.wikipedia.org/wiki/' + wiki.wikipedia
+        dtSettings.rdf = 'https://dbpedia.org/page/' + wiki.wikipedia
+        dtSettings.measurement = 'Integer' 
+        dtSettings.datatypeType = 'datatype'
+        refContract.data = dtSettings
+        gaiaJack.push(refContract)
+      }
+      return gaiaJack
+    }
 
 }
 

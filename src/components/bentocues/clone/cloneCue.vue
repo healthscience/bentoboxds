@@ -4,6 +4,7 @@
             Please select a default cues
             <button id="cues-gaia" @click="activateCues('gaia')">Gaia</button>
             <button id="cues-default" @click="activateCues('aging')">Aging</button>
+            <button id="cues-default" @click="activateCues('planet')">Planet</button>
         </div>
         <div id="new-cue-space">
           <form id="add-cue-form" @submit.prevent="cueCloneNew()">
@@ -44,6 +45,8 @@ import { cuesStore } from '@/stores/cuesStore.js'
       storeCues.prepareGaia()
     } else if (cueReq == 'aging') {
       storeCues.prepareAging()
+    } else if (cueReq == 'planet') {
+      storeCues.preparePlanet()
     }
   }
 

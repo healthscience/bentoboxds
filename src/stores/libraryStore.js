@@ -350,15 +350,21 @@ export const libraryStore = defineStore('librarystore', {
           // this.storeCues.waitingCues = []
         }
       } else if (message.action === 'cue-contract') {
-        console.log('new cue contract save')
-        console.log(message)
         if (message.task === 'save-complete') {
           let expandDTCue = this.utilLibrary.expandCuesDTSingle(message.data, this.publicLibrary.referenceContracts)
           // add to cues list
           this.storeCues.cuesList.push(expandDTCue)
         } else if (message.task === 'update-complete') {
-          // update relationships
-          console.log('update complete')
+          // update contract in list
+          let updateCueList = []
+          for (let cue of this.storeCues.cuesList) {
+            if (cue.key === message.data.key) {
+              updateCueList.push(message.data)
+            } else {
+              updateCueList.push(cue)
+            }
+          }
+          this.storeCues.cuesList = updateCueList
         }
       } else if (message.action === 'reference-contract') {
         // call HOP to get latest changes to public library

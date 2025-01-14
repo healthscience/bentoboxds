@@ -105,9 +105,6 @@ import { cuesStore } from '@/stores/cuesStore.js'
 
   /* methods */
   const cueSelectAdd = (type, seg) => {
-    console.log('select label')
-    console.log(type)
-    console.log(seg.chart.$context.chart.tooltip.dataPoints[0])
     let labelA = seg.chart.$context.chart.tooltip.dataPoints[0].label
   }
 

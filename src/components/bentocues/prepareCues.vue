@@ -16,13 +16,13 @@
     <div class="pie" v-if="cueType === 'simple'">
       <pie-chartcues :cueType="'simple'" :chartData="cuesHolistic" :options="{}" @segmentClick="cueSelect"></pie-chartcues>
     </div>
-    <div class="pie-segments" v-if="cueType === 'segments'">
+    <!--<div class="pie-segments" v-if="cueType === 'segments'">
       <pie-chartcues :cueType="'segments'" :chartData="cuesSegments" :options="{}" @segmentClick="cueSelect"></pie-chartcues>
     </div>
     <div class="pie-segments" v-if="cueType === 'aging'">
       <pie-chartcues :cueType="'aging'" :chartData="cuesData" :options="{}" @segmentClick="cueSelect"></pie-chartcues>
       Source: <a href="https://peterattiamd.com/the-challenges-of-defining-aging/" target="_blank">All marks of aging</a>
-    </div>
+    </div>-->
   </div>
   <div id="cue-bentobox" v-if="cueActive === 'concept'">
     <!-- produce cue wheel based on active cue -->

@@ -170,9 +170,6 @@ import { cuesStore } from '@/stores/cuesStore.js'
   }
 
   const cueSelectAdd = (type, seg) => {
-    console.log('new seg add biomarker')
-    console.log(type)
-    console.log(seg.chart.$context.chart.tooltip.dataPoints[0])
     subNewSeg.value = true
     subSegLabel.value = seg.chart.$context.chart.tooltip.dataPoints[0].label
   }
@@ -269,7 +266,7 @@ import { cuesStore } from '@/stores/cuesStore.js'
     let newCue= {}
     newCue.name = cueName.value
     newCue.refdatatype = cueID
-    newCue.relationship = cuesNew
+    newCue.relationships = cuesNew
     newCue.active = false
     // should add when confirmed by library contracts OK  NB need to remove
     storeCues.cuesList.push(newCue)
@@ -277,7 +274,7 @@ import { cuesStore } from '@/stores/cuesStore.js'
     let cueHolder = {}
     cueHolder.refdatatype = cueID // ask LLM to prepare ref contract next release tiny LLM
     cueHolder.name = cueName.value
-    cueHolder.relationship = cuesNew.value
+    cueHolder.relationships = cuesNew.value
     // storeLibrary.sendMessage(refContract)
     // save cues & relationship(s)
     const cueContract = {}

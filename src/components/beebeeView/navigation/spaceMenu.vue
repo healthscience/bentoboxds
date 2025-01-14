@@ -20,10 +20,9 @@
       <button class="delete-chat-history" @click="deleteSpaceHistory(sis)">Del</button>
     </div>
     <div id="cues-holder" @click="showExpandCues()" v-bind:class="{ active: expandCues }">
-      Cues
+      Cues 
     </div>
     <div id="show-cues" v-if="expandCues === true">
-      LIst here if clicked
       <div class="cues-list" v-for="cue in cuesList">
         <div id="cue-holistic">
           <button class="flat-history"  v-bind:class="{ active: cue?.active }" @click="bentoSpaceOpen(cue)" @mouseover="hoverCheck(cue)" @mousemove="moveCheck(cue)"> {{ cue.name }}
@@ -82,7 +81,7 @@ import { ref, computed, onMounted } from 'vue'
 
   /* on mount */
   onMounted(() => {
-    storeCues.setSpaceGlue()
+   
   })
 
 
@@ -91,16 +90,41 @@ import { ref, computed, onMounted } from 'vue'
     return storeBentobox.spaceList
   })
 
+  const startCuesList = computed(() => {
+    return storeCues.cuesList
+  })
+
   const cuesList = computed(() => {
-    return storeCues.cuesmenuList
+    // take curent cues filter for down cogGlue SHOULD BE DONE on start TODO
+    let menuPrep = []
+    for (let cue of storeCues.cuesList) {
+      // does the cues the top of its path?
+      if (cue.value.computational?.relationships !== undefined) {
+         if (Object.keys(cue.value.computational?.relationships).length > 0 && cue.value.computational?.relationships?.down.length > 0) {
+          menuPrep.push(
+            {
+              name: cue.value.concept.name,
+              cueid: cue.key,
+              gluedown: 'down',
+              active: false,
+              expand: true
+            }
+          )
+        } else {
+        }
+      } else {
+      }
+    }
+    return menuPrep
   })
 
   const selectCues = computed(() => {
-    if (storeCues.selectCues[glueName.value] !== undefined) {
+    /* if (storeCues.selectCues[glueName.value] !== undefined) {
       return storeCues.selectCues[glueName.value].labels
     } else {
       return []
-    }
+    }*/
+    return storeCues.selectCues
   })
 
   const cuesLongevity = computed(() => {
@@ -137,6 +161,26 @@ import { ref, computed, onMounted } from 'vue'
   }
 
   const drillCue = (cuem) => {
+    let downCuesList = []
+    // match to cues contract and loop over relationships
+    for (let cue of storeCues.cuesList) {
+      if (cue.key === cuem.cueid) {
+        for (let rel of cue.value.computational.relationships['down']) {
+          // match to cue contract
+          let cueContract = storeCues.cueUtil.cueMatch(rel, storeCues.cuesList)
+          downCuesList.push(
+            {
+              name: cueContract.value.concept.name,
+              cueid: cueContract.key,
+              gluedown: 'down',
+              active: false,
+              expand: true
+            }
+          )
+        }
+      }
+    }
+    storeCues.selectCues = downCuesList
     glueTarget.value = !glueTarget.value
     glueName.value = cuem.gluedown
   }
