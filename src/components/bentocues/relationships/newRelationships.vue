@@ -18,11 +18,12 @@
       <div id="relationship-glue">
         Relationship
         <div id="connection-glue">
-          <button v-bind:class="{ active: glueMatch === 'down'}" @click="glueType('down')">Down</button>
-          <button v-bind:class="{ active: glueMatch === 'up'}" @click="glueType('up')">Up</button>
-          <button v-bind:class="{ active: glueMatch === 'equal' }" @click="glueType('equal')">Equal</button>
-          <button v-bind:class="{ active: glueMatch === 'unknown' }" @click="glueType('unknown')">Unknown</button>
-          <button v-bind:class="{ active: glueMatch === 'compute' }" @click="glueType('compute')">Compute</button>
+          <button class="glue-type" v-bind:class="{ active: glueMatch === 'down'}" @click="glueType('down')">Down</button>
+          <button class="glue-type" v-bind:class="{ active: glueMatch === 'up'}" @click="glueType('up')">Up</button>
+          <button class="glue-type" v-bind:class="{ active: glueMatch === 'equal' }" @click="glueType('equal')">Equal</button>
+          <button class="glue-type" v-bind:class="{ active: glueMatch === 'measure' }" @click="glueType('measure')">Measure</button>
+          <button class="glue-type" v-bind:class="{ active: glueMatch === 'unknown' }" @click="glueType('unknown')">Unknown</button>
+          <button class="glue-type" v-bind:class="{ active: glueMatch === 'compute' }" @click="glueType('compute')">Compute</button>
         </div>
       </div>
       <div id="rel-two">
@@ -30,7 +31,7 @@
           <div class="match-source" @click="matchStyle('cue')" v-bind:class="{ active: matchType === 'cue' }">Cues</div>
           <div class="match-source" @click="matchStyle('media')">Media</div>
           <div class="match-source" @click="matchStyle('research')">Research</div>
-          <div class="match-source" @click="matchStyle('marker')">Markers</div>
+          <div class="match-source" @click="matchStyle('marker')" v-bind:class="{ active: matchType === 'marker' }">Markers</div>
           <div class="match-source" @click="matchStyle('product')">Product</div>
         </div>
         <div id="select-cue-a" v-if="matchType === 'cue'">
@@ -40,15 +41,21 @@
             <button  v-bind:class="{ active: cueSelectRel[whCue.key]?.active === true}" @click="selectCueRel(whCue.key)">{{ whCue.value.concept.name }}</button>
           </div>
         </div>
+        <div id="select-cue-a" v-if="matchType === 'marker'">
+          Select a marker
+          <!-- existing markers -->
+          <div class="cues-list" v-for="mark in markerList">
+            <button class="marker-button" v-bind:class="{ active: mark.active === true}" @click="selectMarkerRel(mark.uuid)">{{ mark.type }}</button>
+          </div>
+        </div>
       </div>
     </div>
     <div id="glue-relationship">
       <div id="glue-wheel">
-        <div id="doughnut-size-add" v-if="columnB === true">bb {{ cuesColB }}
+        <div id="doughnut-size-add" v-if="columnB === true">
           <pie-chartcues v-if="cuesColB?.labels?.length > 0" :cueType="'view'" :chartData="cuesColB" :options="{}" @segmentClick="cueSelectAdd"></pie-chartcues>
         </div>
       </div>
-      selected {{ cueSelect }} -- {{ glueMatch }} --- {{ cueSelectRel }}8888
       <button id="glue-type-button" @click="mapGlue">Glue relationship</button>
     </div>
     <div id="beebee-feedback" v-if="feedbackCount > 0">
@@ -58,9 +65,7 @@
 </template>
 
 <script setup>
-import hashObject from 'object-hash'
 import { ref, computed } from 'vue'
-import CuesPrepared from '@/components/bentocues/prepareCues.vue'
 import PieChartcues from '@/components/visualisation/charts/doughnutChart.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
@@ -75,17 +80,18 @@ import { cuesStore } from '@/stores/cuesStore.js'
   let columnA = ref(false)
   let columnB = ref(false)
   let matchType = ref('cue')
-  let cSegment = ref('')
-  let wheelActive = ref([])
-  let cuePrimary = ref('')
   let glueMatch = ref('')
   let cueSelect = ref({})
   let cueSelectRel = ref({})
+  let markerSelectList = ref([])
   let primeCue = ref('')
-  let feedbackBeeBee = ref({})
   let feedbackCount = ref(0)
 
   /*  computed  */
+  const feedbackBeeBee = computed(() => {
+    return storeAI.cuesRelationshipFeedback
+  })
+
   const cuesColA = computed(() => {
     return storeCues.cueColumnA
   })
@@ -98,6 +104,10 @@ import { cuesStore } from '@/stores/cuesStore.js'
     return storeCues.cuesList // cuesmenuList
   })
 
+  const markerList = computed(() => {
+    return storeCues.markerList // cuesmenuList
+  })
+
   const secondWheel = computed(() => {
     return storeCues.activeDougnnutData
   })
@@ -108,60 +118,12 @@ import { cuesStore } from '@/stores/cuesStore.js'
     let labelA = seg.chart.$context.chart.tooltip.dataPoints[0].label
   }
 
-  const mapGlue = () => {
-    // loop over to extract keys of mappings
-    feedbackCount.value = 0
-    feedbackBeeBee.value = {}
-    // check three parts exist
-    if (Object.keys(primeCue.value).length === 0) {
-      feedbackBeeBee.value.primecue = 'Please select a primary cue'
-      feedbackCount.value++
-    }
-    if (glueMatch.value === '') {
-      feedbackBeeBee.value.glue = 'Please select a glue'
-      feedbackCount.value++
-    }
-    if (Object.keys(cueSelectRel.value).length === 0) {
-      feedbackBeeBee.value.cueRel = 'Please cues to map a relationship with'
-      feedbackCount.value++
-    }
-    if (feedbackCount.value === 0) {
-      let relCueActive = []
-      let keyCues = Object.keys(cueSelectRel.value)
-      for (let mcue of keyCues) {
-        if (cueSelectRel.value[mcue].active === true) {
-          relCueActive.push(mcue)
-        }
-      }
-      let relTriplet = {}
-      relTriplet.contract = primeCue.value
-      let glueRel = {}
-      glueRel[glueMatch.value] = relCueActive
-      relTriplet.relationships = glueRel // { glue: glueMatch.value, cues: relCueActive }
-      const cueContract = {}
-      cueContract.type = 'library'
-      cueContract.action = 'cues'
-      cueContract.reftype = 'relationship'
-      cueContract.task = 'UPDATE'
-      cueContract.privacy = 'public'
-      cueContract.data = relTriplet
-      console.log(cueContract)
-      storeLibrary.sendMessage(cueContract)
-      // need to update rel cue contract with opposite relationship, e.g  down to up  
-      // reset the form
-      primeCue.value = {}
-      glueMatch.value = ''
-      cueSelectRel.value = {}
-    }
-  }
-
-  const expandWheel = (wheel) => {
-    cSegment.value = wheel.name
-    wheelActive = wheel.relationship.labels
-  }
-
   const matchStyle = (mstyle) => {
     matchType.value = mstyle
+    if (matchType.value === 'marker') {
+      // build the marker list options
+      storeCues.markerList = storeCues.markerUtil.prepareDTbiomarkersMessage()
+    }
   }
 
   const selectCue = (cueKey) => {
@@ -211,13 +173,108 @@ import { cuesStore } from '@/stores/cuesStore.js'
     columnB.value = true
   }
 
-  const selectCueMatch= (cue) => {
-    // make this cue color green ie active
-    cuePrimary.value = cue
-  }
-
   const glueType = (glue) => {
     glueMatch.value = glue
+  }
+
+  const selectMarkerRel = (markID) => {
+    // make this cue color green ie active
+    let updateMarkerList = []
+    for (let amark of storeCues.markerList) {
+      if (amark.uuid === markID) {
+        let currentSet = amark
+        currentSet.active = !currentSet.active
+        if (currentSet.active === true) {
+          // keep track of relationships
+          markerSelectList.value.push(markID)
+        } else {
+          // remove from selected list
+          markerSelectList.value = markerSelectList.value.filter((item) => item !== markID)
+        }
+        updateMarkerList.push(currentSet)
+      } else {
+        updateMarkerList.push(amark)
+      }
+    }
+    storeCues.markerList = updateMarkerList
+  }
+
+  const mapGlue = () => {
+    // loop over to extract keys of mappings
+    feedbackCount.value = 0
+    storeAI.cuesRelationshipFeedback = {}
+    // check three parts exist
+    if (Object.keys(primeCue.value).length === 0) {
+      storeAI.cuesRelationshipFeedback.primecue = 'Please select a primary cue'
+      feedbackCount.value++
+    }
+    if (glueMatch.value === '') {
+      storeAI.cuesRelationshipFeedback.glue = 'Please select a glue'
+      feedbackCount.value++
+    }
+    if (matchType.value === 'cue') {
+      if (Object.keys(cueSelectRel.value).length === 0) {
+        storeAI.cuesRelationshipFeedback.cueRel = 'Please cues to map a relationship with'
+        feedbackCount.value++
+      }
+    } else if (matchType.value === 'marker') {
+      if (markerSelectList.value.length === 0) {
+        storeAI.cuesRelationshipFeedback.markerRel = 'Please markers to map a relationship with'
+        feedbackCount.value++
+      }
+    }
+
+    if (feedbackCount.value === 0) {
+      // prepare the relationship depending on glue type
+      if (matchType.value === 'cue') {
+        let relCueActive = []
+        let keyCues = Object.keys(cueSelectRel.value)
+        for (let mcue of keyCues) {
+          if (cueSelectRel.value[mcue].active === true) {
+            relCueActive.push(mcue)
+          }
+        }
+        let relTriplet = {}
+        relTriplet.contract = primeCue.value
+        let glueRel = {}
+        glueRel[glueMatch.value] = relCueActive
+        relTriplet.relationships = glueRel // { glue: glueMatch.value, cues: relCueActive }
+        const cueContract = {}
+        cueContract.type = 'library'
+        cueContract.action = 'cues'
+        cueContract.reftype = 'relationship'
+        cueContract.task = 'UPDATE'
+        cueContract.privacy = 'public'
+        cueContract.data = relTriplet
+        storeLibrary.sendMessage(cueContract)
+        // need to update rel cue contract with opposite relationship, e.g  down to up  
+        // reset the form
+        primeCue.value = {}
+        glueMatch.value = ''
+        cueSelectRel.value = {}
+      } else if (matchType.value === 'marker') {
+        let relMarkerActive = markerSelectList.value
+        if (markerSelectList.value.length > 0) {
+          relMarkerActive = markerSelectList.value
+          let relTriplet = {}
+          relTriplet.contract = primeCue.value
+          let glueRel = {}
+          glueRel[glueMatch.value] = relMarkerActive
+          relTriplet.relationships = glueRel // { glue: glueMatch.value, cues: relCueActive }
+          const cueContract = {}
+          cueContract.type = 'library'
+          cueContract.action = 'cues'
+          cueContract.reftype = 'relationship'
+          cueContract.task = 'UPDATE'
+          cueContract.privacy = 'public'
+          cueContract.data = relTriplet
+          storeLibrary.sendMessage(cueContract)
+          // need to update rel cue contract with opposite relationship, e.g  down to up  
+          // reset the form
+        }
+        primeCue.value = {}
+      }
+    }
   }
 
 </script>
@@ -237,11 +294,15 @@ import { cuesStore } from '@/stores/cuesStore.js'
 
 #relationship-glue {
   display: grid;
+  align-content: start;
 }
 
 #connection-glue {
   display: grid;
   grid-template-columns: 1fr;
+  margin-top: 2em;
+  margin-left: 1em;
+  margin-right: 1em;
 }
 
 #glue-relationship {
@@ -277,6 +338,17 @@ import { cuesStore } from '@/stores/cuesStore.js'
   cursor: pointer;
 }
 
+.glue-type {
+  margin-bottom: 1em;
+  margin-right: .6em;
+  padding-right: .6em;  
+}
+
+.marker-button {
+  margin-bottom: .6em;
+  margin-right: .6em;
+  padding-right: .6em;
+}
 
 .active {
   background-color: rgb(113, 172, 114);

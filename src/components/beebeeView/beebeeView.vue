@@ -120,9 +120,9 @@ import { computed } from 'vue'
 }
 
 .bento-history {
-  height: auto;
+  height: 100%;
   display: grid;
-  justify-content: top;
+  justify-content: start;
 }
 
 .history-buttons {

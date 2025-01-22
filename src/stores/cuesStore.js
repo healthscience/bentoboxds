@@ -1,17 +1,22 @@
 import { defineStore } from 'pinia'
 import { useSocketStore } from '@/stores/socket.js'
+import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import CuesUtilty from '@/stores/hopUtility/cuesUtility.js'
+import MarkersUtilty from '@/stores/hopUtility/biomarkerUtility.js'
 import FlakeUtilty from '@/stores/hopUtility/flakeUtility.js'
-import { transformGeometryWithOptions } from 'ol/format/Feature'
 
 export const cuesStore = defineStore('cues', {
   state: () => ({
+    storeAI: aiInterfaceStore(),
     cueUtil: new CuesUtilty(),
     flakeUtil: new FlakeUtilty(),
+    markerUtil: new MarkersUtilty(),
     sendSocket: useSocketStore(),
     bentopathState: false,
     pathListActive: true,
     cuesList: [],
+    markerList: [],
+    cueMatchMarkersLive: [],
     gaiaStart: false,
     gaiaCount: 0,
     pathName: '',
@@ -57,9 +62,22 @@ export const cuesStore = defineStore('cues', {
     cueGluePrepare (glueType) {
       // match cue to its contract
       this.glueRelActive = glueType
-      let cueContract = this.cueUtil.cueMatch(this.activeCue, this.cuesList)
-      let cueWheel = this.cueUtil.prepareGlueWheel(glueType, cueContract, this.cuesList)
-      return cueWheel
+      if (glueType === 'down') {
+        let cueContract = this.cueUtil.cueMatch(this.activeCue, this.cuesList)
+        let cueWheel = this.cueUtil.prepareGlueWheel(glueType, cueContract, this.cuesList)
+        this.activeCueExpanded = cueWheel.expandedcues
+        if (cueWheel?.wheeldata?.labels.length > 1) {
+          this.checkCueContext()
+          this.activeDougnnutData = cueWheel.wheeldata
+        }
+        this.storeAI.cuesFeedback = cueWheel.feedback
+      } else if (glueType === 'measure') {
+        let cueContract = this.cueUtil.cueMatch(this.activeCue, this.cuesList)
+        if (cueContract.value.computational.relationships[glueType].length > 0) {
+          let markerContract = this.markerUtil.markerMatch(cueContract.value.computational.relationships[glueType], this.markerList)
+          this.cueMatchMarkersLive = markerContract  
+        }
+      }
     },
     matchCueContract (cueInfo) {
       this.cueUtil.cueMatch(this.activeCue, this.cuesList)
@@ -118,18 +136,13 @@ export const cuesStore = defineStore('cues', {
     prepareFlake () {
       // let cueContract = this.cueUtil.cueMatch(this.activeCue, this.cuesList)
       this.flakeCues[this.activeCue] = this.flakeUtil.prepareFlakeCues(this.activeCue)
-      console.log(this.flakeCues)
     },
     prepareFlakeExpanded (cueKey) {
       this.flakeCues[cueKey] = this.flakeUtil.prepareFlakeCues(cueKey)
     },
     prepareGaia () {
       // get gaia datatype contract info.
-      // let listDatatypes = this.cueUtil.prepareDTgaiaMessage()
       let listDatatypes = this.cueUtil.prepareDTnatureMessage()
-      // let listDatatypes1 = this.cueUtil.prepareDTenvironmentMessage()
-      // let listDatatypes2 = this.cueUtil.prepareDTcultureMessage()
-      // let listDatatypes3 = this.cueUtil.prepareDTlifeMessage()
 
       for (let dtg of listDatatypes) {
         this.sendSocket.send_message(dtg)
@@ -156,6 +169,13 @@ export const cuesStore = defineStore('cues', {
     preparePlanet () {
       // planet boundries
       let listDatatypes = this.cueUtil.prepareDTplanetMessage()
+      for (let dtg of listDatatypes) {
+        this.sendSocket.send_message(dtg)
+      }
+    },
+    prepareBody () {
+      // body datatypes
+      let listDatatypes = this.cueUtil.prepareDTbodyMessage()
       for (let dtg of listDatatypes) {
         this.sendSocket.send_message(dtg)
       }

@@ -34,8 +34,8 @@
           <button class="delete-chat-history" @click="deleteSpaceHistory(cue)">Del</button>
         </div>
         ---------
-        <div id="gule-cues" v-if="glueTarget === true">
-          <div class="cues-list" v-for="cues in selectCues">
+        <div id="gule-cues" v-if="glueTarget[cue.cueid] === true">
+          <div class="cues-list" v-for="cues in selectCuesActive[cue.cueid]">
             <div id="cue-holistic" v-if="cue.gluedown === glueName">
               <button class="flat-history"  v-bind:class="{ active: cues?.active }" @click="bentoSpaceOpen(cues)" @mouseover="hoverCheck(cues)" @mousemove="moveCheck(cues)"> {{ cues.name }}
               </button>
@@ -44,9 +44,6 @@
               </span>
               <button class="save-chat-history" @click="saveSpaceHistory(cues)">save</button>
               <button class="delete-chat-history" @click="deleteSpaceHistory(cues)">Del</button>
-            </div>
-            <div id="gule-cues" v-if="glueTarget === true && glueName === 'Nature'">
-              another drill down?
             </div>
           </div>
         </div>
@@ -74,7 +71,7 @@ import { ref, computed, onMounted } from 'vue'
 
   let saveSpace = ref(false)
   let newSpacename = ref('')
-  let glueTarget = ref(false)
+  let glueTarget = ref({})
   let glueName = ref('')
   let expandCues = ref(false)
   let expandMarkers = ref(false)
@@ -100,7 +97,11 @@ import { ref, computed, onMounted } from 'vue'
     for (let cue of storeCues.cuesList) {
       // does the cues the top of its path?
       if (cue.value.computational?.relationships !== undefined) {
-         if (Object.keys(cue.value.computational?.relationships).length > 0 && cue.value.computational?.relationships?.down.length > 0) {
+         // what type of relationship
+         let matchType = Object.keys(cue.value.computational?.relationships)
+         for (let match of matchType) {
+          if (match === 'down') {
+            if (Object.keys(cue.value.computational?.relationships).length > 0 && cue.value.computational?.relationships?.down.length > 0) {
           menuPrep.push(
             {
               name: cue.value.concept.name,
@@ -108,22 +109,23 @@ import { ref, computed, onMounted } from 'vue'
               gluedown: 'down',
               active: false,
               expand: true
+            })
+            } else {
             }
-          )
-        } else {
+          } else if (match === 'up') {
+          } else if (match === 'equal') {
+          } else if (match === 'measure') {
+          } else if (match === 'compute') {
+          }
         }
+
       } else {
       }
     }
     return menuPrep
   })
 
-  const selectCues = computed(() => {
-    /* if (storeCues.selectCues[glueName.value] !== undefined) {
-      return storeCues.selectCues[glueName.value].labels
-    } else {
-      return []
-    }*/
+  const selectCuesActive = computed(() => {
     return storeCues.selectCues
   })
 
@@ -180,8 +182,12 @@ import { ref, computed, onMounted } from 'vue'
         }
       }
     }
-    storeCues.selectCues = downCuesList
-    glueTarget.value = !glueTarget.value
+    storeCues.selectCues[cuem.cueid] = downCuesList
+    if (glueTarget.value[cuem.cueid] === undefined) {
+      glueTarget.value[cuem.cueid] = true
+    } else {
+      glueTarget.value[cuem.cueid] = !glueTarget.value[cuem.cueid]
+    }
     glueName.value = cuem.gluedown
   }
 
@@ -342,6 +348,7 @@ import { ref, computed, onMounted } from 'vue'
 
     #gule-cues {
       position: relative;
+      background-color: rgb(238, 242, 243);
     }
 
     .cues-list {

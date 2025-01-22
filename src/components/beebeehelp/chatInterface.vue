@@ -241,7 +241,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   const dataOptionVis = (did, colName, bbid, options, size) => {
     // is it a large file?
-    console.log(size)
     if (size === 'large') {
       let dateColSelected = ''
       if (options === undefined) {
@@ -266,7 +265,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
         dataCode.deviceCol = ''
         dataCode.timerange = []
         dataCode.bbid = bbid
-        console.log(dataCode)
         storeAI.largeFilesubmitAsk(dataCode)
     } else {
       let dateColSelected = ''

@@ -149,7 +149,6 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   }
 
   const cueSelect = (cueID, segID) => {
-    console.log(segID.label)
     cueActive.value = segID.label
     if (segID.label === 'Blood') {
       spaceSelect('b6e81d8bed9758b538aa25c13239968813b17f5a', segID.label)
@@ -173,6 +172,9 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   }
 
   const selectWheel = (type) => {
+    // reset any active feedback or context
+    storeAI.beebeeContext = ''
+    storeCues.cueMatchMarkersLive = []
     wheelType.value = type
     if (wheelType.value === 'bentopath') {
       storeCues.pathListActive = true 

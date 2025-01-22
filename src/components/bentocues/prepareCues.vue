@@ -16,13 +16,6 @@
     <div class="pie" v-if="cueType === 'simple'">
       <pie-chartcues :cueType="'simple'" :chartData="cuesHolistic" :options="{}" @segmentClick="cueSelect"></pie-chartcues>
     </div>
-    <!--<div class="pie-segments" v-if="cueType === 'segments'">
-      <pie-chartcues :cueType="'segments'" :chartData="cuesSegments" :options="{}" @segmentClick="cueSelect"></pie-chartcues>
-    </div>
-    <div class="pie-segments" v-if="cueType === 'aging'">
-      <pie-chartcues :cueType="'aging'" :chartData="cuesData" :options="{}" @segmentClick="cueSelect"></pie-chartcues>
-      Source: <a href="https://peterattiamd.com/the-challenges-of-defining-aging/" target="_blank">All marks of aging</a>
-    </div>-->
   </div>
   <div id="cue-bentobox" v-if="cueActive === 'concept'">
     <!-- produce cue wheel based on active cue -->
@@ -33,8 +26,15 @@
           <button @click="glueType('down')">Down</button>
           <button @click="glueType('up')">Up</button>
           <button @click="glueType('equal')">Equal</button>
+          <button @click="glueType('measure')">Measure</button>
           <button @click="glueType('unknown')">Unknown</button>
           <button @click="glueType('compute')">Compute</button>
+        </div>
+        <!--markers for this cue? -->
+        <div id="cue-markers" v-if="markerContext.length > 0">
+          <div class="marker-button-item" v-for="mark in markerContext">
+           <button class="marker-button" @click="viewMarker(mark)">{{ mark[0].type }}</button>
+          </div> 
         </div>
         <div id="beebee-feedback">
           {{ beebeeFeedback }}
@@ -60,9 +60,12 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   let cueSelectrel = ref(false)
   let wheelType = ref('')
   let cueActive = ref('')
-  let beebeeFeedback = ref('')
 
   /* cumputed */
+  const beebeeFeedback = computed(() => {
+    return storeAI.cuesFeedback
+  })
+
   const cuesHolistic = computed(() => {
     return storeCues.hopCues
   })
@@ -79,6 +82,10 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     return storeCues.cuesList
   })
 
+  const markerContext = computed(() => {
+    return storeCues.cueMatchMarkersLive
+  })
+
   const liveDoughData = computed(() => {
     return storeCues.activeDougnnutData
   })
@@ -91,6 +98,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   }
 
   const viewCue = (cueKey, cueR) => {
+    // reset any context
+    storeCues.cueMatchMarkersLive = [] 
     cueActive.value = 'concept'
     storeCues.activeCue = cueKey
     storeCues.activeDougnnutData = storeCues.cueDisplayBuilder(cueKey, cueR, {})
@@ -140,13 +149,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   }
 
   const glueType = (glueType) => {
-    let cogGlueDisplay = storeCues.cueGluePrepare(glueType)
-    storeCues.activeCueExpanded = cogGlueDisplay.expandedcues
-    if (cogGlueDisplay?.wheeldata?.labels.length > 1) {
-      storeCues.checkCueContext()
-      storeCues.activeDougnnutData = cogGlueDisplay.wheeldata
-    }
-    beebeeFeedback.value = cogGlueDisplay.feedback
+    storeCues.cueGluePrepare(glueType)
   }
 
 </script>
@@ -177,6 +180,14 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
 #relationship-glue {
   border: 0px solid lightblue;
+}
+
+#cue-markers {
+  margin: 2em;
+}
+
+.marker-button-item {
+  margin-bottom: .5em;
 }
 
 @media (min-width: 1024px) {

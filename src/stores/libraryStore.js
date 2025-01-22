@@ -31,6 +31,9 @@ export const libraryStore = defineStore('librarystore', {
       data: []
     },
     publicLibrary: {},
+    libraryAvailable: false,
+    peerExperimentWaiting: false,
+    peerNXPWaiting: [],
     listPublicNXP: [],
     peerLibrary: [],
     peerResults: [],
@@ -336,7 +339,18 @@ export const libraryStore = defineStore('librarystore', {
         if (checkSetup === false) {
           this.startLibrary = true
         } else {
+          // starting public library (TODO bring in what is needed given context of Peer cues, nxps, besearch cycles etc.)
           this.publicLibrary = message
+          if(this.peerExperimentWaiting === true) {
+            // prepare the peer experiments for library display
+            if (message.networkPeerExpModules.length > 0) {
+              this.peerExperimentList = this.utilLibrary.prepareBentoSpaceJoinedNXPlist(this.peerNXPWaiting, this.publicLibrary.referenceContracts)
+              // keep track NXP contract bundle
+              this.peerLibraryNXP = this.peerNXPWaiting
+              this.peerExperimentWaiting = false
+              this.peerNXPWaiting = []
+            }
+          }
         }
         // check if start cues are here and needing processed
         if (this.storeBentoBox.libraryCheck === false) {
@@ -386,10 +400,17 @@ export const libraryStore = defineStore('librarystore', {
         // peer library data
         this.peerLibrary = message.referenceContracts
         // prepare the list of peer experiments for library display
-        if (message.networkPeerExpModules.length > 0) {
-          this.peerExperimentList = this.utilLibrary.prepareBentoSpaceJoinedNXPlist(message.networkPeerExpModules, this.publicLibrary.referenceContracts)
-          // keep track NXP contract bundle
-          this.peerLibraryNXP = message.networkPeerExpModules
+        // process if public library is available
+        if (this.publicLibrary.referenceContracts !== undefined) {
+          if (message.networkPeerExpModules.length > 0) {
+            this.peerExperimentList = this.utilLibrary.prepareBentoSpaceJoinedNXPlist(message.networkPeerExpModules, this.publicLibrary.referenceContracts)
+            // keep track NXP contract bundle
+            this.peerLibraryNXP = message.networkPeerExpModules
+          }
+        } else {
+           // inform beebee when library arrives
+          this.peerExperimentWaiting = true
+          this.peerNXPWaiting = message.networkPeerExpModules
         }
       } else if (message.action === 'new-modules') {
         this.genesisModules = message.data.modules

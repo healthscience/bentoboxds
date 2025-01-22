@@ -268,7 +268,6 @@ export const bentoboxStore = defineStore('bentostore', {
           console.log('saved feedback')
         }
       } else if (message.reftype.trim() === 'cues-history') {
-        console.log('reference contractwa rrived')
         if (this.storeLibrary.publicLibrary.referenceContracts !== undefined) {
           this.libraryCheck = true
           // expand cues via library

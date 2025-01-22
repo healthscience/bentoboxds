@@ -5,6 +5,7 @@
             <button id="cues-gaia" @click="activateCues('gaia')">Gaia</button>
             <button id="cues-default" @click="activateCues('aging')">Aging</button>
             <button id="cues-default" @click="activateCues('planet')">Planet</button>
+            <button id="cues-default" @click="activateCues('body')">Body</button>
         </div>
         <div id="new-cue-space">
           <form id="add-cue-form" @submit.prevent="cueCloneNew()">
@@ -47,6 +48,8 @@ import { cuesStore } from '@/stores/cuesStore.js'
       storeCues.prepareAging()
     } else if (cueReq == 'planet') {
       storeCues.preparePlanet()
+    } else if (cueReq == 'body') {
+      storeCues.prepareBody()
     }
   }
 

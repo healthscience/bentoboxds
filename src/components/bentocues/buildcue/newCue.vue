@@ -124,7 +124,6 @@ import { cuesStore } from '@/stores/cuesStore.js'
 
   /*  computed  */
   const referenceDataTypes = computed(() => {
-    console.log(storeLibrary.publicLibrary.referenceContracts)
     return storeLibrary.publicLibrary.referenceContracts['datatype']
   })
 
@@ -236,28 +235,6 @@ import { cuesStore } from '@/stores/cuesStore.js'
     updatePieObj.datasets = currentDatasets
     cuesNewSub.value = updatePieObj
   }
-
-  const cueSelectAddSub = () => {
-    console.log('no sub sub for now')
-  }
-
-  const addSubCue = () => {
-    console.log('create new sub cue')
-  }
-
-  const addSegMarker = () => {
-    console.log('attach marker to cue')
-    cueMarkerSelect.value = true
-  }
-
-  const cueAttachMarker = () => {
-    console.log('marker attache')
-  }
-
-  const attachMarker = () => {
-    console.log('list attach marker')
-  }
-
 
   const saveCuesWheel = () => {
     // 1 create new datatype ref contract and auto look up wikipedia API if internet 2. save cues info. seperate vis info plus relationship e.g cue name and via cue connection if present
