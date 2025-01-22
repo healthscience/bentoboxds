@@ -43,6 +43,7 @@
     </div>
     <div id="remove-cue">
       <button id="remove-cue-delete" @click="removeCue()">Delete</button>
+      <button id="view-cue-button" @click="bentoSpaceOpen()">View</button>
     </div>
   </div>
 </template>
@@ -52,13 +53,14 @@ import PieChartcues from '@/components/visualisation/charts/doughnutChart.vue'
 import { ref, computed } from 'vue'
 import { cuesStore } from '@/stores/cuesStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
+import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
   const storeCues = cuesStore()
   const storeAI = aiInterfaceStore()
+  const storeBentobox = bentoboxStore()
 
   let cueType = ref('')
   let cueSelectrel = ref(false)
-  let wheelType = ref('')
   let cueActive = ref('')
 
   /* cumputed */
@@ -68,14 +70,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   const cuesHolistic = computed(() => {
     return storeCues.hopCues
-  })
-
-  const cuesSegments = computed(() => {
-    return storeCues.cuesSegments
-  })
-
-  const cuesData = computed(() => {
-    return storeCues.longevityCues
   })
 
   const cuesNetworkList = computed(() => {
@@ -106,6 +100,25 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     // check in other context e.g. flake
     storeCues.glueRelActive = ''
     storeCues.checkCueContext()
+  }
+
+  const bentoSpaceOpen = (spaceID) => {
+    storeAI.beebeeContext = 'cue'
+    storeAI.bentospaceState = !storeAI.bentospaceState
+    // mmach to contract and form space structure
+    let cueContract = {}
+    for (let cue of storeCues.cuesList) {
+      if (cue.key === storeCues.activeCue) {
+        cueContract = cue
+      }  
+    }
+    storeAI.liveBspace = {
+      name: cueContract.value.concept.name, cueid: storeCues.activeCue,
+      gluedown: 'down',
+      active: false,
+      expand: false
+    }
+    storeBentobox.spaceList.push(storeCues.activeCue)
   }
 
   const removeCue = () => {
