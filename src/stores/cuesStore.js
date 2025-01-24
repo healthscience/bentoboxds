@@ -59,6 +59,16 @@ export const cuesStore = defineStore('cues', {
       let cueDisplay = this.cueUtil.cueDisplayMake(cueKey, cueRel, liveWheel)
       return cueDisplay
     },
+    cogGlueSpace (spaceID) {
+      let spaceContract = this.cueUtil.cueMatch(spaceID, this.cuesList)
+      console.log(spaceContract)
+      this.markerMatch[spaceID] = []
+      for (let relc of spaceContract.value.computational.relationships['measure']) {
+        let matchMarker = this.markerUtil.markerMatch(relc, this.markerList)
+        console.log(matchMarker)
+        this.markerMatch[spaceID].push(matchMarker)
+      }
+    }, 
     cueGluePrepare (glueType) {
       // match cue to its contract
       this.glueRelActive = glueType
@@ -75,6 +85,8 @@ export const cuesStore = defineStore('cues', {
         let cueContract = this.cueUtil.cueMatch(this.activeCue, this.cuesList)
         if (cueContract.value.computational.relationships[glueType].length > 0) {
           let markerContract = this.markerUtil.markerMatch(cueContract.value.computational.relationships[glueType], this.markerList)
+          console.log('parepare measure match to cue')
+          console.log(markerContract)
           this.cueMatchMarkersLive = markerContract  
         }
       }
@@ -176,6 +188,13 @@ export const cuesStore = defineStore('cues', {
     prepareBody () {
       // body datatypes
       let listDatatypes = this.cueUtil.prepareDTbodyMessage()
+      for (let dtg of listDatatypes) {
+        this.sendSocket.send_message(dtg)
+      }
+    },
+    prepareBodyBiomarkers () {
+      // body biomarkers
+      let listDatatypes = this.markerUtil.prepareContractbiomarkersMessage()
       for (let dtg of listDatatypes) {
         this.sendSocket.send_message(dtg)
       }

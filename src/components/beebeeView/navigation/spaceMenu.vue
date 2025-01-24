@@ -207,6 +207,8 @@ import { ref, computed, onMounted } from 'vue'
       }
     }
     storeBentobox.spaceList = spaceLiveList
+    // look for cogGlue e.g. measure to marker
+    storeCues.cogGlueSpace(spaceID)
   }
 
   const saveSpacename = () => {

@@ -281,6 +281,8 @@ export const bentoboxStore = defineStore('bentostore', {
         this.prepareResearchSpace(message.data)
       } else if (message.reftype.trim() === 'marker-history') {
         this.prepareMarkerSpace(message.data)
+        // any measure cue cogglue to include?
+        // this.storeCues.
       } else if (message.reftype.trim() === 'product-history') {
         this.prepareProductSpace(message.data)
       }
@@ -319,19 +321,30 @@ export const bentoboxStore = defineStore('bentostore', {
       }
     },
     prepareMarkerSpace (mData) {
+      console.log('prepare marker space and list')
+      console.log(mData)
+      // list of active markers
+      this.storeCues.markerList = mData
       let markerBoxList = []
       let tempSpaceID = ''
       for (let mkkey of mData) {
-        tempSpaceID = mkkey.value.concept.spaceid
-        if (this.locationMarkerbox[tempSpaceID] === undefined) {
-          this.locationMarkerbox[tempSpaceID] = {}
-          this.markerMedia[tempSpaceID] = []
-          this.storeCues.markerMatch[tempSpaceID] = []
+        // match from cue relations or marker contract?
+        // list of incoming markers
+        if (mkkey.value.concept.spaceid !== undefined) {
+          console.log('marker has cue space')
+          tempSpaceID = mkkey.value.concept.spaceid
+          if (this.locationMarkerbox[tempSpaceID] === undefined) {
+            this.locationMarkerbox[tempSpaceID] = {}
+            this.markerMedia[tempSpaceID] = []
+            this.storeCues.markerMatch[tempSpaceID] = []
+          }
+          markerBoxList.push({ key: mkkey.key, tag: 'marker', id: mkkey.value.concept })
+          this.setLocationMarkerbox(tempSpaceID, mkkey.key)
+          this.markerMedia[tempSpaceID].push({ key: mkkey.key, tag: 'marker', id: mkkey.value.concept })
+          this.storeCues.markerMatch[tempSpaceID].push(mkkey)
+        } else {
+          // run through cues and match maker to relathionships and add to cue space, marker in context
         }
-        markerBoxList.push({ key: mkkey.key, tag: 'marker', id: mkkey.value.concept })
-        this.setLocationMarkerbox(tempSpaceID, mkkey.key)
-        this.markerMedia[tempSpaceID].push({ key: mkkey.key, tag: 'marker', id: mkkey.value.concept })
-        this.storeCues.markerMatch[tempSpaceID].push(mkkey)
       }
     },
     prepareProductSpace (pData) {

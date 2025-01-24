@@ -6,6 +6,7 @@
             <button id="cues-default" @click="activateCues('aging')">Aging</button>
             <button id="cues-default" @click="activateCues('planet')">Planet</button>
             <button id="cues-default" @click="activateCues('body')">Body</button>
+            <button id="cues-default" @click="activateCues('body-biomarkers')">Biomarkers Human body</button>
         </div>
         <div id="new-cue-space">
           <form id="add-cue-form" @submit.prevent="cueCloneNew()">
@@ -50,6 +51,8 @@ import { cuesStore } from '@/stores/cuesStore.js'
       storeCues.preparePlanet()
     } else if (cueReq == 'body') {
       storeCues.prepareBody()
+    } else if (cueReq == 'body-biomarkers') { 
+      storeCues.prepareBodyBiomarkers()
     }
   }
 

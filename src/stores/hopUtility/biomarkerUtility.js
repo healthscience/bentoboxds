@@ -49,9 +49,11 @@ class BiomarkersUtility {
   *
   */
   markerMatch = function (relMarkers, markersLive) {
+    console.log(relMarkers)
+    console.log(markersLive)
     let fullMarker = []
     for (let markID of relMarkers) {
-      let markerMatch = markersLive.filter(item => item.uuid === markID)
+      let markerMatch = markersLive.filter(item => item.key === markID)
       fullMarker.push(markerMatch)
     }
     return fullMarker
@@ -61,7 +63,7 @@ class BiomarkersUtility {
   * @method prepareDTbiomarkersMessage
   *
   */
-  prepareDTbiomarkersMessage = function (contract) {
+  prepareContractbiomarkersMessage = function (contract) {
 
     const data = [
       { body: 'heart', type: 'Cholesterol / HDL Ratio', description: '', lab: '', active: false, uuid: '9b106f1d-9a69-4f7e-9d1f-6a7e4f9d1f6a' },
@@ -236,29 +238,27 @@ class BiomarkersUtility {
       { body: 'body', type: 'telomeres length', description: '', lab: '', active: false, uuid: '0q0v1v0w-0r1v-4v1w-0r1v-4v1w0r1v0v0q' }
     ];
     
-    
-
-  
-    /* let gaiaJack = []
-    for (let wiki of bioMarker) {
-      const refContract = {}
-      refContract.type = 'library'
-      refContract.action = 'contracts'
-      refContract.reftype = 'datatype'
-      refContract.task = 'PUT'
-      refContract.privacy = 'public'
-      let dtSettings = {}
-      dtSettings.primary =  true
-      dtSettings.name = wiki.name
-      dtSettings.description = wiki.description
-      dtSettings.wiki = 'https://en.wikipedia.org/wiki/' + wiki.wikipedia
-      dtSettings.rdf = 'https://dbpedia.org/page/' + wiki.wikipedia
-      dtSettings.measurement = 'Integer' 
-      dtSettings.datatypeType = 'datatype'
-      refContract.data = dtSettings
-      gaiaJack.push(refContract)
-    } */
-    return data
+    let gaiaJack = []
+    for (let mark of data) {
+      const markContract = {}
+      markContract.type = 'library'
+      markContract.action = 'marker'
+      markContract.reftype = 'marker-cues'
+      markContract.task = 'PUT'
+      markContract.privacy = 'public'
+      let markSettings = {}
+      markSettings.primary =  true
+      markSettings.name = mark.type
+      markSettings.description = mark.type
+      markSettings.wiki = ''
+      markSettings.spaceid = ''
+      markSettings.marker = '' 
+      markSettings.lab = mark.lab
+      markSettings.datatypeType = 'marker'
+      markContract.data = markSettings
+      gaiaJack.push(markContract)
+    }
+    return gaiaJack
   }
 
 }

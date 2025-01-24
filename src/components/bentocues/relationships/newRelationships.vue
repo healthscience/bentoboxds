@@ -45,7 +45,9 @@
           Select a marker
           <!-- existing markers -->
           <div class="cues-list" v-for="mark in markerList">
-            <button class="marker-button" v-bind:class="{ active: mark.active === true}" @click="selectMarkerRel(mark.uuid)">{{ mark.type }}</button>
+            <div v-if="mark.value.concept.name">
+             <button class="marker-button" v-bind:class="{ active: mark.active === true}" @click="selectMarkerRel(mark.key)">{{ mark.value.concept.name }}</button>
+             </div>
           </div>
         </div>
       </div>
@@ -120,10 +122,6 @@ import { cuesStore } from '@/stores/cuesStore.js'
 
   const matchStyle = (mstyle) => {
     matchType.value = mstyle
-    if (matchType.value === 'marker') {
-      // build the marker list options
-      storeCues.markerList = storeCues.markerUtil.prepareDTbiomarkersMessage()
-    }
   }
 
   const selectCue = (cueKey) => {
@@ -178,10 +176,11 @@ import { cuesStore } from '@/stores/cuesStore.js'
   }
 
   const selectMarkerRel = (markID) => {
+    console.log(markID)
     // make this cue color green ie active
     let updateMarkerList = []
     for (let amark of storeCues.markerList) {
-      if (amark.uuid === markID) {
+      if (amark.key === markID) {
         let currentSet = amark
         currentSet.active = !currentSet.active
         if (currentSet.active === true) {

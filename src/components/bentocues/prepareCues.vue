@@ -33,7 +33,7 @@
         <!--markers for this cue? -->
         <div id="cue-markers" v-if="markerContext.length > 0">
           <div class="marker-button-item" v-for="mark in markerContext">
-           <button class="marker-button" @click="viewMarker(mark)">{{ mark[0].type }}</button>
+           <button class="marker-button" @click="viewMarker(mark)">{{ mark[0].value.concept.name }}</button>
           </div> 
         </div>
         <div id="beebee-feedback">
@@ -43,14 +43,14 @@
     </div>
     <div id="remove-cue">
       <button id="remove-cue-delete" @click="removeCue()">Delete</button>
-      <button id="view-cue-button" @click="bentoSpaceOpen()">View</button>
+      <button id="view-cue-button" @click="bentoSpaceOpen()">Space</button>
     </div>
   </div>
 </template>
 
 <script setup>
 import PieChartcues from '@/components/visualisation/charts/doughnutChart.vue'
-import { ref, computed } from 'vue'
+import { ref, computed, markRaw } from 'vue'
 import { cuesStore } from '@/stores/cuesStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
@@ -113,12 +113,14 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
       }  
     }
     storeAI.liveBspace = {
-      name: cueContract.value.concept.name, cueid: storeCues.activeCue,
+      name: cueContract.value.concept.name,
+      spaceid: storeCues.activeCue,
       gluedown: 'down',
       active: false,
       expand: false
     }
     storeBentobox.spaceList.push(storeCues.activeCue)
+    storeCues.cogGlueSpace(storeCues.activeCue)
   }
 
   const removeCue = () => {

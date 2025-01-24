@@ -380,6 +380,9 @@ export const libraryStore = defineStore('librarystore', {
           }
           this.storeCues.cuesList = updateCueList
         }
+      } else if (message.action === 'marker-contract') {
+        let markerContract = message.data.data
+        this.storeCues.markerMatch[markerContract.value.concept.spaceid].push(markerContract)
       } else if (message.action === 'reference-contract') {
         // call HOP to get latest changes to public library
         this.sendMessage('get-public-library')

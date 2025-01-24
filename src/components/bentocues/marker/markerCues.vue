@@ -11,11 +11,11 @@
     </button>
   </div>
   <div id="marker-paper-list" v-if="markerMatch?.length > 0">
-    <div id="marker-paper-select" v-for="mark in markerMatch" :value="mark.id">
-      <button class="marker-paper-item" @click="viewMarker(mark.value.concept.marker)">
-        {{ mark.value.concept.marker }}
+    <div id="marker-paper-select" v-for="mark in markerMatch" :value="mark[0].key">
+      <button class="marker-paper-item" @click="viewMarker(mark[0].key)">
+        {{ mark[0].value.concept.name }}
       </button>
-      <button class="marker-paper-source" @click="viewSourceMarker(mark.value.concept.marker)">
+      <button class="marker-paper-source" @click="viewSourceMarker(mark[0].value.concept.lab)">
         View source
       </button>
     </div>
@@ -39,7 +39,9 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   /* computed */
   const markerMatch = computed(() => {
-    return storeCues.markerMatch[storeAI.liveBspace.spaceid]
+    console.log(',,d,aldflfldl')
+    console.log(storeCues.cueMatchMarkersLive)
+    return storeCues.cueMatchMarkersLive
   })
 
   /* methods */
@@ -51,7 +53,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
       if (storeCues.markerMatch[storeAI.liveBspace.spaceid] === undefined) {
         storeCues.markerMatch[storeAI.liveBspace.spaceid] = []
       }
-      storeCues.markerMatch[storeAI.liveBspace.spaceid].push({ key: 'tempmark', value: { concept: { spaceid: storeAI.liveBspace.spaceid, marker: markerURLadd.value, lab: markerTest.value }}})
       // save and add to space ledger
       const cueMContract = {}
       cueMContract.type = 'library'
@@ -66,6 +67,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   }
 
   const viewMarker = (marker) => {
+    console.log('viewMarker', marker)
     let idMarker = marker
     if (idMarker.length > 0) {
       // check if holder setup
