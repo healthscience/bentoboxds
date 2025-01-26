@@ -1,9 +1,13 @@
 <template>
   <!-- list of active cue wheels made per account -->
-  <div id="saved-cues" v-if="cuesNetworkList.length > 0">
+  <div id="saved-cues" v-if="cueConext === 'cueall' && cuesNetworkList.length > 0">
     <div class="network-cues" v-for="ncue of cuesNetworkList" :value="ncue">
       <button class="cue-item" @click="viewCue(ncue.key, ncue)">{{ ncue.value.concept.name }}</button>
     </div>
+  </div>
+  <div v-else-if="cueConext === 'space'" id="cue-space">
+    Space cue {{ storeAI.liveBspace }}
+    <button class="cue-item" @click="viewCue(storeAI.liveBspace.spaceid, storeAI.liveBspace)">{{ storeAI.liveBspace.name }}</button>
   </div>
   <!--start sync option -->
   <div id="sync-cues" v-else>
@@ -11,13 +15,7 @@
       Sync <a href="#" @click="gaiaSyncStart()">Gaia cues</a> or create new cues
     </div>
   </div>
-  <!-- default wheels holistic segments haulmarks aging -->
-  <div id="view-cues" v-if="cueActive !== 'concept'">
-    <div class="pie" v-if="cueType === 'simple'">
-      <pie-chartcues :cueType="'simple'" :chartData="cuesHolistic" :options="{}" @segmentClick="cueSelect"></pie-chartcues>
-    </div>
-  </div>
-  <div id="cue-bentobox" v-if="cueActive === 'concept'">
+  <div id="cue-bentobox" v-if="cueKnowledge === 'concept'">
     <!-- produce cue wheel based on active cue -->
     <pie-chartcues v-if="Object.keys(liveDoughData).length > 0" :chartData="liveDoughData" :options="{}" @segmentClick="cueSegSelect" ></pie-chartcues>
     <div id="relationship-glue" v-if="cueSelectrel === false">
@@ -31,7 +29,7 @@
           <button @click="glueType('compute')">Compute</button>
         </div>
         <!--markers for this cue? -->
-        <div id="cue-markers" v-if="markerContext.length > 0">
+        <div id="cue-markers" v-if="markerContext.length > 0 && cueConext !== 'space'">
           <div class="marker-button-item" v-for="mark in markerContext">
            <button class="marker-button" @click="viewMarker(mark)">{{ mark[0].value.concept.name }}</button>
           </div> 
@@ -59,11 +57,17 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
 
-  let cueType = ref('')
   let cueSelectrel = ref(false)
-  let cueActive = ref('')
 
   /* cumputed */
+  const cueConext = computed(() => {
+    return storeCues.cueContext
+  })
+
+  const cueKnowledge = computed(() => {
+    return storeCues.cueKnowledge
+  })
+
   const beebeeFeedback = computed(() => {
     return storeAI.cuesFeedback
   })
@@ -73,6 +77,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   })
 
   const cuesNetworkList = computed(() => {
+    console.log(storeCues.cuesList)
     return storeCues.cuesList
   })
 
@@ -81,6 +86,8 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   })
 
   const liveDoughData = computed(() => {
+    console.log('liveDoughData')
+    console.log(storeCues.activeDougnnutData)
     return storeCues.activeDougnnutData
   })
 
@@ -94,7 +101,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   const viewCue = (cueKey, cueR) => {
     // reset any context
     storeCues.cueMatchMarkersLive = [] 
-    cueActive.value = 'concept'
+    storeCues.cueKnowledge = 'concept'
     storeCues.activeCue = cueKey
     storeCues.activeDougnnutData = storeCues.cueDisplayBuilder(cueKey, cueR, {})
     // check in other context e.g. flake
@@ -146,24 +153,18 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     storeAI.sendMessageHOP(cueMessage)
   }
 
-  const cueSelect = async (segType, segInfo) => {
-    cueSelectrel.value = !cueSelectrel.value
-    // match seg to data set
-    // what relationships for this cue?
-    cueActive.value = 'concept'
-  }
-
   const cueSegSelect = async (segType, segInfo) => {
     // match seg to cue contract
     let matchCue = storeCues.matchCueContractLabel(segInfo)
     storeCues.activeCue = matchCue.key
     storeCues.activeDougnnutData = storeCues.cueDisplayBuilder(matchCue.key, matchCue, {})
     // what relationships for this cue?
-    cueActive.value = 'concept'
+    storeCues.cueKnowledge = 'concept'
 
   }
 
   const glueType = (glueType) => {
+    console.log('glueType', glueType)
     storeCues.cueGluePrepare(glueType)
   }
 

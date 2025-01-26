@@ -42,6 +42,8 @@ export const cuesStore = defineStore('cues', {
     waitingCues: [],
     liveCueContext: 'menu',
     flakeCues: {},
+    cueContext: 'cueall',
+    cueKnowledge: 'concept',
     cuesFlakeList: [],
     cuesFlakeCount: 0,
     glueRelActive: ''
@@ -61,11 +63,9 @@ export const cuesStore = defineStore('cues', {
     },
     cogGlueSpace (spaceID) {
       let spaceContract = this.cueUtil.cueMatch(spaceID, this.cuesList)
-      console.log(spaceContract)
       this.markerMatch[spaceID] = []
       for (let relc of spaceContract.value.computational.relationships['measure']) {
         let matchMarker = this.markerUtil.markerMatch(relc, this.markerList)
-        console.log(matchMarker)
         this.markerMatch[spaceID].push(matchMarker)
       }
     }, 
@@ -76,17 +76,15 @@ export const cuesStore = defineStore('cues', {
         let cueContract = this.cueUtil.cueMatch(this.activeCue, this.cuesList)
         let cueWheel = this.cueUtil.prepareGlueWheel(glueType, cueContract, this.cuesList)
         this.activeCueExpanded = cueWheel.expandedcues
-        if (cueWheel?.wheeldata?.labels.length > 1) {
-          this.checkCueContext()
+        if (cueWheel?.wheeldata?.labels.length > 0) {
           this.activeDougnnutData = cueWheel.wheeldata
+          this.checkCueContext()
         }
         this.storeAI.cuesFeedback = cueWheel.feedback
       } else if (glueType === 'measure') {
         let cueContract = this.cueUtil.cueMatch(this.activeCue, this.cuesList)
         if (cueContract.value.computational.relationships[glueType].length > 0) {
           let markerContract = this.markerUtil.markerMatch(cueContract.value.computational.relationships[glueType], this.markerList)
-          console.log('parepare measure match to cue')
-          console.log(markerContract)
           this.cueMatchMarkersLive = markerContract  
         }
       }

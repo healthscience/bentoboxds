@@ -125,12 +125,14 @@ import { cuesStore } from '@/stores/cuesStore.js'
   }
 
   const selectCue = (cueKey) => {
+    console.log('selectCue', cueKey)
     if (cueSelect.value[cueKey.key] === undefined) {
       cueSelect.value[cueKey.key] = { active: false}
     }
     primeCue.value = cueKey
     cueSelect.value[cueKey.key].active = !cueSelect.value[cueKey.key].active
     if (cueSelect.value[cueKey.key].active === false) {
+      console.log('dactive')
       // clear the pie wheel
       storeCues.cueColumnB = {}
       // reset rel cues to false
@@ -142,6 +144,8 @@ import { cuesStore } from '@/stores/cuesStore.js'
       glueMatch.value = {}
     } else {
       // loook up for existing cue relationships and form cue wheel
+      //reset the wheel
+      storeCues.cueColumnB = {}
       let cueRelDisplay = storeCues.cueDisplayBuilder(cueKey.key, cueKey, storeCues.cueColumnB)
       storeCues.cueColumnB = cueRelDisplay
       columnB.value = true

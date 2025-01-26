@@ -146,11 +146,13 @@ import ProductCue from '@/components/bentocues/product/productCues.vue'
 import BeebeeAi from '@/components/beebeehelp/spaceChat.vue'
 import SharePeers from '@/components/bentobox/tools/share/sharePeers.vue'
 import MininavMap from '@/components/bentospace/map/mininavMap.vue'
+import { cuesStore } from '@/stores/cuesStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 import { mapminiStore } from '@/stores/mapStore.js'
 
+  const storeCues = cuesStore()
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
   const storeLibrary = libraryStore()
@@ -192,6 +194,7 @@ import { mapminiStore } from '@/stores/mapStore.js'
   const closeBentoSpace = () => {
     storeAI.beebeeContext = 'chat'
     storeAI.bentospaceState = !storeAI.bentospaceState
+    storeCues.cueContext = 'cueall'
     // save the current layout on close
     storeBentobox.saveLayoutSpace(storeAI.liveBspace.spaceid)
   }
@@ -256,6 +259,10 @@ import { mapminiStore } from '@/stores/mapStore.js'
   }
 
   const cueConnect = () => {
+    storeCues.cueContext = 'space'
+    // prepare cue wheel
+    let cueContract = storeCues.cueUtil.cueMatch(storeAI.liveBspace.spaceid, storeCues.cuesList)
+    storeCues.cueDisplayBuilder(storeAI.liveBspace.spaceid, cueContract, {})
     cuesTools.value = !cuesTools.value
   }
 
