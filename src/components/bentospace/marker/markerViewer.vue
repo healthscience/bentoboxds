@@ -12,7 +12,12 @@
       </div>
     </div>
     <div id="marker-content">
-      Marker: {{ props.bstag }}  {{ props.bsresearch }}
+      <div class="marker-content">
+        Marker: {{ props.bstag }} : {{ markerMatchContract.value.concept.name }}
+      </div>
+      <div class="marker-content">
+        LAB: {{ markerMatchContract.value.concept.lab }}
+      </div>
     </div>
   </div>
 </template>
@@ -20,10 +25,12 @@
 <script setup>
 import DecisionCue from '@/components/bentocues/decisions/decisionCues.vue'
 import { ref, computed } from 'vue'
+import { cuesStore } from '@/stores/cuesStore.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 
+  const storeCues = cuesStore()
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
   const storeLibrary = libraryStore()
@@ -36,6 +43,15 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
 
   /* computed */
+  const markerMatchContract = computed(() => {
+    let cueContract = {}
+    for (let marker of storeCues.cueMatchMarkersLive) {
+      if (marker[0].key === props.bsresearch) {
+        cueContract = marker[0]
+      }
+    }
+    return cueContract
+  })
 
   /* methods */
   const addCueDecision = () => {

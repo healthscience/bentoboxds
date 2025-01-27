@@ -64,9 +64,11 @@ export const cuesStore = defineStore('cues', {
     cogGlueSpace (spaceID) {
       let spaceContract = this.cueUtil.cueMatch(spaceID, this.cuesList)
       this.markerMatch[spaceID] = []
-      for (let relc of spaceContract.value.computational.relationships['measure']) {
-        let matchMarker = this.markerUtil.markerMatch(relc, this.markerList)
-        this.markerMatch[spaceID].push(matchMarker)
+      if (spaceContract?.value?.computational?.relationships?.measure !== undefined) {
+        for (let relc of spaceContract.value.computational.relationships['measure']) {
+          let matchMarker = this.markerUtil.markerMatch(relc, this.markerList)
+          this.markerMatch[spaceID].push(matchMarker)
+        }
       }
     }, 
     cueGluePrepare (glueType) {
@@ -85,7 +87,14 @@ export const cuesStore = defineStore('cues', {
         let cueContract = this.cueUtil.cueMatch(this.activeCue, this.cuesList)
         if (cueContract.value.computational.relationships[glueType].length > 0) {
           let markerContract = this.markerUtil.markerMatch(cueContract.value.computational.relationships[glueType], this.markerList)
-          this.cueMatchMarkersLive = markerContract  
+          // double check for empty element
+          let cleanList = []
+          for (let marker of markerContract) {
+            if (marker.length > 0) {
+              cleanList.push(marker)
+            }
+          }
+          this.cueMatchMarkersLive = cleanList
         }
       }
     },

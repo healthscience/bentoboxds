@@ -321,8 +321,6 @@ export const bentoboxStore = defineStore('bentostore', {
       }
     },
     prepareMarkerSpace (mData) {
-      console.log('prepare marker space and list')
-      console.log(mData)
       // list of active markers
       this.storeCues.markerList = mData
       let markerBoxList = []
@@ -331,7 +329,6 @@ export const bentoboxStore = defineStore('bentostore', {
         // match from cue relations or marker contract?
         // list of incoming markers
         if (mkkey.value.concept.spaceid !== undefined) {
-          console.log('marker has cue space')
           tempSpaceID = mkkey.value.concept.spaceid
           if (this.locationMarkerbox[tempSpaceID] === undefined) {
             this.locationMarkerbox[tempSpaceID] = {}

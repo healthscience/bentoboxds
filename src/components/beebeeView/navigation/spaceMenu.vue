@@ -129,14 +129,6 @@ import { ref, computed, onMounted } from 'vue'
     return storeCues.selectCues
   })
 
-  const cuesLongevity = computed(() => {
-    return storeCues.cuesLongevity.labels
-  })
-
-  const cuesBiomarkers = computed(() => {
-    return storeCues.cuesBiomarkers.labels
-  })
-
   /* cuesBiomarkers */
 
   /* methods */
@@ -192,13 +184,14 @@ import { ref, computed, onMounted } from 'vue'
   }
 
   const bentoSpaceOpen = (spaceID) => {
+    storeCues.cueContext = 'space'
     storeAI.beebeeContext = 'chatspace'
     storeAI.bentospaceState = !storeAI.bentospaceState
     storeAI.liveBspace = spaceID
     // make button green
     let spaceLiveList = []
     for (let spi of storeBentobox.spaceList) {
-      if (spi.spaceid === spaceID.spaceid) {
+      if (spi.cueid === spaceID.cueid) {
         spi.active = true
         spaceLiveList.push(spi)
       } else {
@@ -207,8 +200,23 @@ import { ref, computed, onMounted } from 'vue'
       }
     }
     storeBentobox.spaceList = spaceLiveList
+    // prepare cue wheel context
+    let cueContract = storeCues.cueUtil.cueMatch(spaceID.cueid, storeCues.cuesList)
+    prepareCue(spaceID, spaceID.cueid, cueContract)
+
+  }
+
+  const prepareCue = (spaceID, cueKey, cueR) => {
+    // reset any context
+    storeCues.cueMatchMarkersLive = [] 
+    storeCues.cueKnowledge = 'concept'
+    storeCues.activeCue = cueKey
+    storeCues.activeDougnnutData = storeCues.cueDisplayBuilder(cueKey, cueR, {})
+    // check in other context e.g. flake
+    storeCues.glueRelActive = ''
+    storeCues.checkCueContext()
     // look for cogGlue e.g. measure to marker
-    storeCues.cogGlueSpace(spaceID)
+    // storeCues.cogGlueSpace(spaceID.cueid)
   }
 
   const saveSpacename = () => {

@@ -88,7 +88,6 @@
         <div id="bentospace-holder" v-dragscroll.noleft.noright="true" @click="whereMinmap($event)">
           <div id="bento-space" v-bind:style="{ transform: 'scale(' + zoomscaleValue + ')' }">
             <div id="cues-context-tools" v-if="cuesTools === true">
-              cues tools please
               <!-- existing cues -->
              <cues-prepared v-if="wheelType === 'cues'"></cues-prepared>
             </div>
@@ -187,7 +186,6 @@ import { mapminiStore } from '@/stores/mapStore.js'
   /* methods */
   const setShowBeeBee = () => {
     // beebeeSpace.value = !beebeeSpace.value
-    console.log('open space chat pel\seS')
     storeAI.bentochatState = !storeAI.bentochatState
   }
 
@@ -237,7 +235,6 @@ import { mapminiStore } from '@/stores/mapStore.js'
   }
 
   const addCueDecision = () => {
-    console.log('decision doughnut please')
     spaceDecision.value = !spaceDecision.value
     // storeAI.decisionDoughnutCue = !storeAI.decisionDoughnutCue
   }
@@ -252,6 +249,8 @@ import { mapminiStore } from '@/stores/mapStore.js'
 
   const addCueMarker = () => {
     spaceMarker.value = !spaceMarker.value
+    // check if measure glue has any existing relationships
+    storeCues.cueGluePrepare('measure') 
   }
 
   const addCueProduct = () => {
@@ -261,7 +260,14 @@ import { mapminiStore } from '@/stores/mapStore.js'
   const cueConnect = () => {
     storeCues.cueContext = 'space'
     // prepare cue wheel
-    let cueContract = storeCues.cueUtil.cueMatch(storeAI.liveBspace.spaceid, storeCues.cuesList)
+    // cueid and spaceid  mix need to standardise
+    let cueIDactive = ''
+    if (storeAI.liveBspace.spaceid !== undefined) {
+      cueIDactive = storeAI.liveBspace.spaceid
+    } else {
+      cueIDactive = storeAI.liveBspace.cueid
+    }
+    let cueContract = storeCues.cueUtil.cueMatch(cueIDactive, storeCues.cuesList)
     storeCues.cueDisplayBuilder(storeAI.liveBspace.spaceid, cueContract, {})
     cuesTools.value = !cuesTools.value
   }

@@ -49,8 +49,6 @@ class BiomarkersUtility {
   *
   */
   markerMatch = function (relMarkers, markersLive) {
-    console.log(relMarkers)
-    console.log(markersLive)
     let fullMarker = []
     for (let markID of relMarkers) {
       let markerMatch = markersLive.filter(item => item.key === markID)
@@ -251,7 +249,7 @@ class BiomarkersUtility {
       markSettings.name = mark.type
       markSettings.description = mark.type
       markSettings.wiki = ''
-      markSettings.spaceid = ''
+      markSettings.cueid = ''
       markSettings.marker = '' 
       markSettings.lab = mark.lab
       markSettings.datatypeType = 'marker'

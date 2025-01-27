@@ -6,7 +6,6 @@
     </div>
   </div>
   <div v-else-if="cueConext === 'space'" id="cue-space">
-    Space cue {{ storeAI.liveBspace }}
     <button class="cue-item" @click="viewCue(storeAI.liveBspace.spaceid, storeAI.liveBspace)">{{ storeAI.liveBspace.name }}</button>
   </div>
   <!--start sync option -->
@@ -72,12 +71,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     return storeAI.cuesFeedback
   })
 
-  const cuesHolistic = computed(() => {
-    return storeCues.hopCues
-  })
-
   const cuesNetworkList = computed(() => {
-    console.log(storeCues.cuesList)
     return storeCues.cuesList
   })
 
@@ -86,8 +80,6 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   })
 
   const liveDoughData = computed(() => {
-    console.log('liveDoughData')
-    console.log(storeCues.activeDougnnutData)
     return storeCues.activeDougnnutData
   })
 
@@ -164,7 +156,6 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   }
 
   const glueType = (glueType) => {
-    console.log('glueType', glueType)
     storeCues.cueGluePrepare(glueType)
   }
 
@@ -203,6 +194,10 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 }
 
 .marker-button-item {
+  margin-bottom: 1em;
+}
+
+.marker-button {
   margin-bottom: .5em;
 }
 

@@ -69,7 +69,6 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
   const setShowBeeBee = () => {
     // beebeeSpace.value = !beebeeSpace.value
-    console.log('open space chat pel\seS')
     storeAI.bentochatState = !storeAI.bentochatState
   }
 
@@ -80,7 +79,6 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     graph.addEdge("1", "2", { size: 5, color: "purple" })
 
     let peerGraph = document.getElementById("sigma-container")
-    console.log(peerGraph)
     const sigmaInstance = new Sigma(graph, peerGraph)
   }
 

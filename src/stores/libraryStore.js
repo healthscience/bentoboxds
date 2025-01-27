@@ -382,7 +382,7 @@ export const libraryStore = defineStore('librarystore', {
         }
       } else if (message.action === 'marker-contract') {
         let markerContract = message.data.data
-        this.storeCues.markerMatch[markerContract.value.concept.spaceid].push(markerContract)
+        this.storeCues.markerMatch[markerContract.value.concept.cueid].push(markerContract)
       } else if (message.action === 'reference-contract') {
         // call HOP to get latest changes to public library
         this.sendMessage('get-public-library')

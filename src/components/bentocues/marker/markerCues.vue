@@ -39,8 +39,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   /* computed */
   const markerMatch = computed(() => {
-    console.log(',,d,aldflfldl')
-    console.log(storeCues.cueMatchMarkersLive)
     return storeCues.cueMatchMarkersLive
   })
 
@@ -67,7 +65,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   }
 
   const viewMarker = (marker) => {
-    console.log('viewMarker', marker)
     let idMarker = marker
     if (idMarker.length > 0) {
       // check if holder setup
@@ -106,6 +103,11 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   height: 200px;
   border: 1px solid red;
 }
+
+#marker-paper-select {
+  margin-bottom: .5em;
+}
+
 @media (min-width: 1024px) {
 
 

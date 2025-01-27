@@ -88,6 +88,7 @@ import { cuesStore } from '@/stores/cuesStore.js'
   let markerSelectList = ref([])
   let primeCue = ref('')
   let feedbackCount = ref(0)
+  let existingRelGlue = ref([])
 
   /*  computed  */
   const feedbackBeeBee = computed(() => {
@@ -125,14 +126,13 @@ import { cuesStore } from '@/stores/cuesStore.js'
   }
 
   const selectCue = (cueKey) => {
-    console.log('selectCue', cueKey)
+    console.log('select cue', cueKey)
     if (cueSelect.value[cueKey.key] === undefined) {
       cueSelect.value[cueKey.key] = { active: false}
     }
     primeCue.value = cueKey
     cueSelect.value[cueKey.key].active = !cueSelect.value[cueKey.key].active
     if (cueSelect.value[cueKey.key].active === false) {
-      console.log('dactive')
       // clear the pie wheel
       storeCues.cueColumnB = {}
       // reset rel cues to false
@@ -143,11 +143,13 @@ import { cuesStore } from '@/stores/cuesStore.js'
       // reset glue to empty
       glueMatch.value = {}
     } else {
+      console.log('seleced cue for rel')
       // loook up for existing cue relationships and form cue wheel
-      //reset the wheel
+      // reset the wheel
       storeCues.cueColumnB = {}
       let cueRelDisplay = storeCues.cueDisplayBuilder(cueKey.key, cueKey, storeCues.cueColumnB)
       storeCues.cueColumnB = cueRelDisplay
+      console.log(storeCues.cueColumnB)
       columnB.value = true
     }
   }
@@ -177,10 +179,17 @@ import { cuesStore } from '@/stores/cuesStore.js'
 
   const glueType = (glue) => {
     glueMatch.value = glue
+    // does this relationship already have rel link in Cue Contract?
+    let cueRelExisting = primeCue?.value?.value.computational.relationships[glueMatch.value]
+    if (cueRelExisting !== undefined && cueRelExisting.length > 0) {
+      // keep track of existing and add new
+      existingRelGlue.value = cueRelExisting
+    } else {
+      existingRelGlue.value = []
+    }
   }
 
   const selectMarkerRel = (markID) => {
-    console.log(markID)
     // make this cue color green ie active
     let updateMarkerList = []
     for (let amark of storeCues.markerList) {
@@ -240,8 +249,12 @@ import { cuesStore } from '@/stores/cuesStore.js'
         let relTriplet = {}
         relTriplet.contract = primeCue.value
         let glueRel = {}
+        // existing rels for this glue?
+        if (existingRelGlue.value.length > 0) {
+          relCueActive = [...relCueActive, ...existingRelGlue.value]
+        }
         glueRel[glueMatch.value] = relCueActive
-        relTriplet.relationships = glueRel // { glue: glueMatch.value, cues: relCueActive }
+        relTriplet.relationships = glueRel
         const cueContract = {}
         cueContract.type = 'library'
         cueContract.action = 'cues'
@@ -277,6 +290,8 @@ import { cuesStore } from '@/stores/cuesStore.js'
         }
         primeCue.value = {}
       }
+    } else {
+      console.log('incomplete relationship')
     }
   }
 
