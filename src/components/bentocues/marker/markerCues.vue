@@ -12,7 +12,7 @@
   </div>
   <div id="marker-paper-list" v-if="markerMatch?.length > 0">
     <div id="marker-paper-select" v-for="mark in markerMatch" :value="mark[0].key">
-      <button class="marker-paper-item" @click="viewMarker(mark[0].key)">
+      <button class="marker-paper-item" @click="addSpaceMarker(mark[0].key)">
         {{ mark[0].value.concept.name }}
       </button>
       <button class="marker-paper-source" @click="viewSourceMarker(mark[0].value.concept.lab)">
@@ -64,7 +64,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     }
   }
 
-  const viewMarker = (marker) => {
+  const addSpaceMarker = (marker) => {
     let idMarker = marker
     if (idMarker.length > 0) {
       // check if holder setup
@@ -98,10 +98,15 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   margin-top: 1em;
 }
 
+#marker-paper-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  overflow-y: scroll;
+}
 
 #marker-paper-list {
   height: 200px;
-  border: 1px solid red;
+  margin: 1em;
 }
 
 #marker-paper-select {

@@ -336,7 +336,8 @@ export const bentoboxStore = defineStore('bentostore', {
             this.storeCues.markerMatch[tempSpaceID] = []
           }
           markerBoxList.push({ key: mkkey.key, tag: 'marker', id: mkkey.value.concept })
-          this.setLocationMarkerbox(tempSpaceID, mkkey.key)
+          // only set location in space if value present saved
+          // this.setLocationMarkerbox(tempSpaceID, mkkey.key)
           this.markerMedia[tempSpaceID].push({ key: mkkey.key, tag: 'marker', id: mkkey.value.concept })
           this.storeCues.markerMatch[tempSpaceID].push(mkkey)
         } else {
@@ -439,6 +440,10 @@ export const bentoboxStore = defineStore('bentostore', {
       }
     },
     setLocationMarkerbox (space, mbox) {
+      console.log('setLocationMarkerbox')
+      console.log(space)
+      console.log(mbox)
+      console.log(this.locationStart)
       // check not already set
       let mID = mbox
       let spaceLive = this.locationMarkerbox[space]
