@@ -63,7 +63,7 @@
                   <div class="cues-segs" v-for="cue of cuesFlakesH" :style="cue.style">
                       --------------------
                     <div class="cues-status flake-cue" v-for="cstatus of cuesStatusH[cue.cue]"  :style="{ backgroundColor: cstatus.cuecolor }" @click="viewCueHex(cstatus)">
-                      {{ cstatus.name }}
+                      {{  cstatus.name }}
                     </div>
                     <div class="cue-branch">
                       {{  }}
@@ -118,8 +118,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   })
 
   const cuesStatusH = computed(() => {
-    let flakesList = storeCues.flakeCues
-    return flakesList
+    return storeCues.flakeCues
   })
 
   /* methods */

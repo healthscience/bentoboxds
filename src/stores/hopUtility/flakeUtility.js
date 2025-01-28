@@ -41,7 +41,39 @@ class FlakeUtility {
     // how many cues and how many bentoboxes per cue?  How to rate bentoboxes or besearch within?  Use SafeFlowECS or summaary saved.  Need to check state of besearch cyccles and state in done, inprogress or ongoing
     flakeCues = flakesListTest
     return flakeCues
-  } 
+  }
+  
+  /**
+  * prepare flake given cue active
+  * @method prepareFlakeCuesMarkers
+  *
+  */
+  prepareFlakeCuesMarkers = function (markerInfo) {
+    let markerFlake = {}
+    let flakesList = []
+    for (let marker of markerInfo) {
+      let hexPrep = this.prepareHexFlake(marker[0])
+      flakesList.push(hexPrep)
+      markerFlake[hexPrep.cue] = flakesList
+      flakesList = []
+    }
+    // how many cues and how many bentoboxes per cue?  How to rate bentoboxes or besearch within?  Use SafeFlowECS or summaary saved.  Need to check state of besearch cyccles and state in done, inprogress or ongoing
+    return markerFlake
+  }
+
+  /**
+  * format hex flake based on bentobox decision state
+  * @method prepareHexFlake
+  *
+  */
+  prepareHexFlake = function (hexInfo) {
+    let hexFlake = {}
+    hexFlake.cue = hexInfo.key
+    hexFlake.name = hexInfo.value.concept.name
+    hexFlake.cuecolor = 'green'
+    hexFlake.bentobox = hexInfo.key
+    return hexFlake
+  }
 
 }
 

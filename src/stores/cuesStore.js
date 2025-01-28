@@ -88,10 +88,6 @@ export const cuesStore = defineStore('cues', {
       } else if (glueType === 'measure') {
         console.log('measure glue in what context')
         console.log(this.liveCueContext)
-        // if flake mode update
-        if (this.liveCueContext === 'flake') {
-          this.cuesFlakeMeasure()
-        }
         let cueContract = this.cueUtil.cueMatch(this.activeCue, this.cuesList)
         let relAvailable = Object.keys(cueContract?.value?.computational?.relationships)
         // does the cogglue have any reltation listed?
@@ -109,6 +105,10 @@ export const cuesStore = defineStore('cues', {
             this.cueMatchMarkersLive = cleanList
           } else {
             console.log('no markers')
+          }
+          // if flake mode update
+          if (this.liveCueContext === 'flake') {
+            this.cuesFlakeMeasure()
           }
         } else {
           console.log('no relation')  // need to make beebee feedback message TODO
@@ -130,9 +130,6 @@ export const cuesStore = defineStore('cues', {
       return matchLabel
     },
     checkCueContext () {
-      console.log('checkCueContext')
-      console.log(this.liveCueContext)
-      console.log(this.glueRelActive)
       // what cue context is active, menu, space, flake
       if (this.liveCueContext === 'menu') {
         // what cue is active
@@ -150,7 +147,6 @@ export const cuesStore = defineStore('cues', {
             this.prepareFlakeExpanded(cueE.key)
           }
         } else if (this.glueRelActive === 'measure') {
-          console.log('masure flake')
           this.cuesFlakeMeasure()
         } else {
           // need to prepare/ map to sub cues and then to N=1/decisions to show boundry state ie. low just right  concern
@@ -185,7 +181,22 @@ export const cuesStore = defineStore('cues', {
       this.flakeCues[cueKey] = this.flakeUtil.prepareFlakeCues(cueKey)
     },
     cuesFlakeMeasure () {
-      console.log('cuesFlakeMeasure')
+      // the markers live for this cue
+      this.cuesFlakeList = []
+      this.cuesFlakeCount = 0
+      for (let marker of this.cueMatchMarkersLive) {
+        this.flakeMarkersList(marker[0])
+      }
+      this.flakeCues = []
+      // when single cue show the bentobox decision color state
+      this.flakeCues = this.flakeUtil.prepareFlakeCuesMarkers(this.cueMatchMarkersLive)
+    },
+    flakeMarkersList (marker) {
+      // need to add rotation
+      this.cuesFlakeCount++
+      let cueRadian = 360 / this.cueMatchMarkersLive.length
+      let flakePosition =  { transform: 'rotate(' + (cueRadian * this.cuesFlakeCount) + 'deg)'}
+      this.cuesFlakeList.push({ cue: marker.key, style: flakePosition })
     },
     prepareGaia () {
       // get gaia datatype contract info.
