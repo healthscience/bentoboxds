@@ -13,7 +13,7 @@
           <span class="right-time">{{ chati.reply.time }}</span>
           <div class="reply-text-chart">
             <div class="right-chat">
-              {{ chati.reply.type }} {{ chati.reply.action }} aa
+              {{ chati.reply.type }} {{ chati.reply.action }}
               <div v-if="chati.reply.type === 'experiment' && chati.reply.data">
                 <button @click="viewSaveExperiment(chati.question.bbid, chati.reply.data)">View experiment</button>
               </div>
@@ -39,7 +39,7 @@
                 </div>
                 <div v-if="chati.reply.data?.type !== 'library-peerlibrary'">
                   <div class="beeebee-text">
-                    {{ chati.reply?.data?.text}} tt-- {{ chati.reply.data?.type }}
+                    {{ chati.reply?.data?.text}} - {{ chati.reply.data?.type }}
                     </div>
                     <div v-if="chati.reply?.data?.filedata" class="bee-file-data">
                       <div class="file-feedback-csv">

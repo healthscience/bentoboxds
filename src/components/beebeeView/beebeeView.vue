@@ -24,6 +24,9 @@
                 </div>
             </Teleport>
           </div>
+          <div class="history-menu">
+            <button @click="openLibrary()" class="button-chat-menu" v-bind:class="{ active: viewLibrary === true }">Library</button>
+          </div>
         </div>
         <div id="active-history-menu">
           <chat-menu v-if="historyList ===  'history'"></chat-menu>
@@ -58,14 +61,17 @@ import BentoDiary from '@/components/bentodiary/diaryTemplate.vue'
 import { cuesStore } from '@/stores/cuesStore.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
+import { libraryStore } from '@/stores/libraryStore.js'
 import { computed } from 'vue'
 
   const storeCues = cuesStore()
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
+  const storeLibrary = libraryStore()
 
   let agentActive = ref('')
   let bodyDiagramShow = ref(false)
+  let viewLibrary = ref(false)
 
   const bentoGraphStatus = computed(() => {
     return storeAI.bentographState
@@ -90,6 +96,7 @@ import { computed } from 'vue'
     if (agent === 'cues') {
       storeAI.bentocuesState = !storeAI.bentocuesState
     } else if (agent === 'flake') {
+      storeCues.liveCueContext = 'flake'
       storeAI.bentoflakeState = !storeAI.bentoflakeState
     } else if (agent === 'besearch') {
       // storeAI.bentobesearchState = !storeAI.bentobesearchState
@@ -102,6 +109,13 @@ import { computed } from 'vue'
 
   const viewBody = () => {
     bodyDiagramShow.value = !bodyDiagramShow.value
+  }
+
+  const openLibrary = () => {
+    viewLibrary.value = false //  !viewLibrary.value
+    storeAI.dataBoxStatus = true
+    storeAI.uploadStatus = false
+    storeLibrary.libraryStatus = true
   }
 
 </script>
@@ -253,7 +267,7 @@ import { computed } from 'vue'
       display: grid;
       grid-template-columns: 1fr;
       min-width: 160px;
-      height: 120px;
+      height: 140px;
     }
 
     .history-menu {

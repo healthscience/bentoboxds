@@ -132,6 +132,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
   const cueConnect = () => {
     cuesTools.value = !cuesTools.value
+    cueConnect.value = !cueConnect.value
   }
 
   const cueCorridor = () => {
@@ -260,7 +261,9 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
       border: 1px solid lightblue;
       margin-top: 40px;
       border-radius: 50%;
-      height: 1200px;
+      height: 900px;
+      width: 900px;
+      align-content: center;
     }
 
     .center-grid {
