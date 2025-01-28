@@ -422,6 +422,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
   @media (min-width: 1024px) {
     #chat-interface {
       border: 0px solid blue;
+      height: 100%;
       width: 100%;
     }
 

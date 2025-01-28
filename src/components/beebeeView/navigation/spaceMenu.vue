@@ -12,13 +12,13 @@
         </button>
       </form>
     </div>
-    <div class="history-list" v-for="sis in spaceList">
+    <!--<div class="history-list" v-for="sis in spaceList">
       <button
           class="flat-history"  v-bind:class="{ active: sis?.active }" @click="bentoSpaceOpen(sis)" @mouseover="hoverCheck(sis)" @mousemove="moveCheck(sis)"> {{ sis.name }}
-        </button> <!--@mouseup="dropBBox"-->
+        </button>
       <button class="save-chat-history" @click="saveSpaceHistory(sis)">save</button>
       <button class="delete-chat-history" @click="deleteSpaceHistory(sis)">Del</button>
-    </div>
+    </div>-->
     <div id="cues-holder" @click="showExpandCues()" v-bind:class="{ active: expandCues }">
       Cues 
     </div>
@@ -33,9 +33,9 @@
           <button class="save-chat-history" @click="saveSpaceHistory(cue)">save</button>
           <button class="delete-chat-history" @click="deleteSpaceHistory(cue)">Del</button>
         </div>
-        ---------
+        
         <div id="gule-cues" v-if="glueTarget[cue.cueid] === true">
-          <div class="cues-list" v-for="cues in selectCuesActive[cue.cueid]">
+          <div class="cues-list-expand" v-for="cues in selectCuesActive[cue.cueid]">
             <div id="cue-holistic" v-if="cue.gluedown === glueName">
               <button class="flat-history"  v-bind:class="{ active: cues?.active }" @click="bentoSpaceOpen(cues)" @mouseover="hoverCheck(cues)" @mousemove="moveCheck(cues)"> {{ cues.name }}
               </button>
@@ -283,10 +283,6 @@ import { ref, computed, onMounted } from 'vue'
 #space-menu {
   display: grid;
   grid-template-columns: 1fr;
-  height: auto;
-  overflow-y: scroll;
-  overflow-x: visible;
-  align-self: start;
 }
 
 .create-space {
@@ -307,6 +303,11 @@ import { ref, computed, onMounted } from 'vue'
   height: 120px;
 }
 
+#cue-holistic {
+  margin-bottom: 1em;
+
+}
+
 .flat-history {
   background-color: rgb(178, 188, 227);
   border: 0px;
@@ -322,6 +323,12 @@ import { ref, computed, onMounted } from 'vue'
   border-bottom: 1px solid lightblue;
   height: 30px;
   font-weight: bold;
+}
+
+#show-cues {
+  overflow-y: scroll;
+  margin-bottom: .2em;
+  border: 0px dashed black;
 }
 
 .active {
@@ -363,8 +370,19 @@ import { ref, computed, onMounted } from 'vue'
 
     .cues-list {
       position: relative;
+      border-bottom: 2px dashed lightgrey;
     }
 
+    .cues-list-expand {
+      position: relative;
+      border-bottom: 2px dashed lightblue;
+      margin-bottom: 2em;
+    }
+
+    #show-cues {
+      overflow-y: scroll;
+      margin-bottom: .2em;
+    }
 
   }
 </style>

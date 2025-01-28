@@ -1,5 +1,5 @@
 <template>
-  <div id="welcome" v-if="libraryAvailable === false">{{ libraryAvailable }}
+  <div id="welcome" v-if="libraryAvailable === false">
     <div class="beebee-reply">
       <span class="right-time">Today</span>
       <div class="reply-text-chart">
@@ -14,7 +14,7 @@
       </div>
     </div>
   </div>
-  <div v-else id="welcome-back">{{ libraryAvailable }}
+  <div v-else id="welcome-back">
     <div class="beebee-reply">
       <span class="right-time">Today</span>
         <div class="reply-text-chart">

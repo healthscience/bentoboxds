@@ -1,22 +1,22 @@
 <template>
   <div id="beebee-shaper">
     <div id="beebee-bentos">
-      <button id="cues-button" class="cue-cues" @click="openBentoAgent('cues')" :class="{ active: agentActive === 'cues' }">Cues</button>
-      <button id="flake-button" class="cue-cues" @click="openBentoAgent('flake')" :class="{ active: agentActive === 'flake' }">Flake</button>
-      <button id="besearch-button" class="cue-cues" @click="openBentoAgent('besearch')" :class="{ active: agentActive === 'besearch' }">Besearch</button>
-      <button id="graph-button" class="cue-cues" @click="openBentoAgent('graph')" :class="{ active: agentActive === 'graph' }">Graph</button>
-      <button id="diary-button" class="cue-cues" @click="openBentoAgent('diary')" :class="{ active: agentActive === 'diary' }">Diary</button>
+      <button id="cues-button" class="cue-agent" @click="openBentoAgent('cues')" :class="{ active: agentActive === 'cues' }">Cues</button>
+      <button id="flake-button" class="cue-agent" @click="openBentoAgent('flake')" :class="{ active: agentActive === 'flake' }">Flake</button>
+      <button id="besearch-button" class="cue-agent" @click="openBentoAgent('besearch')" :class="{ active: agentActive === 'besearch' }">Besearch</button>
+      <button id="graph-button" class="cue-agent" @click="openBentoAgent('graph')" :class="{ active: agentActive === 'graph' }">Graph</button>
+      <button id="diary-button" class="cue-agent" @click="openBentoAgent('diary')" :class="{ active: agentActive === 'diary' }">Diary</button>
     </div>
-    <div id="beebee-history">
+    <div id="beebee-agent">
       <div id="bento-history">
-        <div class="history-buttons">
+        <div id="history-buttons">
           <div class="history-menu">
             <button @click="historyType('history')" class="button-chat-menu" v-bind:class="{ active: historyList === 'history' }">Chat</button>
           </div>
           <div class="history-menu">
             <button @click="historyType('space')" class="button-chat-menu" v-bind:class="{ active: historyList === 'space' }">Spaces</button>
           </div>
-          <div id="body-cues">
+          <div class="history-menu">
             <button id="body-image" @click="viewBody()" class="button-chat-menu" :class="{ active: bodyDiagramShow === true }">Body</button>
              <Teleport to="body">
                 <div id="body-daigram-interactive">
@@ -30,17 +30,17 @@
           <space-menu v-if="historyList ===  'space'"></space-menu>
         </div>
       </div>
-      <div class="bentospace-chat">
+      <div id="beebee-bento-chat">
         <div class="beebee-home">
           <beebee-chat></beebee-chat>
         </div>
-        <bento-cues></bento-cues>
-        <bento-space></bento-space>
-        <bento-diary></bento-diary>
-        <bento-flake></bento-flake>
-        <bento-graph v-if="bentoGraphStatus === true"></bento-graph>
       </div>
     </div>
+    <bento-cues></bento-cues>
+    <bento-space></bento-space>
+    <bento-diary></bento-diary>
+    <bento-flake></bento-flake>
+    <bento-graph v-if="bentoGraphStatus === true"></bento-graph>
   </div>
 </template>
 
@@ -79,8 +79,8 @@ import { computed } from 'vue'
     return storeAI.historyList
   })
 
-
-  let historyType = (type) => {
+  /* methods */
+  const historyType = (type) => {
     storeAI.historyList = type
     storeBentobox.historyActive = !storeBentobox.historyActive // true
   }
@@ -110,11 +110,11 @@ import { computed } from 'vue'
 #beebee-shaper {
   display: grid;
   grid-template-columns: 1fr;
-  width: 90vw;
-  height: 94vh;
+  height: 100%;
+  width: 100%;
 }
 
-#beebee-history {
+#beebee-agent {
   position: relative;
   display: grid;
   grid-template-columns: 1fr 7fr;
@@ -126,7 +126,7 @@ import { computed } from 'vue'
   height: 120px;
 }
 
-.history-buttons {
+#history-buttons {
   display: grid;
   grid-template-columns: 1fr;
   min-width: 160px;
@@ -141,14 +141,69 @@ import { computed } from 'vue'
 #active-history-menu {
   display: grid;
   grid-template-columns: 1fr;
-  height: 100%;
 }
 
-.active {
-  background-color: rgb(113, 172, 114);
+.active3 {
+  background-color: rgb(128, 170, 115);
 }
 
-.bentospace-chat {
+.beebee-home {
+  display: grid;
+  grid-template-columns: 1fr;
+  border: 0px dashed rgb(207, 108, 21);
+}
+
+.button-chat-menu {
+  width: 90%;
+  background-color: #b8cde2;
+  color: #140d6b;
+  border: none;
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.button-chat-menu:active {
+  background-color: #004494;
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+#beebee-bentos {
+    display: grid;
+    grid-template-columns: 1fr;
+    margin-top: 2em;
+    margin-bottom: 2em;
+  }
+
+.cue-agent {
+  display: inline-grid;
+  margin-right: .4em;
+  background-color: #b8cde2;
+  color: #140d6b;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.cue-agent:hover {
+    background-color: #2a82e0;
+    transform: translateY(-2px);
+}
+
+.cue-agent:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5);
+}
+
+#beebee-bento-chat {
   display: grid;
   grid-template-columns: 1fr;
   height: 80vh;
@@ -158,27 +213,6 @@ import { computed } from 'vue'
   background-color: #fff4f4;
   background: linear-gradient(-90deg, rgba(0, 0, 0, .1) 1px, transparent 1px), linear-gradient(rgba(0, 0, 0, .1) 1px, transparent 1px);
   background-size: 60px 60px, 60px 60px; 
-}
-
-.beebee-home {
-  display: grid;
-  height: 90vh;
-}
-
-.button-chat-menu {
-  width: 90%;
-}
-
-#beebee-bentos {
-      display: grid;
-      grid-template-columns: 1fr;
-      margin-top: 2em;
-      margin-bottom: 2em;
-    }
-
-.cue-cues {
-  display: inline-grid;
-  margin-right: .4em;
 }
 
   @media (min-width: 1024px) {
@@ -201,21 +235,25 @@ import { computed } from 'vue'
       z-index: 23;
     }
 
-    #beebee-history {
+    #beebee-agent {
       position: relative;
       display: grid;
       grid-template-columns: 1fr 7fr;
-      margin-top: 7.5em;
+      margin-top: 9.5em;
     }
 
     #bento-history {
       display: grid;
       grid-template-columns: 1fr;
+      height: 100%;
+      align-content: start;
     }
 
-    .history-buttons {
+    #history-buttons {
       display: grid;
       grid-template-columns: 1fr;
+      min-width: 160px;
+      height: 120px;
     }
 
     .history-menu {
@@ -223,24 +261,13 @@ import { computed } from 'vue'
       display: grid;
       grid-template-columns: 1fr;
       height: 28px;
+      margin-bottom: .5em;
     }
 
     #active-history-menu {
       display: grid;
       grid-template-columns: 1fr;
       height: 100%;
-    }
-
-    .bentospace-chat {
-      display: grid;
-      grid-template-columns: 1fr;
-      height: 80vh;
-      width: 100%;
-      transform-origin: left top;
-      border: 0px solid orange;
-      background-color: #fff4f4;
-      background: linear-gradient(-90deg, rgba(0, 0, 0, .1) 1px, transparent 1px), linear-gradient(rgba(0, 0, 0, .1) 1px, transparent 1px);
-      background-size: 60px 60px, 60px 60px;
     }
 
     .beebee-home {
@@ -250,11 +277,26 @@ import { computed } from 'vue'
     }
 
     .button-chat-menu {
-      width: 100%;
+      width: 90%;
+      background-color: #b8cde2;
+      color: #140d6b;
+      border: none;
+      border-radius: 4px;
+      padding: 2px 4px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
 
-    #body-cues {
-      position: relative;
+    .button-chat-menu:active {
+      background-color: #004494;
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .active {
+      background-color: rgb(128, 170, 115);
     }
 
     #body-daigram-interactive {
@@ -265,6 +307,17 @@ import { computed } from 'vue'
       border: 2px solid rgb(69, 69, 230);
       /* background-color: white; */
       z-index: 88;
+    }
+
+    #beebee-bento-chat {
+      display: grid;
+      grid-template-columns: 1fr;
+      height: 80vh;
+      width: 100%;
+      transform-origin: left top;
+      background-color: #fff4f4;
+      background: linear-gradient(-90deg, rgba(0, 0, 0, .1) 1px, transparent 1px), linear-gradient(rgba(0, 0, 0, .1) 1px, transparent 1px);
+      background-size: 60px 60px, 60px 60px;
     }
 
   }
