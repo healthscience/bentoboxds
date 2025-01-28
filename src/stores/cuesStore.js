@@ -46,7 +46,9 @@ export const cuesStore = defineStore('cues', {
     cueKnowledge: 'concept',
     cuesFlakeList: [],
     cuesFlakeCount: 0,
-    glueRelActive: ''
+    glueRelActive: '',
+    minCuesStatus: true,
+    minCuesText: 'Minimise'
   }),
   actions: {
     processReply (received) {
@@ -84,17 +86,32 @@ export const cuesStore = defineStore('cues', {
         }
         this.storeAI.cuesFeedback = cueWheel.feedback
       } else if (glueType === 'measure') {
+        console.log('measure glue in what context')
+        console.log(this.liveCueContext)
+        // if flake mode update
+        if (this.liveCueContext === 'flake') {
+          this.cuesFlakeMeasure()
+        }
         let cueContract = this.cueUtil.cueMatch(this.activeCue, this.cuesList)
-        if (cueContract.value.computational.relationships[glueType].length > 0) {
-          let markerContract = this.markerUtil.markerMatch(cueContract.value.computational.relationships[glueType], this.markerList)
-          // double check for empty element
-          let cleanList = []
-          for (let marker of markerContract) {
-            if (marker.length > 0) {
-              cleanList.push(marker)
+        let relAvailable = Object.keys(cueContract?.value?.computational?.relationships)
+        // does the cogglue have any reltation listed?
+        let relCheck = relAvailable.includes(glueType)
+        if (relCheck === true) {
+          if (cueContract?.value?.computational?.relationships[glueType].length > 0) {
+            let markerContract = this.markerUtil.markerMatch(cueContract.value.computational.relationships[glueType], this.markerList)
+            // double check for empty element
+            let cleanList = []
+            for (let marker of markerContract) {
+              if (marker.length > 0) {
+                cleanList.push(marker)
+              }
             }
+            this.cueMatchMarkersLive = cleanList
+          } else {
+            console.log('no markers')
           }
-          this.cueMatchMarkersLive = cleanList
+        } else {
+          console.log('no relation')  // need to make beebee feedback message TODO
         }
       }
     },
@@ -113,6 +130,9 @@ export const cuesStore = defineStore('cues', {
       return matchLabel
     },
     checkCueContext () {
+      console.log('checkCueContext')
+      console.log(this.liveCueContext)
+      console.log(this.glueRelActive)
       // what cue context is active, menu, space, flake
       if (this.liveCueContext === 'menu') {
         // what cue is active
@@ -121,12 +141,17 @@ export const cuesStore = defineStore('cues', {
 
       } else if (this.liveCueContext === 'flake') {
         // any relationships active?
+        this.minCuesStatus = false
+        this.minCuesText = 'Show'
         if (this.glueRelActive === 'down') {
           this.cuesFlakeCount = 0
           for (let cueE of this.activeCueExpanded) {
             this.flakeCuesListGlue(cueE.key)
             this.prepareFlakeExpanded(cueE.key)
           }
+        } else if (this.glueRelActive === 'measure') {
+          console.log('masure flake')
+          this.cuesFlakeMeasure()
         } else {
           // need to prepare/ map to sub cues and then to N=1/decisions to show boundry state ie. low just right  concern
           this.cuesFlakeList = []
@@ -158,6 +183,9 @@ export const cuesStore = defineStore('cues', {
     },
     prepareFlakeExpanded (cueKey) {
       this.flakeCues[cueKey] = this.flakeUtil.prepareFlakeCues(cueKey)
+    },
+    cuesFlakeMeasure () {
+      console.log('cuesFlakeMeasure')
     },
     prepareGaia () {
       // get gaia datatype contract info.

@@ -24,7 +24,7 @@
           </div>
         </div>
         <div class="bentobox-top">
-          <div class="bb-align alpha-round">Alpha</div>
+          <div class="bb-align alpha-round">Beta</div>
         </div>
         <div class="bentobox-top">
           <network-notify></network-notify>

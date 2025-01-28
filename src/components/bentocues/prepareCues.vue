@@ -1,19 +1,27 @@
 <template>
   <!-- list of active cue wheels made per account -->
-  <div id="saved-cues" v-if="cueConext === 'cueall' && cuesNetworkList.length > 0">
-    <div class="network-cues" v-for="ncue of cuesNetworkList" :value="ncue">
-      <button class="cue-item" @click="viewCue(ncue.key, ncue)">{{ ncue.value.concept.name }}</button>
+  <div id="cues-available">
+    Cues available:
+  </div>
+  <div id="minimise-cues" v-if="minCues === true">
+    <div id="saved-cues" v-if="cueConext === 'cueall' && cuesNetworkList.length > 0">
+      <div class="network-cues" v-for="ncue of cuesNetworkList" :value="ncue">
+        <button class="cue-item" @click="viewCue(ncue.key, ncue)">{{ ncue.value.concept.name }}</button>
+      </div>
+    </div>
+    <div v-else-if="cueConext === 'space'" id="cue-space">
+      <button class="cue-item" @click="viewCue(storeAI.liveBspace.spaceid, storeAI.liveBspace)">{{ storeAI.liveBspace.name }}</button>
+    </div>
+    <!--start sync option -->
+    <div id="sync-cues" v-else>
+      <div id="sync-message">
+        Sync <a href="#" @click="gaiaSyncStart()">Gaia cues</a> or create new cues
+      </div>
     </div>
   </div>
-  <div v-else-if="cueConext === 'space'" id="cue-space">
-    <button class="cue-item" @click="viewCue(storeAI.liveBspace.spaceid, storeAI.liveBspace)">{{ storeAI.liveBspace.name }}</button>
-  </div>
-  <!--start sync option -->
-  <div id="sync-cues" v-else>
-    <div id="sync-message">
-      Sync <a href="#" @click="gaiaSyncStart()">Gaia cues</a> or create new cues
+  <div id="minimise-cues-button">
+      <button class="minimise-cues-button" @click="minimiseCues()">{{ minCueStatus }}</button>
     </div>
-  </div>
   <div id="cue-bentobox" v-if="cueKnowledge === 'concept'">
     <!-- produce cue wheel based on active cue -->
     <pie-chartcues v-if="Object.keys(liveDoughData).length > 0" :chartData="liveDoughData" :options="{}" @segmentClick="cueSegSelect" ></pie-chartcues>
@@ -63,6 +71,14 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     return storeCues.cueContext
   })
 
+  const minCues = computed(() => {
+    return storeCues.minCuesStatus
+  })
+
+  const minCueStatus = computed(() => {
+    return storeCues.minCuesText
+  })
+
   const cueKnowledge = computed(() => {
     return storeCues.cueKnowledge
   })
@@ -99,6 +115,15 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     // check in other context e.g. flake
     storeCues.glueRelActive = ''
     storeCues.checkCueContext()
+  }
+
+  const minimiseCues = () => {
+    if (minCues.value === true) {
+      storeCues.minCuesText = 'Show'
+    } else {
+      storeCues.minCuesText = 'Minimise'
+    }
+    storeCues.minCuesStatus = !storeCues.minCuesStatus
   }
 
   const bentoSpaceOpen = (spaceID) => {
@@ -163,6 +188,34 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
 
 <style scoped>
+
+#minimise-cues {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+#minimise-cues-button {
+  text-align: end;
+  margin-right: 2em;
+}
+
+.minimise-cues-button {
+  background-color: #b8cde2;
+  color: #140d6b;
+  border: none;
+  border-radius: 4px;
+  padding: 6px 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.minimise-cues-button:active {
+  background-color: #004494;
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
 
 .network-cues{
   display: inline-block;

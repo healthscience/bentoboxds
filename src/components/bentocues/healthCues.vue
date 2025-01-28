@@ -20,6 +20,8 @@
       </template>
       <template #body>
         <div id="bento-cues">
+          <beebee-ai></beebee-ai>
+          <button id="open-beebee" @click.prevent="setShowBeeBee">beebee</button>
           <div id="cues-wheel">
             <div id="wheel-tools">
               <button class="cue-select-btn" id="decision-start" @click="selectWheel('cues')" v-bind:class="{ active: wheelType === 'cues' }">Cues</button>
@@ -95,6 +97,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import BeebeeAi from '@/components/beebeehelp/spaceChat.vue'
 import CuesPrepared from '@/components/bentocues/prepareCues.vue'
 import PathView from '@/components/bentocues/bentopath/viewPath.vue'
 import BentoPath from '@/components/bentocues/bentopath/storyTools.vue'
@@ -146,6 +149,10 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   /* methods */
   const closeBentoCues = () => {
     storeAI.bentocuesState = !storeAI.bentocuesState
+  }
+
+  const setShowBeeBee = () => {
+    storeAI.bentochatState = !storeAI.bentochatState
   }
 
   const cueSelect = (cueID, segID) => {
@@ -202,11 +209,27 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
 <style scoped>
 
-  .active {
-    background-color: rgb(113, 172, 114);
-  }
+#open-beebee {
+  position: fixed;
+  bottom: 10px;
+  right: 120px;
+  z-index: 31;
+  display: grid;
+  justify-content: center;
+  place-self: start;
+  align-self: start;
+  height: 2em;
+  width: 5em;
+  background-color: white;
+}
+
+
+.active {
+  background-color: rgb(113, 172, 114);
+}
 
   @media (min-width: 1024px) {
+
 
     #bento-cues {
       display: grid;

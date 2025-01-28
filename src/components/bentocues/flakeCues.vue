@@ -41,39 +41,41 @@
               </div>
             </div>
           </div>
-          <div id="cues-context-tools" v-if="cuesTools === true">
-            <!-- existing cues -->
-            <cues-prepared v-if="wheelType === 'cues'"></cues-prepared>
-          </div>
-          <div id="cues-corridor-tools" v-if="cuesCorridor === true">
-            <!-- cues over time past future corridors of life -->
-             Coming soon cues over time, past, present and future
-          </div>
-          <beebee-ai></beebee-ai>
-          <button id="open-beebee" @click.prevent="setShowBeeBee">beebee</button>
-          <div id="bento-flake">
-            <!-- make three by three grid to postion branches from -->
-            <div class="center-grid"></div>
-            <div class="center-grid"></div>
-            <div class="center-grid"></div>
-            <div class="center-grid"></div>
-            <div id="center-flake" class="center-grid singularity">
-              <div class="cue-holistic" v-if="cueBalance.length > 0">
-                <div class="cues-segs" v-for="cue of cuesFlakesH" :style="cue.style">
-                    --------------------
-                  <div class="cues-status flake-cue" v-for="cstatus of cuesStatusH[cue.cue]"  :style="{ backgroundColor: cstatus.cuecolor }" @click="viewCueHex(cstatus)">
-                    {{ cstatus.name }}
-                  </div>
-                  <div class="cue-branch">
-                    {{  }}
+          <div id="cues-context-flake">
+            <div id="cues-context-tools" v-if="cuesTools === true">
+              <!-- existing cues -->
+              <cues-prepared v-if="wheelType === 'cues'"></cues-prepared>
+            </div>
+            <div id="cues-corridor-tools" v-if="cuesCorridor === true">
+              <!-- cues over time past future corridors of life -->
+              Coming soon cues over time, past, present and future
+            </div>
+            <beebee-ai></beebee-ai>
+            <button id="open-beebee" @click.prevent="setShowBeeBee">beebee</button>
+            <div id="bento-flake">
+              <!-- make three by three grid to postion branches from -->
+              <div class="center-grid"></div>
+              <div class="center-grid"></div>
+              <div class="center-grid"></div>
+              <div class="center-grid"></div>
+              <div id="center-flake" class="center-grid singularity">
+                <div class="cue-holistic" v-if="cueBalance.length > 0">
+                  <div class="cues-segs" v-for="cue of cuesFlakesH" :style="cue.style">
+                      --------------------
+                    <div class="cues-status flake-cue" v-for="cstatus of cuesStatusH[cue.cue]"  :style="{ backgroundColor: cstatus.cuecolor }" @click="viewCueHex(cstatus)">
+                      {{ cstatus.name }}
+                    </div>
+                    <div class="cue-branch">
+                      {{  }}
+                    </div>
                   </div>
                 </div>
               </div>
+              <div class="center-grid"></div>
+              <div class="center-grid"></div>
+              <div class="center-grid"></div>
+              <div class="center-grid"></div>
             </div>
-            <div class="center-grid"></div>
-            <div class="center-grid"></div>
-            <div class="center-grid"></div>
-            <div class="center-grid"></div>
           </div>
         </div>
       </template>
@@ -175,6 +177,13 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
   background-color: antiquewhite;
+  text-align: center;
+}
+
+#cues-context-flake {
+  display: grid;
+  grid-template-columns: 1fr;
+  place-self: center;
 }
 
 #open-beebee {
