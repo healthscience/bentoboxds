@@ -200,11 +200,11 @@ export const cuesStore = defineStore('cues', {
        let markerContract = this.markerUtil.markerMatch(relMarkers, this.markerList)
         let measurePerCue = []
         for (let marker of markerContract) {
-          measurePerCue.push(this.flakeUtil.prepareHexFlake(marker[0]))
+          measurePerCue.push(this.flakeUtil.prepareHexFlake(expCuesContracts.key, marker[0]))
         }
         this.flakeCues[cueKey] = measurePerCue
       } else {
-        this.flakeCues[cueKey] = [this.flakeUtil.prepareHexFlakeEmpty(cueKey)]
+        this.flakeCues[cueKey] = [this.flakeUtil.prepareHexFlakeEmpty(expCuesContracts.key, cueKey)]
       }
     },
     cuesFlakeMeasure () {

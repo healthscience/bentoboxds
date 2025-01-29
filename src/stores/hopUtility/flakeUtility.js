@@ -52,7 +52,7 @@ class FlakeUtility {
     let markerFlake = {}
     let flakesList = []
     for (let marker of markerInfo) {
-      let hexPrep = this.prepareHexFlake(marker[0])
+      let hexPrep = this.prepareHexFlake(marker[0].cue, marker[0])
       flakesList.push(hexPrep)
       markerFlake[hexPrep.cue] = flakesList
       flakesList = []
@@ -66,8 +66,9 @@ class FlakeUtility {
   * @method prepareHexFlake
   *
   */
-  prepareHexFlake = function (hexInfo) {
+  prepareHexFlake = function (cuekey, hexInfo) {
     let hexFlake = {}
+    hexFlake.branch = cuekey
     hexFlake.cue = hexInfo.key
     hexFlake.name = hexInfo.value.concept.name
     hexFlake.cuecolor = 'green'
@@ -80,9 +81,10 @@ class FlakeUtility {
   * @method prepareHexFlake
   *
   */
-  prepareHexFlakeEmpty = function (hexInfo) {
+  prepareHexFlakeEmpty = function (cuekey, hexInfo) {
     let hexFlake = {}
-    hexFlake.cue = hexInfo
+    hexFlake.branch = cuekey
+    hexFlake.cue = hexInfo.key
     hexFlake.name = 'empty'
     hexFlake.cuecolor = 'white'
     hexFlake.bentobox = hexInfo

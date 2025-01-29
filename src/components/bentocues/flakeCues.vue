@@ -20,22 +20,19 @@
         <div class="main">
           <div id="cues-holistic">
             <div id="cues-connector">
-              <button @click="cueConnect()" v-bind:class="{ active: cuesTools === true }">Cues</button>
+              <button class="flake-agent" @click="cueConnect()" v-bind:class="{ active: cuesTools === true }">Cues</button>
             </div>
             <div id="cues-connector">
-              <button @click="cueCorridor()" v-bind:class="{ active: cuesCorridor === true }">Corridor</button>
+              <button class="flake-agent" @click="cueCorridor()" v-bind:class="{ active: cuesCorridor === true }">Corridor</button>
             </div>
             <div id="juv-holder">
-              <div id="health-Rejuvenation">Rejuvenation</div>
-             <button id="health-optimisation" @click="juvCycle()">Options</button>
+             <button class="flake-agent" id="health-rejuvenation" @click="juvCycle()">Rejuvenation</button>
             </div>
             <div id="opti-holder">
-              <div id="health-optimisation">Optimisation</div>
-             <button id="health-optimisation" @click="optiCycle()">Start</button>
+             <button  class="flake-agent" id="health-optimisation" @click="optiCycle()">Optimisation</button>
             </div>
             <div id="stacks-holder">
-              <div id="health-optimisation">Stacks</div>
-              <button id="stacks-optimisation" @click="stackProtocols()">Protocols</button>
+              <button  class="flake-agent" id="stacks-optimisation" @click="stackProtocols()">Protocols</button>
               <div id="stack-types" v-if="stacksOpen === true">
                 Markers Product - supplements  Treatments etc.
               </div>
@@ -64,14 +61,14 @@
                       --------------------
                     <div class="branch-holder">
                       <div class="branch-quant">
-                        <div class="cues-status flake-cue" v-for="cstatus of cuesStatusH[cue.cue]"  :style="{ backgroundColor: cstatus.cuecolor }" @click="viewCueHex(cstatus)">
+                        <div class="cues-status flake-cue" v-for="cstatus of cuesStatusH[cue.cue]"  :style="{ backgroundColor: cstatus.cuecolor }" @click="viewCueHex(cstatus)" @mouseover="setHexTooltip(cstatus)" @mouseleave="showTooltip = false">
                           {{ cstatus.name}}
                         </div>
-                        <div class="cue-branch">
-                        {{  }}
-                        </div>
                         <div class="branch-name">
-                         {{ cue.name }}
+                          {{ cue.name }}  {{ showTooltip }}
+                          <div class="tooltip" v-if="showTooltip === true && cueBranch === cue.cue">
+                            {{ tooltipHex }}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -110,6 +107,9 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   let cuesCorridor = ref(false)
   let wheelType = ref('cues')
   let stacksOpen = ref(false)
+  let showTooltip = ref(false)
+  let tooltipHex = ref('')
+  let cueBranch = ref(false)
 
   /* computed */
   const cueBalance = computed(() => {
@@ -134,6 +134,12 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     storeCues.liveCueContext = 'menu'
   }
 
+  const setHexTooltip = (hex) => {
+    showTooltip.value = true
+    tooltipHex.value = hex.name
+    cueBranch.value = hex.branch
+  }
+
   const stackProtocols = () => {
     stacksOpen.value = !stacksOpen.value
   }
@@ -152,8 +158,8 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     storeAI.bentospaceState = !storeAI.bentospaceState
     let tempSpace = {}
     tempSpace.active = true
-    tempSpace.name = 'nmn'
-    tempSpace.spaceid = 'f6b145fd4b8f507622b597537b0e5e5459da2189'
+    tempSpace.name = cue.name
+    tempSpace.spaceid = cue.branch
     storeAI.liveBspace = tempSpace // cue.spaceID
     // make button green
     let spaceLiveList = []
@@ -182,8 +188,13 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 #cues-holistic {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-  background-color: rgb(247, 243, 193);
+  background-color: rgb(226, 230, 243);
   text-align: center;
+}
+
+#cues-context-tools {
+  border: 1px dashed blue;
+  padding: 1em;
 }
 
 #cues-context-flake {
@@ -268,6 +279,56 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   background-color: rgb(113, 172, 114);
 }
 
+.tooltip {
+  position: absolute;
+  bottom: 40px; /* Position above the die */
+  left: 40px;
+  transform: translateX(-50%);
+  background-color: #333; /* Background color */
+  color: #fff; /* Text color */
+  padding: 5px;
+  border-radius: 5px;
+  white-space: nowrap; /* Prevent text wrapping */
+  z-index: 66; /* Ensure it appears above other elements */
+  opacity: 0; /* Start hidden */
+  transition: opacity 0.3s; /* Smooth transition */
+}
+
+.cues-status {
+  position: relative;
+  display: inline-grid;
+  overflow: hidden;
+  border: 2px solid white;
+}
+
+.cues-status:hover .tooltip {
+  opacity: 1; /* Show tooltip on hover */
+}
+
+.flake-agent {
+  display: inline-grid;
+  margin-right: .4em;
+  background-color: #b8cde2;
+  color: #140d6b;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.flake-agent:hover {
+    background-color: #2a82e0;
+    transform: translateY(-2px);
+}
+
+.flake-agent:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5);
+}
+
   @media (min-width: 1024px) {
 
     #bento-flake {
@@ -296,7 +357,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
       justify-content: center;
       align-items: center;
       border-radius: 50%;
-      background-color: orange;
+      background-color: white;
     }
 
     .cues-segs {
@@ -320,10 +381,30 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
       justify-content: center;
     }
 
+    .tooltip {
+      position: fixed;
+      bottom: -30px; /* Position above the die */
+      left: 140px;
+      transform: translateX(-50%);
+      background-color: #7c8adb; /* Background color */
+      color: #fff; /* Text color */
+      padding: 5px;
+      border-radius: 5px;
+      white-space: nowrap; /* Prevent text wrapping */
+      z-index: 66; /* Ensure it appears above other elements */
+      opacity: 1; /* Start hidden */
+      transition: opacity 0.3s; /* Smooth transition */
+    }
+
     .cues-status {
+      position: relative;
       display: inline-grid;
       overflow: hidden;
       border: 2px solid white;
+    }
+
+    .cues-status:hover .tooltip {
+      opacity: 1; /* Show tooltip on hover */
     }
 
     .bento-flake-quant {

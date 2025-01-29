@@ -24,31 +24,33 @@
     </div>
   <div id="cue-bentobox" v-if="cueKnowledge === 'concept'">
     <!-- produce cue wheel based on active cue -->
-    <pie-chartcues v-if="Object.keys(liveDoughData).length > 0" :chartData="liveDoughData" :options="{}" @segmentClick="cueSegSelect" ></pie-chartcues>
+    <div id="cue-wheel">
+      <pie-chartcues v-if="Object.keys(liveDoughData).length > 0" :chartData="liveDoughData" :options="{}" @segmentClick="cueSegSelect" ></pie-chartcues>
+      <div id="beebee-feedback">
+        {{ beebeeFeedback }}
+      </div>
+      <div id="remove-cue">
+        <button id="remove-cue-delete" @click="removeCue()">Delete</button>
+        <button id="view-cue-button" @click="bentoSpaceOpen()">Space</button>
+      </div>
+      </div>
     <div id="relationship-glue" v-if="cueSelectrel === false">
       <div id="beebee-rel">
         <div id="connection-glue">
-          <button @click="glueType('down')">Down</button>
-          <button @click="glueType('up')">Up</button>
-          <button @click="glueType('equal')">Equal</button>
-          <button @click="glueType('measure')">Measure</button>
-          <button @click="glueType('unknown')">Unknown</button>
-          <button @click="glueType('compute')">Compute</button>
-        </div>
-        <!--markers for this cue? -->
-        <div id="cue-markers" v-if="markerContext.length > 0 && cueConext !== 'space'">
-          <div class="marker-button-item" v-for="mark in markerContext">
-           <button class="marker-button" @click="viewMarker(mark)">{{ mark[0].value.concept.name }}</button>
-          </div> 
-        </div>
-        <div id="beebee-feedback">
-          {{ beebeeFeedback }}
+          <button class="glue-btn" @click="glueType('down')">Down</button>
+          <button class="glue-btn" @click="glueType('up')">Up</button>
+          <button class="glue-btn" @click="glueType('equal')">Equal</button>
+          <button class="glue-btn" @click="glueType('measure')">Measure</button>
+          <button class="glue-btn" @click="glueType('unknown')">Unknown</button>
+          <button class="glue-btn" @click="glueType('compute')">Compute</button>
         </div>
       </div>
     </div>
-    <div id="remove-cue">
-      <button id="remove-cue-delete" @click="removeCue()">Delete</button>
-      <button id="view-cue-button" @click="bentoSpaceOpen()">Space</button>
+    <!--markers for this cue? -->
+    <div id="cue-markers" v-if="markerContext.length > 0 && cueConext !== 'space'">
+      <div class="marker-button-item" v-for="mark in markerContext">
+        <button class="marker-button" @click="viewMarker(mark)">{{ mark[0].value.concept.name }}</button>
+      </div> 
     </div>
   </div>
 </template>
@@ -233,17 +235,27 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
 #cue-bentobox {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 4fr 1fr 2fr;
   margin: 2em;
 
 }
 
 #relationship-glue {
-  border: 0px solid lightblue;
+  border: 0px solid blue;
+}
+
+#connection-glue {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.glue-btn {
+  margin-bottom: .5em;
 }
 
 #cue-markers {
-  margin: 2em;
+  border: 0px solid red;
+  padding: 1em;
 }
 
 .marker-button-item {
