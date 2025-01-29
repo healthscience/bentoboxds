@@ -52,7 +52,9 @@ class BiomarkersUtility {
     let fullMarker = []
     for (let markID of relMarkers) {
       let markerMatch = markersLive.filter(item => item.key === markID)
-      fullMarker.push(markerMatch)
+      if (markerMatch.length > 0) {
+        fullMarker.push(markerMatch)
+      }
     }
     return fullMarker
   }

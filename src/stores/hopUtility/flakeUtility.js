@@ -75,6 +75,20 @@ class FlakeUtility {
     return hexFlake
   }
 
+  /**
+  * nothing for this inform with clear hex 
+  * @method prepareHexFlake
+  *
+  */
+  prepareHexFlakeEmpty = function (hexInfo) {
+    let hexFlake = {}
+    hexFlake.cue = hexInfo
+    hexFlake.name = 'empty'
+    hexFlake.cuecolor = 'white'
+    hexFlake.bentobox = hexInfo
+    return hexFlake
+  }
+
 }
 
   export default FlakeUtility

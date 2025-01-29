@@ -62,11 +62,18 @@
                 <div class="cue-holistic" v-if="cueBalance.length > 0">
                   <div class="cues-segs" v-for="cue of cuesFlakesH" :style="cue.style">
                       --------------------
-                    <div class="cues-status flake-cue" v-for="cstatus of cuesStatusH[cue.cue]"  :style="{ backgroundColor: cstatus.cuecolor }" @click="viewCueHex(cstatus)">
-                      {{  cstatus.name }}
-                    </div>
-                    <div class="cue-branch">
-                      {{  }}
+                    <div class="branch-holder">
+                      <div class="branch-quant">
+                        <div class="cues-status flake-cue" v-for="cstatus of cuesStatusH[cue.cue]"  :style="{ backgroundColor: cstatus.cuecolor }" @click="viewCueHex(cstatus)">
+                          {{ cstatus.name}}
+                        </div>
+                        <div class="cue-branch">
+                        {{  }}
+                        </div>
+                        <div class="branch-name">
+                         {{ cue.name }}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -175,7 +182,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 #cues-holistic {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
-  background-color: antiquewhite;
+  background-color: rgb(247, 243, 193);
   text-align: center;
 }
 
@@ -205,14 +212,14 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   background: #faf5ec;
   align-items: center;
   opacity: 90%;
-  box-shadow: inset 0px 0px 0px 300px rgb(241, 212, 212);
+  box-shadow: inset 0px 0px 0px 300px rgb(236, 235, 160);
 }
 
 #bento-flake-center {
   position: fixed;
   display: grid;
   border: 0px solid rgb(5, 29, 170);
-  background: #faf5ec;
+  background: #eee4d2;
   width: 200px;
   height: 200px;
   border-radius: 50%;
@@ -298,13 +305,25 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
       top: 50%;
       left: 50%;
       width: 50vw;
+      height: 10vh;
       padding-left: 100px;
       transform-origin: top left;
     }
 
+    .branch-holder {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+
+    .branch-name {
+      display: grid;
+      justify-content: center;
+    }
+
     .cues-status {
-      display: inline;
-      border: 2px solid pink;
+      display: inline-grid;
+      overflow: hidden;
+      border: 2px solid white;
     }
 
     .bento-flake-quant {
@@ -315,15 +334,6 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     }
 
     /* four basic quadrants */
-    #decision-doughnut {
-      border: 1px solid blue;
-      min-height: 60vh;
-    }
-
-    #decision-doughnut-cues {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-    }
 
     /* four basic quadrants */
     #new-doughnut-cues {
@@ -355,7 +365,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     .main {
       display: grid;
       --s: 32px;  /* size  */
-      --m: 4px;    /* margin */
+      --m: 1px;    /* margin */
       --f: calc(1.732 * var(--s) + 4 * var(--m)  - 1px);
     }
 

@@ -86,8 +86,6 @@ export const cuesStore = defineStore('cues', {
         }
         this.storeAI.cuesFeedback = cueWheel.feedback
       } else if (glueType === 'measure') {
-        console.log('measure glue in what context')
-        console.log(this.liveCueContext)
         let cueContract = this.cueUtil.cueMatch(this.activeCue, this.cuesList)
         let relAvailable = Object.keys(cueContract?.value?.computational?.relationships)
         // does the cogglue have any reltation listed?
@@ -130,6 +128,8 @@ export const cuesStore = defineStore('cues', {
       return matchLabel
     },
     checkCueContext () {
+      this.cuesFlakeList = []
+      this.flakeCues = {}
       // what cue context is active, menu, space, flake
       if (this.liveCueContext === 'menu') {
         // what cue is active
@@ -143,7 +143,7 @@ export const cuesStore = defineStore('cues', {
         if (this.glueRelActive === 'down') {
           this.cuesFlakeCount = 0
           for (let cueE of this.activeCueExpanded) {
-            this.flakeCuesListGlue(cueE.key)
+            this.flakeCuesListGlue(cueE)
             this.prepareFlakeExpanded(cueE.key)
           }
         } else if (this.glueRelActive === 'measure') {
@@ -151,7 +151,7 @@ export const cuesStore = defineStore('cues', {
         } else {
           // need to prepare/ map to sub cues and then to N=1/decisions to show boundry state ie. low just right  concern
           this.cuesFlakeList = []
-          this.flakeCuesList()
+          let prepList =this.flakeCuesList()
           this.prepareFlake()
         }
       }
@@ -163,22 +163,49 @@ export const cuesStore = defineStore('cues', {
       let cueRadian = 360 / this.cuesFlakeList.length
       let flakePosition = { transform: 'rotate(' + cueRadian + 'deg)'} 
       this.cuesFlakeList.push({ cue: this.activeCue, style: flakePosition })
+      return true
     },
-    flakeCuesListGlue (cueKey) {
+    flakeCuesListGlue (cueContract) {
       // need to add rotation
       // let branchItems = { nature: { transform: 'rotate('  + '30' + 'deg)'} }
       // how many cues in flake?
       this.cuesFlakeCount++
       let cueRadian = 360 / this.activeCueExpanded.length
       let flakePosition = { transform: 'rotate(' + (cueRadian * this.cuesFlakeCount) + 'deg)'} 
-      this.cuesFlakeList.push({ cue: cueKey, style: flakePosition })
+      this.cuesFlakeList.push({ cue: cueContract.key, style: flakePosition, name: cueContract.value.concept.name })
     },
     prepareFlake () {
       // let cueContract = this.cueUtil.cueMatch(this.activeCue, this.cuesList)
+      // what cues have rel to the prime cue?
+
+      // match cues to wheel
+      // let cueWheel = this.cueUtil.prepareFlakeWheel(this.activeCue, expCuesContracts, this.cuesList)
+      // this.flakeCues = cueWheel
       this.flakeCues[this.activeCue] = this.flakeUtil.prepareFlakeCues(this.activeCue)
     },
     prepareFlakeExpanded (cueKey) {
-      this.flakeCues[cueKey] = this.flakeUtil.prepareFlakeCues(cueKey)
+      // match cues to contracts
+      let expCuesContracts = {}
+      for (let cue of this.cuesList) {
+        if (cue.key === cueKey) {
+          expCuesContracts = cue
+        }
+       }
+      // look at relationships and find measure bentoboxes to get state
+      let relMarkers = {}
+      if (expCuesContracts.value.computational.relationships?.measure !== undefined) {
+        relMarkers = expCuesContracts.value.computational.relationships?.measure
+      }
+      if (relMarkers.length > 0) {
+       let markerContract = this.markerUtil.markerMatch(relMarkers, this.markerList)
+        let measurePerCue = []
+        for (let marker of markerContract) {
+          measurePerCue.push(this.flakeUtil.prepareHexFlake(marker[0]))
+        }
+        this.flakeCues[cueKey] = measurePerCue
+      } else {
+        this.flakeCues[cueKey] = [this.flakeUtil.prepareHexFlakeEmpty(cueKey)]
+      }
     },
     cuesFlakeMeasure () {
       // the markers live for this cue
@@ -196,7 +223,7 @@ export const cuesStore = defineStore('cues', {
       this.cuesFlakeCount++
       let cueRadian = 360 / this.cueMatchMarkersLive.length
       let flakePosition =  { transform: 'rotate(' + (cueRadian * this.cuesFlakeCount) + 'deg)'}
-      this.cuesFlakeList.push({ cue: marker.key, style: flakePosition })
+      this.cuesFlakeList.push({ cue: marker.key, style: flakePosition, name: marker.value.concept.name })
     },
     prepareGaia () {
       // get gaia datatype contract info.
