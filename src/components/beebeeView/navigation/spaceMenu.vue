@@ -184,13 +184,17 @@ import { ref, computed, onMounted } from 'vue'
   }
 
   const bentoSpaceOpen = (spaceID) => {
+    console.log('open bento space from menu')
     storeCues.cueContext = 'space'
     storeAI.beebeeContext = 'chatspace'
     storeAI.bentospaceState = !storeAI.bentospaceState
     storeAI.liveBspace = spaceID
+    console.log('llllll')
+    console.log(storeAI.liveBspace)
     // make button green
     let spaceLiveList = []
     for (let spi of storeBentobox.spaceList) {
+      console.log(spi)
       if (spi.cueid === spaceID.cueid) {
         spi.active = true
         spaceLiveList.push(spi)
@@ -199,6 +203,8 @@ import { ref, computed, onMounted } from 'vue'
         spaceLiveList.push(spi)
       }
     }
+    console.log('livivlvlivlivi spac e')
+    console.log(spaceLiveList)
     storeBentobox.spaceList = spaceLiveList
     // prepare cue wheel context
     let cueContract = storeCues.cueUtil.cueMatch(spaceID.cueid, storeCues.cuesList)

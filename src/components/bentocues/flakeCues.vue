@@ -65,7 +65,7 @@
                           {{ cstatus.name}}
                         </div>
                         <div class="branch-name">
-                          {{ cue.name }}  {{ showTooltip }}
+                          {{ cue.name }}
                           <div class="tooltip" v-if="showTooltip === true && cueBranch === cue.cue">
                             {{ tooltipHex }}
                           </div>
@@ -136,8 +136,13 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
   const setHexTooltip = (hex) => {
     showTooltip.value = true
-    tooltipHex.value = hex.name
-    cueBranch.value = hex.branch
+    if (hex.name !== 'in-progress') {
+      tooltipHex.value = hex.branchname
+      cueBranch.value = hex.branch
+    } else {
+      tooltipHex.value =  hex.branchname
+      cueBranch.value = hex.cue
+    }
   }
 
   const stackProtocols = () => {
@@ -158,8 +163,11 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     storeAI.bentospaceState = !storeAI.bentospaceState
     let tempSpace = {}
     tempSpace.active = true
-    tempSpace.name = cue.name
+    tempSpace.name = cue.branchname
     tempSpace.spaceid = cue.branch
+    tempSpace.cueid = cue.branch
+    tempSpace.gluedown = 'down'
+    tempSpace.expand = true
     storeAI.liveBspace = tempSpace // cue.spaceID
     // make button green
     let spaceLiveList = []

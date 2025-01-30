@@ -36,10 +36,11 @@ class FlakeUtility {
   *
   */
   prepareFlakeCues = function (cueInfo) {
+    console.log('prepareFlakeCues', cueInfo)
     let flakeCues = {}
-    let flakesListTest = [ { cue: 1, name: 'posture', cuecolor: 'red' }, { cue: 2, name: 'sleep', cuecolor: 'orange' },{ cue: 3, name: 'heart', cuecolor: 'green' }, { cue: 4, name: 'courage', cuecolor: 'green' }, { cue: 5, name: 'sleep', cuecolor: 'orange' }, { cue: 6, name: 'posture', cuecolor: 'red' }]
+    // let flakesListTest = [ { cue: 1, name: 'posture', cuecolor: 'red' }, { cue: 2, name: 'sleep', cuecolor: 'orange' },{ cue: 3, name: 'heart', cuecolor: 'green' }, { cue: 4, name: 'courage', cuecolor: 'green' }, { cue: 5, name: 'sleep', cuecolor: 'orange' }, { cue: 6, name: 'posture', cuecolor: 'red' }]
     // how many cues and how many bentoboxes per cue?  How to rate bentoboxes or besearch within?  Use SafeFlowECS or summaary saved.  Need to check state of besearch cyccles and state in done, inprogress or ongoing
-    flakeCues = flakesListTest
+    flakeCues = [{ cue: cueInfo.key, name: 'in-progress', cuecolor: 'purple', branch: cueInfo.key, branchname: cueInfo.value.concept.name}]
     return flakeCues
   }
   
@@ -66,9 +67,10 @@ class FlakeUtility {
   * @method prepareHexFlake
   *
   */
-  prepareHexFlake = function (cuekey, hexInfo) {
+  prepareHexFlake = function (cueCont, hexInfo) {
     let hexFlake = {}
-    hexFlake.branch = cuekey
+    hexFlake.branch = cueCont.key
+    hexFlake.branchname = hexInfo.value.concept.name
     hexFlake.cue = hexInfo.key
     hexFlake.name = hexInfo.value.concept.name
     hexFlake.cuecolor = 'green'
@@ -81,9 +83,10 @@ class FlakeUtility {
   * @method prepareHexFlake
   *
   */
-  prepareHexFlakeEmpty = function (cuekey, hexInfo) {
+  prepareHexFlakeEmpty = function (cueCont, hexInfo) {
     let hexFlake = {}
-    hexFlake.branch = cuekey
+    hexFlake.branch = cueCont.key
+    hexFlake.branchname = hexInfo?.value?.concept?.name
     hexFlake.cue = hexInfo.key
     hexFlake.name = 'empty'
     hexFlake.cuecolor = 'white'

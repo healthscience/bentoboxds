@@ -13,7 +13,7 @@
           >
             Close
           </button>
-          <h3>BentoSpace # {{ storeAI.liveBspace.name }}</h3>
+          <h3>BentoSpace # {{ storeAI.liveBspace.name }} bb= {{ storeAI.liveBspace.spaceid }} --vv {{ storeBentobox.videoMedia[storeAI.liveBspace.spaceid] }} oo {{ storeBentobox.videoMedia }}</h3>
           <div id="return-modal-close" @click="closeBentoSpace">return</div>
         </div>
       </template>

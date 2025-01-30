@@ -135,7 +135,7 @@ export const cuesStore = defineStore('cues', {
         // what cue is active
         this.flakeCuesList()
       } else if (this.liveCueContext === 'space') {
-
+        console.log('space end')
       } else if (this.liveCueContext === 'flake') {
         // any relationships active?
         this.minCuesStatus = false
@@ -179,9 +179,9 @@ export const cuesStore = defineStore('cues', {
       // what cues have rel to the prime cue?
 
       // match cues to wheel
-      // let cueWheel = this.cueUtil.prepareFlakeWheel(this.activeCue, expCuesContracts, this.cuesList)
+      let cueContract = this.cueUtil.cueMatch(this.activeCue, this.cuesList)
       // this.flakeCues = cueWheel
-      this.flakeCues[this.activeCue] = this.flakeUtil.prepareFlakeCues(this.activeCue)
+      this.flakeCues[this.activeCue] = this.flakeUtil.prepareFlakeCues(cueContract)
     },
     prepareFlakeExpanded (cueKey) {
       // match cues to contracts
@@ -200,11 +200,11 @@ export const cuesStore = defineStore('cues', {
        let markerContract = this.markerUtil.markerMatch(relMarkers, this.markerList)
         let measurePerCue = []
         for (let marker of markerContract) {
-          measurePerCue.push(this.flakeUtil.prepareHexFlake(expCuesContracts.key, marker[0]))
+          measurePerCue.push(this.flakeUtil.prepareHexFlake(expCuesContracts, marker[0]))
         }
         this.flakeCues[cueKey] = measurePerCue
       } else {
-        this.flakeCues[cueKey] = [this.flakeUtil.prepareHexFlakeEmpty(expCuesContracts.key, cueKey)]
+        this.flakeCues[cueKey] = [this.flakeUtil.prepareHexFlakeEmpty(expCuesContracts, cueKey)]
       }
     },
     cuesFlakeMeasure () {

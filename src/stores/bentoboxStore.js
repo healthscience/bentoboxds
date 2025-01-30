@@ -288,6 +288,7 @@ export const bentoboxStore = defineStore('bentostore', {
       }
     },
     prepareMediaSpace (mData) {
+      console.log('prepareMediaSpace', mData)
       let medBoxList = []
       let tempSpaceID = ''
       this.locationMbox = {}

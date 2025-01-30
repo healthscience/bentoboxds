@@ -129,8 +129,10 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   }
 
   const bentoSpaceOpen = (spaceID) => {
-    storeAI.beebeeContext = 'cue'
-    storeAI.bentospaceState = !storeAI.bentospaceState
+    console.log(storeCues.activeCue)
+    storeCues.cueContext = 'space'
+    storeAI.beebeeContext = 'chatspace'
+    storeAI.bentospaceState = true
     // mmach to contract and form space structure
     let cueContract = {}
     for (let cue of storeCues.cuesList) {
@@ -141,11 +143,15 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     storeAI.liveBspace = {
       name: cueContract.value.concept.name,
       spaceid: storeCues.activeCue,
+      cueid: storeCues.activeCue,
       gluedown: 'down',
       active: false,
-      expand: false
+      expand: true
     }
+    console.log('ppppppppppppp')
+    console.log(storeAI.liveBspace)
     storeBentobox.spaceList.push(storeCues.activeCue)
+    console.log(storeBentobox.spaceList)
     storeCues.cogGlueSpace(storeCues.activeCue)
   }
 

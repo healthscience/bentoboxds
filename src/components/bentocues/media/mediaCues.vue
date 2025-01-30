@@ -40,6 +40,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   /* computed */
   const mediaMatch = computed(() => {
+    console.log('mediaMatch')
+    console.log(storeAI.liveBspace.spaceid)
     return storeCues.mediaMatch[storeAI.liveBspace.spaceid]
   })
 
