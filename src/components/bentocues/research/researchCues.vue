@@ -56,12 +56,12 @@ import { cuesStore } from '@/stores/cuesStore.js'
     // const spaceList.push(research info for this space only ie context)
     // assume youtube and extract id
     if (researchURLadd.value.length > 0) {
-      let newResearch = { spaceid: storeAI.liveBspace.spaceid, research: researchURLadd.value }
+      let newResearch = { cueid: storeAI.liveBspace.cueid, research: researchURLadd.value }
       // if first time setup object
-      if (storeCues.researchPapers[storeAI.liveBspace.spaceid] === undefined) {
-        storeCues.researchPapers[storeAI.liveBspace.spaceid] = []
+      if (storeCues.researchPapers[storeAI.liveBspace.cueid] === undefined) {
+        storeCues.researchPapers[storeAI.liveBspace.cueid] = []
       }
-      storeCues.researchPapers[storeAI.liveBspace.spaceid].push({ key: 'rtemp', value: { concept: { spaceid: storeAI.liveBspace.spaceid, research: researchURLadd.value }}})
+      // storeCues.researchPapers[storeAI.liveBspace.cueid].push({ key: 'rtemp', value: { concept: { spaceid: storeAI.liveBspace.cueid, research: researchURLadd.value }}})
       // save to store
       const cueRContract = {}
       cueRContract.type = 'library'
@@ -78,15 +78,15 @@ import { cuesStore } from '@/stores/cuesStore.js'
   const viewResearch = (paper) => {
     if (paper.length > 0) {
       // check if holder setup
-      if (storeBentobox.locationRbox[storeAI.liveBspace.spaceid] === undefined) {
-        storeBentobox.locationRbox[storeAI.liveBspace.spaceid] = {}
+      if (storeBentobox.locationRbox[storeAI.liveBspace.cueid] === undefined) {
+        storeBentobox.locationRbox[storeAI.liveBspace.cueid] = {}
       }
-      storeBentobox.setLocationRbox(storeAI.liveBspace.spaceid, paper)
-      if (storeBentobox.researchMedia[storeAI.liveBspace.spaceid]) {
-        storeBentobox.researchMedia[storeAI.liveBspace.spaceid].push({  key: paper, tag: 'paper', id: paper })
+      storeBentobox.setLocationRbox(storeAI.liveBspace.cueid, paper)
+      if (storeBentobox.researchMedia[storeAI.liveBspace.cueid]) {
+        storeBentobox.researchMedia[storeAI.liveBspace.cueid].push({  key: paper, tag: 'paper', id: paper })
       } else {
-        storeBentobox.researchMedia[storeAI.liveBspace.spaceid] = []
-        storeBentobox.researchMedia[storeAI.liveBspace.spaceid].push({ key: paper, tag: 'paper', id: paper })
+        storeBentobox.researchMedia[storeAI.liveBspace.cueid] = []
+        storeBentobox.researchMedia[storeAI.liveBspace.cueid].push({ key: paper, tag: 'paper', id: paper })
       }
     } else {
       console.log('empty URL')

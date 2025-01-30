@@ -135,7 +135,6 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   }
 
   const setHexTooltip = (hex) => {
-    console.log('setHexTooltip', hex)
     showTooltip.value = true
     if (hex.name !== 'in-progress') {
       tooltipHex.value = hex.branchname

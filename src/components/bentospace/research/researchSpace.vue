@@ -71,8 +71,8 @@ import { mapminiStore } from '@/stores/mapStore.js'
 
   /* computed */
   const spaceLocation = computed(() => {
-    if (storeBentobox.locationRbox[storeAI.liveBspace.spaceid][props.bsmedia] !== undefined) {
-      return storeBentobox.locationRbox[storeAI.liveBspace.spaceid][props.bsmedia]
+    if (storeBentobox.locationRbox[storeAI.liveBspace.cueid][props.bsmedia] !== undefined) {
+      return storeBentobox.locationRbox[storeAI.liveBspace.cueid][props.bsmedia]
     } else {
       return {}
     }
@@ -101,7 +101,7 @@ import { mapminiStore } from '@/stores/mapStore.js'
     updateBox.fit = fit.value
     updateBox.event = ''
     updateBox.dragSelector = dragSelector.value
-    storeBentobox.locationRbox[storeAI.liveBspace.spaceid][props.bsmedia] = updateBox
+    storeBentobox.locationRbox[storeAI.liveBspace.cueid][props.bsmedia] = updateBox
     storeMmap.actionDashBmove(updateBox)
   }
 
@@ -150,14 +150,14 @@ import { mapminiStore } from '@/stores/mapStore.js'
 
   const removeRboxSpace = () => {
     // remove from spaceList and location
-    let currentSpaceRboxes = storeBentobox.researchMedia[storeAI.liveBspace.spaceid]
+    let currentSpaceRboxes = storeBentobox.researchMedia[storeAI.liveBspace.cueid]
     let updateRblist = []
     for (let bm of currentSpaceRboxes) {
       if (bm.key !== props.bsmedia) {
         updateRblist.push(bm)
       }
     }
-    storeBentobox.researchMedia[storeAI.liveBspace.spaceid] = updateRblist
+    storeBentobox.researchMedia[storeAI.liveBspace.cueid] = updateRblist
     // update miniMap of removal
     // storeMmap.actionDashBRemove(props.bboxid)
     // delete from store

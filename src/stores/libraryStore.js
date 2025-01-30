@@ -383,6 +383,12 @@ export const libraryStore = defineStore('librarystore', {
       } else if (message.action === 'marker-contract') {
         let markerContract = message.data.data
         this.storeCues.markerMatch[markerContract.value.concept.cueid].push(markerContract)
+      } else if (message.action === 'research-contract') {
+        // add to research list
+        console.log('research contract')
+        console.log(message.data.data)
+        let researchContract = message.data.data
+        this.storeCues.researchPapers[researchContract.value.concept.cueid].push({researchContract})
       } else if (message.action === 'reference-contract') {
         // call HOP to get latest changes to public library
         this.sendMessage('get-public-library')

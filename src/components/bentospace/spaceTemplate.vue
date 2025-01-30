@@ -104,7 +104,7 @@
                 <media-space :bstag="bmedia.tag" :bsmedia="bmedia.key"></media-space>
               </div>
               <!-- research media -->
-              <div id="bento-research-space" v-for="rmedia in storeBentobox.researchMedia[storeAI.liveBspace.spaceid]">
+              <div id="bento-research-space" v-for="rmedia in storeBentobox.researchMedia[storeAI.liveBspace.cueid]">
                 <research-space :bstag="rmedia.tag" :bsmedia="rmedia.key"></research-space>
               </div>
                 <!-- marker -->

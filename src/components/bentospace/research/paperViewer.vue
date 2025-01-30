@@ -12,8 +12,8 @@
       </div>
     </div>
     <div id="paper-viewer" v-if="researchContent !== undefined">
-      URL brwoser please {{ props.bstag }}  {{ props.bsresearch }} {{ researchContent.id.research }}
-      <iframe id="paper-view" ref="paperpub" :src="researchContent.id.research"></iframe>
+      NB: research paper may need to be view only at source.
+      <iframe id="paper-view" ref="paperpub" :src="researchContent.value.concept.research"></iframe>
     </div>
   </div>
 </template>
@@ -21,10 +21,12 @@
 <script setup>
 import DecisionCue from '@/components/bentocues/decisions/decisionCues.vue'
 import { ref, computed } from 'vue'
+import { cuesStore } from '@/stores/cuesStore.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 
+  const storeCues = cuesStore()
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
   const storeLibrary = libraryStore()
@@ -45,9 +47,14 @@ import { libraryStore } from '@/stores/libraryStore.js'
   /* computed */
   const researchContent = computed(() => {
     let paperMatch = {}
-    for (let cpap of storeBentobox.researchMedia[storeAI.liveBspace.spaceid]) {
+    /*for (let cpap of storeBentobox.researchMedia[storeAI.liveBspace.cueid]) {
       if (cpap.key === props.bsresearch) {
         paperMatch = cpap
+      }
+    }*/
+    for (let research of storeCues.researchPapers[storeAI.liveBspace.cueid]) {
+      if (research.key === props.bsresearch) {
+        paperMatch = research
       }
     }
     return paperMatch

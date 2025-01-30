@@ -306,10 +306,11 @@ export const bentoboxStore = defineStore('bentostore', {
       }
     },
     prepareResearchSpace (rData) {
+      console.log('prepareResearchSpace', rData)
       let resBoxList = []
       let tempSpaceID = ''
       for (let rkey of rData) {
-        tempSpaceID = rkey.value.concept.spaceid
+        tempSpaceID = rkey.value.concept.cueid
         if (this.locationRbox[tempSpaceID] === undefined) {
           this.locationRbox[tempSpaceID] = {}
           this.researchMedia[tempSpaceID] = []
