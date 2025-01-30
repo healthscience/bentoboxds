@@ -216,7 +216,8 @@ export const cuesStore = defineStore('cues', {
       }
       this.flakeCues = []
       // when single cue show the bentobox decision color state
-      this.flakeCues = this.flakeUtil.prepareFlakeCuesMarkers(this.cueMatchMarkersLive)
+      let cueContract = this.cueUtil.cueMatch(this.activeCue, this.cuesList)
+      this.flakeCues = this.flakeUtil.prepareFlakeCuesMarkers(cueContract, this.cueMatchMarkersLive)
     },
     flakeMarkersList (marker) {
       // need to add rotation

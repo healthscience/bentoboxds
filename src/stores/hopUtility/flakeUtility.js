@@ -36,7 +36,6 @@ class FlakeUtility {
   *
   */
   prepareFlakeCues = function (cueInfo) {
-    console.log('prepareFlakeCues', cueInfo)
     let flakeCues = {}
     // let flakesListTest = [ { cue: 1, name: 'posture', cuecolor: 'red' }, { cue: 2, name: 'sleep', cuecolor: 'orange' },{ cue: 3, name: 'heart', cuecolor: 'green' }, { cue: 4, name: 'courage', cuecolor: 'green' }, { cue: 5, name: 'sleep', cuecolor: 'orange' }, { cue: 6, name: 'posture', cuecolor: 'red' }]
     // how many cues and how many bentoboxes per cue?  How to rate bentoboxes or besearch within?  Use SafeFlowECS or summaary saved.  Need to check state of besearch cyccles and state in done, inprogress or ongoing
@@ -49,11 +48,11 @@ class FlakeUtility {
   * @method prepareFlakeCuesMarkers
   *
   */
-  prepareFlakeCuesMarkers = function (markerInfo) {
+  prepareFlakeCuesMarkers = function (cueContract, markerInfo) {
     let markerFlake = {}
     let flakesList = []
     for (let marker of markerInfo) {
-      let hexPrep = this.prepareHexFlake(marker[0].cue, marker[0])
+      let hexPrep = this.prepareHexFlake(cueContract, marker[0])
       flakesList.push(hexPrep)
       markerFlake[hexPrep.cue] = flakesList
       flakesList = []
@@ -86,7 +85,7 @@ class FlakeUtility {
   prepareHexFlakeEmpty = function (cueCont, hexInfo) {
     let hexFlake = {}
     hexFlake.branch = cueCont.key
-    hexFlake.branchname = hexInfo?.value?.concept?.name
+    hexFlake.branchname = cueCont?.value?.concept?.name
     hexFlake.cue = hexInfo.key
     hexFlake.name = 'empty'
     hexFlake.cuecolor = 'white'

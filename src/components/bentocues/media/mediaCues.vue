@@ -40,22 +40,21 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   /* computed */
   const mediaMatch = computed(() => {
-    console.log('mediaMatch')
-    console.log(storeAI.liveBspace.spaceid)
-    return storeCues.mediaMatch[storeAI.liveBspace.spaceid]
+    return storeCues.mediaMatch[storeAI.liveBspace.cueid]
   })
 
   /* methods */
   const mediaAdd = () => {
+    console.log(storeAI.liveBspace)
     // assume youtube and extract id
     let timeAdded = DateTime.now()
     if (videoURLadd.value.length > 0) {
-      let newmedia = { spaceid: storeAI.liveBspace.spaceid, media: videoURLadd.value, timestamp: timeAdded }
+      let newmedia = { spaceid: storeAI.liveBspace.cueid, media: videoURLadd.value, timestamp: timeAdded }
       // if first time setup object
-      if (storeCues.mediaMatch[storeAI.liveBspace.spaceid] === undefined) {
-        storeCues.mediaMatch[storeAI.liveBspace.spaceid] = []
+      if (storeCues.mediaMatch[storeAI.liveBspace.cueid] === undefined) {
+        storeCues.mediaMatch[storeAI.liveBspace.cueid] = []
       }
-      storeCues.mediaMatch[storeAI.liveBspace.spaceid].push({ key: 'tempmark', value: { concept: { spaceid: storeAI.liveBspace.spaceid, media: videoURLadd.value, timestamp: timeAdded }}})
+      storeCues.mediaMatch[storeAI.liveBspace.cueid].push({ key: 'tempmark', value: { concept: { spaceid: storeAI.liveBspace.cueid, media: videoURLadd.value, timestamp: timeAdded }}})
       // save and add to space ledger
       const cueMContract = {}
       cueMContract.type = 'library'
@@ -73,15 +72,15 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     let idmedia = media
     if (idmedia.length > 0) {
       // check if holder setup
-      if (storeBentobox.locationMbox[storeAI.liveBspace.spaceid] === undefined) {
-        storeBentobox.locationMbox[storeAI.liveBspace.spaceid] = {}
+      if (storeBentobox.locationMbox[storeAI.liveBspace.cueid] === undefined) {
+        storeBentobox.locationMbox[storeAI.liveBspace.cueid] = {}
       }
-      storeBentobox.setLocationMbox(storeAI.liveBspace.spaceid, idmedia)
-      if (storeBentobox.videoMedia[storeAI.liveBspace.spaceid]) {
-        storeBentobox.videoMedia[storeAI.liveBspace.spaceid].push({ key: idmedia, tag: 'media', id: idmedia })
+      storeBentobox.setLocationMbox(storeAI.liveBspace.cueid, idmedia)
+      if (storeBentobox.videoMedia[storeAI.liveBspace.cueid]) {
+        storeBentobox.videoMedia[storeAI.liveBspace.cueid].push({ key: idmedia, tag: 'media', id: idmedia })
       } else {
-        storeBentobox.videoMedia[storeAI.liveBspace.spaceid] = []
-        storeBentobox.videoMedia[storeAI.liveBspace.spaceid].push({ key: idmedia, tag: 'media', id: idmedia })
+        storeBentobox.videoMedia[storeAI.liveBspace.cueid] = []
+        storeBentobox.videoMedia[storeAI.liveBspace.cueid].push({ key: idmedia, tag: 'media', id: idmedia })
       }
     } else {
       console.log('empty media')

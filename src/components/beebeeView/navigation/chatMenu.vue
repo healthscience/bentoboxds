@@ -164,6 +164,12 @@ const deleteChatHistory = (chat) => {
   display: inline-block;
 }
 
+.save-chat-history, .delete-chat-history {
+  display: grid;
+  height: 50%;
+  align-self: center;
+}
+
 /* .history-list:first-child {
   background-color: green;
 } */

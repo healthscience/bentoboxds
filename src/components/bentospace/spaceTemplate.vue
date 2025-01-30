@@ -13,7 +13,7 @@
           >
             Close
           </button>
-          <h3>BentoSpace # {{ storeAI.liveBspace.name }} bb= {{ storeAI.liveBspace.spaceid }} --vv {{ storeBentobox.videoMedia[storeAI.liveBspace.spaceid] }} oo {{ storeBentobox.videoMedia }}</h3>
+          <h3>BentoSpace # {{ storeAI.liveBspace.name }}</h3>
           <div id="return-modal-close" @click="closeBentoSpace">return</div>
         </div>
       </template>
@@ -100,7 +100,7 @@
                 <bento-boxspace :bboxid="bbox.bboxid" :contractid="bbox.contract"></bento-boxspace>
               </div>
               <!--video / image /  decision  / cues etc  to compliment bentobox-->
-              <div id="bento-media-space" v-for="bmedia in storeBentobox.videoMedia[storeAI.liveBspace.spaceid]">
+              <div id="bento-media-space" v-for="bmedia in storeBentobox.videoMedia[storeAI.liveBspace.cueid]">
                 <media-space :bstag="bmedia.tag" :bsmedia="bmedia.key"></media-space>
               </div>
               <!-- research media -->

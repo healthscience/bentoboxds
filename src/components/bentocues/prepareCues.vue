@@ -129,7 +129,6 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   }
 
   const bentoSpaceOpen = (spaceID) => {
-    console.log(storeCues.activeCue)
     storeCues.cueContext = 'space'
     storeAI.beebeeContext = 'chatspace'
     storeAI.bentospaceState = true
@@ -148,10 +147,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
       active: false,
       expand: true
     }
-    console.log('ppppppppppppp')
-    console.log(storeAI.liveBspace)
     storeBentobox.spaceList.push(storeCues.activeCue)
-    console.log(storeBentobox.spaceList)
     storeCues.cogGlueSpace(storeCues.activeCue)
   }
 

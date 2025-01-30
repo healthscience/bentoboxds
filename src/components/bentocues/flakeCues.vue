@@ -135,6 +135,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   }
 
   const setHexTooltip = (hex) => {
+    console.log('setHexTooltip', hex)
     showTooltip.value = true
     if (hex.name !== 'in-progress') {
       tooltipHex.value = hex.branchname
@@ -161,9 +162,18 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   const viewCueHex = (cue) => {
     storeAI.beebeeContext = 'bentoflake'
     storeAI.bentospaceState = !storeAI.bentospaceState
+    let cueName = ''
+    if (cue.branch === cue.cue) {
+      cueName = cue.name
+    } else {
+      // look up cue name from branch incoming
+      let cueContract = storeCues.cueUtil.cueMatch(cue.branch, storeCues.cuesList)
+      cueName = cueContract.value.concept.name
+    }
+
     let tempSpace = {}
     tempSpace.active = true
-    tempSpace.name = cue.branchname
+    tempSpace.name = cueName
     tempSpace.spaceid = cue.branch
     tempSpace.cueid = cue.branch
     tempSpace.gluedown = 'down'

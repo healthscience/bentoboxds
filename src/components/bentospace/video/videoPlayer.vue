@@ -12,7 +12,7 @@
       </div>
     </div>
     <vue-plyr>
-      <div data-plyr-provider="youtube" :data-plyr-embed-id=props.bsmedia></div>
+      <div data-plyr-provider="youtube" :data-plyr-embed-id=mediaContext.value.concept.media></div>
     </vue-plyr>
   </div>
 </template>
@@ -20,10 +20,12 @@
 <script setup>
 import DecisionCue from '@/components/bentocues/decisions/decisionCues.vue'
 import { ref, computed } from 'vue'
+import { cuesStore } from '@/stores/cuesStore.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 
+  const storeCues = cuesStore()
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
   const storeLibrary = libraryStore()
@@ -37,14 +39,20 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   /* methods */
   const addCueDecision = () => {
-    console.log('decision doughnut please')
     spaceDecision.value = !spaceDecision.value
     // storeAI.decisionDoughnutCue = !storeAI.decisionDoughnutCue
   }
 
-
   /* computed */
-
+  const mediaContext = computed(() => {
+    let matchMed = {}
+    for (let med of storeCues.mediaMatch[storeAI.liveBspace.cueid]) {
+      if (med.key === props.bsmedia) {
+        matchMed = med
+      }
+    }
+    return matchMed
+  })
 
 </script>
 
