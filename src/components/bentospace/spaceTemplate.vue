@@ -96,7 +96,7 @@
             </div>
             <!-- location for bentobox - es -->
             <div id="space-bento-items">
-              <div id="bento-layout" v-for="bbox in storeAI.bentoboxList[storeAI.liveBspace.spaceid]">
+              <div id="bento-layout" v-for="bbox in storeAI.bentoboxList[storeAI.liveBspace.cueid]">
                 <bento-boxspace :bboxid="bbox.bboxid" :contractid="bbox.contract"></bento-boxspace>
               </div>
               <!--video / image /  decision  / cues etc  to compliment bentobox-->
@@ -194,7 +194,7 @@ import { mapminiStore } from '@/stores/mapStore.js'
     storeAI.bentospaceState = !storeAI.bentospaceState
     storeCues.cueContext = 'cueall'
     // save the current layout on close
-    storeBentobox.saveLayoutSpace(storeAI.liveBspace.spaceid)
+    storeBentobox.saveLayoutSpace(storeAI.liveBspace.cueid)
   }
 
   const setzoomScale = (change) => {

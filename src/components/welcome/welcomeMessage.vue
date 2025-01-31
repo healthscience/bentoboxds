@@ -9,7 +9,7 @@
         </div>
       </div>
       <div class="message-bb">
-        <header>BeeBee oracle</header>
+        <header>BeeBee Oracle</header>
         <div class="message-learn">
           Ask question of the health oracle
         </div>
@@ -17,7 +17,7 @@
       <div class="message-bb">
         <header>Share</header>
         <div class="message-learn">
-          Build collaborative collective intelligences
+          Guide coherence & collective intelligences
         </div>
       </div>
     </div>

@@ -81,6 +81,7 @@ import { accountStore } from '@/stores/accountStore.js'
   }
 
   const removeExp = (exp) => {
+    console.log(exp)
     storeLibrary.removeExpModContract(exp.id, props.privacy)
     if (props.privacy === 'private') {
       let index = storeLibrary.peerExperimentList.data.indexOf(exp.id)

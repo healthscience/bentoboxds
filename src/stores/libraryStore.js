@@ -528,16 +528,22 @@ export const libraryStore = defineStore('librarystore', {
       this.sendSocket.send_message(libMessageout)
     },
     prepareLibraryViewFromContract (bbid, contractID) {
-      let contractQuery = this.utilLibrary.matchNXPcontract(contractID, this.peerLibraryNXP)
-      let libMessageout = {}
-      libMessageout.type = 'library'
-      libMessageout.action = 'contracts'
-      libMessageout.reftype = 'experiment'
-      libMessageout.privacy = 'private'
-      libMessageout.task = 'assemble'
-      libMessageout.data = contractQuery
-      libMessageout.bbid = bbid
-      this.sendSocket.send_message(libMessageout)
+      if (this.peerLibraryNXP.length === 0) {
+        // empty call library to get nxps
+        this.startLibrary()
+        // inform beebee feedback to try now library has loaded
+      } else {
+        let contractQuery = this.utilLibrary.matchNXPcontract(contractID, this.peerLibraryNXP)
+        let libMessageout = {}
+        libMessageout.type = 'library'
+        libMessageout.action = 'contracts'
+        libMessageout.reftype = 'experiment'
+        libMessageout.privacy = 'private'
+        libMessageout.task = 'assemble'
+        libMessageout.data = contractQuery
+        libMessageout.bbid = bbid
+        this.sendSocket.send_message(libMessageout)
+      }
     },
     prepareGenesisModContracts (message) {
       let aiMessageout = {}

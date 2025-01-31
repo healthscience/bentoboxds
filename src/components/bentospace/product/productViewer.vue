@@ -43,7 +43,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   /* methods */
   const addCueDecision = () => {
-    console.log('decision doughnut please')
     spaceDecision.value = !spaceDecision.value
     // storeAI.decisionDoughnutCue = !storeAI.decisionDoughnutCue
   }

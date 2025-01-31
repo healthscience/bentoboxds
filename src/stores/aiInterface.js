@@ -202,10 +202,10 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       } else if (this.beebeeContext === 'chatspace') {
         let spaceChatPrep = this.liveChatspaceUtil.prepareChatQandA(this.askQuestion, this.liveBspace)
         // check if array set
-        if (this.chatSpacePair[this.liveBspace.spaceid] === undefined) {
-          this.chatSpacePair[this.liveBspace.spaceid] = []
+        if (this.chatSpacePair[this.liveBspace.cueid] === undefined) {
+          this.chatSpacePair[this.liveBspace.cueid] = []
         }
-        this.chatSpacePair[this.liveBspace.spaceid].push(spaceChatPrep)
+        this.chatSpacePair[this.liveBspace.cueid].push(spaceChatPrep)
         this.askQuestion.text = ''
       } else if (this.beebeeContext === 'graph') {
         console.log('social knowleget graph context')
@@ -598,17 +598,17 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.sendSocket.send_message(message)
     },
     prepareSpaceSave (message) {
-      let boxidPerspace = this.bentoboxList[message.data.spaceid]
+      console.log('prepareSpaceSave', message)
+      let boxidPerspace = this.bentoboxList[message.data.cueid]
       let visDataperSpace = []
       let locationPerSpace = []
       for (let bbi of boxidPerspace) {
         let visD = this.visData[bbi.bboxid]
         visDataperSpace.push(visD)
         // current location to save
-        locationPerSpace.push({ bboxid: bbi.bboxid, location: this.storeBentoBox.locationBbox[message.data.spaceid][bbi.bboxid] })
+        locationPerSpace.push({ bboxid: bbi.bboxid, location: this.storeBentoBox.locationBbox[message.data.cueid][bbi.bboxid] })
       }
       // build media info per space
-      // let bmMediaPerspace = this.storeBentoBox.locationMbox[message.data.spaceid]
       let saveData = {}
       saveData.pair = {}
       saveData.space = message.data

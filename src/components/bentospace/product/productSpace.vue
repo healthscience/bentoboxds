@@ -70,8 +70,8 @@ import { mapminiStore } from '@/stores/mapStore.js'
 
   /* computed */
   const spaceLocation = computed(() => {
-    if (storeBentobox.locationProductbox[storeAI.liveBspace.spaceid][props.bsmedia] !== undefined) {
-      return storeBentobox.locationProductbox[storeAI.liveBspace.spaceid][props.bsmedia]
+    if (storeBentobox.locationProductbox[storeAI.liveBspace.cueid][props.bsmedia] !== undefined) {
+      return storeBentobox.locationProductbox[storeAI.liveBspace.cueid][props.bsmedia]
     } else {
       return {}
     }
@@ -100,7 +100,7 @@ import { mapminiStore } from '@/stores/mapStore.js'
     updateBox.fit = fit.value
     updateBox.event = ''
     updateBox.dragSelector = '#product-bar, .drag-container-2'
-    storeBentobox.locationProductbox[storeAI.liveBspace.spaceid][props.bsmedia] = updateBox
+    storeBentobox.locationProductbox[storeAI.liveBspace.cueid][props.bsmedia] = updateBox
     storeMmap.actionDashBmove(updateBox)
   }
 
@@ -149,14 +149,14 @@ import { mapminiStore } from '@/stores/mapStore.js'
 
   const removePboxSpace = () => {
     // remove from spaceList and location
-    let currentSpacePboxes = storeBentobox.productMedia[storeAI.liveBspace.spaceid]
+    let currentSpacePboxes = storeBentobox.productMedia[storeAI.liveBspace.cueid]
     let updateRblist = []
     for (let bm of currentSpacePboxes) {
       if (bm.key !== props.bsmedia) {
         updateRblist.push(bm)
       }
     }
-    storeBentobox.productMedia[storeAI.liveBspace.spaceid] = updateRblist
+    storeBentobox.productMedia[storeAI.liveBspace.cueid] = updateRblist
     // update miniMap of removal
     // storeMmap.actionDashBRemove(props.bboxid)
     // delete from store

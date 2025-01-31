@@ -13,8 +13,8 @@
         </button>
         <div id="spaces-list" v-if="shareSelect">
           <select class="select-space-save" id="space-options-save" v-model="spaceSave" @change="selectBentoSpace()">
-            <option selected="" v-for="sp in spaceList" :value="sp.spaceid">
-              {{ sp.name }}
+            <option selected="" v-for="sp in spaceList" :value="sp.key">
+              {{ sp.value.concept.name }}
             </option>
           </select>
         </div>
@@ -72,11 +72,13 @@
 <script setup>
 import BbTools from '@/components/bentobox/tools/vistoolBar.vue'
 import { ref, computed } from 'vue'
+import { cuesStore } from '@/stores/cuesStore.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { accountStore } from '@/stores/accountStore.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 
+  const storeCues = cuesStore()
   const storeAccount = accountStore()
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
@@ -151,11 +153,18 @@ const selectedTimeFormat = ref('timeseries')
     }
 
   const selectBentoSpace = () => {
-    // clickSummaryLibSilent(props.bboxid)
+    console.log('select bento space')
+    console.log(spaceSave.value)
+    console.log(storeAI.bentoboxList)
+    console.log(props.bboxid)
+    console.log(expLibrarySummary.value.key[0])
     let bidPair = { bboxid: props.bboxid, contract: expLibrarySummary.value.key[0]}
     // check object set in list
-    if (Object.keys(storeAI.bentoboxList[spaceSave.value]).length === 0) {
+    if (storeAI.bentoboxList[spaceSave.value] === undefined) {
       storeAI.bentoboxList[spaceSave.value] = []
+    }
+    if (storeBentobox.locationBbox[spaceSave.value] === undefined) {
+      storeBentobox.locationBbox[spaceSave.value] = []
     }
     storeAI.bentoboxList[spaceSave.value].push(bidPair)
     clickAddbentoSpace(props.bboxid)
@@ -177,7 +186,7 @@ const selectedTimeFormat = ref('timeseries')
 
   /*  computed */
   const spaceList = computed(() => {
-    return storeBentobox.spaceList
+    return storeCues.cuesList
   })
 
   /*
