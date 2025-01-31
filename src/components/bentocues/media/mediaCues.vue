@@ -12,7 +12,7 @@
   </div>
   <div id="media-paper-list" v-if="mediaMatch?.length > 0">
     <div id="media-paper-select" v-for="med in mediaMatch" :value="med.id">
-      <button class="media-paper-item" @click="viewmedia(med.value.concept.media)">
+      <button class="media-paper-item" @click="viewmedia(med.key)">
         {{ med.value.concept.media }}
       </button>
       <button class="media-paper-source" @click="viewSourcemedia(med.value.concept.media)">
@@ -45,16 +45,15 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   /* methods */
   const mediaAdd = () => {
-    console.log(storeAI.liveBspace)
     // assume youtube and extract id
     let timeAdded = DateTime.now()
     if (videoURLadd.value.length > 0) {
-      let newmedia = { spaceid: storeAI.liveBspace.cueid, media: videoURLadd.value, timestamp: timeAdded }
+      let newmedia = { cueid: storeAI.liveBspace.cueid, media: videoURLadd.value, timestamp: timeAdded }
       // if first time setup object
       if (storeCues.mediaMatch[storeAI.liveBspace.cueid] === undefined) {
         storeCues.mediaMatch[storeAI.liveBspace.cueid] = []
       }
-      storeCues.mediaMatch[storeAI.liveBspace.cueid].push({ key: 'tempmark', value: { concept: { spaceid: storeAI.liveBspace.cueid, media: videoURLadd.value, timestamp: timeAdded }}})
+      // storeCues.mediaMatch[storeAI.liveBspace.cueid].push({ key: 'tempmark', value: { concept: { spaceid: storeAI.liveBspace.cueid, media: videoURLadd.value, timestamp: timeAdded }}})
       // save and add to space ledger
       const cueMContract = {}
       cueMContract.type = 'library'
@@ -69,13 +68,14 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   }
 
   const viewmedia = (media) => {
+    console.log(media)
     let idmedia = media
     if (idmedia.length > 0) {
       // check if holder setup
       if (storeBentobox.locationMbox[storeAI.liveBspace.cueid] === undefined) {
         storeBentobox.locationMbox[storeAI.liveBspace.cueid] = {}
       }
-      storeBentobox.setLocationMbox(storeAI.liveBspace.cueid, idmedia)
+      storeBentobox.setLocationMbox(storeAI.liveBspace.cueid, idmedia.key)
       if (storeBentobox.videoMedia[storeAI.liveBspace.cueid]) {
         storeBentobox.videoMedia[storeAI.liveBspace.cueid].push({ key: idmedia, tag: 'media', id: idmedia })
       } else {

@@ -380,6 +380,11 @@ export const libraryStore = defineStore('librarystore', {
           }
           this.storeCues.cuesList = updateCueList
         }
+      } else if (message.action === 'media-contract') {
+        console.log('new save media itgem')
+        console.log(message)
+        let mediaContract = message.data.data
+        this.storeCues.mediaMatch[mediaContract.value.concept.cueid].push(mediaContract)
       } else if (message.action === 'marker-contract') {
         let markerContract = message.data.data
         this.storeCues.markerMatch[markerContract.value.concept.cueid].push(markerContract)

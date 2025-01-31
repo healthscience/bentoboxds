@@ -267,6 +267,9 @@ export const bentoboxStore = defineStore('bentostore', {
         } else if (message.action.trim() === 'save') {
           console.log('saved feedback')
         }
+      } else if (message.reftype.trim() === 'spaces-history') {
+        console.log('spaces-history')
+        console.log(message.data)
       } else if (message.reftype.trim() === 'cues-history') {
         if (this.storeLibrary.publicLibrary.referenceContracts !== undefined) {
           this.libraryCheck = true

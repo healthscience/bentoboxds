@@ -2,6 +2,8 @@
   <div id="media-box">
     <div id="media-bar" >
       <div id="box-bar">
+        <!--mediaContext.value.concept.media></div>
+    </vue-plyr>{{ mediaContext }} -->
         BentoMedia Bar
       </div>
       <div id="decision-tools">
@@ -45,12 +47,16 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   /* computed */
   const mediaContext = computed(() => {
+    console.log('toooools')
+    console.log(props.bsmedia)
+    console.log(storeCues.mediaMatch)
     let matchMed = {}
     for (let med of storeCues.mediaMatch[storeAI.liveBspace.cueid]) {
       if (med.key === props.bsmedia) {
         matchMed = med
       }
     }
+    console.log(matchMed)
     return matchMed
   })
 
