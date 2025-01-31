@@ -47,11 +47,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
   /* computed */
   const researchContent = computed(() => {
     let paperMatch = {}
-    /*for (let cpap of storeBentobox.researchMedia[storeAI.liveBspace.cueid]) {
-      if (cpap.key === props.bsresearch) {
-        paperMatch = cpap
-      }
-    }*/
     for (let research of storeCues.researchPapers[storeAI.liveBspace.cueid]) {
       if (research.key === props.bsresearch) {
         paperMatch = research

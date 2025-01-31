@@ -288,7 +288,6 @@ export const bentoboxStore = defineStore('bentostore', {
       }
     },
     prepareMediaSpace (mData) {
-      console.log('prepareMediaSpace', mData)
       let medBoxList = []
       let tempSpaceID = ''
       this.locationMbox = {}
@@ -306,7 +305,6 @@ export const bentoboxStore = defineStore('bentostore', {
       }
     },
     prepareResearchSpace (rData) {
-      console.log('prepareResearchSpace', rData)
       let resBoxList = []
       let tempSpaceID = ''
       for (let rkey of rData) {
@@ -348,10 +346,11 @@ export const bentoboxStore = defineStore('bentostore', {
       }
     },
     prepareProductSpace (pData) {
+      console.log('prepareProductSpace', pData)
       let tempSpaceID = ''
       let productBoxList = []
       for (let prokey of pData) {
-        tempSpaceID = prokey.value.concept.spaceid
+        tempSpaceID = prokey.value.concept.cueid
         if (this.locationProductbox[tempSpaceID] === undefined) {
           this.locationProductbox[tempSpaceID] = {}
           this.productMedia[tempSpaceID] = []

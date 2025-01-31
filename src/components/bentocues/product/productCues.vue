@@ -51,7 +51,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   })
 
   const productMatch = computed(() => {
-    return storeCues.productMatch[storeAI.liveBspace.spaceid]
+    return storeCues.productMatch[storeAI.liveBspace.cueid]
   })
 
   /* methods */
@@ -62,12 +62,11 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   const productAdd = () => {
     // assume youtube and extract id
     if (productURLadd.value.length > 0) {
-      let newProduct = { spaceid: storeAI.liveBspace.spaceid, pcategory: productCategory.value, product: productTest.value, ecomm: productURLadd.value }
+      let newProduct = { cueid: storeAI.liveBspace.cueid, pcategory: productCategory.value, product: productTest.value, ecomm: productURLadd.value }
       // if first time setup object
-      if (storeCues.productMatch[storeAI.liveBspace.spaceid] === undefined) {
-        storeCues.productMatch[storeAI.liveBspace.spaceid] = []
+      if (storeCues.productMatch[storeAI.liveBspace.cueid] === undefined) {
+        storeCues.productMatch[storeAI.liveBspace.cueid] = []
       }
-      storeCues.productMatch[storeAI.liveBspace.spaceid].push({ key: 'testpro', value: { concept: { spaceid: storeAI.liveBspace.spaceid, pcategory: productCategory.value, product: productTest.value, ecomm: productURLadd.value }}})
       // save and add to space ledger
       const cueMContract = {}
       cueMContract.type = 'library'
@@ -87,15 +86,15 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     let productID = product
     if (product.length > 0) {
       // check if holder setup
-      if (storeBentobox.locationProductbox[storeAI.liveBspace.spaceid] === undefined) {
-        storeBentobox.locationProductbox[storeAI.liveBspace.spaceid] = {}
+      if (storeBentobox.locationProductbox[storeAI.liveBspace.cueid] === undefined) {
+        storeBentobox.locationProductbox[storeAI.liveBspace.cueid] = {}
       }
-      storeBentobox.setLocationProductbox(storeAI.liveBspace.spaceid, productID)
-      if (storeBentobox.productMedia[storeAI.liveBspace.spaceid]) {
-        storeBentobox.productMedia[storeAI.liveBspace.spaceid].push({ key: productID, tag: 'product', id: productID })
+      storeBentobox.setLocationProductbox(storeAI.liveBspace.cueid, productID)
+      if (storeBentobox.productMedia[storeAI.liveBspace.cueid]) {
+        storeBentobox.productMedia[storeAI.liveBspace.cueid].push({ key: productID, tag: 'product', id: productID })
       } else {
-        storeBentobox.productMedia[storeAI.liveBspace.spaceid] = []
-        storeBentobox.productMedia[storeAI.liveBspace.spaceid].push({ key: productID, tag: 'product', id: productID })
+        storeBentobox.productMedia[storeAI.liveBspace.cueid] = []
+        storeBentobox.productMedia[storeAI.liveBspace.cueid].push({ key: productID, tag: 'product', id: productID })
       }
     } else {
       console.log('empty product')

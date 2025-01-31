@@ -11,17 +11,26 @@
         </div>
       </div>
     </div>
-      {{ props.bstag }}  {{ props.bsproduct }}
+      <div id="product-content">
+        {{ props.bstag }}
+      </div>
+      <div id="product-content-details">
+        {{ productInfo.value.concept.product }} 
+        <button @click="viewSourceproduct(productInfo.value.concept.ecomm)">{{ productInfo.value.concept.product }}</button>
+      </div>
+
   </div>
 </template>
 
 <script setup>
 import DecisionCue from '@/components/bentocues/decisions/decisionCues.vue'
 import { ref, computed } from 'vue'
+import { cuesStore } from '@/stores/cuesStore.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 
+  const storeCues = cuesStore()
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
   const storeLibrary = libraryStore()
@@ -39,10 +48,16 @@ import { libraryStore } from '@/stores/libraryStore.js'
     // storeAI.decisionDoughnutCue = !storeAI.decisionDoughnutCue
   }
 
-
   /* computed */
-
-
+  const productInfo = computed(() => {
+    let productMatch = {}
+    for (let product of storeCues.productMatch[storeAI.liveBspace.cueid]) {
+      if (product.key === props.bsproduct) {
+        productMatch = product
+      }
+    }
+    return productMatch
+  })
 </script>
 
 <style scoped>

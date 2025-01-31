@@ -112,7 +112,7 @@
                 <marker-space :bstag="mkmedia.tag" :bsmedia="mkmedia.key"></marker-space>
               </div>
               <!-- product -->
-              <div id="bento-product-space" v-for="mkproduct in storeBentobox.productMedia[storeAI.liveBspace.spaceid]">
+              <div id="bento-product-space" v-for="mkproduct in storeBentobox.productMedia[storeAI.liveBspace.cueid]">
                 <product-space :bstag="mkproduct.tag" :bsmedia="mkproduct.key"></product-space>
               </div>
             </div>
