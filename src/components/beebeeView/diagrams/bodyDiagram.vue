@@ -2,7 +2,7 @@
   <div id="body-diagram-parts">
     Human body navigation
     <!--<img class="right-display-menu" src="@/assets/human-diagram.png" alt="human body">-->
-    <canvas id="human-canvas" width="600px" height="900px" @click="bodypartSelect($event)"></canvas>
+    <canvas id="human-canvas" width="600px" height="900px" @click="handleCanvasClick($event)"></canvas>
   </div>
 </template>
 
@@ -13,6 +13,12 @@ import picBody from '@/assets/human-diagram.png'
   let bodycanvas = ref(null)
   let canvas = ref({})
   let ctx = ref({})
+  let selectedArea = ref('')
+  let organAreas = ref(
+    [
+      { name: 'Heart', coords: { x: 170, y: 200, width: 40, height: 50 } },
+      { name: 'Lungs-left', coords: { x: 120, y: 180, width: 50, height: 50 } }
+    ])
 
   /* on mount */
   onMounted(() => {
@@ -31,7 +37,47 @@ import picBody from '@/assets/human-diagram.png'
     image.src = imageD // 'https://www.bentoboxds.org/assets/logo-CQ0an4it.png'
     image.onload = () => {
        ctx.drawImage(image, 0, 0, image.width * 1.4, image.height * 1.4)
+       drawOransAreas()
     }
+  }
+
+  const drawOransAreas = () => {
+    organAreas.value.forEach((organ) => {
+      ctx.beginPath()
+      ctx.strokeStyle = '#000000'
+      ctx.rect(organ.coords.x, organ.coords.y, organ.coords.width, organ.coords.height)
+      ctx.stroke()
+    })
+  }
+
+  const handleCanvasClick = (ev) => {
+    console.log('--canvas pos')
+    console.log(ev)
+    const rect = canvas
+    const x = (ev.clientX - 210)
+    const y = (ev.clientY - 20)
+    console.log('x----x')
+    console.log(x)
+    console.log('y----y')
+    console.log(y)
+
+    organAreas.value.forEach(area => {
+      console.log('ddddddddddddd')
+      console.log(area.coords.x)
+      console.log(area.coords.x + area.coords.width )
+      console.log('yyyyyyyyyyyyyy')
+      console.log(area.coords.y)
+      console.log(area.coords.y + area.coords.width )
+      if (x >= area.coords.x && x <= area.coords.x + area.coords.width &&
+          y >= area.coords.y && y <= area.coords.y + area.coords.height) {
+        selectedArea.value = area.name
+        // Optionally, highlight the area or display more info
+      } else {
+        console.log('no area')
+      }
+      console.log('selected area')
+      console.log(selectedArea.value)
+    })
   }
 
   const bodypartSelect = (ev) => {

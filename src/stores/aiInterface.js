@@ -599,26 +599,46 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     },
     prepareSpaceSave (message) {
       console.log('prepareSpaceSave', message)
+      // match bentoboxes, cues, content (media, research, markers, products)
+      // bentoboxes
+      console.log(this.bentoboxList)
       let boxidPerspace = this.bentoboxList[message.data.cueid]
-      let visDataperSpace = []
-      let locationPerSpace = []
-      for (let bbi of boxidPerspace) {
-        let visD = this.visData[bbi.bboxid]
-        visDataperSpace.push(visD)
-        // current location to save
-        locationPerSpace.push({ bboxid: bbi.bboxid, location: this.storeBentoBox.locationBbox[message.data.cueid][bbi.bboxid] })
+      if (boxidPerspace !== undefined) {
+        let visDataperSpace = []
+        let locationPerSpace = []
+        for (let bbi of boxidPerspace) {
+          let visD = this.visData[bbi.bboxid]
+          visDataperSpace.push(visD)
+          // current location to save
+          locationPerSpace.push({ bboxid: bbi.bboxid, location: this.storeBentoBox.locationBbox[message.data.cueid][bbi.bboxid] })
+        }
+        // build media info per space
+        let saveData = {}
+        saveData.pair = {}
+        saveData.space = message.data
+        saveData.location = locationPerSpace
+        saveData.visData = visDataperSpace
+        saveData.bboxlist = boxidPerspace
+        // save media boxes
+        // saveData.mboxlist = bmMediaPerspace
+        message.data = saveData
+        this.sendSocket.send_message(message)
+      } else {
+        console.log('no boxid')
       }
-      // build media info per space
-      let saveData = {}
-      saveData.pair = {}
-      saveData.space = message.data
-      saveData.location = locationPerSpace
-      saveData.visData = visDataperSpace
-      saveData.bboxlist = boxidPerspace
-      // save media boxes
-      // saveData.mboxlist = bmMediaPerspace
-      message.data = saveData
-      this.sendSocket.send_message(message)
+      // cues
+      // media
+      let mediaidPerspace = this.storeBentoBox.videoMedia[message.data.cueid]
+      console.log(mediaidPerspace)
+      // research
+      let researchidPerspace = this.storeBentoBox.researchMedia[message.data.cueid]
+      console.log(researchidPerspace)
+      // markers
+      let markeridPerspace = this.storeBentoBox.markerMedia[message.data.cueid]
+      console.log(markeridPerspace)
+      // products
+      let productidPerspace = this.storeBentoBox.ProductMedia[message.data.cueid]
+      console.log(productidPerspace)
     },
     prepareAI (message) {
       // need to build DML structure, proof of work hash
