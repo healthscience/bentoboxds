@@ -203,7 +203,6 @@ import { ref, computed, onMounted } from 'vue'
     // prepare cue wheel context
     let cueContract = storeCues.cueUtil.cueMatch(spaceID.cueid, storeCues.cuesList)
     prepareCue(spaceID, spaceID.cueid, cueContract)
-
   }
 
   const prepareCue = (spaceID, cueKey, cueR) => {

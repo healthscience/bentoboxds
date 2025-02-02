@@ -47,9 +47,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   /* computed */
   const mediaContext = computed(() => {
-    console.log('toooools')
-    console.log(props.bsmedia)
-    console.log(storeCues.mediaMatch)
     let matchMed = {}
     for (let med of storeCues.mediaMatch[storeAI.liveBspace.cueid]) {
       if (med.key === props.bsmedia) {

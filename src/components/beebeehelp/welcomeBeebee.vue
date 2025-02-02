@@ -113,6 +113,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   }
 
   const cuesHolistic = () => {
+    storeCues.liveCueContext = 'flake'
     storeAI.bentoflakeState = !storeAI.bentoflakeState
   }
 
