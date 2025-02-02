@@ -97,7 +97,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     notifList: [],
     boxLibSummary: {},
     boxModelUpdate: {},
-    computeModuleLast: {}
+    computeModuleLast: {},
+    bentobesearchState: false
   }),
   actions: {
     sendMessageHOP (message) {

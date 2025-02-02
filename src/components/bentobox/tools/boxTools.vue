@@ -3,6 +3,18 @@
     <div id="bb-toolbar">
       <div class="bb-bar-main">a bentobox</div>
       <div class="bb-bar-main">
+        <button @click="besearchCycle(props.bboxid)">
+          besearch
+        </button>
+        <div id="besearch-cycle" v-if="besearchSelect">
+          <select class="select-cycle-save" id="besearch-options-save" v-model="besearchSave" @change="selectBesearchCycle()">
+            <option selected="" v-for="bsc in besearchList" :value="bsc.key">
+              {{ bsc.name }}
+            </option>
+          </select>
+        </div>
+      </div>
+      <div class="bb-bar-main">
         <button @click="clickSummaryLib(props.bboxid)" v-bind:class="{ active: libSum }">
           Lib
         </button>
@@ -89,6 +101,15 @@ import { libraryStore } from '@/stores/libraryStore.js'
   let libSum = ref(false)
   let spaceSave = ref('')
   let peerPshare = ref('')
+  let besearchList = ref([
+    { key: 'bsc-1111111', name: '24 hours' },
+    { key: 'bsc-2222222', name: '7 days' },
+    { key: 'bsc-3333333', name: '1 month' },
+    { key: 'bsc-4444444', name: '3 months' },
+    { key: 'bsc-5555555', name: '1 year' },
+  ])
+  let besearchSelect = ref('')
+  let besearchSave = ref('')
 
 const props = defineProps({
     bboxid: String
@@ -127,6 +148,16 @@ const selectedTimeFormat = ref('timeseries')
   })
 
   /* methods */
+  const besearchCycle = () => {
+    // display cycle option
+    besearchSelect.value = !besearchSelect.value
+  }
+
+  const selectBesearchCycle = () => {
+    console.log('select besearch cycle')
+    console.log(besearchSave.value)
+  }
+
   const openLibrary = () => {
     storeAI.dataBoxStatus = true
     storeAI.uploadStatus = false
@@ -232,7 +263,7 @@ const selectedTimeFormat = ref('timeseries')
 
 #bb-toolbar {
   display: grid;
-  grid-template-columns: 4fr 1fr 1fr 1fr 1fr 1fr;
+  grid-template-columns: 4fr 1fr 1fr 1fr 1fr 1fr 1fr;
 }
 
 #bb-network-graph {
@@ -346,7 +377,7 @@ const selectedTimeFormat = ref('timeseries')
   #bb-toolbar {
     position: relative;
     display: grid;
-    grid-template-columns: 4fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 4fr 1fr 1fr 1fr 1fr 1fr 1fr;
     width: 100%;
     background-color:rgb(141, 145, 226);
   }

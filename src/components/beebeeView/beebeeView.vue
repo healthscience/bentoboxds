@@ -40,10 +40,11 @@
       </div>
     </div>
     <bento-cues></bento-cues>
-    <bento-space></bento-space>
-    <bento-diary></bento-diary>
+    <bento-besearch></bento-besearch>
     <bento-flake></bento-flake>
+    <bento-space></bento-space>
     <bento-graph v-if="bentoGraphStatus === true"></bento-graph>
+    <bento-diary></bento-diary>
   </div>
 </template>
 
@@ -52,6 +53,7 @@ import { ref } from 'vue'
 import BodyDiagram from '@/components/beebeeView/diagrams/bodyDiagram.vue'
 import ChatMenu from '@/components/beebeeView/navigation/chatMenu.vue'
 import BentoCues from '@/components/bentocues/healthCues.vue'
+import BentoBesearch from '@/components/besearch/besearchCycle.vue'
 import BentoFlake from '@/components/bentocues/flakeCues.vue'
 import BentoGraph from '@/components/bentocues/graphCues.vue'
 import SpaceMenu from '@/components/beebeeView/navigation/spaceMenu.vue'
@@ -99,7 +101,7 @@ import { computed } from 'vue'
       storeCues.liveCueContext = 'flake'
       storeAI.bentoflakeState = !storeAI.bentoflakeState
     } else if (agent === 'besearch') {
-      // storeAI.bentobesearchState = !storeAI.bentobesearchState
+      storeAI.bentobesearchState = !storeAI.bentobesearchState
     } else if (agent === 'graph') {
       storeAI.bentographState = !storeAI.bentographState
     } else if (agent === 'diary') {
