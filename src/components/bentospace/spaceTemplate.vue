@@ -45,7 +45,7 @@
         </div>
         <div id="space-context-tools" v-if="contextTools === true">
           <div id="n1-tools">
-            <button @click="addBentoN1()" v-bind:class="{ active: spaceN1setup === true }">+ N=1</button>
+            <button @click="openLibrary()" v-bind:class="{ active: spaceN1setup === true }">+ N=1</button>
             <div id="bento-n1" v-if="spaceN1setup === true">
               <div id="create-new-n1">
                 <button class="button-lib-data" @click="nxpAdd">
@@ -232,6 +232,16 @@ import { mapminiStore } from '@/stores/mapStore.js'
       storeLibrary.prepareGenesisModContracts()
       storeLibrary.saveSuccessnxp = false
     }
+  }
+
+  const openLibrary = () => {
+    // need to set context to library
+    storeLibrary.inContext = 'space'
+    storeAI.dataBoxStatus = true
+    storeAI.uploadStatus = false
+    storeLibrary.libraryStatus = true
+    storeLibrary.libPeerview = true
+    storeLibrary.newNXP = true
   }
 
   const addCueDecision = () => {

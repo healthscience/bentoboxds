@@ -187,7 +187,8 @@ export const libraryStore = defineStore('librarystore', {
     dtcolumns: [],
     fileSaveStatus: false,
     fileFeedback: '',
-    devicesJoin: []
+    devicesJoin: [],
+    inContext: 'chat' 
   }),
   actions: {
     // since we rely on `this`, we cannot use an arrow function

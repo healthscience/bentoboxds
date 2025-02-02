@@ -257,6 +257,9 @@ import { accountStore } from '@/stores/accountStore.js'
   #build-new-referencecontract {
     display: grid;
     width: 200px;
+    border: 2px solid blue;
+    border-radius: 4%;
+    padding: 4px;
   }
 
   #notify-library-start-replication {

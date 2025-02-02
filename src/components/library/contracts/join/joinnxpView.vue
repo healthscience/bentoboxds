@@ -58,7 +58,7 @@
     </div>
   </div>
   <div id="join-button">
-    <button id="joinsaveNetworkExperiment" @click.prevent="joinNXPBoard()">Join</button>
+    <button id="joinsaveNetworkExperiment" @click.prevent="joinNXPBoard()">Complete Join</button>
     <div id="termsofjoin">
       Terms: a private and autonomous set of contracts will be setup on joining.
     </div>
@@ -77,8 +77,10 @@ import { DateTime, Interval } from 'luxon'
 import VueDatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 
+import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 
+  const storeAI = aiInterfaceStore()
   const storeLibrary = libraryStore()
 
   let boxDate = ref(null)
@@ -155,6 +157,15 @@ import { libraryStore } from '@/stores/libraryStore.js'
       controlsJoin.tidy = true
       controlsJoin.resolution = 'default'
       storeLibrary.prepareJoinNXPMessage(genesisNXP, controlsJoin, settingsOptions)
+      // where to return too?  space chat library
+      if (storeLibrary.inContext === 'space') {
+        // close and return to space
+        console.log('close and return to space')
+        // add bentobox to space
+        let boxid = 'hash of somthing TODO'
+        selectBentoSpace()
+        storeAI.dataBoxStatus = !storeAI.dataBoxStatus
+      }
     } else {
       // prompt to select date
       storeLibrary.joinFeedback = true
@@ -162,6 +173,27 @@ import { libraryStore } from '@/stores/libraryStore.js'
     }
   }
 
+  const selectBentoSpace = () => {
+    console.log('JOINselect bentobox to add to space space')
+    console.log(storeAI.bentoboxList)
+    // console.log(expLibrarySummary.value.key[0])
+    // needs a new box if joining for first time
+    let boxID = 'genesis-123579'
+    let nxpContract = {}
+    let cueIDspace = 'space-123579'
+    let bidPair = { bboxid: boxID, contract: nxpContract}
+    // check object set in list
+    if (storeAI.bentoboxList[cueIDspace] === undefined) {
+      storeAI.bentoboxList[cueIDspace] = []
+    }
+    if (storeBentobox.locationBbox[cueIDspace] === undefined) {
+      storeBentobox.locationBbox[cueIDspace] = []
+    }
+    storeAI.bentoboxList[cueIDspace].push(bidPair)
+    clickAddbentoSpace(boxID)
+    // add location default if not already set?
+    storeBentobox.setLocationBbox(cueIDspace, boxID)
+  }
 </script>
 
 <style scoped>

@@ -66,7 +66,6 @@ import { accountStore } from '@/stores/accountStore.js'
       storeLibrary.joinNXP = true
       storeLibrary.uploadStatus = true
       // need to look at queries and perform them
-
     } else {
       // preview network experiment
       // this.$store.dispatch('actionJOINViewexperiment', board)

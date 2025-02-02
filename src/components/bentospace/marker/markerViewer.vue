@@ -10,6 +10,9 @@
             <decision-cue></decision-cue>
         </div>
       </div>
+      <div id="add-nxp-bentobox">
+        <button @click="openLibrary()">+ N=1 BentoBox</button>
+      </div>
     </div>
     <div id="marker-content">
       <div class="marker-content">
@@ -59,6 +62,15 @@ import { libraryStore } from '@/stores/libraryStore.js'
     // storeAI.decisionDoughnutCue = !storeAI.decisionDoughnutCue
   }
 
+  const openLibrary = () => {
+    // need to set context to library
+    storeLibrary.inContext = 'space'
+    storeAI.dataBoxStatus = true
+    storeAI.uploadStatus = false
+    storeLibrary.libraryStatus = true
+    storeLibrary.libPeerview = true
+    storeLibrary.newNXP = true
+  }
 
 </script>
 
@@ -88,7 +100,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   #marker-bar {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     justify-items: center;
     align-items: center;
     width: 100%;
