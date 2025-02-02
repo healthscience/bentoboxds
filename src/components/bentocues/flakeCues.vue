@@ -58,18 +58,26 @@
               <div id="center-flake" class="center-grid singularity">
                 <div class="cue-holistic" v-if="cueBalance.length > 0">
                   <div class="cues-segs" v-for="cue of cuesFlakesH" :style="cue.style">
-                      --------------------
+                      -----
                     <div class="branch-holder">
-                      <div class="branch-quant">
-                        <div class="cues-status flake-cue" v-for="cstatus of cuesStatusH[cue.cue]"  :style="{ backgroundColor: cstatus.cuecolor }" @click="viewCueHex(cstatus)" @mouseover="setHexTooltip(cstatus)" @mouseleave="showTooltip = false">
-                          {{ cstatus.name}}
-                        </div>
-                        <div class="branch-name">
-                          {{ cue.name }}
-                          <div class="tooltip" v-if="showTooltip === true && cueBranch === cue.cue">
-                            {{ tooltipHex }}
+                      <div class="branch-holder-under">
+                        <!-- under balance-->
+                      </div>
+                      <div class="branch-holder-balance">
+                        <div class="branch-quant">
+                          <div class="cues-status flake-cue" v-for="cstatus of cuesStatusH[cue.cue]"  :style="{ backgroundColor: cstatus.cuecolor }" @click="viewCueHex(cstatus)" @mouseover="setHexTooltip(cstatus)" @mouseleave="showTooltip = false">
+                            {{ cstatus.name}}
+                          </div>
+                          <div class="branch-name">
+                            {{ cue.name }}
+                            <div class="tooltip" v-if="showTooltip === true && cueBranch === cue.cue">
+                              {{ tooltipHex }}
+                            </div>
                           </div>
                         </div>
+                      </div>
+                      <div class="branch-holder-over">
+                        <!-- over balance-->
                       </div>
                     </div>
                   </div>
@@ -240,7 +248,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   background: #faf5ec;
   align-items: center;
   opacity: 90%;
-  box-shadow: inset 0px 0px 0px 300px rgb(236, 235, 160);
+  box-shadow: inset 0px 0px 0px 300px rgb(245, 244, 213);
 }
 
 #bento-flake-center {
@@ -389,8 +397,32 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     }
 
     .branch-holder {
+      display: inline-grid;
+      grid-template-columns: 1fr 5fr 1fr;
+      border: 0px solid blue;
+      background-color: #f0f0f0;
+      border-radius: 10%;
+      padding: 1em;
+    }
+
+    .branch-holder-under {
       display: grid;
       grid-template-columns: 1fr;
+      min-width: 60px;
+      border-right: 1px solid purple;
+    }
+
+    .branch-holder-balance {
+      display: grid;
+      grid-template-columns: 1fr;
+      border-right: 1px solid green;
+    }
+
+    .branch-holder-over {
+      display: grid;
+      grid-template-columns: 1fr;
+      min-width: 60px;
+      border-right: 1px solid red;
     }
 
     .branch-name {
