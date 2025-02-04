@@ -49,21 +49,7 @@
     </div>
   </div>
   <div id="share-form" v-if="shareForm">
-    <form id="ask-ai-form" @submit.prevent="storeAccount.shareProtocol(props.bboxid, 'privatechart')">
-      <label for="sharepeer"></label>
-      <input type="input" id="sharekey" placeholder="publickey" v-model="storeAccount.sharePubkey" autofocus>
-      <button id="share-send" type="submit">
-        Send invite
-      </button>
-    </form>
-    <div id="peers-available">
-      <h3>Existing peers</h3>
-      <select class="share-peer-list" id="peer-options-select" v-model="peerPshare" @change="selectPeerShare()">
-        <option selected="" v-for="pp in peerWarmlist" :value="pp.publickey">
-          {{ pp.publickey }}
-        </option>
-      </select>
-    </div>
+    <share-protocol :bboxid="props.bboxid" :shareType="'privatechart'"></share-protocol>
   </div>
   <bb-tools v-if="boxToolsShow" :bboxid="props.bboxid"></bb-tools>
   <div id="library-summary" v-if="libSum">
@@ -83,6 +69,7 @@
 
 <script setup>
 import BbTools from '@/components/bentobox/tools/vistoolBar.vue'
+import ShareProtocol from '@/components/bentobox/tools/shareForm.vue'
 import { ref, computed } from 'vue'
 import { cuesStore } from '@/stores/cuesStore.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'

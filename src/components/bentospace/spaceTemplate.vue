@@ -82,8 +82,8 @@
           </div>
         </div>
         <div id="share-protocol" v-if="shareTools === true">
-          share protocol
-          <share-peers :bbcontext="'cue-space'"></share-peers>
+          <header>Share protocol</header>
+          <share-protocol :bboxid="''" :shareType="'cue-space'"></share-protocol>
         </div>
         <div id="bentospace-holder" v-dragscroll.noleft.noright="true" @click="whereMinmap($event)">
           <div id="bento-space" v-bind:style="{ transform: 'scale(' + zoomscaleValue + ')' }">
@@ -143,7 +143,7 @@ import ResearchCue from '@/components/bentocues/research/researchCues.vue'
 import MarkerCue from '@/components/bentocues/marker/markerCues.vue'
 import ProductCue from '@/components/bentocues/product/productCues.vue'
 import BeebeeAi from '@/components/beebeehelp/spaceChat.vue'
-import SharePeers from '@/components/bentobox/tools/share/sharePeers.vue'
+import ShareProtocol from '@/components/bentobox/tools/shareForm.vue'
 import MininavMap from '@/components/bentospace/map/mininavMap.vue'
 import { cuesStore } from '@/stores/cuesStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
@@ -341,6 +341,11 @@ import { mapminiStore } from '@/stores/mapStore.js'
 
 #return-modal-close {
   text-align: right;
+}
+
+#share-protocol {
+  margin: 1em;
+  width: 40vw;
 }
 
 /*  media bar  */
