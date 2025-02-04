@@ -21,12 +21,20 @@
           <beebee-ai></beebee-ai>
           <button id="open-beebee" @click.prevent="setShowBeeBee">beebee</button>
           <div id="graph-toolbar">
-            <button class="graph-type-button">Peers</button>
-            <button class="graph-type-button">Knowledge</button>
-            <button class="graph-type-button">N=1's</button>
+            <button class="graph-type-button" @click="graphSelect('social')">Peers</button>
+            <button class="graph-type-button" @click="graphSelect('cues')">Cues</button>
+            <button class="graph-type-button" @click="graphSelect('N=1')">N=1's</button>
           </div>
-          <div id="bento-graph">
-            <div id="sigma-container"></div>
+          <div id="display-graph">
+            <div id="graph-container" v-if="graphType == 'social'">
+              <social-graph></social-graph>
+            </div>
+            <div id="graph-container" v-if="graphType == 'cues'">
+              Cues cognative glue coming soon
+            </div>
+            <div id="graph-container" v-if="graphType == 'N=1'">
+              Network experiments coming soon
+            </div>
           </div>
         </div>
       </template>
@@ -37,8 +45,7 @@
 </template>
 
 <script setup>
-import Graph from "graphology"
-import Sigma from "sigma"
+import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
 import { ref, computed, onMounted } from 'vue'
 import ModalCues from '@/components/bentocues/cuesModal.vue'
 import BeebeeAi from '@/components/beebeehelp/spaceChat.vue'
@@ -50,9 +57,10 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
 
+  let graphType = ref('social')
+
   /* on mount */
   onMounted(() => {
-    drawSocialGraph()
   })
 
   /* computed */
@@ -72,14 +80,8 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     storeAI.bentochatState = !storeAI.bentochatState
   }
 
-  const drawSocialGraph = () => {
-    const graph = new Graph()
-    graph.addNode("1", { label: "Node 1", x: 0, y: 0, size: 10, color: "blue" })
-    graph.addNode("2", { label: "Node 2", x: 1, y: 1, size: 20, color: "red" })
-    graph.addEdge("1", "2", { size: 5, color: "purple" })
-
-    let peerGraph = document.getElementById("sigma-container")
-    const sigmaInstance = new Sigma(graph, peerGraph)
+  const graphSelect = (type) => {
+    graphType.value = type
   }
 
 </script>
@@ -96,6 +98,31 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   width: 120px;
 }
 
+.graph-type-button {
+  display: inline-grid;
+  margin-right: .4em;
+  background-color: #b8cde2;
+  color: #140d6b;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.graph-type-button:hover {
+    background-color: #2a82e0;
+    transform: translateY(-2px);
+}
+
+.graph-type-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5);
+}
+
+
 #open-beebee {
     position: fixed;
     bottom: 10px;
@@ -110,19 +137,13 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     background-color: white;
   }
 
-  #sigma-container {
-    height: 900px;
-    width: 900px;
+  #display-graph {
+    display: grid;
+    grid-template-columns: 1fr;
+    margin: 2em;
   }
 
-
   @media (min-width: 1024px) {
-
-    #sigma-container {
-      height: 900px;
-    width: 900px;
-    }
-
 
     #bento-graph {
       display: grid;
