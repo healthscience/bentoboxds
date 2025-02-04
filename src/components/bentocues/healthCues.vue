@@ -24,28 +24,28 @@
           <button id="open-beebee" @click.prevent="setShowBeeBee">beebee</button>
           <div id="cues-wheel">
             <div id="wheel-tools">
-              <button class="cue-select-btn" id="decision-start" @click="selectWheel('cues')" v-bind:class="{ active: wheelType === 'cues' }">Cues</button>
-              <button class="cue-select-btn" id="decision-start" @click="selectWheel('newcue')" v-bind:class="{ active: wheelType === 'newcue' }">+ Cue</button>
-              <button class="cue-select-btn" id="decision-start" @click="selectWheel('newrelationships')" v-bind:class="{ active: wheelType === 'newrelationship' }">+ Relationships</button>
-              <button class="cue-select-btn" id="bentopath" @click="selectWheel('bentopath')" v-bind:class="{ active: wheelType === 'bentopath' }">Paths</button>
-              <button class="cue-select-btn" id="newbentopath" @click="selectWheel('newbentopath')" v-bind:class="{ active: wheelType === 'newbentopath' }">+ Path</button>
-              <button class="cue-select-btn" id="decision-start" @click="selectWheel('decision')" v-bind:class="{ active: wheelType === 'decision' }">+ Decision</button>
-              <button class="cue-select-btn" id="decision-start" @click="selectWheel('clone')" v-bind:class="{ active: wheelType === 'clone' }">Clone</button>
+              <button class="cue-select-btn" id="decision-start" @click="selectWheel('cues')" v-bind:class="{ active: cueAction === 'cues' }">Cues</button>
+              <button class="cue-select-btn" id="decision-start" @click="selectWheel('newcue')" v-bind:class="{ active: cueAction === 'newcue' }">+ Cue</button>
+              <button class="cue-select-btn" id="decision-start" @click="selectWheel('newrelationships')" v-bind:class="{ active: cueAction === 'newrelationship' }">+ Relationships</button>
+              <button class="cue-select-btn" id="bentopath" @click="selectWheel('bentopath')" v-bind:class="{ active: cueAction === 'bentopath' }">Paths</button>
+              <button class="cue-select-btn" id="newbentopath" @click="selectWheel('newbentopath')" v-bind:class="{ active: cueAction === 'newbentopath' }">+ Path</button>
+              <button class="cue-select-btn" id="decision-start" @click="selectWheel('decision')" v-bind:class="{ active: cueAction === 'decision' }">+ Decision</button>
+              <button class="cue-select-btn" id="decision-start" @click="selectWheel('clone')" v-bind:class="{ active: cueAction === 'clone' }">Clone</button>
             </div>
             <!-- existing cues -->
-            <cues-prepared v-if="wheelType === 'cues'"></cues-prepared>
+            <cues-prepared v-if="cueAction === 'cues'"></cues-prepared>
             <!-- view bento paths -->
-            <path-view v-if="wheelType === 'bentopath'"></path-view>
+            <path-view v-if="cueAction === 'bentopath'"></path-view>
             <!-- new bentopath -->
-            <bento-path v-if="wheelType === 'newbentopath'"></bento-path>
+            <bento-path v-if="cueAction === 'newbentopath'"></bento-path>
             <!-- new cue -->
-            <new-cue v-if="wheelType === 'newcue'"></new-cue>
+            <new-cue v-if="cueAction === 'newcue'"></new-cue>
             <!-- new relationships -->
-            <new-relationships v-if="wheelType === 'newrelationships'"></new-relationships>
+            <new-relationships v-if="cueAction === 'newrelationships'"></new-relationships>
             <!-- decision cues -->
-            <decision-cue v-if="wheelType === 'decision'"></decision-cue>
+            <decision-cue v-if="cueAction === 'decision'"></decision-cue>
             <!-- clone cue -->
-            <clone-cue v-if="wheelType === 'clone'"></clone-cue>
+            <clone-cue v-if="cueAction === 'clone'"></clone-cue>
           </div>
           <div id="filter-cues">
             <header>Filters</header>
@@ -114,14 +114,19 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
 
-  let wheelType = ref('cues')
+  // let wheelType = ref('cues')
   let cueActive = ref('whole')
   let beebeeCues = ref(false)
   let cuesDecision = ref({ labels: [], datasets: [] })
   let bioMarker = ref({ name: 'Off', state: false })
 
+  /* computed */
   const bentoCuesStatus = computed(() => {
     return storeAI.bentocuesState
+  })
+
+  const cueAction = computed(() => {
+    return storeAI.cueAction
   })
 
   const decisionCues = computed(() => {
@@ -169,7 +174,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
     // four major segments
     if (segID.label === 'Life' || segID.label === 'Nature' || segID.label === 'Environment' || segID.label === 'Culture') {
-      wheelType.value = 'segments'
+      storeAI.cueAction = 'segments'
     }
   }
 
@@ -182,16 +187,16 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     // reset any active feedback or context
     storeAI.beebeeContext = ''
     storeCues.cueMatchMarkersLive = []
-    wheelType.value = type
-    if (wheelType.value === 'bentopath') {
+    storeAI.cueAction = type
+    if (storeAI.cueAction === 'bentopath') {
       storeCues.pathListActive = true 
-    } else if (wheelType.value === 'newbentopath') {
+    } else if (storeAI.cueAction === 'newbentopath') {
       storeCues.bentopathState = true
-    } else if (wheelType.value === 'decision') {
+    } else if (storeAI.cueAction === 'decision') {
       // bring beebee to life
       beebeeCues.value = !beebeeCues.value
       storeAI.beebeeContext = 'cues-decision'
-    } else if (wheelType.value === 'newcue') {
+    } else if (storeAI.cueAction === 'newcue') {
     } else {
       beebeeCues.value = false
     }

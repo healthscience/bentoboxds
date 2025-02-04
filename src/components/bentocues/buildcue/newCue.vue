@@ -151,6 +151,12 @@ import { cuesStore } from '@/stores/cuesStore.js'
   }
 
   const saveCue = () => {
+    // did the new cue com from the space menu create button?
+    if (storeAI.historyList === 'space') {
+      console.log('yes')
+      // close the cues tools
+      storeAI.bentocuesState = false
+    }
     let cueHolder = {}
     cueHolder.name = cueName.value
     cueHolder.contract = datatypeCue.value // ask LLM to prepare ref contract next release tiny LLM

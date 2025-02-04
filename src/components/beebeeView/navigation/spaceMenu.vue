@@ -1,24 +1,27 @@
 <template>
   <div id="space-menu">
-    <button class="create-space" @click="newSpacemenu">
+    <button class="create-space" @click="saveSpacename()">
       + create space
     </button>
     <div id="space-form-save" v-if="saveSpace">
-      <form id="ask-ai-form" @submit.prevent="saveSpacename()">
+      <!--<form id="ask-ai-form" @submit.prevent="saveSpacename()">
         <label for="spacename"></label>
         <input type="input" id="newspace" name="newspace" placeholder="space name" v-model="newSpacename">
         <button id="save-space-name" type="submit">
           add
         </button>
-      </form>
+      </form>-->
     </div>
-    <!--<div class="history-list" v-for="sis in spaceList">
+    <div id="cues-holder" @click="showHistoryCues()" v-bind:class="{ active: historyCues }">
+      History
+    </div>
+    <div class="history-list" v-for="sis in spaceListHistory">
       <button
-          class="flat-history"  v-bind:class="{ active: sis?.active }" @click="bentoSpaceOpen(sis)" @mouseover="hoverCheck(sis)" @mousemove="moveCheck(sis)"> {{ sis.name }}
+          class="flat-history"  v-bind:class="{ active: sis?.active }" @click="bentoSpaceOpen(sis, 'history')" @mouseover="hoverCheck(sis)" @mousemove="moveCheck(sis)"> {{ sis.value.concept.name }}
         </button>
-      <button class="save-chat-history" @click="saveSpaceHistory(sis)">save</button>
-      <button class="delete-chat-history" @click="deleteSpaceHistory(sis)">Del</button>
-    </div>-->
+      <button class="save-space-history" @click="saveSpaceHistory(sis)">save</button>
+      <button class="delete-space-history" @click="deleteSpaceHistory(sis)">Del</button>
+    </div>
     <div id="cues-holder" @click="showExpandCues()" v-bind:class="{ active: expandCues }">
       Cues 
     </div>
@@ -73,6 +76,7 @@ import { ref, computed, onMounted } from 'vue'
   let newSpacename = ref('')
   let glueTarget = ref({})
   let glueName = ref('')
+  let historyCues = ref(false)
   let expandCues = ref(false)
   let expandMarkers = ref(false)
 
@@ -83,12 +87,9 @@ import { ref, computed, onMounted } from 'vue'
 
 
   /*  computed  */
-  const spaceList = computed(() => {
-    return storeBentobox.spaceList
-  })
-
-  const startCuesList = computed(() => {
-    return storeCues.cuesList
+  const spaceListHistory = computed(() => {
+    // need to format for menu display
+    return storeCues.spaceListHistory
   })
 
   const cuesList = computed(() => {
@@ -129,8 +130,6 @@ import { ref, computed, onMounted } from 'vue'
     return storeCues.selectCues
   })
 
-  /* cuesBiomarkers */
-
   /* methods */
   const hoverCheck = (sis) => {
     // console.log('hover id')
@@ -144,6 +143,10 @@ import { ref, computed, onMounted } from 'vue'
 
   const newSpacemenu = () => {
     saveSpace.value = !saveSpace.value
+  }
+
+  const showHistoryCues = () => {
+    historyCues.value = !historyCues.value
   }
 
   const showExpandCues = () => {
@@ -183,11 +186,25 @@ import { ref, computed, onMounted } from 'vue'
     glueName.value = cuem.gluedown
   }
 
-  const bentoSpaceOpen = (spaceID) => {
+  const bentoSpaceOpen = (spaceID, context) => {
+    // temp  if history cue the make stucture for space
+    if (context === 'history') {
+      storeAI.liveBspace = {
+        name: spaceID.value.concept.name,
+        spaceid: spaceID.key,
+        cueid: spaceID.key,
+        gluedown: 'down',
+        active: true,
+        expand: true
+      }
+      spaceID.name = spaceID.value.concept.name
+      spaceID.cueid = spaceID.key
+    } else {
+      storeAI.liveBspace = spaceID
+    }
     storeCues.cueContext = 'space'
     storeAI.beebeeContext = 'chatspace'
     storeAI.bentospaceState = !storeAI.bentospaceState
-    storeAI.liveBspace = spaceID
     // make button green
     let spaceLiveList = []
     for (let spi of storeBentobox.spaceList) {
@@ -219,6 +236,10 @@ import { ref, computed, onMounted } from 'vue'
   }
 
   const saveSpacename = () => {
+    // open cues in context of add cue and then return to this
+    storeAI.bentocuesState = !storeAI.bentocuesState
+    storeAI.cueAction = 'newcue'
+    /*pre cues
     saveSpace.value = !saveSpace.value
     let spaceID = hashObject(newSpacename.value + new Date())
     let newSpaceItem = {}
@@ -244,6 +265,7 @@ import { ref, computed, onMounted } from 'vue'
     storeBentobox.locationBbox[spaceID] = {}
     // check and update product boxes 
     // storeBentobox.locationProductbox
+    */
   }
 
   const saveSpaceHistory = (space) => {

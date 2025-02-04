@@ -89,9 +89,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     }
     let hexColor = rgbToHex(pointColour[0], pointColour[1], pointColour[2])
     if (hexColor === '#e2552a' || hexColor === '#f05f22' || hexColor === '#f26522') {
-      console.log('guts')
     } else if (hexColor === '#fd1e32' || hexColor === '#f4e9d7') {
-      console.log('heart')
     }
   }
 

@@ -48,7 +48,8 @@ export const cuesStore = defineStore('cues', {
     cuesFlakeCount: 0,
     glueRelActive: '',
     minCuesStatus: true,
-    minCuesText: 'Minimise'
+    minCuesText: 'Minimise',
+    spaceListHistory: []
   }),
   actions: {
     processReply (received) {

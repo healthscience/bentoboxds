@@ -98,7 +98,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     boxLibSummary: {},
     boxModelUpdate: {},
     computeModuleLast: {},
-    bentobesearchState: false
+    bentobesearchState: false,
+    cueAction: 'cues'
   }),
   actions: {
     sendMessageHOP (message) {
@@ -209,15 +210,13 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         this.chatSpacePair[this.liveBspace.cueid].push(spaceChatPrep)
         this.askQuestion.text = ''
       } else if (this.beebeeContext === 'graph') {
-        console.log('social knowleget graph context')
       } else if (this.beebeeContext === 'cues-decision') {
-        console.log('new cues decision')
         this.decisionDoughnutCue = true
       }
     },
     largeFilesubmitAsk (dataInfo) {
-      console.log('large file prep')
-      console.log(dataInfo)
+      // console.log('large file prep')
+      // console.log(dataInfo)
     },
     actionFileAskInput (fileData) {
       let aiMessageout = {}
@@ -599,10 +598,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.sendSocket.send_message(message)
     },
     prepareSpaceSave (message) {
-      console.log('prepareSpaceSave', message)
       // match bentoboxes, cues, content (media, research, markers, products)
       // bentoboxes
-      console.log(this.bentoboxList)
       let boxidPerspace = this.bentoboxList[message.data.cueid]
       if (boxidPerspace !== undefined) {
         let visDataperSpace = []
@@ -630,16 +627,16 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       // cues
       // media
       let mediaidPerspace = this.storeBentoBox.videoMedia[message.data.cueid]
-      console.log(mediaidPerspace)
+      // console.log(mediaidPerspace)
       // research
       let researchidPerspace = this.storeBentoBox.researchMedia[message.data.cueid]
-      console.log(researchidPerspace)
+      // console.log(researchidPerspace)
       // markers
       let markeridPerspace = this.storeBentoBox.markerMedia[message.data.cueid]
-      console.log(markeridPerspace)
+      // console.log(markeridPerspace)
       // products
       let productidPerspace = this.storeBentoBox.ProductMedia[message.data.cueid]
-      console.log(productidPerspace)
+      // console.log(productidPerspace)
     },
     prepareAI (message) {
       // need to build DML structure, proof of work hash

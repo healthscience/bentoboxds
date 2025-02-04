@@ -369,6 +369,7 @@ export const libraryStore = defineStore('librarystore', {
           let expandDTCue = this.utilLibrary.expandCuesDTSingle(message.data, this.publicLibrary.referenceContracts)
           // add to cues list
           this.storeCues.cuesList.push(expandDTCue)
+          this.storeCues.spaceListHistory.push(expandDTCue)
         } else if (message.task === 'update-complete') {
           // update contract in list
           let updateCueList = []
@@ -382,8 +383,6 @@ export const libraryStore = defineStore('librarystore', {
           this.storeCues.cuesList = updateCueList
         }
       } else if (message.action === 'media-contract') {
-        console.log('new save media itgem')
-        console.log(message)
         let mediaContract = message.data.data
         this.storeCues.mediaMatch[mediaContract.value.concept.cueid].push(mediaContract)
       } else if (message.action === 'marker-contract') {

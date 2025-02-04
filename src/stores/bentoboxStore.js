@@ -268,8 +268,8 @@ export const bentoboxStore = defineStore('bentostore', {
           console.log('saved feedback')
         }
       } else if (message.reftype.trim() === 'spaces-history') {
-        console.log('spaces-history')
-        console.log(message.data)
+        // console.log('spaces-history')
+        // console.log(message.data)
       } else if (message.reftype.trim() === 'cues-history') {
         if (this.storeLibrary.publicLibrary.referenceContracts !== undefined) {
           this.libraryCheck = true
@@ -324,9 +324,9 @@ export const bentoboxStore = defineStore('bentostore', {
       }
     },
     prepareMarkerSpace (mData) {
-      console.log('marke spa history')
-      console.log(mData)
-      console.log('save space struecure')
+      // console.log('marke spa history')
+      // console.log(mData)
+      // console.log('save space struecure')
       // list of active markers
       this.storeCues.markerList = mData
       let markerBoxList = []
