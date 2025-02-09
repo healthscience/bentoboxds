@@ -35,6 +35,9 @@
           </div>
         </div>
       </template>
+      <template #tabs>
+        <account-tabs v-if="storeAccount.peerauth === true"></account-tabs>
+      </template>
       <template #connect>
         <div id="connectivity">
           <div id="connect-socket" v-if="connectNetworkstatus === true"></div>
@@ -51,9 +54,6 @@
             <button class="buttonspaces" @click.prevent="closeModal">go to bento spaces</button>
           </div>
         </div>-->
-      </template>
-      <template #tabs>
-        <account-tabs v-if="storeAccount.peerauth === true"></account-tabs>
       </template>
       <template #footer>
         <div id="footer-self">
@@ -141,6 +141,11 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   grid-template-columns: 1fr;
   padding-top: 0em;
   min-height: 0vh;
+}
+
+#self-auth {
+  font-size: 1.4em;
+  padding: 1em;
 }
 
 #return-modal-close {

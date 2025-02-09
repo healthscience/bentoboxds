@@ -9,11 +9,11 @@
         <div class="modal-body">
           <slot name="body">default body</slot>
         </div>
-        <div class="modal-connect">
-          <slot name="connect"></slot>
-        </div>
         <div class="modal-tabs">
           <slot name="tabs"></slot>
+        </div>
+        <div class="modal-connect">
+          <slot name="connect"></slot>
         </div>
         <div class="modal-footer">
           <slot name="footer">
