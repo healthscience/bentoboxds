@@ -21,9 +21,9 @@
           <div id="self-verify" v-if="storeAccount.peerauth !== true">
             <form id="self-signin-form" >
               <div class="self-inputs">
-                <label class="form-couple-type" for="password-account">password </label>
-                <input class="form-couple" type="password" id="password" name="password" v-model="selfpwInput">
-                <button id="self-auth" @click.prevent="selfVerify">Self Verify</button>
+                <!--<label class="form-couple-type" for="password-account">password </label>
+                <input class="form-couple" type="password" id="password" name="password" v-model="selfpwInput">-->
+                <button id="self-auth" @click.prevent="selfVerify()">Connect to HOP</button>
               </div>
             </form>
             <div id="verify-feedback">
@@ -102,7 +102,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     // need to setup pub/private key schnorr sign utilities
     let pwCheck = selfpwInput.value
     // take local info and auth HOP with that
-    if (pwCheck.length > 12) {
+    if (pwCheck.length === 0) {
       let saveBentoBoxsetting = {}
       saveBentoBoxsetting.type = 'hop-auth'
       saveBentoBoxsetting.reftype = 'self-auth'
