@@ -368,6 +368,20 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         this.chatBottom++
       } else if (received.action === 'warm-peer-new') {
         this.storeAcc.warmPeers.push(received.data)
+      } else if (received.action === 'warm-peer-topic') {
+        console.log('long term peer')
+        console.log(received)
+        console.log(this.storeAcc.warmPeers)
+        // update list and make longterm true
+        let warmMatch = this.storeAcc.warmPeers.findIndex(peer => peer.publickey === received.data.publickey)
+        console.log(warmMatch)
+        console.log(this.storeAcc.warmPeers[warmMatch])
+        // remove from index and add back new longterm and then save to bentobox settings for on start
+        let existingPeer = this.storeAcc.warmPeers[warmMatch]
+        existingPeer.longterm = true
+        // this.storeAcc.warmPeers.splice(warmMatch, 1, existingPeer)
+        // send message to HOP to save relationship
+        
       } else if (received.action === 'network-publib-board') {
         // create a notification accept public board and save?
       } else if (received.action === 'cue-space') {

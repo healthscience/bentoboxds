@@ -12,7 +12,13 @@
     </div>
     <div class="peer-list-set" v-for='peer in storeAccount.warmPeers' :key='peer.id'>
       <div class="peer-g">
-        Peer {{ peer.datastore }} --- {{ peer.name }} --- {{ peer.publickey }} <button @click="copyKey(peer.publickey)">copy</button>
+        <div class="longterm-peer">
+          Peer {{ peer.datastore }} --- {{ peer.name }} --- {{ peer.publickey }} <button @click="copyKey(peer.publickey)">copy</button>
+        </div>
+        <!--if longterm show button to reconnect or (TODO remove)-->
+        <div class="longterm-peer" v-if="peer?.longterm === true">
+          <button @click="directConnectPeer(peer)">reconnect</button>
+        </div>
       </div>
     </div>
     <social-graph></social-graph>
@@ -43,6 +49,10 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
     storeAccount.warmPeers.push(peerPair)
   }
 
+  const directConnectPeer = (peer) => {
+    // direct peer connect again
+  }
+
   const copyKey = (key) => {
     navigator.clipboard.writeText(key)
   }
@@ -60,6 +70,10 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
   margin-bottom: 1em;
 }
 
+.peer-g {
+  display: grid;
+  grid-template-columns: 6fr 1fr;
+}
 
 @media (min-width: 1024px) {
 
