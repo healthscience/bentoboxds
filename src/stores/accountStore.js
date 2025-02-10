@@ -59,16 +59,39 @@ export const accountStore = defineStore('account', {
         this.warmPeers = received.data
       } else if (received.action === 'network-keys') {
         this.networkInfo.publickey = received.data.publickey
+      } else if (received.action === 'peer-new-relationship') {
+        this.warmPeers.push(received.data.data)
+      } else if (received.action === 'peer-history') {
+        this.warmPeers = received.data
       }
     },
+    addPeertoNetwork (peer) {
+      let libMessageout = {}
+      libMessageout.type = 'library'
+      libMessageout.action = 'account'
+      libMessageout.reftype = 'new-peer'
+      libMessageout.privacy = 'private'
+      libMessageout.task = 'PUT'
+      libMessageout.data = peer
+      libMessageout.bbid = ''
+      this.sendSocket.send_message(libMessageout)
+    },
     shareProtocol (boxid, shareType) {
-      // set peer live
+      // existing peer relationshiop? or first time
+      let existingMatch = this.utilPeers.checkPeerMatch(this.warmPeers, this.sharePubkey)
+      let topicSet = existingMatch.value.topic
+      if (topicSet.length > 0) {
+        console.log('new peer')
+      } else {
+        console.log('existing peer')
+      }
       if (shareType === 'privatechart') {
+        console.log('private chart')
         let peerDetails = {}
         peerDetails.name = 'peer'
         peerDetails.publickey = this.sharePubkey
         peerDetails.datastores = ''
-        this.warmPeers = this.utilPeers.checkPeerMatch(this.warmPeers, peerDetails)
+        // this.warmPeers = this.utilPeers.checkPeerMatch(this.warmPeers, peerDetails)
         let shareContext = {}
         // need to lookup nxp from boxid
         let sfMatch = {}
@@ -90,11 +113,11 @@ export const accountStore = defineStore('account', {
         let shareInfo = {}
         shareInfo.type = 'network'
         shareInfo.action = 'share'
-        shareInfo.task = 'peer-join'
+        shareInfo.task = 'peer-share'
         shareInfo.reftype = 'null'
         shareInfo.privacy = 'private'
         shareInfo.data = shareContext
-        this.sendMessageHOP(shareInfo)
+        // this.sendMessageHOP(shareInfo)
       } else if (shareType === 'cue-space') {
         // gather space context and prepare share data
         // need utilty for each putling together
@@ -163,6 +186,25 @@ export const accountStore = defineStore('account', {
           }
         }
       }
+    },
+    removePeerfromNetwork (peer) {
+      // remove from warmpeers list
+      let updatePeer = []
+      for (let wpeer of this.warmPeers) {
+        if (wpeer.key !== peer.key) {
+          updatePeer.push(wpeer)
+        }
+      }
+      this.warmPeers = updatePeer
+      // send message via HOP
+      let shareInfo = {}
+      shareInfo.type = 'library'
+      shareInfo.action = 'account'
+      shareInfo.task = 'DEL'
+      shareInfo.reftype = 'null'
+      shareInfo.privacy = 'private'
+      shareInfo.data = peer
+      this.sendMessageHOP(shareInfo)
     },
     sendMessageHOP (message) {
       this.sendSocket.send_message(message)
