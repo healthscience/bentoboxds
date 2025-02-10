@@ -43,22 +43,23 @@ const props = defineProps({
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   transition: opacity 0.3s ease;
-  opacity: 1;
+  background-color: rgba(82, 84, 171, 0.4); /* #5254ab; */
+
 }
 
 .modal-container {
-  width: 96vw;
-  height: 98vh;
+  width: 90vw;
+  height: 92vh;
   margin: auto;
   padding: 20px 30px;
-  background-color: #fff;
+  background: white;
   border-radius: 2px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
   transition: all 0.3s ease;
-  overflow-y: scroll;
+  overflow: scroll;
+  opacity: 1;
 }
 
 .modal-header h3 {
