@@ -109,6 +109,7 @@ const storeAI = aiInterfaceStore()
       font-size: 2em;
       font-weight: 600;
       color: #fff;
+      text-align: center;
       text-transform: uppercase;
       letter-spacing: 3px;
       text-shadow: 0 0 10px rgba(0, 255, 255, 0.5),
