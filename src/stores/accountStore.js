@@ -31,6 +31,7 @@ export const accountStore = defineStore('account', {
   }),
   actions: {
     processReply (received) {
+      console.log('received--account', received)
       if (received.action === 'hop-verify') {
         // set token for subsequent HOP messages
         this.sendSocket.jwt = received.data.jwt
@@ -62,7 +63,7 @@ export const accountStore = defineStore('account', {
       } else if (received.action === 'network-keys') {
         this.networkInfo.publickey = received.data.publickey
       } else if (received.action === 'peer-new-relationship') {
-        this.warmPeers.push(received.data.data)
+        this.checkPeerStatus(received.data.data)
       } else if (received.action === 'peer-history') {
         this.warmPeers = received.data
       }
@@ -77,6 +78,21 @@ export const accountStore = defineStore('account', {
       libMessageout.data = peer
       libMessageout.bbid = ''
       this.sendSocket.send_message(libMessageout)
+    },
+    checkPeerStatus (peer) {
+      console.log('check peer status', peer)
+      // brand new peer first time or update save for topic
+      let warmMatch = {}
+      for (let wpeer of this.warmPeers) {
+        if (wpeer.key === peer.key) {
+          warmMatch = wpeer
+        }
+      }
+      if (Object.keys(warmMatch).length === 0) {
+        this.warmPeers.push(peer)
+      } else {
+        console.log('update live stust true already stt')
+      }
     },
     shareProtocol (boxid, shareType) {
       // existing peer relationshiop? or first time

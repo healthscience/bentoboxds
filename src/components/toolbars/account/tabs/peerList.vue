@@ -26,7 +26,9 @@
         </div>
       </div>
     </div>
-    <social-graph></social-graph>
+    <div id="social-graph-space">
+      <social-graph></social-graph>
+    </div>
   </div>
 </template>
 
@@ -112,6 +114,13 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
 .peer-g {
   display: grid;
   grid-template-columns: 6fr 1fr 1fr;
+}
+
+#social-graph-space {
+  display: grid;
+  grid-template-columns: 1fr;
+  height: 90vh;
+  width: 90vw;
 }
 
 @media (min-width: 1024px) {

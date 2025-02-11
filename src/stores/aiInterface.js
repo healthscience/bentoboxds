@@ -370,28 +370,73 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         console.log('peer to peer connection  live')
         console.log(received.data)
         // this peer is live on network
-        let warmMatch = this.storeAcc.warmPeers.findIndex(peer => peer.key === received.data.publickey)
+        let exstingWPeer = false
+        for (let peer of this.storeAcc.warmPeers) {
+          if (peer.key === received.data.publickey) {
+            exstingWPeer = true
+          }
+        }
+        // does this peer already known?
+        if (exstingWPeer === true) {
+          // peer known update status
+          // TODO update to LIVE status connected
+          console.log('reconnect pelase')
+        } else {
+          // new first time invite
+          console.log('first time')
+          let newWarmConnection = {}
+          newWarmConnection.key = received.data.publickey
+          newWarmConnection.value = received.data
+          this.storeAcc.warmPeers.push(newWarmConnection) 
+        }
         // this.storeAcc.warmPeers.push(received.data)
       } else if (received.action === 'warm-peer-topic') {
         console.log('peer confirm and send topic to reconnect in future with')
         console.log(received.data)
         // update list and make longterm true
-        let warmMatch = this.storeAcc.warmPeers.findIndex(peer => peer.key === received.data.publickey)
-        // remove from index and add back new longterm and then save to bentobox settings for on start
-        let existingPeer = this.storeAcc.warmPeers[warmMatch]
+        let wpeerStatus = false
+        let existingPeer = {}
+        for (let peer of this.storeAcc.warmPeers) {
+          if (peer.key === received.data.publickey) {
+            wpeerStatus = true
+            existingPeer = peer
+          }
+        }
         // check if first time or existing
-        if (existingPeer !== undefined) {
-          // update warm to live  === true
-          this.storeAcc.warmPeers.push(received.data)
+        if (wpeerStatus === true) {
+          console.log('already knwonw peepr')
+
+          // form structure for updating warm peer saved topic
+          let peerPair = {}
+          peerPair.publickey = existingPeer.key
+          peerPair.name = existingPeer.value.name
+          peerPair.longterm = existingPeer.value.longterm
+          peerPair.topic = received.data.data
+          peerPair.live = false
+          // for live session make true
+          this.storeAcc.addPeertoNetwork(peerPair)
+          peerPair.live = true
+          // update warm to live
+          console.log('update wwarm list for topic')
+          console.log(existingPeer)
+          let updateWarmPeerList = []
+          for (let wpeer of this.storeAcc.warmPeers) {
+            if (wpeer.key === existingPeer.key) {
+              updateWarmPeerList.push(existingPeer)
+            } else {
+              updateWarmPeerList.push(wpeer)
+            }
+          }
+          this.storeAcc.warmPeers = updateWarmPeerList
         } else {
-          // need to setup peer
+          console.log('new peer for some reasons')
+          // need to update warm peer with topic for future discovery
           let peerPair = {}
           peerPair.publickey = received.data.publickey
-          peerPair.name = received.data.name
+          peerPair.name = ''
           peerPair.longterm = false
-          peerPair.topic = ''
-          peerPair.live = true 
-  
+          peerPair.topic = received.data.data
+          peerPair.live = false 
           // send message to HOP to save relationship
           let libMessageout = {}
           libMessageout.type = 'library'
