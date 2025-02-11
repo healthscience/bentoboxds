@@ -384,10 +384,22 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         } else {
           // new first time invite
           console.log('first time')
+          // save now warm peer accepted
+          // form structure for updating warm peer saved topic
+          let peerPair = {}
+          peerPair.publickey = received.data.publickey
+          peerPair.name = received.data.name
+          peerPair.longterm = received.data.longterm
+          peerPair.topic = received.data.topic
+          peerPair.live = received.data.live
+          // for live session make true
+          this.storeAcc.addPeertoNetwork(peerPair)
+          /*
+           will now be added to list on save of warm peer
           let newWarmConnection = {}
           newWarmConnection.key = received.data.publickey
           newWarmConnection.value = received.data
-          this.storeAcc.warmPeers.push(newWarmConnection) 
+          this.storeAcc.warmPeers.push(newWarmConnection)*/ 
         }
         // this.storeAcc.warmPeers.push(received.data)
       } else if (received.action === 'warm-peer-topic') {

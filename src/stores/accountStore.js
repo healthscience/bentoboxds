@@ -97,53 +97,39 @@ export const accountStore = defineStore('account', {
     shareProtocol (boxid, shareType) {
       // existing peer relationshiop? or first time
       let existingMatch = this.utilPeers.checkPeerMatch(this.warmPeers, this.sharePubkey)
-      let newPeer = false
+      let existingPeer = false
       let topicSet = ''
       // check if warm peer of first time
       if (Object.keys(existingMatch).length === 0) {
-        newPeer = false
+        existingPeer = false
       } else {
-        newPeer = true
+        existingPeer = true
         topicSet = existingMatch.value.topic
       }
 
-      if (newPeer === true) {
-        console.log('existing peer')
-        console.log(topicSet)
-      } else {
-        console.log('nto tpic set new connection--OUTOUT')
-        if (shareType === 'privatechart') {
-          let peerDetails = {}
-          peerDetails.name = 'peer'
-          peerDetails.publickey = this.sharePubkey
-          peerDetails.datastores = ''
-          // this.warmPeers = this.utilPeers.checkPeerMatch(this.warmPeers, peerDetails)
-          let shareContext = {}
-          // need to lookup nxp from boxid
-          let sfMatch = {}
-          for (let histMatch of this.storeAI.bbidHOPid) {
-            if (histMatch.bbid === boxid) {
-              sfMatch = histMatch
-            }
-          }
-          // match to summary from SafeFlow (could be first time or saved)
-          let sfSummary = {}
-          for (let sumSF of this.storeAI.hopSummary) {
-            if (sumSF.summary.bbid === boxid) {
-              sfSummary = sumSF
-            }
-          }
-          shareContext.hop = sfSummary.summary
-          shareContext.publickey = this.sharePubkey
-          shareContext.data = this.storeAI.visData[boxid]
+      if (existingPeer === true) {
+        // has the topic between establish or is this first timme
+        if (topicSet.length !== 0) {
+          // use topic to generative topic, connect that way then upgrade to direct connect
+          //  Buffer.alloc(32).fill('hello world')
           let shareInfo = {}
           shareInfo.type = 'network'
           shareInfo.action = 'share'
-          shareInfo.task = 'peer-share'
+          shareInfo.task = 'peer-share-topic'
           shareInfo.reftype = 'null'
           shareInfo.privacy = 'private'
-          shareInfo.data = shareContext
+          shareInfo.data = topicSet
           this.sendMessageHOP(shareInfo)
+        } else {
+          // start normal first time warm peer direct connect
+          if (shareType === 'privatechart') {
+            this.prepareChartShareDirect(boxid)
+          }
+        }
+      } else {
+        console.log('nto tpic set new connection--OUTOUT')
+        if (shareType === 'privatechart') {
+          this.prepareChartShareDirect(boxid) 
         } else if (shareType === 'cue-space') {
           // gather space context and prepare share data
           // need utilty for each putling together
@@ -231,6 +217,39 @@ export const accountStore = defineStore('account', {
       shareInfo.reftype = 'null'
       shareInfo.privacy = 'private'
       shareInfo.data = peer
+      this.sendMessageHOP(shareInfo)
+    },
+    prepareChartShareDirect (boxid) {
+      let peerDetails = {}
+      peerDetails.name = 'peer'
+      peerDetails.publickey = this.sharePubkey
+      peerDetails.datastores = ''
+      // this.warmPeers = this.utilPeers.checkPeerMatch(this.warmPeers, peerDetails)
+      let shareContext = {}
+      // need to lookup nxp from boxid
+      let sfMatch = {}
+      for (let histMatch of this.storeAI.bbidHOPid) {
+        if (histMatch.bbid === boxid) {
+          sfMatch = histMatch
+        }
+      }
+      // match to summary from SafeFlow (could be first time or saved)
+      let sfSummary = {}
+      for (let sumSF of this.storeAI.hopSummary) {
+        if (sumSF.summary.bbid === boxid) {
+          sfSummary = sumSF
+        }
+      }
+      shareContext.hop = sfSummary.summary
+      shareContext.publickey = this.sharePubkey
+      shareContext.data = this.storeAI.visData[boxid]
+      let shareInfo = {}
+      shareInfo.type = 'network'
+      shareInfo.action = 'share'
+      shareInfo.task = 'peer-share'
+      shareInfo.reftype = 'null'
+      shareInfo.privacy = 'private'
+      shareInfo.data = shareContext
       this.sendMessageHOP(shareInfo)
     },
     sendMessageHOP (message) {
