@@ -15,7 +15,7 @@
     <div class="peer-list-set" v-for='peer in peerNetwork' :key='peer.key'>
       <div class="peer-g">
         <div class="longterm-peer">
-          {{ peer?.value?.name }} --- {{ peer.key }} --- <button @click="copyKey(peer.key)">copy</button>
+          {{ peer?.value?.name }} -- {{ peer?.value?.live }} --- {{ peer.key }} --- <button @click="copyKey(peer.key)">copy</button>
         </div>
         <!--if longterm show button to reconnect or (TODO remove)-->
         <div class="longterm-peer" v-if="peer?.longterm === true">
@@ -59,6 +59,7 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
     peerPair.name = newPeername.value
     peerPair.longterm = true
     peerPair.topic = ''
+    peerPair.live = false
     // save to HOP and add
     storeAccount.addPeertoNetwork(peerPair)
     // clear the form

@@ -56,6 +56,8 @@ export const accountStore = defineStore('account', {
       } else if (received.action === 'drive-pubkeys') {
         this.publickeyDrive = received.data
       } else if (received.action === 'warm-peers') {
+        console.log('warm peers in')
+        console.log(received.data)
         this.warmPeers = received.data
       } else if (received.action === 'network-keys') {
         this.networkInfo.publickey = received.data.publickey
@@ -79,100 +81,109 @@ export const accountStore = defineStore('account', {
     shareProtocol (boxid, shareType) {
       // existing peer relationshiop? or first time
       let existingMatch = this.utilPeers.checkPeerMatch(this.warmPeers, this.sharePubkey)
-      let topicSet = existingMatch.value.topic
-      if (topicSet.length > 0) {
-        console.log('new peer')
+      let newPeer = false
+      let topicSet = ''
+      // check if warm peer of first time
+      if (Object.keys(existingMatch).length === 0) {
+        newPeer = false
       } else {
-        console.log('existing peer')
+        newPeer = true
+        topicSet = existingMatch.value.topic
       }
-      if (shareType === 'privatechart') {
-        console.log('private chart')
-        let peerDetails = {}
-        peerDetails.name = 'peer'
-        peerDetails.publickey = this.sharePubkey
-        peerDetails.datastores = ''
-        // this.warmPeers = this.utilPeers.checkPeerMatch(this.warmPeers, peerDetails)
-        let shareContext = {}
-        // need to lookup nxp from boxid
-        let sfMatch = {}
-        for (let histMatch of this.storeAI.bbidHOPid) {
-          if (histMatch.bbid === boxid) {
-            sfMatch = histMatch
+
+      if (newPeer === true) {
+        console.log('existing peer')
+        console.log(topicSet)
+      } else {
+        console.log('nto tpic set new connection--OUTOUT')
+        if (shareType === 'privatechart') {
+          let peerDetails = {}
+          peerDetails.name = 'peer'
+          peerDetails.publickey = this.sharePubkey
+          peerDetails.datastores = ''
+          // this.warmPeers = this.utilPeers.checkPeerMatch(this.warmPeers, peerDetails)
+          let shareContext = {}
+          // need to lookup nxp from boxid
+          let sfMatch = {}
+          for (let histMatch of this.storeAI.bbidHOPid) {
+            if (histMatch.bbid === boxid) {
+              sfMatch = histMatch
+            }
           }
-        }
-        // match to summary from SafeFlow (could be first time or saved)
-        let sfSummary = {}
-        for (let sumSF of this.storeAI.hopSummary) {
-          if (sumSF.summary.bbid === boxid) {
-            sfSummary = sumSF
+          // match to summary from SafeFlow (could be first time or saved)
+          let sfSummary = {}
+          for (let sumSF of this.storeAI.hopSummary) {
+            if (sumSF.summary.bbid === boxid) {
+              sfSummary = sumSF
+            }
           }
-        }
-        shareContext.hop = sfSummary.summary
-        shareContext.publickey = this.sharePubkey
-        shareContext.data = this.storeAI.visData[boxid]
-        let shareInfo = {}
-        shareInfo.type = 'network'
-        shareInfo.action = 'share'
-        shareInfo.task = 'peer-share'
-        shareInfo.reftype = 'null'
-        shareInfo.privacy = 'private'
-        shareInfo.data = shareContext
-        // this.sendMessageHOP(shareInfo)
-      } else if (shareType === 'cue-space') {
-        // gather space context and prepare share data
-        // need utilty for each putling together
-        let spaceContent = {}
-        // get the cue contract spaceid NOTE
-        spaceContent.cuecontract = this.storeAI.liveBspace
-        spaceContent.n1 = this.utilSpacecontent.n1Match()
-        spaceContent.media = this.utilSpacecontent.mediaMatch(this.storeCues.mediaMatch[this.storeAI.liveBspace.spaceid])
-        spaceContent.research = this.utilSpacecontent.researchMatch(this.storeCues.researchPapers[this.storeAI.liveBspace.spaceid])
-        spaceContent.markers = this.utilSpacecontent.markerMatch(this.storeCues.markerMatch[this.storeAI.liveBspace.spaceid])
-        spaceContent.products = this.utilSpacecontent.productMatch(this.storeCues.productMatch[this.storeAI.liveBspace.spaceid])
-        let spaceDetails = {}
-        spaceDetails.name = 'cue-space'
-        spaceDetails.publickey = this.sharePubkey
-        spaceDetails.content = spaceContent
-        spaceDetails.spaceid = this.storeAI.liveBspace.spaceid
-        this.warmPeers = this.utilPeers.checkPeerMatch(this.warmPeers, spaceDetails)
-        let shareContext = {}
-        shareContext.publickey = spaceDetails.publickey
-        shareContext.data = spaceDetails
-        let shareInfo = {}
-        shareInfo.type = 'network'
-        shareInfo.action = 'share'
-        shareInfo.task = 'cue-space'
-        shareInfo.reftype = 'null'
-        shareInfo.privacy = 'private'
-        shareInfo.data = shareContext
-        this.sendMessageHOP(shareInfo)
-      } else if (shareType === 'publicboard') {
-        // the public library key to allow discover
-        let publicLibrary = ''
-        for (let hbee of this.publicKeysList) {
-          if (hbee.store === 'publiclibrary') {
-            publicLibrary = hbee.pubkey
+          shareContext.hop = sfSummary.summary
+          shareContext.publickey = this.sharePubkey
+          shareContext.data = this.storeAI.visData[boxid]
+          let shareInfo = {}
+          shareInfo.type = 'network'
+          shareInfo.action = 'share'
+          shareInfo.task = 'peer-share'
+          shareInfo.reftype = 'null'
+          shareInfo.privacy = 'private'
+          shareInfo.data = shareContext
+          this.sendMessageHOP(shareInfo)
+        } else if (shareType === 'cue-space') {
+          // gather space context and prepare share data
+          // need utilty for each putling together
+          let spaceContent = {}
+          // get the cue contract spaceid NOTE
+          spaceContent.cuecontract = this.storeAI.liveBspace
+          spaceContent.n1 = this.utilSpacecontent.n1Match()
+          spaceContent.media = this.utilSpacecontent.mediaMatch(this.storeCues.mediaMatch[this.storeAI.liveBspace.spaceid])
+          spaceContent.research = this.utilSpacecontent.researchMatch(this.storeCues.researchPapers[this.storeAI.liveBspace.spaceid])
+          spaceContent.markers = this.utilSpacecontent.markerMatch(this.storeCues.markerMatch[this.storeAI.liveBspace.spaceid])
+          spaceContent.products = this.utilSpacecontent.productMatch(this.storeCues.productMatch[this.storeAI.liveBspace.spaceid])
+          let spaceDetails = {}
+          spaceDetails.name = 'cue-space'
+          spaceDetails.publickey = this.sharePubkey
+          spaceDetails.content = spaceContent
+          spaceDetails.spaceid = this.storeAI.liveBspace.spaceid
+          this.warmPeers = this.utilPeers.checkPeerMatch(this.warmPeers, spaceDetails)
+          let shareContext = {}
+          shareContext.publickey = spaceDetails.publickey
+          shareContext.data = spaceDetails
+          let shareInfo = {}
+          shareInfo.type = 'network'
+          shareInfo.action = 'share'
+          shareInfo.task = 'cue-space'
+          shareInfo.reftype = 'null'
+          shareInfo.privacy = 'private'
+          shareInfo.data = shareContext
+          this.sendMessageHOP(shareInfo)
+        } else if (shareType === 'publicboard') {
+          // the public library key to allow discover
+          let publicLibrary = ''
+          for (let hbee of this.publicKeysList) {
+            if (hbee.store === 'publiclibrary') {
+              publicLibrary = hbee.pubkey
+            }
           }
+          let peerDetails = {}
+          peerDetails.name = 'peer'
+          peerDetails.publickey = this.sharePubkey
+          peerDetails.datastores = publicLibrary
+          peerDetails.boardID = this.shareBoardNXP.id
+          peerDetails.boardname = this.shareBoardNXP.name
+          this.warmPeers = this.utilPeers.checkPeerMatch(this.warmPeers, peerDetails)
+          // now build public library info to be share (replicated)
+          let shareContext = {}
+          shareContext.publickey = peerDetails.publickey
+          shareContext.data = peerDetails
+          let shareInfo = {}
+          shareInfo.type = 'network'
+          shareInfo.action = 'share'
+          shareInfo.task = 'peer-board'
+          shareInfo.reftype = 'null'
+          shareInfo.privacy = 'public'
+          shareInfo.data = shareContext
+          this.sendMessageHOP(shareInfo)
         }
-        let peerDetails = {}
-        peerDetails.name = 'peer'
-        peerDetails.publickey = this.sharePubkey
-        peerDetails.datastores = publicLibrary
-        peerDetails.boardID = this.shareBoardNXP.id
-        peerDetails.boardname = this.shareBoardNXP.name
-        this.warmPeers = this.utilPeers.checkPeerMatch(this.warmPeers, peerDetails)
-        // now build public library info to be share (replicated)
-        let shareContext = {}
-        shareContext.publickey = peerDetails.publickey
-        shareContext.data = peerDetails
-        let shareInfo = {}
-        shareInfo.type = 'network'
-        shareInfo.action = 'share'
-        shareInfo.task = 'peer-board'
-        shareInfo.reftype = 'null'
-        shareInfo.privacy = 'public'
-        shareInfo.data = shareContext
-        this.sendMessageHOP(shareInfo)
       }
     },
     processAgentStatus (data) {

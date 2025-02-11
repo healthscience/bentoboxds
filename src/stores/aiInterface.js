@@ -366,25 +366,43 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         this.historyPair[this.chatAttention].push(pairBB)
         this.beginChat = true
         this.chatBottom++
-      } else if (received.action === 'warm-peer-new') {
-        this.storeAcc.warmPeers.push(received.data)
+      } else if (received.action === 'warm-peer-connect') {
+        console.log('peer to peer connection  live')
+        console.log(received.data)
+        // this peer is live on network
+        let warmMatch = this.storeAcc.warmPeers.findIndex(peer => peer.key === received.data.publickey)
+        // this.storeAcc.warmPeers.push(received.data)
       } else if (received.action === 'warm-peer-topic') {
+        console.log('peer confirm and send topic to reconnect in future with')
+        console.log(received.data)
         // update list and make longterm true
-        let warmMatch = this.storeAcc.warmPeers.findIndex(peer => peer.publickey === received.data.publickey)
+        let warmMatch = this.storeAcc.warmPeers.findIndex(peer => peer.key === received.data.publickey)
         // remove from index and add back new longterm and then save to bentobox settings for on start
         let existingPeer = this.storeAcc.warmPeers[warmMatch]
-        existingPeer.longterm = true
-        existingPeer.topic = received.data.data  
-        // send message to HOP to save relationship
-        let libMessageout = {}
-        libMessageout.type = 'library'
-        libMessageout.action = 'account'
-        libMessageout.reftype = 'new-peer'
-        libMessageout.privacy = 'private'
-        libMessageout.task = 'PUT'
-        libMessageout.data = existingPeer
-        libMessageout.bbid = ''
-        this.sendSocket.send_message(libMessageout)
+        // check if first time or existing
+        if (existingPeer !== undefined) {
+          // update warm to live  === true
+          this.storeAcc.warmPeers.push(received.data)
+        } else {
+          // need to setup peer
+          let peerPair = {}
+          peerPair.publickey = received.data.publickey
+          peerPair.name = received.data.name
+          peerPair.longterm = false
+          peerPair.topic = ''
+          peerPair.live = true 
+  
+          // send message to HOP to save relationship
+          let libMessageout = {}
+          libMessageout.type = 'library'
+          libMessageout.action = 'account'
+          libMessageout.reftype = 'new-peer'
+          libMessageout.privacy = 'private'
+          libMessageout.task = 'PUT'
+          libMessageout.data = peerPair
+          libMessageout.bbid = ''
+          this.sendSocket.send_message(libMessageout)
+        }
       } else if (received.action === 'network-publib-board') {
         // create a notification accept public board and save?
       } else if (received.action === 'cue-space') {
