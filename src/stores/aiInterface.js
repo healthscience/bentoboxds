@@ -391,6 +391,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           peerPair.name = received.data.name
           peerPair.longterm = received.data.longterm
           peerPair.topic = received.data.topic
+          peerPair.setopic = false
           peerPair.live = received.data.live
           // for live session make true
           this.storeAcc.addPeertoNetwork(peerPair)
