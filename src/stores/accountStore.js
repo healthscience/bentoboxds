@@ -23,6 +23,7 @@ export const accountStore = defineStore('account', {
     HOPFlow: false,
     networkInfo: {},
     warmPeers: [],
+    beebeeAccountFeedback: '',
     publickeyDrive: [],
     publicKeysList: [],
     sharePubkey: '',
@@ -31,7 +32,6 @@ export const accountStore = defineStore('account', {
   }),
   actions: {
     processReply (received) {
-      console.log('received--account', received)
       if (received.action === 'hop-verify') {
         // set token for subsequent HOP messages
         this.sendSocket.jwt = received.data.jwt
@@ -57,19 +57,33 @@ export const accountStore = defineStore('account', {
       } else if (received.action === 'drive-pubkeys') {
         this.publickeyDrive = received.data
       } else if (received.action === 'warm-peers') {
-        console.log('warm peers in')
-        console.log(received.data)
         this.warmPeers = received.data
       } else if (received.action === 'network-keys') {
         this.networkInfo.publickey = received.data.publickey
       } else if (received.action === 'peer-new-relationship') {
         this.checkPeerStatus(received.data.data)
+      } else if (received.action === 'peer-share-fail') {
+        // ask peer if want to save and try again?
+        this.setNotifyFailConnection(received.data)
       } else if (received.action === 'peer-history') {
         this.warmPeers = received.data
       }
     },
     addPeertoNetwork (peer) {
-      let libMessageout = {}
+      // try to see if other peer is live on network
+      let shareInfo = {}
+      shareInfo.type = 'network'
+      shareInfo.action = 'share'
+      shareInfo.task = 'peer-share'
+      shareInfo.reftype = 'null'
+      shareInfo.privacy = 'private'
+      shareInfo.data = peer
+      console.log(shareInfo)
+      this.sendMessageHOP(shareInfo)
+
+
+      // if not save details (timed accept?  TODO)
+      /* let libMessageout = {}
       libMessageout.type = 'library'
       libMessageout.action = 'account'
       libMessageout.reftype = 'new-peer'
@@ -77,10 +91,9 @@ export const accountStore = defineStore('account', {
       libMessageout.task = 'PUT'
       libMessageout.data = peer
       libMessageout.bbid = ''
-      this.sendSocket.send_message(libMessageout)
+      this.sendSocket.send_message(libMessageout)*/
     },
     checkPeerStatus (peer) {
-      console.log('check peer status', peer)
       // brand new peer first time or update save for topic
       let warmMatch = {}
       for (let wpeer of this.warmPeers) {
@@ -93,10 +106,17 @@ export const accountStore = defineStore('account', {
       } else {
         console.log('update live stust true already stt')
       }
+      // set notification
+      let peerConnectNot = {}
+      peerConnectNot.type = 'network-notification'
+      peerConnectNot.action = 'warm-peer-connect'
+      peerConnectNot.data = {}
+      this.storeAI.processNotification(peerConnectNot)
     },
     shareProtocol (boxid, shareType) {
       // existing peer relationshiop? or first time
       let existingMatch = this.utilPeers.checkPeerMatch(this.warmPeers, this.sharePubkey)
+      console.log(existingMatch)
       let existingPeer = false
       let topicSet = ''
       // check if warm peer of first time
@@ -108,6 +128,9 @@ export const accountStore = defineStore('account', {
       }
 
       if (existingPeer === true) {
+        console.log('existing peer true')
+        console.log(topicSet)
+        console.log(shareType)
         // has the topic between establish or is this first timme
         if (topicSet.length !== 0) {
           // use topic to generative topic, connect that way then upgrade to direct connect
@@ -127,37 +150,10 @@ export const accountStore = defineStore('account', {
           }
         }
       } else {
-        console.log('nto tpic set new connection--OUTOUT')
         if (shareType === 'privatechart') {
           this.prepareChartShareDirect(boxid) 
         } else if (shareType === 'cue-space') {
-          // gather space context and prepare share data
-          // need utilty for each putling together
-          let spaceContent = {}
-          // get the cue contract spaceid NOTE
-          spaceContent.cuecontract = this.storeAI.liveBspace
-          spaceContent.n1 = this.utilSpacecontent.n1Match()
-          spaceContent.media = this.utilSpacecontent.mediaMatch(this.storeCues.mediaMatch[this.storeAI.liveBspace.spaceid])
-          spaceContent.research = this.utilSpacecontent.researchMatch(this.storeCues.researchPapers[this.storeAI.liveBspace.spaceid])
-          spaceContent.markers = this.utilSpacecontent.markerMatch(this.storeCues.markerMatch[this.storeAI.liveBspace.spaceid])
-          spaceContent.products = this.utilSpacecontent.productMatch(this.storeCues.productMatch[this.storeAI.liveBspace.spaceid])
-          let spaceDetails = {}
-          spaceDetails.name = 'cue-space'
-          spaceDetails.publickey = this.sharePubkey
-          spaceDetails.content = spaceContent
-          spaceDetails.spaceid = this.storeAI.liveBspace.spaceid
-          this.warmPeers = this.utilPeers.checkPeerMatch(this.warmPeers, spaceDetails)
-          let shareContext = {}
-          shareContext.publickey = spaceDetails.publickey
-          shareContext.data = spaceDetails
-          let shareInfo = {}
-          shareInfo.type = 'network'
-          shareInfo.action = 'share'
-          shareInfo.task = 'cue-space'
-          shareInfo.reftype = 'null'
-          shareInfo.privacy = 'private'
-          shareInfo.data = shareContext
-          this.sendMessageHOP(shareInfo)
+          this.prepareSpaceShareDirect(boxid)
         } else if (shareType === 'publicboard') {
           // the public library key to allow discover
           let publicLibrary = ''
@@ -199,6 +195,9 @@ export const accountStore = defineStore('account', {
           }
         }
       }
+    },
+    setNotifyFailConnection (data) {
+      this.beebeeAccountFeedback = 'Failed to connect with ' + data.publickey
     },
     removePeerfromNetwork (peer) {
       // remove from warmpeers list
@@ -247,6 +246,35 @@ export const accountStore = defineStore('account', {
       shareInfo.type = 'network'
       shareInfo.action = 'share'
       shareInfo.task = 'peer-share'
+      shareInfo.reftype = 'null'
+      shareInfo.privacy = 'private'
+      shareInfo.data = shareContext
+      this.sendMessageHOP(shareInfo)
+    },
+    prepareSpaceShareDirect (boxid) {
+      // gather space context and prepare share data
+      // need utilty for each putling together
+      let spaceContent = {}
+      // get the cue contract spaceid NOTE
+      spaceContent.cuecontract = this.storeAI.liveBspace
+      spaceContent.n1 = this.utilSpacecontent.n1Match()
+      spaceContent.media = this.utilSpacecontent.mediaMatch(this.storeCues.mediaMatch[this.storeAI.liveBspace.cueid])
+      spaceContent.research = this.utilSpacecontent.researchMatch(this.storeCues.researchPapers[this.storeAI.liveBspace.cueid])
+      spaceContent.markers = this.utilSpacecontent.markerMatch(this.storeCues.markerMatch[this.storeAI.liveBspace.cueid])
+      spaceContent.products = this.utilSpacecontent.productMatch(this.storeCues.productMatch[this.storeAI.liveBspace.cueid])
+      let spaceDetails = {}
+      spaceDetails.name = 'cue-space'
+      spaceDetails.publickey = this.sharePubkey
+      spaceDetails.content = spaceContent
+      spaceDetails.cueid = this.storeAI.liveBspace.cueid
+      this.warmPeers = this.utilPeers.checkPeerMatch(this.warmPeers, spaceDetails)
+      let shareContext = {}
+      shareContext.publickey = spaceDetails.publickey
+      shareContext.data = spaceDetails
+      let shareInfo = {}
+      shareInfo.type = 'network'
+      shareInfo.action = 'share'
+      shareInfo.task = 'cue-space'
       shareInfo.reftype = 'null'
       shareInfo.privacy = 'private'
       shareInfo.data = shareContext

@@ -342,6 +342,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
 <style scoped>
 
 #chat-interface {
+  display: grid;
   height: 100%;
   width: 100%;
 }
@@ -403,7 +404,10 @@ import { libraryStore } from '@/stores/libraryStore.js'
 }
 
 #beebee-chartspace {
-  width: 90%;
+  display: grid;
+  grid-template-columns: 1fr;
+  width: 80%;
+  height: auto;
 }
 
 
@@ -421,9 +425,11 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
   @media (min-width: 1024px) {
     #chat-interface {
-      border: 0px solid blue;
-      height: 100%;
+      display: grid;
+      height: 75vh;
       width: 100%;
+      overflow-y: scroll;
+      overflow-x: hidden;
     }
 
     #natlang-ai {
@@ -443,9 +449,10 @@ import { libraryStore } from '@/stores/libraryStore.js'
     }
 
     #beebee-chartspace {
+      display: grid;
+      grid-template-columns: 1fr;
+      width: 80%;
       height: auto;
-      width: 90%;
-      background-color: white;
     }
 
     .chat-input {

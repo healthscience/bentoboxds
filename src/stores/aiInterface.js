@@ -367,45 +367,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         this.beginChat = true
         this.chatBottom++
       } else if (received.action === 'warm-peer-connect') {
-        console.log('peer to peer connection  live')
-        console.log(received.data)
-        // this peer is live on network
-        let exstingWPeer = false
-        for (let peer of this.storeAcc.warmPeers) {
-          if (peer.key === received.data.publickey) {
-            exstingWPeer = true
-          }
-        }
-        // does this peer already known?
-        if (exstingWPeer === true) {
-          // peer known update status
-          // TODO update to LIVE status connected
-          console.log('reconnect pelase')
-        } else {
-          // new first time invite
-          console.log('first time')
-          // save now warm peer accepted
-          // form structure for updating warm peer saved topic
-          let peerPair = {}
-          peerPair.publickey = received.data.publickey
-          peerPair.name = received.data.name
-          peerPair.longterm = received.data.longterm
-          peerPair.topic = received.data.topic
-          peerPair.setopic = false
-          peerPair.live = received.data.live
-          // for live session make true
-          this.storeAcc.addPeertoNetwork(peerPair)
-          /*
-           will now be added to list on save of warm peer
-          let newWarmConnection = {}
-          newWarmConnection.key = received.data.publickey
-          newWarmConnection.value = received.data
-          this.storeAcc.warmPeers.push(newWarmConnection)*/ 
-        }
-        // this.storeAcc.warmPeers.push(received.data)
+        // set via account store - just add to notify list here.
       } else if (received.action === 'warm-peer-topic') {
-        console.log('peer confirm and send topic to reconnect in future with')
-        console.log(received.data)
         // update list and make longterm true
         let wpeerStatus = false
         let existingPeer = {}
@@ -417,8 +380,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         }
         // check if first time or existing
         if (wpeerStatus === true) {
-          console.log('already knwonw peepr')
-
           // form structure for updating warm peer saved topic
           let peerPair = {}
           peerPair.publickey = existingPeer.key
@@ -430,8 +391,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           this.storeAcc.addPeertoNetwork(peerPair)
           peerPair.live = true
           // update warm to live
-          console.log('update wwarm list for topic')
-          console.log(existingPeer)
           let updateWarmPeerList = []
           for (let wpeer of this.storeAcc.warmPeers) {
             if (wpeer.key === existingPeer.key) {
@@ -442,7 +401,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           }
           this.storeAcc.warmPeers = updateWarmPeerList
         } else {
-          console.log('new peer for some reasons')
           // need to update warm peer with topic for future discovery
           let peerPair = {}
           peerPair.publickey = received.data.publickey

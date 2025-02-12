@@ -11,6 +11,9 @@
         <input v-model="newPeerPubKey" placeholder="public key">
         <button type="button" class="btn" @click="saveWarmpeer()">save</button>
       </div>
+      <div id="beebee-message-feedback">
+        {{ beebeeMessage }}
+      </div>
     </div>
     <div class="peer-list-set" v-for='peer in peerNetwork' :key='peer.key'>
       <div class="peer-g">
@@ -46,6 +49,10 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
   /* computed */
   const peerNetwork = computed(() => {
     return storeAccount.warmPeers
+  })
+
+  const beebeeMessage = computed(() => {
+    return storeAccount.beebeeAccountFeedback
   })
 
   /* methods */
@@ -120,8 +127,20 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
 #social-graph-space {
   display: grid;
   grid-template-columns: 1fr;
-  height: 90vh;
-  width: 90vw;
+  height: 800px;
+  width: 800px;
+}
+
+#beebee-message-feedback {
+  display: grid;
+  grid-template-columns: 1fr;
+  color: rgb(221, 20, 47);
+  border: 1px solid lightgrey;
+  border-radius: 4%;
+  margin-left: 1em;
+  margin-left: 1em;
+  margin-bottom: 1em;
+  padding: 2em;
 }
 
 @media (min-width: 1024px) {
