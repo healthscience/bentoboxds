@@ -386,9 +386,9 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           peerPair.name = existingPeer.value.name
           peerPair.longterm = existingPeer.value.longterm
           peerPair.topic = received.data.data
-          peerPair.live = false
+          peerPair.live = true
           // for live session make true
-          this.storeAcc.addPeertoNetwork(peerPair)
+          this.storeAcc.updateTopicPeertoNetwork(peerPair)
           peerPair.live = true
           // update warm to live
           let updateWarmPeerList = []

@@ -23,6 +23,7 @@ export const accountStore = defineStore('account', {
     HOPFlow: false,
     networkInfo: {},
     warmPeers: [],
+    invitedPeers: [],
     beebeeAccountFeedback: '',
     publickeyDrive: [],
     publicKeysList: [],
@@ -62,6 +63,9 @@ export const accountStore = defineStore('account', {
         this.networkInfo.publickey = received.data.publickey
       } else if (received.action === 'peer-new-relationship') {
         this.checkPeerStatus(received.data.data)
+      } else if (received.action === 'complete-topic-save') {
+        console.log('topic recive and can be use fo recommenct')
+        console.log(received.data)
       } else if (received.action === 'peer-share-fail') {
         // ask peer if want to save and try again?
         this.setNotifyFailConnection(received.data)
@@ -78,6 +82,8 @@ export const accountStore = defineStore('account', {
       shareInfo.reftype = 'null'
       shareInfo.privacy = 'private'
       shareInfo.data = peer
+      // keep tabs of invite details
+      this.invitedPeers.push(peer)
       console.log(shareInfo)
       this.sendMessageHOP(shareInfo)
 
@@ -93,8 +99,23 @@ export const accountStore = defineStore('account', {
       libMessageout.bbid = ''
       this.sendSocket.send_message(libMessageout)*/
     },
+    updateTopicPeertoNetwork (update) {
+      // update warmpeer item to at drop
+      let updateWarmPeers = []
+      for (let wpeer of this.warmPeers) {
+        if (wpeer.key === update.publickey) {
+          wpeer.value.live = update.live
+          wpeer.value.topic = update.topic
+          updateWarmPeers.push(wpeer)
+        } else {
+          updateWarmPeers.push(wpeer)
+        }
+      }
+      this.warmPeers = updateWarmPeers
+    },
     checkPeerStatus (peer) {
       // brand new peer first time or update save for topic
+      console.log('checkPeerStatus', peer)
       let warmMatch = {}
       for (let wpeer of this.warmPeers) {
         if (wpeer.key === peer.key) {
@@ -102,6 +123,7 @@ export const accountStore = defineStore('account', {
         }
       }
       if (Object.keys(warmMatch).length === 0) {
+        console.log('new peer true')
         this.warmPeers.push(peer)
       } else {
         console.log('update live stust true already stt')

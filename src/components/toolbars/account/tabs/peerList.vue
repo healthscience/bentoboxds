@@ -9,7 +9,7 @@
       <div v-if="addWarm === true" id="add-warm-peer">
         <input v-model="newPeername" placeholder="name">
         <input v-model="newPeerPubKey" placeholder="public key">
-        <button type="button" class="btn" @click="saveWarmpeer()">save</button>
+        <button type="button" class="btn" @click="saveWarmpeer()">Send invite</button>
       </div>
       <div id="beebee-message-feedback">
         {{ beebeeMessage }}
