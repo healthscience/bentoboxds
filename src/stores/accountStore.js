@@ -63,9 +63,9 @@ export const accountStore = defineStore('account', {
         this.networkInfo.publickey = received.data.publickey
       } else if (received.action === 'peer-new-relationship') {
         this.checkPeerStatus(received.data.data)
+      } else if (received.action === 'peer-share-topic') {
+        this.updateTopicSetter(received.data)
       } else if (received.action === 'complete-topic-save') {
-        console.log('topic recive and can be use fo recommenct')
-        console.log(received.data)
       } else if (received.action === 'peer-share-fail') {
         // ask peer if want to save and try again?
         this.setNotifyFailConnection(received.data)
@@ -84,7 +84,6 @@ export const accountStore = defineStore('account', {
       shareInfo.data = peer
       // keep tabs of invite details
       this.invitedPeers.push(peer)
-      console.log(shareInfo)
       this.sendMessageHOP(shareInfo)
 
 
@@ -98,6 +97,17 @@ export const accountStore = defineStore('account', {
       libMessageout.data = peer
       libMessageout.bbid = ''
       this.sendSocket.send_message(libMessageout)*/
+    },
+    updateTopicSetter (update) {
+      let updatePeerList = []
+      for (let wpeer of this.warmPeers) {
+        if (wpeer.key === update.key) {
+          updatePeerList.push(update)
+        } else {
+          updatePeerList.push(wpeer)
+        }
+      }
+      this.warmPeers = updatePeerList
     },
     updateTopicPeertoNetwork (update) {
       // update warmpeer item to at drop
@@ -115,7 +125,6 @@ export const accountStore = defineStore('account', {
     },
     checkPeerStatus (peer) {
       // brand new peer first time or update save for topic
-      console.log('checkPeerStatus', peer)
       let warmMatch = {}
       for (let wpeer of this.warmPeers) {
         if (wpeer.key === peer.key) {
@@ -123,7 +132,6 @@ export const accountStore = defineStore('account', {
         }
       }
       if (Object.keys(warmMatch).length === 0) {
-        console.log('new peer true')
         this.warmPeers.push(peer)
       } else {
         console.log('update live stust true already stt')
@@ -138,7 +146,6 @@ export const accountStore = defineStore('account', {
     shareProtocol (boxid, shareType) {
       // existing peer relationshiop? or first time
       let existingMatch = this.utilPeers.checkPeerMatch(this.warmPeers, this.sharePubkey)
-      console.log(existingMatch)
       let existingPeer = false
       let topicSet = ''
       // check if warm peer of first time
@@ -150,9 +157,6 @@ export const accountStore = defineStore('account', {
       }
 
       if (existingPeer === true) {
-        console.log('existing peer true')
-        console.log(topicSet)
-        console.log(shareType)
         // has the topic between establish or is this first timme
         if (topicSet.length !== 0) {
           // use topic to generative topic, connect that way then upgrade to direct connect
