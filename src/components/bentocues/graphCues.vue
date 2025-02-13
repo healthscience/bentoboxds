@@ -144,7 +144,10 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   }
 
   #graph-container {
-    position: relative
+    position: relative;
+    display: grid;
+    width: 900px;
+    height: 500px;
   }
 
   @media (min-width: 1024px) {
@@ -157,8 +160,11 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     }
 
     #graph-container {
-    position: relative
-  }
+      position: relative;
+      display: grid;
+      width: 900px;
+      height: 500px;
+    }
     
     #return-modal-close {
       text-align: right;

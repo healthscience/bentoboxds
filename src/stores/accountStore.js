@@ -177,6 +177,7 @@ export const accountStore = defineStore('account', {
         }
       } else {
         if (shareType === 'privatechart') {
+          console.log('private chart share')
           this.prepareChartShareDirect(boxid) 
         } else if (shareType === 'cue-space') {
           this.prepareSpaceShareDirect(boxid)
@@ -275,6 +276,7 @@ export const accountStore = defineStore('account', {
       shareInfo.reftype = 'null'
       shareInfo.privacy = 'private'
       shareInfo.data = shareContext
+      console.log(shareInfo)
       this.sendMessageHOP(shareInfo)
     },
     prepareSpaceShareDirect (boxid) {
