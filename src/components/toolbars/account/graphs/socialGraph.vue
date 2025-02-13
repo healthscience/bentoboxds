@@ -30,7 +30,8 @@ import { accountStore } from '@/stores/accountStore.js'
 
   /* watch */
   watch(() => storeAccount.warmPeers, (newPeers, existingPeers) => {
-    // addPeerToGraph()
+    updatePeerRelationships(newPeers)
+    console.log('warmpere e update')
   },
    { deep: true }
   )
@@ -47,48 +48,64 @@ import { accountStore } from '@/stores/accountStore.js'
    // add peers (test)
     // addPeerToGraph()
     let peerGraph = document.getElementById("graph-container")
+    console.log(peerGraph)
     const sigmaInstance = new Sigma(socialGraph, peerGraph)
     // take know peer connection and chart, then watcher will pick up others
     // put peer account at center of graph
     socialGraph.addNode("1", { label: "me", x: 0, y: 0, size: 20, color: "blue" })
-    let peerCount = 1
-    for (let pg of peerConnections.value) {
-      if (pg.name === 'new-peer') {
-        socialGraph.addNode(pg.publickey, { label: pg.name, x: peerCount, y: peerCount, size: 20, color: "red" })
-        socialGraph.addEdge("1", pg.publickey, { size: 5, color: "purple" })
-        peerCount++
-      }
-    }
+    updatePeerRelationships(storeAccount.warmPeers)
   }
 
   const addPeerToGraph = (peerIn) => {
-    socialGraph.addNode("1", { label: "me", x: 0, y: 0, size: 20, color: "blue" })
+    // socialGraph.addNode("1", { label: "me", x: 0, y: 0, size: 20, color: "blue" })
     socialGraph.addNode("2", { label: "Peer2", x: 1, y: 1, size: 10, color: "red" })
     socialGraph.addEdge("1", "2", { size: 5, color: "purple" })
   }
 
-  const addPeerNode = () => {
-    peerGraphLive.value.push({ name: 'peer3' })
+  const updatePeerRelationships = (updatePeers) => {
+    socialGraph.clear()
+    let peerCount = 1
+    socialGraph.addNode("1", { label: "me", x: 0, y: 0, size: 20, color: "blue" })
+    for (let pg of updatePeers) {
+      socialGraph.addNode(pg.key, { label: pg.value.name, x: peerCount, y: peerCount, size: 20, color: "red" })
+      socialGraph.addEdge("1", pg.key, { size: 5, color: "purple" })
+      peerCount++
+    }
   }
 
 </script>
 
 <style scoped>
 
+#peer-graph {
+  position: relative;
+  display:grid;
+  height: 500px;
+  width: 800px;
+}
+
 #graph-container {
-  height: 30vh;
-  width: 80vw;
+  position: relative;
+  height: 500px;
+  width: 800px;
   border: 1px solid lightgrey;
   background-color: whitesmoke;
-  margin: 2em;
 }
 
 
 @media (min-width: 1024px) {
- 
+
+  #peer-graph {
+    position: relative;
+    display:grid;
+    height: 500px;
+    width: 800px;
+  } 
+
   #graph-container {
-    height: 30vh;
-    width: 80vw;
+    position: relative;
+    height: 500px;
+    width: 900px;
   }
 
 }

@@ -223,7 +223,7 @@ export const accountStore = defineStore('account', {
       }
     },
     setNotifyFailConnection (data) {
-      this.beebeeAccountFeedback = 'Failed to connect with ' + data.publickey
+      this.beebeeAccountFeedback = 'Connecting taking a long time or has failed with' + data.publickey
     },
     removePeerfromNetwork (peer) {
       // remove from warmpeers list
