@@ -124,8 +124,6 @@ export const accountStore = defineStore('account', {
       this.warmPeers = updateWarmPeers
     },
     checkPeerStatus (peer) {
-      console.log('income new peer first time??')
-      console.log(peer)
       // brand new peer first time or update save for topic
       let warmMatch = {}
       for (let wpeer of this.warmPeers) {
@@ -155,7 +153,8 @@ export const accountStore = defineStore('account', {
         existingPeer = false
       } else {
         existingPeer = true
-        topicSet = existingMatch.value.topic
+        // put logic test as 1 can be first time ongoing or returning using topic
+        // topicSet = existingMatch.value.topic
       }
 
       if (existingPeer === true) {
@@ -179,7 +178,6 @@ export const accountStore = defineStore('account', {
         }
       } else {
         if (shareType === 'privatechart') {
-          console.log('private chart share')
           this.prepareChartShareDirect(boxid) 
         } else if (shareType === 'cue-space') {
           this.prepareSpaceShareDirect(boxid)
@@ -283,6 +281,7 @@ export const accountStore = defineStore('account', {
       shareInfo.reftype = 'null'
       shareInfo.privacy = 'private'
       shareInfo.data = shareContext
+      console.log(shareInfo)
       this.sendMessageHOP(shareInfo)
     },
     prepareSpaceShareDirect (boxid) {
