@@ -354,10 +354,9 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.notifList.push(received)
       // add to chart part list (do now or on requrest?)
       if (received.action === 'chart') {
-        console.log('chart notification')
         let pairBB = {}
         let question = {}
-        question.bbid = received.bbid
+        question.bbid = received.data.bbid
         question.data = { active: true, text: received.action }
         pairBB.question = question
         let reply = {}
@@ -480,17 +479,16 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     processPeerData (dataNetwork) {
-      console.log('data from network peer e.g chart or bentobox idealy')
+      console.log('data from network peer e.g chart bentobox idealy')
       console.log(dataNetwork)
-      let matchBBID = '12222222' // dataNetwork.hop.bbid
-      let hopDataChart = dataNetwork
+      let matchBBID = dataNetwork.bbid
+      let hopDataChart = dataNetwork.data
       // create a pair for chat display
-      /*
       this.visData[matchBBID] = hopDataChart
       this.storeBentoBox.setChartstyle(matchBBID, 'line')
       this.expandBentobox[matchBBID] = false
       this.beebeeChatLog[matchBBID] = true
-      this.bentoboxList['space1'] = []*/
+      this.bentoboxList['space1'] = []
     },
     processHOPsummary (dataSummary) {
       // match bbid to HOP ID
