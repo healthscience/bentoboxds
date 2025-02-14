@@ -266,13 +266,16 @@ export const accountStore = defineStore('account', {
           sfSummary = sumSF
         }
       }
+      let dataShare = {}
+      dataShare.type = 'private-chart'
+      dataShare.data = this.storeAI.visData[boxid]
       shareContext.hop = sfSummary.summary
       shareContext.publickey = this.sharePubkey
-      shareContext.data = this.storeAI.visData[boxid]
+      shareContext.data = dataShare
       let shareInfo = {}
       shareInfo.type = 'network'
       shareInfo.action = 'share'
-      shareInfo.task = 'peer-share'
+      shareInfo.task = 'peer-share-invite'
       shareInfo.reftype = 'null'
       shareInfo.privacy = 'private'
       shareInfo.data = shareContext

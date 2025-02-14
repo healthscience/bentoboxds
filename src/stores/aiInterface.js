@@ -348,6 +348,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     processNotification (received) {
+      console.log('not ofoif otpic/???')
+      console.log(received)
       this.countNotifications++
       this.notifList.push(received)
       // add to chart part list (do now or on requrest?)
