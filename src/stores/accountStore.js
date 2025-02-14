@@ -78,7 +78,7 @@ export const accountStore = defineStore('account', {
       let shareInfo = {}
       shareInfo.type = 'network'
       shareInfo.action = 'share'
-      shareInfo.task = 'peer-share'
+      shareInfo.task = 'peer-share-invite'
       shareInfo.reftype = 'null'
       shareInfo.privacy = 'private'
       shareInfo.data = peer
@@ -124,6 +124,8 @@ export const accountStore = defineStore('account', {
       this.warmPeers = updateWarmPeers
     },
     checkPeerStatus (peer) {
+      console.log('income new peer first time??')
+      console.log(peer)
       // brand new peer first time or update save for topic
       let warmMatch = {}
       for (let wpeer of this.warmPeers) {
@@ -268,6 +270,8 @@ export const accountStore = defineStore('account', {
       }
       let dataShare = {}
       dataShare.type = 'private-chart'
+      dataShare.display = 'html'
+      dataShare.bbid = boxid
       dataShare.data = this.storeAI.visData[boxid]
       shareContext.hop = sfSummary.summary
       shareContext.publickey = this.sharePubkey

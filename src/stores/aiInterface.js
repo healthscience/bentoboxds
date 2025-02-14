@@ -348,12 +348,13 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     processNotification (received) {
-      console.log('not ofoif otpic/???')
+      console.log('HOP noifcation data needs routing for diaply')
       console.log(received)
       this.countNotifications++
       this.notifList.push(received)
       // add to chart part list (do now or on requrest?)
       if (received.action === 'chart') {
+        console.log('chart notification')
         let pairBB = {}
         let question = {}
         question.bbid = received.bbid
@@ -479,15 +480,17 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     processPeerData (dataNetwork) {
-      let matchBBID = dataNetwork.hop.bbid
-      let hopDataChart = {}
-      hopDataChart.datasets = [ { data: dataNetwork.data.datasets[0].data } ]
-      hopDataChart.labels = dataNetwork.data.labels
+      console.log('data from network peer e.g chart or bentobox idealy')
+      console.log(dataNetwork)
+      let matchBBID = '12222222' // dataNetwork.hop.bbid
+      let hopDataChart = dataNetwork
+      // create a pair for chat display
+      /*
       this.visData[matchBBID] = hopDataChart
       this.storeBentoBox.setChartstyle(matchBBID, 'line')
       this.expandBentobox[matchBBID] = false
       this.beebeeChatLog[matchBBID] = true
-      this.bentoboxList['space1'] = []
+      this.bentoboxList['space1'] = []*/
     },
     processHOPsummary (dataSummary) {
       // match bbid to HOP ID
