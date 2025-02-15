@@ -421,10 +421,11 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           libMessageout.bbid = ''
           this.sendSocket.send_message(libMessageout)
         }
-      } else if (received.action === 'network-publib-board') {
+      } else if (received.action === 'network-library-n1') {
         // create a notification accept public board and save?
       } else if (received.action === 'cue-space') {
         // populate space  check if cue needing setup then fill and notify
+        console.log('share cue space')
       }
     },
     preparePublicConfirm (item) {

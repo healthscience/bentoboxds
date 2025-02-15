@@ -17,7 +17,7 @@
               <div v-if="chati.reply.type === 'experiment' && chati.reply.data">
                 <button @click="viewSaveExperiment(chati.question.bbid, chati.reply.data)">View experiment</button>
               </div>
-              <div v-if="chati.reply.type === 'network-publib-board'">
+              <div v-if="chati.reply.type === 'network-library-n1'">
                 {{ chati.reply.data.text.boardname }}<button @click="publibLibAdd(chati.reply.data.text)"> yes add this board to public library</button>
               </div>
               <div v-if="chati.reply.type === 'hopquery'">
