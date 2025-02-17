@@ -285,7 +285,7 @@ export const accountStore = defineStore('account', {
       spaceDetails.publickey = this.sharePubkey
       spaceDetails.content = spaceContent
       spaceDetails.cueid = this.storeAI.liveBspace.cueid
-      this.warmPeers = this.utilPeers.checkPeerMatch(this.warmPeers, spaceDetails)
+      // this.warmPeers = this.utilPeers.checkPeerMatch(this.warmPeers, spaceDetails)
       let shareContext = {}
       shareContext.type = 'private-cue-space'
       shareContext.display = 'space'
@@ -316,7 +316,7 @@ export const accountStore = defineStore('account', {
       peerDetails.datastores = publicLibrary
       peerDetails.boardID = this.shareBoardNXP.id
       peerDetails.boardname = this.shareBoardNXP.name
-      this.warmPeers = this.utilPeers.checkPeerMatch(this.warmPeers, peerDetails)
+      // this.warmPeers = this.utilPeers.checkPeerMatch(this.warmPeers, peerDetails)
       // now build public library info to be share (replicated)
       let shareContext = {}
       shareContext.type = 'public-n1-experiment'

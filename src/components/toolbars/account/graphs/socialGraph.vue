@@ -30,6 +30,7 @@ import { accountStore } from '@/stores/accountStore.js'
 
   /* watch */
   watch(() => storeAccount.warmPeers, (newPeers, existingPeers) => {
+    console.log('watch warm per per update')
     updatePeerRelationships(newPeers)
   },
    { deep: true }
