@@ -429,6 +429,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     preparePublicConfirm (item) {
+      console.log('confrim accept n1 bentobox  may be part of space')
+      console.log(item)
       // produce a pair for the current chat
       let newBBID = '23232'
       let pairBB = {}
@@ -447,6 +449,15 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.chatBottom++
     },
     prepareCuespace (notItem) {
+      // have any bentoboxn1 been sent?
+      console.log('prepare cue space notifiction')
+      console.log(notItem)
+      if (notItem.data.data.content.bbn1.publicN1contracts.length > 0) {
+        console.log('yes bbn1 to prapre for this space, repare confirm chat message')
+        for (let bbn1 of notItem.data.data.content.bbn1.publicN1contracts) {
+          this.preparePublicConfirm({ data: bbn1, action: 'network-library-n1' })          
+        }
+      }
       let cueContract = notItem.data.data.content.cuecontract
       let notCuespace = ''
       this.beebeeContext = 'chatspace'

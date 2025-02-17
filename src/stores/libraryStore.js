@@ -242,7 +242,7 @@ export const libraryStore = defineStore('librarystore', {
       messageHOP.task = 'PUT'
       messageHOP.data = message
       console.log(messageHOP)
-      this.sendSocket.send_message(messageHOP)
+      // this.sendSocket.send_message(messageHOP)
     },
     processReply (message, questionStart) {
       if (message.action === 'save-file') {

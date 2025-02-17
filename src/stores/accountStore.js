@@ -276,7 +276,7 @@ export const accountStore = defineStore('account', {
       // get the cue contract spaceid NOTE
       spaceContent.cuecontract = this.storeAI.liveBspace
       // what bentobox N1 are active in this cue space?
-      spaceContent.bbn1 = this.utilPeers.n1Match(this.storeAI.liveBspace.cueid, this.storeAI.bentoboxList[this.storeAI.liveBspace.cueid], this.storeLibrary.peerLibrary.experiment, this.storeBentoBox.locationBbox[this.storeAI.liveBspace.cueid])
+      spaceContent.bbn1 = this.utilPeers.n1Match(this.sharePubkey, this.storeAI.liveBspace.cueid, this.storeAI.bentoboxList[this.storeAI.liveBspace.cueid], this.storeLibrary.peerLibrary.experiment, this.storeBentoBox.locationBbox[this.storeAI.liveBspace.cueid])
       spaceContent.media = this.utilSpacecontent.mediaMatch(this.storeCues.mediaMatch[this.storeAI.liveBspace.cueid])
       spaceContent.research = this.utilSpacecontent.researchMatch(this.storeCues.researchPapers[this.storeAI.liveBspace.cueid])
       spaceContent.markers = this.utilSpacecontent.markerMatch(this.storeCues.markerMatch[this.storeAI.liveBspace.cueid])

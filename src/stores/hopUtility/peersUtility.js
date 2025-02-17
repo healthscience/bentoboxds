@@ -41,7 +41,7 @@ class PeersUtility {
   *
   *
   */
-  n1Match = function (cueID, bboxes, peerLibrary, layoutBBoxes) {
+  n1Match = function (sharePubkey, keyPublibary, cueID, bboxes, peerLibrary, layoutBBoxes) {
     let peerBBMatch = {}
 
     let publicN1contracts = []
@@ -49,7 +49,14 @@ class PeersUtility {
     for (let bbox of bboxes) {
      for (let n1contract of peerLibrary) {
         if (bbox.contract = n1contract.key) {
-          publicN1contracts.push({ boardID: n1contract.value.genesis })
+          let peerDetails = {}
+          peerDetails.name = 'peer'
+          peerDetails.type = 'public-n1-experiment'
+          peerDetails.publickey = sharePubkey
+          peerDetails.datastores = keyPublibary
+          peerDetails.boardID =  n1contract.value.genesis
+          peerDetails.boardname =  n1contract.value.name
+          publicN1contracts.push(peerDetails)
         }
       }
     }
