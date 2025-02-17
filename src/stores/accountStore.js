@@ -212,10 +212,13 @@ export const accountStore = defineStore('account', {
       // remove from warmpeers list
       let updatePeer = []
       for (let wpeer of this.warmPeers) {
+        console.log(peer)
+        console.log(wpeer)
         if (wpeer.key !== peer.key) {
           updatePeer.push(wpeer)
         }
       }
+      console.log(updatePeer)
       this.warmPeers = updatePeer
       // send message via HOP
       let shareInfo = {}

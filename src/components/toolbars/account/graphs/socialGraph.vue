@@ -31,7 +31,6 @@ import { accountStore } from '@/stores/accountStore.js'
   /* watch */
   watch(() => storeAccount.warmPeers, (newPeers, existingPeers) => {
     updatePeerRelationships(newPeers)
-    console.log('warmpere e update')
   },
    { deep: true }
   )
@@ -59,6 +58,9 @@ import { accountStore } from '@/stores/accountStore.js'
         socialGraph.addEdge("1", pg.key, { size: 5, color: "purple" })
         peerCount++
       }
+    } else if (updatePeers.length == 0) {
+      socialGraph.clear()
+      socialGraph.addNode("1", { label: "me", x: 0, y: 0, size: 20, color: "blue" })
     }
   }
 
