@@ -35,6 +35,35 @@ class PeersUtility {
     return peerMatch
   }
 
+  /**
+  *  prepare matched bentobox with layout to share
+  * @method n1Match
+  *
+  *
+  */
+  n1Match = function (cueID, bboxes, peerLibrary, layoutBBoxes) {
+    let peerBBMatch = {}
+
+    let publicN1contracts = []
+    // match private nxp to genesis public contract
+    for (let bbox of bboxes) {
+     for (let n1contract of peerLibrary) {
+        if (bbox.contract = n1contract.key) {
+          publicN1contracts.push({ boardID: n1contract.value.genesis })
+        }
+      }
+    }
+    // layout of boxes
+    let bboxLayout = []
+    for (let bboxsp of bboxes) {
+      bboxLayout.push({ bboxid: bboxsp.bboxid, layout: layoutBBoxes[bboxsp.bboxid] })       
+    }
+
+    peerBBMatch.publicN1contracts = publicN1contracts
+    peerBBMatch.bLayout = bboxLayout
+    return peerBBMatch
+  }
+
 }
 
 export default PeersUtility
