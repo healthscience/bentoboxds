@@ -455,14 +455,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       if (notItem.data.data.content.bbn1.publicN1contracts.length > 0) {
         console.log('yes bbn1 to prapre for this space, repare confirm chat message')
         for (let bbn1 of notItem.data.data.content.bbn1.publicN1contracts) {
-          let peerDetails = {}
-          peerDetails.name = 'peer'
-          peerDetails.type = 'public-n1-experiment'
-          peerDetails.publickey = ''
-          peerDetails.datastores = ''
-          peerDetails.boardID = bbn1
-          peerDetails.boardname = ''
-          this.preparePublicConfirm({ data: peerDetails, action: 'network-library-n1' })          
+          this.preparePublicConfirm({ action: 'network-library-n1', data: bbn1 })          
         }
       }
       let cueContract = notItem.data.data.content.cuecontract
