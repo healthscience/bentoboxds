@@ -371,6 +371,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       } else if (received.action === 'warm-peer-connect') {
         // set via account store - just add to notify list here.
       } else if (received.action === 'warm-peer-topic') {
+        console.log('tpic recieved')
+        console.log(received.data)
         // update list and make longterm true
         let wpeerStatus = false
         let existingPeer = {}
@@ -382,6 +384,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         }
         // check if first time or existing
         if (wpeerStatus === true) {
+          console.log('eesiting')
           // form structure for updating warm peer saved topic
           let peerPair = {}
           peerPair.publickey = existingPeer.key
@@ -403,10 +406,11 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           }
           this.storeAcc.warmPeers = updateWarmPeerList
         } else {
+          console.log('new pairing')
           // need to update warm peer with topic for future discovery
           let peerPair = {}
           peerPair.publickey = received.data.publickey
-          peerPair.name = ''
+          peerPair.name = 'newpeer'
           peerPair.longterm = false
           peerPair.topic = received.data.data
           peerPair.live = false 

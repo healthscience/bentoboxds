@@ -68,7 +68,7 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
     peerPair.name = newPeername.value
     peerPair.longterm = true
     peerPair.topic = ''
-    peerPair.setopic = false
+    peerPair.settopic = false
     peerPair.live = false
     // save to HOP and add
     storeAccount.addPeertoNetwork(peerPair)
