@@ -30,9 +30,9 @@
               {{ verifyFeedback }}
             </div>
           </div>
-          <div v-else id="disconnect-signout">
+          <!--<div v-else id="disconnect-signout">
             <button id="disconnect-button" @click="disconnectHOP">Disconnect and signout</button>
-          </div>
+          </div>-->
         </div>
       </template>
       <template #tabs>
