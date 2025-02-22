@@ -71,6 +71,8 @@ export const accountStore = defineStore('account', {
         this.setNotifyFailConnection(received.data)
       } else if (received.action === 'peer-history') {
         this.warmPeers = received.data
+      } else if (received.action === 'network-peer-live') {
+        this.updateWarmPeerLive(received.data)
       }
     },
     addPeertoNetwork (peer) {
@@ -142,6 +144,21 @@ export const accountStore = defineStore('account', {
       peerConnectNot.action = 'warm-peer-connect'
       peerConnectNot.data = {}
       this.storeAI.processNotification(peerConnectNot)
+    },
+    updateWarmPeerLive (peerIn) {
+      // update warm peer set status to live connection
+      let livePeerList = []
+      for (let wpeer of this.warmPeers) {
+        if (wpeer.key === peerIn.publickey) {
+          wpeer.value.live = true
+          livePeerList.push(wpeer)
+        } else {
+          livePeerList.push(wpeer)
+        }
+      }
+      this.warmPeers = livePeerList
+      console.log('life notifi peer on tneoekke')
+      console.log(this.warmPeers)
     },
     shareProtocol (boxid, shareType) {
       console.log('shareProtocol', boxid, shareType)

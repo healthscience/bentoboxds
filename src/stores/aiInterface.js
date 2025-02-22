@@ -348,8 +348,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     processNotification (received) {
-      console.log('HOP noifcation data needs routing for diaply')
-      console.log(received)
       this.countNotifications++
       this.notifList.push(received)
       // add to chart part list (do now or on requrest?)
@@ -495,8 +493,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     processPeerData (dataNetwork) {
-      console.log('data from network peer e.g chart bentobox idealy')
-      console.log(dataNetwork)
       let matchBBID = dataNetwork.bbid
       let hopDataChart = dataNetwork.data
       // create a pair for chat display
