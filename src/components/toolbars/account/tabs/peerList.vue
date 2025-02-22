@@ -1,8 +1,24 @@
 <template>
   <div id="list-space">
     <div id="network-keys">
-      <div class="type-peer">Public key (network share):</div>
-      <div class="type-peer-key">{{ storeAccount.networkInfo.publickey }} <button @click="copyKey(storeAccount.networkInfo.publickey)">copy</button></div> 
+      <div class="type-peer">Share key:</div>
+      <div class="raw-share-live">
+        {{ storeAccount.networkInfo.publickey }} 
+      </div>
+      <button class="raw-share-live" @click="copyKey(storeAccount.networkInfo.publickey)">copy</button>
+    </div>
+    <div id="generate-invite">
+      <div id="invite-peer-codename">
+        CodeName: <input v-model="peerName" placeholder="name">
+        <button id="invite-generation-button" @click="generateInvite()"> Generate invite</button>
+      </div>
+      <div id="form-invite-code" v-if="genInvite === true">
+        <div id="invite-peer-crypto">
+          <div class="gen-crypt-code" id="pubkey-session-live">{{storeAccount.networkInfo.publickey}}</div>
+          <div class="gen-crypt-code" id="name-as-code">-{{ randomName }}</div>
+          <button class="gen-crypt-code" id="button-copy-invite" type="button" @click="copyGenInvite()">Copy invite</button>
+        </div>
+      </div>
     </div>
     <div id="add-peer">
       <button type="button" class="btn-peer-add" @click.prevent="addWarmpeer()">Add new</button>
@@ -45,6 +61,9 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
   let addWarm = ref(false)
   let newPeername = ref('')
   let newPeerPubKey = ref('')
+  let genInvite = ref(false)
+  let peerName = ref('')
+  let randomName = ref('')
 
   /* computed */
   const peerNetwork = computed(() => {
@@ -58,6 +77,49 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
   /* methods */
   const addWarmpeer = () => {
     addWarm.value = !addWarm.value
+  }
+
+  const generateInvite = () => {
+    if (peerName.value.length > 0) {
+      genInvite.value = !genInvite.value
+      const byteBuffer = nameTo32Bytes(peerName.value)
+      console.log('32 Byte Buffer:', byteBuffer)
+
+      // Convert byteBuffer to a binary string
+      let binaryString = ''
+      for (let i = 0; i < byteBuffer.length; i++) {
+          binaryString += String.fromCharCode(byteBuffer[i])
+      }
+
+      // Encode the binary string to Base64
+      const base64String = btoa(binaryString)
+      randomName.value = base64String
+      /*
+      console.log('Base64 String:', base64String) // Log the Base64 string
+
+          // Convert the binary string back to a byte buffer
+          const newByteBuffer = binaryStringToByteBuffer(binaryString)
+      console.log('New Byte Buffer:', newByteBuffer)
+
+
+      const originalNameCC = bytesToName(newByteBuffer); // Convert back to name
+      console.log('Original Name:', originalNameCC)
+
+      const originalName = bytesToName(byteBuffer) // Convert back to name
+      console.log('Original Name:', originalName) */
+    }
+  }
+
+  const copyGenInvite = () => {
+      navigator.clipboard.writeText('hop-' + peerName.value + '-' + randomName.value)
+  }
+
+  const nameTo32Bytes = (name) => {
+    const buffer = new Uint8Array(32) // Create a 32-byte buffer
+    for (let i = 0; i < 32; i++) {
+        buffer[i] = i < name.length ? name.charCodeAt(i) : 0 // Fill with char codes or pad with 0
+    }
+    return buffer; // Return the 32-byte buffer
   }
 
   const saveWarmpeer = () => {
@@ -95,7 +157,24 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
 
 <style scoped>
 
+#list-space {
+  width: 80%;
+  min-height: 80vh;
+}
+
+.type-peer {
+  font-weight: bold;
+  padding-left: 2em;
+}
+
+.raw-share-live {
+  display: grid-inline;
+  height: 3em;
+}
+
 #network-keys {
+  display: grid;
+  grid-template-columns: 1fr 4fr 1fr;
   padding: 1em;
 }
 
@@ -143,26 +222,59 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
   padding: 2em;
 }
 
+#invite-generation-button {
+  width: 10em;
+  height: 4em;
+}
+
+#generate-invite {
+  display: grid;
+  grid-template-columns: 1fr;
+  padding: 2em;
+}
+
+#form-invite-code {
+  display: grid;
+  grid-template-columns: 1fr;
+  padding: 2em;
+  border: 1px solid lightgrey;
+  width: 100%;
+}
+
+#invite-peer-crypto {
+  display: grid;
+  grid-template-columns: 3fr 5fr 1fr;
+  border: 1px solid lightgrey;
+}
+
+.gen-crypt-code {
+  display: grid;
+  border: 1px solid lightgrey;
+  overflow: hidden;
+}
+
 @media (min-width: 1024px) {
 
   #list-space {
-    min-height: 60vh;
+    width: 80%;
+    min-height: 80vh;
   }
 
   #network-keys {
     display: grid;
-    grid-template-columns: 1fr 4fr;
-  }
-  .type-peer {
-    font-weight: bold;
-    padding-left: 2em;
-    line-height: 4em;
+    grid-template-columns: 1fr 4fr 1fr;
+    border-bottom: 1px solid lightgrey;
   }
 
-  .type-peer-key {
-    padding-right: 0em;
-    line-height: 4em;
+  .type-peer {
+    display: grid;
+    grid-template-columns: 3fr 5fr 1fr;
+    font-weight: bold;
+    padding-left: 1em;
+    padding-bottom: 1em;
+    margin-bottom: 1em;
   }
+
 }
 
 </style>
