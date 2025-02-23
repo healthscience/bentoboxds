@@ -198,6 +198,16 @@ export const accountStore = defineStore('account', {
         }
       }
     },
+    shareCodename (peerInvite) {
+      let shareInfo = {}
+      shareInfo.type = 'network'
+      shareInfo.action = 'share'
+      shareInfo.task = 'peer-share-codename'
+      shareInfo.reftype = 'null'
+      shareInfo.privacy = 'private'
+      shareInfo.data = peerInvite
+      this.sendMessageHOP(shareInfo)
+    },
     processAgentStatus (data) {
       for (let agent of this.agentList) {
         if (agent.name === data.name) {

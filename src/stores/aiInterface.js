@@ -423,6 +423,9 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           libMessageout.bbid = ''
           this.sendSocket.send_message(libMessageout)
         }
+      } else if (received.action === 'warm-peer-topic') {
+        console.log('code name arrive match to list invite list and ask to save for long erm')
+        console.log(received.data)
       } else if (received.action === 'network-library-n1') {
         // create a notification accept public board and save?
       } else if (received.action === 'cue-space') {

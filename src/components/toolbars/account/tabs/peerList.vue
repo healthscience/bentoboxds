@@ -112,6 +112,8 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
       randomName.value = base64String
       let inviteBundle = { name: peerName.value, publickey: storeAccount.networkInfo.publickey, codename: base64String }
       inviteList.value.push(inviteBundle)
+      // HOP needs to keep track of codename
+      storeAccount.shareCodename(inviteBundle)
       /*
       console.log('Base64 String:', base64String) // Log the Base64 string
 
