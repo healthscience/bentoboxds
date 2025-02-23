@@ -9,14 +9,19 @@
     </div>
     <div id="generate-invite">
       <div id="invite-peer-codename">
-        CodeName: <input v-model="peerName" placeholder="name">
+        <div id="invite-peer-name">Name:</div>
+        <input v-model="peerName" placeholder="name">
         <button id="invite-generation-button" @click="generateInvite()"> Generate invite</button>
       </div>
       <div id="form-invite-code" v-if="genInvite === true">
-        <div id="invite-peer-crypto">
-          <div class="gen-crypt-code" id="pubkey-session-live">{{ storeAccount.networkInfo.publickey }}</div>
-          <div class="gen-crypt-code" id="name-as-code">-{{ randomName }}</div>
-          <button class="gen-crypt-code" id="button-copy-invite" type="button" @click="copyGenInvite()">Copy invite</button>
+        <div id="invite-peer-crypto" v-for="genInvite of inviteList">
+          <div id="send-invite-gen">
+            <div class="gen-crypt-code">{{ genInvite.name }}</div>
+            <div class="gen-crypt-code" id="pubkey-session-live">{{ genInvite.publickey }}</div>
+            <div class="gen-crypt-code" id="name-as-code">-{{ genInvite.codename }}</div>
+            <button class="gen-crypt-code" id="button-copy-invite" type="button" @click="copyGenInvite(genInvite.codename)">Copy invite</button>
+            <button class="gen-crypt-code" id="button-remove-invite" type="button" @click="removeInvite(genInvite.codename)">remove</button>
+          </div>
         </div>
       </div>
     </div>
@@ -69,10 +74,11 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
   let addWarm = ref(false)
   let newPeername = ref('')
   let newPeerPubKey = ref('')
-  let genInvite = ref(false)
+  let genInvite = ref(true)
   let peerName = ref('')
   let randomName = ref('')
   let inviteGenCode = ref('')
+  let inviteList = ref([])
   let pendingInvites = ref([])
 
   /* computed */
@@ -91,7 +97,7 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
 
   const generateInvite = () => {
     if (peerName.value.length > 0) {
-      genInvite.value = !genInvite.value
+      // genInvite.value = !genInvite.value
       const byteBuffer = nameTo32Bytes(peerName.value)
       console.log('32 Byte Buffer:', byteBuffer)
 
@@ -104,6 +110,8 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
       // Encode the binary string to Base64
       const base64String = btoa(binaryString)
       randomName.value = base64String
+      let inviteBundle = { name: peerName.value, publickey: storeAccount.networkInfo.publickey, codename: base64String }
+      inviteList.value.push(inviteBundle)
       /*
       console.log('Base64 String:', base64String) // Log the Base64 string
 
@@ -120,11 +128,27 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
     }
   }
 
-  const copyGenInvite = () => {
-    inviteGenCode.value = 'hop-' + storeAccount.networkInfo.publickey + '-' + randomName.value
+  const copyGenInvite = (codename) => {
+    // loop over invite list and match to code name
+    let copyInvite = {}
+    for (let invite of inviteList.value) {
+      if (invite.codename === codename) {
+        copyInvite = invite
+      }
+    }
+    inviteGenCode.value = 'hop-' + copyInvite.publickey + '-' + copyInvite.codename
     navigator.clipboard.writeText(inviteGenCode.value)
   }
-
+  
+  const removeInvite = (codename) => {
+    let updateInvite = []
+    for (let invite of inviteList.value) {
+      if (invite.codename !== codename) {
+        updateInvite.push(invite)
+      }
+    }
+    inviteList.value = updateInvite
+  }
   const nameTo32Bytes = (name) => {
     const buffer = new Uint8Array(32) // Create a 32-byte buffer
     for (let i = 0; i < 32; i++) {
@@ -256,8 +280,22 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
 
 #invite-peer-crypto {
   display: grid;
-  grid-template-columns: 3fr 5fr 1fr;
-  border: 1px solid lightgrey;
+  border: 0px solid lightgrey;
+}
+
+#send-invite-gen {
+  display: grid;
+  grid-template-columns: 1fr 3fr 5fr 1fr 1fr;
+  border-bottom: 0px solid lightgrey;
+  margin-bottom: 1em;
+}
+
+#button-copy-invite {
+  height: 24px;
+}
+
+#button-remove-invite {
+  height: 24px;
 }
 
 .gen-crypt-code {
