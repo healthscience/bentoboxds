@@ -37,9 +37,9 @@
           {{ beebeeMessage }}
         </div>
       </div>
-      <div id="pending-invites" v-if="pendingInvites.length > 0">
+      <div id="pending-invites" v-if="investPending.length > 0">
         Invites pending:
-        <div v-for='peer in pendingInvites' :key='peer.key'>
+        <div v-for='peer in investPending' :key='peer.key'>
           {{ peer?.name }} --  --- {{ peer.key }} -- sent
         </div>
       </div>
@@ -78,12 +78,19 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
   let peerName = ref('')
   let randomName = ref('')
   let inviteGenCode = ref('')
-  let inviteList = ref([])
-  let pendingInvites = ref([])
+
 
   /* computed */
   const peerNetwork = computed(() => {
     return storeAccount.warmPeers
+  })
+
+  const inviteList = computed(() => {
+    return storeAccount.inviteListGenerated
+  })
+
+  const investPending = computed(() => {
+    return storeAccount.pendingInvites
   })
 
   const beebeeMessage = computed(() => {
@@ -111,7 +118,7 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
       const base64String = btoa(binaryString)
       randomName.value = base64String
       let inviteBundle = { name: peerName.value, publickey: storeAccount.networkInfo.publickey, codename: base64String }
-      inviteList.value.push(inviteBundle)
+      storeAccount.inviteListGenerated.push(inviteBundle)
       // HOP needs to keep track of codename
       storeAccount.shareCodename(inviteBundle)
       /*
@@ -130,6 +137,22 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
     }
   }
 
+  const bytesToName =(byteBuffer) => {
+    let name = ''
+    for (let i = 0; i < byteBuffer.length; i++) {
+        name += String.fromCharCode(byteBuffer[i])
+    }
+    return name
+  }
+
+  const binaryStringToByteBuffer = (binaryString) => {
+    let byteBuffer = new Uint8Array(binaryString.length)
+    for (let i = 0; i < binaryString.length; i++) {
+        byteBuffer[i] = binaryString.charCodeAt(i)
+    }
+    return byteBuffer
+  }
+
   const copyGenInvite = (codename) => {
     // loop over invite list and match to code name
     let copyInvite = {}
@@ -144,12 +167,12 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
   
   const removeInvite = (codename) => {
     let updateInvite = []
-    for (let invite of inviteList.value) {
+    for (let invite of inviteList) {
       if (invite.codename !== codename) {
         updateInvite.push(invite)
       }
     }
-    inviteList.value = updateInvite
+    storeAccount.inviteListGenerated = updateInvite
   }
   const nameTo32Bytes = (name) => {
     const buffer = new Uint8Array(32) // Create a 32-byte buffer
@@ -171,7 +194,7 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
     peerPair.live = false
     // save to HOP and add
     console.log(peerPair)
-    pendingInvites.value.push(peerPair)
+    storeAccount.investPending.push(peerPair)
     storeAccount.addPeertoNetwork(peerPair)
     // clear the form
     newPeerPubKey.value = ''

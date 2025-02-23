@@ -71,6 +71,34 @@ class PeersUtility {
     return peerBBMatch
   }
 
+  /**
+  *  convert string to binary TEMP TODO turn to has via HOP
+  * @method binaryStringToByteBuffer
+  *
+  *
+  */
+  binaryStringToByteBuffer = function (binaryString) {
+    let byteBuffer = new Uint8Array(binaryString.length)
+    for (let i = 0; i < binaryString.length; i++) {
+        byteBuffer[i] = binaryString.charCodeAt(i)
+    }
+    return byteBuffer
+  }
+
+  /**
+  *  convert binary to string  TEMP TODO turn to has via HOP
+  * @method binaryStringToByteBuffer
+  *
+  *
+  */
+  bytesToName = function (byteBuffer) {
+    let name = ''
+    for (let i = 0; i < byteBuffer.length; i++) {
+        name += String.fromCharCode(byteBuffer[i])
+    }
+    return name
+  }
+
 }
 
 export default PeersUtility

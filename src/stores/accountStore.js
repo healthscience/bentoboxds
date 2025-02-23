@@ -23,6 +23,8 @@ export const accountStore = defineStore('account', {
     HOPFlow: false,
     networkInfo: {},
     warmPeers: [],
+    inviteListGenerated: [],
+    pendingInvites: [],
     invitedPeers: [],
     beebeeAccountFeedback: '',
     publickeyDrive: [],
@@ -65,6 +67,8 @@ export const accountStore = defineStore('account', {
         this.checkPeerStatus(received.data.data)
       } else if (received.action === 'peer-share-topic') {
         this.updateTopicSetter(received.data)
+      } else if (received.action === 'warm-peer-codename') {
+        this.updateCodeName(received.data)
       } else if (received.action === 'complete-topic-save') {
       } else if (received.action === 'peer-share-fail') {
         // ask peer if want to save and try again?
@@ -112,6 +116,35 @@ export const accountStore = defineStore('account', {
         }
       }
       this.warmPeers = updateWarmPeers
+    },
+    updateCodeName (update) {
+      // match codenmme invite
+      console.log(update)
+      console.log(this.inviteListGenerated)
+      let matchInivte = {}
+      for (let invPeer of this.inviteListGenerated) {
+        console.log(invPeer)
+        if (invPeer.codename === update.data.inviteCode.codename) {
+          matchInivte = update.data
+        }
+      }
+      console.log('match invitge')
+      console.log(matchInivte)
+      // match pubkey of invite to warm pers and update
+      for (let wpeer of this.warmPeers) { 
+        if (wpeer.key === matchInivte.inviteCode.invitePubkey) {
+          // update name to 
+          // deccode
+          // base64 to binary string
+          let baseConvert = atob(matchInivte.inviteCode.codename)
+          let binarytoBuffer = this.utilPeers.binaryStringToByteBuffer(baseConvert)
+          let bytesName = this.utilPeers.bytesToName(binarytoBuffer)
+          let deCodename =  bytesName
+          wpeer.value.name = deCodename
+        }
+      }
+      console.log('update warm peers')
+      console.log(this.warmPeers)      
     },
     checkPeerStatus (peer) {
       // brand new peer first time or update save for topic
