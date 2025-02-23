@@ -14,21 +14,29 @@
       </div>
       <div id="form-invite-code" v-if="genInvite === true">
         <div id="invite-peer-crypto">
-          <div class="gen-crypt-code" id="pubkey-session-live">{{storeAccount.networkInfo.publickey}}</div>
+          <div class="gen-crypt-code" id="pubkey-session-live">{{ storeAccount.networkInfo.publickey }}</div>
           <div class="gen-crypt-code" id="name-as-code">-{{ randomName }}</div>
           <button class="gen-crypt-code" id="button-copy-invite" type="button" @click="copyGenInvite()">Copy invite</button>
         </div>
       </div>
     </div>
     <div id="add-peer">
-      <button type="button" class="btn-peer-add" @click.prevent="addWarmpeer()">Add new</button>
-      <div v-if="addWarm === true" id="add-warm-peer">
-        <input v-model="newPeername" placeholder="name">
-        <input v-model="newPeerPubKey" placeholder="public key">
-        <button type="button" class="btn" @click="saveWarmpeer()">Send invite</button>
+      <div id="prepare-invite">
+        <button type="button" class="btn-peer-add" @click.prevent="addWarmpeer()">Add new</button>
+        <div v-if="addWarm === true" id="add-warm-peer">
+          <input v-model="newPeername" placeholder="name">
+          <input v-model="newPeerPubKey" placeholder="public key">
+          <button type="button" class="btn" @click="sendInviteWarmpeer()">Send invite</button>
+        </div>
+        <div id="beebee-message-feedback">
+          {{ beebeeMessage }}
+        </div>
       </div>
-      <div id="beebee-message-feedback">
-        {{ beebeeMessage }}
+      <div id="pending-invites" v-if="pendingInvites.length > 0">
+        Invites pending:
+        <div v-for='peer in pendingInvites' :key='peer.key'>
+          {{ peer?.name }} --  --- {{ peer.key }} -- sent
+        </div>
       </div>
     </div>
     <div class="peer-list-set" v-for='peer in peerNetwork' :key='peer.key'>
@@ -64,6 +72,8 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
   let genInvite = ref(false)
   let peerName = ref('')
   let randomName = ref('')
+  let inviteGenCode = ref('')
+  let pendingInvites = ref([])
 
   /* computed */
   const peerNetwork = computed(() => {
@@ -111,7 +121,8 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
   }
 
   const copyGenInvite = () => {
-      navigator.clipboard.writeText('hop-' + peerName.value + '-' + randomName.value)
+    inviteGenCode.value = 'hop-' + storeAccount.networkInfo.publickey + '-' + randomName.value
+    navigator.clipboard.writeText(inviteGenCode.value)
   }
 
   const nameTo32Bytes = (name) => {
@@ -122,7 +133,7 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
     return buffer; // Return the 32-byte buffer
   }
 
-  const saveWarmpeer = () => {
+  const sendInviteWarmpeer = () => {
     // send to HOP to save
     // temp
     let peerPair = {}
@@ -133,6 +144,8 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
     peerPair.settopic = false
     peerPair.live = false
     // save to HOP and add
+    console.log(peerPair)
+    pendingInvites.value.push(peerPair)
     storeAccount.addPeertoNetwork(peerPair)
     // clear the form
     newPeerPubKey.value = ''
@@ -251,6 +264,11 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
   display: grid;
   border: 1px solid lightgrey;
   overflow: hidden;
+}
+
+#pending-invites {
+  border: 2px solid rgb(208, 211, 240);
+  padding: 2em;
 }
 
 @media (min-width: 1024px) {

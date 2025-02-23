@@ -87,18 +87,6 @@ export const accountStore = defineStore('account', {
       // keep tabs of invite details
       this.invitedPeers.push(peer)
       this.sendMessageHOP(shareInfo)
-
-
-      // if not save details (timed accept?  TODO)
-      /* let libMessageout = {}
-      libMessageout.type = 'library'
-      libMessageout.action = 'account'
-      libMessageout.reftype = 'new-peer'
-      libMessageout.privacy = 'private'
-      libMessageout.task = 'PUT'
-      libMessageout.data = peer
-      libMessageout.bbid = ''
-      this.sendSocket.send_message(libMessageout)*/
     },
     updateTopicSetter (update) {
       let updatePeerList = []
