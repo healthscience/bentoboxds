@@ -101,7 +101,7 @@ export const accountStore = defineStore('account', {
           updatePeerList.push(wpeer)
         }
       }
-      this.warmPeers = updatePeerList
+      // this.warmPeers = updatePeerList
       // remove from pending list
       let updatePendList = []
       for (let pendP of this.pendingInvites) {
@@ -126,12 +126,10 @@ export const accountStore = defineStore('account', {
           updateWarmPeers.push(wpeer)
         }
       }
-      this.warmPeers = updateWarmPeers
+      // this.warmPeers = updateWarmPeers
     },
     updateCodeName (update) {
       // match codenmme invite
-      console.log('update codename')
-      console.log(update)
       let matchInivte = {}
       for (let invPeer of this.inviteListGenerated) {
         if (invPeer.codename === update.data.inviteCode.codename) {
@@ -151,7 +149,7 @@ export const accountStore = defineStore('account', {
           this.inviteListGenerated = pendingList
         }
         let updateNameList = []
-        for (let wpeer of this.warmPeers) { 
+        for (let wpeer of this.warmPeers) {
           if (wpeer.key === matchInivte.inviteCode.invitePubkey) {
             // deccode base64 to binary string
             let baseConvert = atob(matchInivte.inviteCode.codename)
@@ -160,14 +158,14 @@ export const accountStore = defineStore('account', {
             let bytesName = this.utilPeers.bytesToName(binarytoBuffer)
             console.log(bytesName) */
             let deCodename =  baseConvert.replace(/\0/g, '')
-            wpeer.value.name = deCodename
-            updateNameList.push(wpeer)
+            let peerOrg = wpeer
+            peerOrg.value.name = deCodename
+            peerOrg.value.live = true
+            updateNameList.push(peerOrg)
           } else {
             updateNameList.push(wpeer)
           }
         }
-        console.log('aftterer')
-        console.log(updateNameList)
         this.warmPeers = updateNameList
       }      
     },
@@ -203,15 +201,10 @@ export const accountStore = defineStore('account', {
         }
       }
       this.warmPeers = livePeerList
-      console.log('life notifi peer on tneoekke')
-      console.log(this.warmPeers)
     },
     shareProtocol (boxid, shareType) {
-      console.log('shareProtocol', boxid, shareType)
       // existing peer relationshiop? or first time
       let existingMatch = this.utilPeers.checkPeerMatch(this.warmPeers, this.sharePubkey)
-      console.log('exisigng')
-      console.log(existingMatch)
       let existingPeer = false
       let topicSet = ''
       // check if warm peer of first time
@@ -243,7 +236,6 @@ export const accountStore = defineStore('account', {
           } else if (shareType === 'cue-space') {
             this.prepareSpaceShareDirect(boxid)
           } else if (shareType === 'n=1-experiment') {
-            console.log('share n1')
             this.prepareN1ShareDirect(boxid)
           }
         }
@@ -291,7 +283,6 @@ export const accountStore = defineStore('account', {
           updatePeer.push(wpeer)
         }
       }
-      console.log(updatePeer)
       this.warmPeers = updatePeer
       // send message via HOP
       let shareInfo = {}
@@ -339,7 +330,6 @@ export const accountStore = defineStore('account', {
       shareInfo.reftype = 'null'
       shareInfo.privacy = 'private'
       shareInfo.data = shareContext
-      console.log(shareInfo)
       this.sendMessageHOP(shareInfo)
     },
     prepareSpaceShareDirect (boxid) {
@@ -378,7 +368,6 @@ export const accountStore = defineStore('account', {
       shareInfo.reftype = 'null'
       shareInfo.privacy = 'private'
       shareInfo.data = shareContext
-      console.log(shareInfo)
       this.sendMessageHOP(shareInfo)
     },
     prepareN1ShareDirect () {

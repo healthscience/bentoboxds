@@ -132,7 +132,6 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
 
   /* computed */
   const peerNetwork = computed(() => {
-    console.log(storeAccount.warmPeers)
     return storeAccount.warmPeers
   })
 
@@ -242,7 +241,6 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
     peerPair.settopic = false
     peerPair.live = false
     // save to HOP and add
-    console.log(peerPair)
     storeAccount.pendingInvites.push(peerPair)
     storeAccount.addPeertoNetwork(peerPair)
     // clear the form
