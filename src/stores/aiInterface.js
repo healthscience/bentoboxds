@@ -457,13 +457,13 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       // have any bentoboxn1 been sent?
       console.log('prepare cue space notifiction')
       console.log(notItem)
-      if (notItem.data.data.content.bbn1.publicN1contracts.length > 0) {
+      if (notItem.data.content.bbn1.publicN1contracts.length > 0) {
         console.log('yes bbn1 to prapre for this space, repare confirm chat message')
-        for (let bbn1 of notItem.data.data.content.bbn1.publicN1contracts) {
+        for (let bbn1 of notItem.data.content.bbn1.publicN1contracts) {
           this.preparePublicConfirm({ action: 'network-library-n1', data: bbn1 })          
         }
       }
-      let cueContract = notItem.data.data.content.cuecontract
+      let cueContract = notItem.data.content.cuecontract
       let notCuespace = ''
       this.beebeeContext = 'chatspace'
       this.bentospaceState = !this.bentospaceState
@@ -481,17 +481,17 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
       this.storeBentoBox.spaceList = spaceLiveList
       // now setup N=1 media, research, markers, products
-      let contentTypes = Object.keys(notItem.data.data.content)
+      let contentTypes = Object.keys(notItem.data.content)
       for (let spcont of contentTypes) {
         // media, research etc.
         if (spcont === 'media') {
-          this.storeBentoBox.prepareMediaSpace(notItem.data.data.content[spcont])
+          this.storeBentoBox.prepareMediaSpace(notItem.data.content[spcont])
         } else if (spcont === 'research') {
-          this.storeBentoBox.prepareResearchSpace(notItem.data.data.content[spcont])
+          this.storeBentoBox.prepareResearchSpace(notItem.data.content[spcont])
         } else if (spcont === 'markers') {
-          this.storeBentoBox.prepareMarkerSpace(notItem.data.data.content[spcont])
+          this.storeBentoBox.prepareMarkerSpace(notItem.data.content[spcont])
         } else if (spcont === 'products') {
-          this.storeBentoBox.prepareProductSpace(notItem.data.data.content[spcont])
+          this.storeBentoBox.prepareProductSpace(notItem.data.content[spcont])
         }
       }
     },

@@ -352,6 +352,7 @@ export const accountStore = defineStore('account', {
       spaceContent.products = this.utilSpacecontent.productMatch(this.storeCues.productMatch[this.storeAI.liveBspace.cueid])
       let spaceDetails = {}
       spaceDetails.name = 'private-cue-space'
+      spaceDetails.type = 'private-cue-space'
       spaceDetails.publickey = this.sharePubkey
       spaceDetails.content = spaceContent
       spaceDetails.cueid = this.storeAI.liveBspace.cueid
@@ -368,6 +369,8 @@ export const accountStore = defineStore('account', {
       shareInfo.reftype = 'null'
       shareInfo.privacy = 'private'
       shareInfo.data = shareContext
+      console.log('share cue space out')
+      console.log(shareInfo)
       this.sendMessageHOP(shareInfo)
     },
     prepareN1ShareDirect () {
