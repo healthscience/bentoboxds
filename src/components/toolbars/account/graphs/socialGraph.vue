@@ -23,14 +23,11 @@ import { accountStore } from '@/stores/accountStore.js'
 
   /* computed */
   const peerConnections = computed(() => {
-    // console.log('social peer change')
-    // console.log(storeAccount.warmPeers)
     return storeAccount.warmPeers
   })
 
   /* watch */
   watch(() => storeAccount.warmPeers, (newPeers, existingPeers) => {
-    // console.log('watch warm per per update')
     updatePeerRelationships(newPeers)
   },
    { deep: true }

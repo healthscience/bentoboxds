@@ -102,6 +102,17 @@ export const accountStore = defineStore('account', {
         }
       }
       this.warmPeers = updatePeerList
+      // remove from pending list
+      let updatePendList = []
+      for (let pendP of this.pendingInvites) {
+        let splitInvite = pendP.publickey.split('-')
+        if(splitInvite[1] === update.key) {
+          // remove
+        } else {
+          updatePendList.push(pendP)
+        }
+      }
+      this.pendingInvites = updatePendList
     },
     updateTopicPeertoNetwork (update) {
       // update warmpeer item to at drop
@@ -119,35 +130,46 @@ export const accountStore = defineStore('account', {
     },
     updateCodeName (update) {
       // match codenmme invite
+      console.log('update codename')
       console.log(update)
-      console.log(this.inviteListGenerated)
       let matchInivte = {}
       for (let invPeer of this.inviteListGenerated) {
-        console.log(invPeer)
         if (invPeer.codename === update.data.inviteCode.codename) {
           matchInivte = update.data
         }
       }
-      console.log('match invitge')
-      console.log(matchInivte)
-      // match pubkey of invite to warm pers and update
-      for (let wpeer of this.warmPeers) { 
-        if (wpeer.key === matchInivte.inviteCode.invitePubkey) {
-          // update name to 
-          // deccode
-          // base64 to binary string
-          let baseConvert = atob(matchInivte.inviteCode.codename)
-          console.log(baseConvert)
-          let binarytoBuffer = this.utilPeers.binaryStringToByteBuffer(baseConvert)
-          console.log(binarytoBuffer)
-          let bytesName = this.utilPeers.bytesToName(binarytoBuffer)
-          console.log(bytesName)
-          let deCodename =  bytesName
-          wpeer.value.name = baseConvert
+      if (matchInivte.inviteCode.invitePubkey.length > 0) {
+        // match pubkey of invite to warm pers and update
+        let pendingList = []
+        for (let pendInv of this.inviteListGenerated) {
+          if (pendInv.codename === matchInivte.inviteCode.codename) {
+            pendInv.matched = true
+            pendingList.push(pendInv)
+          } else {
+            pendingList.push(pendInv)
+          }
+          this.inviteListGenerated = pendingList
         }
-      }
-      console.log('update warm peers')
-      console.log(this.warmPeers)      
+        let updateNameList = []
+        for (let wpeer of this.warmPeers) { 
+          if (wpeer.key === matchInivte.inviteCode.invitePubkey) {
+            // deccode base64 to binary string
+            let baseConvert = atob(matchInivte.inviteCode.codename)
+            /* let binarytoBuffer = this.utilPeers.binaryStringToByteBuffer(baseConvert)
+            console.log(binarytoBuffer)
+            let bytesName = this.utilPeers.bytesToName(binarytoBuffer)
+            console.log(bytesName) */
+            let deCodename =  baseConvert.replace(/\0/g, '')
+            wpeer.value.name = deCodename
+            updateNameList.push(wpeer)
+          } else {
+            updateNameList.push(wpeer)
+          }
+        }
+        console.log('aftterer')
+        console.log(updateNameList)
+        this.warmPeers = updateNameList
+      }      
     },
     checkPeerStatus (peer) {
       // brand new peer first time or update save for topic
@@ -188,6 +210,8 @@ export const accountStore = defineStore('account', {
       console.log('shareProtocol', boxid, shareType)
       // existing peer relationshiop? or first time
       let existingMatch = this.utilPeers.checkPeerMatch(this.warmPeers, this.sharePubkey)
+      console.log('exisigng')
+      console.log(existingMatch)
       let existingPeer = false
       let topicSet = ''
       // check if warm peer of first time
@@ -263,8 +287,6 @@ export const accountStore = defineStore('account', {
       // remove from warmpeers list
       let updatePeer = []
       for (let wpeer of this.warmPeers) {
-        console.log(peer)
-        console.log(wpeer)
         if (wpeer.key !== peer.key) {
           updatePeer.push(wpeer)
         }

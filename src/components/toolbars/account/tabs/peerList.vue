@@ -14,11 +14,28 @@
         <button id="invite-generation-button" @click="generateInvite()"> Generate invite</button>
       </div>
       <div id="form-invite-code" v-if="genInvite === true">
-        <div id="invite-peer-crypto" v-for="genInvite of inviteList">
+        <div id="invite-peer-crypto" v-for="(genInvite, index) of inviteList">
+          <div class="peer-g"  v-if="index == 0">
+        <div class="longterm-peer peer-details-header">
+          <div class="peer-info">
+            Name
+          </div>
+          <div class="peer-info">
+            Accepted 
+          </div>
+          <div class="peer-info">
+            Public key / codename
+          </div>
+        </div>
+        <div class="option-tools">
+            Tools
+        </div>
+      </div>
           <div id="send-invite-gen">
             <div class="gen-crypt-code">{{ genInvite.name }}</div>
+            <div class="gen-crypt-code">{{ genInvite.matched }}</div>
             <div class="gen-crypt-code" id="pubkey-session-live">{{ genInvite.publickey }}</div>
-            <div class="gen-crypt-code" id="name-as-code">-{{ genInvite.codename }}</div>
+            <div class="gen-crypt-code name-as-code">{{ genInvite.codename }}</div>
             <button class="gen-crypt-code" id="button-copy-invite" type="button" @click="copyGenInvite(genInvite.codename)">Copy invite</button>
             <button class="gen-crypt-code" id="button-remove-invite" type="button" @click="removeInvite(genInvite.codename)">remove</button>
           </div>
@@ -44,17 +61,50 @@
         </div>
       </div>
     </div>
-    <div class="peer-list-set" v-for='peer in peerNetwork' :key='peer.key'>
+    <header>Social network</header>
+    <div class="peer-list-set" v-for='(peer, index) in peerNetwork' :key='peer.key'>
+      <div class="peer-g"  v-if="index == 0">
+        <div class="longterm-peer peer-details-header">
+          <div class="peer-info">
+            Name
+          </div>
+          <div class="peer-info">
+            Live 
+          </div>
+          <div class="peer-info">
+            Public key 
+          </div>
+        </div>
+        <div class="option-tools">
+            Tools
+        </div>
+      </div>
       <div class="peer-g">
-        <div class="longterm-peer">
-          {{ peer?.value?.name }} -- {{ peer?.value?.live }} --- {{ peer.key }} --- <button @click="copyKey(peer.key)">copy</button>
+        <div class="longterm-peer peer-details">
+          <div class="peer-info">
+            {{ peer?.value?.name }}
+          </div>
+          <div class="peer-info">
+            {{ peer?.value?.live }}
+          </div>
+          <div class="peer-info">
+            <div class="peer-pk">{{ peer.key }}</div>
+          </div>
         </div>
-        <!--if longterm show button to reconnect or (TODO remove)-->
-        <div class="longterm-peer" v-if="peer?.longterm === true">
-          <button @click="directConnectPeer(peer)">reconnect</button>
-        </div>
-        <div class="longterm-peer">
-          <button @click="removePeer(peer)">remove</button>
+        <div class="peer-actions">
+          <div class="peer-action">
+              <button @click="copyKey(peer.key)">copy</button>            
+            </div>
+          <!--if longterm show button to reconnect or (TODO remove)-->
+          <div class="peer-action" v-if="peer?.longterm === true">
+            <button @click="directConnectPeer(peer)">reconnect</button>
+          </div>
+          <div class="peer-action">
+            <button @click="editPeer(peer.key)">edit</button>
+          </div>
+          <div class="peer-action">
+            <button @click="removePeer(peer)">remove</button>
+          </div>
         </div>
       </div>
     </div>
@@ -82,6 +132,7 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
 
   /* computed */
   const peerNetwork = computed(() => {
+    console.log(storeAccount.warmPeers)
     return storeAccount.warmPeers
   })
 
@@ -106,7 +157,6 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
     if (peerName.value.length > 0) {
       // genInvite.value = !genInvite.value
       const byteBuffer = nameTo32Bytes(peerName.value)
-      console.log('32 Byte Buffer:', byteBuffer)
 
       // Convert byteBuffer to a binary string
       let binaryString = ''
@@ -117,25 +167,22 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
       // Encode the binary string to Base64
       const base64String = btoa(binaryString)
       randomName.value = base64String
-      let inviteBundle = { name: peerName.value, publickey: storeAccount.networkInfo.publickey, codename: base64String }
+      let inviteBundle = { name: peerName.value, publickey: storeAccount.networkInfo.publickey, codename: base64String, matched: false }
       storeAccount.inviteListGenerated.push(inviteBundle)
       // HOP needs to keep track of codename
       storeAccount.shareCodename(inviteBundle)
       
-      console.log('Base64 String:', base64String) // Log the Base64 string
-
       let unencodedName = atob(base64String)
-      console.log('unencode', unencodedName)
-          // Convert the binary string back to a byte buffer
-          const newByteBuffer = binaryStringToByteBuffer(binaryString)
-      console.log('New Byte Buffer:', newByteBuffer)
+      // Convert the binary string back to a byte buffer
+      // const newByteBuffer = binaryStringToByteBuffer(binaryString)
+      // console.log('New Byte Buffer:', newByteBuffer)
 
 
-      const originalNameCC = bytesToName(newByteBuffer); // Convert back to name
-      console.log('Original Name:', originalNameCC)
+      // const originalNameCC = bytesToName(newByteBuffer); // Convert back to name
+      // console.log('Original Name:', originalNameCC)
 
-      const originalName = bytesToName(byteBuffer) // Convert back to name
-      console.log('Original Name:', originalName)
+      // const originalName = bytesToName(byteBuffer) // Convert back to name
+      // console.log('Original Name:', originalName)
     }
   }
 
@@ -217,6 +264,10 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
     navigator.clipboard.writeText(key)
   }
 
+  const editPeer = (key) => {
+    console.log('edit peer')
+  }
+
 </script>
 
 <style scoped>
@@ -249,22 +300,6 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
 #add-warm-peer {
   height: 80px;
   margin: 1em;
-}
-
-.peer-list-set {
-  display: grid;
-  grid-template-columns: 1fr;
-  border: 1px solid lightgrey;
-  border-radius: 4%;
-  margin-left: 1em;
-  margin-left: 1em;
-  margin-bottom: 1em;
-  padding: 2em;
-}
-
-.peer-g {
-  display: grid;
-  grid-template-columns: 6fr 1fr 1fr;
 }
 
 #social-graph-space {
@@ -300,7 +335,7 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
 #form-invite-code {
   display: grid;
   grid-template-columns: 1fr;
-  padding: 2em;
+  padding: 1em;
   border: 1px solid lightgrey;
   width: 100%;
 }
@@ -310,9 +345,10 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
   border: 0px solid lightgrey;
 }
 
+/* pending invites generated */
 #send-invite-gen {
   display: grid;
-  grid-template-columns: 1fr 3fr 5fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 3fr 5fr 1fr 1fr;
   border-bottom: 0px solid lightgrey;
   margin-bottom: 1em;
 }
@@ -327,13 +363,67 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
 
 .gen-crypt-code {
   display: grid;
-  border: 1px solid lightgrey;
+  border: 0px solid lightgrey;
   overflow: hidden;
+}
+
+.name-as-code {
+  margin-left: 1em;
+  justify-self: start;
+  overflow: hidden;
+  text-overflow: hidden;
 }
 
 #pending-invites {
   border: 2px solid rgb(208, 211, 240);
-  padding: 2em;
+  padding: 1em;
+}
+
+/* socail grapth longer term */
+.peer-list-set {
+  display: grid;
+  grid-template-columns: 1fr;
+  border: 0px solid lightgrey;
+  border-radius: 4%;
+  margin-left: 1em;
+  margin-left: 1em;
+  margin-bottom: .5em;
+  padding: .4em;
+  background-color: rgb(242, 240, 248);
+}
+
+.peer-g {
+  display: grid;
+  grid-template-columns: 8fr 2fr;
+  background-color: rgb(234, 234, 240);
+  border-radius: 4%;
+  padding: 0em;
+}
+
+.longterm-peer {
+  display: grid;
+}
+
+.peer-details-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr 4fr 1fr;
+  font-weight: bold;
+  background-color: rgb(215, 215, 240);
+  margin-bottom: .6em;
+}
+
+.peer-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr 4fr 1fr;
+}
+
+.peer-info {
+  display: inline-grid;
+  font-size: .9em;
+}
+
+.peer-action {
+  display: inline-grid;
 }
 
 @media (min-width: 1024px) {
