@@ -137,10 +137,13 @@ export const accountStore = defineStore('account', {
           // deccode
           // base64 to binary string
           let baseConvert = atob(matchInivte.inviteCode.codename)
+          console.log(baseConvert)
           let binarytoBuffer = this.utilPeers.binaryStringToByteBuffer(baseConvert)
+          console.log(binarytoBuffer)
           let bytesName = this.utilPeers.bytesToName(binarytoBuffer)
+          console.log(bytesName)
           let deCodename =  bytesName
-          wpeer.value.name = deCodename
+          wpeer.value.name = baseConvert
         }
       }
       console.log('update warm peers')

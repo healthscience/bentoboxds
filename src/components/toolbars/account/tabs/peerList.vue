@@ -37,9 +37,9 @@
           {{ beebeeMessage }}
         </div>
       </div>
-      <div id="pending-invites" v-if="investPending.length > 0">
+      <div id="pending-invites" v-if="invitePending.length > 0">
         Invites pending:
-        <div v-for='peer in investPending' :key='peer.key'>
+        <div v-for='peer in invitePending' :key='peer.key'>
           {{ peer?.name }} --  --- {{ peer.key }} -- sent
         </div>
       </div>
@@ -89,7 +89,7 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
     return storeAccount.inviteListGenerated
   })
 
-  const investPending = computed(() => {
+  const invitePending = computed(() => {
     return storeAccount.pendingInvites
   })
 
@@ -121,9 +121,11 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
       storeAccount.inviteListGenerated.push(inviteBundle)
       // HOP needs to keep track of codename
       storeAccount.shareCodename(inviteBundle)
-      /*
+      
       console.log('Base64 String:', base64String) // Log the Base64 string
 
+      let unencodedName = atob(base64String)
+      console.log('unencode', unencodedName)
           // Convert the binary string back to a byte buffer
           const newByteBuffer = binaryStringToByteBuffer(binaryString)
       console.log('New Byte Buffer:', newByteBuffer)
@@ -133,7 +135,7 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
       console.log('Original Name:', originalNameCC)
 
       const originalName = bytesToName(byteBuffer) // Convert back to name
-      console.log('Original Name:', originalName) */
+      console.log('Original Name:', originalName)
     }
   }
 
@@ -194,7 +196,7 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
     peerPair.live = false
     // save to HOP and add
     console.log(peerPair)
-    storeAccount.investPending.push(peerPair)
+    storeAccount.pendingInvites.push(peerPair)
     storeAccount.addPeertoNetwork(peerPair)
     // clear the form
     newPeerPubKey.value = ''
