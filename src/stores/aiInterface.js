@@ -393,7 +393,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           peerPair.live = true
           // for live session make true
           // this.storeAcc.updateTopicPeertoNetwork(peerPair)
-          peerPair.live = true
+          existingPeer.value.live = true
           // update warm to live
           let updateWarmPeerList = []
           for (let wpeer of this.storeAcc.warmPeers) {
