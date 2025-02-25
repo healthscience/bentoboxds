@@ -382,7 +382,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         }
         // check if first time or existing
         if (wpeerStatus === true) {
-          console.log('eesiting')
+          console.log('eesiting----')
           console.log(existingPeer)
           // form structure for updating warm peer saved topic
           let peerPair = {}
