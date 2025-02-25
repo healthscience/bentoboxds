@@ -6,6 +6,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
 import { bentoboxStore } from "@/stores/bentoboxStore.js"
 import PeersUtility from '@/stores/hopUtility/peersUtility.js'
 import SpaceUtility from '@/stores/hopUtility/spaceContentUtil.js'
+import { matchedRouteKey } from 'vue-router'
 
 export const accountStore = defineStore('account', {
   state: () => ({
@@ -67,7 +68,7 @@ export const accountStore = defineStore('account', {
         this.checkPeerStatus(received.data.data)
       } else if (received.action === 'peer-share-topic') {
         this.updateTopicSetter(received.data)
-      } else if (received.action === 'warm-peer-codename') {
+      } else if (received.action === 'invite-live-accepted') {
         this.updateCodeName(received.data)
       } else if (received.action === 'complete-topic-save') {
       } else if (received.action === 'peer-share-fail') {
@@ -116,7 +117,7 @@ export const accountStore = defineStore('account', {
     },
     updateTopicPeertoNetwork (update) {
       // update warmpeer item to at drop
-      let updateWarmPeers = []
+      /* let updateWarmPeers = []
       for (let wpeer of this.warmPeers) {
         if (wpeer.key === update.publickey) {
           wpeer.value.live = update.live
@@ -125,51 +126,61 @@ export const accountStore = defineStore('account', {
         } else {
           updateWarmPeers.push(wpeer)
         }
-      }
+      } */
       // this.warmPeers = updateWarmPeers
     },
     updateCodeName (update) {
+      console.log('update cod ename')
+      console.log(update)
+      let updateNameList = []
+      for (let wpeer of this.warmPeers) {
+        if (wpeer.key === update.data.publickey) {
+          let peerOrg = wpeer
+          peerOrg.value.matchted = true
+          peerOrg.value.live = true
+          updateNameList.push(peerOrg)
+        } else {
+          updateNameList.push(wpeer)
+        }
+      }
+      console.log('stat us of peer live on network ')
+      this.warmPeers = updateNameList
       // match codenmme invite
+      /* name matching done via HOP now
       let matchInivte = {}
       for (let invPeer of this.inviteListGenerated) {
         if (invPeer.codename === update.data.inviteCode.codename) {
-          matchInivte = update.data
+          matchInivte = invPeer
         }
       }
-      if (matchInivte.inviteCode.invitePubkey.length > 0) {
-        // match pubkey of invite to warm pers and update
-        let pendingList = []
-        for (let pendInv of this.inviteListGenerated) {
-          if (pendInv.codename === matchInivte.inviteCode.codename) {
-            pendInv.matched = true
-            pendingList.push(pendInv)
-          } else {
-            pendingList.push(pendInv)
-          }
-          this.inviteListGenerated = pendingList
-        }
+      console.log('match')
+      console.log(matchInivte)
+      let updatePeerNameMatch = {}
+      if (matchInivte.publickey.length > 0) {
         let updateNameList = []
         for (let wpeer of this.warmPeers) {
-          if (wpeer.key === matchInivte.inviteCode.invitePubkey) {
-            // deccode base64 to binary string
-            let baseConvert = atob(matchInivte.inviteCode.codename)
-            /* let binarytoBuffer = this.utilPeers.binaryStringToByteBuffer(baseConvert)
-            console.log(binarytoBuffer)
-            let bytesName = this.utilPeers.bytesToName(binarytoBuffer)
-            console.log(bytesName) */
-            let deCodename =  baseConvert.replace(/\0/g, '')
+          if (wpeer.key === update.data.publickey) {
             let peerOrg = wpeer
-            peerOrg.value.name = deCodename
+            peerOrg.value.name = matchInivte.name
+            peerOrg.value.matchted = true
             peerOrg.value.live = true
+            updatePeerNameMatch = peerOrg
             updateNameList.push(peerOrg)
           } else {
             updateNameList.push(wpeer)
           }
         }
+        // save the name match to peer
+        updatePeerNameMatch.live = false
+        // save to HOP and add
+        // this.addPeertoNetwork(updatePeerNameMatch)
+        console.log('code name updated')
         this.warmPeers = updateNameList
-      }      
+      }*/      
     },
     checkPeerStatus (peer) {
+      console.log('new pupddiifinfififififi')
+      console.log(peer)
       // brand new peer first time or update save for topic
       let warmMatch = {}
       for (let wpeer of this.warmPeers) {
@@ -180,8 +191,9 @@ export const accountStore = defineStore('account', {
       if (Object.keys(warmMatch).length === 0) {
         this.warmPeers.push(peer)
       } else {
-        console.log('update live stust true already stt')
+        console.log('update live stust true already set')
       }
+      console.log('cheerpeer status')
       // set notification
       let peerConnectNot = {}
       peerConnectNot.type = 'network-notification'
@@ -200,6 +212,7 @@ export const accountStore = defineStore('account', {
           livePeerList.push(wpeer)
         }
       }
+      console.log('warm perr LIVE')
       this.warmPeers = livePeerList
     },
     shareProtocol (boxid, shareType) {
@@ -369,8 +382,6 @@ export const accountStore = defineStore('account', {
       shareInfo.reftype = 'null'
       shareInfo.privacy = 'private'
       shareInfo.data = shareContext
-      console.log('share cue space out')
-      console.log(shareInfo)
       this.sendMessageHOP(shareInfo)
     },
     prepareN1ShareDirect () {

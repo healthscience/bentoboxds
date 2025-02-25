@@ -1,12 +1,12 @@
 <template>
   <div id="list-space">
-    <div id="network-keys">
+    <!-- <div id="network-keys">
       <div class="type-peer">Share key:</div>
       <div class="raw-share-live">
         {{ storeAccount.networkInfo.publickey }} 
       </div>
       <button class="raw-share-live" @click="copyKey(storeAccount.networkInfo.publickey)">copy</button>
-    </div>
+    </div>-->
     <div id="generate-invite">
       <div id="invite-peer-codename">
         <div id="invite-peer-name">Name:</div>
@@ -132,6 +132,7 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
 
   /* computed */
   const peerNetwork = computed(() => {
+    console.log('peer network warm changes')
     return storeAccount.warmPeers
   })
 
@@ -162,7 +163,6 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
       for (let i = 0; i < byteBuffer.length; i++) {
           binaryString += String.fromCharCode(byteBuffer[i])
       }
-
       // Encode the binary string to Base64
       const base64String = btoa(binaryString)
       randomName.value = base64String
@@ -170,16 +170,12 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
       storeAccount.inviteListGenerated.push(inviteBundle)
       // HOP needs to keep track of codename
       storeAccount.shareCodename(inviteBundle)
-      
-      let unencodedName = atob(base64String)
+      // let unencodedName = atob(base64String)
       // Convert the binary string back to a byte buffer
       // const newByteBuffer = binaryStringToByteBuffer(binaryString)
       // console.log('New Byte Buffer:', newByteBuffer)
-
-
       // const originalNameCC = bytesToName(newByteBuffer); // Convert back to name
       // console.log('Original Name:', originalNameCC)
-
       // const originalName = bytesToName(byteBuffer) // Convert back to name
       // console.log('Original Name:', originalName)
     }
@@ -215,7 +211,7 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
   
   const removeInvite = (codename) => {
     let updateInvite = []
-    for (let invite of inviteList) {
+    for (let invite of inviteList.value) {
       if (invite.codename !== codename) {
         updateInvite.push(invite)
       }
@@ -223,10 +219,14 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
     storeAccount.inviteListGenerated = updateInvite
   }
   const nameTo32Bytes = (name) => {
-    const buffer = new Uint8Array(32) // Create a 32-byte buffer
+    /*const buffer = new Uint8Array(32) // Create a 32-byte buffer
     for (let i = 0; i < 32; i++) {
         buffer[i] = i < name.length ? name.charCodeAt(i) : 0 // Fill with char codes or pad with 0
     }
+    return buffer; // Return the 32-byte buffer*/
+    // just random no need to encode name (privacy leak issue)
+    const buffer = new Uint8Array(32) // Create a 32-byte buffer
+    window.crypto.getRandomValues(buffer); // Fill with random values
     return buffer; // Return the 32-byte buffer
   }
 
