@@ -372,7 +372,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         console.log('tpic recieved')
         console.log(received.data)
         // update list and make longterm true
-        let wpeerStatus = false
+        /* let wpeerStatus = false
         let existingPeer = {}
         for (let peer of this.storeAcc.warmPeers) {
           if (peer.key === received.data.publickey) {
@@ -404,6 +404,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
             }
           }
           this.storeAcc.warmPeers = updateWarmPeerList
+          
         } else {
           console.log('new pairing')
           // need to update warm peer with topic for future discovery
@@ -424,6 +425,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           libMessageout.bbid = ''
           this.sendSocket.send_message(libMessageout)
         }
+        */
       } else if (received.action === 'warm-peer-topic') {
         console.log('code name arrive match to list invite list and ask to save for long erm')
         console.log(received.data)
