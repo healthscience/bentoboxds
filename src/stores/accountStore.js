@@ -136,7 +136,7 @@ export const accountStore = defineStore('account', {
       console.log(update)
       let updateNameList = []
       for (let wpeer of this.warmPeers) {
-        if (wpeer.key === update.publickey) {
+        if (wpeer.key === update.key) {
           let peerOrg = wpeer
           peerOrg.value.name = update.value.name
           updateNameList.push(peerOrg)
