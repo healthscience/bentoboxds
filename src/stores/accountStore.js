@@ -104,7 +104,7 @@ export const accountStore = defineStore('account', {
           updatePeerList.push(wpeer)
         }
       }
-      // this.warmPeers = updatePeerList
+      this.warmPeers = updatePeerList
       // remove from pending list
       let updatePendList = []
       for (let pendP of this.pendingInvites) {
