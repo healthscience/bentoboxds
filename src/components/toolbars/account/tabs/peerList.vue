@@ -132,7 +132,6 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
 
   /* computed */
   const peerNetwork = computed(() => {
-    console.log('peer network warm changes')
     return storeAccount.warmPeers
   })
 
