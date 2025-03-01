@@ -42,6 +42,7 @@
         <div id="connectivity">
           <div id="connect-socket" v-if="connectNetworkstatus === true"></div>
           <div id="connect-socket-loss" v-else="connectLoss === true"></div>
+          <div id="connect-socket-loss" v-if="connectLoss === true"><button @click="reconnectSocket()">Reconnect to HOP</button></div>
         </div>
         <!-- <div id="network-status" v-if="peerauth === true">
           <div class="status-info">
@@ -115,6 +116,13 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     } else {
       verifyFeedback.value = 'password incorrect, try again please.'
     }
+  }
+
+  const reconnectSocket = () => {
+    console.log('restart socket try')
+    storeSocket.init_chat()
+    storeSocket.connection_loss = false
+    storeSocket.connection_error = false   
   }
 
   const disconnectHOP= () => {
