@@ -242,6 +242,7 @@ export const accountStore = defineStore('account', {
       }
     },
     shareCodename (peerInvite) {
+      console.log(peerInvite)
       let shareInfo = {}
       shareInfo.type = 'network'
       shareInfo.action = 'share'

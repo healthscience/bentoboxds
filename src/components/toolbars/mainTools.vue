@@ -59,7 +59,7 @@ import { accountStore } from '@/stores/accountStore.js'
 
 import { ref, onMounted } from 'vue'
 
-  const storeWebsocket = useSocketStore()
+const storeWebsocket = useSocketStore()
   const storeAccount = accountStore()
 
   let mobileSize = ref(true)

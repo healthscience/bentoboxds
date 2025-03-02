@@ -152,7 +152,7 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
     addWarm.value = !addWarm.value
   }
 
-  const generateInvite = () => {
+  const generateInvite = async () => {
     if (peerName.value.length > 0) {
       // genInvite.value = !genInvite.value
       const byteBuffer = nameTo32Bytes(peerName.value)
@@ -165,7 +165,15 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
       // Encode the binary string to Base64
       const base64String = btoa(binaryString)
       randomName.value = base64String
-      let inviteBundle = { name: peerName.value, publickey: storeAccount.networkInfo.publickey, codename: base64String, matched: false }
+      // turn into a 256hash
+      // Example usage
+      let inviteHash = ''
+       await sha256Make(base64String).then(hash => {
+        inviteHash = hash
+      })
+      console.log(inviteHash)
+      let inviteBundle = { name: peerName.value, publickey: storeAccount.networkInfo.publickey, codename: inviteHash, matched: false }
+      console.log(inviteBundle)
       storeAccount.inviteListGenerated.push(inviteBundle)
       // HOP needs to keep track of codename
       storeAccount.shareCodename(inviteBundle)
@@ -196,7 +204,22 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
     return byteBuffer
   }
 
+  const sha256Make = async (message) => {
+    // Encode the message as a Uint8Array
+    const msgBuffer = new TextEncoder().encode(message)
+    // Hash the message
+    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer)
+    
+    // Convert the hash to a byte array
+    const hashArray = Array.from(new Uint8Array(hashBuffer))
+    // hop:6f098eef52446788279b3a486698e453edc1daee4d2ab7db986dca58f62c3dbe4feae33dc4dc665a6e1f4d2cb1463de50268347730c3f08e29489e2dba57c583
+    // Convert bytes to hex string
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+    return hashHex
+  }
+
   const copyGenInvite = (codename) => {
+    console.log(codename)
     // loop over invite list and match to code name
     let copyInvite = {}
     for (let invite of inviteList.value) {
@@ -204,7 +227,8 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
         copyInvite = invite
       }
     }
-    inviteGenCode.value = 'hop-' + copyInvite.publickey + '-' + copyInvite.codename
+    inviteGenCode.value = 'hop:' + copyInvite.publickey + copyInvite.codename
+    console.log(inviteGenCode.value)
     navigator.clipboard.writeText(inviteGenCode.value)
   }
   
