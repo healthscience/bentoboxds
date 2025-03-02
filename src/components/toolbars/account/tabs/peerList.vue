@@ -37,6 +37,7 @@
             <div class="gen-crypt-code" id="pubkey-session-live">{{ genInvite.publickey }}</div>
             <div class="gen-crypt-code name-as-code">{{ genInvite.codename }}</div>
             <button class="gen-crypt-code" id="button-copy-invite" type="button" @click="copyGenInvite(genInvite.codename)">Copy invite</button>
+            <div v-if="copiedMessage" class="copied-message">Copied to clipboard</div>
             <button class="gen-crypt-code" id="button-remove-invite" type="button" @click="removeInvite(genInvite.codename)">remove</button>
           </div>
         </div>
@@ -48,7 +49,7 @@
         <div v-if="addWarm === true" id="add-warm-peer">
           <input v-model="newPeername" placeholder="name">
           <input v-model="newPeerPubKey" placeholder="public key">
-          <button type="button" class="btn" @click="sendInviteWarmpeer()">Send invite</button>
+          <button type="button" class="btn" @click="sendInviteWarmpeer()">add invite</button>
         </div>
         <div id="beebee-message-feedback">
           {{ beebeeMessage }}
@@ -128,6 +129,7 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
   let peerName = ref('')
   let randomName = ref('')
   let inviteGenCode = ref('')
+  let copiedMessage = ref(false)
 
 
   /* computed */
@@ -171,9 +173,7 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
        await sha256Make(base64String).then(hash => {
         inviteHash = hash
       })
-      console.log(inviteHash)
       let inviteBundle = { name: peerName.value, publickey: storeAccount.networkInfo.publickey, codename: inviteHash, matched: false }
-      console.log(inviteBundle)
       storeAccount.inviteListGenerated.push(inviteBundle)
       // HOP needs to keep track of codename
       storeAccount.shareCodename(inviteBundle)
@@ -230,6 +230,10 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
     inviteGenCode.value = 'hop:' + copyInvite.publickey + copyInvite.codename
     console.log(inviteGenCode.value)
     navigator.clipboard.writeText(inviteGenCode.value)
+    copiedMessage.value = true
+    setTimeout(() => {
+      copiedMessage.value = false
+    }, 2000)
   }
   
   const removeInvite = (codename) => {
@@ -308,6 +312,19 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
   height: 3em;
 }
 
+.copied-message {
+  display: fixed;
+  background-color: rgb(188, 187, 233);
+  transition: opacity 1s ease;
+  opacity: 1;
+  border-radius: 5%;
+  padding: .2em;
+}
+
+.copied-message[style*="display: none"] {
+  opacity: 0;
+}
+
 #network-keys {
   display: grid;
   grid-template-columns: 1fr 4fr 1fr;
@@ -375,6 +392,7 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
 }
 
 #button-copy-invite {
+  background-color: white;
   height: 24px;
 }
 
