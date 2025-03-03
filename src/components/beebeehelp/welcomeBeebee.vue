@@ -44,7 +44,7 @@
                 </div>
                 <!--<bento-box :bboxid="commentaryBox"></bento-box>-->
               </div>
-              <div class="bb-commentary-spaces">
+              <!--div class="bb-commentary-spaces">
                 <div class="space-commentary-text">
                   Click on space for detailed commentary for that context.
                 </div>
@@ -63,7 +63,7 @@
                   <button class="shortcut-buttons" @click="openExperiments()">Experiments</button>
                   <button class="shortcut-buttons" @click="uploadButton()">Upload</button>
                 </div>
-              </div>
+              </div>-->
           </div>
         </div>
         <div class="beebee">

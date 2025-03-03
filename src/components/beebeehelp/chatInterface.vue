@@ -12,7 +12,7 @@
         <div class="beebee-reply" v-bind:class="{ networkactive: chati.reply.network === true }">
           <span class="right-time">{{ chati.reply.time }}</span>
           <div class="reply-text-chart">
-            <div class="right-chat">
+            <div class="right-chat" v-if="chati.reply.type !== undefined">
               {{ chati.reply.type }} {{ chati.reply.action }}
               <div v-if="chati.reply.type === 'experiment' && chati.reply.data">
                 <button @click="viewSaveExperiment(chati.question.bbid, chati.reply.data)">View experiment</button>
