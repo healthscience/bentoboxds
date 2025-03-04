@@ -104,17 +104,20 @@ import { cuesStore } from '@/stores/cuesStore.js'
   })
 
   const cuesList = computed(() => {
-    return storeCues.cuesList // cuesmenuList
+    // sort into alphabetical order
+    const contracts = storeCues.cuesList
+    // Sort the contracts by name in ascending order
+    const sortedContracts = contracts.sort((a, b) => {
+      if (a.value.concept.name < b.value.concept.name) return -1
+      if (a.value.concept.name > b.value.concept.name) return 1
+      return 0
+    })
+    return sortedContracts
   })
 
   const markerList = computed(() => {
     return storeCues.markerList // cuesmenuList
   })
-
-  const secondWheel = computed(() => {
-    return storeCues.activeDougnnutData
-  })
-
 
   /* methods */
   const cueSelectAdd = (type, seg) => {
@@ -126,7 +129,6 @@ import { cuesStore } from '@/stores/cuesStore.js'
   }
 
   const selectCue = (cueKey) => {
-    console.log('select cue', cueKey)
     if (cueSelect.value[cueKey.key] === undefined) {
       cueSelect.value[cueKey.key] = { active: false}
     }
@@ -143,13 +145,11 @@ import { cuesStore } from '@/stores/cuesStore.js'
       // reset glue to empty
       glueMatch.value = {}
     } else {
-      console.log('seleced cue for rel')
       // loook up for existing cue relationships and form cue wheel
       // reset the wheel
       storeCues.cueColumnB = {}
       let cueRelDisplay = storeCues.cueDisplayBuilder(cueKey.key, cueKey, storeCues.cueColumnB)
       storeCues.cueColumnB = cueRelDisplay
-      console.log(storeCues.cueColumnB)
       columnB.value = true
     }
   }
@@ -179,8 +179,11 @@ import { cuesStore } from '@/stores/cuesStore.js'
 
   const glueType = (glue) => {
     glueMatch.value = glue
+    console.log('primeCue')
+    console.log(primeCue)
+    console.log(glueMatch)
     // does this relationship already have rel link in Cue Contract?
-    let cueRelExisting = primeCue?.value?.value.computational.relationships[glueMatch.value]
+    let cueRelExisting = primeCue?.value?.value?.computational?.relationships[glueMatch.value]
     if (cueRelExisting !== undefined && cueRelExisting.length > 0) {
       // keep track of existing and add new
       existingRelGlue.value = cueRelExisting
@@ -324,7 +327,6 @@ import { cuesStore } from '@/stores/cuesStore.js'
 }
 
 #glue-relationship {
-  border: 2px solid green;
   justify-self: center;
 }
 
@@ -377,18 +379,25 @@ import { cuesStore } from '@/stores/cuesStore.js'
   #rel-columns {
     display: grid;
     grid-template-columns: 4fr 1fr 4fr;
-    border: 2px solid red;
+    border: 2px solid rgb(188, 190, 212);
     min-height: 200px;
   }
 
   #rel-one {
-    border: 1px solid blue;
+    border: 1px solid rgb(138, 138, 185);
+    padding: .5em;
+  }
+
+  #rel-two {
+    border: 1px solid rgb(138, 138, 185);
+    padding: .5em;
   }
 
   #relationship-glue {
     display: grid;
     grid-template-columns: 1fr;
-    border: 2px solid purple;
+    border: 2px solid rgb(164, 165, 190);
+    padding: .5em;
   }
 
 }

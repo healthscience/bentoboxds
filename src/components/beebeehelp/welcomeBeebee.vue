@@ -157,6 +157,69 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
 
 <style scoped>
+p {
+  line-height: 2em;
+}
+
+.beebee-reply {
+  display: grid;
+  grid-template-columns: 1fr 4fr 1fr;
+  background-color:  #d8d7e2;
+  width: 90%;
+  border-radius: 25px;
+  margin-top: .5em;
+  margin-left: 40px;
+  opacity: 94%;
+}
+
+.right-chat-beebee {
+  width: 50px;
+}
+
+.beebee {
+  display: grid;
+  justify-self: end;
+}
+
+.bb-commentary {
+  padding: 1em;
+  border-radius: 25px;
+  background-color: rgb(245, 243, 241);
+}
+
+#text-summary {
+  display: grid;
+  grid-template-columns: 1fr;
+  padding: 1.4em;
+}
+
+.bb-commentary-text {
+  display: grid;
+  grid-template-columns: 1fr;
+  width: 100%;
+}
+
+.space-commentary-text {
+  padding: 1.4em;
+}
+
+.space-container-buttons {
+  display: block;
+}
+
+.space-list{
+  display: inline;
+  padding: 0.5em;
+}
+
+.bb-shortcuts {
+  margin: 1em;
+}
+
+.shortcut-buttons {
+  margin-left: 1em;
+  color: darkblue;
+}
 
 @media (min-width: 1024px) {
   p {
