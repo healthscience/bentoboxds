@@ -58,7 +58,7 @@
       </template>
       <template #footer>
         <div id="footer-self">
-          BentoBoxDS
+          BentoBoxDS - v0.2.4 HOP v0.3.6
         </div>
       </template>
     </modal-auth>

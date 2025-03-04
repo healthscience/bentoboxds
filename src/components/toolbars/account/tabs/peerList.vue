@@ -212,14 +212,12 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
     
     // Convert the hash to a byte array
     const hashArray = Array.from(new Uint8Array(hashBuffer))
-    // hop:6f098eef52446788279b3a486698e453edc1daee4d2ab7db986dca58f62c3dbe4feae33dc4dc665a6e1f4d2cb1463de50268347730c3f08e29489e2dba57c583
     // Convert bytes to hex string
     const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
     return hashHex
   }
 
   const copyGenInvite = (codename) => {
-    console.log(codename)
     // loop over invite list and match to code name
     let copyInvite = {}
     for (let invite of inviteList.value) {
@@ -228,7 +226,6 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
       }
     }
     inviteGenCode.value = 'hop:' + copyInvite.publickey + copyInvite.codename
-    console.log(inviteGenCode.value)
     navigator.clipboard.writeText(inviteGenCode.value)
     copiedMessage.value = true
     setTimeout(() => {
@@ -246,11 +243,6 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
     storeAccount.inviteListGenerated = updateInvite
   }
   const nameTo32Bytes = (name) => {
-    /*const buffer = new Uint8Array(32) // Create a 32-byte buffer
-    for (let i = 0; i < 32; i++) {
-        buffer[i] = i < name.length ? name.charCodeAt(i) : 0 // Fill with char codes or pad with 0
-    }
-    return buffer; // Return the 32-byte buffer*/
     // just random no need to encode name (privacy leak issue)
     const buffer = new Uint8Array(32) // Create a 32-byte buffer
     window.crypto.getRandomValues(buffer); // Fill with random values
