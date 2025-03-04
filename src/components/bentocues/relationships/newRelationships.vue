@@ -179,9 +179,6 @@ import { cuesStore } from '@/stores/cuesStore.js'
 
   const glueType = (glue) => {
     glueMatch.value = glue
-    console.log('primeCue')
-    console.log(primeCue)
-    console.log(glueMatch)
     // does this relationship already have rel link in Cue Contract?
     let cueRelExisting = primeCue?.value?.value?.computational?.relationships[glueMatch.value]
     if (cueRelExisting !== undefined && cueRelExisting.length > 0) {

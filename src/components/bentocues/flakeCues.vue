@@ -101,7 +101,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import BeebeeAi from '@/components/beebeehelp/spaceChat.vue'
-import ModalCues from '@/components/bentocues/cuesModal.vue'
+import ModalCues from '@/components/bentocues/flakeModal.vue'
 import CuesPrepared from '@/components/bentocues/prepareCues.vue'
 import { cuesStore } from '@/stores/cuesStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
