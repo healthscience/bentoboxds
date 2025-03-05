@@ -18,7 +18,6 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   const storeBentobox = bentoboxStore()
 
   let canvas = ref(null)
-  let bodycanvas = ref(null)
   let ctx = ref({})
   let selectedArea = ref({})
   let organAreas = ref(
@@ -47,7 +46,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     ctx = canvas.getContext("2d")
     const image = new Image()
     let imageD = picBody
-    image.src = imageD // 'https://www.bentoboxds.org/assets/logo-CQ0an4it.png'
+    image.src = imageD
     image.onload = () => {
        ctx.drawImage(image, 0, 0, image.width * 1.4, image.height * 1.4)
        drawOransAreas()

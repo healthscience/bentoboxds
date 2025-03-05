@@ -40,7 +40,7 @@
       </div>
     </div>
     <bento-cues></bento-cues>
-    <bento-besearch></bento-besearch>
+    <bento-besearch v-if="agentActive === 'besearch'"></bento-besearch>
     <bento-flake></bento-flake>
     <bento-space></bento-space>
     <bento-graph v-if="bentoGraphStatus === true"></bento-graph>
