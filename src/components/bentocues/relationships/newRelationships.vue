@@ -116,7 +116,15 @@ import { cuesStore } from '@/stores/cuesStore.js'
   })
 
   const markerList = computed(() => {
-    return storeCues.markerList // cuesmenuList
+    // sort into alphabetical order
+    const contracts = storeCues.markerList
+    // Sort the contracts by name in ascending order
+    const sortedContracts = contracts.sort((a, b) => {
+      if (a.type < b.type) return -1
+      if (a.type > b.type) return 1
+      return 0
+    })
+    return sortedContracts
   })
 
   /* methods */
@@ -287,9 +295,17 @@ import { cuesStore } from '@/stores/cuesStore.js'
           storeLibrary.sendMessage(cueContract)
           // need to update rel cue contract with opposite relationship, e.g  down to up  
           // reset the form
+          let resetMarkerList = []
+          for (let amark of storeCues.markerList) {
+            amark.active = false
+            resetMarkerList.push(amark)
+          }
+          storeCues.markerList = resetMarkerList
         }
         primeCue.value = {}
       }
+      // clear those selected
+      matchType.value = ''
     } else {
       console.log('incomplete relationship')
     }
