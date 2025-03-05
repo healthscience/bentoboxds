@@ -50,6 +50,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   const storeBentobox = bentoboxStore()
 
   let canvasbe = ref(null)
+  defineExpose({ canvasbe })
   let ctx = ref({})
   let angle = ref(0)
   let radius = ref(100)
