@@ -2,7 +2,7 @@
   <div id="chat-interface">
     <!-- Natural Language Chat -->
     <div id="natlang-ai">
-      <welcome-beebee></welcome-beebee>
+      <welcome-beebee v-if="storeAI.beebeeContext !== 'chatspace'"></welcome-beebee>
       <div id="conversation" v-if="beginChat === true"  v-for="chati in chatPairs">
         <div class="peer-ask">
           <img class="left-chat-peer" src="../.././assets/peerlogo.png" alt="Avatar">
@@ -132,7 +132,7 @@
       <!--<div id="buttommove"></div>-->
       <div id="buttommove" ref="targetId" >{{ updateBottom  }}</div>
     </div>
-    <div class="chat-input">
+    <div class="chat-input" v-if="storeAI.beebeeContext !== 'chatspace'">
       <input-box></input-box>
     </div>
   </div>
@@ -377,6 +377,11 @@ import { libraryStore } from '@/stores/libraryStore.js'
 
 .right-chat-beebee {
   width: 50px;
+}
+
+.right-time {
+  color: blue;
+  font-size: 0.8em;
 }
 
 .left-chat {

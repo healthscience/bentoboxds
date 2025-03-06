@@ -187,6 +187,14 @@ import { ref, computed, onMounted } from 'vue'
   }
 
   const bentoSpaceOpen = (spaceID, context) => {
+    // prepare chat for space
+    let newChatItem = {}
+    newChatItem.name = spaceID.name
+    newChatItem.chatid = spaceID.cueid
+    newChatItem.active = true
+    //setup chat history holder
+    storeAI.setupChatHistory(newChatItem)
+    storeAI.chatAttention = spaceID.cueid
     // temp  if history cue the make stucture for space
     if (context === 'history') {
       storeAI.liveBspace = {

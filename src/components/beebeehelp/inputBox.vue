@@ -19,7 +19,8 @@ import { computed } from 'vue'
   const storeAI = aiInterfaceStore()
 
   const props = defineProps({
-    prompt: Object
+    prompt: Object,
+    chatcontext: String
    })
 
   /* computed */

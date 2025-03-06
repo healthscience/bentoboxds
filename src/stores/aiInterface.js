@@ -156,7 +156,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         saveQ.active = true
         let date = new Date()
         // get the time as a string
-        let time = date.toLocaleTimeString()
+        let time = date.toLocaleTimeString().toFormat('hh:mm a')
         saveQ.time = time
         this.inputAskHistory.push(saveQ)
         // provide feedback else forward to beebeeLogic via HOP
@@ -203,11 +203,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         }
       } else if (this.beebeeContext === 'chatspace') {
         let spaceChatPrep = this.liveChatspaceUtil.prepareChatQandA(this.askQuestion, this.liveBspace)
-        // check if array set
-        if (this.chatSpacePair[this.liveBspace.cueid] === undefined) {
-          this.chatSpacePair[this.liveBspace.cueid] = []
-        }
-        this.chatSpacePair[this.liveBspace.cueid].push(spaceChatPrep)
+        this.historyPair[this.liveBspace.cueid].push(spaceChatPrep)
         this.askQuestion.text = ''
       } else if (this.beebeeContext === 'graph') {
       } else if (this.beebeeContext === 'cues-decision') {

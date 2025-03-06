@@ -58,7 +58,7 @@
       </template>
       <template #footer>
         <div id="footer-self">
-          BentoBoxDS - v0.2.4 HOP v0.3.6
+          BentoBoxDS - v0.2.5 HOP v0.3.7
         </div>
       </template>
     </modal-auth>
@@ -120,9 +120,12 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   const reconnectSocket = () => {
     console.log('restart socket try')
-    storeSocket.init_chat()
+    window.electron.send('message-from-vue', 'Hello from Vue!')
     storeSocket.connection_loss = false
-    storeSocket.connection_error = false   
+    storeSocket.connection_error = false
+    setTimeout(() => {
+        storeSocket.init_chat()
+    }, 4000)
   }
 
   const disconnectHOP= () => {
