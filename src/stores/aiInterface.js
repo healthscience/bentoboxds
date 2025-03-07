@@ -156,7 +156,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         saveQ.active = true
         let date = new Date()
         // get the time as a string
-        let time = date.toLocaleTimeString().toFormat('hh:mm a')
+        let time = date.toLocaleTimeString() // .toFormat('hh:mm a')
         saveQ.time = time
         this.inputAskHistory.push(saveQ)
         // provide feedback else forward to beebeeLogic via HOP
@@ -204,6 +204,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       } else if (this.beebeeContext === 'chatspace') {
         let spaceChatPrep = this.liveChatspaceUtil.prepareChatQandA(this.askQuestion, this.liveBspace)
         this.historyPair[this.liveBspace.cueid].push(spaceChatPrep)
+        // send to HOP and route to Agents required to reply
+        this.actionAgentQuestion(spaceChatPrep.question)
         this.askQuestion.text = ''
       } else if (this.beebeeContext === 'graph') {
       } else if (this.beebeeContext === 'cues-decision') {
@@ -225,6 +227,19 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.helpchatHistory.push(aiMessageout)
       this.askQuestion.text = ''
       this.qcount++      
+    },
+    actionAgentQuestion (question) {
+      let hashQuestion = hashObject(question)
+      let aiMessageout = {}
+      aiMessageout.type = 'bbai'
+      aiMessageout.reftype = 'ignore'
+      aiMessageout.action = 'question'
+      aiMessageout.data = question
+      aiMessageout.bbid = hashQuestion
+      console.log(aiMessageout)
+      this.sendSocket.send_message(aiMessageout)
+      this.helpchatHistory.push(aiMessageout)
+      this.qcount++
     },
     actionHelpAskInput () {
       // match question

@@ -29,8 +29,8 @@ class ChatspaceUtility {
   prepareChatQandA = function (chatIN, cueID) {
     let chatFeed = {}
     let boxID = cueID.cueid
-    let question = this.prepareQuestion(boxID, chatIN.text)
-    let reply = this.prepareReply(chatIN.name)
+    let question = this.prepareQuestion(boxID, chatIN.text, cueID.name)
+    let reply = this.prepareReplyTemplate(chatIN.name)
     chatFeed.question = question
     chatFeed.reply = reply
     return chatFeed
@@ -41,11 +41,26 @@ class ChatspaceUtility {
   * @method prepareQuestion
   *
   */
-  prepareQuestion = function (boxid, questionIn) {
+  prepareQuestion = function (boxid, questionIn, context) {
     let question = {}
-    question.data = { active: true, text: questionIn, date: new Date() }
+    question.data = { active: true, text: questionIn, context: context, date: new Date() }
     question.bbid = boxid
     return question
+  }
+
+  /**
+  * Prepare the reply template
+  * @method prepareReplyTemplate
+  *
+  */
+  prepareReplyTemplate = function (context) {
+    // compile the repy
+    let stampDate = new Date()
+    let reply = {}
+    reply.time = DateTime.fromJSDate(stampDate).toFormat('hh:mm a')
+    reply.type = ''
+    reply.data = { text: ''}
+    return reply
   }
 
   /**
