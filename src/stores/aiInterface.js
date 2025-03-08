@@ -363,6 +363,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     processAgentStatus (data) {
+      console.log('agent running or closes')
+      console.log(data)
       for (let agent of this.agentList) {
         if (agent.name === data.name) {
           if (data.status === 'loaded') {

@@ -25,8 +25,8 @@
       <div id="llm-models" class="agent-header">Large Language Model</div>
       <div class="ai-agent-list">
         <div class="agent-name">
-          {{ defaultLLM.name }}
-          <button id="change-default-model" @click="changeDefaultModel()">Change</button>
+          {{ defaultLLM.model }}
+          <button id="change-default-model" @click="updateDefaultModel()">Change</button>
         </div>
         <div class="agent-description">Chat agent</div>
         <div class="agent-active" v-bind:class="{ active: defaultLLM.active }">
@@ -34,19 +34,28 @@
             <div class="loading-agent blink_me">Loading</div>
           </div>
           <div id="status-agent  blink_me">Status: {{ defaultLLM.active }}</div>
-          <button v-if="defaultLLM.active === false" id="start-agent-learn" @click="startAgentlearn(defaultLLM.name, 'start')">Begin</button>
-          <button v-else="defaultLLM.active === true" id="start-agent-learn" @click="startAgentlearn(defaultLLM.name, 'stop')">Stop</button>
+          <button v-if="defaultLLM.active === false" id="start-agent-learn" @click="startAgentlearn(defaultLLM.model, 'start')">Begin</button>
+          <button v-else="defaultLLM.active === true" id="start-agent-learn" @click="startAgentlearn(defaultLLM.model, 'stop')">Stop</button>
           <div class="onstart-agent">
             Load on start:<input type="checkbox" v-model="defaultLLM.onstart" :id="defaultLLM.onstart"/>
           </div>
         </div>
       </div>
       <div id="select-default-model" v-if="changeLLM === true">
-        <div class="agent-description">LLM models available:</div>
-        <div class="model-chosen-custom">
-          <select>
-            <option v-for="model of LLMsAvailable" :value="model">{{ model }}</option>
-          </select>
+        <div id="select-new-model">
+          <div class="agent-description">LLM models available:</div>
+          <div class="model-chosen-custom">
+            <select v-model="modelInfo">
+              <option v-for="model of LLMsAvailable"  :value="model">{{ model.model }}</option>
+            </select>
+          </div>
+          <button id="change-default-model" @click="changeDefaultModel()">Set this model as default</button>
+        </div>
+        <div id="modal-description">
+          <div id="model-description-summary">{{ modelInfo }}</div>
+          <div id="model-install-info">
+            Running a Large Language Model requires a relative new computer, with a GPU performace will be better.  Installing a model involves downloading a large file, which may take some time.
+          </div>
         </div>
       </div>
     </div>
@@ -80,10 +89,10 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   const storeAI = aiInterfaceStore()
 
   let defaultLLM = ref({
-    name: 'cale-gpt4all', active: false, loading: false, name: 'orca-mini-3b-gguf2-q4_0.gguf', onstart: true
+    agent: 'cale-gpt4all', active: false, loading: false, model: 'orca-mini-3b-gguf2-q4_0.gguf', onstart: true
   })
   let changeLLM = ref(false)
-
+  let modelInfo = ref(defaultLLM)
   /* computed */
   const agentList = computed(() => {
     return storeAI.agentList
@@ -106,7 +115,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
       learnMessage.type = 'bbai'
       learnMessage.reftype = 'ignore'
       learnMessage.action = 'learn-agent-start'
-      learnMessage.data = { model: agentChoice}
+      learnMessage.data = { agent: modelInfo.value.agent, model: modelInfo.value.model}
       learnMessage.bbid = ''
       storeAI.sendMessageHOP(learnMessage)
     } else if (action === 'stop') {
@@ -119,7 +128,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
       learnMessage.type = 'bbai'
       learnMessage.reftype = 'ignore'
       learnMessage.action = 'learn-agent-stop'
-      learnMessage.data = { model: agentChoice}
+      learnMessage.data = { agent: modelInfo.value.agent, model: modelInfo.value.model }
       learnMessage.bbid = ''
       storeAI.sendMessageHOP(learnMessage)
     }
@@ -128,6 +137,12 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   const changeDefaultModel = () => {
     changeLLM.value = !changeLLM.value 
   }
+
+  const updateDefaultModel = () => {
+    changeLLM.value = !changeLLM.value
+    defaultLLM.value = { name: modelInfo.value.name, active: false, loading: false, model: modelInfo.value.model, onstart: true}
+  }
+
 
 </script>
 
@@ -150,11 +165,22 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
 #select-default-model {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  width: 50%;
+  grid-template-columns: 1fr;
+  width: 80%;
   padding-left: 2em;
   border-bottom: 1px solid lightgrey;
   padding-bottom: 1em;
+}
+
+#modal-description {
+  border: 1px solid lightgrey;
+  width: 80%;
+  padding: 1em;
+  margin: 1em;
+}
+
+#model-description-summary {
+  padding-top: 1em;
 }
 
 .active {
