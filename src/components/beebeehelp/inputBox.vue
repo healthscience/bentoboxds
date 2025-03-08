@@ -2,7 +2,8 @@
   <div id="ai-interaction">
     <form id="ask-ai-form" @submit.prevent="storeAI.submitAsk()">
       <label for="askname"></label><!--  v-on:keyup="storeAI.actionNatlangIn($event)" -->
-      <input type="text-area" id="askinput" name="ainame" placeholder="Ask the health oracle anything." v-model="storeAI.askQuestion.text" autofocus>
+      <textarea rows="14" cols="10" wrap="soft" id="askinput" name="ainame" placeholder="Ask the health oracle anything." v-model="storeAI.askQuestion.text" autofocus>
+      </textarea>
     </form>
     <button id="natlang-ask" type="submit" v-if="beebeeAIStatus.active === true" @click="storeAI.submitAsk">
       BeeBee

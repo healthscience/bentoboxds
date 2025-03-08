@@ -2,40 +2,102 @@
   <div id="aiagents-lists">
     <div class="list-space" id="agent-list">
       <div class="ai-agent-introduction">
-        beebee will learn from other AI agents.
+        beebee orchestrates and learns from AI agents.
       </div>
+      <div id="evolutionary-agent" class="agent-header">Evolutionary</div>
       <div class="ai-agent-list" v-for="agent of agentList">
         <div class="agent-name">{{ agent.name }} </div>
-        <div class="agent-description">local machine learning</div>
+        <div class="agent-description">Evolutionary Learning Agent</div>
         <div class="agent-active" v-bind:class="{ active: agent.active }">
           <div v-if="agent.loading === true">
             <div class="loading-agent blink_me">Loading</div>
           </div>
           <div id="status-agent  blink_me">Status: {{ agent.active }}</div>
-          <button v-if="agent.active === false" id="start-llm-learn" @click="startAgentlearn(agent.name, 'start')">Begin</button>
-          <button v-else="agent.active === true" id="start-llm-learn" @click="startAgentlearn(agent.name, 'stop')">Stop</button>
+          <button v-if="agent.active === false" id="start-agent-learn" @click="startAgentlearn(agent.name, 'start')">Begin</button>
+          <button v-else="agent.active === true" id="start-agent-learn" @click="startAgentlearn(agent.name, 'stop')">Stop</button>
+          <div class="onstart-agent">
+            Load on start:<input type="checkbox" v-model="agent.onstart" :id="agent.onstart"/>
+          </div>
         </div>
       </div>
+    </div>
+    <div class="llm-model-agent">
+      <div id="llm-models" class="agent-header">Large Language Model</div>
+      <div class="ai-agent-list">
+        <div class="agent-name">
+          {{ defaultLLM.name }}
+          <button id="change-default-model" @click="changeDefaultModel()">Change</button>
+        </div>
+        <div class="agent-description">Chat agent</div>
+        <div class="agent-active" v-bind:class="{ active: defaultLLM.active }">
+          <div v-if="defaultLLM.loading === true">
+            <div class="loading-agent blink_me">Loading</div>
+          </div>
+          <div id="status-agent  blink_me">Status: {{ defaultLLM.active }}</div>
+          <button v-if="defaultLLM.active === false" id="start-agent-learn" @click="startAgentlearn(defaultLLM.name, 'start')">Begin</button>
+          <button v-else="defaultLLM.active === true" id="start-agent-learn" @click="startAgentlearn(defaultLLM.name, 'stop')">Stop</button>
+          <div class="onstart-agent">
+            Load on start:<input type="checkbox" v-model="defaultLLM.onstart" :id="defaultLLM.onstart"/>
+          </div>
+        </div>
+      </div>
+      <div id="select-default-model" v-if="changeLLM === true">
+        <div class="agent-description">LLM models available:</div>
+        <div class="model-chosen-custom">
+          <select>
+            <option v-for="model of LLMsAvailable" :value="model">{{ model }}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="select-agent-type">
+      <div id="llm-models" class="agent-header">Time series</div>
+      Coming soon
+    </div>
+    <div class="select-agent-type">
+      <div id="llm-models" class="agent-header">Media</div>
+      Coming soon
+    </div>
+    <div class="select-agent-type">
+      <div id="llm-models" class="agent-header">Research</div>
+      Coming soon
+    </div>
+    <div class="select-agent-type">
+      <div id="llm-models" class="agent-header">Markers</div>
+      Coming soon
+    </div>
+    <div class="select-agent-type">
+      <div id="llm-models" class="agent-header">Product</div>
+      Coming soon
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
-import { accountStore } from '@/stores/accountStore.js'
+import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
-  const storeAccount = accountStore()
+  const storeAI = aiInterfaceStore()
+
+  let defaultLLM = ref({
+    name: 'cale-gpt4all', active: false, loading: false, name: 'orca-mini-3b-gguf2-q4_0.gguf', onstart: true
+  })
+  let changeLLM = ref(false)
 
   /* computed */
   const agentList = computed(() => {
-  return storeAccount.agentList
-})
+    return storeAI.agentList
+  })
+
+  const LLMsAvailable = computed(() => {
+    return storeAI.llmModelsList
+  })
 
   /* methods */
   let startAgentlearn = (agentChoice, action) => {
     if (action === 'start') {
       // display loading animation
-      for (let agent of storeAccount.agentList) {
+      for (let agent of storeAI.agentList) {
         if (agent.name === agentChoice) {
           agent.loading = true
         }
@@ -46,9 +108,9 @@ import { accountStore } from '@/stores/accountStore.js'
       learnMessage.action = 'learn-agent-start'
       learnMessage.data = { model: agentChoice}
       learnMessage.bbid = ''
-      storeAccount.sendMessageHOP(learnMessage)
+      storeAI.sendMessageHOP(learnMessage)
     } else if (action === 'stop') {
-      for (let agent of storeAccount.agentList) {
+      for (let agent of storeAI.agentList) {
         if (agent.name === 'cale-gpt4all') {
           agent.loading = false
         }
@@ -59,10 +121,13 @@ import { accountStore } from '@/stores/accountStore.js'
       learnMessage.action = 'learn-agent-stop'
       learnMessage.data = { model: agentChoice}
       learnMessage.bbid = ''
-      storeAccount.sendMessageHOP(learnMessage)
+      storeAI.sendMessageHOP(learnMessage)
     }
+  }
 
-}
+  const changeDefaultModel = () => {
+    changeLLM.value = !changeLLM.value 
+  }
 
 </script>
 
@@ -70,6 +135,26 @@ import { accountStore } from '@/stores/accountStore.js'
 #agents-lists {
   display: block;
   height: auto;
+}
+
+.select-agent-type {
+  display: grid;
+  grid-template-columns: 1fr;
+  margin: .6em;
+  border-bottom: 1px solid lightgrey;
+}
+
+.agent-header {
+  font-weight: bold;
+}
+
+#select-default-model {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  width: 50%;
+  padding-left: 2em;
+  border-bottom: 1px solid lightgrey;
+  padding-bottom: 1em;
 }
 
 .active {
@@ -85,10 +170,11 @@ import { accountStore } from '@/stores/accountStore.js'
 
   .ai-agent-list {
     display: grid;
-    width: 80%;
+    width: 90%;
     grid-template-columns: 2fr 2fr 1fr;
     border-bottom: 1px solid lightgrey;
     margin-bottom: 1em;
+    padding-left: 1em;
   }
 
   .active {

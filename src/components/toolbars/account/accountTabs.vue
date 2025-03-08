@@ -19,7 +19,7 @@
           class="grid-component-tab" v-bind:class="{ active: activeTab === 'aiagents' }"
           v-on:click="selectTab('aiagents')"
         >
-          AI
+          AI Agents
         </div>
         <div
           class="grid-component-tab" v-bind:class="{ active: activeTab === 'wallets' }"
@@ -113,7 +113,7 @@ let activeTab = ref('peers')
 }
 
 .grid-component-tab.active {
- background-color: lightgrey;
+ background-color: rgb(240, 242, 243);
 }
 
 .is-disabled {

@@ -33,6 +33,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     chatBottom: 0,
     beebeeContext: 'chat',
     decisionDoughnutCue: false,
+    agentList: [{name: 'cale-evolution', active: false, loading: false, onstart: false }],
+    llmModelsList: [],
     oracleData: { type: 'oracle', action: 'decision', elements: [{ label: 'muscle mass', datasets: { backgroundColor: '#01923c', data: 30 }}, { label: 'brain', datasets: { backgroundColor: '#71923c', data: 30 }}], concerns: [{ label: 'kidneys', datasets: { backgroundColor: '#b90e28', data: 30 }}, { label: 'pee more', datasets: { backgroundColor: '#e62643', data: 30 }}]},
     askQuestion: {
       text: ''
@@ -281,15 +283,17 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       } else if (received.type === 'hop-learn') {
         if (received.action === 'cale-evolution') {
           if (received.task === 'begin') {
-            this.storeAcc.processAgentStatus(received.data)
+            this.processAgentStatus(received.data)
           } else if (received.task === 'closed') {
-            this.storeAcc.processAgentStatus(received.data)
+            this.processAgentStatus(received.data)
           }
         } else if (received.action === 'cale-gpt4all') {
           if (received.task === 'begin') {
-            this.storeAcc.processAgentStatus(received.data)
+            this.processAgentStatus(received.data)
           } else if (received.task === 'closed') {
-            this.storeAcc.processAgentStatus(received.data)
+            this.processAgentStatus(received.data)
+          } else if (received.task === 'models') {
+            this.llmModelsList = received.data
           }
         }
       } else if (received.action === 'hop-learn-feedback') {
@@ -355,6 +359,18 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           } 
           this.beginChat = true 
           this.chatBottom++
+        }
+      }
+    },
+    processAgentStatus (data) {
+      for (let agent of this.agentList) {
+        if (agent.name === data.name) {
+          if (data.status === 'loaded') {
+            agent.active = true
+            agent.loading = false
+          } else if (data.status === 'closed') {
+            agent.active = false
+          }
         }
       }
     },

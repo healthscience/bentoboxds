@@ -13,7 +13,7 @@
           <span class="right-time">{{ chati.reply.time }}</span>
           <div class="reply-text-chart">
             <div class="right-chat" v-if="chati.reply.type !== undefined">
-              {{ chati.reply.type }} {{ chati.reply.action }}
+              {{ chati.reply.action }}
               <div v-if="chati.reply.type === 'experiment' && chati.reply.data">
                 <button @click="viewSaveExperiment(chati.question.bbid, chati.reply.data)">View experiment</button>
               </div>

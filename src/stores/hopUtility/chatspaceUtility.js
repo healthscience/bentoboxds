@@ -43,8 +43,7 @@ class ChatspaceUtility {
   */
   prepareQuestion = function (boxid, questionIn, context) {
     let question = {}
-    question.data = { active: true, text: questionIn, context: context, date: new Date() }
-    question.bbid = boxid
+    question = { active: true, text: questionIn, context: context, date: new Date() }
     return question
   }
 
