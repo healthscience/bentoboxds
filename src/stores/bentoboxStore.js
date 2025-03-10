@@ -71,7 +71,8 @@ export const bentoboxStore = defineStore('bentostore', {
     researchMedia: {},
     markerMedia: {},
     productMedia: {},
-    libraryCheck: false
+    libraryCheck: false,
+    agentModelDefault: {}
   }),
   actions: {
     // since we rely on `this`, we cannot use an arrow function
@@ -266,6 +267,10 @@ export const bentoboxStore = defineStore('bentostore', {
         } else if (message.action.trim() === 'save') {
           console.log('saved feedback')
         }
+      } else if (message.reftype.trim() === 'agent-history') {
+        console.log('agent-history')
+        console.log(message)
+        this.storeAI.agentModelDefault = message.data
       } else if (message.reftype.trim() === 'spaces-history') {
         // console.log('spaces-history')
         // console.log(message.data)

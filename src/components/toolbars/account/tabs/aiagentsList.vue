@@ -24,9 +24,13 @@
     <div class="llm-model-agent">
       <div id="llm-models" class="agent-header">Large Language Model</div>
       <div class="ai-agent-list">
-        <div class="agent-name">
-          {{ defaultLLM.model }}
+        <div class="agent-name" v-if="storeAI.agentModelDefault.length !== 0">
+          {{ defaultLLM.value.concept.agent }} -- {{ defaultLLM.value.concept.name }}
           <button id="change-default-model" @click="updateDefaultModel()">Change</button>
+        </div>
+        <div v-else="defaultLLM?.first === true">
+           {{ defaultLLM.message }}
+           <button id="change-default-model" @click="updateDefaultModel()">Select model</button>
         </div>
         <div class="agent-description">Chat agent</div>
         <div class="agent-active" v-bind:class="{ active: defaultLLM.active }">
@@ -36,8 +40,8 @@
           <div id="status-agent  blink_me">Status: {{ defaultLLM.active }}</div>
           <button v-if="defaultLLM.active === false" id="start-agent-learn" @click="startAgentlearn(defaultLLM.model, 'start')">Begin</button>
           <button v-else="defaultLLM.active === true" id="start-agent-learn" @click="startAgentlearn(defaultLLM.model, 'stop')">Stop</button>
-          <div class="onstart-agent">
-            Load on start:<input type="checkbox" v-model="defaultLLM.onstart" :id="defaultLLM.onstart"/>
+          <div class="onstart-agent"  v-if="storeAI.agentModelDefault.length !== 0">
+            Load on start:<input type="checkbox" v-model="defaultLLM.value.computational.onstart" :id="defaultLLM.value.computational.onstart" @change="setOnStartModel()"/>
           </div>
         </div>
       </div>
@@ -49,13 +53,13 @@
               <option v-for="model of LLMsAvailable"  :value="model">{{ model.model }}</option>
             </select>
           </div>
-          <button id="change-default-model" @click="changeDefaultModel()">Set this model as default</button>
         </div>
         <div id="modal-description">
-          <div id="model-description-summary">{{ modelInfo }}</div>
+          <div id="model-description-summary">{{ modelInfo.name }} {{ modelInfo.description }}</div>
           <div id="model-install-info">
             Running a Large Language Model requires a relative new computer, with a GPU performace will be better.  Installing a model involves downloading a large file, which may take some time.
           </div>
+            <button id="change-default-model" @click="setDefaultModel()">Set this model as default</button>
         </div>
       </div>
     </div>
@@ -88,12 +92,27 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   const storeAI = aiInterfaceStore()
 
-  let defaultLLM = ref({
-    agent: 'cale-gpt4all', active: false, loading: false, model: 'orca-mini-3b-gguf2-q4_0.gguf', onstart: true
-  })
   let changeLLM = ref(false)
-  let modelInfo = ref(defaultLLM)
+  let modelInfo = ref({})
+
   /* computed */
+  const defaultLLM = computed(() => {
+    if (storeAI.agentModelDefault.length === 0) {
+      return { first: true, message: 'please select a LLM model' }
+    } else {
+      let agentDefault = {}
+      for (let agent of storeAI.agentModelDefault) {
+        if (agent?.value?.computational?.active === true) {
+          agentDefault = agent
+        }
+      }
+      if (Object.keys(agentDefault).length === 0) {
+        agentDefault = storeAI.agentModelDefault[0]
+      }
+      return agentDefault
+    }
+  })
+
   const agentList = computed(() => {
     return storeAI.agentList
   })
@@ -134,13 +153,31 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     }
   }
 
-  const changeDefaultModel = () => {
-    changeLLM.value = !changeLLM.value 
+  const setDefaultModel = () => {
+    storeAI.agentModelDefault = []
+    let tempModelContract = {}
+    tempModelContract.key = modelInfo.value.model
+    tempModelContract.value = {}
+    tempModelContract.value.concept = modelInfo.value
+    // save and on success set as default
+    storeAI.prepareModelContract(modelInfo.value)  
+    changeLLM.value = !changeLLM.value
+  }
+
+  const setOnStartModel = () => {
+   // update contract to deafult
+   let activeStatus = true
+   let startStatus = false
+   console.log(defaultLLM.value.value.computational.onstart)
+   if (defaultLLM.value.value.computational.onstart !== false) {
+    console.log(' fasel shaha sf t tootto true')
+    startStatus = true
+   }
+   storeAI.prepareUpdateModelContract(defaultLLM.value, activeStatus, startStatus)  
   }
 
   const updateDefaultModel = () => {
     changeLLM.value = !changeLLM.value
-    defaultLLM.value = { name: modelInfo.value.name, active: false, loading: false, model: modelInfo.value.model, onstart: true}
   }
 
 
@@ -186,6 +223,12 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 .active {
   background-color: green;
 }
+
+#model-install-info {
+  padding: .6em;
+  color:rgb(84, 84, 233)
+}
+
 @media (min-width: 1024px) {
 
   .ai-agent-introduction {

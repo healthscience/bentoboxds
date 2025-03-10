@@ -398,8 +398,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       } else if (received.action === 'warm-peer-connect') {
         // set via account store - just add to notify list here.
       } else if (received.action === 'warm-peer-topic') {
-        console.log('tpic recieved')
-        console.log(received.data)
         // update list and make longterm true
         /* let wpeerStatus = false
         let existingPeer = {}
@@ -456,8 +454,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         }
         */
       } else if (received.action === 'warm-peer-topic') {
-        console.log('code name arrive match to list invite list and ask to save for long erm')
-        console.log(received.data)
       } else if (received.action === 'network-library-n1') {
         // create a notification accept public board and save?
       } else if (received.action === 'cue-space') {
@@ -466,8 +462,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     preparePublicConfirm (item) {
-      console.log('confrim accept n1 bentobox  may be part of space')
-      console.log(item)
       // produce a pair for the current chat
       let newBBID = '23232'
       let pairBB = {}
@@ -487,10 +481,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     },
     prepareCuespace (notItem) {
       // have any bentoboxn1 been sent?
-      console.log('prepare cue space notifiction')
-      console.log(notItem)
       if (notItem.data.content.bbn1.publicN1contracts.length > 0) {
-        console.log('yes bbn1 to prapre for this space, repare confirm chat message')
         for (let bbn1 of notItem.data.content.bbn1.publicN1contracts) {
           this.preparePublicConfirm({ action: 'network-library-n1', data: bbn1 })          
         }
@@ -728,16 +719,12 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       // cues
       // media
       let mediaidPerspace = this.storeBentoBox.videoMedia[message.data.cueid]
-      // console.log(mediaidPerspace)
       // research
       let researchidPerspace = this.storeBentoBox.researchMedia[message.data.cueid]
-      // console.log(researchidPerspace)
       // markers
       let markeridPerspace = this.storeBentoBox.markerMedia[message.data.cueid]
-      // console.log(markeridPerspace)
       // products
       let productidPerspace = this.storeBentoBox.ProductMedia[message.data.cueid]
-      // console.log(productidPerspace)
     },
     prepareAI (message) {
       // need to build DML structure, proof of work hash
@@ -750,7 +737,43 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         message.data = nxpContract.data
         this.sendMessageHOP(message)
       }
-
+    },
+    prepareModelContract (modelInfo) {
+      console.log(modelInfo)
+      // structure inputs for cue contract
+      modelInfo.active = true
+      const modelContract = {}
+      modelContract.type = 'library'
+      modelContract.action = 'model'
+      modelContract.reftype = 'new-model'
+      modelContract.task = 'PUT'
+      modelContract.privacy = 'public'
+      let modelHolder = {}
+      let concept = {}
+      concept.agent = modelInfo.agent
+      concept.name = modelInfo.name
+      concept.model = modelInfo.model
+      concept.description = modelInfo.description
+      modelHolder.concept = concept
+      modelHolder.computational = modelInfo
+      console.log(modelHolder)
+      modelContract.data = modelHolder
+      this.sendMessageHOP(modelContract)
+    },
+    prepareUpdateModelContract (modelInfo, active, onstart) {
+      console.log(modelInfo)
+      console.log(onstart)
+      // structure inputs for cue contract
+      modelInfo.value.computational.active = active
+      modelInfo.value.computational.onstart = onstart
+      const modelContract = {}
+      modelContract.type = 'library'
+      modelContract.action = 'model'
+      modelContract.reftype = 'new-model'
+      modelContract.task = 'UPDATE'
+      modelContract.privacy = 'public'
+      modelContract.data = modelInfo
+      this.sendMessageHOP(modelContract)
     }
   }
 })

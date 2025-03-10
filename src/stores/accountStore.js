@@ -131,8 +131,6 @@ export const accountStore = defineStore('account', {
       // this.warmPeers = updateWarmPeers
     },
     updatePeerName (update) {
-      console.log('peer name match now back live ist with name ')
-      console.log(update)
       let updateNameList = []
       for (let wpeer of this.warmPeers) {
         if (wpeer.key === update.key) {
