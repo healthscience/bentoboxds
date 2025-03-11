@@ -16,7 +16,7 @@
           <button v-if="agent.active === false" id="start-agent-learn" @click="startAgentlearn(agent.name, 'start')">Begin</button>
           <button v-else="agent.active === true" id="start-agent-learn" @click="startAgentlearn(agent.name, 'stop')">Stop</button>
           <div class="onstart-agent">
-            Load on start:<input type="checkbox" v-model="agent.onstart" :id="agent.onstart"/>
+            <!--Load on start:<input type="checkbox" v-model="agent.onstart" :id="agent.onstart"/>-->
           </div>
         </div>
       </div>
@@ -33,15 +33,17 @@
            <button id="change-default-model" @click="updateDefaultModel()">Select model</button>
         </div>
         <div class="agent-description">Chat agent</div>
-        <div class="agent-active" v-bind:class="{ active: defaultLLM.active }">
-          <div v-if="defaultLLM.loading === true">
-            <div class="loading-agent blink_me">Loading</div>
-          </div>
-          <div id="status-agent  blink_me">Status: {{ defaultLLM.active }}</div>
-          <button v-if="defaultLLM.active === false" id="start-agent-learn" @click="startAgentlearn(defaultLLM.model, 'start')">Begin</button>
-          <button v-else="defaultLLM.active === true" id="start-agent-learn" @click="startAgentlearn(defaultLLM.model, 'stop')">Stop</button>
-          <div class="onstart-agent"  v-if="storeAI.agentModelDefault.length !== 0">
-            Load on start:<input type="checkbox" v-model="defaultLLM.value.computational.onstart" :id="defaultLLM.value.computational.onstart" @change="setOnStartModel()"/>
+        <div class="agent-active" v-if="defaultLLM?.first !== 'undefined' && storeAI.agentModelDefault.length !== 0">
+          <div class="active-status"  v-bind:class="{ active: storeAI.agentStatus }">
+            <div v-if="modelLoadingStatus === true">
+              <div class="loading-agent blink_me">Loading</div>
+            </div>
+            <div id="status-agent  blink_me">Status: {{ defaultLLM?.value?.computational?.active }}</div>
+            <button v-if="defaultLLM?.value?.computational?.active === false" id="start-agent-learn" @click="startAgentlearn(defaultLLM.model, 'start')">Begin</button>
+            <button v-else="defaultLLM?.value?.computational?.active === true" id="start-agent-learn" @click="startAgentlearn(defaultLLM.model, 'stop')">Stop</button>
+            <div class="onstart-agent"  v-if="storeAI.agentModelDefault.length !== 0">
+              Load on start:<input type="checkbox" v-model="defaultLLM.value.computational.onstart" :id="defaultLLM.value.computational.onstart" @change="setOnStartModel()"/>
+            </div>
           </div>
         </div>
       </div>
@@ -113,6 +115,10 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     }
   })
 
+  const modelLoadingStatus = computed(() => {
+    return storeAI.modelLoading
+  })
+
   const agentList = computed(() => {
     return storeAI.agentList
   })
@@ -124,37 +130,17 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   /* methods */
   let startAgentlearn = (agentChoice, action) => {
     if (action === 'start') {
-      // display loading animation
-      for (let agent of storeAI.agentList) {
-        if (agent.name === agentChoice) {
-          agent.loading = true
-        }
-      }
-      let learnMessage = {}
-      learnMessage.type = 'bbai'
-      learnMessage.reftype = 'ignore'
-      learnMessage.action = 'learn-agent-start'
-      learnMessage.data = { agent: modelInfo.value.agent, model: modelInfo.value.model}
-      learnMessage.bbid = ''
-      storeAI.sendMessageHOP(learnMessage)
+      storeAI.sendModelControl(defaultLLM.value.value.computational, 'learn-agent-start')
+      storeAI.modelLoading = true
     } else if (action === 'stop') {
-      for (let agent of storeAI.agentList) {
-        if (agent.name === 'cale-gpt4all') {
-          agent.loading = false
-        }
-      }
-      let learnMessage = {}
-      learnMessage.type = 'bbai'
-      learnMessage.reftype = 'ignore'
-      learnMessage.action = 'learn-agent-stop'
-      learnMessage.data = { agent: modelInfo.value.agent, model: modelInfo.value.model }
-      learnMessage.bbid = ''
-      storeAI.sendMessageHOP(learnMessage)
+      storeAI.sendModelControl(defaultLLM.value.value.computational, 'learn-agent-stop')
     }
   }
 
   const setDefaultModel = () => {
-    storeAI.agentModelDefault = []
+    // storeAI.agentModelDefault = []
+    // keep track of previous model
+    storeAI.previousLLM = defaultLLM.value
     let tempModelContract = {}
     tempModelContract.key = modelInfo.value.model
     tempModelContract.value = {}
@@ -168,9 +154,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
    // update contract to deafult
    let activeStatus = true
    let startStatus = false
-   console.log(defaultLLM.value.value.computational.onstart)
    if (defaultLLM.value.value.computational.onstart !== false) {
-    console.log(' fasel shaha sf t tootto true')
     startStatus = true
    }
    storeAI.prepareUpdateModelContract(defaultLLM.value, activeStatus, startStatus)  
@@ -221,7 +205,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 }
 
 .active {
-  background-color: green;
+  padding: .4em;
+  background-color: rgb(113, 172, 114);
 }
 
 #model-install-info {
@@ -247,7 +232,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   }
 
   .active {
-    background-color: green;
+    background-color: rgb(113, 172, 114);
     color: white;
     font-weight: bold;
   }

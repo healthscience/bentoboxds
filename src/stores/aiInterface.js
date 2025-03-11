@@ -101,7 +101,10 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     boxModelUpdate: {},
     computeModuleLast: {},
     bentobesearchState: false,
-    cueAction: 'cues'
+    cueAction: 'cues',
+    agentStatus: false,
+    modelLoading: false,
+    previousLLM: {}
   }),
   actions: {
     sendMessageHOP (message) {
@@ -238,7 +241,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       aiMessageout.action = 'question'
       aiMessageout.data = question
       aiMessageout.bbid = hashQuestion
-      console.log(aiMessageout)
       this.sendSocket.send_message(aiMessageout)
       this.helpchatHistory.push(aiMessageout)
       this.qcount++
@@ -363,9 +365,20 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     processAgentStatus (data) {
-      console.log('agent running or closes')
-      console.log(data)
-      for (let agent of this.agentList) {
+      // upload agent model status
+      let updateModelActive = []
+      for (let agentM of this.agentModelDefault) {
+        if (agentM.value.computational.model === data.model) {
+          agentM.value.computational.active = true
+          updateModelActive.push(agentM)
+        } else {
+          updateModelActive.push(agentM)
+        }
+      }
+      this.agentModelDefault = updateModelActive
+      this.agentStatus = true
+      this.modelLoading = false
+      /*for (let agent of this.agentList) {
         if (agent.name === data.name) {
           if (data.status === 'loaded') {
             agent.active = true
@@ -374,7 +387,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
             agent.active = false
           }
         }
-      }
+      }*/
     },
     processNotification (received) {
       this.countNotifications++
@@ -536,8 +549,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.hopSummary.push({ HOPid: HOPshell, summary: dataSummary })
     },
     processHOPdata (dataHOP) {
-      // console.log('process IN HOP Data')
-      // console.log(dataHOP)
       // match input id to bbid
       // is the data for past or future or no data
       if (dataHOP.data.data === 'none') {
@@ -739,7 +750,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     prepareModelContract (modelInfo) {
-      console.log(modelInfo)
       // structure inputs for cue contract
       modelInfo.active = true
       const modelContract = {}
@@ -756,13 +766,13 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       concept.description = modelInfo.description
       modelHolder.concept = concept
       modelHolder.computational = modelInfo
-      console.log(modelHolder)
       modelContract.data = modelHolder
       this.sendMessageHOP(modelContract)
+      // if previous model, update to onstart false, active false
+      this.prepareUpdateModelContract(this.previousLLM, false, false)   
     },
     prepareUpdateModelContract (modelInfo, active, onstart) {
-      console.log(modelInfo)
-      console.log(onstart)
+
       // structure inputs for cue contract
       modelInfo.value.computational.active = active
       modelInfo.value.computational.onstart = onstart
@@ -774,6 +784,15 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       modelContract.privacy = 'public'
       modelContract.data = modelInfo
       this.sendMessageHOP(modelContract)
+    },
+    sendModelControl (modelInfo, action) {
+      let learnMessage = {}
+      learnMessage.type = 'bbai'
+      learnMessage.reftype = 'ignore'
+      learnMessage.action = action
+      learnMessage.data = { agent: modelInfo.agent, model: modelInfo.model}
+      learnMessage.bbid = ''
+      this.sendMessageHOP(learnMessage)
     }
   }
 })

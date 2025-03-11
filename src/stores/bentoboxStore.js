@@ -92,8 +92,6 @@ export const bentoboxStore = defineStore('bentostore', {
       this.locY = loc.y
     },
     processReply (message) {
-      // console.log('start')
-      // console.log(message)
       // prepare chat menu and pairs
       if (message.reftype.trim() === 'chat-history') {
         if (message.action.trim() === 'start') {
@@ -268,12 +266,21 @@ export const bentoboxStore = defineStore('bentostore', {
           console.log('saved feedback')
         }
       } else if (message.reftype.trim() === 'agent-history') {
-        console.log('agent-history')
-        console.log(message)
         this.storeAI.agentModelDefault = message.data
+        // look for onstart model and ass beebee to start via HOP
+        let onstartModel = {}
+        if (this.storeAI.agentModelDefault.length > 0) {
+          for (let agent of this.storeAI.agentModelDefault) {
+            if (agent.value.computational.onstart === true) {
+              onstartModel = agent
+            }
+          }
+          if (Object.keys(onstartModel).length > 0) {
+            this.storeAI.modelLoading = true
+            this.storeAI.sendModelControl(onstartModel.value.computational, 'learn-agent-start')
+          }
+        }
       } else if (message.reftype.trim() === 'spaces-history') {
-        // console.log('spaces-history')
-        // console.log(message.data)
       } else if (message.reftype.trim() === 'cues-history') {
         if (this.storeLibrary.publicLibrary.referenceContracts !== undefined) {
           this.libraryCheck = true
@@ -334,9 +341,6 @@ export const bentoboxStore = defineStore('bentostore', {
       }
     },
     prepareMarkerSpace (mData) {
-      // console.log('marke spa history')
-      // console.log(mData)
-      // console.log('save space struecure')
       // list of active markers
       this.storeCues.markerList = mData
       let markerBoxList = []

@@ -241,7 +241,6 @@ export const libraryStore = defineStore('librarystore', {
       messageHOP.privacy = 'public'
       messageHOP.task = 'PUT'
       messageHOP.data = message
-      console.log(messageHOP)
       this.sendSocket.send_message(messageHOP)
     },
     processReply (message, questionStart) {
@@ -385,10 +384,10 @@ export const libraryStore = defineStore('librarystore', {
         }
       } else if (message.action === 'model-contract') {
         // first time save for update?
-        console.log('model save ctract')
-        console.log(message)
         if (message.task === 'save-complete') {
           this.storeAI.agentModelDefault.push(message.data.data)
+          this.storeAI.modelLoading = true
+          this.storeAI.sendModelControl(message.data.data.value.computational, 'learn-agent-start')
         } else if (message.task === 'update-complete') {
           // loop through and update array list
           let updateModelList = []

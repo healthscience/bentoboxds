@@ -119,8 +119,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   }
 
   const reconnectSocket = () => {
-    console.log('restart socket try')
-    window.electron.send('message-from-vue', 'Hello from Vue!')
+    window.electron.send('message-from-vue', 'Hello from BentoBoxDS')
     storeSocket.connection_loss = false
     storeSocket.connection_error = false
     setTimeout(() => {
