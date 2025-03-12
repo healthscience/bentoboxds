@@ -179,6 +179,14 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   }
 
   const bentoSpaceOpen = (cueInfo) => {
+    // prepare chat for space
+    let newChatItem = {}
+    newChatItem.name = cueInfo.name
+    newChatItem.chatid = cueInfo.cueid
+    newChatItem.active = true
+    //setup chat history holder
+    storeAI.setupChatHistory(newChatItem)
+    storeAI.chatAttention = cueInfo.cueid
     storeCues.cueContext = 'space'
     storeAI.beebeeContext = 'chatspace'
     storeAI.bentospaceState = true

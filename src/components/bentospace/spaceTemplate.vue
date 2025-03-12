@@ -131,7 +131,7 @@
 import { ref, computed } from 'vue'
 import ModalSpace from '@/components/bentospace/spaceModal.vue'
 import CuesPrepared from '@/components/bentocues/prepareCues.vue'
-import LibraryexpView from '@/components/dataspace/libraryNXPView.vue'
+import LibraryexpView from '@/components/dataspace/experimentNXPView.vue'
 import NewnxpView from '@/components/dataspace/newnxpView.vue'
 import BentoBoxspace from '@/components/bentobox/bentoboxSpace.vue'
 import MediaSpace from '@/components/bentospace/video/mediaSpace.vue'
@@ -243,8 +243,9 @@ import { mapminiStore } from '@/stores/mapStore.js'
 
   const openLibrary = () => {
     // need to set context to library
+    spaceN1setup.value = !spaceN1setup.value
     storeLibrary.inContext = 'space'
-    storeAI.dataBoxStatus = true
+    // storeAI.dataBoxStatus = true
     storeAI.uploadStatus = false
     storeLibrary.libraryStatus = true
     storeLibrary.libPeerview = true

@@ -62,7 +62,6 @@
 </template>
 
 <script setup>
-import hashObject from 'object-hash'
 import { cuesStore } from '@/stores/cuesStore.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
@@ -73,7 +72,6 @@ import { ref, computed, onMounted } from 'vue'
   const storeBentobox = bentoboxStore()
 
   let saveSpace = ref(false)
-  let newSpacename = ref('')
   let glueTarget = ref({})
   let glueName = ref('')
   let historyCues = ref(false)

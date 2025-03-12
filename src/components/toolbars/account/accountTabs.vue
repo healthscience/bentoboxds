@@ -61,10 +61,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 const storeAccount = accountStore()
 const storeAI = aiInterfaceStore()
 
-let peerActive = ref(false)
-let dsActive = ref(false)
-let aiActive = ref(false)
-let walletActive = ref(false)
 let listContext = ref('peers')
 let activeTab = ref('peers')
 

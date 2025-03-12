@@ -365,6 +365,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     processAgentStatus (data) {
+      console.log(data)
       // upload agent model status
       let updateModelActive = []
       for (let agentM of this.agentModelDefault) {

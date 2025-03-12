@@ -105,6 +105,7 @@ export const bentoboxStore = defineStore('bentostore', {
             if (cm?.value?.pair) {
               // is setting for chat or space?
               if ('space' in cm.value !== true ) {
+                // chat dialogue
                 this.storeAI.historyPair[cm.key] = cm.value.pair
                 // toolbars
                 this.boxtoolsShow[cm.key] = false
