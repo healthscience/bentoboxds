@@ -161,7 +161,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         saveQ.active = true
         let date = new Date()
         // get the time as a string
-        let time = date.toLocaleTimeString() // .toFormat('hh:mm a')
+        let time = date.toLocaleTimeString()
         saveQ.time = time
         this.inputAskHistory.push(saveQ)
         // provide feedback else forward to beebeeLogic via HOP
@@ -724,19 +724,20 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         // save media boxes
         // saveData.mboxlist = bmMediaPerspace
         message.data = saveData
+        console.log('save message', message)
         this.sendSocket.send_message(message)
       } else {
         console.log('no boxid')
       }
       // cues
       // media
-      let mediaidPerspace = this.storeBentoBox.videoMedia[message.data.cueid]
+      // let mediaidPerspace = this.storeBentoBox.videoMedia[message.data.cueid]
       // research
-      let researchidPerspace = this.storeBentoBox.researchMedia[message.data.cueid]
+      // let researchidPerspace = this.storeBentoBox.researchMedia[message.data.cueid]
       // markers
-      let markeridPerspace = this.storeBentoBox.markerMedia[message.data.cueid]
+      // let markeridPerspace = this.storeBentoBox.markerMedia[message.data.cueid]
       // products
-      let productidPerspace = this.storeBentoBox.ProductMedia[message.data.cueid]
+      // let productidPerspace = this.storeBentoBox.ProductMedia[message.data.cueid]
     },
     prepareAI (message) {
       // need to build DML structure, proof of work hash

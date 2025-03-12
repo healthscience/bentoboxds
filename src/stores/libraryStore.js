@@ -496,7 +496,11 @@ export const libraryStore = defineStore('librarystore', {
       libMessageout.bbid = 'lib' + genContract.value.exp.key
       this.sendSocket.send_message(libMessageout)
     },
-    prepareLibraryViewMessage (contract, action) {
+    prepareLibrarySpaceMessage (contract, action) {
+      // make bbid the hash of the private contract?
+
+    },
+    prepareLibraryChatMessage (contract, action) {
       // create a bbid
       let boxID = {}
       boxID.contract = contract
@@ -529,8 +533,12 @@ export const libraryStore = defineStore('librarystore', {
       reply.data = contract.id
       pairBB.reply = reply
       // this.storeAI.historyPair[this.storeAI.chatAttention] = []
+      console.log('chat attation')
+      console.log(this.storeAI.chatAttention)
       this.storeAI.historyPair[this.storeAI.chatAttention].push(pairBB)
       this.storeAI.chatBottom++
+      console.log(this.storeAI.historyPair)
+      console.log(libMessageout)
       this.sendSocket.send_message(libMessageout)
     },
     prepareLibraryViewFromContract (bbid, contractID) {

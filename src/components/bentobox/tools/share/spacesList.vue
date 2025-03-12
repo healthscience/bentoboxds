@@ -19,6 +19,7 @@ const storeAI = aiInterfaceStore()
 const storeBentobox = bentoboxStore()
 
   let spaceSave = ref('')
+  let shareSelect = ref(false)
 
   const props = defineProps({
     bboxid: String
@@ -37,22 +38,58 @@ const storeBentobox = bentoboxStore()
     return sortedContracts
   })
 
+  /*
+  * library summary
+  */
+  const expLibrarySummary = computed(() => {
+    console.log(storeAI?.boxLibSummary)
+    if (storeAI?.boxLibSummary[props.bboxid] === undefined) {
+        console.log(' firs time use of nxp i bbox')
+    } else {
+      if (storeAI?.boxLibSummary[props.bboxid].data === undefined) {
+      return false
+      } else {
+      let NXPcontract = {}
+      NXPcontract.key = Object.keys(storeAI?.boxLibSummary[props.bboxid].data)
+      let modKeys = []
+      for (let mod of storeAI.boxLibSummary[props.bboxid].data.modules) { // [NXPcontract.key].modules) {
+          if (mod !== undefined) {
+          modKeys.push(mod.key)
+          }
+      }
+      NXPcontract.modules = modKeys
+      return NXPcontract
+      }
+    }
+  })
+
   /* methods */
   const selectBentoSpace = () => {
     // if first time prepare a boxID
-    let bidPair = { bboxid: props.bboxid, contract: expLibrarySummary.value.key[0]}
+    let bidPair = {}
+    if (storeAI?.boxLibSummary[props.bboxid] === undefined) {
+      bidPair = { bboxid: props.bboxid, contract: props.bboxid}
+    } else {
+      bidPair = { bboxid: props.bboxid, contract: expLibrarySummary.value.key[0]}
+    }
     // check object set in list
     if (storeAI.bentoboxList[spaceSave.value] === undefined) {
-      storeAI.bentoboxList[spaceSave.value] = []
+    storeAI.bentoboxList[spaceSave.value] = []
     }
     if (storeBentobox.locationBbox[spaceSave.value] === undefined) {
-      storeBentobox.locationBbox[spaceSave.value] = []
+    storeBentobox.locationBbox[spaceSave.value] = []
     }
     storeAI.bentoboxList[spaceSave.value].push(bidPair)
     clickAddbentoSpace(props.bboxid)
     // add location default if not already set?
     storeBentobox.setLocationBbox(spaceSave.value, props.bboxid)
     spaceSave.value = 0
+  }
+
+  const clickAddbentoSpace = (boxid) => {
+    // show the space list
+    // shareSelect.value = !shareSelect.value  emit to close dataModal
+    storeAI.prepareLibrarySummary(boxid)
   }
 
 </script>

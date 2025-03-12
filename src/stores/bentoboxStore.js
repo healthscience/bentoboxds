@@ -149,6 +149,7 @@ export const bentoboxStore = defineStore('bentostore', {
                   pairCount++
                 }
               } else {
+                console.log('space  no longer needed')
                 // BENTOSPACES setup on start
                 // add to menu list  no duplicate and TODO set one as active
                 if (this.spaceList[0].cueid !== cm.value.space.cueid) {
@@ -282,6 +283,30 @@ export const bentoboxStore = defineStore('bentostore', {
           }
         }
       } else if (message.reftype.trim() === 'spaces-history') {
+        console.log('spaces history')
+        console.log(message)
+        // loop through saved spaces bentobox and their location in space
+        for (let space of message.data) {
+          console.log(space)
+          this.storeAI.bentoboxList[space.key] = space.value.bboxlist
+          if (this.locationBbox[space.key] !== undefined) {
+            console.log('pass one')
+            for (let bboxloc of space.value.location) {
+              this.locationBbox[space.key][bboxloc.bboxid] = bboxloc.location
+            }
+          } else {
+            console.log('pass two')
+            this.locationBbox[space.key] = {}
+            if (space.value.location !== undefined) {
+              for (let bboxloc of space.value.location) {
+                this.locationBbox[space.key][bboxloc.bboxid] = bboxloc.location
+              }
+            }
+          }
+        }
+        console.log('bbox allocated to spaces')
+        console.log(this.storeAI.bentoboxList)
+        console.log(this.locationBbox)
       } else if (message.reftype.trim() === 'cues-history') {
         if (this.storeLibrary.publicLibrary.referenceContracts !== undefined) {
           this.libraryCheck = true

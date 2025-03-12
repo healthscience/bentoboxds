@@ -138,18 +138,18 @@ const selectedTimeFormat = ref('timeseries')
   }
 
   const clickSummaryLib = (boxid) => {
-      libSum.value = !libSum.value
-      storeAI.prepareLibrarySummary(boxid)
-    }
-
-  const clickAddbentoSpace = (boxid) => {
-    // show the space list
-    shareSelect.value = !shareSelect.value
+    libSum.value = !libSum.value
     storeAI.prepareLibrarySummary(boxid)
   }
 
   const clickShareSpace = (boxid) => {
     shareForm.value = !shareForm.value
+  }
+
+  const clickAddbentoSpace = (boxid) => {
+    // show the space list
+    shareSelect.value = !shareSelect.value
+    storeAI.prepareLibrarySummary(boxid)
   }
 
   /*  computed */

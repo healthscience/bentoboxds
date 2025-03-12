@@ -119,8 +119,8 @@
                 </div>
               </div>
             </div>
-            <div id="beebee-chartspace" v-if="storeAI.beebeeChatLog[chati?.question?.bbid] === true && storeAI.visData[chati.reply.bbid].datasets[0]?.data !== undefined">
-              <!--the slimed down bentobox to chart and bring in tools as needed-->
+            <div id="beebee-chartspace" v-if="storeAI.beebeeChatLog[chati?.question?.bbid] === true && storeAI.visData[chati.reply.bbid].datasets[0]?.data !== undefined">passs
+              <!--the slimed down bentobox to chart and bring in tools as needed  storeAI.beebeeChatLog[chati?.question] !== undefined &&  -->
               <bento-box :bboxid="chati?.question?.bbid"></bento-box>
             </div>
           </div>
