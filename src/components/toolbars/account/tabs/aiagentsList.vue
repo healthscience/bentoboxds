@@ -39,8 +39,8 @@
               <div class="loading-agent blink_me">Loading</div>
             </div>
             <div id="status-agent  blink_me">Status: {{ defaultLLM?.value?.computational?.active }}</div>
-            <button v-if="defaultLLM?.value?.computational?.active === false" id="start-agent-learn" @click="startAgentlearn(defaultLLM.model, 'start')">Begin</button>
-            <button v-else="defaultLLM?.value?.computational?.active === true" id="start-agent-learn" @click="startAgentlearn(defaultLLM.model, 'stop')">Stop</button>
+            <button v-if="defaultLLM?.value?.computational?.active !== false" id="start-agent-learn" @click="startAgentlearn(defaultLLM.model, 'start')">Begin</button>
+            <button v-if="defaultLLM?.value?.computational?.active === true" id="start-agent-learn" @click="startAgentlearn(defaultLLM.model, 'stop')">Stop</button>
             <div class="onstart-agent"  v-if="storeAI.agentModelDefault.length !== 0">
               Load on start:<input type="checkbox" v-model="defaultLLM.value.computational.onstart" :id="defaultLLM.value.computational.onstart" @change="setOnStartModel()"/>
             </div>

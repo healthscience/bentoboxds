@@ -39,6 +39,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     askQuestion: {
       text: ''
     },
+    bodyDiagramShow: false,
     inputAskHistory: [],
     statusCALE:
     {
@@ -365,7 +366,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     processAgentStatus (data) {
-      console.log(data)
       // upload agent model status
       let updateModelActive = []
       for (let agentM of this.agentModelDefault) {
@@ -674,7 +674,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.storeBentoBox.openDataSettings[boxid] = extractedOD
       return true
     },
-    prepareBentoBoxSave (message) {
+    prepareChatBentoBoxSave (message) {
       let settingsData = this.historyPair[message.data.chatid]
       let bbidPerChat = []
       // loop over data to match to visualisation alread prepared.  (note. or HOPQuery to re-create via HOP)
@@ -703,8 +703,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     },
     prepareSpaceSave (message) {
       // match bentoboxes, cues, content (media, research, markers, products)
-      console.log('cue save')
-      console.log(message)
       // bentoboxes
       let boxidPerspace = this.bentoboxList[message.data.cueid]
       if (boxidPerspace !== undefined) {
@@ -726,7 +724,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         // save media boxes
         // saveData.mboxlist = bmMediaPerspace
         message.data = saveData
-        console.log('save message', message)
         this.sendSocket.send_message(message)
       } else {
         console.log('no boxid')

@@ -58,7 +58,7 @@ export const libraryStore = defineStore('librarystore', {
       name: '',
       description: '',
       wiki: '',
-      rdf: '',
+      rdf: 'https://dbpedia.org/page/',
       measurement: '',
       datatypeType: ''
     },
@@ -412,8 +412,6 @@ export const libraryStore = defineStore('librarystore', {
         this.storeCues.researchPapers[researchContract.value.concept.cueid].push({researchContract})
       } else if (message.action === 'product-contract') {
         // product added
-        console.log('product saved')
-        console.log(message.data)
         let productContract = message.data.data
         this.storeCues.productMatch[productContract.value.concept.cueid].push(productContract)
       } else if (message.action === 'reference-contract') {
@@ -535,12 +533,8 @@ export const libraryStore = defineStore('librarystore', {
       reply.data = contract.id
       pairBB.reply = reply
       // this.storeAI.historyPair[this.storeAI.chatAttention] = []
-      console.log('chat attation')
-      console.log(this.storeAI.chatAttention)
       this.storeAI.historyPair[this.storeAI.chatAttention].push(pairBB)
       this.storeAI.chatBottom++
-      console.log(this.storeAI.historyPair)
-      console.log(libMessageout)
       this.sendSocket.send_message(libMessageout)
     },
     prepareLibraryViewFromContract (bbid, contractID) {

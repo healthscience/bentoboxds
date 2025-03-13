@@ -13,7 +13,10 @@
           >
             Close
           </button>
-          <h3>BentoSpace # {{ storeAI.liveBspace.name }} - {{ storeAI.liveBspace.cueid }}</h3>
+          <div id="cue-space-header">
+            <div id="space-cue-title">BentoSpace # {{ storeAI.liveBspace.name }}</div>
+            <div id="space-cueid"> - {{ storeAI.liveBspace.cueid }}</div>
+          </div>
           <div id="return-modal-close" @click="closeBentoSpace">return</div>
         </div>
       </template>
@@ -186,7 +189,6 @@ import { mapminiStore } from '@/stores/mapStore.js'
 
   /* methods */
   const setShowBeeBee = () => {
-    // beebeeSpace.value = !beebeeSpace.value
     storeAI.bentochatState = !storeAI.bentochatState
   }
 
@@ -198,6 +200,10 @@ import { mapminiStore } from '@/stores/mapStore.js'
     storeBentobox.saveLayoutSpace(storeAI.liveBspace.cueid)
     // save the latest on close
     saveSpaceHistory(storeAI.liveBspace)
+    // save the latest chat on close
+    saveChatHistory(storeAI.liveBspace)
+    // close the chat
+    storeAI.bentochatState = false
   }
 
   const saveSpaceHistory = (space) => {
@@ -209,6 +215,17 @@ import { mapminiStore } from '@/stores/mapStore.js'
     saveBentoBoxsetting.data = space
     saveBentoBoxsetting.bbid = ''
     storeAI.prepareSpaceSave(saveBentoBoxsetting)
+  }
+
+  const saveChatHistory = (chat) => {
+    let saveBentoBoxsetting = {}
+    saveBentoBoxsetting.type = 'bentobox'
+    saveBentoBoxsetting.reftype = 'chat-history'
+    saveBentoBoxsetting.action = 'save'
+    saveBentoBoxsetting.task = 'save'
+    saveBentoBoxsetting.data = { chatid: chat.cueid, name: chat.name, active: false }
+    saveBentoBoxsetting.bbid = ''
+    storeAI.prepareChatBentoBoxSave(saveBentoBoxsetting)
   }
 
   const setzoomScale = (change) => {
@@ -225,7 +242,6 @@ import { mapminiStore } from '@/stores/mapStore.js'
   }
 
   const cuesHolistic = () => {
-    console.log('holistic')
     storeCues.liveCueContext = 'flake'
     storeAI.bentoflakeState = !storeAI.bentoflakeState
   }
@@ -319,6 +335,21 @@ import { mapminiStore } from '@/stores/mapStore.js'
   background-color: rgb(113, 172, 114);
 }
 
+#cue-space-header {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+}
+
+#space-cue-title {
+  color: darkblue;
+  font-weight: bold;
+}
+
+#space-cueid {
+  color: #5254ab;
+  font-size: .8em;
+}
+
 #space-toolbar {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr 2fr 1fr;
@@ -394,6 +425,12 @@ import { mapminiStore } from '@/stores/mapStore.js'
   transition: background-color 0.3s ease, transform 0.3s ease;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 } 
+
+/* n1 */
+#n1-tools {
+  width: 60vw;
+  border: 1px solid lightgray;
+}
 
 /*  media bar  */
 #bento-media {
@@ -499,7 +536,7 @@ import { mapminiStore } from '@/stores/mapStore.js'
 
   .scale-item {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr 1fr 2fr 1fr;
     justify-self: end;
   }
 
@@ -515,6 +552,12 @@ import { mapminiStore } from '@/stores/mapStore.js'
     border: 2px solid green;
     height: 1px;
     width: 1px;
+  }
+
+  /* n1 */
+  #n1-tools {
+    width: 60vw;
+    border: 1px solid lightgray;
   }
 
   /*  media bar  */
@@ -560,6 +603,10 @@ import { mapminiStore } from '@/stores/mapStore.js'
     padding: 1em;
     background: rgb(176, 176, 204);
     opacity: .98;
+  }
+
+  .active {
+    background-color: rgb(113, 172, 114);
   }
 
 }
