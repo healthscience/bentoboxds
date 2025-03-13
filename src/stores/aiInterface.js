@@ -209,6 +209,10 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         }
       } else if (this.beebeeContext === 'chatspace') {
         let spaceChatPrep = this.liveChatspaceUtil.prepareChatQandA(this.askQuestion, this.liveBspace)
+        // check pair has been setup
+        if (this.historyPair[this.liveBspace.cueid] === undefined) {
+          this.historyPair[this.liveBspace.cueid] = []
+        }
         this.historyPair[this.liveBspace.cueid].push(spaceChatPrep)
         // send to HOP and route to Agents required to reply
         this.actionAgentQuestion(spaceChatPrep.question)
