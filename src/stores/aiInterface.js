@@ -703,6 +703,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     },
     prepareSpaceSave (message) {
       // match bentoboxes, cues, content (media, research, markers, products)
+      console.log('cue save')
+      console.log(message)
       // bentoboxes
       let boxidPerspace = this.bentoboxList[message.data.cueid]
       if (boxidPerspace !== undefined) {

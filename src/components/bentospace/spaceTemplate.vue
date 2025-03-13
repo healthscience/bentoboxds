@@ -196,6 +196,19 @@ import { mapminiStore } from '@/stores/mapStore.js'
     storeCues.cueContext = 'cueall'
     // save the current layout on close
     storeBentobox.saveLayoutSpace(storeAI.liveBspace.cueid)
+    // save the latest on close
+    saveSpaceHistory(storeAI.liveBspace)
+  }
+
+  const saveSpaceHistory = (space) => {
+    let saveBentoBoxsetting = {}
+    saveBentoBoxsetting.type = 'bentobox'
+    saveBentoBoxsetting.reftype = 'space-history'
+    saveBentoBoxsetting.action = 'save'
+    saveBentoBoxsetting.task = 'save'
+    saveBentoBoxsetting.data = space
+    saveBentoBoxsetting.bbid = ''
+    storeAI.prepareSpaceSave(saveBentoBoxsetting)
   }
 
   const setzoomScale = (change) => {

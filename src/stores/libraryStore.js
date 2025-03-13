@@ -412,6 +412,8 @@ export const libraryStore = defineStore('librarystore', {
         this.storeCues.researchPapers[researchContract.value.concept.cueid].push({researchContract})
       } else if (message.action === 'product-contract') {
         // product added
+        console.log('product saved')
+        console.log(message.data)
         let productContract = message.data.data
         this.storeCues.productMatch[productContract.value.concept.cueid].push(productContract)
       } else if (message.action === 'reference-contract') {
