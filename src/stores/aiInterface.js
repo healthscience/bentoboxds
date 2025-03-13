@@ -770,7 +770,9 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       modelContract.data = modelHolder
       this.sendMessageHOP(modelContract)
       // if previous model, update to onstart false, active false
-      this.prepareUpdateModelContract(this.previousLLM, false, false)   
+      if (this.previousLLM !== null) {
+        this.prepareUpdateModelContract(this.previousLLM, false, false)
+      }
     },
     prepareUpdateModelContract (modelInfo, active, onstart) {
 
