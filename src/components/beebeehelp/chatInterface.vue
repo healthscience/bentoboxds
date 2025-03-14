@@ -123,7 +123,7 @@
               <!--the slimed down bentobox to chart and bring in tools as needed  storeAI.beebeeChatLog[chati?.question] !== undefined &&  -->
               <bento-box :bboxid="chati?.question?.bbid"></bento-box>
             </div>
-            <div  v-else-if="chati?.reply?.data?.text.length > 0">
+            <div  v-else-if="chati?.reply?.data?.text !== undefined && chati?.reply?.data?.text.length > 0">
               {{ chati?.reply?.data?.text }}
               <bento-box :bboxid="chati?.question?.bbid"></bento-box>
             </div>
