@@ -499,9 +499,12 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     },
     prepareCuespace (notItem) {
       // have any bentoboxn1 been sent?
-      if (notItem.data.content.bbn1.publicN1contracts.length > 0) {
-        for (let bbn1 of notItem.data.content.bbn1.publicN1contracts) {
-          this.preparePublicConfirm({ action: 'network-library-n1', data: bbn1 })          
+      // check if n1 with cue space
+      if (notItem.data.content.bbn1.publicN1contracts !== undefined) {
+        if (notItem.data.content.bbn1.publicN1contracts.length > 0) {
+          for (let bbn1 of notItem.data.content.bbn1.publicN1contracts) {
+            this.preparePublicConfirm({ action: 'network-library-n1', data: bbn1 })          
+          }
         }
       }
       let cueContract = notItem.data.content.cuecontract
