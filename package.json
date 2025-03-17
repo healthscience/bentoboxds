@@ -12,6 +12,7 @@
     "preview": "vite preview",
     "test:open": "npx cypress open",
     "test:browser": "npm run test:open & npm run dev",
+    "test:headless": "npx cypress run  --headless & npm run dev",
     "test:unit": "vitest --environment jsdom --root src/",
     "test:e2e": "start-server-and-test preview :4173 'cypress run --e2e'",
     "test:e2e:dev": "start-server-and-test 'vite dev --port 4173' :4173 'cypress open --e2e'",

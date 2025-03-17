@@ -7,14 +7,20 @@ module.exports = defineConfig({
     setupNodeEvents(on, config) {
       const { spawn } = require('child_process');
       const path = require('path')
+      let hop = null
 
       on('task', {
         async 'startServer'() {
           const baseHOPStepsUp = path.join(__dirname, '..') + '/hop';
           // Start the HOP server
-          const hop = spawn('npm', ['run', 'start'], { stdio: 'inherit', cwd: baseHOPStepsUp });
+          hop = spawn('npm', ['run', 'start'], { stdio: 'inherit', cwd: baseHOPStepsUp });
           // console.log(baseHOPStepsUp)
           return 'happy'
+        },
+        async 'stopServer'() {
+          // Stop the HOP server
+          hop.kill()  
+          return true
         }
       })
     }

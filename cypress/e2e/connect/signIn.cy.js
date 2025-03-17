@@ -1,11 +1,10 @@
 describe('main sign in & view beebee', () => {
   // Run the setup before all tests
   before(() => {
-    // const hop = spawn('npm', ['run', 'start'], { stdio: 'inherit', cwd: baseHOPStepsUp });
-    cy.task("startServer"); 
+    cy.task("startServer")
   })
 
-  it('visits the app root url', () => {
+  it('visits the app root url and signs in', () => {
     cy.viewport(1024, 768)
     cy.visit('/')
     cy.get("#self-auth-connect").should('exist')
