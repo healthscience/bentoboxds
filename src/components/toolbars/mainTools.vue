@@ -40,7 +40,7 @@
           </nav>
         </div>
         <div class="bentobox-top">
-          <div class="bb-align" @click="selfAuth">{{ storeAccount.accountMenu }}</div>
+          <div id="self-auth-connect" class="bb-align" @click="selfAuth">{{ storeAccount.accountMenu }}</div>
         </div>
       </header>
     </div>

@@ -1,6 +1,12 @@
 // https://docs.cypress.io/api/introduction/api.html
 
 describe('base layout browser', () => {
+
+  before(() => {
+    // const hop = spawn('npm', ['run', 'start'], { stdio: 'inherit', cwd: baseHOPStepsUp });
+    cy.task("startServer"); 
+  })
+
   it('visits the app root url', () => {
     cy.viewport(1024, 768)
     cy.visit('/')

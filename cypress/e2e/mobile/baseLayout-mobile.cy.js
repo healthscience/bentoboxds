@@ -1,4 +1,9 @@
 describe('base layout browser - mobile', () => {
+
+  before(() => {
+    // const hop = spawn('npm', ['run', 'start'], { stdio: 'inherit', cwd: baseHOPStepsUp });
+    cy.task("startServer"); 
+  })
   it('visits the app root url', () => {
     cy.viewport('iphone-6') // Mobile viewport
     cy.visit('/')
