@@ -253,8 +253,8 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
     // send to HOP to save
     // temp
     let peerPair = {}
-    peerPair.publickey = newPeerPubKey.value
-    peerPair.name = newPeername.value
+    peerPair.publickey = newPeerPubKey.value.trim()
+    peerPair.name = newPeername.value.trim()
     peerPair.longterm = true
     peerPair.topic = ''
     peerPair.settopic = false

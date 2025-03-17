@@ -105,6 +105,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     cueAction: 'cues',
     agentStatus: false,
     modelLoading: false,
+    agentModelDefault: {},
     previousLLM: {}
   }),
   actions: {
