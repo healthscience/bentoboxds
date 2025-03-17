@@ -198,6 +198,7 @@ import { computed } from 'vue'
     grid-template-columns: 1fr;
     margin-top: 2em;
     margin-bottom: 2em;
+    z-index: 23;
   }
 
 .cue-agent {

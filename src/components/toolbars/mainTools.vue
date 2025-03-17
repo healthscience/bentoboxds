@@ -94,7 +94,7 @@ const storeWebsocket = useSocketStore()
   display: grid;
   grid-template-columns: 1fr;
   width: 90vw;
-  height: 100vh;
+  height: 12px;
   border: 0px solid rgb(183, 30, 210);
   background-color: white;
 }
