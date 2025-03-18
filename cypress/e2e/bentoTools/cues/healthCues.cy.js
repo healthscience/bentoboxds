@@ -26,4 +26,9 @@ describe('Health Cues Tests', () => {
       // Step 4: Verify that the content div is presented
       cy.get('.modal-container').should('be.visible'); // Adjust the selector based on your content div class
   });
+
+  after(() => {
+    cy.task("stopServer")
+  })
+
 });

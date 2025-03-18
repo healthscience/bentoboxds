@@ -26,4 +26,8 @@ describe('BeeBee chat say hello', () => {
     cy.get("#beebee-chartspace").should('exist')
   })
 
+  after(() => {
+    cy.task("stopServer")
+  })
+
 })

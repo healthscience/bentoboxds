@@ -21,4 +21,8 @@ describe('Ask beebee to upload a file', () => {
     cy.get("#upload-space").should('exist')
   })
 
+  after(() => {
+    cy.task("stopServer")
+  })
+
 })

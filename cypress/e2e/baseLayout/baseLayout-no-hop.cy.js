@@ -18,4 +18,9 @@ describe('base layout browser - desktop', () => {
     cy.get('#connection-notify').find('#connection-warn-loss').should('be.visible')
     cy.contains("#connection-warn-loss", 'Feedback is appreciated.').should('exist')
   })
+
+  after(() => {
+    cy.task("stopServer")
+  })
+
 })

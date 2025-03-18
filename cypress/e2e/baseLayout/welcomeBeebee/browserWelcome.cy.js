@@ -14,4 +14,8 @@ describe('Welcome toolbar', () => {
     cy.get('#bb-features').find('.message-bb').should('have.length', 3)
   })
 
+  after(() => {
+    cy.task("stopServer")
+  })
+
 })
