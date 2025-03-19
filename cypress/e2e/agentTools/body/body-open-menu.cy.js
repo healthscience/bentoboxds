@@ -16,20 +16,20 @@ describe('Space meun select and submenu tests', () => {
     cy.get('#app').find('.bentobox-main-nav').should('be.visible');
     cy.get('.bentobox-main-nav').find('.bentobox-browser').should('be.visible');
     // Step 2: Click on the Cues button
-    cy.get('#space-button-menu').should('be.visible').click();
-    cy.wait(3000)
-    // Step 3: Verify that the Cues modal is presented
-    cy.get('#space-menu').should('be.visible');
-    cy.get('#cues-history').should('exist');
-    cy.get('#cues-holder').should('exist');
-    cy.get('#marker-holder').should('exist');
-    cy.get('#cues-holder').click()
-    cy.wait(3000)
-    cy.get('.cues-list').should('have.length.greaterThan', 0);
-    cy.get('.cues-list').first().find('.flat-history').click()
-    cy.wait(2000)
+    cy.get('#body-image').should('be.visible').click();
+    cy.wait(1000)
+    // Step 3: Verify body diagram is present
+    cy.get('#body-diagram-parts').should('be.visible');
+    cy.get('#human-canvas').should('be.visible');
+    // Step 4: Verify that the Cues modal is presented
+    // cy.get('#human-canvas').trigger('click', { x: 190, y: 225 })
+    cy.get('#human-canvas').then(($canvas) => {
+      // Trigger the click
+      cy.wrap($canvas).trigger('click', { x: 185, y: 245 })
+  })
+    cy.wait(1000)
     cy.get('.modal-mask').should('be.visible');
-      cy.get('.modal-container').should('be.visible');
+    cy.get('.modal-container').should('be.visible');
   });
 
   after(() => {
