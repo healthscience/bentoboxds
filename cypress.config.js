@@ -3,7 +3,7 @@ const { defineConfig } = require("cypress");
 module.exports = defineConfig({
   e2e: {
     specPattern: "cypress/e2e/**/*.{cy,spec}.{js,jsx,ts,tsx}",
-    baseUrl: "https://localhost:5173/", // 'https://bentoboxds.org/bentobox/' // 'https://localhost:4173/'
+    baseUrl: "https://localhost:5173/",
     setupNodeEvents(on, config) {
       const { spawn } = require('child_process');
       const path = require('path')

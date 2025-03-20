@@ -35,7 +35,7 @@ export default defineConfig({
       manifest: {
         name: 'BentoBox-DS',
         short_name: 'BB-DS',
-        description: 'Charting with AI - datascience',
+        description: 'BentoBoxDS - Sovereign intelligences that shapes health',
         theme_color: '#ffffff',
         icons: [
           {
