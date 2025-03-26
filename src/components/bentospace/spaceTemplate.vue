@@ -16,6 +16,7 @@
           <div id="cue-space-header">
             <div id="space-cue-title">BentoSpace # {{ storeAI.liveBspace.name }}</div>
             <div id="space-cueid"> - {{ storeAI.liveBspace.cueid }}</div>
+            <div id="space-shared-cueid"> - {{ storeAI.sharePeer[storeAI.liveBspace.cueid] }}</div>
           </div>
           <div id="return-modal-close" @click="closeBentoSpace">return</div>
         </div>
@@ -348,6 +349,13 @@ import { mapminiStore } from '@/stores/mapStore.js'
 #space-cueid {
   color: #5254ab;
   font-size: .8em;
+}
+
+/* shared cue from network */
+#space-shared-cueid {
+  color: #5254ab;
+  font-size: .8em;
+  background-color: #a6d697;
 }
 
 #space-toolbar {
