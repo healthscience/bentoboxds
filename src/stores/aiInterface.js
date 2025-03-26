@@ -487,17 +487,19 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     preparePublicConfirm (item) {
+      // match to peerid  name
+      let matchPeername = this.storeAcc.warmPeers.find(peer => peer.key === item.data.publickey)
       // produce a pair for the current chat
       let newBBID = '23232'
       let pairBB = {}
       let question = {}
       question.bbid = newBBID 
-      question.data = { active: true, text: 'Please confirm adding board to public library' }
+      question.data = { active: true, text: 'Please confirm adding board to public library sent by' + matchPeername.value.name }
       pairBB.question = question
       let reply = {}
       reply.time = new Date()
-      reply.type = item.action
-      reply.data = { text: item.data }
+      reply.type = item.data.action
+      reply.data = { text: item.data.data }
       reply.network = true
       pairBB.reply = reply
       this.historyPair[this.chatAttention].push(pairBB)
@@ -507,7 +509,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     prepareCuespace (notItem) {
       // notify peer that this cue content came from a shared peer
       // match name to publickey
-      console.log(notItem.data.publickey)
       let matchPeername = this.storeAcc.warmPeers.find(peer => peer.key === notItem.data.publickey)
       this.sharePeer[notItem.data.data.content.cuecontract.spaceid] = matchPeername.value.name
       // have any bentoboxn1 been sent?
