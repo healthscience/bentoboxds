@@ -1,6 +1,6 @@
 # bentoboxds
 
-BentoBoxDS - sovereign intelligences that shapes health
+BentoBoxDS - sovereign intelligences shape health
 A graphical toolkit building collective intelligences ( https://bentoboxds.org/ ) includig charting & building network experiments & coordinating DML (decentralise machine learning) on the Health Oracle Protocol ( https://github.com/healthscience/hop )
 
 BentoBoxDS run as desktop or web application in the browser and will require HOP to be installed locally.  Setup help available discord server (community link on  https://bentoboxds.org/).
