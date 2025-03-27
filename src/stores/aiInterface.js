@@ -672,7 +672,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
             this.boxLibSummary[boxid] = hi.summary
 
           } else {
-            this.boxLibSummary[boxid] = hi.summary.summary
+            this.boxLibSummary[boxid] = hi.summary.summary.summary.summary.summary.summary
           }
         }
       }
