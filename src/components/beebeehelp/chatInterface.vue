@@ -228,7 +228,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
   }
 
   const publibLibAdd = (board) => {
-    storeLibrary.confrimAddPublicLibrary(board)
+    storeLibrary.confrimAddPublicLibrary(board.data)
   }
 
   const uploadButton = () =>  {
