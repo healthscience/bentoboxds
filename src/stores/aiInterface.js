@@ -397,15 +397,12 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }*/
     },
     processNotification (received) {
-      console.log('notification')
-      console.log(received)
       this.countNotifications++
       this.notifList.push(received)
       // add to chart part list (do now or on requrest?)
       if (received.action === 'chart') {
         // match peer to name or public key
         let peerMatch = this.storeAcc.warmPeers.find(peer => peer.key === received.data.publickey)
-        console.log(peerMatch)
         let pairBB = {}
         let question = {}
         question.bbid = received.data.data.bbid
