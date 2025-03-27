@@ -699,10 +699,14 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       let bbidPerChat = []
       // loop over data to match to visualisation alread prepared.  (note. or HOPQuery to re-create via HOP)
       let visDataperChat = [] // this.visData[]
-      for (let bbi of settingsData) {
-        bbidPerChat.push(bbi.reply.bbid)
-        let visD = this.visData[bbi.reply.bbid]
-        visDataperChat.push(visD)
+      if (settingsData !== undefined) {
+        for (let bbi of settingsData) {
+          bbidPerChat.push(bbi.reply.bbid)
+          let visD = this.visData[bbi.reply.bbid]
+          visDataperChat.push(visD)
+        }
+      } else {
+        settingsData = []
       }
       // save HOP summary info ie. HOPquery
       let hopQuery = []
