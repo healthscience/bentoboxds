@@ -94,6 +94,17 @@ export const accountStore = defineStore('account', {
       this.invitedPeers.push(peer)
       this.sendMessageHOP(shareInfo)
     },
+    retryPeertoNetwork (peer) {
+      // try to see if other peer is live on network
+      let shareInfo = {}
+      shareInfo.type = 'network'
+      shareInfo.action = 'retry'
+      shareInfo.task = 'peer-retry-connect'
+      shareInfo.reftype = 'null'
+      shareInfo.privacy = 'private'
+      shareInfo.data = peer
+      this.sendMessageHOP(shareInfo)
+    },
     updateTopicSetter (update) {
       let updatePeerList = []
       for (let wpeer of this.warmPeers) {
