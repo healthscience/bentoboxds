@@ -67,6 +67,8 @@ export const accountStore = defineStore('account', {
         this.checkPeerStatus(received.data.data)
       } else if (received.action === 'peer-share-topic') {
         this.updateTopicSetter(received.data)
+      } else if (received.action === 'peer-disconnect-notify') {
+        this.updatePeerDisconnect(received.data)
       } else if (received.action === 'invite-live-accepted') {
         this.updatePeerlive(received.data)
       } else if (received.action === 'network-peer-name') {
@@ -161,6 +163,20 @@ export const accountStore = defineStore('account', {
           let peerOrg = wpeer
           peerOrg.value.matchted = true
           peerOrg.value.live = true
+          updateNameList.push(peerOrg)
+        } else {
+          updateNameList.push(wpeer)
+        }
+      }
+      this.warmPeers = updateNameList
+    },
+    updatePeerDisconnect (update) {
+      let updateNameList = []
+      for (let wpeer of this.warmPeers) {
+        if (wpeer.key === update.data.publickey) {
+          let peerOrg = wpeer
+          peerOrg.value.matchted = true
+          peerOrg.value.live = false
           updateNameList.push(peerOrg)
         } else {
           updateNameList.push(wpeer)
