@@ -171,9 +171,11 @@ export const accountStore = defineStore('account', {
       this.warmPeers = updateNameList
     },
     updatePeerDisconnect (update) {
+      console.log('discconntn')
+      console.log(update)
       let updateNameList = []
       for (let wpeer of this.warmPeers) {
-        if (wpeer.key === update.data.publickey) {
+        if (wpeer.key === update.publickey) {
           let peerOrg = wpeer
           peerOrg.value.matchted = true
           peerOrg.value.live = false
