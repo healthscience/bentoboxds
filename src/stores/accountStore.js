@@ -67,7 +67,7 @@ export const accountStore = defineStore('account', {
         this.checkPeerStatus(received.data.data)
       } else if (received.action === 'peer-share-topic') {
         this.updateTopicSetter(received.data)
-      } else if (received.action === 'peer-disconnect-notify') {
+      } else if (received.action === 'network-peer-disconnect') {
         this.updatePeerDisconnect(received.data)
       } else if (received.action === 'invite-live-accepted') {
         this.updatePeerlive(received.data)
