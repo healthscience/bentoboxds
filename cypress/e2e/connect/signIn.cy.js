@@ -2,6 +2,7 @@ describe('main sign in & view beebee', () => {
   // Run the setup before all tests
   before(() => {
     cy.task("startServer")
+    cy.wait(3000)
   })
 
   it('visits the app root url and signs in', () => {
