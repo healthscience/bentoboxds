@@ -483,9 +483,9 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         console.log('share cue space')
       }
     },
-    preparePublicConfirm (item) {
+    preparePublicConfirm (item, peer) {
       // match to peerid  name
-      let matchPeername = this.storeAcc.warmPeers.find(peer => peer.key === item.data.publickey)
+      let matchPeername = peer // this.storeAcc.warmPeers.find(peer => peer.key === item.data.publickey)
       // produce a pair for the current chat
       let newBBID = '23232'
       let pairBB = {}
@@ -513,7 +513,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       if (notItem.data.data.content.bbn1.publicN1contracts !== undefined) {
         if (notItem.data.data.content.bbn1.publicN1contracts.length > 0) {
           for (let bbn1 of notItem.data.data.content.bbn1.publicN1contracts) {
-            this.preparePublicConfirm({ action: 'network-library-n1', data: bbn1 })          
+            this.preparePublicConfirm({ action: 'network-library-n1', data: bbn1 } , matchPeername)          
           }
         }
       }
