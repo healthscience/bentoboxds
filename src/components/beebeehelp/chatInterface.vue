@@ -169,12 +169,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
   const storeAI = aiInterfaceStore()
   const storeLibrary = libraryStore()
 
-  /*
-  const chartBuild = style => {
-    storeAI.beebeeChatLog = true
-    chartStyle.value = style
-  } */
-
   /* computed */
   const libraryAvailable = computed (() => {
     if (Object.keys(storeLibrary.publicLibrary).length > 0) {

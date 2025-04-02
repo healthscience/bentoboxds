@@ -415,6 +415,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         let reply = {}
         reply.time = new Date()
         reply.type = received.action
+        reply.bbid = received.data.data.bbid
         reply.data = { text: received.text + ' ' + peerMatch.value.name }
         reply.network = true
         pairBB.reply = reply
@@ -489,7 +490,12 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     },
     preparePublicConfirm (item, peer) {
       // match to peerid  name
-      let matchPeername = peer // this.storeAcc.warmPeers.find(peer => peer.key === item.data.publickey)
+      let matchPeername = ''
+      if (peer === '') {
+        matchPeername = this.storeAcc.warmPeers.find(peer => peer.key === item.data.publickey)
+      } else {
+        matchPeername = peer
+      }
       // produce a pair for the current chat
       let newBBID = '23232'
       let pairBB = {}
