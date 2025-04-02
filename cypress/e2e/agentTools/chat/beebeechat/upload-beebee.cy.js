@@ -4,6 +4,7 @@ describe('Ask beebee to upload a file', () => {
 
   beforeEach(() => {
     cy.task("startServer")
+    cy.wait(3000)
     cy.viewport(1024, 768)
     cy.visit('/')
     cy.get("#self-auth-connect").should('exist')

@@ -2,6 +2,7 @@ describe('Space meun select and submenu tests', () => {
   // Run the setup before each test
   before(() => {
     cy.task("startServer")
+    cy.wait(3000)
     cy.viewport(1024, 768)
     cy.visit('/')
     cy.get("#self-auth-connect").should('exist')

@@ -1,4 +1,4 @@
-describe('Space meun select and submenu tests', () => {
+describe('Generate invite', () => {
   // Run the setup before each test
   before(() => {
     cy.task("startServer")
@@ -12,7 +12,7 @@ describe('Space meun select and submenu tests', () => {
     cy.get('#self-auth').click()
   });
 
-  it('make sure tabs and can swtich between', () => {
+  it('generate an invite', () => {
     // Step 1: Verify the base layout
     cy.get('#app').find('.bentobox-main-nav').should('be.visible')
     cy.get('.bentobox-main-nav').find('.bentobox-browser').should('be.visible')
@@ -24,23 +24,31 @@ describe('Space meun select and submenu tests', () => {
     cy.get('.modal-container').should('be.visible')
     // Step 4: Verify that the tabs is presented
     cy.get('#connection-account').should('be.visible')
-    cy.get('#peers-tab').should('exist')
-    cy.get('#datastores-tab').should('exist')
-    cy.get('#aiagents-tab').should('exist')
-    cy.get('#wallets-tab').should('exist')
-    cy.get("#disconnect-button").should('exist')
-    // click on each tab and test the content
-    cy.get('#list-content').should('exist')
-    // click on 
-    cy.get('#datastores-tab').click()
+    // generate an invite
+    cy.get('#peers-tab').click()
     cy.wait(1000)
-    cy.get('#datastore-list').should('exist')
-    cy.get('#aiagents-tab').click()
-    cy.wait(1000)
-    cy.get('#aiagents-lists').should('exist')
-    cy.get('#wallets-tab').click()
-    cy.wait(1000)
-    cy.get('#wallet-list').should('exist')
+    // Enter peer name and generate invite
+    const peerName = 'TestPeer'
+    cy.get('input[placeholder="name"]').type(peerName)
+    cy.get('#invite-generation-button').click()
+
+    // Verify invite is generated
+    cy.get('#form-invite-code').should('be.visible')
+    cy.get('.gen-crypt-code').should('have.length.greaterThan', 0)
+
+    // Verify peer name is displayed
+    cy.get('.gen-crypt-code').first().should('contain', peerName)
+
+    // Verify public key is displayed
+    cy.get('#pubkey-session-live').should('be.visible')
+
+    // Verify copy button functionality
+    cy.get('#button-copy-invite').click()
+    cy.get('.copied-message').should('be.visible')
+
+    // Verify remove button functionality
+    cy.get('#button-remove-invite').click()
+    // cy.get('#form-invite-code').should('not.exist')
   });
 
   after(() => {

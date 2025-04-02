@@ -3,6 +3,7 @@ describe('Ask beebee to chart a list of numbers', { testIsolation: false }, () =
 
   before(() => {
     cy.task("startServer")
+    cy.wait(3000)
     cy.viewport(1024, 768)
     cy.visit('/')
     cy.get("#self-auth-connect").should('exist')
