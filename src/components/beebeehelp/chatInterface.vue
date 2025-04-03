@@ -121,6 +121,9 @@
             </div>
             <div id="beebee-chartspace" v-if="storeAI.beebeeChatLog[chati?.question?.bbid] === true && storeAI.visData[chati.reply.bbid].datasets[0]?.data !== undefined">
               <!--the slimed down bentobox to chart and bring in tools as needed  storeAI.beebeeChatLog[chati?.question] !== undefined &&  -->
+              <div  v-if="chati?.reply?.data?.text !== undefined && chati?.reply?.data?.text.length > 0">
+                {{ chati?.reply?.data?.text }}
+              </div>
               <bento-box :bboxid="chati?.question?.bbid"></bento-box>
             </div>
             <div  v-else-if="chati?.reply?.data?.text !== undefined && chati?.reply?.data?.text.length > 0">
