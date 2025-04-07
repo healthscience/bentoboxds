@@ -168,9 +168,9 @@ import { accountStore } from '@/stores/accountStore.js'
 
     const startLibraryRepication = () => {
       let shareInfo = {}
-      shareInfo.type = 'account'
-      shareInfo.action = 'public-library-replicate'
-      shareInfo.task = 'replicate'
+      shareInfo.type = 'network'
+      shareInfo.action = 'share'
+      shareInfo.task = 'public-library-replicate'
       shareInfo.reftype = 'publiclibrary'
       shareInfo.privacy = 'public'
       shareInfo.data = { discoverykey: pubLibrarykey.value }
