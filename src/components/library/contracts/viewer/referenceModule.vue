@@ -3,12 +3,15 @@
     <div id="task-select">
       <div class="contract-task">
         <button id="get-referencecontract" @click.prevent="getRefContracts()">Get Library Contracts</button>
-        <div id="notify-library-start-replication" v-if="storeLibrary.startLibrary === true">
-          <form id="library-replication-form">
-            <label for="replicteplibrary"></label>
-            <input type="input" id="publibkey" placeholder="librarykey" v-model="pubLibrarykey" autofocus>
-            <button @click.prevent="startLibraryRepication">Start</button>
-          </form>
+        <div id="library-cloning">
+          <button id="replicate-library" @click.prevent="repLibrary()">Replicate a library</button>
+          <div id="notify-library-start-replication" v-if="storeLibrary.startLibrary === true">
+            <form id="library-replication-form">
+              <label for="replicteplibrary"></label>
+              <input type="input" id="publibkey" placeholder="librarykey" v-model="pubLibrarykey" autofocus>
+              <button id="start-library-replication" @click.prevent="startLibraryRepication">Start library replication</button>
+            </form>
+          </div>
         </div>
       </div>
       <!-- <div class="view-refconts">
@@ -132,6 +135,10 @@ import { accountStore } from '@/stores/accountStore.js'
       storeLibrary.sendMessage('get-results')
     }
 
+    const repLibrary = () => {
+      storeLibrary.startLibrary = !storeLibrary.startLibrary
+    }
+
     const viewRefContracts = (type) => {
       // ask network library for contracts for this peer
       if (type === 'question' || type === 'datatype' || type === 'compute' || type === 'packaging' || type === 'visualise') {
@@ -196,6 +203,12 @@ import { accountStore } from '@/stores/accountStore.js'
   grid-template-columns: 1fr 1fr;
 }
 
+#library-cloning {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
 #ref-contracts-view {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
@@ -234,7 +247,9 @@ import { accountStore } from '@/stores/accountStore.js'
   }
 
   .contract-task {
+    position: relative;
     display: grid;
+    grid-template-columns: 2fr 1fr;
   }
 
   .contract-task-right {
@@ -265,7 +280,14 @@ import { accountStore } from '@/stores/accountStore.js'
   #notify-library-start-replication {
     position: absolute;
     top: 1px;
-    left: 180px;
+    left: 280px;
+    width: 200px;
+    background-color: rgb(176, 176, 204);
+    padding: 1em;
+  }
+
+  #start-library-replication {
+    width: 200px;
   }
 
 }
