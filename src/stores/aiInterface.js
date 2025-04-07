@@ -482,7 +482,9 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       } else if (received.action === 'cue-space') {
         // populate space  check if cue needing setup then fill and notify
         console.log('share cue space')
-      }
+      } else if (received.action === 'network-replicate-publiclibrary') {
+        this.storeLibrary.replicateFeedback = received.data.data
+      }  
     },
     preparePublicConfirm (item, peer) {
       // match to peerid  name

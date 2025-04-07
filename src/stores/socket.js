@@ -91,6 +91,7 @@ export const useSocketStore = defineStore({
     },
     send_message (data) {
       data.jwt = this.jwt
+      console.log(data)
       this.websocket.send(JSON.stringify(data))
       // keep list of message per session live?
       // this.messages.push( { from: "send", message: to_send.message } )

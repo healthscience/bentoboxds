@@ -5,11 +5,19 @@
         <button id="get-referencecontract" @click.prevent="getRefContracts()">Get Library Contracts</button>
         <div id="library-cloning">
           <button id="replicate-library" @click.prevent="repLibrary()">Replicate a library</button>
-          <div id="notify-library-start-replication" v-if="storeLibrary.startLibrary === true">
+          <div id="notify-library-start-replication" v-if="storeLibrary.startPubLibrary === true">
             <form id="library-replication-form">
               <label for="replicteplibrary"></label>
               <input type="input" id="publibkey" placeholder="librarykey" v-model="pubLibrarykey" autofocus>
               <button id="start-library-replication" @click.prevent="startLibraryRepication">Start library replication</button>
+              <div id="library-replication-buttons" v-if="libraryFeedback?.text !== undefined">
+                <div id="replicaton-feedback" v-if="libraryFeedback">
+                  <div id="feedback-message-replicate">
+                    {{ libraryFeedback.text }}
+                  </div>
+                  <button id="save-replication" @click.prevent="saveReplicationLib()">Save library updates</button>
+                </div>
+              </div>
             </form>
           </div>
         </div>
@@ -114,6 +122,11 @@ import { accountStore } from '@/stores/accountStore.js'
     }
   )
 
+  /* computed */
+  const libraryFeedback = computed(() => {
+    return storeLibrary.replicateFeedback
+  })
+
   /* methods */
   const newSetRefContract = (ap) => {
       if (startRefContract.value.active === false) {
@@ -136,7 +149,19 @@ import { accountStore } from '@/stores/accountStore.js'
     }
 
     const repLibrary = () => {
-      storeLibrary.startLibrary = !storeLibrary.startLibrary
+      storeLibrary.startPubLibrary = !storeLibrary.startPubLibrary
+    }
+
+    const saveReplicationLib = () => {
+      let saveReplication = {}
+      saveReplication.type = 'network'
+      saveReplication.action = 'save-replicate-library'
+      saveReplication.task = 'public-library-replicate'
+      saveReplication.reftype = 'publiclibrary'
+      saveReplication.privacy = 'public'
+      saveReplication.data = { discoverykey: pubLibrarykey.value }
+      storeAccount.sendMessageHOP(saveReplication)
+      storeLibrary.startPubLibrary = false
     }
 
     const viewRefContracts = (type) => {
@@ -174,7 +199,7 @@ import { accountStore } from '@/stores/accountStore.js'
       shareInfo.reftype = 'publiclibrary'
       shareInfo.privacy = 'public'
       shareInfo.data = { discoverykey: pubLibrarykey.value }
-      // console.log(shareInfo)
+      console.log(shareInfo)
       storeAccount.sendMessageHOP(shareInfo)
     }
 

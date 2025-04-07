@@ -407,6 +407,7 @@ export const accountStore = defineStore('account', {
       this.sharePubkey = ''
     },
     sendMessageHOP (message) {
+      console.log(message)
       this.sendSocket.send_message(message)
     }
   }
