@@ -7,6 +7,17 @@
           <button id="replicate-library" @click.prevent="repLibrary()">Replicate a library</button>
           <div id="notify-library-start-replication" v-if="storeLibrary.startPubLibrary === true">
             <form id="library-replication-form">
+              <div id="ref-contracts-view" class="ref-group">
+                <header>Reference Contracts</header>
+                <div class="view-contract">
+                  <select class="buttonexplore" v-model="selectedLibrary">
+                    <option value="" disabled>Select a Library Type</option>
+                    <option v-for="libType in libraryTypes" :value="libType.value" :key="libType.value">
+                      {{ libType.text }}
+                    </option>
+                  </select>
+                </div>
+              </div>
               <label for="replicteplibrary"></label>
               <input type="input" id="publibkey" placeholder="librarykey" v-model="pubLibrarykey" autofocus>
               <button id="start-library-replication" @click.prevent="startLibraryRepication">Start library replication</button>
@@ -122,6 +133,15 @@ import { accountStore } from '@/stores/accountStore.js'
     }
   )
 
+let libraryTypes = ref([
+  { value: 'public', text: 'Public' },
+  { value: 'cues', text: 'Cues' },
+  { value: 'research', text: 'Research' },
+  { value: 'models', text: 'Models' }
+])
+
+let selectedLibrary = ref('')
+
   /* computed */
   const libraryFeedback = computed(() => {
     return storeLibrary.replicateFeedback
@@ -159,7 +179,7 @@ import { accountStore } from '@/stores/accountStore.js'
       saveReplication.task = 'public-library-replicate'
       saveReplication.reftype = 'publiclibrary'
       saveReplication.privacy = 'public'
-      saveReplication.data = { discoverykey: pubLibrarykey.value }
+      saveReplication.data = { discoverykey: pubLibrarykey.value, library: selectedLibrary.value }
       storeAccount.sendMessageHOP(saveReplication)
       storeLibrary.startPubLibrary = false
     }
@@ -198,9 +218,9 @@ import { accountStore } from '@/stores/accountStore.js'
       shareInfo.task = 'public-library-replicate'
       shareInfo.reftype = 'publiclibrary'
       shareInfo.privacy = 'public'
-      shareInfo.data = { discoverykey: pubLibrarykey.value }
+      shareInfo.data = { discoverykey: pubLibrarykey.value, library: selectedLibrary.value }
       console.log(shareInfo)
-      storeAccount.sendMessageHOP(shareInfo)
+      // storeAccount.sendMessageHOP(shareInfo)
     }
 
     // a computed ref
@@ -264,6 +284,29 @@ import { accountStore } from '@/stores/accountStore.js'
   border: 2px solid orange;
 }
 
+.buttonexplore {
+  min-width: 200px;
+  border: 2px solid orange;
+  padding: 8px;
+}
+
+.buttonexplore option {
+  padding: 8px;
+}
+
+#notify-library-start-replication {
+  position: absolute;
+  top: 1px;
+  left: 280px;
+  width: 240px;
+  background-color: rgb(176, 176, 204);
+  padding: 1em;
+}
+
+#start-library-replication {
+  width: 220px;
+}
+
 @media (min-width: 1024px) {
  
   #task-select {
@@ -306,13 +349,13 @@ import { accountStore } from '@/stores/accountStore.js'
     position: absolute;
     top: 1px;
     left: 280px;
-    width: 200px;
+    width: 240px;
     background-color: rgb(176, 176, 204);
     padding: 1em;
   }
 
   #start-library-replication {
-    width: 200px;
+    width: 220px;
   }
 
 }
