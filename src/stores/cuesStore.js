@@ -65,7 +65,7 @@ export const cuesStore = defineStore('cues', {
       const cueContract = {}
       cueContract.type = 'library'
       cueContract.action = 'cues'
-      cueContract.reftype = 'refresh-cues'
+      cueContract.reftype = 'start-cues'
       cueContract.task = 'GET'
       cueContract.privacy = 'public'
       this.sendSocket.send_message(cueContract)
