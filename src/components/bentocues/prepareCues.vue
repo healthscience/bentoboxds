@@ -45,6 +45,7 @@
         <div id="filter-cues">
           <div class="filter-alphabet">
             <button class="filter-letter" v-for="letter of alaphabestLetters" @click="filterCuesLetter(letter)" v-bind:class="{ active: liveLetter === letter }">{{ letter }}</button>
+            <button id="refresh-cues-btn" @click="refreshCues()">refresh</button>
           </div>
         </div>
         <div id="saved-cues" v-if="cueConext === 'cueall' && cuesNetworkList.length > 0">
@@ -145,6 +146,11 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   const gaiaSyncStart = () => {
     // inform library to prepare gaia datatype contracts
     storeCues.prepareGaia()
+  }
+
+  const refreshCues = () => {
+    // get cues from library store
+    storeCues.refreshGetCues()
   }
 
   const filterCuesLetter = (letter) => {
@@ -469,6 +475,28 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
 .filter-letter {
   margin-left: .4em;
+}
+
+#refresh-cues-btn {
+  display: inline;
+  margin-left: 0.4em;
+  background-color: #4CAF50;  /* Green background */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#refresh-cues-btn:hover {
+  background-color: #45a049;  /* Slightly darker green on hover */
+  transform: translateY(-1px);  /* Slight lift effect */
+}
+
+#refresh-cues-btn:active {
+  background-color: #388E3C;  /* Even darker green when clicked */
+  transform: translateY(0);
 }
 
 .active {

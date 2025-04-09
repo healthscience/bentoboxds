@@ -219,8 +219,8 @@ let selectedLibrary = ref('')
       shareInfo.reftype = 'publiclibrary'
       shareInfo.privacy = 'public'
       shareInfo.data = { discoverykey: pubLibrarykey.value, library: selectedLibrary.value }
-      console.log(shareInfo)
-      // storeAccount.sendMessageHOP(shareInfo)
+      // console.log(shareInfo)
+      storeAccount.sendMessageHOP(shareInfo)
     }
 
     // a computed ref

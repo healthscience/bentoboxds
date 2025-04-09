@@ -805,7 +805,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     prepareUpdateModelContract (modelInfo, active, onstart) {
-
       // structure inputs for cue contract
       modelInfo.value.computational.active = active
       modelInfo.value.computational.onstart = onstart
