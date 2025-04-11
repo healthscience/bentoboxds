@@ -8,7 +8,6 @@
           <div id="notify-library-start-replication" v-if="storeLibrary.startPubLibrary === true">
             <form id="library-replication-form">
               <div id="ref-contracts-view" class="ref-group">
-                <header>Reference Contracts</header>
                 <div class="view-contract">
                   <select class="buttonexplore" v-model="selectedLibrary">
                     <option value="" disabled>Select a Library Type</option>
@@ -181,6 +180,9 @@ let selectedLibrary = ref('')
       saveReplication.privacy = 'public'
       saveReplication.data = { discoverykey: pubLibrarykey.value, library: selectedLibrary.value }
       storeAccount.sendMessageHOP(saveReplication)
+      // clear the key
+      pubLibrarykey.value = ''
+      storeLibrary.replicateFeedback = {}
       storeLibrary.startPubLibrary = false
     }
 
@@ -246,6 +248,7 @@ let selectedLibrary = ref('')
 #task-select {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  margin-bottom: 2em;
 }
 
 #library-cloning {
@@ -298,7 +301,7 @@ let selectedLibrary = ref('')
   position: absolute;
   top: 1px;
   left: 280px;
-  width: 240px;
+  width: 320px;
   background-color: rgb(176, 176, 204);
   padding: 1em;
 }
@@ -348,8 +351,8 @@ let selectedLibrary = ref('')
   #notify-library-start-replication {
     position: absolute;
     top: 1px;
-    left: 280px;
-    width: 240px;
+    left: 200px;
+    width: 320px;
     background-color: rgb(176, 176, 204);
     padding: 1em;
   }
