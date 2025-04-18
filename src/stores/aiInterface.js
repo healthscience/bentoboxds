@@ -37,7 +37,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     llmModelsList: [],
     oracleData: { type: 'oracle', action: 'decision', elements: [{ label: 'muscle mass', datasets: { backgroundColor: '#01923c', data: 30 }}, { label: 'brain', datasets: { backgroundColor: '#71923c', data: 30 }}], concerns: [{ label: 'kidneys', datasets: { backgroundColor: '#b90e28', data: 30 }}, { label: 'pee more', datasets: { backgroundColor: '#e62643', data: 30 }}]},
     askQuestion: {
-      text: ''
+      text: '',
+      compute: 'observation'
     },
     bodyDiagramShow: false,
     inputAskHistory: [],
@@ -161,6 +162,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         let saveQ = {}
         saveQ.count = this.qcount
         saveQ.text = this.askQuestion.text
+        saveQ.compute = this.askQuestion.compute
         saveQ.active = true
         let date = new Date()
         // get the time as a string

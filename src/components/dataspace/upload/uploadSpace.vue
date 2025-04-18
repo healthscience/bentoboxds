@@ -129,7 +129,7 @@ const saveFiles = (files) => {
 		storeLibrary.fileBundleList.push(fileBundle)
 		// give summary back to peer
 		if (file.file.type === 'text/csv') {
-			console.log('svs')
+			console.log('csv')
 			storeLibrary.csvpreviewLive = true
 			// use hander large or small?
 			if (largeFileStatus === false) {

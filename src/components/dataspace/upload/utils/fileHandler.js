@@ -78,8 +78,6 @@ class FileHandler {
   
       // now let's start the read with the first block
       chunkReaderBlock(offset, chunkSize, file)
-
-
     return {}
   }
     
@@ -87,7 +85,7 @@ class FileHandler {
 	 * csv file parsing and saving
 	 */
 	csvHandler (file, storeAI, storeLibrary, hashObject, fileBundle) {
-		console.log('csva small')
+		console.log('csv small')
 		let headerLocal = {}
 		const reader = new FileReader()
 		reader.onload = function () {

@@ -292,8 +292,6 @@ class LibraryUtility { //  extends EventEmitter {
     return libContracts
   }
 
-
-
   /**
   * prepare save contract message
   * @method prepareDefaultMessage
@@ -341,6 +339,7 @@ class LibraryUtility { //  extends EventEmitter {
     return refContract
 
   }
+
   /**
   * prepare all types of contracts to make cues
   * @method prepareFirstCues
