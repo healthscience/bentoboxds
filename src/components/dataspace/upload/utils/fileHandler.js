@@ -85,7 +85,6 @@ class FileHandler {
 	 * csv file parsing and saving
 	 */
 	csvHandler (file, storeAI, storeLibrary, hashObject, fileBundle) {
-		console.log('csv small')
 		let headerLocal = {}
 		const reader = new FileReader()
 		reader.onload = function () {
@@ -165,7 +164,6 @@ class FileHandler {
 		messageHOP.data = chunk
 		// close the upload
 		storeLibrary.uploadStatus = false
-		console.log(messageHOP)
 		storeLibrary.sendMessage(messageHOP)
 	}
 

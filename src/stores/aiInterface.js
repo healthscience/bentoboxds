@@ -24,7 +24,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     cuesRelationshipFeedback: {},
     startChat: true,
     chatAttention: '',
-    historyList: '',
+    historyList: false,
+    historyCuesList: false,
     historyBar: false,
     beginChat: false,
     beebeeStatus: false,
@@ -231,8 +232,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       // console.log(dataInfo)
     },
     actionFileAskInput (fileData) {
-      console.log('action file ask input---------')
-      console.log(fileData)
       // fileData.data.input = { data: {compute: 'observation'} }
       let aiMessageout = {}
       aiMessageout.type = 'bbai'
@@ -240,8 +239,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       aiMessageout.action = 'question'
       aiMessageout.data = fileData.data
       aiMessageout.bbid = fileData.bbid
-      console.log('action file ask input')
-      console.log(aiMessageout)
       this.sendSocket.send_message(aiMessageout)
       this.helpchatHistory.push(aiMessageout)
       this.askQuestion.text = ''
@@ -291,8 +288,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     processReply (received) {
-      console.log('ai interface process reply')
-      console.log(received)
       if (received.action === 'agent-task') {
         if (received.task === 'cale-evolution') {
           this.boxModelUpdate[received.context.bbid] = {}
@@ -322,10 +317,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           this.historyPair[this.chatAttention].push(pairBB)
         }
       } else if (received.action === 'no-data') {
-        console.log('no data')
-      } else if (received.action !== undefined) {
+      } else { // if (received.action !== undefined) {
         // match to question via bbid
-        console.log('elc al route---')
         if (received.data) {
           let questionStart = {}
           let questionCount = []
@@ -612,7 +605,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         // this.expandBentobox[matchBBID] = true
         this.beebeeChatLog[matchBBID] = true
         let hopDataChart = {}
-        hopDataChart.datasets = dataHOP.data.data.chartPackage.datasets // [ { label: dataHOP.data.data.chartPackage.datasets[0].label, data: dataHOP.data.data.chartPackage.datasets[0].data } ]
+        hopDataChart.datasets = dataHOP.data.data.chartPackage.datasets
         hopDataChart.labels = dataHOP.data.data.chartPackage.labels
         this.visData[matchBBID] = hopDataChart
         this.storeBentoBox.setChartstyle(matchBBID, dataHOP.context.moduleorder.visualise.value.info.settings.visualise)
