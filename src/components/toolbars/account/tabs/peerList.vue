@@ -1,117 +1,135 @@
 <template>
   <div id="list-space">
-    <!-- <div id="network-keys">
-      <div class="type-peer">Share key:</div>
-      <div class="raw-share-live">
-        {{ storeAccount.networkInfo.publickey }} 
-      </div>
-      <button class="raw-share-live" @click="copyKey(storeAccount.networkInfo.publickey)">copy</button>
-    </div>-->
-    <div id="generate-invite">
-      <div id="invite-peer-codename">
-        <div id="invite-peer-name">Name:</div>
-        <input v-model="peerName" placeholder="name">
-        <button id="invite-generation-button" @click="generateInvite()"> Generate invite</button>
-      </div>
-      <div id="form-invite-code" v-if="genInvite === true">
-        <div id="invite-peer-crypto" v-for="(genInvite, index) of inviteList">
-          <div class="peer-g"  v-if="index == 0">
-        <div class="longterm-peer peer-details-header">
-          <div class="peer-info">
-            Name
-          </div>
-          <div class="peer-info">
-            Accepted 
-          </div>
-          <div class="peer-info">
-            Public key / codename
-          </div>
-        </div>
-        <div class="option-tools">
-            Tools
-        </div>
-      </div>
-          <div id="send-invite-gen">
-            <div class="gen-crypt-code">{{ genInvite.name }}</div>
-            <div class="gen-crypt-code">{{ genInvite.matched }}</div>
-            <div class="gen-crypt-code" id="pubkey-session-live">{{ genInvite.publickey }}</div>
-            <div class="gen-crypt-code name-as-code">{{ genInvite.codename }}</div>
-            <button class="gen-crypt-code" id="button-copy-invite" type="button" @click="copyGenInvite(genInvite.codename)">Copy invite</button>
-            <div v-if="copiedMessage" class="copied-message">Copied to clipboard</div>
-            <button class="gen-crypt-code" id="button-remove-invite" type="button" @click="removeInvite(genInvite.codename)">remove</button>
-          </div>
-        </div>
-      </div>
+    <div id="peer-modes">
+      <button @click="peerMode('social')" :class="{ active: peerModeType === 'social' }">Social</button>
+      <button @click="peerMode('invite')" :class="{ active: peerModeType === 'invite' }">Invite</button>
     </div>
-    <div id="add-peer">
-      <div id="prepare-invite">
-        <button type="button" class="btn-peer-add" @click.prevent="addWarmpeer()">Add peer invite</button>
-        <div v-if="addWarm === true" id="add-warm-peer">
-          <input v-model="newPeername" placeholder="name">
-          <input v-model="newPeerPubKey" placeholder="public key">
-          <button type="button" class="btn" @click="sendInviteWarmpeer()">add invite</button>
-        </div>
-        <div id="beebee-message-feedback">
-          {{ beebeeMessage }}
-        </div>
-      </div>
-      <div id="pending-invites" v-if="invitePending.length > 0">
-        Invites pending:
-        <div v-for='peer in invitePending' :key='peer.key'>
-          {{ peer?.name }} --  --- {{ peer.key }} -- sent
-        </div>
-      </div>
-    </div>
-    <header>Social network</header>
-    <div class="peer-list-set" v-for='(peer, index) in peerNetwork' :key='peer.key'>
-      <div class="peer-g"  v-if="index == 0">
-        <div class="longterm-peer peer-details-header">
-          <div class="peer-info">
-            Name
-          </div>
-          <div class="peer-info">
-            Live 
-          </div>
-          <div class="peer-info">
-            Public key 
-          </div>
-        </div>
-        <div class="option-tools">
-            Tools
-        </div>
-      </div>
-      <div class="peer-g">
-        <div class="longterm-peer peer-details">
-          <div class="peer-info">
-            {{ peer?.value?.name }}
-          </div>
-          <div class="peer-info">
-            {{ peer?.value?.live }}
-          </div>
-          <div class="peer-info">
-            <div class="peer-pk">{{ peer.key }}</div>
-          </div>
-        </div>
-        <div class="peer-actions">
-          <div class="peer-action">
-              <button @click="copyKey(peer.key)">copy</button>            
+    <div id="social-network-view" v-if="peerModeType === 'social'">
+      <header>Social network</header>
+      <div class="peer-list-set" v-for='(peer, index) in peerNetwork' :key='peer.key'>
+        <div class="peer-g"  v-if="index == 0">
+          <div class="longterm-peer peer-details-header">
+            <div class="peer-info">
+              Name
             </div>
-          <!--if longterm show button to reconnect or (TODO remove)-->
-          <div class="peer-action" v-if="peer?.value?.longterm === true">
-            <button @click="directConnectPeer(peer)">recon</button>
+            <div class="peer-info">
+              Live 
+            </div>
+            <div class="peer-info">
+              Public key 
+            </div>
           </div>
-          <div class="peer-action">
-            <button @click="editPeer(peer.key)">edit</button>
+          <div class="option-tools">
+              Tools
           </div>
-          <div class="peer-action">
-            <button @click="removePeer(peer)">remove</button>
+        </div>
+        <div class="peer-g">
+          <div class="longterm-peer peer-details">
+            <div class="peer-info">
+              {{ peer?.value?.name }}
+            </div>
+            <div class="peer-info">
+              {{ peer?.value?.live }}
+            </div>
+            <div class="peer-info">
+              <div class="peer-pk">{{ peer.key }}</div>
+            </div>
+          </div>
+          <div class="peer-actions">
+            <div class="peer-action">
+                <button @click="copyKey(peer.key)">copy</button>            
+              </div>
+            <!--if longterm show button to reconnect or (TODO remove)-->
+            <div class="peer-action" v-if="peer?.value?.longterm === true">
+              <button @click="directConnectPeer(peer)">recon</button>
+            </div>
+            <div class="peer-action">
+              <button @click="editPeer(peer.key)">edit</button>
+            </div>
+            <div class="peer-action">
+              <button @click="removePeer(peer)">remove</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="social-graph-space">
+        <social-graph></social-graph>
+      </div>
+    </div>
+    <div id="invite-tools" v-if="peerModeType === 'invite'">
+      <div id="invite-types">
+        <button @click="inviteMode('generate')" :class="{ active: inviteModeType === 'generate' }">Generate invite</button>
+        <button @click="inviteMode('receive')" :class="{ active: inviteModeType === 'receive' }">Receive invite</button>
+      </div>
+      <div id="invite-modes">
+        <div id="generate-invite-mode" v-if="inviteModeType === 'generate'">
+          <div id="generate-invite">
+            Generate invite
+          </div>
+          <div id="generate-invite">
+            <div id="invite-peer-codename">
+              <div id="invite-peer-name">
+                Peer name:
+              </div>
+              <input v-model="peerName" placeholder="name">
+              <button id="invite-generation-button" @click="generateInvite()"> Generate invite</button>
+            </div>
+            <div id="form-invite-code" v-if="genInvite === true">
+              <div id="invite-peer-crypto" v-for="(genInvite, index) of inviteList">
+                <div class="peer-g"  v-if="index == 0">
+              <div class="longterm-peer peer-details-header">
+                <div class="peer-info">
+                  Name
+                </div>
+                <div class="peer-info">
+                  Accepted 
+                </div>
+                <div class="peer-info">
+                  Public key / codename
+                </div>
+              </div>
+              <div class="option-tools">
+                  Tools
+              </div>
+            </div>
+            <div id="send-invite-gen">
+              <div class="gen-crypt-code">{{ genInvite.name }}</div>
+              <div class="gen-crypt-code">{{ genInvite.matched }}</div>
+              <div class="gen-crypt-code" id="pubkey-session-live">{{ genInvite.publickey }}</div>
+              <div class="gen-crypt-code name-as-code">{{ genInvite.codename }}</div>
+              <button class="gen-crypt-code" id="button-copy-invite" type="button" @click="copyGenInvite(genInvite.codename)">Copy invite</button>
+              <div v-if="copiedMessage" class="copied-message">Copied to clipboard</div>
+              <button class="gen-crypt-code" id="button-remove-invite" type="button" @click="removeInvite(genInvite.codename)">remove</button>
+            </div>
+          </div>
+        </div>
+      </div>          
+        </div>
+        <div id="receive-invite-mode" v-if="inviteModeType === 'receive'">
+          <div id="add-peer">
+            <div id="prepare-invite">
+              <button type="button" class="btn-peer-add" @click.prevent="addWarmpeer()">Add peer invite</button>
+              <div v-if="addWarm === true" id="add-warm-peer">
+                <input v-model="newPeername" placeholder="name">
+                <input v-model="newPeerPubKey" placeholder="public key">
+                <button type="button" class="btn" @click="sendInviteWarmpeer()">add peer</button>
+              </div>
+              <div id="beebee-message-feedback">
+                {{ beebeeMessage }}
+              </div>
+            </div>
+            <div id="pending-invites" v-if="invitePending.length > 0">
+              Invites pending:
+              <div v-for='peer in invitePending' :key='peer.key'>
+                {{ peer?.name }} --  --- {{ peer.key }} -- sent
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-    <div id="social-graph-space">
-      <social-graph></social-graph>
-    </div>
+
+
   </div>
 </template>
 
@@ -122,7 +140,7 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
 
   const storeAccount = accountStore()
 
-  let addWarm = ref(false)
+  let addWarm = ref(true)
   let newPeername = ref('')
   let newPeerPubKey = ref('')
   let genInvite = ref(true)
@@ -130,6 +148,8 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
   let randomName = ref('')
   let inviteGenCode = ref('')
   let copiedMessage = ref(false)
+  let peerModeType = ref('social')
+  let inviteModeType = ref('generate')
 
 
   /* computed */
@@ -152,6 +172,14 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
   /* methods */
   const addWarmpeer = () => {
     addWarm.value = !addWarm.value
+  }
+
+  const peerMode = (mode) => {
+    peerModeType.value = mode
+  }
+
+  const inviteMode = (mode) => {
+    inviteModeType.value = mode
   }
 
   const generateInvite = async () => {
@@ -295,6 +323,11 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
   min-height: 80vh;
 }
 
+#peer-modes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
 .type-peer {
   font-weight: bold;
   padding-left: 2em;
@@ -434,6 +467,10 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
 
 .longterm-peer {
   display: grid;
+}
+
+.active {
+  background-color: rgb(208, 211, 240);
 }
 
 .peer-details-header {
