@@ -1,8 +1,17 @@
 <template>
   <div id="list-space">
     <div id="peer-modes">
-      <button @click="peerMode('social')" :class="{ active: peerModeType === 'social' }">Social</button>
-      <button @click="peerMode('invite')" :class="{ active: peerModeType === 'invite' }">Invite</button>
+      <div id="peer-mode-prime">
+        <button @click="peerMode('social')" :class="{ active: peerModeType === 'social' }">Social</button>
+        <button @click="peerMode('invite')" :class="{ active: peerModeType === 'invite' }">Invite</button>
+      </div>
+      <div id="peer-mode-secondary">
+        <div id="peer-mode-secondary-empty"></div>
+        <div id="invite-types" v-if="peerModeType === 'invite'">
+          <button @click="inviteMode('generate')" :class="{ active: inviteModeType === 'generate' }">Generate invite</button>
+          <button @click="inviteMode('receive')" :class="{ active: inviteModeType === 'receive' }">Receive invite</button>
+        </div>
+      </div>
     </div>
     <div id="social-network-view" v-if="peerModeType === 'social'">
       <header>Social network</header>
@@ -57,10 +66,6 @@
       </div>
     </div>
     <div id="invite-tools" v-if="peerModeType === 'invite'">
-      <div id="invite-types">
-        <button @click="inviteMode('generate')" :class="{ active: inviteModeType === 'generate' }">Generate invite</button>
-        <button @click="inviteMode('receive')" :class="{ active: inviteModeType === 'receive' }">Receive invite</button>
-      </div>
       <div id="invite-modes">
         <div id="generate-invite-mode" v-if="inviteModeType === 'generate'">
           <div id="generate-invite">
@@ -325,7 +330,47 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
 
 #peer-modes {
   display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+#peer-mode-prime {
+  display: grid;
   grid-template-columns: 1fr 1fr;
+}
+
+#peer-mode-secondary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+#invite-types {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+#peer-modes button {
+  width: 100%;
+  padding: 12px 20px;
+  font-size: 1.0em;
+  font-weight: 500;
+  background-color: rgb(208, 211, 240);
+  color: #140d6b;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#peer-modes button:hover {
+  background-color: #a4c0e0;
+}
+
+#peer-modes button.active {
+  background-color: #4CAF50;
+  color: white;
+  transform: scale(1.02);
 }
 
 .type-peer {
@@ -417,13 +462,29 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
   margin-bottom: 1em;
 }
 
-#button-copy-invite {
-  background-color: white;
-  height: 24px;
+.btn {
+  background-color: rgb(208, 211, 240);
+  color: #140d6b;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9em;
+  transition: all 0.3s ease;
 }
 
-#button-remove-invite {
+.btn:hover {
+  background-color: #a4c0e0;
+}
+
+.btn.active {
+  background-color: #4CAF50;
+  color: white;
+}
+
+#button-copy-invite, #button-remove-invite {
   height: 24px;
+  padding: 5px 10px;
 }
 
 .gen-crypt-code {
@@ -470,7 +531,8 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
 }
 
 .active {
-  background-color: rgb(208, 211, 240);
+  background-color: #4CAF50;
+  color: white;
 }
 
 .peer-details-header {
