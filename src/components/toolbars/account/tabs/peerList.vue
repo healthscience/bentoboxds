@@ -72,12 +72,23 @@
             Generate invite
           </div>
           <div id="generate-invite">
-            <div id="invite-peer-codename">
-              <div id="invite-peer-name">
-                Peer name:
+            <div id="invite-peer-codename" class="invite-form-container">
+              <div class="form-group">
+                <label for="peer-name" class="form-label">Peer name:</label>
+                <input 
+                  id="peer-name"
+                  v-model="peerName" 
+                  placeholder="Enter peer name"
+                  class="form-input"
+                >
               </div>
-              <input v-model="peerName" placeholder="name">
-              <button id="invite-generation-button" @click="generateInvite()"> Generate invite</button>
+              <button 
+                id="invite-generation-button" 
+                @click="generateInvite()"
+                class="btn btn-primary"
+              >
+                Generate Invite
+              </button>
             </div>
             <div id="form-invite-code" v-if="genInvite === true">
               <div id="invite-peer-crypto" v-for="(genInvite, index) of inviteList">
@@ -112,14 +123,40 @@
         </div>
         <div id="receive-invite-mode" v-if="inviteModeType === 'receive'">
           <div id="add-peer">
-            <div id="prepare-invite">
-              <button type="button" class="btn-peer-add" @click.prevent="addWarmpeer()">Add peer invite</button>
-              <div v-if="addWarm === true" id="add-warm-peer">
-                <input v-model="newPeername" placeholder="name">
-                <input v-model="newPeerPubKey" placeholder="public key">
-                <button type="button" class="btn" @click="sendInviteWarmpeer()">add peer</button>
+            <div id="prepare-invite" class="add-peer-container">
+              <div v-if="addWarm === true" id="add-warm-peer" class="add-peer-form">
+                <div class="form-group">
+                  <label for="peer-name-input" class="form-label">Peer Name</label>
+                  <input 
+                    id="peer-name-input"
+                    v-model="newPeername" 
+                    placeholder="Enter peer name"
+                    class="form-input"
+                  >
+                </div>
+                <div class="form-group">
+                  <label for="peer-pubkey" class="form-label">Public Key</label>
+                  <input 
+                    id="peer-pubkey"
+                    v-model="newPeerPubKey" 
+                    placeholder="Enter public key"
+                    class="form-input"
+                  >
+                </div>
+                <button 
+                  type="button" 
+                  class="btn btn-primary" 
+                  @click="sendInviteWarmpeer()"
+                  :disabled="!newPeername || !newPeerPubKey"
+                >
+                  Add Peer
+                </button>
               </div>
-              <div id="beebee-message-feedback">
+              <div 
+                id="beebee-message-feedback" 
+                class="message-feedback"
+                :class="{ 'has-message': beebeeMessage }"
+              >
                 {{ beebeeMessage }}
               </div>
             </div>
@@ -351,26 +388,37 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
 }
 
 #peer-modes button {
-  width: 100%;
-  padding: 12px 20px;
-  font-size: 1.0em;
-  font-weight: 500;
-  background-color: rgb(208, 211, 240);
+  display: inline-grid;
+  align-items: center;
+  justify-content: center;
+  margin-right: 0.4em;
+  background-color: #b8cde2;
   color: #140d6b;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  width: 100%;
 }
 
 #peer-modes button:hover {
-  background-color: #a4c0e0;
+  background-color: #2a82e0;
+  transform: translateY(-2px);
+}
+
+#peer-modes button:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5);
 }
 
 #peer-modes button.active {
-  background-color: #4CAF50;
+  background-color: #2a82e0;
   color: white;
-  transform: scale(1.02);
+  transform: translateY(-2px);
 }
 
 .type-peer {
@@ -418,16 +466,94 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
   width: 800px;
 }
 
-#beebee-message-feedback {
-  display: grid;
-  grid-template-columns: 1fr;
-  color: rgb(221, 20, 47);
-  border: 1px solid lightgrey;
-  border-radius: 4%;
-  margin-left: 1em;
-  margin-left: 1em;
-  margin-bottom: 1em;
-  padding: 2em;
+/* Add Peer Form */
+.add-peer-container {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 24px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.add-peer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.message-feedback {
+  margin-top: 20px;
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 0.95em;
+  opacity: 0;
+  height: 0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+}
+
+.message-feedback.has-message {
+  opacity: 1;
+  height: auto;
+  min-height: 20px;
+  padding: 12px 16px;
+  margin-top: 20px;
+}
+
+.message-feedback:not(:empty) {
+  background-color: #fff5f5;
+  border-color: #fed7d7;
+  color: #e53e3e;
+}
+
+/* Disabled button state */
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Adjust the form input styles to be consistent */
+#add-warm-peer .form-input {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 1em;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  margin-bottom: 8px;
+}
+
+#add-warm-peer .form-input:focus {
+  outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+}
+
+/* Button styles */
+#add-warm-peer .btn-primary {
+  padding: 12px 24px;
+  font-size: 1em;
+  font-weight: 500;
+  background-color: #2b6cb0;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  margin-top: 8px;
+}
+
+#add-warm-peer .btn-primary:hover:not(:disabled) {
+  background-color: #2c5282;
+  transform: translateY(-1px);
+}
+
+#add-warm-peer .form-group {
+  margin-bottom: 8px;
 }
 
 #invite-generation-button {
@@ -449,6 +575,66 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
   width: 100%;
 }
 
+.invite-form-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 24px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-label {
+  font-size: 1.1em;
+  color: #4a5568;
+  font-weight: 500;
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 1em;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #4299e1;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+}
+
+#invite-generation-button {
+  padding: 12px 24px;
+  font-size: 1.1em;
+  font-weight: 500;
+  background-color: #2b6cb0;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: auto;
+  margin-top: 8px;
+}
+
+#invite-generation-button:hover {
+  background-color: #2c5282;
+  transform: translateY(-1px);
+}
+
 #invite-peer-crypto {
   display: grid;
   border: 0px solid lightgrey;
@@ -463,28 +649,44 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
 }
 
 .btn {
-  background-color: rgb(208, 211, 240);
+  display: inline-grid;
+  align-items: center;
+  justify-content: center;
+  background-color: #b8cde2;
   color: #140d6b;
   border: none;
-  padding: 5px 10px;
   border-radius: 4px;
-  cursor: pointer;
+  padding: 8px 16px;
   font-size: 0.9em;
-  transition: all 0.3s ease;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 2px;
 }
 
 .btn:hover {
-  background-color: #a4c0e0;
+  background-color: #2a82e0;
+  transform: translateY(-1px);
+}
+
+.btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.5);
 }
 
 .btn.active {
-  background-color: #4CAF50;
+  background-color: #2a82e0;
   color: white;
+  transform: translateY(-1px);
 }
 
 #button-copy-invite, #button-remove-invite {
-  height: 24px;
-  padding: 5px 10px;
+  height: 32px;
+  padding: 5px 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 2px;
 }
 
 .gen-crypt-code {
