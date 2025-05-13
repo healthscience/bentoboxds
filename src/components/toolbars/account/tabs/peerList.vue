@@ -114,7 +114,7 @@
               <div class="gen-crypt-code" id="pubkey-session-live">{{ genInvite.publickey }}</div>
               <div class="gen-crypt-code name-as-code">{{ genInvite.codename }}</div>
               <button class="gen-crypt-code" id="button-copy-invite" type="button" @click="copyGenInvite(genInvite.codename)">Copy invite</button>
-              <div v-if="copiedMessage" class="copied-message">Copied to clipboard</div>
+              <div v-if="copiedInvite === genInvite.codename" class="copied-message">Copied to clipboard</div>
               <button class="gen-crypt-code" id="button-remove-invite" type="button" @click="removeInvite(genInvite.codename)">remove</button>
             </div>
           </div>
@@ -135,11 +135,11 @@
                   >
                 </div>
                 <div class="form-group">
-                  <label for="peer-pubkey" class="form-label">Public Key</label>
+                  <label for="peer-pubkey" class="form-label">invite code</label>
                   <input 
                     id="peer-pubkey"
                     v-model="newPeerPubKey" 
-                    placeholder="Enter public key"
+                    placeholder="Enter invite code"
                     class="form-input"
                   >
                 </div>
@@ -189,7 +189,7 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
   let peerName = ref('')
   let randomName = ref('')
   let inviteGenCode = ref('')
-  let copiedMessage = ref(false)
+  let copiedInvite = ref(null)
   let peerModeType = ref('social')
   let inviteModeType = ref('generate')
 
@@ -297,9 +297,9 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
     }
     inviteGenCode.value = 'hop:' + copyInvite.publickey + copyInvite.codename
     navigator.clipboard.writeText(inviteGenCode.value)
-    copiedMessage.value = true
+    copiedInvite.value = codename
     setTimeout(() => {
-      copiedMessage.value = false
+      copiedInvite.value = null
     }, 2000)
   }
   

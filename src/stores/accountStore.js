@@ -111,6 +111,8 @@ export const accountStore = defineStore('account', {
       for (let wpeer of this.warmPeers) {
         if (wpeer.key === update.key) {
           updatePeerList.push(update)
+          // update peer invite gen list
+          this.updateGeninviteList(update)
         } else {
           updatePeerList.push(wpeer)
         }
@@ -170,8 +172,6 @@ export const accountStore = defineStore('account', {
       this.warmPeers = updateNameList
     },
     updatePeerDisconnect (update) {
-      console.log('update peer disconnect')
-      console.log(update)
       let updateNameList = []
       for (let wpeer of this.warmPeers) {
         if (wpeer.key === update.publickey) {
@@ -184,6 +184,18 @@ export const accountStore = defineStore('account', {
         }
       }
       this.warmPeers = updateNameList
+    },
+    updateGeninviteList (peer) {
+      let updateInviteList = []
+      for (let invite of this.inviteListGenerated) {
+        if (invite.name === peer.value.name) {
+          invite.matched = true
+          updateInviteList.push(invite)
+        } else {
+          updateInviteList.push(invite)
+        }
+      }
+      this.inviteListGenerated = updateInviteList
     },
     checkPeerStatus (peer) {
       // brand new peer first time or update save for topic
