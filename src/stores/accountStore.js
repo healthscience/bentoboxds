@@ -27,6 +27,7 @@ export const accountStore = defineStore('account', {
     pendingInvites: [],
     invitedPeers: [],
     beebeeAccountFeedback: '',
+    beebeeConnectFeedback: '',
     publickeyDrive: [],
     publicKeysList: [],
     sharePubkey: '',
@@ -186,6 +187,8 @@ export const accountStore = defineStore('account', {
       this.warmPeers = updateNameList
     },
     updateGeninviteList (peer) {
+      // also set feedback connection message
+      this.beebeeConnectFeedback = 'Connected to ' + peer.value.name
       let updateInviteList = []
       for (let invite of this.inviteListGenerated) {
         if (invite.name === peer.value.name) {

@@ -159,6 +159,15 @@
               >
                 {{ beebeeMessage }}
               </div>
+              <div 
+                id="beebee-connection-feedback" 
+                class="message-feedback"
+                :class="{ 'has-message': beebeeConnectionFeedback }"
+                v-if="beebeeConnectionFeedback"
+                @animationend="storeAccount.beebeeConnectFeedback = ''"
+              >
+                {{ beebeeConnectionFeedback }}
+              </div>
             </div>
             <div id="pending-invites" v-if="invitePending.length > 0">
               Invites pending:
@@ -209,6 +218,10 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
 
   const beebeeMessage = computed(() => {
     return storeAccount.beebeeAccountFeedback
+  })
+
+  const beebeeConnectionFeedback = computed(() => {
+    return storeAccount.beebeeConnectFeedback
   })
 
   /* methods */
@@ -482,6 +495,11 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
   gap: 20px;
 }
 
+#receive-invite-mode {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
 .message-feedback {
   margin-top: 20px;
   padding: 12px 16px;
@@ -506,6 +524,25 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
   background-color: #fff5f5;
   border-color: #fed7d7;
   color: #e53e3e;
+  animation: fadeOut 2s ease-in-out 2s forwards;
+}
+
+@keyframes fadeOut {
+  from { 
+    opacity: 1;
+    height: auto;
+    min-height: 20px;
+    padding: 12px 16px;
+    margin-top: 20px;
+  }
+  to { 
+    opacity: 0;
+    height: 0;
+    min-height: 0;
+    padding: 0 16px;
+    margin-top: 0;
+    overflow: hidden;
+  }
 }
 
 /* Disabled button state */
