@@ -500,6 +500,12 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
   grid-template-columns: 1fr;
 }
 
+#prepare-invite {
+  display: grid;
+  grid-template-columns: 1fr;
+  height: 300px;
+} 
+
 .message-feedback {
   margin-top: 20px;
   padding: 12px 16px;
@@ -520,6 +526,16 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
   margin-top: 20px;
 }
 
+/* Connection feedback (positive) */
+#beebee-connection-feedback:not(:empty) {
+  background-color: #ebf8ff;
+  border-color: #90cdf4;
+  color: #2b6cb0;
+  font-weight: bold;
+  animation: fadeOut 2s ease-in-out 2s forwards;
+}
+
+/* General message feedback (error) */
 .message-feedback:not(:empty) {
   background-color: #fff5f5;
   border-color: #fed7d7;
