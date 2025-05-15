@@ -71,7 +71,8 @@ export const bentoboxStore = defineStore('bentostore', {
     researchMedia: {},
     markerMedia: {},
     productMedia: {},
-    libraryCheck: false
+    libraryCheck: false,
+    isBentospaceActive: false
   }),
   actions: {
     // since we rely on `this`, we cannot use an arrow function

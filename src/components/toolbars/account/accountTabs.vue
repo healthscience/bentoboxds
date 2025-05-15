@@ -96,7 +96,8 @@ let activeTab = ref('peers')
 <style scoped>
 #connection-account {
   position: relative;
-  display: block;
+  display: grid;
+  grid-template-columns: 1fr;
   height: 98vh;
 }
 

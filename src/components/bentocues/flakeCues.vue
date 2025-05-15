@@ -1,6 +1,6 @@
 <template>
   <Teleport to="body">
-    <modal-cues :show="bentoFlakeStatus" @close="closeBentoFlake">
+    <modal-cues :show="bentoFlakeStatus" :z-index="currentZIndex" @close="closeBentoFlake">
       Cues
       <template #header>
         <div id="flake-modal-header">
@@ -120,6 +120,10 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   let cueBranch = ref(false)
 
   /* computed */
+  const currentZIndex = computed(() => {
+    return storeBentobox.isBentospaceActive ? 900 : 1100
+  })
+
   const cueBalance = computed(() => {
     return storeCues.activeCue
   })
@@ -168,6 +172,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
   const viewCueHex = (cue) => {
     storeAI.beebeeContext = 'bentoflake'
+    storeBentobox.isBentospaceActive = true
     storeAI.bentospaceState = !storeAI.bentospaceState
     let cueName = ''
     if (cue.branch === cue.cue) {
@@ -218,6 +223,8 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 }
 
 #cues-context-tools {
+  display: grid;
+  grid-template-columns: 1fr;
   border: 1px dashed blue;
   padding: 1em;
 }
@@ -243,10 +250,10 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 }
 
 #bento-flake {
+  position: relative;
   display: grid;
   grid-template-columns: 1fr;
   background: #faf5ec;
-  align-items: center;
   opacity: 90%;
   box-shadow: inset 0px 0px 0px 300px rgb(245, 244, 213);
 }
@@ -314,7 +321,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   padding: 5px;
   border-radius: 5px;
   white-space: nowrap; /* Prevent text wrapping */
-  z-index: 66; /* Ensure it appears above other elements */
+  z-index: 166; /* Ensure it appears above other elements */
   opacity: 0; /* Start hidden */
   transition: opacity 0.3s; /* Smooth transition */
 }
@@ -380,11 +387,10 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
       border: 1px solid lightblue;
-      margin-top: 40px;
+      margin-top: 200px;
       border-radius: 50%;
-      height: 900px;
+      min-height: 900px;
       width: 900px;
-      align-content: center;
     }
 
     .center-grid {
@@ -437,6 +443,19 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
       grid-template-columns: 1fr;
       border-right: 1px solid green;
     }
+    
+    .branch-quant {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .cues-status {
+      display: inline-flex;
+      margin: 0 2px;
+    }
 
     .branch-holder-over {
       display: grid;
@@ -453,7 +472,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     .tooltip {
       position: fixed;
       bottom: -30px; /* Position above the die */
-      left: 140px;
+      left: 440px;
       transform: translateX(-50%);
       background-color: #7c8adb; /* Background color */
       color: #fff; /* Text color */
