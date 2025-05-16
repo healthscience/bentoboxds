@@ -425,23 +425,73 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     .branch-holder {
       display: inline-grid;
       grid-template-columns: 1fr 5fr 1fr;
-      border: 0px solid blue;
-      background-color: #f0f0f0;
-      border-radius: 10%;
-      padding: 1em;
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+      background: radial-gradient(
+        circle at center,
+        rgba(255, 200, 200, 0.4) 0%,
+        rgba(255, 220, 200, 0.3) 30%,
+        rgba(220, 255, 200, 0.3) 45%,
+        rgba(200, 255, 220, 0.3) 55%,
+        rgba(200, 220, 255, 0.3) 70%,
+        rgba(200, 200, 255, 0.3) 90%,
+        rgba(255, 200, 200, 0.4) 100%
+      );
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
     .branch-holder-under {
       display: grid;
       grid-template-columns: 1fr;
       min-width: 60px;
-      border-right: 1px solid purple;
+      background: radial-gradient(
+        circle at left center,
+        rgba(255, 200, 200, 0.3) 0%,
+        rgba(255, 220, 200, 0.2) 100%
+      );
+      position: relative;
+    }
+    
+    .branch-holder-under::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: radial-gradient(
+        circle at center,
+        rgba(255, 150, 150, 0.3) 0%,
+        rgba(150, 255, 150, 0.3) 50%,
+        rgba(150, 150, 255, 0.3) 100%
+      );
     }
 
     .branch-holder-balance {
       display: grid;
       grid-template-columns: 1fr;
-      border-right: 1px solid green;
+      background: radial-gradient(
+        circle at center,
+        rgba(220, 255, 200, 0.25) 0%,
+        rgba(200, 255, 220, 0.25) 100%
+      );
+      position: relative;
+    }
+    
+    .branch-holder-balance::after {
+      content: '';
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: radial-gradient(
+        circle at center,
+        rgba(255, 150, 150, 0.3) 0%,
+        rgba(150, 255, 150, 0.3) 50%,
+        rgba(150, 150, 255, 0.3) 100%
+      );
     }
     
     .branch-quant {
@@ -461,7 +511,11 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
       display: grid;
       grid-template-columns: 1fr;
       min-width: 60px;
-      border-right: 1px solid red;
+      background: radial-gradient(
+        circle at right center,
+        rgba(220, 200, 255, 0.2) 0%,
+        rgba(200, 200, 255, 0.3) 100%
+      );
     }
 
     .branch-name {

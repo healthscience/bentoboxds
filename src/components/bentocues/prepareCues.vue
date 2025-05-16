@@ -134,6 +134,8 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   })
 
   const liveDoughData = computed(() => {
+    console.log('live dough data')
+    console.log(storeCues.activeDougnnutData)
     return storeCues.activeDougnnutData
   })
 
