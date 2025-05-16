@@ -271,6 +271,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 <style scoped>
 
 #cues-container {
+  position: relative;
   display: grid;
   grid-template-columns: 1fr;
   padding: 0.5rem;
@@ -535,10 +536,12 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 @media (min-width: 1024px) {
 
   #cues-container {
+    position: relative;
     display: grid;
     grid-template-columns: 1fr 1fr;
     padding: 0.5rem;
     width: 100%;
+    z-index: 9999;
   }
 
   #chart-column {

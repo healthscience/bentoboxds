@@ -2,8 +2,8 @@
   <div id="list-space">
     <div id="peer-modes">
       <div id="peer-mode-prime">
-        <button @click="peerMode('social')" :class="{ active: peerModeType === 'social' }">Social</button>
-        <button @click="peerMode('invite')" :class="{ active: peerModeType === 'invite' }">Invite</button>
+        <button id="socail-network-button" @click="peerMode('social')" :class="{ active: peerModeType === 'social' }">Social</button>
+        <button id="invite-modes-button" @click="peerMode('invite')" :class="{ active: peerModeType === 'invite' }">Invite</button>
       </div>
       <div id="peer-mode-secondary">
         <div id="peer-mode-secondary-empty"></div>
