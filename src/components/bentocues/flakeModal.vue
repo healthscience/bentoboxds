@@ -32,11 +32,6 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
 const storeBentobox = bentoboxStore()
 
-onMounted(() => {
-  console.log('FlakeCues mounted, bentospace active:', storeBentobox.isBentospaceActive)
-  console.log('Current z-index:', props.zIndex)
-})
-
   const props = defineProps({
     show: Boolean,
     zIndex: {

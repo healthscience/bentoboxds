@@ -96,22 +96,13 @@ export const cuesStore = defineStore('cues', {
         // need to match glue type to specific path
         if (glueType === 'up') {
          // look at history of down and go back one stage
-         console.log('glue history')
-         console.log(this.glueHistory)
          let lastDown = this.glueHistory[this.glueHistory.length - 2]
-         console.log('last down')
-         console.log(lastDown)
          // could be single or multiple cude data structure
          if (lastDown.data.wheeldata !== undefined) {
-          console.log('multiple')
-          console.log(this.activeDougnnutData)
           this.activeDougnnutData = lastDown.data.wheeldata
          } else {
-          console.log('single')
-          console.log(this.activeDougnnutData)
           this.activeDougnnutData = lastDown.data     
          }
-         console.log(this.activeDougnnutData)
          this.checkCueContext()
         } else {
           let cueContract = this.cueUtil.cueMatch(this.activeCue, this.cuesList)
@@ -120,8 +111,6 @@ export const cuesStore = defineStore('cues', {
           if (cueWheel?.wheeldata?.labels.length > 0) {
             // keep track of glue history
             this.glueHistory.push({ type: glueType, data: cueWheel })
-            console.log('down update cue wheer')
-            console.log(cueWheel)
             this.activeDougnnutData = cueWheel.wheeldata
             this.checkCueContext()
           }
@@ -170,8 +159,6 @@ export const cuesStore = defineStore('cues', {
       return matchLabel
     },
     checkCueContext () {
-      console.log('live check cue context')
-      console.log(this.liveCueContext)
       this.cuesFlakeList = []
       this.flakeCues = {}
       // what cue context is active, menu, space, flake
@@ -179,7 +166,6 @@ export const cuesStore = defineStore('cues', {
         // what cue is active
         this.flakeCuesList()
       } else if (this.liveCueContext === 'space') {
-        console.log('space end')
       } else if (this.liveCueContext === 'flake') {
         // any relationships active?
         this.minCuesStatus = false
