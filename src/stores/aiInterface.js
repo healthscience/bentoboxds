@@ -42,6 +42,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       compute: 'observation'
     },
     bodyDiagramShow: false,
+    agentProgress: {},
     inputAskHistory: [],
     statusCALE:
     {
@@ -227,6 +228,36 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         this.decisionDoughnutCue = true
       }
     },
+    trackAgentProgress (bboxID) {
+      // setup chat feedback object if need
+      if (this.agentProgress[this.chatAttention] === undefined) {
+        this.agentProgress[this.chatAttention] = {}
+      }
+      // need some sort of loop
+      let agentLoopActive = true
+      if (agentLoopActive === true) {
+        this.agentProgress[this.chatAttention] = {}  // TODO  setup object better to allow deeper reactivity
+        this.agentProgress[this.chatAttention][bboxID] = {}
+        this.agentProgress[this.chatAttention][bboxID] = { feedback: 'orchestring agents in progress', timeCounter: 1, show: true }
+      } else if (agentLoopActive === false) {
+        this.agentProgress[this.chatAttention][bboxID] = { feedback: 'agent flow complete', timeCounter: 0, show: false }
+      }
+    },
+    trackAgentProgressUpdate (inputID) {
+      // loop over and set feedback to false
+      let progressKeys = Object.keys(this.agentProgress[this.chatAttention])
+      let updateProgreefb = []
+      for (let progressK of progressKeys) {
+        if (progressK === inputID) {
+          let updateProg = this.agentProgress[this.chatAttention][progressK]
+          updateProg.show = false
+          updateProgreefb.push(updateProg)
+        } else {
+          updateProgreefb.push(this.agentProgress[this.chatAttention][progressK])
+        }
+      }
+      this.agentProgress[this.chatAttention] = updateProgreefb
+    },
     largeFilesubmitAsk (dataInfo) {
       // console.log('large file prep')
       // console.log(dataInfo)
@@ -239,6 +270,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       aiMessageout.action = 'question'
       aiMessageout.data = fileData.data
       aiMessageout.bbid = fileData.bbid
+      // keep track of time and any feedback from beebee agents
+      this.trackAgentProgress(fileData.bbid)
       this.sendSocket.send_message(aiMessageout)
       this.helpchatHistory.push(aiMessageout)
       this.askQuestion.text = ''
@@ -252,6 +285,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       aiMessageout.action = 'question'
       aiMessageout.data = question
       aiMessageout.bbid = hashQuestion
+      this.trackAgentProgress(hashQuestion)
       this.sendSocket.send_message(aiMessageout)
       this.helpchatHistory.push(aiMessageout)
       this.qcount++
@@ -273,6 +307,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         aiMessageout.action = 'question'
         aiMessageout.data = matchQuestion
         aiMessageout.bbid = hashQuestion
+        // keep track of time and any feedback from beebee agents
+        this.trackAgentProgress(hashQuestion)
         this.sendSocket.send_message(aiMessageout)
         this.helpchatHistory.push(aiMessageout)
         this.askQuestion.text = ''
@@ -328,7 +364,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
               questionStart = histMatch
             }
           }
-        
           if (questionCount.length === 1) {
             // does the question exist from file upload?
             if (questionCount[0].data?.filedata) {
@@ -352,6 +387,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
                 this.storeBentoBox.devicesettings[received.bbid] = this.storeBentoBox.settings
               }
             }
+            // stop any agent feedback message
+            this.trackAgentProgressUpdate(received.bbid)
           }
           if (received.action === 'library-peerlibrary' || 'publiclibrary') {
             this.storeLibrary.processReply(received, questionStart)
@@ -391,6 +428,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }*/
     },
     processNotification (received) {
+      // stop any agent feedback message
+      this.trackAgentProgressUpdate(received.data.data.bbid)
       this.countNotifications++
       this.notifList.push(received)
       // add to chart part list (do now or on requrest?)

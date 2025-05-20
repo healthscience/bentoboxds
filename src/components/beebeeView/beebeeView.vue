@@ -102,7 +102,6 @@ import { computed } from 'vue'
   const historyCuesType = () => {
     storeAI.historyCuesList = !storeAI.historyCuesList
     storeAI.historyList = false
-    console.log(storeAI.historyCuesList)
   }
 
   const openBentoAgent = (agent) => {
