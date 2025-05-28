@@ -609,6 +609,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.bentoboxList['space1'] = []
     },
     processHOPsummary (dataSummary) {
+      console.log('processHOPsummary')
       // match bbid to HOP ID
       let inputID = Object.keys(dataSummary.data)
       let HOPshell = dataSummary.data[inputID[0]].shellID
@@ -705,7 +706,11 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.sendSocket.send_message(aiMessageout)
     },
     prepareLibrarySummary (boxid) {
+      console.log('prepare LIBSUMMARY')
+      console.log(this.hopSummary)
       for (let hi of this.hopSummary) {
+        console.log('summlooop---------')
+        console.log(hi)
         if (hi.summary.bbid == boxid) {
           // new or saved format
           if ('data' in hi.summary) {
@@ -723,6 +728,9 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         }
       }
       // let NXPcontract = this.boxLibSummary[boxid].data
+      console.log('summary box')
+      console.log(this.boxLibSummary)
+      console.log(boxid)
       let key = Object.keys(this.boxLibSummary[boxid].data)
       // now update compute contract to latest one back from HOP
       let computeLatestModules = []

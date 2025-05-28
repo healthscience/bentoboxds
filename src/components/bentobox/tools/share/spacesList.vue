@@ -71,6 +71,9 @@ const storeBentobox = bentoboxStore()
     } else {
       bidPair = { bboxid: props.bboxid, contract: expLibrarySummary.value.key[0]}
     }
+    console.log('after setdropwldown')
+    console.log(storeAI.boxLibSummary)
+    console.log(bidPair)
     // check object set in list
     if (storeAI.bentoboxList[spaceSave.value] === undefined) {
     storeAI.bentoboxList[spaceSave.value] = []

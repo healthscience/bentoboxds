@@ -125,9 +125,15 @@ export const bentoboxStore = defineStore('bentostore', {
                       if (cm.value.hop.length === 0) {
                         console.log('no HOP data')
                       } else {
+                        console.log('chat use of bentobox id')
+                        console.log(cm.value)
                         let summaryHOP = cm.value?.hop[0]
                         summaryHOP.bbid = pair.reply.bbid
+                        console.log('historyHOPSUMMSY')
+                        console.log(pair.reply.bbid)
+                        console.log(summaryHOP)
                         this.storeAI.hopSummary.push({ HOPid: pair.reply.bbid, summary: summaryHOP })
+                        console.log(this.storeAI.hopSummary)
                       }
                     }
                   }
@@ -410,6 +416,9 @@ export const bentoboxStore = defineStore('bentostore', {
       }
     },
     setLocationBbox (space, bbox) {
+      console.log('set location in space')
+      console.log(space)
+      console.log(bbox)
       // check not already set
       let spaceLive = this.locationBbox[space]
       if (bbox in spaceLive) {
