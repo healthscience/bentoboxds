@@ -69,7 +69,8 @@ export const libraryStore = defineStore('librarystore', {
       description: '',
       dtprefix: '',
       code: '',
-      hash: ''
+      hash: '',
+      mode: ''
     },
     newDatafile: {
       columns: [],
@@ -606,6 +607,17 @@ export const libraryStore = defineStore('librarystore', {
       refContract.reftype = privacy
       refContract.task = 'DEL'
       refContract.data = data
+      this.sendSocket.send_message(refContract)
+    },
+    removeRefContract (key, privacy, type) {
+      const refContract = {}
+      refContract.type = 'library'
+      refContract.action = 'contracts'
+      refContract.reftype = type
+      refContract.task = 'DEL'
+      refContract.privacy = 'public'
+      refContract.data = key
+      console.log(refContract)
       this.sendSocket.send_message(refContract)
     },
     sendMessage (hopMessage) {

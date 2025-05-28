@@ -203,6 +203,7 @@
           </div>
           <div class="refcontract-summary">
             <div> {{ cd.key }} </div>
+            <button @click="deleteRefC(cd.key, viewType)">delete</button>
           </div>
         </template>
         <template v-slot:body>
@@ -320,6 +321,11 @@ import { ref, computed } from 'vue'
     } else {
       window.open(url, '_blank', 'noopener noreferrer')
     }
+  }
+
+  const deleteRefC =  (contID, type) => {
+    console.log(contID)
+    storeLibrary.removeRefContract(contID, 'public', type)
   }
 
 </script>
