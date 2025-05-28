@@ -258,6 +258,10 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
       this.agentProgress[this.chatAttention] = updateProgreefb
     },
+    processAgentFeedback (data) {
+      this.agentProgress[this.chatAttention] = {}
+      this.agentProgress[this.chatAttention][data.bbid] = { feedback: 'orchestring agents in progress', timeCounter: 1, show: false }
+    },
     largeFilesubmitAsk (dataInfo) {
       // console.log('large file prep')
       // console.log(dataInfo)
@@ -346,11 +350,16 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           }
         }
       } else if (received.action === 'hop-learn-feedback') {
+        console.log('hop learn feeeabck')
+        console.log(received.data)
         if (received.data.agent === 'not-active') {
+          console.log('not active')
           let pairBB = {}
           pairBB.question = received.data.input
           pairBB.reply = received
           this.historyPair[this.chatAttention].push(pairBB)
+          // switch off feedback orchestration message
+          this.processAgentFeedback(received.data)
         }
       } else if (received.action === 'no-data') {
       } else { // if (received.action !== undefined) {
