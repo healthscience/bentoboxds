@@ -8,8 +8,8 @@
       <button id="diary-button" class="cue-agent" @click="openBentoAgent('diary')" :class="{ active: agentActive === 'diary' }">Diary</button>
     </div>
     <div id="beebee-agent">
-      <div id="bento-history">
-        <div id="history-buttons">
+      <div id="bento-history" ref="historyQuants" @mouseup.prevent="EndDrag()" @mousemove.prevent="OnDrag($event)">
+        <div>
           <div class="history-menu">
             <button @click="historyType()" class="button-chat-menu" v-bind:class="{ active: historyList === true }">Chat</button>
           </div>
@@ -34,7 +34,7 @@
         <div id="active-space-history" v-if="historyCuesList ===  true">
           <space-menu></space-menu>
         </div>
-      </div>
+      </div>  
       <div id="beebee-bento-chat">
         <div class="beebee-home">
           <beebee-chat></beebee-chat>
@@ -75,6 +75,9 @@ import { computed } from 'vue'
 
   let agentActive = ref('')
   let viewLibrary = ref(false)
+  let historyQuants = ref(null)
+  let historyWidth = ref(300)
+  let isResizing = ref(false)
 
   /* computed */
   const bodyDiagramShow = computed(() => {
@@ -94,6 +97,25 @@ import { computed } from 'vue'
   })
 
   /* methods */
+  const OnDrag = async (event) => {
+    SetCursor("ew-resize")
+    isResizing.value = true
+    if (isResizing.value) {
+    const newWidth = 300 + (event.clientX - 300)
+    historyWidth.value = Math.max(200, Math.min(newWidth, 900)) // Constrain width between 200px and 500px
+    console.log(historyWidth.value)
+  }
+  }
+
+  const EndDrag = () => {
+    SetCursor("default")
+  }
+
+  const SetCursor = (cursor) => {
+    let page = historyQuants.value
+    page.style.cursor = cursor
+  }
+
   const historyType = (type) => {
     storeAI.historyList = !storeAI.historyList
     storeAI.historyCuesList = false
@@ -143,15 +165,31 @@ import { computed } from 'vue'
 }
 
 #beebee-agent {
-  position: relative;
   display: grid;
-  grid-template-columns: 1fr 7fr;
+  grid-template-columns: 1fr 300px; /* Initial layout: main chat takes remaining space, history menu is 300px wide */
+  grid-template-rows: 100vh; /* Full height */
+  height: 100vh; /* Adjust as needed */
 }
 
 #bento-history {
-  display: grid;
-  grid-template-columns: 1fr;
-  height: 120px;
+  margin-top: 200px;
+  grid-column: 2 / 3;
+  min-width: 300px; /* Minimum width */
+  width: v-bind(historyWidth + 'px');
+  overflow: auto; /* Enable scrolling if content overflows */
+  transition: width 0.3s; /* Smooth transition for width change */
+  border-left: 1px solid #ccc; /* Optional: Add a border for separation */
+}
+
+#resize-handle {
+  width: 10px;
+  height: 100%;
+  background-color: #007bff;
+  position: absolute;
+  right: 0;
+  top: 0;
+  cursor: ew-resize;
+  z-index: 20; /* Ensure the handle is on top */
 }
 
 #history-buttons {
@@ -232,17 +270,10 @@ import { computed } from 'vue'
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5);
 }
 
-#beebee-bento-chat {
-  display: grid;
-  grid-template-columns: 1fr;
-  height: 80vh;
-  width: 90vw;
-  padding-top: 2px;
-  transform-origin: left top;
-  background-color: #fff4f4;
-  background: linear-gradient(-90deg, rgba(0, 0, 0, .1) 1px, transparent 1px), linear-gradient(rgba(0, 0, 0, .1) 1px, transparent 1px);
-  background-size: 60px 60px, 60px 60px; 
-}
+  #beebee-bento-chat {
+    grid-column: 1 / 2;
+    overflow: auto; /* Enable scrolling if content overflows */
+  }
 
   @media (min-width: 1024px) {
 
@@ -253,7 +284,7 @@ import { computed } from 'vue'
       width: 100%;
     }
 
-    #beebee-bentos {
+  #beebee-bentos {
       position: fixed;
       display: grid;
       grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
@@ -264,18 +295,22 @@ import { computed } from 'vue'
       z-index: 23;
     }
 
-    #beebee-agent {
-      position: relative;
+  #beebee-agent {
       display: grid;
-      grid-template-columns: 1fr 7fr;
-      margin-top: 9.5em;
+      grid-template-columns: 300px 1fr; /* Initial layout: history menu is 300px wide, main chat takes remaining space */
+      grid-template-rows: 100vh; /* Full height */
+      height: 100vh; /* Adjust as needed */
     }
 
     #bento-history {
-      display: grid;
-      grid-template-columns: 1fr;
-      height: 100%;
-      align-content: start;
+      grid-column: 1 / 2;
+      min-width: 300px; /* Minimum width */
+      max-width: 500px; /* Maximum width */
+      overflow: auto; /* Enable scrolling if content overflows */
+      transition: width 0.3s; /* Smooth transition for width change */
+      border-right: 1px solid #ccc; /* Optional: Add a border for separation */
+      position: relative;
+      z-index: 10; /* Ensure it is on top */
     }
 
     #history-buttons {
@@ -338,16 +373,21 @@ import { computed } from 'vue'
       z-index: 88;
     }
 
-    #beebee-bento-chat {
-      display: grid;
-      grid-template-columns: 1fr;
-      height: 80vh;
-      width: 100%;
-      transform-origin: left top;
-      background-color: #fff4f4;
-      background: linear-gradient(-90deg, rgba(0, 0, 0, .1) 1px, transparent 1px), linear-gradient(rgba(0, 0, 0, .1) 1px, transparent 1px);
-      background-size: 60px 60px, 60px 60px;
+  #beebee-bento-chat {
+      grid-column: 2 / 3;
+      overflow: auto; /* Enable scrolling if content overflows */
     }
 
+    #toggle-history {
+      position: absolute;
+      top: 10px;
+      right: -20px; /* Position the button outside the history div */
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px;
+      cursor: pointer;
+      z-index: 20; /* Ensure the button is on top */
+    }
   }
 </style>

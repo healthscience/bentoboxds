@@ -772,7 +772,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       for (let bb of bbidPerChat) {
         for (let hp of this.hopSummary) {
           if (bb === hp.summary.bbid) {
-            hopQuery.push(hp)
+            // save full summary to bentobox store???
+            hopQuery.push(hp.summary.bbid)
           }
         }
       }
