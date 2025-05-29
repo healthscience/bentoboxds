@@ -149,6 +149,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     setupChatHistory (chat) {
+      console.log('setup chat history')
+      console.log(chat)
       // does the chat history exist if not setup
       if (this.historyPair.hasOwnProperty(chat.chatid) === false) {
         this.historyPair[chat.chatid] = []
@@ -158,6 +160,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     submitAsk (dataInfo) {
       // check for context of beebee default is Chat, other option spaces, cues(decisions)
       if (this.beebeeContext === 'chat') {
+        console.log('chat')
         // remove start boxes
         this.startChat = false
         this.historyBar = true
@@ -177,6 +180,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           lastQuestion[0].reply.data.content = lastQuestion.reply.data.grid // this.storeLibrary.linesLimit
           this.actionFileAskInput(lastQuestion[0].reply)
         } else if (dataInfo?.id) {
+          console.log('else33333')
           // if bbid match to that
           let matchBBox = {}
           let questionCount = []
@@ -211,6 +215,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
             }
           }
         } else {
+          console.log('else 444')
           this.actionHelpAskInput()
         }
       } else if (this.beebeeContext === 'chatspace') {
@@ -752,7 +757,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       let settingsData = this.historyPair[message.data.chatid]
       let bbidPerChat = []
       // loop over data to match to visualisation alread prepared.  (note. or HOPQuery to re-create via HOP)
-      let visDataperChat = [] // this.visData[]
+      let visDataperChat = []
       if (settingsData !== undefined) {
         for (let bbi of settingsData) {
           bbidPerChat.push(bbi.reply.bbid)
@@ -777,6 +782,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       saveData.visData = visDataperChat
       saveData.hop = hopQuery
       message.data = saveData
+      console.log('save chat manual')
+      console.log(message)
       this.sendSocket.send_message(message)
     },
     prepareSpaceSave (message) {

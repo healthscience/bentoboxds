@@ -427,7 +427,7 @@ export const libraryStore = defineStore('librarystore', {
         newPair.question = questionStart
         newPair.reply = message.data
         // check if library is start?
-        if (this.storeAI.chatAttention.length !== 0) {
+        if (this.storeAI.chatAttention?.length !== 0) {
           this.storeAI.historyPair[this.storeAI.chatAttention].push(newPair)
         } else {
           this.storeAI.historyPair['library-start'] = []
