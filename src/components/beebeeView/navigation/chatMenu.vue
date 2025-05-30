@@ -258,18 +258,20 @@ const toggleShowMore = () => {
 } */
 
 .live-drop-zone {
-  display: block;
+  display: grid;
+  grid-template-columns: 1fr;
   height: 2em;
+  border: 2px dashed red;
 }
 
 .mode-switch {
-      margin-bottom: 1em;
-    }
+  margin-bottom: 1em;
+}
 
 .category-header {
   font-weight: bold;
   margin-top: 1em;
-    }
+}
 
 .show-more-button {
   margin-top: 1em;
@@ -282,7 +284,7 @@ const toggleShowMore = () => {
 
 .show-more-button:hover {
   background-color: #0056b3;
-    }
+}
 
 @media (min-width: 1024px) {
   .history {
@@ -310,8 +312,11 @@ const toggleShowMore = () => {
   }
 
   .live-drop-zone {
+    display: grid;
+    grid-template-columns: 1fr;
     height: 100%;
-    border: 0px dashed rgb(228, 137, 39);
+    border: 2px dashed red;
+    width: 200px;
   }
 
   .live-drop-zone:hover {
