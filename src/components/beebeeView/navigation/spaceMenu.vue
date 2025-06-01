@@ -386,7 +386,6 @@ import { ref, computed, onMounted } from 'vue'
       display: grid;
       grid-template-columns: 1fr;
       min-height: 300px;
-      border: 2px solid red;
     }
 
     .menulive {

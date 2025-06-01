@@ -1,6 +1,6 @@
 <template>
   <div id="beebee-shaper">
-    <div id="beebee-bentos">
+    <div id="beebee-bentos" v-if="viewMinimal === false">
       <button id="cues-button" class="cue-agent" @click="openBentoAgent('cues')" :class="{ active: agentActive === 'cues' }">Cues</button>
       <button id="flake-button" class="cue-agent" @click="openBentoAgent('flake')" :class="{ active: agentActive === 'flake' }">Flake</button>
       <button id="besearch-button" class="cue-agent" @click="openBentoAgent('besearch')" :class="{ active: agentActive === 'besearch' }">Besearch</button>
@@ -8,7 +8,7 @@
       <button id="diary-button" class="cue-agent" @click="openBentoAgent('diary')" :class="{ active: agentActive === 'diary' }">Diary</button>
     </div>
     <div id="beebee-agent" @mouseup.prevent="EndDrag()" @mousemove.prevent="OnDrag($event)" @mouseover.prevent="setMoveCursor($event)">
-      <div id="bento-history" ref="historyQuants" >
+      <div id="bento-history" ref="historyQuants">
         <div id="bento-menu-items">
           <div class="history-menu">
             <button @click="historyType()" class="button-chat-menu" v-bind:class="{ active: historyList === true }">Chat</button>
@@ -28,14 +28,16 @@
             <button id="library-button-menu"@click="openLibrary()" class="button-chat-menu" v-bind:class="{ active: viewLibrary === true }">Library</button>
           </div>
         </div>
-        <div id="active-history-menu" v-if="historyList ===  true">
-          <chat-menu ></chat-menu>
-        </div>
-        <div id="active-space-history" v-if="historyCuesList ===  true">
-          <space-menu></space-menu>
+        <div id="submenu-active">
+          <div id="active-history-menu" v-if="historyList ===  true">
+            <chat-menu ></chat-menu>
+          </div>
+          <div id="active-space-history" v-if="historyCuesList ===  true">
+            <space-menu></space-menu>
+          </div>
         </div>
       </div>
-      <div id="bento-menu-holder"  ref="sliderQuants"  @mousedown.prevent="setMove($event)" @mouseover.prevent="setMoveCursor($event)">
+      <div id="bento-menu-holder"  ref="sliderQuants"  @mousedown.prevent="setMove($event)" @mouseover.prevent="setMoveCursor($event)" @mouseup.prevent="EndDrag()">
       </div>
       <div id="beebee-bento-chat">
         <div class="beebee-home">
@@ -64,12 +66,14 @@ import SpaceMenu from '@/components/beebeeView/navigation/spaceMenu.vue'
 import BeebeeChat from '@/components/beebeehelp/chatInterface.vue'
 import BentoSpace from '@/components/bentospace/spaceTemplate.vue'
 import BentoDiary from '@/components/bentodiary/diaryTemplate.vue'
+import { accountStore } from '@/stores/accountStore.js'
 import { cuesStore } from '@/stores/cuesStore.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 import { computed } from 'vue'
 
+  const storeAccount = accountStore()
   const storeCues = cuesStore()
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
@@ -79,13 +83,26 @@ import { computed } from 'vue'
   let viewLibrary = ref(false)
   let historyQuants = ref(null)
   let sliderQuants = ref(null)
-  let historyWidth = ref(300)
+  let historyWidth = ref(200)
   let newWidth = ref(0)
   let isResizing = ref(false)
   let startX = ref(0)
   let startWidth = ref(0)
+  let agentMargin = ref(126)
+  let chatMargin = ref(12)
 
   /* computed */
+  const viewMinimal = computed(() => {
+    if (storeAccount.viewMode === true) {
+      agentMargin.value = 10
+      chatMargin.value = 44
+    } else {
+      agentMargin.value = 126
+      chatMargin.value = 12
+    }
+    return storeAccount.viewMode
+  })
+
   const bodyDiagramShow = computed(() => {
     return storeAI.bodyDiagramShow
   })
@@ -121,7 +138,7 @@ import { computed } from 'vue'
       let newWidth = event.clientX
       historyWidth.value = Math.max(200, Math.min(newWidth, 800)) 
       event.preventDefault()
-   }
+    }
   }
 
   const EndDrag = () => {
@@ -186,7 +203,9 @@ import { computed } from 'vue'
 #bento-menu-items {
   display: grid;
   grid-template-columns: 1fr;
-  width: 260px;
+  width: 200px;
+  height: 210px;
+  margin-top: v-bind(chatMargin + 'px');
 }
 
 #beebee-agent {
@@ -199,32 +218,25 @@ import { computed } from 'vue'
 #bento-history {
   display: grid;
   grid-template-columns: 1fr;
-  margin-top: 200px;
-  grid-column: 1;
-  min-width: 200px; /* Minimum width */
+  min-width: 60px; /* Minimum width */
   width: v-bind(historyWidth + 'px');
-  overflow: auto; /* Enable scrolling if content overflows */
+  overflow-x: hidden; /* Enable scrolling if content overflows */
   transition: width 0.3s; /* Smooth transition for width change */
   border-left: 1px solid #ccc; /* Optional: Add a border for separation */
+  align-content: start;
+}
+
+#submenu-active {
+  margin-top: 12px;
+  overflow-y: scroll;
 }
 
 #bento-menu-holder {
-  width: 6px;
+  width: 2px;
   height: 100%;
-  background-color: blue;
+  background-color:rgb(164, 164, 212);
   border: 1px solid blue;
   z-index: 10;
-}
-
-#resize-handle {
-  width: 10px;
-  height: 100%;
-  background-color: #007bff;
-  position: absolute;
-  right: 0;
-  top: 0;
-  cursor: ew-resize;
-  z-index: 20; /* Ensure the handle is on top */
 }
 
 #history-buttons {
@@ -242,6 +254,8 @@ import { computed } from 'vue'
 #active-history-menu {
   display: grid;
   grid-template-columns: 1fr;
+  padding: 0px;
+  margin: 0px;
 }
 
 .active {
@@ -251,7 +265,6 @@ import { computed } from 'vue'
 .beebee-home {
   display: grid;
   grid-template-columns: 1fr;
-  border: 0px dashed rgb(207, 108, 21);
 }
 
 .button-chat-menu {
@@ -274,12 +287,12 @@ import { computed } from 'vue'
 }
 
 #beebee-bentos {
-    display: grid;
-    grid-template-columns: 1fr;
-    margin-top: 2em;
-    margin-bottom: 2em;
-    z-index: 23;
-  }
+  display: grid;
+  grid-template-columns: 1fr;
+  margin-top: 2em;
+  margin-bottom: 2em;
+  z-index: 23;
+}
 
 .cue-agent {
   display: inline-grid;
@@ -305,11 +318,11 @@ import { computed } from 'vue'
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.5);
 }
 
-  #beebee-bento-chat {
-    display: grid;
-    grid-template-columns: 1fr;
-    overflow-y: auto; /* Enable scrolling if content overflows */
-  }
+#beebee-bento-chat {
+  display: grid;
+  grid-template-columns: 1fr;
+  overflow-y: auto; /* Enable scrolling if content overflows */
+}
 
   @media (min-width: 1024px) {
 
@@ -320,7 +333,7 @@ import { computed } from 'vue'
       width: 100%;
     }
 
-    #beebee-bentos {
+  #beebee-bentos {
       position: fixed;
       display: grid;
       grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
@@ -331,24 +344,34 @@ import { computed } from 'vue'
       z-index: 23;
     }
 
-    #beebee-agent {
+    #bento-menu-items {
+      display: grid;
+      grid-template-columns: 1fr;
+      width: 200px;
+      height: 210px;
+      margin-top: v-bind(chatMargin + 'px');
+    }
+
+  #beebee-agent {
       display: grid;
       grid-template-columns: 1fr .01fr 6fr; /* Initial layout: history menu is 300px wide, main chat takes remaining space */
-      grid-template-rows: 100vh; /* Full height */
-      height: 100vh; /* Adjust as needed */
+      height: 80vh; /* Adjust as needed */
+      margin-top: v-bind(agentMargin + 'px');
     }
 
     #bento-history {
       display: grid;
       grid-template-columns: 1fr;
-
       width: v-bind(historyWidth + 'px');
-      overflow: visible;
+      overflow: hidden;
       transition: width 0.3s; /* Smooth transition for width change */
-      border-right: 1px solid #ccc; /* Optional: Add a border for separation */
       position: relative;
       z-index: 10; /* Ensure it is on top */
-      border: 1px solid red;
+    }
+
+    #submenu-active {
+      margin-top: v-bind(chatMargin + 'px');
+      overflow-y: scroll;
     }
 
     #history-buttons {
@@ -372,10 +395,16 @@ import { computed } from 'vue'
       height: 100%;
     }
 
+    #bento-menu-holder {
+      width: 2px;
+      height: 100%;
+      background-color:rgb(164, 164, 212);
+      z-index: 10;
+    }
+
     .beebee-home {
       display: grid;
       grid-template-columns: 1fr;
-      border: 0px dashed rgb(207, 108, 21);
     }
 
     .button-chat-menu {
@@ -417,16 +446,5 @@ import { computed } from 'vue'
       overflow-y: scroll;
     }
 
-    #toggle-history {
-      position: absolute;
-      top: 10px;
-      right: -20px; /* Position the button outside the history div */
-      background-color: #007bff;
-      color: white;
-      border: none;
-      padding: 10px;
-      cursor: pointer;
-      z-index: 20; /* Ensure the button is on top */
-    }
   }
 </style>

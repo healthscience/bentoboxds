@@ -104,14 +104,16 @@ const groupedChatList = computed(() => {
   const older = []
 
   sortedChatList.value.forEach(chat => {
-    const chatDate =  DateTime.fromMillis(chat.lastTimestamp)
-    const diffDays = now.diff(chatDate, 'days').days
-    if (diffDays <= 7) {
-      thisWeek.push(chat)
-    } else if (diffDays <= 30) {
-      thisMonth.push(chat)
-    } else {
-      older.push(chat)
+    if (chat.lastTimestamp !== undefined) {
+      const chatDate =  DateTime.fromMillis(chat.lastTimestamp)
+      const diffDays = now.diff(chatDate, 'days').days
+      if (diffDays <= 7) {
+        thisWeek.push(chat)
+      } else if (diffDays <= 30) {
+        thisMonth.push(chat)
+      } else {
+        older.push(chat)
+      }
     }
   })
 
@@ -261,7 +263,6 @@ const toggleShowMore = () => {
   display: grid;
   grid-template-columns: 1fr;
   height: 2em;
-  border: 2px dashed red;
 }
 
 .mode-switch {
@@ -308,14 +309,12 @@ const toggleShowMore = () => {
   .spaces {
     position: relative;
     height: 2em;
-    border: 0px dashed blue;
   }
 
   .live-drop-zone {
     display: grid;
     grid-template-columns: 1fr;
     height: 100%;
-    border: 2px dashed red;
     width: 200px;
   }
 
