@@ -204,7 +204,7 @@ import { computed } from 'vue'
   display: grid;
   grid-template-columns: 1fr;
   width: 200px;
-  height: 210px;
+  height: 160px;
   margin-top: v-bind(chatMargin + 'px');
 }
 
@@ -253,9 +253,13 @@ import { computed } from 'vue'
 
 #active-history-menu {
   display: grid;
+  grid-template-columns: 1fr;;
+}
+
+#active-space-history{
+  display: grid;
   grid-template-columns: 1fr;
-  padding: 0px;
-  margin: 0px;
+  border: 1px solid red;
 }
 
 .active {
@@ -348,11 +352,11 @@ import { computed } from 'vue'
       display: grid;
       grid-template-columns: 1fr;
       width: 200px;
-      height: 210px;
+      height: 160px;
       margin-top: v-bind(chatMargin + 'px');
     }
 
-  #beebee-agent {
+    #beebee-agent {
       display: grid;
       grid-template-columns: 1fr .01fr 6fr; /* Initial layout: history menu is 300px wide, main chat takes remaining space */
       height: 80vh; /* Adjust as needed */

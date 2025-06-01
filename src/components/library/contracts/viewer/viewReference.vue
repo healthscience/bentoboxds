@@ -94,6 +94,7 @@
           </div>
           <div class="refcontract-summary">
             <div> {{ cd.key }} </div>
+             <button @click="deleteRefC(cd.key, viewType)">delete</button>
           </div>
         </template>
         <template v-slot:body>
@@ -226,6 +227,7 @@
               <div v-else class="refinfo-col2">
                 {{ cd.value.computational.name }}
               </div>
+              <button @click="deleteRefC(cd.key, viewType)">delete</button>
             </div>
             <div class="refname">
               <div class="refinfo-col1">Version & Date:</div>

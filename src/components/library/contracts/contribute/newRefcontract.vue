@@ -21,6 +21,8 @@
         <button class="submit-save" type="submit"  id="save-new-refcontract" @click.prevent="saveRefContract()">Save reference contract</button>
         <!-- <button class="submit" type="submit" id="check-new-refcontract" @click.prevent="checkRefContract()">Check Contract</button>
         <button class="submit" type="submit" id="network-library-submit" @click.prevent="networkLibraryRefContract()" >Submit to network library</button> -->
+        lll {{ storeLibrary.newPackagingForm}}
+        dddd ======================={{ storeLibrary.newDatafile }}
       </div>
       <div v-if="savenxpSuccess" class="newnxp-form-feeback">
         <div id="hop-feedback">

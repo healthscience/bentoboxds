@@ -65,6 +65,8 @@ const storeBentobox = bentoboxStore()
   /* methods */
   const selectBentoSpace = () => {
     // if first time prepare a boxID
+    console.log('bentobox id passed in from prop')
+    console.log(props.bboxid)
     let bidPair = {}
     if (storeAI?.boxLibSummary[props.bboxid] === undefined) {
       bidPair = { bboxid: props.bboxid, contract: props.bboxid}
@@ -89,8 +91,9 @@ const storeBentobox = bentoboxStore()
   }
 
   const clickAddbentoSpace = (boxid) => {
-    // show the space list
-    // shareSelect.value = !shareSelect.value  emit to close dataModal
+    // add to space but check if first time, if so send HOPquery
+    // HOPquery?
+    // then
     storeAI.prepareLibrarySummary(boxid)
   }
 

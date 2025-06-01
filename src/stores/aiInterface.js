@@ -637,7 +637,11 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         let opendataToolbar = this.liveChatUtil.setOpendataToolbar()
         this.storeBentoBox.boxToolStatus[boxID] = {}
         this.storeBentoBox.boxToolStatus[boxID] = opendataToolbar
-        let pairBB = this.liveChatUtil.prepareChatQandA(boxID, matchSummary)        
+        // only need to prepare chat is current mode chat, if space ignore
+        if (this.beebeeContext === 'chat') {
+          let pairBB = this.liveChatUtil.prepareChatQandA(boxID, matchSummary)
+          this.historyPair[this.chatAttention].push(pairBB)
+        }
         let hopDataChart = {}
         hopDataChart.datasets = [ { label: 'datatype11', data: [] } ]
         hopDataChart.labels = []
@@ -645,8 +649,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         this.storeBentoBox.setChartstyle(boxID, dataHOP.context.moduleorder.visualise.value.info.settings.visualise)
         // this.expandBentobox[boxID] = true
         this.beebeeChatLog[boxID] = true
-        // feed the chat
-        this.historyPair[this.chatAttention].push(pairBB)
         this.chatBottom++
       } else if (dataHOP.context.input.update !== 'predict-future') {
         this.dataBoxStatus = false
@@ -736,22 +738,26 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       console.log('summary box')
       console.log(this.boxLibSummary)
       console.log(boxid)
-      let key = Object.keys(this.boxLibSummary[boxid].data)
-      // now update compute contract to latest one back from HOP
-      let computeLatestModules = []
-      for (let mod of this.boxLibSummary[boxid].data[key[0]].modules) {
-        if (mod.value.style === 'compute') {
-          let lastMod = this.computeModuleLast[boxid]
-          computeLatestModules.push(lastMod)
-        } else {
-          computeLatestModules.push(mod)
+      if (this.boxLibSummary[boxid] === undefined) {
+        console.log('first time HOPquery or no history saved')
+      } else {
+        let key = Object.keys(this.boxLibSummary[boxid].data)
+        // now update compute contract to latest one back from HOP
+        let computeLatestModules = []
+        for (let mod of this.boxLibSummary[boxid].data[key[0]].modules) {
+          if (mod.value.style === 'compute') {
+            let lastMod = this.computeModuleLast[boxid]
+            computeLatestModules.push(lastMod)
+          } else {
+            computeLatestModules.push(mod)
+          }
         }
+        this.boxLibSummary[boxid].data.modules = computeLatestModules
+        // let modulesContracts = NXPcontract[key[0]].modules
+        let extractedOD = this.storeLibrary.utilLibrary.moduleExtractSettings(computeLatestModules)
+        this.storeBentoBox.openDataSettings[boxid] = extractedOD
+        return true
       }
-      this.boxLibSummary[boxid].data.modules = computeLatestModules
-      // let modulesContracts = NXPcontract[key[0]].modules
-      let extractedOD = this.storeLibrary.utilLibrary.moduleExtractSettings(computeLatestModules)
-      this.storeBentoBox.openDataSettings[boxid] = extractedOD
-      return true
     },
     prepareChatBentoBoxSave (message) {
       let settingsData = this.historyPair[message.data.chatid]

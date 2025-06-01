@@ -9,7 +9,7 @@
         </div>
       </div>
       <div v-if="props.experiments.length > 0" class="table-rows">
-        <div class="alternate-bk" v-for="entry in props.experiments">
+        <div class="alternate-bk" v-for="entry in props.experiments">--{{entry}}
           <div class="table-row-columns" v-for="col in props.columns">
             <div v-if="col !== 'action'">
               {{ entry[col] }}
@@ -19,7 +19,7 @@
               <div class="display-options" v-if="addOptions === true">
                 <button class="space-add" @click="addSpace(entry)">Space</button>
                 <button class="chat-add" @click="addChat(entry)">Chat</button>
-                <spaces-list v-if="shareSelect" :bboxid="entry.id"></spaces-list>
+                <spaces-list v-if="shareSelect" :bboxid=entry.id></spaces-list>
               </div>
               <div class="constract-action share-action" v-if="props.privacy === 'public'"><a href="#" @click="sharePubExp(entry)">share</a></div>
               <div class="constract-action"><a class="remove-warn" href="#" @click="removeExp(entry)">remove</a></div>
