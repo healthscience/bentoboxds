@@ -740,6 +740,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       console.log(boxid)
       if (this.boxLibSummary[boxid] === undefined) {
         console.log('first time HOPquery or no history saved')
+        this.storeLibrary.prepareLibraryViewFromContract(boxid, boxid)
       } else {
         let key = Object.keys(this.boxLibSummary[boxid].data)
         // now update compute contract to latest one back from HOP

@@ -496,6 +496,8 @@ export const libraryStore = defineStore('librarystore', {
       libMessageout.task = 'join'
       libMessageout.data = updateJoinSettings
       libMessageout.bbid = 'lib' + genContract.value.exp.key
+      console.log('join first time HOPquery')
+      console.log(libMessageout)
       this.sendSocket.send_message(libMessageout)
     },
     prepareLibrarySpaceMessage (contract, action) {
@@ -550,15 +552,22 @@ export const libraryStore = defineStore('librarystore', {
         // inform beebee feedback to try now library has loaded
       } else {
         let contractQuery = this.utilLibrary.matchNXPcontract(contractID, this.peerLibraryNXP)
-        let libMessageout = {}
-        libMessageout.type = 'library'
-        libMessageout.action = 'contracts'
-        libMessageout.reftype = 'experiment'
-        libMessageout.privacy = 'private'
-        libMessageout.task = 'assemble'
-        libMessageout.data = contractQuery
-        libMessageout.bbid = bbid
-        this.sendSocket.send_message(libMessageout)
+        let checkKeys = Object.keys(contractQuery)
+        if (checkKeys. length > 0) {
+          let libMessageout = {}
+          libMessageout.type = 'library'
+          libMessageout.action = 'contracts'
+          libMessageout.reftype = 'experiment'
+          libMessageout.privacy = 'private'
+          libMessageout.task = 'assemble'
+          libMessageout.data = contractQuery
+          libMessageout.bbid = bbid
+          console.log('message view from library assemble')
+          console.log(libMessageout)
+          this.sendSocket.send_message(libMessageout)
+        } else {
+          // provide feedback to peer
+        }
       }
     },
     prepareGenesisModContracts (message) {
