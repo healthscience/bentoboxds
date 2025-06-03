@@ -149,8 +149,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     setupChatHistory (chat) {
-      console.log('setup chat history')
-      console.log(chat)
       // does the chat history exist if not setup
       if (this.historyPair.hasOwnProperty(chat.chatid) === false) {
         this.historyPair[chat.chatid] = []
@@ -160,7 +158,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     submitAsk (dataInfo) {
       // check for context of beebee default is Chat, other option spaces, cues(decisions)
       if (this.beebeeContext === 'chat') {
-        console.log('chat')
         // remove start boxes
         this.startChat = false
         this.historyBar = true
@@ -180,7 +177,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           lastQuestion[0].reply.data.content = lastQuestion.reply.data.grid // this.storeLibrary.linesLimit
           this.actionFileAskInput(lastQuestion[0].reply)
         } else if (dataInfo?.id) {
-          console.log('else33333')
           // if bbid match to that
           let matchBBox = {}
           let questionCount = []
@@ -215,7 +211,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
             }
           }
         } else {
-          console.log('else 444')
           this.actionHelpAskInput()
         }
       } else if (this.beebeeContext === 'chatspace') {
@@ -358,7 +353,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         console.log('hop learn feeeabck')
         console.log(received.data)
         if (received.data.agent === 'not-active') {
-          console.log('not active')
           let pairBB = {}
           pairBB.question = received.data.input
           pairBB.reply = received
@@ -614,7 +608,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.bentoboxList['space1'] = []
     },
     processHOPsummary (dataSummary) {
-      console.log('processHOPsummary')
       // match bbid to HOP ID
       let inputID = Object.keys(dataSummary.data)
       let HOPshell = dataSummary.data[inputID[0]].shellID
@@ -650,16 +643,25 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         // this.expandBentobox[boxID] = true
         this.beebeeChatLog[boxID] = true
         this.chatBottom++
-      } else if (dataHOP.context.input.update !== 'predict-future') {
-        this.dataBoxStatus = false
+      } else if (dataHOP.type === 'sf-newEntityRange') { // (dataHOP.context.input.update !== 'predict-future') {
+         this.dataBoxStatus = false
         let matchBBID = this.liveChatUtil.matchHOPbbid(dataHOP.data.context.shell, this.bbidHOPid)
-        // update the latest compute module contract back from HOP
-        if (dataHOP.context.tempComputeMod !== undefined) {
-          this.computeModuleLast[matchBBID] = dataHOP.context.tempComputeMod.info
+        // was HOPquery made from chat?
+        if (true) {
+
+          // update the latest compute module contract back from HOP
+          if (dataHOP.context.tempComputeMod !== undefined) {
+            this.computeModuleLast[matchBBID] = dataHOP.context.tempComputeMod.info
+          }
+          this.bentoboxList['space1'] = []
+          // this.expandBentobox[matchBBID] = true
+          this.beebeeChatLog[matchBBID] = true
         }
-        this.bentoboxList['space1'] = []
-        // this.expandBentobox[matchBBID] = true
-        this.beebeeChatLog[matchBBID] = true
+        // prepare space if HOPquery space asked for
+        if (true) {
+
+        }
+        // set the data for visualizations
         let hopDataChart = {}
         hopDataChart.datasets = dataHOP.data.data.chartPackage.datasets
         hopDataChart.labels = dataHOP.data.data.chartPackage.labels
@@ -712,12 +714,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       const sendocket = useSocketStore()
       this.sendSocket.send_message(aiMessageout)
     },
-    prepareLibrarySummary (boxid) {
-      console.log('prepare LIBSUMMARY')
-      console.log(this.hopSummary)
+    prepareLibrarySummary (boxid, action, cue) {
       for (let hi of this.hopSummary) {
-        console.log('summlooop---------')
-        console.log(hi)
         if (hi.summary.bbid == boxid) {
           // new or saved format
           if ('data' in hi.summary) {
@@ -735,12 +733,25 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         }
       }
       // let NXPcontract = this.boxLibSummary[boxid].data
-      console.log('summary box')
-      console.log(this.boxLibSummary)
-      console.log(boxid)
       if (this.boxLibSummary[boxid] === undefined) {
-        console.log('first time HOPquery or no history saved')
         this.storeLibrary.prepareLibraryViewFromContract(boxid, boxid)
+        if (action === 'space-add') {
+          let cueSpace = {}
+          cueSpace.cueid = cue.key
+          cueSpace.name = cue.value.concept.name
+          this.liveBspace = cueSpace
+          // prepare chat for space
+          let newChatItem = {}
+          newChatItem.name = cue.value.concept.name
+          newChatItem.chatid = cue.key
+          newChatItem.active = true
+          //setup chat history holder
+          this.setupChatHistory(newChatItem)
+          this.chatAttention = cue.key
+          this.storeCues.cueContext = 'space'
+          this.beebeeContext = 'chatspace'
+          this.bentospaceState = true
+        }
       } else {
         let key = Object.keys(this.boxLibSummary[boxid].data)
         // now update compute contract to latest one back from HOP
@@ -790,8 +801,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       saveData.visData = visDataperChat
       saveData.hop = hopQuery
       message.data = saveData
-      console.log('save chat manual')
-      console.log(message)
       this.sendSocket.send_message(message)
     },
     prepareSpaceSave (message) {

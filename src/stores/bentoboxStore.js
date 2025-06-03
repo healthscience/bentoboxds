@@ -95,16 +95,11 @@ export const bentoboxStore = defineStore('bentostore', {
     processReply (message) {
       // prepare chat menu and pairs
       if (message.reftype.trim() === 'chat-history') {
-        console.log('chat history')
-        console.log(message.data)
         if (message.action.trim() === 'start') {
           // prepare chat dialogues
           let chatMenu = []
           if (message.data.length !== 0) {
-            console.log('chat menu prepare start')
             chatMenu = this.liveChatUtil.prepareChatMenu(message.data)
-            console.log('chat menue-bb-b-b-b-bb-b--b-')
-            console.log(chatMenu[0])
             this.storeAI.chatAttention = chatMenu[0].chatid
             let setOneActive = []
             let chatAct = 0
@@ -124,7 +119,6 @@ export const bentoboxStore = defineStore('bentostore', {
             // what items was last uses ie time or could be favourite ie most frequent use
             this.storeAI.chatAttention = this.chatList[0].chatid
           } else {
-            console.log('chat empty first time setup')
             let firstChatmenu = this.liveChatUtil.prepareChatMenu([])
             this.chatList = firstChatmenu
             // save latest first time only
@@ -140,8 +134,6 @@ export const bentoboxStore = defineStore('bentostore', {
             saveBentoBoxsetting.task = 'save'
             saveBentoBoxsetting.data = saveData
             saveBentoBoxsetting.bbid = ''
-            console.log('empty  crate latest')
-            console.log(saveBentoBoxsetting)
             this.storeAI.sendMessageHOP(saveBentoBoxsetting)
             this.storeAI.chatAttention = this.chatList[0].chatid
             this.storeAI.setupChatHistory(this.chatList[0])
@@ -284,9 +276,6 @@ export const bentoboxStore = defineStore('bentostore', {
       }
     },
     setLocationBbox (space, bbox) {
-      console.log('set location in space')
-      console.log(space)
-      console.log(bbox)
       // check not already set
       let spaceLive = this.locationBbox[space]
       if (bbox in spaceLive) {

@@ -496,17 +496,12 @@ export const libraryStore = defineStore('librarystore', {
       libMessageout.task = 'join'
       libMessageout.data = updateJoinSettings
       libMessageout.bbid = 'lib' + genContract.value.exp.key
-      console.log('join first time HOPquery')
-      console.log(libMessageout)
       this.sendSocket.send_message(libMessageout)
     },
     prepareLibrarySpaceMessage (contract, action) {
       // make bbid the hash of the private contract?
-      console.log('setup if not already summary')
-      console.log(contract)
     },
     prepareLibraryChatMessage (contract, action) {
-      console.log('add to chat nxp')
       // create a bbid
       let boxID = {}
       boxID.contract = contract
@@ -541,8 +536,6 @@ export const libraryStore = defineStore('librarystore', {
       // this.storeAI.historyPair[this.storeAI.chatAttention] = []
       this.storeAI.historyPair[this.storeAI.chatAttention].push(pairBB)
       this.storeAI.chatBottom++
-      console.log('assemmble message')
-      console.log(libMessageout)
       this.sendSocket.send_message(libMessageout)
     },
     prepareLibraryViewFromContract (bbid, contractID) {
@@ -562,8 +555,6 @@ export const libraryStore = defineStore('librarystore', {
           libMessageout.task = 'assemble'
           libMessageout.data = contractQuery
           libMessageout.bbid = bbid
-          console.log('message view from library assemble')
-          console.log(libMessageout)
           this.sendSocket.send_message(libMessageout)
         } else {
           // provide feedback to peer
@@ -630,7 +621,6 @@ export const libraryStore = defineStore('librarystore', {
       refContract.task = 'DEL'
       refContract.privacy = 'public'
       refContract.data = key
-      console.log(refContract)
       this.sendSocket.send_message(refContract)
     },
     sendMessage (hopMessage) {
