@@ -736,23 +736,12 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       if (this.boxLibSummary[boxid] === undefined) {
         this.storeLibrary.prepareLibraryViewFromContract(boxid, boxid)
         if (action === 'space-add') {
-          let cueSpace = {}
-          cueSpace.cueid = cue.key
-          cueSpace.name = cue.value.concept.name
-          this.liveBspace = cueSpace
-          // prepare chat for space
-          let newChatItem = {}
-          newChatItem.name = cue.value.concept.name
-          newChatItem.chatid = cue.key
-          newChatItem.active = true
-          //setup chat history holder
-          this.setupChatHistory(newChatItem)
-          this.chatAttention = cue.key
-          this.storeCues.cueContext = 'space'
-          this.beebeeContext = 'chatspace'
-          this.bentospaceState = true
+          this.openCueSpaceSettings(cue)
         }
       } else {
+        if (action === 'space-add') {
+          this.openCueSpaceSettings(cue)
+        }
         let key = Object.keys(this.boxLibSummary[boxid].data)
         // now update compute contract to latest one back from HOP
         let computeLatestModules = []
@@ -770,6 +759,23 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         this.storeBentoBox.openDataSettings[boxid] = extractedOD
         return true
       }
+    },
+    openCueSpaceSettings (cue) {
+      let cueSpace = {}
+      cueSpace.cueid = cue.key
+      cueSpace.name = cue.value.concept.name
+      this.liveBspace = cueSpace
+      // prepare chat for space
+      let newChatItem = {}
+      newChatItem.name = cue.value.concept.name
+      newChatItem.chatid = cue.key
+      newChatItem.active = true
+      //setup chat history holder
+      this.setupChatHistory(newChatItem)
+      this.chatAttention = cue.key
+      this.storeCues.cueContext = 'space'
+      this.beebeeContext = 'chatspace'
+      this.bentospaceState = true
     },
     prepareChatBentoBoxSave (message) {
       let settingsData = this.historyPair[message.data.chatid]
