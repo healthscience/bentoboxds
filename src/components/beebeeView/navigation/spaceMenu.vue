@@ -15,6 +15,22 @@
     <div id="cues-history" @click="showHistoryCues()" v-bind:class="{ active: historyCues }">
       History
     </div>
+    <div id="history-menu" v-if="historyCues === true">
+      <button @click="setTimeFilter('current')">Today</button>
+      <button @click="setTimeFilter('thisWeek')">This Week</button>
+      <button @click="setTimeFilter('thisMonth')">This Month</button>
+    </div>
+    <div id="cues-time-segments">
+      <div id="current-cues" v-if="expandTimeCues === 'current'">
+        current
+      </div>
+      <div id="weekly-cues" v-if="expandTimeCues === 'thisWeek'">
+        Week
+      </div>
+      <div id="current-cues" v-if="expandTimeCues === 'thisMonth'">
+        Month
+      </div>
+    </div>
     <div class="history-list" v-for="sis in spaceListHistory">
       <button
           class="flat-history"  v-bind:class="{ active: sis?.active }" @click="bentoSpaceOpen(sis, 'history')" @mouseover="hoverCheck(sis)" @mousemove="moveCheck(sis)"> {{ sis.value.concept.name }}
@@ -77,12 +93,12 @@ import { ref, computed, onMounted } from 'vue'
   let historyCues = ref(false)
   let expandCues = ref(false)
   let expandMarkers = ref(false)
+  let expandTimeCues = ref('current')
 
   /* on mount */
   onMounted(() => {
    
   })
-
 
   /*  computed  */
   const spaceListHistory = computed(() => {
@@ -138,6 +154,12 @@ import { ref, computed, onMounted } from 'vue'
     // console.log('move id')
     // console.log(sis)
   }
+
+  const setTimeFilter = (timeFrame) => {
+    console.log('time frame')
+    expandTimeCues.value = timeFrame
+  }
+
 
   const newSpacemenu = () => {
     saveSpace.value = !saveSpace.value

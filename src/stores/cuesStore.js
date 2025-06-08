@@ -302,6 +302,23 @@ export const cuesStore = defineStore('cues', {
       for (let dtg of listDatatypes) {
         this.sendSocket.send_message(dtg)
       }
+    },
+    filterCuesByToday (cues) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      return cues.filter(cue => new Date(cue.value.lastUsed) >= today);
+    },
+    filterCuesByThisWeek (cues) {
+      const today = new Date();
+      const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+      startOfWeek.setHours(0, 0, 0, 0);
+      return cues.filter(cue => new Date(cue.value.lastUsed) >= startOfWeek);
+    },
+    filterCuesByThisMonth (cues) {
+      const today = new Date();
+      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      startOfMonth.setHours(0, 0, 0, 0);
+      return cues.filter(cue => new Date(cue.value.lastUsed) >= startOfMonth);
     }
   }
 })
