@@ -407,7 +407,15 @@ export const libraryStore = defineStore('librarystore', {
         this.storeCues.mediaMatch[mediaContract.value.concept.cueid].push(mediaContract)
       } else if (message.action === 'marker-contract') {
         let markerContract = message.data.data
-        this.storeCues.markerMatch[markerContract.value.concept.cueid].push(markerContract)
+        console.log('marer contgract')
+        console.log(markerContract)
+        console.log(this.storeCues.markerMatch)
+        if (this.storeCues.markerMatch.length > 0) {
+          this.storeCues.markerMatch[markerContract.value.concept.cueid].push(markerContract)
+        } else {
+          // ask for marker contracts
+          this.sendMarkerMessage()
+        }
       } else if (message.action === 'research-contract') {
         // add to research list
         let researchContract = message.data.data
@@ -621,6 +629,15 @@ export const libraryStore = defineStore('librarystore', {
       refContract.task = 'DEL'
       refContract.privacy = 'public'
       refContract.data = key
+      this.sendSocket.send_message(refContract)
+    },
+    sendMarkerMessage () {
+      const refContract = {}
+      refContract.type = 'library'
+      refContract.action = 'marker'
+      refContract.privacy = 'public'
+      refContract.reftype = 'start-marker'
+      refContract.task = 'GET'
       this.sendSocket.send_message(refContract)
     },
     sendMessage (hopMessage) {

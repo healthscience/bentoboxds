@@ -24,9 +24,6 @@
           </div>
         </div>
         <ColorPicker v-model:pureColor="pureColor" format="hex" shape="square" />
-        <!--<button id="cue-add" type="submit" @click="cueAdd()">
-          + cue
-        </button>-->
       </div>
     </div>
     <div id="build-cues">
@@ -107,9 +104,11 @@ import { cuesStore } from '@/stores/cuesStore.js'
 
   const saveCue = () => {
     // did the new cue come from the space menu create button?
+    console.log('save cue')
+    console.log(storeAI.historyCuesList)
     if (storeAI.historyCuesList === true) {
       // close the cues tools
-      storeAI.bentocuesState = false
+      // storeAI.bentocuesState = false
     }
     let cueHolder = {}
     cueHolder.name = cueName.value

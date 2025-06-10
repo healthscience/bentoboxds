@@ -215,13 +215,17 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
         cueContract = cue
       }  
     }
-    storeAI.liveBspace = {
-      name: cueContract.value.concept.name,
-      spaceid: storeCues.activeCue,
-      cueid: storeCues.activeCue,
-      gluedown: 'down',
-      active: false,
-      expand: true
+    // any contract?
+    let cueLive = Object.keys(cueContract)
+    if (cueLive.length > 0) {
+      storeAI.liveBspace = {
+        name: cueContract.value.concept.name,
+        spaceid: storeCues.activeCue,
+        cueid: storeCues.activeCue,
+        gluedown: 'down',
+        active: false,
+        expand: true
+      }
     }
     storeAI.chatAttention = storeCues.activeCue
     storeBentobox.spaceList.push(storeCues.activeCue)
@@ -264,6 +268,10 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
   const glueType = (glueType) => {
     storeCues.cueGluePrepare(glueType)
     activeGlueType.value = glueType  // Update active glue type
+  }
+
+  const viewMarker = (mid) => {
+    // do nothing for now
   }
 
 </script>
