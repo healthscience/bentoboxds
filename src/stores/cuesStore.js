@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { useSocketStore } from '@/stores/socket.js'
+import { libraryStore } from '@/stores/libraryStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import CuesUtilty from '@/stores/hopUtility/cuesUtility.js'
 import MarkersUtilty from '@/stores/hopUtility/biomarkerUtility.js'
@@ -7,6 +8,7 @@ import FlakeUtilty from '@/stores/hopUtility/flakeUtility.js'
 
 export const cuesStore = defineStore('cues', {
   state: () => ({
+    storeLibrary: libraryStore(),
     storeAI: aiInterfaceStore(),
     cueUtil: new CuesUtilty(),
     flakeUtil: new FlakeUtilty(),
@@ -51,6 +53,8 @@ export const cuesStore = defineStore('cues', {
     minCuesStatus: true,
     minCuesText: 'Minimise',
     spaceListHistory: [],
+    cuesHistoryList: [],
+    cueMenuHistory: [],
     cueHistory: [],
     glueHistory: []
   }),
@@ -159,6 +163,8 @@ export const cuesStore = defineStore('cues', {
       return matchLabel
     },
     checkCueContext () {
+      // keep track of history ie popularity of a cue
+      this.cueMenuHistory.push(this.activeCue)
       this.cuesFlakeList = []
       this.flakeCues = {}
       // what cue context is active, menu, space, flake
@@ -184,6 +190,25 @@ export const cuesStore = defineStore('cues', {
           let prepList =this.flakeCuesList()
           this.prepareFlake()
         }
+      }
+    },
+    getMostPopularItems (array) {
+      // Create a map to store the count of each item
+      const itemCountMap = new Map();
+      // Count occurrences of each item in the array
+      array.forEach(item => {
+        if (itemCountMap.has(item)) {
+          itemCountMap.set(item, itemCountMap.get(item) + 1)
+        } else {
+          itemCountMap.set(item, 1)
+        }
+      });
+      // Convert the map to an array of [item, count] pairs and sort by count in descending order
+      const sortedItems = Array.from(itemCountMap.entries()).sort((a, b) => b[1] - a[1])
+      // Return the sorted array of items with their counts
+      this.cuesHistoryList = []
+      for (let cue of sortedItems) {
+        this.storeLibrary.prepareCueMenuHistory(cue[0])
       }
     },
     flakeCuesList () {

@@ -177,13 +177,14 @@ export const bentoboxStore = defineStore('bentostore', {
         if (this.storeLibrary.publicLibrary.referenceContracts !== undefined) {
           this.libraryCheck = true
           // expand cues via library
-          // this.storeLibrary.preparePublicCues(message.data)
           let updateCueExpand = []
           for (let cueContract of message.data) {
             let expandDTCue = this.storeLibrary.utilLibrary.expandCuesDTSingle(cueContract, this.storeLibrary.publicLibrary.referenceContracts)
             updateCueExpand.push(expandDTCue)
           }
           this.storeCues.cuesList = updateCueExpand
+          // filter for most current used time or frequency
+          this.storeCues.getMostPopularItems(this.storeCues.cuesList)
         } else {
           this.storeCues.waitingCues = message.data
         }

@@ -101,9 +101,7 @@ import { ref, onMounted } from 'vue'
 
   /* method */
   const viewMode = () => {
-    console.log('view mode')
     storeAccount.viewMode= !storeAccount.viewMode
-    console.log(storeAccount.viewMode)
   }
 
 </script>

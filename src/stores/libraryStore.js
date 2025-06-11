@@ -232,8 +232,8 @@ export const libraryStore = defineStore('librarystore', {
       messageHOP.reftype = message.data.type
       messageHOP.privacy = 'private'
       messageHOP.task = 'GET' */
-      // messageHOP.data = { query: 'devices', db: storeLibrary.describeSource.path, table: tableChoice.value.name }
-      //storeLibrary.sendMessage(messageHOP)
+      // messageHOP.data = { query: 'devices', db: this.describeSource.path, table: tableChoice.value.name }
+      //this.sendMessage(messageHOP)
     },
     confrimAddPublicLibrary (message) {
       let messageHOP = {}
@@ -365,6 +365,8 @@ export const libraryStore = defineStore('librarystore', {
           }
           this.storeCues.cuesList = updateCueExpand
           // this.storeCues.waitingCues = []
+          // filter for most current used time or frequency
+          this.storeCues.getMostPopularItems(this.storeCues.cuesList)
         }
       } else if (message.action === 'cue-contract') {
         if (message.task === 'save-complete') {
@@ -407,9 +409,6 @@ export const libraryStore = defineStore('librarystore', {
         this.storeCues.mediaMatch[mediaContract.value.concept.cueid].push(mediaContract)
       } else if (message.action === 'marker-contract') {
         let markerContract = message.data.data
-        console.log('marer contgract')
-        console.log(markerContract)
-        console.log(this.storeCues.markerMatch)
         if (this.storeCues.markerMatch.length > 0) {
           this.storeCues.markerMatch[markerContract.value.concept.cueid].push(markerContract)
         } else {
@@ -489,6 +488,22 @@ export const libraryStore = defineStore('librarystore', {
       } else if (message.action === 'ledger') {
         this.peerLedger = message.data
       }
+    },
+    prepareCueMenuHistory (cueID) {
+      // match to cueContract
+      let cueIDcheck = typeof cueID
+      if (cueIDcheck === 'object') {
+        cueID = cueID.key
+      }
+      let cueContract = {}
+      for (let cue of this.storeCues.cuesList) {
+        if (cue.key === cueID) {
+          cueContract = cue
+        }  
+      }
+      let expandDTCue = this.utilLibrary.expandCuesDTSingle(cueContract, this.publicLibrary.referenceContracts)
+      // add to cues list
+      this.storeCues.cuesHistoryList.push(expandDTCue)
     },
     prepareJoinNXPMessage (genContract, setControls, settingsInfo) {
       // let updateJoinSettings = this.utilLibrary.updateSettings(genContract, settings)

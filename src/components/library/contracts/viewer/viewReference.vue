@@ -329,7 +329,6 @@ import { DateTime } from 'luxon'
   }
 
   const deleteRefC =  (contID, type) => {
-    console.log(contID)
     storeLibrary.removeRefContract(contID, 'public', type)
   }
 

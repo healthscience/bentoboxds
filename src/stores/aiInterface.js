@@ -350,8 +350,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           }
         }
       } else if (received.action === 'hop-learn-feedback') {
-        console.log('hop learn feeeabck')
-        console.log(received.data)
         if (received.data.agent === 'not-active') {
           let pairBB = {}
           pairBB.question = received.data.input

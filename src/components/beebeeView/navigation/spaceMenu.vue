@@ -20,15 +20,20 @@
       <button @click="setTimeFilter('thisWeek')">This Week</button>
       <button @click="setTimeFilter('thisMonth')">This Month</button>
     </div>
-    <div id="cues-time-segments">
-      <div id="current-cues" v-if="expandTimeCues === 'current'">
-        current
-      </div>
-      <div id="weekly-cues" v-if="expandTimeCues === 'thisWeek'">
-        Week
-      </div>
-      <div id="current-cues" v-if="expandTimeCues === 'thisMonth'">
-        Month
+    <div id="cues-time-segments" v-if="historyCues === true">
+      <div id="cues-history-segments">
+        <div id="current-cues" v-if="expandTimeCues === 'current'">
+          <div class="history-cue-seg">current</div>
+          <div class="latest-pop-list" v-for="cue in cueSpaceHistory">
+              <button class="cue-hist-btn" @click="bentoSpaceOpen(cue, 'history')">{{ cue.value.concept.name }}</button>
+          </div>
+        </div>
+        <div id="weekly-cues" v-if="expandTimeCues === 'thisWeek'">
+          Week
+        </div>
+        <div id="current-cues" v-if="expandTimeCues === 'thisMonth'">
+          Month
+        </div>
       </div>
     </div>
     <div class="history-list" v-for="sis in spaceListHistory">
@@ -81,8 +86,10 @@
 import { cuesStore } from '@/stores/cuesStore.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
+import { libraryStore } from '@/stores/libraryStore.js'
 import { ref, computed, onMounted } from 'vue'
 
+  const storeLibrary = libraryStore()
   const storeCues = cuesStore()
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
@@ -104,6 +111,10 @@ import { ref, computed, onMounted } from 'vue'
   const spaceListHistory = computed(() => {
     // need to format for menu display
     return storeCues.spaceListHistory
+  })
+
+  const cueSpaceHistory = computed(() => {
+    return storeCues.cuesHistoryList
   })
 
   const cuesList = computed(() => {
@@ -156,7 +167,6 @@ import { ref, computed, onMounted } from 'vue'
   }
 
   const setTimeFilter = (timeFrame) => {
-    console.log('time frame')
     expandTimeCues.value = timeFrame
   }
 
@@ -357,9 +367,16 @@ import { ref, computed, onMounted } from 'vue'
   height: 80%;;
 }
 
+#cues-history {
+  font-weight: bold;
+}
+
+.latest-pop-list {
+  margin: .4em;
+}
+
 #cue-holistic {
   margin-bottom: 1em;
-
 }
 
 .flat-history {

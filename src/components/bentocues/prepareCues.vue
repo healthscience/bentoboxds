@@ -189,6 +189,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     // check in other context e.g. flake
     storeCues.glueRelActive = ''
     storeCues.checkCueContext()
+    storeCues.getMostPopularItems(storeCues.cueMenuHistory)
   }
 
   const viewCueHistory = (cueKey, cueH) => {
