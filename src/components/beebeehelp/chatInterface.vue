@@ -182,8 +182,6 @@ import { libraryStore } from '@/stores/libraryStore.js'
   })
 
   const chatPairs = computed(() => {
-    console.log('chat pairs listfffffffffffffffffffff')
-    console.log(storeAI.historyPair[storeAI.chatAttention])
     return storeAI.historyPair[storeAI.chatAttention]
   })
 

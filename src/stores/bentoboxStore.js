@@ -199,7 +199,6 @@ export const bentoboxStore = defineStore('bentostore', {
       } else if (message.reftype.trim() === 'product-history') {
         this.prepareProductSpace(message.data)
       } else if (message.reftype.trim() === 'bentobox-history') {
-        console.log('bentobox active')
       }
     },
     prepareMediaSpace (mData) {
