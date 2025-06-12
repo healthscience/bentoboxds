@@ -414,6 +414,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
   }
 
   const viewSaveExperiment = (bbid, contractID) => {
+    console.log('view experiment bentobox')
     storeLibrary.prepareLibraryViewFromContract(bbid, contractID)
   }
 

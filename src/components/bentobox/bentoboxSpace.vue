@@ -23,9 +23,9 @@
     <!-- bentobox -->
     <div id="bb-toolbar" v-bind:class="{ active: bboxActive }">Active bar</div>
     <bento-box :bboxid="props.bboxid" :contractid="props.contractid" :bbwidth="bentoboxWidth"></bento-box>
-    <button id="bb-remove" @click="removeBboxSpace">remove</button>dd{{ storeAI.expandBentobox[props.bboxid] }}
+    <button id="bb-remove" @click="removeBboxSpace">remove</button>
   </vue-resizable>
-  <bentobox-focus v-if="storeAI.expandBentobox[props.bboxid] === true" :bboxid="props.bboxid"></bentobox-focus>
+  <bentobox-focus v-if="storeAI.expandBentobox[props.bboxid] === true" :bboxid="props.bboxid" :contractid="props.contractid"></bentobox-focus>
 </template>
 
 <script setup>

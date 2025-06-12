@@ -562,6 +562,10 @@ export const libraryStore = defineStore('librarystore', {
       this.sendSocket.send_message(libMessageout)
     },
     prepareLibraryViewFromContract (bbid, contractID) {
+      console.log('prepare view')
+      console.log(bbid)
+      console.log(contractID)
+      console.log(this.peerLibraryNXP.length)
       if (this.peerLibraryNXP.length === 0) {
         // empty call library to get nxps
         this.startLibrary()
@@ -569,7 +573,7 @@ export const libraryStore = defineStore('librarystore', {
       } else {
         let contractQuery = this.utilLibrary.matchNXPcontract(contractID, this.peerLibraryNXP)
         let checkKeys = Object.keys(contractQuery)
-        if (checkKeys. length > 0) {
+        if (checkKeys.length > 0) {
           let libMessageout = {}
           libMessageout.type = 'library'
           libMessageout.action = 'contracts'
@@ -578,6 +582,8 @@ export const libraryStore = defineStore('librarystore', {
           libMessageout.task = 'assemble'
           libMessageout.data = contractQuery
           libMessageout.bbid = bbid
+          console.log('messsage to library')
+          console.log(libMessageout)
           this.sendSocket.send_message(libMessageout)
         } else {
           // provide feedback to peer

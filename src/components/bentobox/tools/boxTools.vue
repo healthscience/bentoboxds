@@ -134,8 +134,6 @@ const selectedTimeFormat = ref('timeseries')
   }
 
   const clickExpandBentobox = (boxid) => {
-    console.log('expand bbox')
-    console.log(boxid)
     storeAI.expandBentobox[boxid] = true
   }
 
