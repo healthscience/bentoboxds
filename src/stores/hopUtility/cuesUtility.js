@@ -1,5 +1,4 @@
 'use strict'
-import { Info } from 'luxon'
 /**
 *  CuesUtility
 *
@@ -12,6 +11,7 @@ import { Info } from 'luxon'
 */
 // import EventEmitter from 'events'
 import hashObject from 'object-hash'
+import { DateTime } from 'luxon'
 
 class CuesUtility {
 
@@ -78,6 +78,32 @@ class CuesUtility {
     cueHolder.computational = { relationships: [] } 
     cueContract.data = cueHolder
     return cueContract
+  }
+
+  /**
+  * update message to save cue contract
+  * @method updateCuesContract
+  *
+  */
+  updateCuesContract = function (cueContract) {
+    // structure inputs for cue contract
+    const cueContract = {}
+    cueContract.type = 'library'
+    cueContract.action = 'cues'
+    cueContract.reftype = 'update-cues'
+    cueContract.task = 'PUT'
+    cueContract.privacy = 'public'
+    cueContract.data = cueContract
+    return cueContract
+  }
+
+  /**
+  * 
+  * @method updateTimestamp
+  */
+  updateTimestamp = function (contract) {
+    contract.value.time.lastTimestamp = DateTime.now().toMillis()
+    return contract
   }
 
   /**

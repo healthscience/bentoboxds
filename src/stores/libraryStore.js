@@ -366,7 +366,10 @@ export const libraryStore = defineStore('librarystore', {
           this.storeCues.cuesList = updateCueExpand
           // this.storeCues.waitingCues = []
           // filter for most current used time or frequency
-          this.storeCues.getMostPopularItems(this.storeCues.cuesList)
+          // last used
+          this.storeCues.getMostLastusedItems(this.storeCues.cuesList)
+          // frequency
+          // this.storeCues.getMostPopularItems(this.storeCues.cuesList)
         }
       } else if (message.action === 'cue-contract') {
         if (message.task === 'save-complete') {
@@ -562,10 +565,6 @@ export const libraryStore = defineStore('librarystore', {
       this.sendSocket.send_message(libMessageout)
     },
     prepareLibraryViewFromContract (bbid, contractID) {
-      console.log('prepare view')
-      console.log(bbid)
-      console.log(contractID)
-      console.log(this.peerLibraryNXP.length)
       if (this.peerLibraryNXP.length === 0) {
         // empty call library to get nxps
         this.startLibrary()
@@ -582,8 +581,6 @@ export const libraryStore = defineStore('librarystore', {
           libMessageout.task = 'assemble'
           libMessageout.data = contractQuery
           libMessageout.bbid = bbid
-          console.log('messsage to library')
-          console.log(libMessageout)
           this.sendSocket.send_message(libMessageout)
         } else {
           // provide feedback to peer
@@ -616,7 +613,8 @@ export const libraryStore = defineStore('librarystore', {
       this.listPublicNXP = this.utilLibrary.preparePublicNXPlist(this.publicLibrary.referenceContracts)
     },
     updateHOPqueryContracts (HOPq) {
-      // let hashQuestion = hashObject(this.inputAskHistory[this.qcount])
+      console.log('HOPqeruy update')
+      console.log(HOPq)
       let aiMessageout = {}
       aiMessageout.type = 'library'
       aiMessageout.reftype = 'ignore'

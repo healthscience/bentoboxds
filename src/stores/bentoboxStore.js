@@ -184,7 +184,10 @@ export const bentoboxStore = defineStore('bentostore', {
           }
           this.storeCues.cuesList = updateCueExpand
           // filter for most current used time or frequency
-          this.storeCues.getMostPopularItems(this.storeCues.cuesList)
+          // freq.
+          this.storeCues.getMostLastusedItems(this.storeCues.cuesList)
+          // time
+          // this.storeCues.getMostPopularItems(this.storeCues.cuesList)
         } else {
           this.storeCues.waitingCues = message.data
         }

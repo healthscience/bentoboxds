@@ -217,6 +217,8 @@ import { ref, computed, onMounted } from 'vue'
   }
 
   const bentoSpaceOpen = (spaceID, context) => {
+    // update timestamp
+    storeCues.updateCueTimestamp(spaceID)
     // prepare chat for space
     let newChatItem = {}
     newChatItem.name = spaceID.name

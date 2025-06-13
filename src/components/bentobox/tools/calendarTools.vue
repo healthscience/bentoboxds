@@ -148,8 +148,10 @@ const handleDate = () => {
       let startDay = mutDate.value
       hopTime.push(startDay)
     } else if (selectedTimeBundle.value === 'range') {
+      console.log('range')
       // need to expand our range
       let i = Interval.fromDateTimes(boxDaterange.value[0], boxDaterange.value[1]).splitBy({ day: 1 })
+      console.log(i)
       // let arryDates = i.map(d => d.start)
       for (let date of i) {
         let luxTime = date // DateTime.local(date)
@@ -162,6 +164,8 @@ const handleDate = () => {
         hopTime.push(startDay.toMillis())
       }
     }
+    console.log('hoptime-------')
+    console.log(hopTime)
     // get the library contracts
     storeAI.prepareLibrarySummary(props.bboxid)
     // no summary if already save  NEED other way to set contect
@@ -171,6 +175,8 @@ const handleDate = () => {
     let selectedDevice = ''
     let currentYaxis = []
     if (storeBentobox.openDataControls[props.bboxid] !== undefined) {
+      console.log('path1')
+      console.log(hopTime)
       if (storeBentobox.openDataControls[props.bboxid].yaxis.length > 0) {
         for (let ya of storeBentobox.openDataControls[props.bboxid].yaxis) {
           currentYaxis.push(ya)
@@ -188,6 +194,8 @@ const handleDate = () => {
         }
       }
     } else {
+      console.log('path2')
+      console.log(hopTime)
       // controls
       if (selectedTimeBundle.value === 'single') {
         let timeMills = hopTime

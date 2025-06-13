@@ -192,9 +192,39 @@ export const cuesStore = defineStore('cues', {
         }
       }
     },
+    updateCueTimestamp (cueid) {
+      let cueContract = this.cueUtil.cueMatch(cueid, this.cuesList)
+      let updateCueContract = this.cueUtil.updateTimestamp(cueContract)
+      // update the library saved contract
+      let cueMessage = this.cueUtil.updateCuesContract(cueContract)
+      // this.sendSocket.send_message(cueMessage)
+      // need to update current menu and save now or flag to do
+      let updateCueList = []
+      for (let cue of this.cuesList) {
+        if (cue.key === cueContract.key) {
+          updateCueList.push(updateCueContract)
+        } else {
+          updateCueList.push(cue)
+        }
+      }
+      // now time order
+      this.getMostLastusedItems(updateCueList)
+    },
+    getMostLastusedItems (array) {
+      // Sort the array by lastUsedTime in descending order
+      let lastusedHistory = array.sort((a, b) => {
+        const lastUsedTimeA = new Date(a.value.time.lastTimestamp).getTime()
+        const lastUsedTimeB = new Date(b.value.time.lastTimestamp).getTime()
+        return lastUsedTimeB - lastUsedTimeA
+      })
+      this.cuesHistoryList = []
+      for (let cue of lastusedHistory) {
+        this.storeLibrary.prepareCueMenuHistory(cue)
+      }
+    },
     getMostPopularItems (array) {
       // Create a map to store the count of each item
-      const itemCountMap = new Map();
+      const itemCountMap = new Map()
       // Count occurrences of each item in the array
       array.forEach(item => {
         if (itemCountMap.has(item)) {
@@ -202,12 +232,14 @@ export const cuesStore = defineStore('cues', {
         } else {
           itemCountMap.set(item, 1)
         }
-      });
+      })
       // Convert the map to an array of [item, count] pairs and sort by count in descending order
       const sortedItems = Array.from(itemCountMap.entries()).sort((a, b) => b[1] - a[1])
+      // limit to ten
+      const limitHistory = sortedItems.slice(0, 10)
       // Return the sorted array of items with their counts
       this.cuesHistoryList = []
-      for (let cue of sortedItems) {
+      for (let cue of limitHistory) {
         this.storeLibrary.prepareCueMenuHistory(cue[0])
       }
     },
