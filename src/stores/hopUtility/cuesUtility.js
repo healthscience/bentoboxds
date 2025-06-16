@@ -85,15 +85,15 @@ class CuesUtility {
   * @method updateCuesContract
   *
   */
-  updateCuesContract = function (cueContract) {
+  updateCuesContract = function (contract) {
     // structure inputs for cue contract
     const cueContract = {}
     cueContract.type = 'library'
     cueContract.action = 'cues'
     cueContract.reftype = 'update-cues'
-    cueContract.task = 'PUT'
+    cueContract.task = 'UPDATE'
     cueContract.privacy = 'public'
-    cueContract.data = cueContract
+    cueContract.data = contract
     return cueContract
   }
 

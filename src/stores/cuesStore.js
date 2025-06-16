@@ -197,7 +197,7 @@ export const cuesStore = defineStore('cues', {
       let updateCueContract = this.cueUtil.updateTimestamp(cueContract)
       // update the library saved contract
       let cueMessage = this.cueUtil.updateCuesContract(cueContract)
-      // this.sendSocket.send_message(cueMessage)
+      this.sendSocket.send_message(cueMessage)
       // need to update current menu and save now or flag to do
       let updateCueList = []
       for (let cue of this.cuesList) {
