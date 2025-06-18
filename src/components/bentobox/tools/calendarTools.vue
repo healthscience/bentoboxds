@@ -132,13 +132,13 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     }
   }
 
-const handleDate = () => {
-  let dateChange = boxDate.value
-  // now change date
-  let timeCaptured = DateTime.fromJSDate(dateChange)
-  let startDay = timeCaptured.startOf('day')
-  mutDate.value = startDay.toMillis()
-}
+  const handleDate = () => {
+    let dateChange = boxDate.value
+    // now change date
+    let timeCaptured = DateTime.fromJSDate(dateChange)
+    let startDay = timeCaptured.startOf('day')
+    mutDate.value = startDay.toMillis()
+  }
 
   const updateHOPquery = () => {
     // prepare update for HOP
@@ -148,10 +148,8 @@ const handleDate = () => {
       let startDay = mutDate.value
       hopTime.push(startDay)
     } else if (selectedTimeBundle.value === 'range') {
-      console.log('range')
       // need to expand our range
       let i = Interval.fromDateTimes(boxDaterange.value[0], boxDaterange.value[1]).splitBy({ day: 1 })
-      console.log(i)
       // let arryDates = i.map(d => d.start)
       for (let date of i) {
         let luxTime = date // DateTime.local(date)
@@ -164,10 +162,8 @@ const handleDate = () => {
         hopTime.push(startDay.toMillis())
       }
     }
-    console.log('hoptime-------')
-    console.log(hopTime)
     // get the library contracts
-    storeAI.prepareLibrarySummary(props.bboxid)
+    storeAI.prepareLibrarySummary(props.bboxid, '', '')
     // no summary if already save  NEED other way to set contect
     // what updates are there moduels?  Device/source, compute, vis controls or settings?
     let moduleUpdate = {}
@@ -212,21 +208,28 @@ const handleDate = () => {
     // any settings changes?
     moduleUpdate.compute = computeChanges
     // prepare HOPquery
-    let entityID = Object.keys(storeAI.boxLibSummary[props.bboxid].data)
-    let HOPcontext = {}
-    HOPcontext.entityUUID = storeAI.boxLibSummary[props.bboxid].data[entityID[0]].shellID
-    HOPcontext.bbid = props.bboxid
-    // HOPcontext.modules = storeAI.boxLibSummary[props.bboxid].data[entityID[0]].modules
-    HOPcontext.exp = { key: entityID[0], update: storeAI.boxLibSummary[props.bboxid].data }
-    HOPcontext.update = {}
-    let updateECS = {}
-    updateECS.entityUUID = storeAI.boxLibSummary[props.bboxid].data[entityID[0]].shellID
-    updateECS.input = 'refUpdate'
-    updateECS.modules = storeAI.boxLibSummary[props.bboxid].data[entityID[0]].modules
-    updateECS.changes = moduleUpdate
-    HOPcontext.update = updateECS
-    // close the calendar options and dispay date summary selected
-    storeLibrary.updateHOPqueryContracts(HOPcontext)
+    console.log('lib summary222222')
+    console.log(storeAI.boxLibSummary)
+    console.log(storeAI.boxLibSummary)
+    console.log(props.bboxid)
+    // could be first time direct
+    if (storeAI.boxLibSummary[props.bboxid] !== undefined) {
+      let entityID = Object.keys(storeAI.boxLibSummary[props.bboxid].data)
+      let HOPcontext = {}
+      HOPcontext.entityUUID = storeAI.boxLibSummary[props.bboxid].data[entityID[0]].shellID
+      HOPcontext.bbid = props.bboxid
+      // HOPcontext.modules = storeAI.boxLibSummary[props.bboxid].data[entityID[0]].modules
+      HOPcontext.exp = { key: entityID[0], update: storeAI.boxLibSummary[props.bboxid].data }
+      HOPcontext.update = {}
+      let updateECS = {}
+      updateECS.entityUUID = storeAI.boxLibSummary[props.bboxid].data[entityID[0]].shellID
+      updateECS.input = 'refUpdate'
+      updateECS.modules = storeAI.boxLibSummary[props.bboxid].data[entityID[0]].modules
+      updateECS.changes = moduleUpdate
+      HOPcontext.update = updateECS
+      // close the calendar options and dispay date summary selected
+      storeLibrary.updateHOPqueryContracts(HOPcontext)
+    }
     setDateStatus.value = false
   }
 

@@ -9,7 +9,7 @@
         </div>
       </div>
       <div v-if="props.experiments.length > 0" class="table-rows">
-        <div class="alternate-bk" v-for="entry in props.experiments">--{{entry}}
+        <div class="alternate-bk" v-for="entry in props.experiments">
           <div class="table-row-columns" v-for="col in props.columns">
             <div v-if="col !== 'action'">
               {{ entry[col] }}

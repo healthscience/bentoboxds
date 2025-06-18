@@ -606,6 +606,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.bentoboxList['space1'] = []
     },
     processHOPsummary (dataSummary) {
+      console.log('HOP summary')
+      console.log(dataSummary)
       // match bbid to HOP ID
       let inputID = Object.keys(dataSummary.data)
       let HOPshell = dataSummary.data[inputID[0]].shellID
@@ -613,6 +615,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.hopSummary.push({ HOPid: HOPshell, summary: dataSummary })
     },
     processHOPdata (dataHOP) {
+      console.log('process hop data')
+      console.log(dataHOP)
       // match input id to bbid
       // is the data for past or future or no data
       if (dataHOP.data.data === 'none') {
@@ -663,6 +667,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         let hopDataChart = {}
         hopDataChart.datasets = dataHOP.data.data.chartPackage.datasets
         hopDataChart.labels = dataHOP.data.data.chartPackage.labels
+        console.log('chart data for chartJS')
+        console.log(hopDataChart)
         this.visData[matchBBID] = hopDataChart
         this.storeBentoBox.setChartstyle(matchBBID, dataHOP.context.moduleorder.visualise.value.info.settings.visualise)
       } else {
@@ -713,6 +719,10 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.sendSocket.send_message(aiMessageout)
     },
     prepareLibrarySummary (boxid, action, cue) {
+      console.log('prep library summary')
+      console.log(boxid)
+      console.log(action)
+      console.log(cue)
       for (let hi of this.hopSummary) {
         if (hi.summary.bbid == boxid) {
           // new or saved format
@@ -730,13 +740,18 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           }
         }
       }
+      console.log('setup libmmmaryy')
+      console.log(this.boxLibrarySummary)
       // let NXPcontract = this.boxLibSummary[boxid].data
       if (this.boxLibSummary[boxid] === undefined) {
+        console.log('undeined path')
         this.storeLibrary.prepareLibraryViewFromContract(boxid, boxid)
         if (action === 'space-add') {
+          console.log('space path')
           this.openCueSpaceSettings(cue)
         }
       } else {
+        console.log('path active')
         if (action === 'space-add') {
           this.openCueSpaceSettings(cue)
         }
