@@ -97,7 +97,6 @@ import { ref, computed, onMounted } from 'vue'
   let saveSpace = ref(false)
   let glueTarget = ref({})
   let glueName = ref('')
-  let historyCues = ref(false)
   let expandCues = ref(false)
   let expandMarkers = ref(false)
   let expandTimeCues = ref('current')
@@ -111,6 +110,10 @@ import { ref, computed, onMounted } from 'vue'
   const spaceListHistory = computed(() => {
     // need to format for menu display
     return storeCues.spaceListHistory
+  })
+
+  const historyCues = computed(() => {
+    return storeCues.historyCuesStatus
   })
 
   const cueSpaceHistory = computed(() => {
@@ -176,7 +179,7 @@ import { ref, computed, onMounted } from 'vue'
   }
 
   const showHistoryCues = () => {
-    historyCues.value = !historyCues.value
+    storeCues.historyCuesStatus = !storeCuees.historyCuesStatus
   }
 
   const showExpandCues = () => {

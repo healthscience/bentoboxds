@@ -56,7 +56,8 @@ export const cuesStore = defineStore('cues', {
     cuesHistoryList: [],
     cueMenuHistory: [],
     cueHistory: [],
-    glueHistory: []
+    glueHistory: [],
+    historyCuesStatus: false
   }),
   actions: {
     processReply (received) {
