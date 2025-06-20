@@ -613,8 +613,6 @@ export const libraryStore = defineStore('librarystore', {
       this.listPublicNXP = this.utilLibrary.preparePublicNXPlist(this.publicLibrary.referenceContracts)
     },
     updateHOPqueryContracts (HOPq) {
-      console.log('HOPqeruy update')
-      console.log(HOPq)
       let aiMessageout = {}
       aiMessageout.type = 'library'
       aiMessageout.reftype = 'ignore'

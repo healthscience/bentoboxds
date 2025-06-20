@@ -171,8 +171,6 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     let selectedDevice = ''
     let currentYaxis = []
     if (storeBentobox.openDataControls[props.bboxid] !== undefined) {
-      console.log('path1')
-      console.log(hopTime)
       if (storeBentobox.openDataControls[props.bboxid].yaxis.length > 0) {
         for (let ya of storeBentobox.openDataControls[props.bboxid].yaxis) {
           currentYaxis.push(ya)
@@ -190,8 +188,6 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
         }
       }
     } else {
-      console.log('path2')
-      console.log(hopTime)
       // controls
       if (selectedTimeBundle.value === 'single') {
         let timeMills = hopTime
@@ -208,10 +204,6 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     // any settings changes?
     moduleUpdate.compute = computeChanges
     // prepare HOPquery
-    console.log('lib summary222222')
-    console.log(storeAI.boxLibSummary)
-    console.log(storeAI.boxLibSummary)
-    console.log(props.bboxid)
     // could be first time direct
     if (storeAI.boxLibSummary[props.bboxid] !== undefined) {
       let entityID = Object.keys(storeAI.boxLibSummary[props.bboxid].data)
