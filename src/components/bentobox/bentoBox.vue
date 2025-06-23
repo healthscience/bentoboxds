@@ -441,8 +441,12 @@ import { libraryStore } from '@/stores/libraryStore.js'
   }
 
   #bentobox-feedback {
+    display: grid;
     height: 40px;
-    border: 1px solid red;
+    border: 1px solid rgb(84, 105, 224);
+    text-align: center;
+    font-weight: bold;
+
   }
 
   #bentobox-data-live button {

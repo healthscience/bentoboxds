@@ -613,6 +613,8 @@ export const libraryStore = defineStore('librarystore', {
       this.listPublicNXP = this.utilLibrary.preparePublicNXPlist(this.publicLibrary.referenceContracts)
     },
     updateHOPqueryContracts (HOPq) {
+      // set feedback peer bentobox HOPquery
+      this.storeAI.bboxFeedback[HOPq.bbid] = { text: 'HOPquery in progress'}
       let aiMessageout = {}
       aiMessageout.type = 'library'
       aiMessageout.reftype = 'ignore'
