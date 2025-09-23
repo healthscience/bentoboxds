@@ -149,12 +149,20 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
       hopTime.push(startDay)
     } else if (selectedTimeBundle.value === 'range') {
       // need to expand our range
-      let i = Interval.fromDateTimes(boxDaterange.value[0], boxDaterange.value[1]).splitBy({ day: 1 })
+      let startDayDate = DateTime.fromJSDate(boxDaterange.value[0], {zone:"uct"}) //, {zone:"uct"}).startOf('day')
+      let endDayDate = DateTime.fromJSDate(boxDaterange.value[1], {zone:"uct"}) //.endOf('day')
+      const intervals = Interval.fromDateTimes(
+        startDayDate.startOf("day"), 
+        endDayDate.endOf("day"))
+        .splitBy({ day: 1 }).map(d => d.start)
+      // add last date to include that
       // let arryDates = i.map(d => d.start)
-      for (let date of i) {
+      for (let date of intervals) {
         let luxTime = date // DateTime.local(date)
-        hopTime.push(date.e.ts)
+        hopTime.push(date.ts)
       }
+      // add last date too
+      // hopTime.push(endDayDate)
     } else if (selectedTimeBundle.value === 'multi') {
       for (let date of boxDaterange.value) {
         let luxTime =  DateTime.fromJSDate(date)

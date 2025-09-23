@@ -57,9 +57,12 @@ const { files, addFiles, removeFile } = useFileList()
 
 	/* methods */
 	function onInputChange(e) {
+		console.log('file input -------name--------')
+		console.log(e.target.files[0])
 		file.value = e.target.files[0]
 		let fileName = file.value.name
 		storeLibrary.fileBund.name = fileName
+		console.log(storeLibrary.fileBund)
 		let addF = addFiles(e.target.files)
 		//e.target.value = null // reset so that selecting the same file again will still cause it to fire this change
 	}
@@ -167,7 +170,7 @@ const saveFiles = (files) => {
 				storeLibrary.newPackagingForm.apicolumns = null
 				storeLibrary.newDatafile.columns = null
 				storeLibrary.newDatafile.path = 'image/png'
-				storeLibrary.newDatafile.file = 'image/png'
+				storeLibrary.newDatafile.file = fileBundle.name
 			}
 
 
@@ -186,7 +189,7 @@ const saveFiles = (files) => {
 			messageHOP.task = 'PUT'
 			messageHOP.data = fileSave
 			// send to HOP
-			// storeLibrary.sendMessage(messageHOP)
+			storeLibrary.sendMessage(messageHOP)
 			}
 			readerImage.onerror = function() {
 				console.log(readerImage.error)
@@ -296,7 +299,7 @@ const saveFiles = (files) => {
 							storeLibrary.newPackagingForm.apicolumns = headerLocal
 							storeLibrary.newDatafile.columns = columnStructure
 							storeLibrary.newDatafile.path = 'json'
-							storeLibrary.newDatafile.file = 'json'
+							storeLibrary.newDatafile.file = fileBundle.name
 						}
 					}
 			} else {

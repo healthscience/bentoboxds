@@ -46,7 +46,7 @@ import NewProduct from '@/components/library/contracts/contribute/forms/newProdu
 
 
 import { libraryStore } from '@/stores/libraryStore.js'
-import { ref, computed, markRaw} from 'vue'
+import { ref, computed, markRaw } from 'vue'
 
 const storeLibrary = libraryStore()
 
@@ -104,6 +104,9 @@ const formContribute = [
       refContract.data = storeLibrary.newProductForm
     }
     // send message for saving as ref contract
+    console.log('contract check===========')
+    console.log(storeLibrary.newPackagingForm)
+    console.log(refContract)
     storeLibrary.sendMessage(refContract)
     // reset the form data
     if (contractformType.value.type === 'question') {

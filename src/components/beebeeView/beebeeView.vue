@@ -2,7 +2,7 @@
   <div id="beebee-shaper">
     <div id="beebee-bentos" v-if="viewMinimal === false">
       <button id="cues-button" class="cue-agent" @click="openBentoAgent('cues')" :class="{ active: agentActive === 'cues' }">Cues</button>
-      <button id="flake-button" class="cue-agent" @click="openBentoAgent('flake')" :class="{ active: agentActive === 'flake' }">Flake</button>
+      <button id="flake-button" class="cue-agent" @click="openBentoAgent('flake')" :class="{ active: agentActive === 'flake' }">Holistic</button>
       <button id="besearch-button" class="cue-agent" @click="openBentoAgent('besearch')" :class="{ active: agentActive === 'besearch' }">Besearch</button>
       <button id="graph-button" class="cue-agent" @click="openBentoAgent('graph')" :class="{ active: agentActive === 'graph' }">Graph</button>
       <button id="diary-button" class="cue-agent" @click="openBentoAgent('diary')" :class="{ active: agentActive === 'diary' }">Diary</button>
