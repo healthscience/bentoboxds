@@ -622,6 +622,8 @@ export const libraryStore = defineStore('librarystore', {
       aiMessageout.task = 'update-hopquery'
       aiMessageout.data = HOPq
       aiMessageout.bbid = HOPq.bbid
+      console.log('open data update')
+      console.log(aiMessageout)
       this.sendSocket.send_message(aiMessageout)
       this.storeAI.helpchatHistory.push(aiMessageout)
       this.storeAI.qcount++

@@ -207,8 +207,15 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
         let timeMills = hopTime
         computeChanges.controls = { device: selectedDevice, date: timeMills[0], rangedate: timeMills, tidy: tidyOp.value, category: false }
       }
+      
     }
-
+    // set in library to give other view access to latest date / time settings
+    if (storeBentobox.liveDateTime[props.bboxid] === undefined) {
+      storeBentobox.liveDateTime[props.bboxid] = {}
+    }
+    storeBentobox.liveDateTime[props.bboxid] = { date: hopTime[0], rangedate: hopTime }
+    console.log('acitve time date per box active---------')
+    console.log(storeBentobox.liveDateTime)
     // any settings changes?
     moduleUpdate.compute = computeChanges
     // prepare HOPquery

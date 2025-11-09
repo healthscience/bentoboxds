@@ -672,6 +672,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           this.storeBentoBox.setChartstyle(matchBBID, dataHOP.context.moduleorder.visualise.value.info.settings.visualise)
         } else {
           this.bboxFeedback[matchBBID] = { text: 'No data for this HOPquery' }
+          // clear view experiment on bentobox
+          this.visData[matchBBID] = { text: 'live'}
         }
       } else {
         // data for future prediction

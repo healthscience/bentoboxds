@@ -31,7 +31,7 @@ export const accountStore = defineStore('account', {
     beebeeConnectFeedback: '',
     publickeyDrive: [],
     publicKeysList: [],
-    sharePubkey: '',
+    sharePubkey: { key: '' },
     shareBoardNXP: {}
   }),
   actions: {
@@ -260,6 +260,8 @@ export const accountStore = defineStore('account', {
           shareInfo.reftype = 'null'
           shareInfo.privacy = 'private'
           shareInfo.data = topicSet
+          console.log('share protocol')
+          console.log(shareInfo)
           this.sendMessageHOP(shareInfo)
         } else {
           // start normal first time warm peer direct connect
@@ -421,6 +423,8 @@ export const accountStore = defineStore('account', {
       shareInfo.reftype = 'null'
       shareInfo.privacy = 'public'
       shareInfo.data = shareContext
+      console.log('n1share')
+      console.log(shareInfo)
       this.sendMessageHOP(shareInfo)
       this.sharePubkey = ''
     },

@@ -252,7 +252,14 @@ const saveFiles = (files) => {
 					reader3.onload = function () {
 					let rawData = reader3.result
 					const lines = JSON.parse(rawData)
+					// need to call beebee agent if new json file structure
+					console.log('json lines')
+					console.log(lines)
+					if (lines.data !== undefined) {
 					storeLibrary.linesLimit = lines.slice(0, 20)
+					} else {
+						storeLibrary.linesLimit = lines.data.slice(0, 20)
+					}
 					// for chat interface
 					if (storeAI.dataBoxStatus !== true) {
 						// TODO send to beebee via socket but for now create reply here

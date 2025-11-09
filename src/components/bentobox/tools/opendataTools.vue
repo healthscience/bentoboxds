@@ -7,7 +7,10 @@
         <select class="select-device-id" id="device-mapping-build" v-model="opendataSettings.device">
           <option value="none" >please select</option>
           <option v-for="dev in deviceList">
-            <div v-if="dev?.NAME">
+            <div v-if="dev?.name">
+              {{ dev.name }}
+            </div>
+            <div v-else-if="dev?.NAME">
               {{ dev.NAME }}
             </div>
             <div v-else>
@@ -148,9 +151,10 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     let selectedDevice = opendataSettings.value.device
     let mutDate = ''
     let tidyOp = true
-    // controls
-    computeChanges.controls = { xaxis: opendataSettings.value.xaxis, yaxis: opendataSettings.value.yaxis, device: selectedDevice, tidy: tidyOp, category: false }
-    computeChanges.settings = { xaxis: opendataSettings.value.xaxis, yaxis: opendataSettings.value.yaxis }
+    let calendarDateTime = storeBentobox.liveDateTime[props.bboxid]
+    // controls   also look to calendar to get latest date / time settings
+    computeChanges.controls = { xaxis: opendataSettings.value.xaxis, yaxis: opendataSettings.value.yaxis, device: selectedDevice, tidy: tidyOp, category: false, date: calendarDateTime.date, rangedate: calendarDateTime.rangedate }
+    computeChanges.settings = { xaxis: opendataSettings.value.xaxis, yaxis: opendataSettings.value.yaxis, date: calendarDateTime.date, rangedate: calendarDateTime.rangedate }
     // keep track of latest controls for other toolbars context
     storeBentobox.openDataControls[props.bboxid] = computeChanges.controls
     // any settings changes?
@@ -213,6 +217,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     font-size: 1.2em;
     padding-left: 2em;
     padding-right: 2em;
+    color: green;
   }
 
 }

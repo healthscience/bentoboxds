@@ -2,7 +2,7 @@
   <div id="bentobox-data-live" v-if="typeof storeAI.visData[props.bboxid] === 'undefined'">
     <button @click="viewSaveExperiment(props.bboxid, props.contractid)">View experiment</button>
   </div>
-  <div v-else>
+  <div v-else>ppp
   </div>
   <div id="bentobox-feedback" v-if="bbFeedback.text.length > 0">
     Feedback: {{ bbFeedback.text }}
