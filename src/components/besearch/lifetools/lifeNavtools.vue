@@ -1,6 +1,9 @@
 <template>
   <div id="life-tools-nav">
     Life tools
+    <div class="spiral-container">
+      <div class="spiral"></div>
+    </div>
     <div id="mode-selector">
       <h3>Modes</h3>
       <div class="mode-buttons">
@@ -18,48 +21,208 @@
         </button>
       </div>
     </div>
-  <div id="time-cycles">
-    <button id="besearch-cycles-time" @click="besearchTime()">time</button>
-    <div id="cycle-periods" v-if="btoolsTime === true">
-      <div class="cycle-period">1 day</div>
-      <div class="cycle-period">1 week</div>
-      <div class="cycle-period">1 month</div>
-      <div class="cycle-period">3 months</div>
-      <div class="cycle-period">1 year</div>
-  </div>
-  </div>
-  </div>
+
+    <!-- Peer Navigation Controls -->
+    <div id="peer-navigation">
+      <h3>Peer Navigation</h3>
+      <div class="directional-buttons">
+        <button @click="movePeer('up')" class="direction-button up">↑</button>
+        <div class="horizontal-buttons">
+          <button @click="movePeer('left')" class="direction-button left">←</button>
+          <button @click="movePeer('right')" class="direction-button right">→</button>
+        </div>
+        <button @click="movePeer('down')" class="direction-button down">↓</button>
+      </div>
+      <div class="control-buttons">
+        <button @click="startPeer" class="control-button">Start</button>
+        <button @click="stopPeer" class="control-button">Stop</button>
+        <button @click="intervene" class="control-button">Intervene</button>
+      </div>
+      <div class="navigation-instructions">
+        <p>Use arrow keys or buttons to navigate the peer</p>
+      </div>
+    </div>
+    <div id="interventions">
+      <h3>Interventions</h3>
+      <div class="intervention-buttons">
+        <button class="intervention-button" @click="selectIntervention('live')">
+        <span class="intervention-icon"></span>
+        <span>Live</span>
+        </button>
+        <button class="intervention-button" @click="selectIntervention('pending')">
+        <span class="intervention-icon"></span>
+        <span>Pending</span>
+        </button>
+        <button class="intervention-button" @click="selectIntervention('start-new')">
+        <span class="intervention-icon"></span>
+        <span>Start New</span>
+        </button>
+      </div>
+    </div>
+    <div id="time-cycles">
+      <button id="besearch-cycles-time" @click="besearchTime()">time</button>
+      <div id="cycle-periods" v-if="btoolsTime === true">
+        <div class="cycle-period">1 day</div>
+        <div class="cycle-period">1 week</div>
+        <div class="cycle-period">1 month</div>
+        <div class="cycle-period">3 months</div>
+        <div class="cycle-period">1 year</div>
+      </div>
+      </div>
+    </div>
 </template>
   
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 
-const emit = defineEmits(['mode-selected'])
+const emit = defineEmits(['mode-selected', 'peer-moved', 'peer-intervention'])
+
 
 let btoolsTime = ref(false)
-let selectedMode = ref('cues') 
+let selectedMode = ref('cues')
+let selectedIntervention = ref(false)
 
-/** methods */
-const besearchTime = () => {
-  btoolsTime.value = !btoolsTime.value
-}
+// Peer variables
+const peer = ref({
+  x: 100,
+  y: 100,
+  width: 30,
+  height: 30,
+  speed: 5,
+  isMoving: false,
+  direction: { x: 0, y: 0 }
+})
 
-const selectMode = (mode) => {
-  selectedMode.value = mode
+  /** methods */
+  const besearchTime = () => {
+    btoolsTime.value = !btoolsTime.value
+  }
+
+  const selectMode = (mode) => {
+    selectedMode.value = mode
+    // Emit event to parent component to update canvas
+    emit('mode-selected', mode)
+  }
+
+  // Peer navigation methods
+  const movePeer = (direction) => {
+    switch(direction) {
+      case 'up':
+        peer.value.direction.y = -1
+        break
+      case 'down':
+        peer.value.direction.y = 1
+        break
+      case 'left':
+        peer.value.direction.x = -1
+        break
+      case 'right':
+        peer.value.direction.x = 1
+        break
+    }
+    peer.value.isMoving = true
+
+    // Emit event with peer position
+    emit('peer-moved', {
+      x: peer.value.x,
+      y: peer.value.y,
+      direction: peer.value.direction,
+      isMoving: true
+    })
+
+    // Reset direction after a short delay to simulate button press
+    setTimeout(() => {
+      peer.value.direction = { x: 0, y: 0 }
+      peer.value.isMoving = false
+      emit('peer-moved', {
+        x: peer.value.x,
+        y: peer.value.y,
+        direction: peer.value.direction,
+        isMoving: false
+      })
+    }, 100)
+  }
+
+  const startPeer = () => {
+    peer.value.isMoving = true
+    emit('peer-moved', {
+      x: peer.value.x,
+      y: peer.value.y,
+      direction: peer.value.direction,
+      isMoving: true
+    })
+  }
+
+  const stopPeer = () => {
+    peer.value.isMoving = false
+    peer.value.direction = { x: 0, y: 0 }
+    emit('peer-moved', {
+      x: peer.value.x,
+      y: peer.value.y,
+      direction: peer.value.direction,
+      isMoving: false
+    })
+  }
+
+  const intervene = () => {
+    // Implement intervention logic here
+    console.log('Peer intervention initiated')
+    // You can add more specific intervention logic as needed
+    emit('peer-intervention')
+  }
+
+  const selectIntervention = (intervention) => {
+  selectedIntervention.value = intervention
   // Emit event to parent component to update canvas
-  emit('mode-selected', mode)
-}
+  emit('intervention-selected', intervention)
+  }
 
 </script>
 
 <style scoped>
+
+
+
 @media (min-width: 1024px) {
-  #life-tools-nav {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    padding: 1rem;
-  }
+    #life-tools-nav {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 1rem;
+        background-color: #f0f4f8;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .spiral-container {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        pointer-events: none;
+    }
+
+    .spiral {
+        --b: 15px;  /* border thickness */
+        --s: 500px; /* preferred size shape */
+        --c: rgba(228, 237, 247, 0.2); /* faint blue color */
+        width: round(var(--s),4*var(--b));
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background:
+            repeating-radial-gradient(calc(2*var(--b)) at top,#0000 -1px,var(--c) 0 calc(50% - 1px),#0000 50% calc(100% - 1px)) calc(50% + var(--b)) 100%,
+            repeating-radial-gradient(calc(2*var(--b)) at bottom,var(--c) -1px,#0000 0 calc(50% - 1px),var(--c) 50% calc(100% - 1px)) 50% 0;
+        background-size: 150% 50%;
+        background-repeat: no-repeat;
+        mask:
+            radial-gradient(calc(1.5*var(--b)) at calc(100% - var(--b)/2) 0, #0000 calc(100%/3), #000 calc(100%/3 + 1px) 110%, #0000 0) calc(50% + var(--b)/2)
+            100%/calc(3*var(--b)) 50% exclude no-repeat,
+            conic-gradient(#000 0 0);
+    }
 
   #mode-selector {
     margin-bottom: 1rem;
@@ -94,6 +257,74 @@ const selectMode = (mode) => {
   .mode-icon {
     font-size: 24px;
     margin-bottom: 5px;
+  }
+
+  /* Peer Navigation Styles */
+  #peer-navigation {
+    margin-bottom: 1rem;
+  }
+
+  .directional-buttons {
+    display: grid;
+    grid-template-rows: auto auto auto;
+    justify-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .horizontal-buttons {
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 0.5rem;
+  }
+
+  .direction-button {
+    background-color: #b8cde2;
+    color: #140d6b;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .direction-button:hover {
+    background-color: #9fb8d4;
+  }
+
+  .control-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .control-button {
+    background-color: #b8cde2;
+    color: #140d6b;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .control-button:hover {
+    background-color: #9fb8d4;
+  }
+
+  .navigation-instructions {
+    font-size: 12px;
+    color: #666;
+    text-align: center;
   }
 
   #time-cycles {
@@ -136,6 +367,36 @@ const selectMode = (mode) => {
     transition: background-color 0.3s ease, transform 0.3s ease;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
+  /* Interventions Styles */
+  #interventions {
+   margin-bottom: 1rem;
+  }
+  .intervention-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+  }
+  .intervention-button {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: center;
+    justify-content: center;
+    background-color: #b8cde2;
+    color: #140d6b;
+    border: none;
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  .intervention-button:hover {
+    background-color: #9fb8d4;
+  }
+  .intervention-icon {
+    font-size: 24px;
+    margin-bottom: 5px;
+  }
 }
-
 </style>

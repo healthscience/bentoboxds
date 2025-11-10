@@ -37,12 +37,17 @@
                   <div class="key-head">be</div>
                 </div>
               </button>
-              <life-tools @mode-selected="handleModeChange"></life-tools>
+              <life-tools @mode-selected="handleModeChange" @peer-moved="handlePeerMoved"  @peer-intervention="handlePeerIntervention"></life-tools>
             </div>
           </div>
           <canvas id="besearch-cycles" :width="canvasWidth" :height="canvasHeight" ref="canvasbe" @click="handleBesearchClick($event)"></canvas>
         </div>
-        <beebee-ai></beebee-ai>
+        <div id="beebee-agent">
+          <button id="open-beebee" @click.prevent="setShowBeeBee">
+            beebee
+          </button>
+         <beebee-ai></beebee-ai>
+        </div>
       </template>
       <template #footer>
         Besearch
@@ -52,6 +57,7 @@
 </template>
 
 <script setup>
+import peerLogo from '@/assets/peerlogo.png'
 import LifeTools from '@/components/besearch/lifetools/lifeNavtools.vue'
 import beeCycle from '@/assets/besearch-cycle.png'
 import { ref, computed, onMounted } from 'vue'
@@ -82,6 +88,17 @@ const isDragging = ref(false)
 const startX = ref(0)
 const currentX = ref(0)
 
+// Add these variables to your existing refs
+const peer = ref({
+  x: 100,
+  y: 100,
+  width: 30,
+  height: 30,
+  speed: 5,
+  isMoving: false,
+  direction: { x: 0, y: 0 }
+})
+
 defineExpose({ canvasbe })
 
 /* on mount */
@@ -90,184 +107,307 @@ onMounted(() => {
   if (canvas.value) {
     ctx.value = canvas.value.getContext('2d')
     updateCanvas()
+    // Set up keyboard event listeners
+    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('keyup', handleKeyUp)
+
+    // Start the game loop
+    gameLoop()
   } else {
     console.error('Canvas element not found')
   }
 })
 
-/* computed */
-const bentoBesearchStatus = computed(() => {
-  return storeAI.bentobesearchState
-})
-
-const liveBesearch = computed(() => {
-  console.log('live yet')
-  console.log(storeBesearch.besearchCyles)
-  return storeBesearch.besearchCyles
-})
-
-/* methods */
-// canvas mode
-const handleModeChange = (mode) => {
-  currentMode.value = mode
-  updateCanvas()
-}
-
-const updateCanvas = () => {
-  if (!ctx.value) return
-
-  ctx.value.clearRect(0, 0, canvas.value.width, canvas.value.height)
-
-  switch(currentMode.value) {
-    case 'cues':
-      renderCuesMode(ctx.value)
-      break
-    case 'body':
-      renderBodyMode(ctx.value)
-      break
-    case 'earth':
-      renderEarthMode(ctx.value)
-      break
-  }
-}
-
-const renderCuesMode = (ctx) => {
-  // Draw cues space content without background color
-  ctx.clearRect(0, 0, canvas.value.width, canvas.value.height)
-  ctx.fillStyle = '#140d6b'
-  ctx.font = '24px Arial'
-  ctx.fillText('Cues Space Mode', 50, 50)
-
-  // Draw all besearch cycles
-  storeBesearch.besearchCyles.forEach(bes => {
-    drawBeeCycle(ctx, bes)
+  /* computed */
+  const bentochatStatus = computed(() => {
+    return storeAI.bentochatState
   })
-}
 
-const renderBodyMode = (ctx) => {
-  // Draw body content without background color
-  ctx.clearRect(0, 0, canvas.value.width, canvas.value.height)
-  ctx.fillStyle = '#140d6b'
-  ctx.font = '24px Arial'
-  ctx.fillText('Body Mode', 50, 50)
-}
+  const bentoBesearchStatus = computed(() => {
+    return storeAI.bentobesearchState
+  })
 
-const renderEarthMode = (ctx) => {
-  // Draw earth content without background color
-  ctx.clearRect(0, 0, canvas.value.width, canvas.value.height)
-  ctx.fillStyle = '#140d6b'
-  ctx.font = '24px Arial'
-  ctx.fillText('Earth Mode', 50, 50)
-}
+  const liveBesearch = computed(() => {
+    return storeBesearch.besearchCyles
+  })
 
-/* life tools */
-const toggleLifeTools = () => {
-  isLifeToolsOpen.value = !isLifeToolsOpen.value
-}
-
-const startDrag = (event) => {
-  isDragging.value = true
-  startX.value = event.clientX
-  currentX.value = event.clientX
-}
-
-const drag = (event) => {
-  if (!isDragging.value) return
-  currentX.value = event.clientX
-  const deltaX = currentX.value - startX.value
-  if (deltaX > 50) {
-    isLifeToolsOpen.value = true
-    isDragging.value = false
-  } else if (deltaX < -50) {
-    isLifeToolsOpen.value = false
-    isDragging.value = false
+  /* methods */
+  const setShowBeeBee = () => {
+    storeAI.bentochatState = !storeAI.bentochatState
   }
-}
 
-const endDrag = () => {
-  isDragging.value = false
-}
+  /** peer nav in canvas space **/
+  // Add these methods to handle peer movement events
+  const handlePeerMoved = (peerData) => {
+    peer.value.x = peerData.x
+    peer.value.y = peerData.y
+    peer.value.direction = peerData.direction
+    peer.value.isMoving = peerData.isMoving || peer.value.isMoving
 
-const drawText = (ctx) => {
-  ctx.beginPath()
-  ctx.font = '20px Arial'
-  ctx.fillStyle = 'black'
-  ctx.textAlign = 'center'
-  ctx.fillText('Besearch cycles coming soon', 200, 100)
-}
+    // Update canvas
+    updateCanvas()
+  }
 
-/* besearch cycles location on canvas */
-const drawBeeCycle = (ctx, bes) => {
-  const image = new Image()
-  image.src = beeCycle
+  const handlePeerIntervention = () => {
+    // Implement intervention logic here
+    console.log('Peer intervention initiated on canvas')
+    // You can add more specific intervention logic as needed
 
-  // Store the previous position to clear it in the next frame
-  let prevX = null
-  let prevY = null
+    // Update canvas to show intervention effect
+    updateCanvas()
+  }
 
-  const animate = () => {
-    // Calculate the position for the image
-    const centerX = bes.cueSpace.location.width
-    const centerY = bes.cueSpace.location.height
-    const x = centerX + radius.value * Math.cos(angle.value)
-    const y = centerY + radius.value * Math.sin(angle.value)
+  // Add this new function to draw the peer
+  const drawPeer = (ctx) => {
+    const image = new Image()
+    image.src = peerLogo
 
-    // Clear the previous position if it exists
-    if (prevX !== null && prevY !== null) {
-      const clearRadius = radius.value + 50
+    // Create a function to draw the peer
+    const drawImage = () => {
+      // Clear a slightly larger area around the peer to ensure visibility
       ctx.clearRect(
-        prevX - clearRadius,
-        prevY - clearRadius,
-        clearRadius * 2,
-        clearRadius * 2
+        peer.value.x - 10,
+        peer.value.y - 10,
+        peer.value.width + 20,
+        peer.value.height + 20
+      )
+
+      // Draw the peer
+      ctx.drawImage(
+        image,
+        peer.value.x,
+        peer.value.y,
+        peer.value.width,
+        peer.value.height
       )
     }
 
-    // Draw the text for the besearch cycle
+    // If the image is already loaded, draw it immediately
+    if (image.complete) {
+      drawImage()
+    } else {
+      // Otherwise, set up the onload event
+      image.onload = drawImage
+    }
+  }
+
+  // Add these keyboard control methods
+const handleKeyDown = (e) => {
+  switch(e.key) {
+    case 'ArrowUp':
+      peer.value.direction.y = -1
+      break
+    case 'ArrowDown':
+      peer.value.direction.y = 1
+      break
+    case 'ArrowLeft':
+      peer.value.direction.x = -1
+      break
+    case 'ArrowRight':
+      peer.value.direction.x = 1
+      break
+  }
+  peer.value.isMoving = true
+}
+
+const handleKeyUp = (e) => {
+  switch(e.key) {
+    case 'ArrowUp':
+    case 'ArrowDown':
+      peer.value.direction.y = 0
+      break
+    case 'ArrowLeft':
+    case 'ArrowRight':
+      peer.value.direction.x = 0
+      break
+  }
+
+  // Check if any direction key is still pressed
+  if (peer.value.direction.x === 0 && peer.value.direction.y === 0) {
+    peer.value.isMoving = false
+  }
+}
+
+  const gameLoop = () => {
+    if (peer.value.isMoving) {
+      // Update peer position
+      peer.value.x += peer.value.direction.x * peer.value.speed
+      peer.value.y += peer.value.direction.y * peer.value.speed
+
+      // Keep peer within canvas bounds
+      peer.value.x = Math.max(0, Math.min(canvas.value.width - peer.value.width, peer.value.x))
+      peer.value.y = Math.max(0, Math.min(canvas.value.height - peer.value.height, peer.value.y))
+
+      // Redraw canvas
+      updateCanvas()
+    }
+
+    requestAnimationFrame(gameLoop)
+  }
+
+  // canvas mode
+  const handleModeChange = (mode) => {
+    currentMode.value = mode
+    updateCanvas()
+  }
+
+  const updateCanvas = () => {
+    if (!ctx.value) return
+
+    ctx.value.clearRect(0, 0, canvas.value.width, canvas.value.height)
+
+    switch(currentMode.value) {
+      case 'cues':
+        renderCuesMode(ctx.value)
+        break
+      case 'body':
+        renderBodyMode(ctx.value)
+        break
+      case 'earth':
+        renderEarthMode(ctx.value)
+        break
+    }
+  }
+
+  const renderCuesMode = (ctx) => {
+    // Draw cues space content without background color
+    ctx.clearRect(0, 0, canvas.value.width, canvas.value.height)
+    ctx.fillStyle = '#140d6b'
+    ctx.font = '24px Arial'
+    ctx.fillText('Cues Space Mode', 50, 50)
+
+    // Draw all besearch cycles
+    storeBesearch.besearchCyles.forEach(bes => {
+      // drawBeeCycle(ctx, bes)
+    })
+    // Draw the peer
+    drawPeer(ctx)
+  }
+
+  const renderBodyMode = (ctx) => {
+    // Draw body content without background color
+    ctx.clearRect(0, 0, canvas.value.width, canvas.value.height)
+    ctx.fillStyle = '#140d6b'
+    ctx.font = '24px Arial'
+    ctx.fillText('Body Mode', 50, 50)
+  }
+
+  const renderEarthMode = (ctx) => {
+    // Draw earth content without background color
+    ctx.clearRect(0, 0, canvas.value.width, canvas.value.height)
+    ctx.fillStyle = '#140d6b'
+    ctx.font = '24px Arial'
+    ctx.fillText('Earth Mode', 50, 50)
+  }
+
+  /* life tools */
+  const toggleLifeTools = () => {
+    isLifeToolsOpen.value = !isLifeToolsOpen.value
+  }
+
+  const startDrag = (event) => {
+    isDragging.value = true
+    startX.value = event.clientX
+    currentX.value = event.clientX
+  }
+
+  const drag = (event) => {
+    if (!isDragging.value) return
+    currentX.value = event.clientX
+    const deltaX = currentX.value - startX.value
+    if (deltaX > 50) {
+      isLifeToolsOpen.value = true
+      isDragging.value = false
+    } else if (deltaX < -50) {
+      isLifeToolsOpen.value = false
+      isDragging.value = false
+    }
+  }
+
+  const endDrag = () => {
+    isDragging.value = false
+  }
+
+  const drawText = (ctx) => {
     ctx.beginPath()
     ctx.font = '20px Arial'
     ctx.fillStyle = 'black'
     ctx.textAlign = 'center'
-    ctx.fillText(bes.name, centerX, centerY)
+    ctx.fillText('Besearch cycles coming soon', 200, 100)
+  }
 
-    // Draw the image at the calculated position
-    ctx.drawImage(image, x, y, image.width, image.height)
+  /* besearch cycles location on canvas */
+  const drawBeeCycle = (ctx, bes) => {
+    const image = new Image()
+    image.src = beeCycle
 
-    // Store the current position for the next frame
-    prevX = x
-    prevY = y
+    // Store the previous position to clear it in the next frame
+    let prevX = null
+    let prevY = null
 
-    // Update the angle for the next frame
-    angle.value += 0.05
+    const animate = () => {
+      // Calculate the position for the image
+      const centerX = bes.cueSpace.location.width
+      const centerY = bes.cueSpace.location.height
+      const x = centerX + radius.value * Math.cos(angle.value)
+      const y = centerY + radius.value * Math.sin(angle.value)
 
-    // Check if a full cycle has been completed
-    if (angle.value >= 2 * Math.PI) {
-      angle.value = 0
-      cyclesCompleted++
+      // Clear the previous position if it exists
+      if (prevX !== null && prevY !== null) {
+        const clearRadius = radius.value + 50
+        ctx.clearRect(
+          prevX - clearRadius,
+          prevY - clearRadius,
+          clearRadius * 2,
+          clearRadius * 2
+        )
+      }
+
+      // Draw the text for the besearch cycle
+      ctx.beginPath()
+      ctx.font = '20px Arial'
+      ctx.fillStyle = 'black'
+      ctx.textAlign = 'center'
+      ctx.fillText(bes.name, centerX, centerY)
+
+      // Draw the image at the calculated position
+      ctx.drawImage(image, x, y, image.width, image.height)
+
+      // Store the current position for the next frame
+      prevX = x
+      prevY = y
+
+      // Update the angle for the next frame
+      angle.value += 0.05
+
+      // Check if a full cycle has been completed
+      if (angle.value >= 2 * Math.PI) {
+        angle.value = 0
+        cyclesCompleted++
+      }
+
+      // Continue animation if not all cycles are completed
+      if (cyclesCompleted < totalCycles) {
+        requestAnimationFrame(animate)
+      } else {
+        drawText(ctx)
+      }
     }
 
-    // Continue animation if not all cycles are completed
-    if (cyclesCompleted < totalCycles) {
-      requestAnimationFrame(animate)
-    } else {
-      drawText(ctx)
+    // Start the animation once the image is loaded
+    image.onload = () => {
+      animate()
     }
   }
 
-  // Start the animation once the image is loaded
-  image.onload = () => {
-    animate()
+  /* methods */
+  const closeBentoBesearch = () => {
+    storeAI.bentobesearchState = !storeAI.bentobesearchState
   }
-}
 
-/* methods */
-const closeBentoBesearch = () => {
-  storeAI.bentobesearchState = !storeAI.bentobesearchState
-}
-
-const handleBesearchClick = (event) => {
-  // Handle canvas click events here
-}
+  const handleBesearchClick = (event) => {
+    // Handle canvas click events here
+  }
 </script>
 
 <style scoped>
@@ -387,6 +527,10 @@ const handleBesearchClick = (event) => {
 
 .transparent {
   background-color: rgba(255, 255, 255, 0.4);
+}
+
+#beebee-agent {
+  border: 2px solid red;
 }
 
 @media (min-width: 1024px) {
@@ -509,6 +653,20 @@ const handleBesearchClick = (event) => {
     background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
                       linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px) !important;
     background-size: 20px 20px !important;
+  }
+
+  #open-beebee {
+    position: fixed;
+    bottom: 10px;
+    right: 120px;
+    z-index: 31;
+    display: grid;
+    justify-content: center;
+    place-self: start;
+    align-self: start;
+    height: 2em;
+    width: 5em;
+    background-color: white;
   }
 }
 </style>

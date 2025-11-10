@@ -23,7 +23,9 @@
       </template>
       <template #body>
         <beebee-ai></beebee-ai>
-        <button id="open-beebee" @click.prevent="setShowBeeBee">beebee</button>
+        <button id="open-beebee" @click.prevent="setShowBeeBee">
+          beebee
+        </button>
         <div id="space-toolbar">
           <!--<div id="beebee-help"></div>-->
           <div id="cues-connector">
