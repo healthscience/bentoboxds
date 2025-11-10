@@ -28,6 +28,7 @@
       <div id="tools-list">
           <div id="upload-link" class="tool-type" @click="toolAgent('upload')">@upload</div>
           <div class="tool-type" @click="toolAgent('library')">@library</div>
+          <div class="tool-type" :class="{ 'active-tool': storeAI.trainingMode }" @click="toolAgent('training')">@training</div>
       </div>
     </div>
     <data-box v-if="dataBoxStatus === true"></data-box>
@@ -104,6 +105,10 @@ import { ref, computed, watch } from 'vue'
     return storeAI.dataBoxStatus
   })
 
+  const trainingModeBackground = computed(() => {
+    return storeAI.trainingMode ? 'rgb(208, 209, 224)' : 'white'
+  })
+
   /* methods */
   const showAgents = () => {
     agentsActive.value = true
@@ -122,6 +127,11 @@ import { ref, computed, watch } from 'vue'
       storeAI.dataBoxStatus = true
       storeAI.uploadStatus = false
       storeLibrary.libraryStatus = true
+    } else if (tool === 'training') {
+      storeAI.dataBoxStatus = false
+      storeAI.uploadStatus = false
+      storeLibrary.libraryStatus = false
+      storeAI.trainingMode = !storeAI.trainingMode
     }
   }
 
@@ -143,6 +153,7 @@ import { ref, computed, watch } from 'vue'
   font-size: 1.2em;
   height:4em;
   width: 100%;
+  background-color: v-bind(trainingModeBackground);
 }
 
 #tool-agents {
@@ -162,27 +173,31 @@ import { ref, computed, watch } from 'vue'
   cursor: pointer;
 }
 
-#natlang-ask {
+.active-tool {
+  color: blue;
+}
+
+  #natlang-ask {
   height: 60px;
-}
-
-#agent-status {
-  color: lightgray;
-}
-
-#agent-status.active {
-  color: rgb(113, 172, 114);
-}
-
-.blink_me {
-  animation: blinker 2s linear infinite;
-}
-
-@keyframes blinker {
-  50% {
-    opacity: 0;
   }
-}
+
+  #agent-status {
+    color: lightgray;
+  }
+
+  #agent-status.active {
+    color: rgb(113, 172, 114);
+  }
+
+  .blink_me {
+    animation: blinker 2s linear infinite;
+  }
+
+  @keyframes blinker {
+    50% {
+      opacity: 0;
+    }
+  }
 
 @keyframes gentleFlash {
   0% { opacity: 0.6; }
@@ -197,7 +212,6 @@ import { ref, computed, watch } from 'vue'
   font-size: 1.1em;
   animation: gentleFlash 2s ease-in-out infinite;
 }
-
 
 @media (min-width: 1024px) {
   #ai-interaction {
@@ -233,6 +247,7 @@ import { ref, computed, watch } from 'vue'
     height:4em;
     width: 100%;
     opacity: 100%;
+    background-color: v-bind(trainingModeBackground);
   }
 
   #natlang-ask {
