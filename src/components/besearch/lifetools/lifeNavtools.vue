@@ -82,17 +82,6 @@ let btoolsTime = ref(false)
 let selectedMode = ref('cues')
 let selectedIntervention = ref(false)
 
-// Peer variables
-const peer = ref({
-  x: 100,
-  y: 100,
-  width: 30,
-  height: 30,
-  speed: 5,
-  isMoving: false,
-  direction: { x: 0, y: 0 }
-})
-
   /** methods */
   const besearchTime = () => {
     btoolsTime.value = !btoolsTime.value
@@ -106,60 +95,50 @@ const peer = ref({
 
   // Peer navigation methods
   const movePeer = (direction) => {
+    let peerDirection = { x: 0, y: 0 }
+    
     switch(direction) {
       case 'up':
-        peer.value.direction.y = -1
+        peerDirection.y = -1
         break
       case 'down':
-        peer.value.direction.y = 1
+        peerDirection.y = 1
         break
       case 'left':
-        peer.value.direction.x = -1
+        peerDirection.x = -1
         break
       case 'right':
-        peer.value.direction.x = 1
+        peerDirection.x = 1
         break
     }
-    peer.value.isMoving = true
 
-    // Emit event with peer position
+    // Emit event with direction
     emit('peer-moved', {
-      x: peer.value.x,
-      y: peer.value.y,
-      direction: peer.value.direction,
+      direction: peerDirection,
       isMoving: true
     })
 
     // Reset direction after a short delay to simulate button press
     setTimeout(() => {
-      peer.value.direction = { x: 0, y: 0 }
-      peer.value.isMoving = false
       emit('peer-moved', {
-        x: peer.value.x,
-        y: peer.value.y,
-        direction: peer.value.direction,
+        direction: { x: 0, y: 0 },
         isMoving: false
       })
     }, 100)
   }
 
   const startPeer = () => {
-    peer.value.isMoving = true
+    // Start peer movement with current direction (if any)
     emit('peer-moved', {
-      x: peer.value.x,
-      y: peer.value.y,
-      direction: peer.value.direction,
+      direction: { x: 0, y: 0 }, // No specific direction, just start
       isMoving: true
     })
   }
 
   const stopPeer = () => {
-    peer.value.isMoving = false
-    peer.value.direction = { x: 0, y: 0 }
+    // Stop peer movement
     emit('peer-moved', {
-      x: peer.value.x,
-      y: peer.value.y,
-      direction: peer.value.direction,
+      direction: { x: 0, y: 0 },
       isMoving: false
     })
   }

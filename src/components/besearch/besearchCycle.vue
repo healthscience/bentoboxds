@@ -84,6 +84,8 @@ const angle = ref(0)
 const radius = ref(100)
 let cyclesCompleted = 0
 const totalCycles = 3
+const beeCycleImage = ref(null)
+const peerImage = ref(null)
 const isDragging = ref(false)
 const startX = ref(0)
 const currentX = ref(0)
@@ -106,6 +108,14 @@ onMounted(() => {
   canvas.value = document.getElementById('besearch-cycles')
   if (canvas.value) {
     ctx.value = canvas.value.getContext('2d')
+    
+    // Load images once
+    beeCycleImage.value = new Image()
+    beeCycleImage.value.src = beeCycle
+    
+    peerImage.value = new Image()
+    peerImage.value.src = peerLogo
+    
     updateCanvas()
     // Set up keyboard event listeners
     window.addEventListener('keydown', handleKeyDown)
@@ -139,10 +149,9 @@ onMounted(() => {
   /** peer nav in canvas space **/
   // Add these methods to handle peer movement events
   const handlePeerMoved = (peerData) => {
-    peer.value.x = peerData.x
-    peer.value.y = peerData.y
+    // Update direction and movement state
     peer.value.direction = peerData.direction
-    peer.value.isMoving = peerData.isMoving || peer.value.isMoving
+    peer.value.isMoving = peerData.isMoving
 
     // Update canvas
     updateCanvas()
@@ -159,36 +168,18 @@ onMounted(() => {
 
   // Add this new function to draw the peer
   const drawPeer = (ctx) => {
-    const image = new Image()
-    image.src = peerLogo
-
-    // Create a function to draw the peer
-    const drawImage = () => {
-      // Clear a slightly larger area around the peer to ensure visibility
-      ctx.clearRect(
-        peer.value.x - 10,
-        peer.value.y - 10,
-        peer.value.width + 20,
-        peer.value.height + 20
-      )
-
-      // Draw the peer
-      ctx.drawImage(
-        image,
-        peer.value.x,
-        peer.value.y,
-        peer.value.width,
-        peer.value.height
-      )
+    if (!peerImage.value || !peerImage.value.complete) {
+      return // Image not loaded yet
     }
-
-    // If the image is already loaded, draw it immediately
-    if (image.complete) {
-      drawImage()
-    } else {
-      // Otherwise, set up the onload event
-      image.onload = drawImage
-    }
+    
+    // Draw the peer without clearing (since we clear the whole canvas each frame)
+    ctx.drawImage(
+      peerImage.value,
+      peer.value.x,
+      peer.value.y,
+      peer.value.width,
+      peer.value.height
+    )
   }
 
   // Add these keyboard control methods
@@ -229,6 +220,12 @@ const handleKeyUp = (e) => {
 }
 
   const gameLoop = () => {
+    // Update angle for besearch cycles animation
+    angle.value += 0.02
+    if (angle.value >= 2 * Math.PI) {
+      angle.value = 0
+    }
+    
     if (peer.value.isMoving) {
       // Update peer position
       peer.value.x += peer.value.direction.x * peer.value.speed
@@ -237,10 +234,10 @@ const handleKeyUp = (e) => {
       // Keep peer within canvas bounds
       peer.value.x = Math.max(0, Math.min(canvas.value.width - peer.value.width, peer.value.x))
       peer.value.y = Math.max(0, Math.min(canvas.value.height - peer.value.height, peer.value.y))
-
-      // Redraw canvas
-      updateCanvas()
     }
+    
+    // Always update canvas to show animations
+    updateCanvas()
 
     requestAnimationFrame(gameLoop)
   }
@@ -270,17 +267,20 @@ const handleKeyUp = (e) => {
   }
 
   const renderCuesMode = (ctx) => {
-    // Draw cues space content without background color
+    // Clear the entire canvas first
     ctx.clearRect(0, 0, canvas.value.width, canvas.value.height)
+    
+    // Draw title
     ctx.fillStyle = '#140d6b'
     ctx.font = '24px Arial'
     ctx.fillText('Cues Space Mode', 50, 50)
 
-    // Draw all besearch cycles
+    // Draw all besearch cycles first (background layer)
     storeBesearch.besearchCyles.forEach(bes => {
-      // drawBeeCycle(ctx, bes)
+      drawBeeCycle(ctx, bes)
     })
-    // Draw the peer
+    
+    // Draw the peer last (foreground layer)
     drawPeer(ctx)
   }
 
@@ -338,66 +338,27 @@ const handleKeyUp = (e) => {
 
   /* besearch cycles location on canvas */
   const drawBeeCycle = (ctx, bes) => {
-    const image = new Image()
-    image.src = beeCycle
-
-    // Store the previous position to clear it in the next frame
-    let prevX = null
-    let prevY = null
-
-    const animate = () => {
-      // Calculate the position for the image
-      const centerX = bes.cueSpace.location.width
-      const centerY = bes.cueSpace.location.height
-      const x = centerX + radius.value * Math.cos(angle.value)
-      const y = centerY + radius.value * Math.sin(angle.value)
-
-      // Clear the previous position if it exists
-      if (prevX !== null && prevY !== null) {
-        const clearRadius = radius.value + 50
-        ctx.clearRect(
-          prevX - clearRadius,
-          prevY - clearRadius,
-          clearRadius * 2,
-          clearRadius * 2
-        )
-      }
-
-      // Draw the text for the besearch cycle
-      ctx.beginPath()
-      ctx.font = '20px Arial'
-      ctx.fillStyle = 'black'
-      ctx.textAlign = 'center'
-      ctx.fillText(bes.name, centerX, centerY)
-
-      // Draw the image at the calculated position
-      ctx.drawImage(image, x, y, image.width, image.height)
-
-      // Store the current position for the next frame
-      prevX = x
-      prevY = y
-
-      // Update the angle for the next frame
-      angle.value += 0.05
-
-      // Check if a full cycle has been completed
-      if (angle.value >= 2 * Math.PI) {
-        angle.value = 0
-        cyclesCompleted++
-      }
-
-      // Continue animation if not all cycles are completed
-      if (cyclesCompleted < totalCycles) {
-        requestAnimationFrame(animate)
-      } else {
-        drawText(ctx)
-      }
+    if (!beeCycleImage.value || !beeCycleImage.value.complete) {
+      return // Image not loaded yet
     }
 
-    // Start the animation once the image is loaded
-    image.onload = () => {
-      animate()
-    }
+    // Calculate the position for the image
+    const centerX = bes.cueSpace.location.width
+    const centerY = bes.cueSpace.location.height
+    const x = centerX + radius.value * Math.cos(angle.value)
+    const y = centerY + radius.value * Math.sin(angle.value)
+
+    // Draw the text for the besearch cycle
+    ctx.save()
+    ctx.font = '20px Arial'
+    ctx.fillStyle = '#140d6b'
+    ctx.textAlign = 'center'
+    ctx.fillText(bes.name, centerX, centerY)
+    
+    // Draw the image at the calculated position
+    const imageSize = 40 // Fixed size for the cycle image
+    ctx.drawImage(beeCycleImage.value, x - imageSize/2, y - imageSize/2, imageSize, imageSize)
+    ctx.restore()
   }
 
   /* methods */
