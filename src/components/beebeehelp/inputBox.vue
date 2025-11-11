@@ -1,5 +1,11 @@
 <template>
   <div id="ai-interaction">
+    <div class="training-mode-banner" v-if="storeTraining.isTrainingMode">
+      <div class="training-status">
+        🎯 Training Mode Active - Query: "{{ storeTraining.currentQuery }}"
+        <span class="action-count">({{ storeTraining.sessionActionCount }} actions logged)</span>
+      </div>
+    </div>
     <div class="agent-feedback-progress" v-for="agentFeedback of agentProgressUpdate">
       <div class="progress-feedback" v-if="agentFeedback.show === true">
       {{ agentFeedback.feedback }}
@@ -28,7 +34,9 @@
       <div id="tools-list">
           <div id="upload-link" class="tool-type" @click="toolAgent('upload')">@upload</div>
           <div class="tool-type" @click="toolAgent('library')">@library</div>
-          <div class="tool-type" :class="{ 'active-tool': storeAI.trainingMode }" @click="toolAgent('training')">@training</div>
+          <div class="tool-type" :class="{ 'active-tool': storeTraining.isTrainingMode }" @click="toolAgent('training')">
+            {{ storeTraining.isTrainingMode ? '@training ✓' : '@training' }}
+          </div>
       </div>
     </div>
     <data-box v-if="dataBoxStatus === true"></data-box>
@@ -39,10 +47,12 @@
 import DataBox from '@/components/dataspace/dataBox.vue'
 import { libraryStore } from '@/stores/libraryStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
+import { trainingStore } from '@/stores/trainingStore.js'
 import { ref, computed, watch } from 'vue'
 
   const storeLibrary = libraryStore()
   const storeAI = aiInterfaceStore()
+  const storeTraining = trainingStore()
 
   const props = defineProps({
     prompt: Object,
@@ -131,7 +141,24 @@ import { ref, computed, watch } from 'vue'
       storeAI.dataBoxStatus = false
       storeAI.uploadStatus = false
       storeLibrary.libraryStatus = false
-      storeAI.trainingMode = !storeAI.trainingMode
+      
+      // Toggle training mode
+      if (!storeTraining.isTrainingMode && storeAI.askQuestion.text) {
+        // Start training session with current query
+        storeTraining.startTrainingSession(storeAI.askQuestion.text)
+        storeAI.trainingMode = true
+      } else if (storeTraining.isTrainingMode) {
+        // Complete or cancel training session
+        if (storeTraining.sessionActionCount > 0) {
+          storeTraining.completeSession()
+        } else {
+          storeTraining.cancelSession()
+        }
+        storeAI.trainingMode = false
+      } else {
+        // No query entered
+        alert('Please enter a query before starting training mode')
+      }
     }
   }
 
@@ -142,6 +169,33 @@ import { ref, computed, watch } from 'vue'
 #ai-interaction {
   display: grid;
   grid-template-columns: 1fr;
+}
+
+.training-mode-banner {
+  background-color: #f0f8ff;
+  border: 2px solid #4a90e2;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.training-status {
+  font-size: 14px;
+  color: #333;
+  font-weight: 500;
+}
+
+.action-count {
+  font-size: 12px;
+  color: #666;
+  margin-left: 10px;
+}
+
+.active-tool {
+  background-color: #4a90e2;
+  color: white;
+  border-radius: 4px;
+  padding: 2px 6px;
 }
 
 #input-tools {

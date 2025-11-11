@@ -75,10 +75,12 @@ import { ref, computed, onMounted, onBeforeMount, shallowRef } from 'vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
+import { trainingStore } from '@/stores/trainingStore.js'
 
   const storeAI = aiInterfaceStore()
   const storeLibrary = libraryStore()
   const storeBentobox = bentoboxStore()
+  const storeTraining = trainingStore()
 
   const props = defineProps({
     bboxid: String
@@ -138,15 +140,28 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
     let timeCaptured = DateTime.fromJSDate(dateChange)
     let startDay = timeCaptured.startOf('day')
     mutDate.value = startDay.toMillis()
+    
+    // Log for training mode
+    storeTraining.logAction(
+      'CalendarTools',
+      'handleDate',
+      { 
+        date: dateChange,
+        timestamp: mutDate.value
+      }
+    )
   }
 
   const updateHOPquery = () => {
     // prepare update for HOP
     // what time period is active, single, pick or range? Or update via open data settings?
     let hopTime = []
+    let dateSelection = {}
+    
     if (selectedTimeBundle.value === 'single') {
       let startDay = mutDate.value
       hopTime.push(startDay)
+      dateSelection = { type: 'single', date: boxDate.value }
     } else if (selectedTimeBundle.value === 'range') {
       // need to expand our range
       let startDayDate = DateTime.fromJSDate(boxDaterange.value[0], {zone:"uct"}) //, {zone:"uct"}).startOf('day')
@@ -163,12 +178,14 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
       }
       // add last date too
       // hopTime.push(endDayDate)
+      dateSelection = { type: 'range', startDate: boxDaterange.value[0], endDate: boxDaterange.value[1] }
     } else if (selectedTimeBundle.value === 'multi') {
       for (let date of boxDaterange.value) {
         let luxTime =  DateTime.fromJSDate(date)
         let startDay = luxTime.startOf('day')
         hopTime.push(startDay.toMillis())
       }
+      dateSelection = { type: 'multi', dates: boxDaterange.value }
     }
     // get the library contracts
     storeAI.prepareLibrarySummary(props.bboxid, '', '')
@@ -238,6 +255,19 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
       storeLibrary.updateHOPqueryContracts(HOPcontext)
     }
     setDateStatus.value = false
+    
+    // Log for training mode
+    storeTraining.logAction(
+      'CalendarTools',
+      'updateHOPquery',
+      { 
+        timeBundle: selectedTimeBundle.value,
+        dates: hopTime,
+        dateSelection: dateSelection,
+        bboxid: props.bboxid
+      },
+      { success: true }
+    )
   }
 
   const setShiftTimeData = (seg) => {
