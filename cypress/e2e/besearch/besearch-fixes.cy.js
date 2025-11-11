@@ -1,15 +1,27 @@
 describe('Besearch Bug Fixes - Navigation and Overlay', () => {
   beforeEach(() => {
+    // Start HOP server
+    cy.task("startServer")
+    cy.viewport(1024, 768)
     cy.visit('/')
-    cy.get('[data-cy="besearch-button"], button:contains("Besearch")').click()
-    cy.get('.besearch-modal, [data-cy="besearch-modal"]').should('be.visible')
+    
+    // Authenticate
+    cy.get("#self-auth-connect").should('exist')
+    cy.get('#self-auth-connect').click()
+    cy.get("#connect-hop").should('exist')
+    cy.get("#self-auth").should('exist')
+    cy.get('#self-auth').click()
+    
+    // Open the besearch modal
+    cy.get('#besearch-button').click()
+    cy.get('.besearch-modal').should('be.visible')
   })
 
   describe('Life Tools Button Navigation Fix', () => {
     beforeEach(() => {
       // Open life tools panel
       cy.get('.life-tools-button, button:contains("be")').click()
-      cy.get('.life-tools-panel, [data-cy="life-tools"]').should('be.visible')
+      cy.get('.life-tools-panel').should('be.visible')
     })
 
     it('should move peer when clicking directional buttons', () => {
@@ -74,7 +86,7 @@ describe('Besearch Bug Fixes - Navigation and Overlay', () => {
     it('should not interfere with keyboard navigation', () => {
       // Close life tools
       cy.get('.life-tools-button, button:contains("be")').click()
-      cy.get('.life-tools-panel, [data-cy="life-tools"]').should('not.exist')
+      cy.get('.life-tools-panel').should('not.exist')
 
       // Test keyboard navigation still works
       cy.get('#besearch-cycles').click()
@@ -211,5 +223,9 @@ describe('Besearch Bug Fixes - Navigation and Overlay', () => {
         expect(duration).to.be.lessThan(5000)
       })
     })
+  })
+
+  after(() => {
+    cy.task("stopServer")
   })
 })

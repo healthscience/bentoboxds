@@ -3,20 +3,20 @@
 export const besearchHelpers = {
   // Open the besearch modal
   openBesearch() {
-    cy.get('[data-cy="besearch-button"], button:contains("Besearch")').click()
-    cy.get('.besearch-modal, [data-cy="besearch-modal"]').should('be.visible')
+    cy.get('#besearch-button').click()
+    cy.get('.besearch-modal').should('be.visible')
   },
 
   // Open life tools panel
   openLifeTools() {
-    cy.get('.life-tools-button, button:contains("be")').click()
-    cy.get('.life-tools-panel, [data-cy="life-tools"]').should('be.visible')
+    cy.get('.life-tools-button').click()
+    cy.get('.life-tools-panel').should('be.visible')
   },
 
   // Close life tools panel
   closeLifeTools() {
-    cy.get('.life-tools-button, button:contains("be")').click()
-    cy.get('.life-tools-panel, [data-cy="life-tools"]').should('not.exist')
+    cy.get('.life-tools-button').click()
+    cy.get('.life-tools-panel').should('not.exist')
   },
 
   // Switch to a specific mode

@@ -3,15 +3,27 @@ import { besearchHelpers } from './besearch-helpers'
 
 describe('Besearch - Simple Tests', () => {
   beforeEach(() => {
+    // Start HOP server
+    cy.task("startServer")
+    cy.viewport(1024, 768)
     cy.visit('/')
+    
+    // Authenticate
+    cy.get("#self-auth-connect").should('exist')
+    cy.get('#self-auth-connect').click()
+    cy.get("#connect-hop").should('exist')
+    cy.get("#self-auth").should('exist')
+    cy.get('#self-auth').click()
+    
+    // Open besearch
     cy.openBesearch()
   })
 
   it('should display besearch modal with canvas', () => {
     // Check basic layout
     cy.get('#besearch-cycles').should('be.visible')
-    cy.get('.mode-buttons, [data-cy="mode-buttons"]').should('be.visible')
-    cy.get('.life-tools-button, button:contains("be")').should('be.visible')
+    cy.get('.mode-buttons').should('be.visible')
+    cy.get('.life-tools-button').should('be.visible')
     
     // Verify canvas has content
     besearchHelpers.verifyCanvasHasContent()
@@ -56,5 +68,9 @@ describe('Besearch - Simple Tests', () => {
     cy.switchBesearchMode('Cues')
     besearchHelpers.waitForAnimation(10)
     besearchHelpers.verifyCanvasHasContent()
+  })
+
+  after(() => {
+    cy.task("stopServer")
   })
 })

@@ -1,19 +1,28 @@
 describe('Besearch Modal and Canvas Functionality', () => {
   beforeEach(() => {
-    // Visit the application
+    // Start HOP server
+    cy.task("startServer")
+    cy.viewport(1024, 768)
     cy.visit('/')
     
+    // Authenticate
+    cy.get("#self-auth-connect").should('exist')
+    cy.get('#self-auth-connect').click()
+    cy.get("#connect-hop").should('exist')
+    cy.get("#self-auth").should('exist')
+    cy.get('#self-auth').click()
+    
     // Open the besearch modal
-    cy.get('[data-cy="besearch-button"], button:contains("Besearch")').click()
+    cy.get('#besearch-button').click()
     
     // Wait for modal to be visible
-    cy.get('.besearch-modal, [data-cy="besearch-modal"]').should('be.visible')
+    cy.get('.besearch-modal').should('be.visible')
   })
 
   describe('Base Layout', () => {
     it('should display all main components of besearch modal', () => {
       // Check modal container exists
-      cy.get('.besearch-modal, [data-cy="besearch-modal"]').within(() => {
+      cy.get('.besearch-modal').within(() => {
         // Check for canvas element
         cy.get('#besearch-cycles').should('exist')
           .and('be.visible')
@@ -21,17 +30,17 @@ describe('Besearch Modal and Canvas Functionality', () => {
           .and('have.attr', 'height')
 
         // Check for close button
-        cy.get('.close-button, [data-cy="close-besearch"]').should('be.visible')
+        cy.get('.close-button').should('be.visible')
 
         // Check for mode buttons
-        cy.get('.mode-buttons, [data-cy="mode-buttons"]').within(() => {
+        cy.get('.mode-buttons').within(() => {
           cy.contains('button', 'Cues').should('be.visible')
           cy.contains('button', 'Body').should('be.visible')
           cy.contains('button', 'Mind').should('be.visible')
         })
 
         // Check for life tools button
-        cy.get('.life-tools-button, button:contains("be")').should('be.visible')
+        cy.get('.life-tools-button').should('be.visible')
       })
     })
 
@@ -87,10 +96,10 @@ describe('Besearch Modal and Canvas Functionality', () => {
       cy.get('.life-tools-button, button:contains("be")').click()
       
       // Check life tools panel appears
-      cy.get('.life-tools-panel, [data-cy="life-tools"]').should('be.visible')
+      cy.get('.life-tools-panel').should('be.visible')
       
       // Check for navigation controls
-      cy.get('.life-tools-panel, [data-cy="life-tools"]').within(() => {
+      cy.get('.life-tools-panel').within(() => {
         // Check for directional buttons
         cy.get('button[aria-label*="up"], button:contains("↑")').should('be.visible')
         cy.get('button[aria-label*="down"], button:contains("↓")').should('be.visible')
@@ -106,11 +115,11 @@ describe('Besearch Modal and Canvas Functionality', () => {
     it('should toggle life tools panel', () => {
       // Open life tools
       cy.get('.life-tools-button, button:contains("be")').click()
-      cy.get('.life-tools-panel, [data-cy="life-tools"]').should('be.visible')
+      cy.get('.life-tools-panel').should('be.visible')
       
       // Close life tools
       cy.get('.life-tools-button, button:contains("be")').click()
-      cy.get('.life-tools-panel, [data-cy="life-tools"]').should('not.exist')
+      cy.get('.life-tools-panel').should('not.exist')
     })
   })
 
@@ -156,7 +165,7 @@ describe('Besearch Modal and Canvas Functionality', () => {
       cy.get('.life-tools-button, button:contains("be")').click()
       
       // Wait for panel to be visible
-      cy.get('.life-tools-panel, [data-cy="life-tools"]').should('be.visible')
+      cy.get('.life-tools-panel').should('be.visible')
       
       // Test right movement
       cy.get('button[aria-label*="right"], button:contains("→")').click()
@@ -224,24 +233,24 @@ describe('Besearch Modal and Canvas Functionality', () => {
   describe('Modal Interactions', () => {
     it('should close modal when clicking close button', () => {
       // Verify modal is open
-      cy.get('.besearch-modal, [data-cy="besearch-modal"]').should('be.visible')
+      cy.get('.besearch-modal').should('be.visible')
       
       // Click close button
-      cy.get('.close-button, [data-cy="close-besearch"]').click()
+      cy.get('.close-button').click()
       
       // Verify modal is closed
-      cy.get('.besearch-modal, [data-cy="besearch-modal"]').should('not.exist')
+      cy.get('.besearch-modal').should('not.exist')
     })
 
     it('should close modal when pressing Escape key', () => {
       // Verify modal is open
-      cy.get('.besearch-modal, [data-cy="besearch-modal"]').should('be.visible')
+      cy.get('.besearch-modal').should('be.visible')
       
       // Press Escape key
       cy.get('body').type('{esc}')
       
       // Verify modal is closed
-      cy.get('.besearch-modal, [data-cy="besearch-modal"]').should('not.exist')
+      cy.get('.besearch-modal').should('not.exist')
     })
   })
 
@@ -285,7 +294,7 @@ describe('Besearch Modal and Canvas Functionality', () => {
       
       // Should still be able to open life tools
       cy.get('.life-tools-button, button:contains("be")').click()
-      cy.get('.life-tools-panel, [data-cy="life-tools"]').should('be.visible')
+      cy.get('.life-tools-panel').should('be.visible')
     })
 
     it('should handle rapid button clicks in life tools', () => {
@@ -301,5 +310,9 @@ describe('Besearch Modal and Canvas Functionality', () => {
       // Canvas should still be visible and functional
       cy.get('#besearch-cycles').should('be.visible')
     })
+  })
+
+  after(() => {
+    cy.task("stopServer")
   })
 })

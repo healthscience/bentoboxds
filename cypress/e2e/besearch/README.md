@@ -48,18 +48,25 @@ npm run cypress:run -- --spec "cypress/e2e/besearch/besearch-simple.cy.js"
 ## Test Structure
 
 Each test file follows this pattern:
-1. **Setup**: Visit the app and open besearch modal
+1. **Setup**: 
+   - Start HOP server with `cy.task("startServer")`
+   - Set viewport to 1024x768
+   - Visit the app
+   - Authenticate via self-auth flow
+   - Open besearch modal
 2. **Test**: Perform actions and assertions
-3. **Cleanup**: Automatic via Cypress
+3. **Cleanup**: Stop HOP server with `cy.task("stopServer")` in after() hook
 
 ## Key Selectors Used
 
-- Modal: `.besearch-modal` or `[data-cy="besearch-modal"]`
+- Modal: `.besearch-modal`
 - Canvas: `#besearch-cycles`
+- Besearch button: `#besearch-button`
 - Mode buttons: `.mode-buttons button` or by text content
-- Life tools button: `.life-tools-button` or `button:contains("be")`
-- Life tools panel: `.life-tools-panel` or `[data-cy="life-tools"]`
+- Life tools button: `.life-tools-button`
+- Life tools panel: `.life-tools-panel`
 - Directional buttons: By aria-label or arrow symbols
+- Authentication: `#self-auth-connect`, `#self-auth`
 
 ## Custom Commands
 
