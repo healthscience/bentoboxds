@@ -22,9 +22,18 @@
       </div>
     </div>
 
-    <!-- Peer Navigation Controls -->
+    <!-- besearch create start stop delete -->
+    <div id="besearch-tools">
+      <h3>Besearch tools</h3>
+      <div class="besearch-control-buttons">
+        <button @click="besearchTool('create')" class="control-button">Create</button>
+        <button @click="besearchTool('start')" class="control-button">Start</button>
+        <button @click="besearchTool('stop')" class="control-button">Stop</button>
+      </div>
+    </div>
+    <!-- Besearch Navigation Controls -->
     <div id="peer-navigation">
-      <h3>Peer Navigation</h3>
+      <h3>Besearch Navigation</h3>
       <div class="directional-buttons">
         <button @click="movePeer('up')" class="direction-button up">↑</button>
         <div class="horizontal-buttons">

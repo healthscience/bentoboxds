@@ -17,6 +17,7 @@
             </li>
           </ul>
         </div>
+        <besearch-tools>Tools</besearch-tools>
       </div>
     </div>
     <div class="module-box">
@@ -66,6 +67,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import BesearchTools from '@/components/besearch/lifetools/besearchTools.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { libraryStore } from '@/stores/libraryStore.js'

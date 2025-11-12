@@ -15,6 +15,18 @@ export const besearchStore = defineStore('besearchstore', {
     ]
   }),
   actions: {
-
+    saveToHOP(bcInfo) {
+      // Prepare message for HOP
+      let bcContract = {}
+      bcContract.type = 'library'
+      bcContract.action = 'besearch-cycle'
+      bcContract.reftype = 'train-hopquery'
+      bcContract.task = 'PUT'
+      bcContract.privacy = 'private'
+      bcContract.data = bcInfo
+      // Send via socket to HOP
+      console.log('Saving to HOP besearch store:', bcContract)
+     // this.sendSocket.send_message(bcContract)
+    },
   }
 })

@@ -98,21 +98,18 @@ export const trainingStore = defineStore('training', {
       this.resetSession()
     },
 
-    async saveToHOP(session) {
+    saveToHOP(session) {
       // Prepare message for HOP
-      const hopMessage = {
-        type: 'training-session',
-        action: 'save',
-        data: session
-      }
-      
+      const beebeeContract = {}
+      beebeeContract.type = 'library'
+      beebeeContract.action = 'beebee-learn'
+      beebeeContract.reftype = 'train-hopquery'
+      beebeeContract.task = 'PUT'
+      beebeeContract.privacy = 'public'
+      beebeeContract.data = session
       // Send via socket to HOP
-      console.log('Saving to HOP besearch store:', hopMessage)
-      // TODO: Implement actual HOP integration
-      // this.sendSocket.emit('hop-training-save', hopMessage)
-      
-      // For now, just log it
-      console.log('Training session to save:', JSON.stringify(session, null, 2))
+      console.log('Saving to HOP beebee store:', beebeeContract)
+      // this.sendSocket.send_message(beebeeContract)
     },
 
     cancelSession() {
