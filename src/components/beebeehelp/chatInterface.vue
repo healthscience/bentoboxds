@@ -154,7 +154,7 @@ import ImagePreview from '@/components/dataspace/upload/imagePreview.vue'
 import DescribeDatastructure from '@/components/library/contracts/contribute/forms/packaging/describeSourceStructure.vue'
 import DescribeDevicestructure from '@/components/library/contracts/contribute/forms/packaging/describeDeviceStructure.vue'
 import BentoBox from '@/components/bentobox/baseBox.vue'
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 
@@ -206,6 +206,80 @@ import { libraryStore } from '@/stores/libraryStore.js'
     // bottom.value.scrollIntoView({behavior: "smooth"})
   })
 
+  /** subscribed to events */
+  // Add a subscribe method to the actions
+  const handleUpdate = (mutation, state) => {
+    console.log('Update received:', mutation, state)
+    // Handle the update as needed
+    if (mutation.type === 'streamingResponse') {
+      const { bboxid, text } = mutation.payload;
+
+      // Find the index of the chat pair with the matching bboxid
+      const chatIndex = storeAI.historyPair[storeAI.chatAttention].findIndex(
+        chat => chat.reply.bbid === bboxid
+      );
+
+      if (chatIndex !== -1) {
+        // If the chat pair exists, update it with the new text
+        const updatedChatPair = {
+          ...storeAI.historyPair[storeAI.chatAttention][chatIndex],
+          reply: {
+            ...storeAI.historyPair[storeAI.chatAttention][chatIndex].reply,
+            data: {
+              ...storeAI.historyPair[storeAI.chatAttention][chatIndex].reply.data,
+              text: text
+            },
+            time: new Date().toLocaleTimeString()
+          }
+        };
+
+        // Update the historyPair in a reactive way
+        storeAI.historyPair[storeAI.chatAttention] = [
+          ...storeAI.historyPair[storeAI.chatAttention].slice(0, chatIndex),
+          updatedChatPair,
+          ...storeAI.historyPair[storeAI.chatAttention].slice(chatIndex + 1)
+        ];
+      } else {
+        // If the chat pair doesn't exist, create a new one
+        const newChatPair = {
+          question: {
+            bbid: bboxid,
+            data: {
+              text: text,
+              time: new Date().toLocaleTimeString(),
+              active: true
+            }
+          },
+          reply: {
+            bbid: bboxid,
+            type: 'bbai-reply',
+            action: 'agent-response',
+            time: new Date().toLocaleTimeString(),
+            data: {
+              text: text
+            },
+            network: false
+          }
+        };
+
+        // Add the new chat pair to the historyPair
+        storeAI.historyPair[storeAI.chatAttention] = [
+          ...storeAI.historyPair[storeAI.chatAttention],
+          newChatPair
+        ];
+      }
+    }
+  }
+
+  storeAI.subscribe(handleUpdate)
+
+  // Unsubscribe when the component is unmounted
+  onUnmounted(() => {
+    storeAI.unsubscribe(handleUpdate)
+  })
+
+
+  /** computed */
   const updateBottom = computed(() => {
     setTimeout(scrollToElement, 500)
     return storeAI.chatBottom

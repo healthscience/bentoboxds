@@ -69,6 +69,8 @@ export const useSocketStore = defineStore({
         this.storeCues.processReply(received)
       } else if (received.type == 'upload') {
         this.aiStore.processReply(received)
+      } else if (received.type == 'bbai-stream-reply') {
+        this.aiStore.processStreamReply(received)
       } else if (received.type == 'bbai-reply') {
         this.aiStore.processReply(received)
       } else if (received.type == 'hop-learn') {

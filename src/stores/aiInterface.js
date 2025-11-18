@@ -60,6 +60,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     currentQuestion: {},
     historyPair: {},
     chatSpacePair: {},
+    subscribers: [],
     bbidHOPid: [],
     hopSummary: [],
     futurePids: [],
@@ -116,6 +117,18 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
   actions: {
     sendMessageHOP (message) {
       this.sendSocket.send_message(message)
+    },
+    // Add a subscribe method to the actions
+    subscribe(callback) {
+      this.subscribers.push(callback)
+    },
+    // Add an unsubscribe method to the actions
+    unsubscribe(callback) {
+      this.subscribers = this.subscribers.filter(subscriber => subscriber !== callback)
+    },
+    // Notify all subscribers of a change
+    notifySubscribers(mutation, state) {
+      this.subscribers.forEach(subscriber => subscriber(mutation, state))
     },
     clearData () {
       // clear all chat, space, account data
@@ -327,6 +340,12 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         this.beebeeReply.time = time
         this.beebeeReply.active = false
       }
+    },
+    processStreamReply (received) {
+      console.log('stream reply from beebee')
+      console.log(received)
+      // Notify subscribers of the streaming reply
+      this.notifySubscribers({ type: 'streamingResponse', payload: received.data }, this.$state)
     },
     processReply (received) {
       if (received.action === 'agent-task') {
