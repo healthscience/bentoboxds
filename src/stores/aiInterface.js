@@ -4,6 +4,7 @@ import hashObject from 'object-hash'
 import { useSocketStore } from '@/stores/socket.js'
 import { bentoboxStore } from "@/stores/bentoboxStore.js"
 import { libraryStore } from '@/stores/libraryStore.js'
+import { useChatStore } from '@/stores/chatStore.js'
 import DataPraser from '@/stores/hopUtility/dataParse.js'
 import ChatUtilty from '@/stores/hopUtility/chatUtility.js'
 import ChatspaceUtilty from '@/stores/hopUtility/chatspaceUtility.js'
@@ -14,6 +15,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
   state: () => ({
     storeAcc: accountStore(),
     sendSocket: useSocketStore(),
+    storeChat: useChatStore(),
     storeCues: cuesStore(),
     storeBentoBox: bentoboxStore(),
     storeLibrary: libraryStore(),
@@ -27,12 +29,15 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     historyList: false,
     historyCuesList: false,
     historyBar: false,
-    beginChat: false,
     beebeeStatus: false,
     qcount: 0,
     dataBoxStatus: false,
     chatBottom: 0,
     beebeeContext: 'chat',
+      askQuestion: {
+      text: '',
+      compute: false
+    },
     decisionDoughnutCue: false,
     agentList: [{name: 'cale-evolution', active: false, loading: false, onstart: false }],
     llmModelsList: [],
@@ -128,6 +133,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     },
     // Notify all subscribers of a change
     notifySubscribers(mutation, state) {
+      console.log('notify chat ui of new message')
       this.subscribers.forEach(subscriber => subscriber(mutation, state))
     },
     clearData () {
@@ -163,15 +169,18 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     setupChatHistory (chat) {
+      console.log('set chat history')
+      console.log(chat)
       // does the chat history exist if not setup
       if (this.historyPair.hasOwnProperty(chat.chatid) === false) {
         this.historyPair[chat.chatid] = []
       }
-      this.beginChat = true
+      // this.storeChat.beginChat = true
     },
-    submitAsk (dataInfo) {
+    async submitAsk (dataInfo) {
+
       // check for context of beebee default is Chat, other option spaces, cues(decisions)
-      if (this.beebeeContext === 'chat') {
+      /*if (this.beebeeContext === 'chat') {
         // remove start boxes
         this.startChat = false
         this.historyBar = true
@@ -240,8 +249,118 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       } else if (this.beebeeContext === 'graph') {
       } else if (this.beebeeContext === 'cues-decision') {
         this.decisionDoughnutCue = true
+      }*/
+
+
+
+
+      try {
+        // 1. Determine the context
+        const context = this.beebeeContext || 'chat'
+        console.log(context)
+        // 2. Check for tools in the question text
+        const toolsUsed = this.liveChatUtil.extractToolsFromText(this.askQuestion.text)
+        console.log(toolsUsed)
+        // 3. Validate the question
+        const validationResult = this.liveChatUtil.validateQuestion(this.askQuestion.text, toolsUsed)
+        console.log(validationResult)
+        if (!validationResult.isValid) {
+          console.log('feedback local')
+          // Provide feedback to the peer
+          const feedbackMessage = this.liveChatUtil.createFeedbackMessage(validationResult.message)
+          this.storeChat.addMessage(feedbackMessage)
+          return
+        }
+
+        // 4. Prepare the question object
+        const question = this.liveChatUtil.createQuestionTemplate(
+          this.askQuestion.text,
+          context,
+          toolsUsed,
+          dataInfo
+        )
+
+        console.log('question')
+        console.log(question)
+
+        // 5. Check if this is a new chat or adding to existing
+        let chat
+        if (this.isNewChat(context)) {
+          // Create a new chat
+          chat = this.liveChatUtil.createChatTemplate(context, question.bboxid)
+          this.startChat = false
+          this.historyBar = true
+        } else {
+          // Get the current chat for this context
+          chat = this.getCurrentChat(context)
+        }
+        console.log('chat tempate')
+        console.log(chat)
+        // 6. Add the question to the chat
+        chat.questions.push(question)
+        chat.currentQuestion = question
+        console.log('comptle chat')
+        console.log(chat)
+
+        // 7. Update the chat history
+        this.updateChatHistory(chat, context)
+        console.log(this.historyPair)
+        // 8. Add the question to the chat store
+        this.storeChat.addMessage(question)
+
+        // 9. Prepare the question for HOP
+        const hopQuestion = this.liveChatUtil.prepareQuestionForHOP(question)
+        console.log('HOP format quetion')
+        console.log(hopQuestion)
+        // 10. Send the question to HOP for processing
+        await this.actionAgentQuestion(hopQuestion)
+
+        // 11. Clear the input for the next question
+        this.askQuestion.text = ''
+        this.askQuestion.compute = false
+
+        // 12. Notify subscribers about the new question
+        this.notifySubscribers({
+          type: 'newQuestion',
+          payload: {
+            chatId: chat.id,
+            questionId: question.id,
+            bboxid: question.bboxid,
+            context: context
+          }
+        })
+
+      } catch (error) {
+        console.error('Error submitting question:', error)
+        // Provide error feedback
+        const errorMessage = this.liveChatUtil.createFeedbackMessage(
+          'An error occurred while processing your question. Please try again.'
+        )
+        this.storeChat.addMessage(errorMessage)
       }
-    },
+  },
+  // Helper functions
+  isNewChat(context) {
+    return !this.historyPair[context] || this.historyPair[context].length === 0
+  },
+
+  getCurrentChat(context) {
+    return this.historyPair[context][this.historyPair[context].length - 1]
+  },
+
+  updateChatHistory(chat, context) {
+    if (!this.historyPair[context]) {
+      this.historyPair[context] = []
+    }
+
+    // Update or add the chat
+    const existingIndex = this.historyPair[context].findIndex(c => c.id === chat.id)
+    if (existingIndex >= 0) {
+      this.historyPair[context][existingIndex] = chat
+    } else {
+      this.historyPair[context].push(chat)
+    }
+  },
     trackAgentProgress (bboxID) {
       // setup chat feedback object if need
       if (this.agentProgress[this.chatAttention] === undefined) {
@@ -296,6 +415,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.qcount++      
     },
     actionAgentQuestion (question) {
+      console.log('action agent question in')
+      console.log(question)
       let hashQuestion = hashObject(question)
       let aiMessageout = {}
       aiMessageout.type = 'bbai'
@@ -304,6 +425,18 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       aiMessageout.data = question
       aiMessageout.bbid = hashQuestion
       this.trackAgentProgress(hashQuestion)
+      console.log('send message to HOP')
+      console.log(aiMessageout)
+      this.storeChat.beginChat = true
+      // Call handleIncomingMessage to update chat history with the peer question
+      this.storeChat.handleIncomingMessage({
+      type: 'peer-question',
+      data: question.text,
+      context: question.context,
+      bbid: hashQuestion,
+      timestamp: new Date(),
+      tools: question.tools || []
+    })
       this.sendSocket.send_message(aiMessageout)
       this.helpchatHistory.push(aiMessageout)
       this.qcount++
@@ -344,8 +477,17 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     processStreamReply (received) {
       console.log('stream reply from beebee')
       console.log(received)
-      // Notify subscribers of the streaming reply
-      this.notifySubscribers({ type: 'streamingResponse', payload: received.data }, this.$state)
+      if (received.type === 'bbai-stream-reply') {
+        this.storeChat.handleIncomingMessage({
+          type: 'agent-reply',
+          bbid: received.bbid,
+          data: received.data,
+          status: received.status || 'completed',
+          messageType: received.messageType || 'response',
+          metadata: received.metadata || {},
+          context: received.context
+        })
+      }
     },
     processReply (received) {
       if (received.action === 'agent-task') {
@@ -475,7 +617,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         reply.network = true
         pairBB.reply = reply
         this.historyPair[this.chatAttention].push(pairBB)
-        this.beginChat = true
+        this.storeChat.beginChat = true
         this.chatBottom++
       } else if (received.action === 'warm-peer-connect') {
         // set via account store - just add to notify list here.
@@ -566,7 +708,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       reply.network = true
       pairBB.reply = reply
       this.historyPair[this.chatAttention].push(pairBB)
-      this.beginChat = true
+      this.storeChat.beginChat = true
       this.chatBottom++
     },
     prepareCuespace (notItem) {

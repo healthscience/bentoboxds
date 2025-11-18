@@ -9,20 +9,24 @@
 * @license    http://www.gnu.org/licenses/old-licenses/gpl-3.0.html
 * @version    $Id$
 */
-// import EventEmitter from 'events'
 import hashObject from 'object-hash'
-import { DateTime, Interval } from 'luxon'
+import { DateTime } from 'luxon'
 
 class ChatUtility {
 
   constructor() {
-    // super()
+    this.currentContext = 'chat'
+  }
+
+  // Initialize chat utility
+  initChat(context) {
+    this.currentContext = context
+    // Additional initialization logic
   }
 
   /**
   * Prepare chat question and reply for beebee
   * @method prepareChatQandA
-  *
   *
   */
   prepareChatQandA = function (inputHOP, summary) {
@@ -62,8 +66,6 @@ class ChatUtility {
     }
     return matchSummary
   }
-
-
 
   /**
   * Prepare the reply
@@ -115,8 +117,7 @@ class ChatUtility {
   *
   */
   setOpendataToolbar = function () {
-    let boxSettings = 
-      {
+    let boxSettings =  {
         opendatatools: { active: false },
         boxtoolshow: { active: false },
         vistoolsstatus: { active: false },
@@ -134,7 +135,6 @@ class ChatUtility {
   *
   */
   setSqliteUploadChat = function () {
-
     let question = {}
     question.type ='bbai'
     question.reftype = 'ignore'
@@ -206,7 +206,106 @@ class ChatUtility {
     return menuList
   }
 
+  // Create a new chat template
+  createChatTemplate(context, bboxid) {
+    return {
+      id: this.generateUniqueId(),
+      bboxid: bboxid || this.generateBboxId(),
+      context: context,
+      timestamp: new Date(),
+      questions: [],
+      currentQuestion: null,
+      status: 'active',
+      metadata: {}
+    }
+  }
 
+  // Create a new question template
+  createQuestionTemplate(text, context, toolsUsed, dataInfo, bboxid) {
+    return {
+      id: this.generateUniqueId(),
+      bboxid: bboxid || this.generateBboxId(),
+      text: text,
+      timestamp: new Date(),
+      context: context,
+      metadata: {
+        compute: false,
+        tools: toolsUsed || [],
+        dataInfo: dataInfo || null
+      },
+      reply: {
+        content: '',
+        status: 'pending',
+        timestamp: null,
+        type: 'text',
+        metadata: {}
+      }
+    }
+  }
+
+  // Generate a unique ID
+  generateUniqueId() {
+    return Date.now().toString(36) + Math.random().toString(36).substr(2)
+  }
+
+  // Generate a bboxid
+  generateBboxId() {
+    return hashObject({
+      timestamp: DateTime.now().toMillis(),
+      random: Math.random()
+    })
+  }
+
+  // Extract tools from question text
+  extractToolsFromText(text) {
+    const toolRegex = /@(\w+)/g
+    const matches = text.match(toolRegex) || []
+    return matches.map(match => match.substring(1)) // Remove the @ symbol
+  }
+
+  // Validate the question
+  validateQuestion(text, toolsUsed) {
+    // Check for empty question
+    if (!text.trim()) {
+      return { isValid: false, message: 'Please enter a question' }
+    }
+
+    // Check for unsupported tools
+    const supportedTools = ['upload', 'library', 'training']
+    const unsupportedTools = toolsUsed.filter(tool => !supportedTools.includes(tool))
+
+    if (unsupportedTools.length > 0) {
+      return {
+        isValid: false,
+        message: `Unsupported tool(s): ${unsupportedTools.join(', ')}. Supported tools: @upload, @library, @training`
+      }
+    }
+
+    return { isValid: true }
+  }
+
+  // Prepare a question for sending to HOP
+  prepareQuestionForHOP(question) {
+    return {
+      type: 'question',
+      data: {
+        text: question.text,
+        context: question.context,
+        // metadata: question.metadata,
+        bboxid: question.bboxid
+      }
+    }
+  }
+
+  // Create a feedback message
+  createFeedbackMessage(message, bboxid) {
+    return {
+      type: 'system',
+      content: message,
+      timestamp: new Date(),
+      bboxid: bboxid || this.generateBboxId()
+    }
+  }
 }
 
 export default ChatUtility
