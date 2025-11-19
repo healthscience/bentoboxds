@@ -151,35 +151,72 @@ export const useChatStore = defineStore('chat', {
       }
       // Handle agent replies
       else if (message.type === 'agent-reply') {
-        console.log('agent reply received:', message)
+        console.log('=== AGENT REPLY RECEIVED ===')
+        console.log('Full message:', JSON.stringify(message, null, 2))
+        console.log('message.bbid:', message.bbid)
         console.log('message.data:', message.data)
         console.log('message.data.text:', message.data?.text)
-        console.log('message.streaming:', message.streaming)
+        console.log('Current chat history length:', this.chatHistory.length)
         
-        // Check if this is explicitly marked as a streaming message
-        const isStreaming = message.streaming === true || message.data?.streaming === true
+        // Extract the text content
+        const textContent = message.data?.text || message.data || ''
         
-        // Find the pending or current streaming message for this bboxid
-        const existingIndex = this.chatHistory.findIndex(
-          msg => msg.type === 'agent' && msg.bboxid === message.bbid && (msg.status === 'pending' || msg.status === 'streaming')
-        )
+        // Find ANY agent message that isn't complete
+        // First try to match by bboxid if available
+        let existingIndex = -1
+        
+        if (message.bbid) {
+          existingIndex = this.chatHistory.findIndex(
+            msg => {
+              console.log(`Checking message: type=${msg.type}, bboxid=${msg.bboxid}, status=${msg.status}`)
+              return msg.type === 'agent' && msg.bboxid === message.bbid && msg.status !== 'complete'
+            }
+          )
+        }
+        
+        // If no match by bboxid, find the most recent pending/streaming agent message
+        if (existingIndex === -1) {
+          // Look for the last agent message that's pending or streaming
+          for (let i = this.chatHistory.length - 1; i >= 0; i--) {
+            const msg = this.chatHistory[i]
+            if (msg.type === 'agent' && (msg.status === 'pending' || msg.status === 'streaming')) {
+              existingIndex = i
+              console.log(`Found pending/streaming message at index ${i}`)
+              break
+            }
+          }
+        }
+        
+        console.log('Existing message index:', existingIndex)
         
         if (existingIndex !== -1) {
-          // Update existing message
-          if (isStreaming) {
-            // For streaming messages, append the new text
+          // Update bboxid if it was null
+          if (!this.chatHistory[existingIndex].bboxid && message.bbid) {
+            this.chatHistory[existingIndex].bboxid = message.bbid
+          }
+          
+          // Check if this looks like a streaming update (single word or partial content)
+          const isPartialContent = textContent.length < 50 && !textContent.includes('.') && !textContent.includes('!')
+          
+          if (isPartialContent || this.chatHistory[existingIndex].status === 'streaming') {
+            // Append to existing content for streaming
+            console.log('Appending streaming content:', textContent)
+            // Add a space between words when appending
+            const currentContent = this.chatHistory[existingIndex].content || ''
+            const needsSpace = currentContent.length > 0 && !currentContent.endsWith(' ') && textContent.length > 0
             this.chatHistory[existingIndex] = {
               ...this.chatHistory[existingIndex],
-              content: (this.chatHistory[existingIndex].content || '') + (message.data.text || ''),
+              content: currentContent + (needsSpace ? ' ' : '') + textContent,
               status: 'streaming',
               timestamp: new Date(),
               metadata: message.metadata || {}
             }
           } else {
-            // For complete messages, replace the entire content
+            // Replace content for complete messages
+            console.log('Setting complete content:', textContent)
             this.chatHistory[existingIndex] = {
               ...this.chatHistory[existingIndex],
-              content: message.data.text || message.data || '',
+              content: textContent,
               status: 'complete',
               timestamp: new Date(),
               metadata: message.metadata || {}
@@ -189,15 +226,17 @@ export const useChatStore = defineStore('chat', {
           // Notify subscribers about the update
           this.notifySubscribers({ type: 'messageUpdate', payload: this.chatHistory[existingIndex] }, this.$state)
         } else {
-          // If no existing message found, this shouldn't happen in normal flow
-          // but we'll handle it just in case
-          console.warn('No pending message found for agent reply, creating new message')
+          // This really shouldn't happen - it means we got an agent reply without a pending message
+          console.error('ERROR: No existing agent message found for bbid:', message.bbid)
+          console.error('Current chat history:', this.chatHistory)
+          
+          // Create a new message as fallback
           const aiMessage = {
             type: 'agent',
-            content: message.data.text || message.data || '',
+            content: textContent,
             timestamp: new Date(),
             bboxid: message.bbid,
-            status: isStreaming ? 'streaming' : 'complete',
+            status: 'streaming',
             messageType: message.messageType || 'response',
             metadata: message.metadata || {},
             context: message.context
