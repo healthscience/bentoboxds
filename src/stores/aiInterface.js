@@ -428,15 +428,28 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       console.log('send message to HOP')
       console.log(aiMessageout)
       this.storeChat.beginChat = true
-      // Call handleIncomingMessage to update chat history with the peer question
-      this.storeChat.handleIncomingMessage({
-      type: 'peer-question',
-      data: question.text,
-      context: question.context,
-      bbid: hashQuestion,
-      timestamp: new Date(),
-      tools: question.tools || []
-    })
+      
+      // Create and store the question
+      const chatMessage = {
+        type: 'peer',
+        content: question.text,
+        timestamp: new Date(),
+        bboxid: hashQuestion,
+        tools: question.metadata.tools || [],
+        context: question.context,
+        reply: {
+          type: 'agent',
+          content: "",
+          status: "pending",
+          timestamp: null,
+          messageType: "text",
+          metadata: {}
+        }
+      }
+
+      // Add the message to chat history
+      this.storeChat.addMessage(chatMessage)
+
       this.sendSocket.send_message(aiMessageout)
       this.helpchatHistory.push(aiMessageout)
       this.qcount++
