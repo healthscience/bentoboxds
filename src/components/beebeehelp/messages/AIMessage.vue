@@ -13,10 +13,10 @@
           <chart-message v-else-if="messageData.type === 'hopquery' || messageData.type === 'experiment' || messageData.type === 'network-library-n1'" :message="messageData"></chart-message>
           <system-message v-else-if="messageData.action === 'agent-response' || messageData.action === 'hop-learn-feedback'" :message="messageData"></system-message>
           <div v-else-if="messageData.type === 'bbai-reply'">
-          <div v-if="message?.action === 'hello'">
-            {{ message.data }}
-          </div>
-          <div v-if="message.data?.type !== 'library-peerlibrary'">
+            <div v-if="message?.action === 'hello'">
+              {{ message.data }}
+            </div>
+            <div v-if="message.data?.type !== 'library-peerlibrary'">
             <div class="beeebee-text">
               {{ message?.data?.text}} - {{ message.data?.type }}
               </div>
@@ -80,10 +80,11 @@
                   </div>
                 </div>
               </div>
+            </div>
           </div>
+          <chart-message v-else :message="message"></chart-message>
         </div>
       </div>
-      <chart-message v-else :message="message"></chart-message>
     </div>
     <div class="beebee">
       <img class="right-chat-beebee" src="../../../assets/logo.png" alt="bbAI">
