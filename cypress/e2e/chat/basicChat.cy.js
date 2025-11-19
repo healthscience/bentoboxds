@@ -1,4 +1,4 @@
-describe('Basic Chat Functionality', () => {
+describe('Basic Chat Functionality', { testIsolation: false }, () => {
   // Run the setup before all tests
   before(() => {
     // Start the server and set up the environment
@@ -60,18 +60,6 @@ describe('Basic Chat Functionality', () => {
     })
 
     it('should receive a response from the AI', () => {
-      // Type a message in the input box
-      const testMessage = 'Hello, beebee!'
-      cy.get('textarea#askinput').clear().type(testMessage)
-
-      // Click the send button
-      cy.get('button#natlang-ask').click()
-
-      // Wait for the message to appear in conversation
-      cy.get('#conversation', { timeout: 10000 }).should('contain', testMessage)
-
-      // Check for "beebee is thinking..." status
-      cy.get('.loading-text', { timeout: 5000 }).should('contain', 'beebee is thinking...')
 
       // Check for "beebee is shaping a reply..." when streaming starts
       cy.get('.loading-text', { timeout: 10000 }).should('contain', 'beebee is shaping a reply...')

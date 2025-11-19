@@ -25,7 +25,7 @@
                   <span></span>
                   <span></span>
                 </div>
-                <span class="loading-text">beebee is thinking...</span>
+                <span class="loading-text">beebee is shaping a reply...</span>
               </div>
             </div>
             <!-- Show streaming indicator if message is streaming but empty -->
