@@ -225,6 +225,7 @@ class ChatUtility {
     return {
       id: this.generateUniqueId(),
       bboxid: bboxid || this.generateBboxId(),
+      type: 'peer',
       text: text,
       timestamp: new Date(),
       context: context,
