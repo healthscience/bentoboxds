@@ -25,7 +25,7 @@
                   <span></span>
                   <span></span>
                 </div>
-                <span class="loading-text">BeeBee is thinking...</span>
+                <span class="loading-text">beebee shaping reply...</span>
               </div>
             </div>
             <!-- Show actual message content -->
