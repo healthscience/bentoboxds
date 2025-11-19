@@ -10,7 +10,7 @@
               :message="message"
               :timestamp="message.timestamp"
               :bboxid="message.bboxid"
-              :tools="message.tools"
+              :tools="message.metadata?.tools || message.tools"
             ></peer-message>
           </div>
 
