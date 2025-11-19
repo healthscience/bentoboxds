@@ -499,13 +499,19 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     processStreamReply (received) {
       console.log('stream reply from beebee')
       console.log(received)
+      console.log('received.data:', received.data)
       if (received.type === 'bbai-stream-reply') {
         const chatStore = useChatStore()
+        // Check if this is just a text token or a structured message
+        const messageData = typeof received.data === 'string' 
+          ? { text: received.data }
+          : received.data
+          
         chatStore.handleIncomingMessage({
           type: 'agent-reply',
           bbid: received.bbid,
-          data: received.data,
-          status: received.status || 'completed',
+          data: messageData,
+          status: received.status || 'streaming',
           messageType: received.messageType || 'response',
           metadata: received.metadata || {},
           context: received.context
