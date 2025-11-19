@@ -306,9 +306,9 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         // 7. Update the chat history
         this.updateChatHistory(chat, context)
         console.log(this.historyPair)
-        // 8. Add the question to the chat store
+        // 8. Get the chat store reference (question will be added by actionAgentQuestion)
         const chatStore = useChatStore()
-        chatStore.addMessage(question)
+        // Note: Don't add question here - it's added in actionAgentQuestion to avoid duplicates
 
         // 9. Prepare the question for HOP
         const hopQuestion = this.liveChatUtil.prepareQuestionForHOP(question)
