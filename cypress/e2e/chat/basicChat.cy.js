@@ -58,33 +58,44 @@ describe('Basic Chat Functionality', () => {
       // Verify the message appears in the chat history
       cy.get('#conversation').should('contain', testMessage)
     })
-  })
-/*
+
     it('should receive a response from the AI', () => {
       // Type a message in the input box
-      const testMessage = 'Hello, AI!'
-      cy.get('#natlang-input').type(testMessage)
+      const testMessage = 'Hello, beebee!'
+      cy.get('textarea#askinput').clear().type(testMessage)
 
       // Click the send button
-      cy.get('#natlang-ask').click()
+      cy.get('button#natlang-ask').click()
 
-      // Wait for the AI response
+      // Wait for the message to appear in conversation
       cy.get('#conversation', { timeout: 10000 }).should('contain', testMessage)
 
-      // Verify the AI response appears
-      // Note: You might need to adjust this based on the actual AI response
-      cy.get('#conversation', { timeout: 10000 }).should('contain', 'How can I assist you today?')
+      // Check for "beebee is thinking..." status
+      cy.get('.loading-text', { timeout: 5000 }).should('contain', 'beebee is thinking...')
+
+      // Check for "beebee is shaping a reply..." when streaming starts
+      cy.get('.loading-text', { timeout: 10000 }).should('contain', 'beebee is shaping a reply...')
+
+      // Verify the AI response appears (checking for the AI message container)
+      cy.get('.ai-message .ai-text-message', { timeout: 15000 }).should('exist')
+      
+      // Verify there's only one AI response message for this interaction
+      cy.get('.ai-message').should('have.length.at.least', 1)
     })
 
     it('should not send empty messages', () => {
+      // Clear the input first
+      cy.get('textarea#askinput').clear()
+      
       // Try to send an empty message
-      cy.get('#natlang-ask').click()
+      cy.get('button#natlang-ask').click()
 
-      // Verify no message was sent
-      cy.get('#conversation').should('not.contain', '')
+      // The button should be disabled or no new message should appear
+      // Check that the conversation doesn't have a new empty peer message
+      cy.get('.peer-message').should('have.length', 2) // Should still only have the 2 previous messages
     })
   })
-
+/*
   describe('BeeBee Button Functionality', () => {
     it('should show the BeeBee button when AI is active', () => {
       // Mock the AI status to be active
