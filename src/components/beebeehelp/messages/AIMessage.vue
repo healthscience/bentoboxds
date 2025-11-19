@@ -1,13 +1,18 @@
 <template>
-  <div class="beebee-reply">rrr {{ message }}
-    <span class="right-time">{{ message.timestamp }}</span>rrr
+  <div class="beebee-reply">
+    <span class="right-time">{{ formattedTime }}</span>
     <div class="reply-text-chart">
-      <div class="right-chat" v-if="message.type !== undefined">
-        {{ message.action }}
-        <tool-message v-if="message.type === 'upload' || message.type === 'library-peerlibrary' || message.action === 'library'" :message="message"></tool-message>
-        <chart-message v-else-if="message.type === 'hopquery' || message.type === 'experiment' || message.type === 'network-library-n1'" :message="message"></chart-message>
-        <system-message v-else-if="message.action === 'agent-response' || message.action === 'hop-learn-feedback'" :message="message"></system-message>
-        <div v-else-if="message.type === 'bbai-reply'">
+      <div class="right-chat" v-if="messageData">
+        <!-- Simple text message -->
+        <div v-if="isSimpleTextMessage" class="ai-text-message">
+          {{ messageContent }}
+        </div>
+        <!-- Complex message types -->
+        <div v-else-if="messageData.type !== undefined">
+          <tool-message v-if="messageData.type === 'upload' || messageData.type === 'library-peerlibrary' || messageData.action === 'library'" :message="messageData"></tool-message>
+          <chart-message v-else-if="messageData.type === 'hopquery' || messageData.type === 'experiment' || messageData.type === 'network-library-n1'" :message="messageData"></chart-message>
+          <system-message v-else-if="messageData.action === 'agent-response' || messageData.action === 'hop-learn-feedback'" :message="messageData"></system-message>
+          <div v-else-if="messageData.type === 'bbai-reply'">
           <div v-if="message?.action === 'hello'">
             {{ message.data }}
           </div>
@@ -100,7 +105,7 @@ import ChartMessage from '@/components/beebeehelp/messages/ChartMessage.vue'
 import SystemMessage from '@/components/beebeehelp/messages/SystemMessage.vue'
 
 const props = defineProps({
-  message: String,
+  message: [String, Object],
   timestamp: Date,
   bboxid: String,
   status: String,
@@ -108,8 +113,35 @@ const props = defineProps({
   metadata: Object
 })
 
+const messageData = computed(() => {
+  if (typeof props.message === 'string') {
+    return { content: props.message }
+  }
+  return props.message || {}
+})
 
-console.log('AIMessage props:', props) // Add this line
+const messageContent = computed(() => {
+  if (typeof props.message === 'string') {
+    return props.message
+  }
+  if (props.message && typeof props.message === 'object') {
+    return props.message.content || props.message.text || props.message.data?.text || ''
+  }
+  return ''
+})
+
+const isSimpleTextMessage = computed(() => {
+  return typeof props.message === 'string' || 
+         (props.message && !props.message.type && !props.message.action)
+})
+
+const formattedTime = computed(() => {
+  if (props.timestamp) {
+    const date = new Date(props.timestamp)
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  }
+  return ''
+})
 
 
 const storeAI = aiInterfaceStore()
@@ -212,5 +244,13 @@ const choicedeviceEvent = () => {
 .file-feedback-csv {
   display: grid;
   grid-template-columns: 1fr;
+}
+
+.ai-text-message {
+  padding: 10px 15px;
+  background-color: #f8f8f8;
+  border-radius: 18px;
+  margin: 5px 0;
+  word-wrap: break-word;
 }
 </style>

@@ -1,13 +1,13 @@
 <template>
-  <div id="chat-interface">check--{{ chatHistory[0] }}
+  <div id="chat-interface">
     <welcome-beebee v-if="beginChat === false"></welcome-beebee>
     <div id="natlang-ai">
       <div id="conversation">
-        <div v-for="(message, index) in chatHistory" :key="index">piii--{{ message }}  {{ index }}
+        <div v-for="(message, index) in chatHistory" :key="index">
           <!-- Peer message -->
-          <div v-if="message.type !== 'peer'" class="peer-message">
+          <div v-if="message.type === 'peer'" class="peer-message">
             <peer-message
-              :message="message.text"
+              :message="message"
               :timestamp="message.timestamp"
               :bboxid="message.bboxid"
               :tools="message.tools"
@@ -16,7 +16,21 @@
 
           <!-- AI message with streaming support -->
           <div v-else-if="message.type === 'agent'" class="ai-message">
+            <!-- Show loading indicator if message is pending -->
+            <div v-if="message.status === 'pending'" class="ai-loading">
+              <img class="loading-beebee" src="../../../assets/logo.png" alt="bbAI">
+              <div class="loading-content">
+                <div class="typing-indicator">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+                <span class="loading-text">BeeBee is thinking...</span>
+              </div>
+            </div>
+            <!-- Show actual message content -->
             <agent-message
+              v-else
               :message="message.content"
               :timestamp="message.timestamp"
               :bboxid="message.bboxid"
@@ -196,6 +210,66 @@ defineExpose({
   0% { opacity: 0; }
   50% { opacity: 1; }
   100% { opacity: 0; }
+}
+
+.ai-loading {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: #f0f0f0;
+  border-radius: 18px;
+  margin: 10px 0;
+}
+
+.loading-beebee {
+  width: 40px;
+  height: 40px;
+  margin-right: 10px;
+}
+
+.loading-content {
+  display: flex;
+  align-items: center;
+}
+
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
+}
+
+.typing-indicator span {
+  height: 8px;
+  width: 8px;
+  background-color: #666;
+  border-radius: 50%;
+  display: inline-block;
+  margin: 0 2px;
+  animation: typing 1.4s infinite;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes typing {
+  0%, 60%, 100% {
+    transform: translateY(0);
+    opacity: 0.7;
+  }
+  30% {
+    transform: translateY(-10px);
+    opacity: 1;
+  }
+}
+
+.loading-text {
+  color: #666;
+  font-size: 0.9em;
 }
 
     .chat-input {

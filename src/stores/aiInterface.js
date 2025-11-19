@@ -15,7 +15,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
   state: () => ({
     storeAcc: accountStore(),
     sendSocket: useSocketStore(),
-    storeChat: useChatStore(),
+    storeChat: null, // Will be initialized in actions to avoid circular dependency
     storeCues: cuesStore(),
     storeBentoBox: bentoboxStore(),
     storeLibrary: libraryStore(),
@@ -442,37 +442,56 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.qcount++
     },
     actionHelpAskInput () {
-      // match question
-      let matchQuestion = {}
-      for (let inquest of this.inputAskHistory) {
-        if (inquest.count == this.qcount) {
-          matchQuestion = inquest
-        } else {
-        }
-      }
-      if (matchQuestion.text.length > 0) {
-        let hashQuestion = hashObject(matchQuestion)
+      // Get the question text
+      const questionText = this.askQuestion.text.trim()
+      
+      if (questionText.length > 0) {
+        // Extract tools from the question
+        const tools = this.extractToolsFromQuestion(questionText)
+        
+        // Add user question to chat history
+        const chatStore = useChatStore()
+        const userMessage = chatStore.addUserQuestion(questionText, tools)
+        
+        // Create message for HOP
+        let saveQ = {}
+        saveQ.count = this.qcount
+        saveQ.text = questionText
+        saveQ.compute = this.askQuestion.compute
+        saveQ.active = true
+        let date = new Date()
+        saveQ.time = date.toLocaleTimeString()
+        
+        this.inputAskHistory.push(saveQ)
+        
+        let hashQuestion = hashObject(saveQ)
         let aiMessageout = {}
         aiMessageout.type = 'bbai'
         aiMessageout.reftype = 'ignore'
         aiMessageout.action = 'question'
-        aiMessageout.data = matchQuestion
+        aiMessageout.data = saveQ
         aiMessageout.bbid = hashQuestion
+        
         // keep track of time and any feedback from beebee agents
         this.trackAgentProgress(hashQuestion)
+        
+        // Send to HOP
         this.sendSocket.send_message(aiMessageout)
         this.helpchatHistory.push(aiMessageout)
+        
+        // Clear the input
         this.askQuestion.text = ''
         this.qcount++
       } else {
-        // local AI
-        let date = new Date()
-        // get the time as a string
-        let time = date.toLocaleTimeString()
-        this.beebeeReply.text = 'beebee is not connected'
-        this.beebeeReply.time = time
-        this.beebeeReply.active = false
+        // No question entered
+        console.log('No question text entered')
       }
+    },
+    
+    extractToolsFromQuestion(text) {
+      const toolRegex = /@(\w+)/g
+      const matches = text.match(toolRegex) || []
+      return matches.map(match => match.substring(1))
     },
     processStreamReply (received) {
       console.log('stream reply from beebee')

@@ -1,9 +1,9 @@
 <template>
-  <div class="peer-ask">ppp--
+  <div class="peer-ask">
     <img class="left-chat-peer" src="../../../assets/peerlogo.png" alt="Avatar">
-    <div v-if="message" class="peer-message-container">
+    <div v-if="messageContent" class="peer-message-container">
       <div class="peer-message-bubble">
-        <p>{{ message }}</p>
+        <p>{{ messageContent }}</p>
         <div v-if="tools && tools.length > 0" class="tools-used">
           <span v-for="tool in tools" :key="tool" class="tool-tag">@{{ tool }}</span>
         </div>
@@ -17,20 +17,27 @@
 import { computed } from 'vue'
 
 const props = defineProps({
-  message: Object,
+  message: [String, Object],
+  timestamp: Date,
+  bboxid: String,
   tools: {
     type: Array,
     default: () => []
   }
 })
 
-
-console.log(' peer  Message props:', props) // Add this line
-
+const messageContent = computed(() => {
+  if (typeof props.message === 'string') {
+    return props.message
+  } else if (props.message && typeof props.message === 'object') {
+    return props.message.text || props.message.content || ''
+  }
+  return ''
+})
 
 const formattedTime = computed(() => {
-  if (props.message.time) {
-    const date = new Date(props.message.data.time)
+  if (props.timestamp) {
+    const date = new Date(props.timestamp)
     return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   }
   return ''
