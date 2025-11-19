@@ -25,7 +25,19 @@
                   <span></span>
                   <span></span>
                 </div>
-                <span class="loading-text">beebee shaping reply...</span>
+                <span class="loading-text">beebee is thinking...</span>
+              </div>
+            </div>
+            <!-- Show streaming indicator if message is streaming but empty -->
+            <div v-else-if="message.status === 'streaming' && !message.content" class="ai-loading">
+              <img class="loading-beebee" src="../../../assets/logo.png" alt="bbAI">
+              <div class="loading-content">
+                <div class="typing-indicator">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+                <span class="loading-text">beebee is shaping a reply...</span>
               </div>
             </div>
             <!-- Show actual message content -->
@@ -38,7 +50,7 @@
               :message-type="message.messageType"
               :metadata="message.metadata"
             ></agent-message>
-            <div v-if="message.streaming" class="streaming-indicator">...</div>
+            <div v-if="message.status === 'streaming' && message.content" class="streaming-indicator">...</div>
           </div>
 
           <!-- System message -->
