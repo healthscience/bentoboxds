@@ -153,6 +153,19 @@ export const useChatStore = defineStore('chat', {
       else if (message.type === 'agent-reply') {
         console.log('=== AGENT REPLY RECEIVED ===')
         console.log('Full message:', JSON.stringify(message, null, 2))
+        
+        // Check if this is actually a token message wrapped in agent-reply
+        if (message.data?.type === 'token') {
+          console.log('This is a token message wrapped in agent-reply, redirecting...')
+          // Redirect to token handler with proper structure
+          this.handleIncomingMessage({
+            type: 'token',
+            data: message.data.data,
+            bbid: message.data.bboxid || message.bbid
+          })
+          return
+        }
+        
         console.log('message.bbid:', message.bbid)
         console.log('message.data:', message.data)
         console.log('message.data.text:', message.data?.text)
@@ -256,20 +269,44 @@ export const useChatStore = defineStore('chat', {
       // Handle streaming tokens
       else if (message.type === 'token') {
         console.log('=== TOKEN MESSAGE RECEIVED ===')
+        console.log('Full token message:', message)
         console.log('Token data:', message.data)
+        console.log('Token bbid:', message.bbid)
         
         // Find the most recent pending/streaming agent message
         let targetIndex = -1
-        for (let i = this.chatHistory.length - 1; i >= 0; i--) {
-          const msg = this.chatHistory[i]
-          if (msg.type === 'agent' && (msg.status === 'pending' || msg.status === 'streaming')) {
-            targetIndex = i
-            break
+        
+        // First try to find by bbid if available
+        if (message.bbid) {
+          for (let i = this.chatHistory.length - 1; i >= 0; i--) {
+            const msg = this.chatHistory[i]
+            if (msg.type === 'agent' && msg.bboxid === message.bbid && (msg.status === 'pending' || msg.status === 'streaming')) {
+              targetIndex = i
+              console.log(`Found message by bbid at index ${i}`)
+              break
+            }
+          }
+        }
+        
+        // If not found by bbid, find the most recent pending/streaming message
+        if (targetIndex === -1) {
+          for (let i = this.chatHistory.length - 1; i >= 0; i--) {
+            const msg = this.chatHistory[i]
+            if (msg.type === 'agent' && (msg.status === 'pending' || msg.status === 'streaming')) {
+              targetIndex = i
+              console.log(`Found pending/streaming message at index ${i}`)
+              break
+            }
           }
         }
         
         if (targetIndex !== -1) {
-          // Extract text from token data
+          // Update bbid if it was null
+          if (!this.chatHistory[targetIndex].bboxid && message.bbid) {
+            this.chatHistory[targetIndex].bboxid = message.bbid
+          }
+          
+          // Extract text from token data - it should be a simple string
           let tokenText = ''
           if (typeof message.data === 'string') {
             tokenText = message.data
@@ -279,9 +316,15 @@ export const useChatStore = defineStore('chat', {
             tokenText = message.data.content
           }
           
+          console.log('Token text to append:', tokenText)
+          
           // Append token to existing message
           const currentContent = this.chatHistory[targetIndex].content || ''
-          const needsSpace = currentContent.length > 0 && !currentContent.endsWith(' ') && tokenText.length > 0
+          // Don't add space before punctuation
+          const needsSpace = currentContent.length > 0 && 
+                           !currentContent.endsWith(' ') && 
+                           tokenText.length > 0 &&
+                           !tokenText.match(/^[.,!?;:]/)
           
           this.chatHistory[targetIndex] = {
             ...this.chatHistory[targetIndex],
@@ -290,10 +333,13 @@ export const useChatStore = defineStore('chat', {
             timestamp: new Date()
           }
           
+          console.log('Updated message content:', this.chatHistory[targetIndex].content)
+          
           // Notify subscribers
           this.notifySubscribers({ type: 'messageUpdate', payload: this.chatHistory[targetIndex] }, this.$state)
         } else {
           console.error('No pending/streaming message found for token')
+          console.error('Current chat history:', this.chatHistory)
         }
       }
       // Handle end of streaming
