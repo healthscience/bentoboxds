@@ -123,7 +123,7 @@ export const useChatStore = defineStore('chat', {
         // Construct peer message structure
         const peerMessage = {
           type: 'peer',
-          content: message.text,
+          content: message.data || message.text,
           timestamp: new Date(),
           bboxid: message.bbid,
           tools: message.tools || [],
@@ -152,28 +152,46 @@ export const useChatStore = defineStore('chat', {
       // Handle agent replies
       else if (message.type === 'agent-reply') {
         console.log('agent reply received:', message)
+        console.log('message.data:', message.data)
+        console.log('message.data.text:', message.data?.text)
         
-        // Find and update the pending message
-        const pendingIndex = this.chatHistory.findIndex(
-          msg => msg.type === 'agent' && msg.status === 'pending'
+        // Check if this is a streaming message
+        const isStreaming = message.data && message.data.text && !message.data.text.includes('\n') && message.data.text.split(' ').length <= 2
+        
+        // Find the pending or current streaming message for this bboxid
+        const existingIndex = this.chatHistory.findIndex(
+          msg => msg.type === 'agent' && msg.bboxid === message.bbid && (msg.status === 'pending' || msg.status === 'streaming')
         )
         
-        if (pendingIndex !== -1) {
-          this.chatHistory[pendingIndex] = {
-            ...this.chatHistory[pendingIndex],
-            content: message.data.text,
-            status: 'complete',
-            timestamp: new Date(),
-            metadata: message.metadata || {}
+        if (existingIndex !== -1) {
+          // Update existing message
+          if (isStreaming) {
+            // Append to existing content for streaming
+            this.chatHistory[existingIndex] = {
+              ...this.chatHistory[existingIndex],
+              content: (this.chatHistory[existingIndex].content || '') + (message.data.text || ''),
+              status: 'streaming',
+              timestamp: new Date(),
+              metadata: message.metadata || {}
+            }
+          } else {
+            // Replace content for complete messages
+            this.chatHistory[existingIndex] = {
+              ...this.chatHistory[existingIndex],
+              content: message.data.text,
+              status: 'complete',
+              timestamp: new Date(),
+              metadata: message.metadata || {}
+            }
           }
         } else {
-          // If no pending message found, add new one
+          // If no existing message found, add new one
           const aiMessage = {
             type: 'agent',
-            content: message.data.text,
+            content: message.data.text || '',
             timestamp: new Date(),
             bboxid: message.bbid,
-            status: 'complete',
+            status: isStreaming ? 'streaming' : 'complete',
             messageType: message.messageType || 'response',
             metadata: message.metadata || {},
             context: message.context
