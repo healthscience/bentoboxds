@@ -102,6 +102,7 @@ import ImagePreview from '@/components/dataspace/upload/imagePreview.vue'
 import DescribeDatastructure from '@/components/library/contracts/contribute/forms/packaging/describeSourceStructure.vue'
 import DescribeDevicestructure from '@/components/library/contracts/contribute/forms/packaging/describeDeviceStructure.vue'
 import ToolMessage from '@/components/beebeehelp/messages/ToolMessage.vue'
+import { computed } from 'vue'
 import ChartMessage from '@/components/beebeehelp/messages/ChartMessage.vue'
 import SystemMessage from '@/components/beebeehelp/messages/SystemMessage.vue'
 
