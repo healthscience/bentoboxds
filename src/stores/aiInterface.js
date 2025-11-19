@@ -15,7 +15,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
   state: () => ({
     storeAcc: accountStore(),
     sendSocket: useSocketStore(),
-    storeChat: null, // Will be initialized in actions to avoid circular dependency
+    // storeChat removed - using useChatStore() directly in actions to avoid circular dependency
     storeCues: cuesStore(),
     storeBentoBox: bentoboxStore(),
     storeLibrary: libraryStore(),
@@ -268,7 +268,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           console.log('feedback local')
           // Provide feedback to the peer
           const feedbackMessage = this.liveChatUtil.createFeedbackMessage(validationResult.message)
-          this.storeChat.addMessage(feedbackMessage)
+          const chatStore = useChatStore()
+          chatStore.addMessage(feedbackMessage)
           return
         }
 
@@ -306,7 +307,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         this.updateChatHistory(chat, context)
         console.log(this.historyPair)
         // 8. Add the question to the chat store
-        this.storeChat.addMessage(question)
+        const chatStore = useChatStore()
+        chatStore.addMessage(question)
 
         // 9. Prepare the question for HOP
         const hopQuestion = this.liveChatUtil.prepareQuestionForHOP(question)
@@ -336,7 +338,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         const errorMessage = this.liveChatUtil.createFeedbackMessage(
           'An error occurred while processing your question. Please try again.'
         )
-        this.storeChat.addMessage(errorMessage)
+        chatStore.addMessage(errorMessage)
       }
   },
   // Helper functions
@@ -427,9 +429,10 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.trackAgentProgress(hashQuestion)
       console.log('send message to HOP')
       console.log(aiMessageout)
-      this.storeChat.beginChat = true
+      const chatStore = useChatStore()
+      chatStore.beginChat = true
       // Call handleIncomingMessage to update chat history with the peer question
-      this.storeChat.handleIncomingMessage({
+      chatStore.handleIncomingMessage({
       type: 'peer-question',
       data: question.text,
       context: question.context,
@@ -497,7 +500,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       console.log('stream reply from beebee')
       console.log(received)
       if (received.type === 'bbai-stream-reply') {
-        this.storeChat.handleIncomingMessage({
+        const chatStore = useChatStore()
+        chatStore.handleIncomingMessage({
           type: 'agent-reply',
           bbid: received.bbid,
           data: received.data,
@@ -636,7 +640,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         reply.network = true
         pairBB.reply = reply
         this.historyPair[this.chatAttention].push(pairBB)
-        this.storeChat.beginChat = true
+        const chatStore = useChatStore()
+        chatStore.beginChat = true
         this.chatBottom++
       } else if (received.action === 'warm-peer-connect') {
         // set via account store - just add to notify list here.
@@ -727,7 +732,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       reply.network = true
       pairBB.reply = reply
       this.historyPair[this.chatAttention].push(pairBB)
-      this.storeChat.beginChat = true
+      const chatStore = useChatStore()
+      chatStore.beginChat = true
       this.chatBottom++
     },
     prepareCuespace (notItem) {
