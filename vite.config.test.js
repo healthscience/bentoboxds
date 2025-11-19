@@ -1,0 +1,59 @@
+import { fileURLToPath, URL } from 'node:url'
+import { resolve, dirname } from 'node:path'
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
+import wasm from "vite-plugin-wasm";
+import topLevelAwait from "vite-plugin-top-level-await";
+import { VitePWA } from 'vite-plugin-pwa'
+// Removed basicSsl for testing
+
+// https://vitejs.dev/config/
+export default defineConfig({
+  base: "/",
+  server: {
+    https: false,  // Disable HTTPS for testing
+    port: 5173,
+    host: '0.0.0.0',
+    strictPort: false
+  },
+  define: {
+    // enable hydration mismatch details in production build
+    __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'true'
+  },
+  plugins: [
+    vue(),
+    wasm(),
+    VueI18nPlugin({
+      include: resolve(dirname(fileURLToPath(import.meta.url)), './src/i18n/locales/**'),
+    }),
+    topLevelAwait(),
+    // basicSsl() removed for testing
+    VitePWA({
+      mode: "development",
+      registerType: 'autoUpdate',
+      devOptions: {
+        enabled: false
+      },
+      includeAssets: ['favicon.ico', 'logo-512x512.png'],
+      manifest: {
+        name: 'BentoBox-DS',
+        short_name: 'BB-DS',
+        description: 'BentoBoxDS - Sovereign intelligences that shapes health',
+        theme_color: '#ffffff',
+        icons: [
+          {
+            src: 'logo-512x512.png',
+            sizes: '512x512',
+            type: 'image/png'
+          }
+        ]
+      }
+    })
+  ],
+  resolve: {
+    alias: {
+      '@': fileURLToPath(new URL('./src', import.meta.url))
+    }
+  }
+})

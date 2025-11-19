@@ -315,7 +315,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         console.log('HOP format quetion')
         console.log(hopQuestion)
         // 10. Send the question to HOP for processing
-        await this.actionAgentQuestion(hopQuestion)
+        await this.actionAgentQuestion(hopQuestion, question)
 
         // 11. Clear the input for the next question
         this.askQuestion.text = ''
@@ -416,15 +416,15 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.askQuestion.text = ''
       this.qcount++      
     },
-    actionAgentQuestion (question) {
+    actionAgentQuestion (hopQuestion, originalQuestion) {
       console.log('action agent question in')
-      console.log(question)
-      let hashQuestion = hashObject(question)
+      console.log(hopQuestion)
+      let hashQuestion = hashObject(hopQuestion)
       let aiMessageout = {}
       aiMessageout.type = 'bbai'
       aiMessageout.reftype = 'ignore'
       aiMessageout.action = 'question'
-      aiMessageout.data = question
+      aiMessageout.data = hopQuestion
       aiMessageout.bbid = hashQuestion
       this.trackAgentProgress(hashQuestion)
       console.log('send message to HOP')
@@ -432,13 +432,18 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       const chatStore = useChatStore()
       chatStore.beginChat = true
       // Call handleIncomingMessage to update chat history with the peer question
+      // Use original question if provided, otherwise extract from hopQuestion
+      const questionText = originalQuestion ? originalQuestion.text : hopQuestion.data.text
+      const questionContext = originalQuestion ? originalQuestion.context : hopQuestion.data.context
+      const questionTools = originalQuestion ? (originalQuestion.metadata?.tools || []) : []
+      
       chatStore.handleIncomingMessage({
       type: 'peer-question',
-      data: question.text,
-      context: question.context,
+      data: questionText,
+      context: questionContext,
       bbid: hashQuestion,
       timestamp: new Date(),
-      tools: question.tools || []
+      tools: questionTools
     })
       this.sendSocket.send_message(aiMessageout)
       this.helpchatHistory.push(aiMessageout)
