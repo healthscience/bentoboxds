@@ -48,6 +48,17 @@
           </button>
          <beebee-ai></beebee-ai>
         </div>
+        
+        <!-- Intervention Toolbar -->
+        <intervention-toolbar 
+          ref="interventionToolbarRef"
+          :show="showInterventionToolbar"
+          @close="closeInterventionToolbar"
+          @select-intervention="handleInterventionSelect"
+          @edit="handleInterventionEdit"
+          @delete="handleInterventionDelete"
+          @link-cycle="handleLinkCycle"
+        />
       </template>
       <template #footer>
         Besearch
@@ -59,6 +70,7 @@
 <script setup>
 import peerLogo from '@/assets/peerlogo.png'
 import LifeTools from '@/components/besearch/lifetools/lifeNavtools.vue'
+import InterventionToolbar from '@/components/besearch/interventionToolbar.vue'
 import beeCycle from '@/assets/besearch-cycle.png'
 import { ref, computed, onMounted } from 'vue'
 import BeebeeAi from '@/components/beebeehelp/spaceChat.vue'
@@ -89,6 +101,10 @@ const peerImage = ref(null)
 const isDragging = ref(false)
 const startX = ref(0)
 const currentX = ref(0)
+
+// Intervention toolbar refs
+const showInterventionToolbar = ref(false)
+const interventionToolbarRef = ref(null)
 
 // Add these variables to your existing refs
 const peer = ref({
@@ -157,37 +173,52 @@ onMounted(() => {
     updateCanvas()
   }
 
-  const handlePeerIntervention = (interventionType) => {
-    console.log('Intervention selected:', interventionType)
+  const handlePeerIntervention = (event) => {
+    console.log('Intervention event:', event)
     
-    // Handle different intervention types
-    switch(interventionType) {
-      case 'prevention':
-        console.log('Opening prevention interventions')
-        // Show prevention interventions panel
-        break
-      case 'repair':
-        console.log('Opening repair interventions')
-        // Show repair interventions panel
-        break
-      case 'rejuvenation':
-        console.log('Opening rejuvenation interventions')
-        // Show rejuvenation interventions panel
-        break
-      case 'create-new':
-        console.log('Creating new intervention')
-        // Open intervention creation form
-        break
-      case 'manage':
-        console.log('Managing interventions')
-        // Open intervention management panel
-        break
-      default:
-        console.log('Unknown intervention type:', interventionType)
+    if (event.type === 'select' && event.intervention) {
+      // When a specific intervention is selected from the list
+      showInterventionToolbar.value = true
+      interventionToolbarRef.value?.showIntervention(event.intervention)
+    } else if (event.type === 'create') {
+      // Handle create new intervention
+      console.log('Creating new intervention')
+    } else if (typeof event === 'string') {
+      // When a category is clicked
+      const categories = ['prevention', 'repair', 'rejuvenation']
+      if (categories.includes(event)) {
+        showInterventionToolbar.value = true
+        interventionToolbarRef.value?.showCategory(event)
+      }
     }
 
     // Update canvas to show intervention effect
     updateCanvas()
+  }
+
+  // Intervention toolbar handlers
+  const closeInterventionToolbar = () => {
+    showInterventionToolbar.value = false
+  }
+
+  const handleInterventionSelect = (intervention) => {
+    console.log('Intervention selected:', intervention)
+    // Handle intervention selection
+  }
+
+  const handleInterventionEdit = (intervention) => {
+    console.log('Edit intervention:', intervention)
+    // Handle intervention edit
+  }
+
+  const handleInterventionDelete = (intervention) => {
+    console.log('Delete intervention:', intervention)
+    // Handle intervention delete
+  }
+
+  const handleLinkCycle = (intervention) => {
+    console.log('Link intervention to cycle:', intervention)
+    // Handle linking intervention to besearch cycle
   }
 
   // Add this new function to draw the peer

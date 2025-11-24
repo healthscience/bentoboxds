@@ -53,26 +53,80 @@
     </div>
     <div id="interventions">
       <h3>Interventions</h3>
-      <div class="intervention-buttons">
-        <button class="intervention-button" @click="selectIntervention('prevention')">
-          <span class="intervention-icon">🛡️</span>
-          <span>Prevention</span>
-        </button>
-        <button class="intervention-button" @click="selectIntervention('repair')">
-          <span class="intervention-icon">🔧</span>
-          <span>Repair</span>
-        </button>
-        <button class="intervention-button" @click="selectIntervention('rejuvenation')">
-          <span class="intervention-icon">✨</span>
-          <span>Rejuvenation</span>
-        </button>
+      <div class="intervention-categories">
+        <!-- Prevention Category -->
+        <div class="intervention-category">
+          <button class="category-header" @click="toggleCategory('prevention')" :class="{ active: expandedCategory === 'prevention' }">
+            <span class="intervention-icon">🛡️</span>
+            <span>Prevention</span>
+            <span class="toggle-icon">{{ expandedCategory === 'prevention' ? '▼' : '▶' }}</span>
+          </button>
+          <div v-if="expandedCategory === 'prevention'" class="intervention-list">
+            <div 
+              v-for="intervention in preventionInterventions" 
+              :key="intervention.id"
+              class="intervention-item"
+              :class="{ selected: selectedIntervention?.id === intervention.id }"
+              @click="selectIntervention(intervention)"
+            >
+              <span class="intervention-name">{{ intervention.name }}</span>
+              <span class="intervention-cycles" v-if="intervention.besearchCycles?.length">
+                ({{ intervention.besearchCycles.length }} cycles)
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Repair Category -->
+        <div class="intervention-category">
+          <button class="category-header" @click="toggleCategory('repair')" :class="{ active: expandedCategory === 'repair' }">
+            <span class="intervention-icon">🔧</span>
+            <span>Repair</span>
+            <span class="toggle-icon">{{ expandedCategory === 'repair' ? '▼' : '▶' }}</span>
+          </button>
+          <div v-if="expandedCategory === 'repair'" class="intervention-list">
+            <div 
+              v-for="intervention in repairInterventions" 
+              :key="intervention.id"
+              class="intervention-item"
+              :class="{ selected: selectedIntervention?.id === intervention.id }"
+              @click="selectIntervention(intervention)"
+            >
+              <span class="intervention-name">{{ intervention.name }}</span>
+              <span class="intervention-cycles" v-if="intervention.besearchCycles?.length">
+                ({{ intervention.besearchCycles.length }} cycles)
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rejuvenation Category -->
+        <div class="intervention-category">
+          <button class="category-header" @click="toggleCategory('rejuvenation')" :class="{ active: expandedCategory === 'rejuvenation' }">
+            <span class="intervention-icon">✨</span>
+            <span>Rejuvenation</span>
+            <span class="toggle-icon">{{ expandedCategory === 'rejuvenation' ? '▼' : '▶' }}</span>
+          </button>
+          <div v-if="expandedCategory === 'rejuvenation'" class="intervention-list">
+            <div 
+              v-for="intervention in rejuvenationInterventions" 
+              :key="intervention.id"
+              class="intervention-item"
+              :class="{ selected: selectedIntervention?.id === intervention.id }"
+              @click="selectIntervention(intervention)"
+            >
+              <span class="intervention-name">{{ intervention.name }}</span>
+              <span class="intervention-cycles" v-if="intervention.besearchCycles?.length">
+                ({{ intervention.besearchCycles.length }} cycles)
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
+      
       <div class="intervention-actions">
         <button class="action-button" @click="createIntervention" title="Create new intervention">
           <span>➕ Add</span>
-        </button>
-        <button class="action-button" @click="manageInterventions" title="Manage interventions">
-          <span>📋 Manage</span>
         </button>
       </div>
     </div>
@@ -97,7 +151,67 @@ const emit = defineEmits(['mode-selected', 'peer-moved', 'peer-intervention'])
 
 let btoolsTime = ref(false)
 let selectedMode = ref('cues')
-let selectedIntervention = ref(false)
+let selectedIntervention = ref(null)
+let expandedCategory = ref(null)
+
+// Sample intervention data - this would come from a store/API
+const preventionInterventions = ref([
+  {
+    id: 'prev-1',
+    name: 'Fasting Mimicking Diet',
+    description: '5-day low calorie plant-based diet',
+    biomarkers: ['IGF-1', 'Glucose', 'Ketones', 'CRP'],
+    besearchCycles: ['cycle-1', 'cycle-3']
+  },
+  {
+    id: 'prev-2',
+    name: 'Intermittent Fasting 16:8',
+    description: 'Daily 16-hour fasting window',
+    biomarkers: ['Insulin', 'Glucose', 'HbA1c'],
+    besearchCycles: ['cycle-2']
+  },
+  {
+    id: 'prev-3',
+    name: 'Caloric Restriction',
+    description: '20% reduction in daily calories',
+    biomarkers: ['Weight', 'BMI', 'Leptin'],
+    besearchCycles: []
+  }
+])
+
+const repairInterventions = ref([
+  {
+    id: 'repair-1',
+    name: 'PEMF Joint Therapy',
+    description: 'Pulsed electromagnetic field for joints',
+    biomarkers: ['CRP', 'IL-6', 'Range of Motion'],
+    besearchCycles: ['cycle-4']
+  },
+  {
+    id: 'repair-2',
+    name: 'Red Light Therapy',
+    description: 'Near-infrared light treatment',
+    biomarkers: ['Collagen', 'Wound Healing Rate'],
+    besearchCycles: []
+  }
+])
+
+const rejuvenationInterventions = ref([
+  {
+    id: 'rejuv-1',
+    name: 'Exosome Therapy',
+    description: 'Stem cell-derived exosomes',
+    biomarkers: ['Telomere Length', 'Senescent Cells', 'NAD+'],
+    besearchCycles: ['cycle-5', 'cycle-6']
+  },
+  {
+    id: 'rejuv-2',
+    name: 'NAD+ IV Therapy',
+    description: 'Intravenous NAD+ infusion',
+    biomarkers: ['NAD+ Levels', 'ATP', 'Mitochondrial Function'],
+    besearchCycles: []
+  }
+])
 
   /** methods */
   const besearchTime = () => {
@@ -173,20 +287,21 @@ let selectedIntervention = ref(false)
     emit('peer-intervention')
   }
 
+  const toggleCategory = (category) => {
+    expandedCategory.value = expandedCategory.value === category ? null : category
+    // Emit the category to show in the bottom toolbar
+    emit('peer-intervention', category)
+  }
+
   const selectIntervention = (intervention) => {
     selectedIntervention.value = intervention
-    // Emit event to parent component to update canvas
-    emit('peer-intervention', intervention)
+    // Emit the full intervention object to parent
+    emit('peer-intervention', { type: 'select', intervention })
   }
 
   const createIntervention = () => {
     // Emit event to open intervention creation panel
-    emit('peer-intervention', 'create-new')
-  }
-
-  const manageInterventions = () => {
-    // Emit event to open intervention management panel
-    emit('peer-intervention', 'manage')
+    emit('peer-intervention', { type: 'create' })
   }
 
 </script>
@@ -381,34 +496,88 @@ let selectedIntervention = ref(false)
   }
   /* Interventions Styles */
   #interventions {
-   margin-bottom: 1rem;
+    margin-bottom: 1rem;
   }
-  .intervention-buttons {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
+
+  .intervention-categories {
+    display: flex;
+    flex-direction: column;
     gap: 0.5rem;
   }
-  .intervention-button {
-    display: grid;
-    grid-template-columns: 1fr;
+
+  .intervention-category {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .category-header {
+    width: 100%;
+    display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     background-color: #b8cde2;
     color: #140d6b;
     border: none;
-    border-radius: 4px;
-    padding: 10px;
-    font-size: 12px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-weight: 500;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease;
   }
-  .intervention-button:hover {
+
+  .category-header:hover {
     background-color: #9fb8d4;
   }
+
+  .category-header.active {
+    background-color: #8fa9c6;
+  }
+
   .intervention-icon {
-    font-size: 24px;
-    margin-bottom: 5px;
+    font-size: 18px;
+    margin-right: 8px;
+  }
+
+  .toggle-icon {
+    font-size: 12px;
+    margin-left: auto;
+  }
+
+  .intervention-list {
+    background-color: rgba(255, 255, 255, 0.05);
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  .intervention-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-size: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .intervention-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .intervention-item.selected {
+    background-color: rgba(76, 175, 80, 0.2);
+    font-weight: 500;
+  }
+
+  .intervention-name {
+    flex: 1;
+  }
+
+  .intervention-cycles {
+    font-size: 10px;
+    color: #666;
+    margin-left: 8px;
   }
 
   .intervention-actions {
