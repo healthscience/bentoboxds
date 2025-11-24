@@ -157,10 +157,34 @@ onMounted(() => {
     updateCanvas()
   }
 
-  const handlePeerIntervention = () => {
-    // Implement intervention logic here
-    console.log('Peer intervention initiated on canvas')
-    // You can add more specific intervention logic as needed
+  const handlePeerIntervention = (interventionType) => {
+    console.log('Intervention selected:', interventionType)
+    
+    // Handle different intervention types
+    switch(interventionType) {
+      case 'prevention':
+        console.log('Opening prevention interventions')
+        // Show prevention interventions panel
+        break
+      case 'repair':
+        console.log('Opening repair interventions')
+        // Show repair interventions panel
+        break
+      case 'rejuvenation':
+        console.log('Opening rejuvenation interventions')
+        // Show rejuvenation interventions panel
+        break
+      case 'create-new':
+        console.log('Creating new intervention')
+        // Open intervention creation form
+        break
+      case 'manage':
+        console.log('Managing interventions')
+        // Open intervention management panel
+        break
+      default:
+        console.log('Unknown intervention type:', interventionType)
+    }
 
     // Update canvas to show intervention effect
     updateCanvas()

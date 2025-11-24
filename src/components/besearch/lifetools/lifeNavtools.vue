@@ -54,17 +54,25 @@
     <div id="interventions">
       <h3>Interventions</h3>
       <div class="intervention-buttons">
-        <button class="intervention-button" @click="selectIntervention('live')">
-        <span class="intervention-icon"></span>
-        <span>Live</span>
+        <button class="intervention-button" @click="selectIntervention('prevention')">
+          <span class="intervention-icon">🛡️</span>
+          <span>Prevention</span>
         </button>
-        <button class="intervention-button" @click="selectIntervention('pending')">
-        <span class="intervention-icon"></span>
-        <span>Pending</span>
+        <button class="intervention-button" @click="selectIntervention('repair')">
+          <span class="intervention-icon">🔧</span>
+          <span>Repair</span>
         </button>
-        <button class="intervention-button" @click="selectIntervention('start-new')">
-        <span class="intervention-icon"></span>
-        <span>Start New</span>
+        <button class="intervention-button" @click="selectIntervention('rejuvenation')">
+          <span class="intervention-icon">✨</span>
+          <span>Rejuvenation</span>
+        </button>
+      </div>
+      <div class="intervention-actions">
+        <button class="action-button" @click="createIntervention" title="Create new intervention">
+          <span>➕ Add</span>
+        </button>
+        <button class="action-button" @click="manageInterventions" title="Manage interventions">
+          <span>📋 Manage</span>
         </button>
       </div>
     </div>
@@ -100,6 +108,12 @@ let selectedIntervention = ref(false)
     selectedMode.value = mode
     // Emit event to parent component to update canvas
     emit('mode-selected', mode)
+  }
+
+  const besearchTool = (action) => {
+    // Handle besearch tool actions
+    console.log('Besearch tool action:', action)
+    // You can emit events or handle actions here
   }
 
   // Peer navigation methods
@@ -160,9 +174,19 @@ let selectedIntervention = ref(false)
   }
 
   const selectIntervention = (intervention) => {
-  selectedIntervention.value = intervention
-  // Emit event to parent component to update canvas
-  emit('intervention-selected', intervention)
+    selectedIntervention.value = intervention
+    // Emit event to parent component to update canvas
+    emit('peer-intervention', intervention)
+  }
+
+  const createIntervention = () => {
+    // Emit event to open intervention creation panel
+    emit('peer-intervention', 'create-new')
+  }
+
+  const manageInterventions = () => {
+    // Emit event to open intervention management panel
+    emit('peer-intervention', 'manage')
   }
 
 </script>
@@ -361,7 +385,7 @@ let selectedIntervention = ref(false)
   }
   .intervention-buttons {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 0.5rem;
   }
   .intervention-button {
@@ -385,6 +409,28 @@ let selectedIntervention = ref(false)
   .intervention-icon {
     font-size: 24px;
     margin-bottom: 5px;
+  }
+
+  .intervention-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .action-button {
+    flex: 1;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .action-button:hover {
+    background-color: #45a049;
   }
 }
 </style>
