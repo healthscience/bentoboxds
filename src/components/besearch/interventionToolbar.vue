@@ -115,6 +115,7 @@ const selectedIntervention = ref(null)
 // Sample data with status - this would come from props/store
 const sampleInterventions = {
   prevention: [
+    // Human Health
     {
       id: 'prev-1',
       name: 'Fasting Mimicking Diet',
@@ -138,9 +139,28 @@ const sampleInterventions = {
       status: 'no effect',
       biomarkers: ['Weight', 'BMI', 'Leptin'],
       besearchCycles: []
+    },
+    // Built Environment
+    {
+      id: 'prev-4',
+      name: 'Home Insulation Upgrade',
+      description: 'Improve thermal insulation to reduce energy loss and maintain healthy indoor temperature',
+      status: 'working',
+      biomarkers: ['Indoor Air Quality', 'Temperature Stability', 'Energy Usage', 'Respiratory Health'],
+      besearchCycles: ['cycle-7']
+    },
+    // Nature
+    {
+      id: 'prev-5',
+      name: 'Stop Sewage Pollution',
+      description: 'Prevent local sewage discharge into river system',
+      status: 'experimentation',
+      biomarkers: ['Water Quality Index', 'E.coli Levels', 'Dissolved Oxygen', 'Biodiversity Index'],
+      besearchCycles: ['cycle-8', 'cycle-9']
     }
   ],
   repair: [
+    // Human Health
     {
       id: 'repair-1',
       name: 'PEMF Joint Therapy',
@@ -156,9 +176,28 @@ const sampleInterventions = {
       status: 'experimentation',
       biomarkers: ['Collagen', 'Wound Healing Rate'],
       besearchCycles: []
+    },
+    // Built Environment
+    {
+      id: 'repair-3',
+      name: 'Roof Tile Restoration',
+      description: 'Fix and improve roofing tiles to prevent leaks and improve weather resistance',
+      status: 'working',
+      biomarkers: ['Structural Integrity', 'Water Damage Prevention', 'Indoor Humidity', 'Mold Risk'],
+      besearchCycles: ['cycle-10']
+    },
+    // Nature
+    {
+      id: 'repair-4',
+      name: 'Dam Removal Project',
+      description: 'Remove obsolete dams from river basin to restore natural water flow',
+      status: 'pending',
+      biomarkers: ['Fish Migration Routes', 'Sediment Flow', 'River Temperature', 'Aquatic Biodiversity'],
+      besearchCycles: ['cycle-11', 'cycle-12']
     }
   ],
   rejuvenation: [
+    // Human Health
     {
       id: 'rejuv-1',
       name: 'Exosome Therapy',
@@ -174,6 +213,24 @@ const sampleInterventions = {
       status: 'working',
       biomarkers: ['NAD+ Levels', 'ATP', 'Mitochondrial Function'],
       besearchCycles: []
+    },
+    // Built Environment
+    {
+      id: 'rejuv-3',
+      name: 'Solar Panel Installation',
+      description: 'Add solar panels to old home for renewable energy generation',
+      status: 'working',
+      biomarkers: ['Carbon Footprint', 'Energy Independence', 'Air Quality Impact', 'Grid Resilience'],
+      besearchCycles: ['cycle-13']
+    },
+    // Nature
+    {
+      id: 'rejuv-4',
+      name: 'River Valley Rewilding',
+      description: 'Restore upper river basin valley to natural ecosystem',
+      status: 'experimentation',
+      biomarkers: ['Species Diversity', 'Carbon Sequestration', 'Soil Health', 'Watershed Function'],
+      besearchCycles: ['cycle-14', 'cycle-15', 'cycle-16']
     }
   ]
 }
