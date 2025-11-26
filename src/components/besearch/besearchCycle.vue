@@ -294,6 +294,8 @@ onMounted(() => {
     ctx.value = canvas.value.getContext('2d')
     
     console.log('Besearch cycles from store:', liveBesearch.value)
+    console.log('Canvas context available:', !!ctx.value)
+    console.log('Current mode:', currentMode.value)
     
     // Start game loop if not already running
     if (!gameLoopRunning) {
@@ -302,6 +304,7 @@ onMounted(() => {
     }
     
     // Call updateCanvas to draw the besearch cycles
+    console.log('Calling updateCanvas from initializeCanvas')
     updateCanvas()
   }
 
@@ -377,8 +380,9 @@ onMounted(() => {
     const { intervention } = data
     
     // Calculate position relative to canvas dimensions
+    console.log('Canvas dimensions:', canvasWidth.value, canvasHeight.value)
     const position = {
-      x: canvasWidth.value - 300, // 300px from right edge
+      x: 800, // Fixed position for now
       y: 100 // 100px from top
     }
     
@@ -644,13 +648,12 @@ const handleKeyUp = (e) => {
   }
 
   const renderCuesMode = (ctx) => {
-    // Clear the entire canvas first
-    ctx.clearRect(0, 0, canvas.value.width, canvas.value.height)
+    // Don't clear again - updateCanvas already cleared and set up the context
     
-    // Draw title
+    // Draw title (accounting for viewport transformation)
     ctx.fillStyle = '#140d6b'
     ctx.font = '24px Arial'
-    ctx.fillText('Cues Space Mode', 50, 50)
+    ctx.fillText('Cues Space Mode', viewport.value.x + 50, viewport.value.y + 50)
 
     console.log('liveBesearch.value:', liveBesearch.value)
     console.log('Number of besearch cycles:', liveBesearch.value.length)
