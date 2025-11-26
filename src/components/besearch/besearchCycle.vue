@@ -636,8 +636,12 @@ const handleKeyUp = (e) => {
   }
 
   const updateCanvas = () => {
-    if (!ctx.value) return
+    if (!ctx.value) {
+      console.log('No context in updateCanvas')
+      return
+    }
 
+    console.log('updateCanvas called, mode:', currentMode.value)
     ctx.value.clearRect(0, 0, canvas.value.width, canvas.value.height)
     
     // Save the context state
@@ -671,6 +675,9 @@ const handleKeyUp = (e) => {
     ctx.font = '24px Arial'
     ctx.fillText('Cues Space Mode', 50, 50)
 
+    console.log('liveBesearch.value:', liveBesearch.value)
+    console.log('Number of besearch cycles:', liveBesearch.value.length)
+    
     // Draw all besearch cycles first (background layer)
     liveBesearch.value.forEach(bes => {
       drawBeeCycle(ctx, bes)
