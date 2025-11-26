@@ -1245,8 +1245,9 @@ const handleKeyUp = (e) => {
   box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   max-height: 50vh;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  overflow: hidden;
 }
 
 .cycle-toolbar .toolbar-header {
@@ -1277,13 +1278,11 @@ const handleKeyUp = (e) => {
 }
 
 .cycle-toolbar .toolbar-content {
-  flex: 1;
   padding: 24px;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 24px;
-  min-height: 0; /* Important for flex overflow */
+  min-height: 0; /* Important for grid overflow */
 }
 
 .cycle-toolbar .cycle-info {
@@ -1396,12 +1395,12 @@ const handleKeyUp = (e) => {
 }
 
 .cycle-toolbar .toolbar-actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 12px;
   padding: 16px 24px;
   border-top: 1px solid #e0e0e0;
   background: #f8f9fa;
-  flex-shrink: 0; /* Prevent shrinking */
 }
 
 .cycle-toolbar .action-btn {

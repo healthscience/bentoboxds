@@ -344,8 +344,8 @@ defineExpose({
   z-index: 1000;
   max-height: 50vh;
   overflow: hidden;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto 1fr;
 }
 
 .toolbar-header {
@@ -479,25 +479,22 @@ defineExpose({
 
 /* Detail View Styles */
 .toolbar-detail-view {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  overflow: hidden;
 }
 
 .detail-content-wrapper {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
   overflow: hidden;
-  min-height: 0; /* Important for flex overflow */
+  min-height: 0; /* Important for grid overflow */
 }
 
 .detail-content {
-  flex: 1;
   padding: 24px;
   overflow-y: auto;
   display: grid;
   grid-template-columns: 1fr 1fr;
+  height: 100%;
   gap: 24px;
 }
 
@@ -555,12 +552,12 @@ defineExpose({
 }
 
 .detail-actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 12px;
   padding: 16px 24px;
   background: #f8f9fa;
   border-top: 1px solid #e0e0e0;
-  flex-shrink: 0;
 }
 
 .action-btn {
