@@ -677,9 +677,14 @@ const handleKeyUp = (e) => {
 
     console.log('liveBesearch.value:', liveBesearch.value)
     console.log('Number of besearch cycles:', liveBesearch.value.length)
+    console.log('Direct store access:', storeBesearch.besearchCyles)
+    
+    // Use direct store access as fallback if computed property is empty
+    const cycles = liveBesearch.value.length > 0 ? liveBesearch.value : storeBesearch.besearchCyles
+    console.log('Using cycles:', cycles)
     
     // Draw all besearch cycles first (background layer)
-    liveBesearch.value.forEach(bes => {
+    cycles.forEach(bes => {
       drawBeeCycle(ctx, bes)
     })
     
