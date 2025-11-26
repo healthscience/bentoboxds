@@ -622,8 +622,8 @@ const handleKeyUp = (e) => {
   }
 
   const updateCanvas = () => {
-    if (!ctx.value) {
-      console.log('No context in updateCanvas')
+    if (!ctx.value || !canvasbe.value) {
+      console.log('No context or canvas in updateCanvas')
       return
     }
 
@@ -1098,6 +1098,55 @@ const handleKeyUp = (e) => {
       cycleEditData.active = newCycle.active !== false
     }
   })
+
+  // Return all the necessary functions and reactive variables
+  return {
+    // Canvas and state
+    canvasbe,
+    canvasWidth,
+    canvasHeight,
+    bentoBesearchStatus,
+    currentMode,
+    
+    // Mouse handlers
+    handleCanvasMouseDown,
+    handleCanvasMouseMove,
+    handleCanvasMouseUp,
+    handleCanvasDoubleClick,
+    handleBesearchClick,
+    
+    // Modal and UI functions
+    closeBentoBesearch,
+    handleModeChange,
+    setShowBeeBee,
+    
+    // Intervention functions
+    addIntervention,
+    removeIntervention,
+    interventions,
+    showInterventionForm,
+    newIntervention,
+    
+    // Cycle management
+    selectedCycle,
+    showCycleToolbar,
+    cycleEditData,
+    saveCycleChanges,
+    duplicateCycle,
+    deleteCycle,
+    closeCycleToolbar,
+    getLinkedInterventions,
+    getStatusClass,
+    
+    // BeeBee
+    showBeeBee,
+    
+    // Store references
+    storeAI,
+    storeBesearch,
+    liveBesearch
+  }
+})
 </script>
 
 <style scoped>
