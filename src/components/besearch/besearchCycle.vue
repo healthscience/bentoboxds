@@ -784,9 +784,13 @@ const handleKeyUp = (e) => {
     const x = event.clientX - rect.left + viewport.value.x
     const y = event.clientY - rect.top + viewport.value.y
     
+    console.log('Mouse down at:', x, y)
+    console.log('Besearch cycles:', storeBesearch.besearchCyles)
+    
     // Check if click is on any besearch cycle
     for (const cycle of storeBesearch.besearchCyles) {
       const distance = Math.sqrt(Math.pow(x - cycle.x, 2) + Math.pow(y - cycle.y, 2))
+      console.log(`Checking cycle ${cycle.name} at (${cycle.x}, ${cycle.y}), distance: ${distance}`)
       
       if (distance <= 60) { // 60px radius for cycle click detection
         // Check if clicking on edit button (top-right area)
@@ -826,14 +830,14 @@ const handleKeyUp = (e) => {
       const dragBarHeight = 25
       
       // Check if click is on drag bar
-      if (x >= intervention.position.x && 
-          x <= intervention.position.x + boxWidth &&
-          y >= intervention.position.y && 
-          y <= intervention.position.y + dragBarHeight) {
+      if (x >= intervention.x && 
+          x <= intervention.x + boxWidth &&
+          y >= intervention.y && 
+          y <= intervention.y + dragBarHeight) {
         
         // Check if click is on remove button (X)
-        if (x >= intervention.position.x + boxWidth - 30 && 
-            x <= intervention.position.x + boxWidth - 10) {
+        if (x >= intervention.x + boxWidth - 30 && 
+            x <= intervention.x + boxWidth - 10) {
           // Remove intervention
           const index = canvasInterventions.value.findIndex(i => i.id === intervention.id)
           if (index !== -1) {
@@ -844,8 +848,8 @@ const handleKeyUp = (e) => {
           // Start dragging this intervention
           draggingIntervention.value = intervention
           dragOffset.value = {
-            x: x - intervention.position.x,
-            y: y - intervention.position.y
+            x: x - intervention.x,
+            y: y - intervention.y
           }
         }
         event.preventDefault()
