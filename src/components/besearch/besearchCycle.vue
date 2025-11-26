@@ -40,7 +40,7 @@
               <life-tools @mode-selected="handleModeChange" @peer-moved="handlePeerMoved"  @peer-intervention="handlePeerIntervention"></life-tools>
             </div>
           </div>
-          <canvas id="besearch-cycles" :width="canvasWidth" :height="canvasHeight" ref="canvasbe" 
+          <canvas id="besearch-cycles" :width="canvasWidth" :height="canvasHeight" ref="canvasRef" 
             @click="handleBesearchClick($event)"
             @mousedown="handleCanvasMouseDown($event)"
             @mousemove="handleCanvasMouseMove($event)"
@@ -147,7 +147,7 @@ const currentMode = ref('cues')
 const canvasWidth = ref(window.innerWidth)
 const canvasHeight = ref(window.innerHeight - 100) // Leave some space for header
 const isLifeToolsOpen = ref(false)
-const canvasbe = ref(null)
+const canvasRef = ref(null)
 const ctx = ref(null)
 const angle = ref(0)
 const radius = ref(100)
@@ -260,44 +260,61 @@ onMounted(() => {
       // Modal is opening, wait for DOM to update
       await nextTick()
       
-      // Get canvas element
-      canvas.value = document.getElementById('besearch-cycles')
-      if (canvas.value) {
-        // Set canvas dimensions
-        canvas.value.width = window.innerWidth - 200 // Account for life tools sidebar
-        canvas.value.height = window.innerHeight - 100
+      // Use Vue ref to get canvas element
+      if (!canvasRef.value) {
+        console.error('Canvas ref not available')
+        return
+      }
+      
+      canvas.value = canvasRef.value
+      console.log('Canvas element from ref:', canvas.value)
+      
+      // Set canvas dimensions
+      const width = window.innerWidth - 200 // Account for life tools sidebar
+      const height = window.innerHeight - 100
+      
+      canvas.value.width = width
+      canvas.value.height = height
+      canvasWidth.value = width
+      canvasHeight.value = height
+      
+      ctx.value = canvas.value.getContext('2d')
+      
+      // Draw immediate test to verify canvas is working
+      console.log('Drawing test rectangle on canvas')
+      ctx.value.fillStyle = 'blue'
+      ctx.value.fillRect(0, 0, canvas.value.width, canvas.value.height)
+      ctx.value.fillStyle = 'white'
+      ctx.value.font = '48px Arial'
+      ctx.value.fillText('CANVAS IS WORKING!', 200, 200)
+      
+      // Also draw the besearch cycles immediately
+      ctx.value.fillStyle = 'yellow'
+      ctx.value.font = 'bold 36px Arial'
+      ctx.value.fillText('besearch1', 200, 300)
+      ctx.value.fillText('besearch2', 500, 400)
         
-        ctx.value = canvas.value.getContext('2d')
-        
-        // Draw immediate test to verify canvas is working
-        ctx.value.fillStyle = 'blue'
-        ctx.value.fillRect(0, 0, canvas.value.width, canvas.value.height)
-        ctx.value.fillStyle = 'white'
-        ctx.value.font = '48px Arial'
-        ctx.value.fillText('CANVAS IS WORKING!', 200, 200)
-        
-        // Load images if not already loaded
-        if (!beeCycleImage.value) {
-          beeCycleImage.value = new Image()
-          beeCycleImage.value.src = beeCycle
-          beeCycleImage.value.onload = () => {
-            console.log('BeeCycle image loaded')
-            initializeCanvas()
-          }
-        }
-        
-        if (!peerImage.value) {
-          peerImage.value = new Image()
-          peerImage.value.src = peerLogo
-          peerImage.value.onload = () => {
-            console.log('Peer image loaded')
-          }
-        }
-        
-        // If images already loaded, initialize immediately
-        if (beeCycleImage.value && beeCycleImage.value.complete) {
+      // Load images if not already loaded
+      if (!beeCycleImage.value) {
+        beeCycleImage.value = new Image()
+        beeCycleImage.value.src = beeCycle
+        beeCycleImage.value.onload = () => {
+          console.log('BeeCycle image loaded')
           initializeCanvas()
         }
+      }
+      
+      if (!peerImage.value) {
+        peerImage.value = new Image()
+        peerImage.value.src = peerLogo
+        peerImage.value.onload = () => {
+          console.log('Peer image loaded')
+        }
+      }
+      
+      // If images already loaded, initialize immediately
+      if (beeCycleImage.value && beeCycleImage.value.complete) {
+        initializeCanvas()
       }
     }
   })
@@ -1153,15 +1170,14 @@ const handleKeyUp = (e) => {
 
 #besearch-cycles {
   display: block;
-  border: 1px solid rgb(128, 122, 180);
+  border: 2px solid red; /* Make border more visible for debugging */
   border-radius: 2%;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 1;
-  background-color: rgba(255, 255, 255, 0.9);
+  /* Remove absolute positioning to work with grid */
+  position: relative;
+  z-index: 10;
+  background-color: white;
+  grid-column: 2; /* Explicitly place in second column */
+  min-height: 100vh;
 }
 
 #besearch-modal-header {
