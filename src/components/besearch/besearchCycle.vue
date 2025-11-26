@@ -898,14 +898,24 @@ const handleKeyUp = (e) => {
   /* besearch cycles location on canvas */
   const drawBeeCycle = (ctx, bes) => {
     console.log('Drawing besearch cycle:', bes.name, 'at', bes.x, bes.y)
-    if (!beeCycleImage.value || !beeCycleImage.value.complete) {
-      console.log('BeeCycle image not loaded yet')
-      return // Image not loaded yet
-    }
-
-    // Use the cycle's x,y position
+    
+    // Always draw the text, even if image isn't loaded
     const centerX = bes.x
     const centerY = bes.y
+    
+    // Draw the text for the besearch cycle first
+    ctx.save()
+    ctx.font = 'bold 24px Arial'
+    ctx.fillStyle = '#140d6b'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText(bes.name, centerX, centerY)
+    ctx.restore()
+    
+    if (!beeCycleImage.value || !beeCycleImage.value.complete) {
+      console.log('BeeCycle image not loaded yet')
+      return // Skip image drawing but text is already drawn
+    }
     const x = centerX + radius.value * Math.cos(angle.value)
     const y = centerY + radius.value * Math.sin(angle.value)
     
@@ -947,12 +957,7 @@ const handleKeyUp = (e) => {
       ctx.restore()
     }
 
-    // Draw the text for the besearch cycle
-    ctx.save()
-    ctx.font = '20px Arial'
-    ctx.fillStyle = '#140d6b'
-    ctx.textAlign = 'center'
-    ctx.fillText(bes.name, centerX, centerY)
+    // Text already drawn at the beginning of the function
     
     // Draw the image at the calculated position
     const imageSize = 40 // Fixed size for the cycle image
