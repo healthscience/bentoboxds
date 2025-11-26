@@ -298,6 +298,11 @@ onMounted(() => {
       ctx.font = 'bold 14px Arial'
       ctx.fillText(intervention.name, intervention.position.x + 10, intervention.position.y + 18)
       
+      // Draw remove button (X) on the right side of drag bar
+      ctx.fillStyle = '#666'
+      ctx.font = 'bold 16px Arial'
+      ctx.fillText('×', intervention.position.x + boxWidth - 20, intervention.position.y + 18)
+      
       // Draw status badge
       const statusX = intervention.position.x + boxWidth - 80
       ctx.fillStyle = getStatusColor(intervention.status)
@@ -529,20 +534,33 @@ const handleKeyUp = (e) => {
     const x = event.clientX - rect.left
     const y = event.clientY - rect.top
     
-    // Check if click is on any intervention's drag bar
+    // Check if click is on any intervention
     for (const intervention of canvasInterventions.value) {
       const boxWidth = 250
       const dragBarHeight = 25
       
+      // Check if click is on drag bar
       if (x >= intervention.position.x && 
           x <= intervention.position.x + boxWidth &&
           y >= intervention.position.y && 
           y <= intervention.position.y + dragBarHeight) {
-        // Start dragging this intervention
-        draggingIntervention.value = intervention
-        dragOffset.value = {
-          x: x - intervention.position.x,
-          y: y - intervention.position.y
+        
+        // Check if click is on remove button (X)
+        if (x >= intervention.position.x + boxWidth - 30 && 
+            x <= intervention.position.x + boxWidth - 10) {
+          // Remove intervention
+          const index = canvasInterventions.value.findIndex(i => i.id === intervention.id)
+          if (index !== -1) {
+            canvasInterventions.value.splice(index, 1)
+            updateCanvas()
+          }
+        } else {
+          // Start dragging this intervention
+          draggingIntervention.value = intervention
+          dragOffset.value = {
+            x: x - intervention.position.x,
+            y: y - intervention.position.y
+          }
         }
         event.preventDefault()
         break
@@ -563,8 +581,8 @@ const handleKeyUp = (e) => {
       // Redraw canvas
       updateCanvas()
     } else {
-      // Check if hovering over drag bar for cursor change
-      let isOverDragBar = false
+      // Check if hovering over drag bar or remove button for cursor change
+      let cursor = 'default'
       for (const intervention of canvasInterventions.value) {
         const boxWidth = 250
         const dragBarHeight = 25
@@ -573,22 +591,47 @@ const handleKeyUp = (e) => {
             x <= intervention.position.x + boxWidth &&
             y >= intervention.position.y && 
             y <= intervention.position.y + dragBarHeight) {
-          isOverDragBar = true
+          
+          // Check if over remove button
+          if (x >= intervention.position.x + boxWidth - 30 && 
+              x <= intervention.position.x + boxWidth - 10) {
+            cursor = 'pointer'
+          } else {
+            cursor = 'move'
+          }
           break
         }
       }
       
-      canvasbe.value.style.cursor = isOverDragBar ? 'move' : 'default'
+      canvasbe.value.style.cursor = cursor
     }
   }
   
   const handleCanvasMouseUp = (event) => {
     if (draggingIntervention.value) {
       // Check if intervention is near any besearch cycle for linking
-      // TODO: Implement proximity-based linking
+      const interventionCenterX = draggingIntervention.value.position.x + 125 // half of box width
+      const interventionCenterY = draggingIntervention.value.position.y + 60 // half of box height
+      
+      // Clear existing links for this intervention
+      draggingIntervention.value.linkedCycles = []
+      
+      // Check proximity to each besearch cycle
+      storeBesearch.besearchCyles.forEach(cycle => {
+        const distance = Math.sqrt(
+          Math.pow(interventionCenterX - cycle.x, 2) + 
+          Math.pow(interventionCenterY - cycle.y, 2)
+        )
+        
+        // If within 150 pixels, link them
+        if (distance < 150) {
+          draggingIntervention.value.linkedCycles.push(cycle.id)
+        }
+      })
       
       draggingIntervention.value = null
       dragOffset.value = { x: 0, y: 0 }
+      updateCanvas() // Redraw to show any new links
     }
   }
 
@@ -611,6 +654,44 @@ const handleKeyUp = (e) => {
     const centerY = bes.cueSpace.location.height
     const x = centerX + radius.value * Math.cos(angle.value)
     const y = centerY + radius.value * Math.sin(angle.value)
+    
+    // Check if this cycle has linked interventions
+    const linkedInterventions = canvasInterventions.value.filter(intervention => 
+      intervention.linkedCycles.includes(bes.id)
+    )
+    
+    // Draw colored ring if there are linked interventions
+    if (linkedInterventions.length > 0) {
+      ctx.save()
+      
+      // Draw multiple rings for multiple interventions
+      linkedInterventions.forEach((intervention, index) => {
+        ctx.strokeStyle = getStatusColor(intervention.status)
+        ctx.lineWidth = 3
+        ctx.globalAlpha = 0.6
+        ctx.beginPath()
+        ctx.arc(centerX, centerY, 60 + (index * 10), 0, 2 * Math.PI)
+        ctx.stroke()
+      })
+      
+      // Draw connection lines
+      ctx.globalAlpha = 0.3
+      linkedInterventions.forEach(intervention => {
+        const interventionCenterX = intervention.position.x + 125
+        const interventionCenterY = intervention.position.y + 60
+        
+        ctx.strokeStyle = getStatusColor(intervention.status)
+        ctx.lineWidth = 2
+        ctx.setLineDash([5, 5])
+        ctx.beginPath()
+        ctx.moveTo(centerX, centerY)
+        ctx.lineTo(interventionCenterX, interventionCenterY)
+        ctx.stroke()
+      })
+      ctx.setLineDash([])
+      
+      ctx.restore()
+    }
 
     // Draw the text for the besearch cycle
     ctx.save()
