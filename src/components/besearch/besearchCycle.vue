@@ -66,6 +66,55 @@
           @link-cycle="handleLinkCycle"
           @add-intervention-to-canvas="handleAddInterventionToCanvas"
         />
+        
+        <!-- Besearch Cycle Toolbar -->
+        <div v-if="showCycleToolbar" class="cycle-toolbar">
+          <div class="toolbar-header">
+            <h3>{{ selectedCycle?.name || 'Besearch Cycle' }}</h3>
+            <button class="close-btn" @click="closeCycleToolbar">✕</button>
+          </div>
+          
+          <div class="toolbar-content">
+            <div class="cycle-info">
+              <div class="info-field">
+                <label>Name:</label>
+                <input v-model="cycleEditData.name" type="text" class="input-field" />
+              </div>
+              <div class="info-field">
+                <label>Description:</label>
+                <textarea v-model="cycleEditData.description" class="textarea-field" rows="3"></textarea>
+              </div>
+              <div class="info-field">
+                <label>Status:</label>
+                <select v-model="cycleEditData.active" class="select-field">
+                  <option :value="true">Active</option>
+                  <option :value="false">Inactive</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="linked-interventions">
+              <h4>Linked Interventions ({{ getLinkedInterventions().length }})</h4>
+              <div v-if="getLinkedInterventions().length" class="interventions-list">
+                <div v-for="intervention in getLinkedInterventions()" :key="intervention.id" class="linked-item">
+                  <span>{{ intervention.name }}</span>
+                  <span class="status-badge" :class="getStatusClass(intervention.status)">
+                    {{ intervention.status }}
+                  </span>
+                </div>
+              </div>
+              <div v-else class="empty-state">
+                No interventions linked yet. Drag interventions near this cycle to link them.
+              </div>
+            </div>
+            
+            <div class="toolbar-actions">
+              <button class="action-btn primary" @click="saveCycleChanges">Save Changes</button>
+              <button class="action-btn" @click="duplicateCycle">Duplicate</button>
+              <button class="action-btn danger" @click="deleteCycle">Delete</button>
+            </div>
+          </div>
+        </div>
       </template>
       <template #footer>
         Besearch
@@ -79,7 +128,7 @@ import peerLogo from '@/assets/peerlogo.png'
 import LifeTools from '@/components/besearch/lifetools/lifeNavtools.vue'
 import InterventionToolbar from '@/components/besearch/interventionToolbar.vue'
 import beeCycle from '@/assets/besearch-cycle.png'
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, reactive, watch } from 'vue'
 import BeebeeAi from '@/components/beebeehelp/spaceChat.vue'
 import ModalBesearch from '@/components/besearch/besearchModal.vue'
 import { cuesStore } from '@/stores/cuesStore.js'
@@ -117,6 +166,16 @@ const interventionToolbarRef = ref(null)
 const canvasInterventions = ref([])
 const draggingIntervention = ref(null)
 const dragOffset = ref({ x: 0, y: 0 })
+
+// Besearch cycle state
+const draggingCycle = ref(null)
+const selectedCycle = ref(null)
+const showCycleToolbar = ref(false)
+const cycleEditData = reactive({
+  name: '',
+  description: '',
+  active: true
+})
 
 // Add these variables to your existing refs
 const peer = ref({
@@ -537,6 +596,28 @@ const handleKeyUp = (e) => {
     const x = event.clientX - rect.left
     const y = event.clientY - rect.top
     
+    // Check if click is on any besearch cycle
+    for (const cycle of storeBesearch.besearchCyles) {
+      const distance = Math.sqrt(Math.pow(x - cycle.x, 2) + Math.pow(y - cycle.y, 2))
+      
+      if (distance <= 60) { // 60px radius for cycle click detection
+        if (event.shiftKey) {
+          // Shift+click to open cycle details/edit
+          selectedCycle.value = cycle
+          showCycleToolbar.value = true
+        } else {
+          // Regular click to start dragging
+          draggingCycle.value = cycle
+          dragOffset.value = {
+            x: x - cycle.x,
+            y: y - cycle.y
+          }
+        }
+        event.preventDefault()
+        return
+      }
+    }
+    
     // Check if click is on any intervention
     for (const intervention of canvasInterventions.value) {
       const boxWidth = 250
@@ -576,7 +657,14 @@ const handleKeyUp = (e) => {
     const x = event.clientX - rect.left
     const y = event.clientY - rect.top
     
-    if (draggingIntervention.value) {
+    if (draggingCycle.value) {
+      // Update cycle position
+      draggingCycle.value.x = x - dragOffset.value.x
+      draggingCycle.value.y = y - dragOffset.value.y
+      
+      // Redraw canvas
+      updateCanvas()
+    } else if (draggingIntervention.value) {
       // Update intervention position
       draggingIntervention.value.position.x = x - dragOffset.value.x
       draggingIntervention.value.position.y = y - dragOffset.value.y
@@ -611,7 +699,11 @@ const handleKeyUp = (e) => {
   }
   
   const handleCanvasMouseUp = (event) => {
-    if (draggingIntervention.value) {
+    if (draggingCycle.value) {
+      // Finished dragging cycle
+      draggingCycle.value = null
+      dragOffset.value = { x: 0, y: 0 }
+    } else if (draggingIntervention.value) {
       // Check if intervention is near any besearch cycle for linking
       const interventionCenterX = draggingIntervention.value.position.x + 125 // half of box width
       const interventionCenterY = draggingIntervention.value.position.y + 60 // half of box height
@@ -652,9 +744,9 @@ const handleKeyUp = (e) => {
       return // Image not loaded yet
     }
 
-    // Calculate the position for the image
-    const centerX = bes.cueSpace.location.width
-    const centerY = bes.cueSpace.location.height
+    // Use the cycle's x,y position
+    const centerX = bes.x
+    const centerY = bes.y
     const x = centerX + radius.value * Math.cos(angle.value)
     const y = centerY + radius.value * Math.sin(angle.value)
     
@@ -717,6 +809,85 @@ const handleKeyUp = (e) => {
   const handleBesearchClick = (event) => {
     // Handle canvas click events here
   }
+  
+  // Cycle toolbar methods
+  const closeCycleToolbar = () => {
+    showCycleToolbar.value = false
+    selectedCycle.value = null
+  }
+  
+  const getLinkedInterventions = () => {
+    if (!selectedCycle.value) return []
+    
+    // Find all interventions linked to this cycle
+    return canvasInterventions.value.filter(intervention => 
+      intervention.linkedCycles.includes(selectedCycle.value.id)
+    )
+  }
+  
+  const getStatusClass = (status) => {
+    return {
+      'working': 'status-working',
+      'experimentation': 'status-experimentation',
+      'no-effect': 'status-no-effect',
+      'pending': 'status-pending'
+    }[status] || 'status-pending'
+  }
+  
+  const saveCycleChanges = () => {
+    if (selectedCycle.value) {
+      // Update the cycle in the store
+      selectedCycle.value.name = cycleEditData.name
+      selectedCycle.value.description = cycleEditData.description
+      selectedCycle.value.active = cycleEditData.active
+      
+      // Save to store
+      storeBesearch.saveToHOP(selectedCycle.value)
+      
+      // Update canvas
+      updateCanvas()
+      closeCycleToolbar()
+    }
+  }
+  
+  const duplicateCycle = () => {
+    if (selectedCycle.value) {
+      const newCycle = {
+        id: `cycle-${Date.now()}`,
+        name: `${selectedCycle.value.name} (Copy)`,
+        besearchid: Date.now().toString(),
+        x: selectedCycle.value.x + 100,
+        y: selectedCycle.value.y + 100,
+        cueSpace: { ...selectedCycle.value.cueSpace },
+        active: true,
+        isDragging: false
+      }
+      
+      storeBesearch.besearchCyles.push(newCycle)
+      updateCanvas()
+      closeCycleToolbar()
+    }
+  }
+  
+  const deleteCycle = () => {
+    if (selectedCycle.value && confirm('Are you sure you want to delete this besearch cycle?')) {
+      const index = storeBesearch.besearchCyles.findIndex(c => c.id === selectedCycle.value.id)
+      if (index !== -1) {
+        storeBesearch.besearchCyles.splice(index, 1)
+        updateCanvas()
+        closeCycleToolbar()
+      }
+    }
+  }
+  
+  // Watch for selected cycle changes
+  watch(selectedCycle, (newCycle) => {
+    if (newCycle) {
+      cycleEditData.name = newCycle.name || ''
+      cycleEditData.description = newCycle.description || ''
+      cycleEditData.active = newCycle.active !== false
+    }
+  })
 </script>
 
 <style scoped>
@@ -977,5 +1148,207 @@ const handleKeyUp = (e) => {
     width: 5em;
     background-color: white;
   }
+}
+/* Cycle Toolbar Styles */
+.cycle-toolbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 2px solid #e0e0e0;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  max-height: 50vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.cycle-toolbar .toolbar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid #e0e0e0;
+  background: #f8f9fa;
+}
+
+.cycle-toolbar .toolbar-header h3 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.cycle-toolbar .close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #666;
+  padding: 4px 8px;
+}
+
+.cycle-toolbar .close-btn:hover {
+  color: #333;
+}
+
+.cycle-toolbar .toolbar-content {
+  flex: 1;
+  padding: 24px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.cycle-toolbar .cycle-info {
+  display: grid;
+  grid-template-columns: 1fr 2fr 200px;
+  gap: 16px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.cycle-toolbar .info-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cycle-toolbar .info-field label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+}
+
+.cycle-toolbar .input-field,
+.cycle-toolbar .textarea-field,
+.cycle-toolbar .select-field {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.cycle-toolbar .input-field:focus,
+.cycle-toolbar .textarea-field:focus,
+.cycle-toolbar .select-field:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.cycle-toolbar .textarea-field {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.cycle-toolbar .linked-interventions {
+  flex: 1;
+}
+
+.cycle-toolbar .linked-interventions h4 {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  color: #333;
+}
+
+.cycle-toolbar .interventions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cycle-toolbar .linked-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+}
+
+.cycle-toolbar .linked-item span:first-child {
+  font-weight: 500;
+}
+
+.cycle-toolbar .status-badge {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.cycle-toolbar .status-working {
+  background: #d4edda;
+  color: #155724;
+}
+
+.cycle-toolbar .status-experimentation {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.cycle-toolbar .status-no-effect {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.cycle-toolbar .status-pending {
+  background: #e2e3e5;
+  color: #383d41;
+}
+
+.cycle-toolbar .empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-style: italic;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.cycle-toolbar .toolbar-actions {
+  display: flex;
+  gap: 12px;
+  padding: 16px 24px;
+  background: #f8f9fa;
+  border-top: 1px solid #e0e0e0;
+}
+
+.cycle-toolbar .action-btn {
+  padding: 10px 20px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.cycle-toolbar .action-btn:hover {
+  background: #f8f9fa;
+}
+
+.cycle-toolbar .action-btn.primary {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.cycle-toolbar .action-btn.primary:hover {
+  background: #0056b3;
+}
+
+.cycle-toolbar .action-btn.danger {
+  color: #dc3545;
+  border-color: #dc3545;
+}
+
+.cycle-toolbar .action-btn.danger:hover {
+  background: #dc3545;
+  color: white;
 }
 </style>

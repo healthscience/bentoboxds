@@ -5,10 +5,24 @@ export const besearchStore = defineStore('besearchstore', {
   state: () => ({
     besearchCyles: [
       {
-        name:'besearch1', besearchid:'0123456543210', cueSpace: { location: { width: 200, height: 200 }}, active: true
+        id: 'cycle-1',
+        name:'besearch1', 
+        besearchid:'0123456543210', 
+        x: 200,
+        y: 200,
+        cueSpace: { location: { width: 200, height: 200 }}, 
+        active: true,
+        isDragging: false
       },
       {
-        name:'besearch2', besearchid:'0123456543212', cueSpace: { location: { width: 500, height: 300 }}, active: true
+        id: 'cycle-2',
+        name:'besearch2', 
+        besearchid:'0123456543212', 
+        x: 500,
+        y: 300,
+        cueSpace: { location: { width: 500, height: 300 }}, 
+        active: true,
+        isDragging: false
       }
     ],
     spaceLocation: [
