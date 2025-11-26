@@ -1245,9 +1245,9 @@ const handleKeyUp = (e) => {
   box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   max-height: 50vh;
+  height: 50vh;
   display: grid;
-  grid-template-rows: auto 1fr auto;
-  overflow: hidden;
+  grid-template-rows: auto minmax(0, 1fr) auto;
 }
 
 .cycle-toolbar .toolbar-header {
@@ -1280,9 +1280,9 @@ const handleKeyUp = (e) => {
 .cycle-toolbar .toolbar-content {
   padding: 24px;
   overflow-y: auto;
+  overflow-x: hidden;
   display: grid;
   gap: 24px;
-  min-height: 0; /* Important for grid overflow */
 }
 
 .cycle-toolbar .cycle-info {

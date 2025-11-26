@@ -343,9 +343,9 @@ defineExpose({
   box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
   z-index: 1000;
   max-height: 50vh;
-  overflow: hidden;
+  height: 50vh;
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto minmax(0, 1fr);
 }
 
 .toolbar-header {
@@ -480,21 +480,19 @@ defineExpose({
 /* Detail View Styles */
 .toolbar-detail-view {
   display: grid;
-  grid-template-rows: auto 1fr auto;
-  overflow: hidden;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  height: 100%;
 }
 
 .detail-content-wrapper {
-  overflow: hidden;
-  min-height: 0; /* Important for grid overflow */
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .detail-content {
   padding: 24px;
-  overflow-y: auto;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  height: 100%;
   gap: 24px;
 }
 
