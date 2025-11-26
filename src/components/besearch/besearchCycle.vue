@@ -143,6 +143,7 @@ const storeBentobox = bentoboxStore()
 const storeBesearch = besearchStore()
 
 const canvas = ref(null)
+const canvasbe = ref(null)
 const currentMode = ref('cues')
 const canvasWidth = ref(window.innerWidth)
 const canvasHeight = ref(window.innerHeight - 100) // Leave some space for header
@@ -197,48 +198,25 @@ defineExpose({ canvasbe })
 
 /* on mount */
 onMounted(() => {
-  canvas.value = document.getElementById('besearch-cycles')
-  if (canvas.value) {
-    ctx.value = canvas.value.getContext('2d')
-    
-    // Load images once
-    beeCycleImage.value = new Image()
-    beeCycleImage.value.src = beeCycle
-    
-    peerImage.value = new Image()
-    peerImage.value.src = peerLogo
-    
-    // Restore canvas state from store
-    const canvasState = storeBesearch.canvasState
-    peer.value.x = canvasState.peerPosition.x
-    peer.value.y = canvasState.peerPosition.y
-    peer.value.direction = canvasState.peerDirection
-    viewport.value = { ...canvasState.viewport }
-    canvasInterventions.value = [...canvasState.interventions]
-    
-    // Initialize canvas if modal is already open
-    if (bentoBesearchStatus.value) {
-      initializeCanvas()
-    } else {
-      updateCanvas()
-    }
-    // Set up keyboard event listeners
-    window.addEventListener('keydown', handleKeyDown)
-    window.addEventListener('keyup', handleKeyUp)
-    
-    // Handle window resize
-    window.addEventListener('resize', () => {
-      canvasWidth.value = window.innerWidth
-      canvasHeight.value = window.innerHeight - 100
-      updateCanvas()
-    })
-
-    // Start the game loop
-    gameLoopRunning = true
-    gameLoop()
-  } else {
-    console.error('Canvas element not found')
-  }
+  // Only load images and restore state - don't try to access canvas yet
+  beeCycleImage.value = new Image()
+  beeCycleImage.value.src = beeCycle
+  
+  peerImage.value = new Image()
+  peerImage.value.src = peerLogo
+  
+  // Restore state from store
+  const canvasState = storeBesearch.canvasState
+  peer.value.x = canvasState.peerPosition.x
+  peer.value.y = canvasState.peerPosition.y
+  peer.value.direction = canvasState.peerDirection
+  viewport.value = { ...canvasState.viewport }
+  canvasInterventions.value = [...canvasState.interventions]
+  
+  // Set up event listeners
+  window.addEventListener('keydown', handleKeyDown)
+  window.addEventListener('keyup', handleKeyUp)
+  window.addEventListener('resize', handleResize)
 })
 
   /* computed */
@@ -255,66 +233,30 @@ onMounted(() => {
   })
 
   // Watch for modal open/close
+  // The watch will handle canvas initialization when modal opens
   watch(bentoBesearchStatus, async (newValue) => {
     if (newValue) {
-      // Modal is opening, wait for DOM to update
       await nextTick()
       
-      // Use Vue ref to get canvas element
+      // NOW we can safely access the canvas
       if (!canvasRef.value) {
         console.error('Canvas ref not available')
         return
       }
       
       canvas.value = canvasRef.value
-      console.log('Canvas element from ref:', canvas.value)
-      
-      // Set canvas dimensions
-      const width = window.innerWidth - 200 // Account for life tools sidebar
-      const height = window.innerHeight - 100
-      
-      canvas.value.width = width
-      canvas.value.height = height
-      canvasWidth.value = width
-      canvasHeight.value = height
-      
       ctx.value = canvas.value.getContext('2d')
       
-      // Draw immediate test to verify canvas is working
-      console.log('Drawing test rectangle on canvas')
-      ctx.value.fillStyle = 'blue'
-      ctx.value.fillRect(0, 0, canvas.value.width, canvas.value.height)
-      ctx.value.fillStyle = 'white'
-      ctx.value.font = '48px Arial'
-      ctx.value.fillText('CANVAS IS WORKING!', 200, 200)
+      // Set dimensions and initialize
+      const width = window.innerWidth - 200
+      const height = window.innerHeight - 100
+      canvas.value.width = width
+      canvas.value.height = height
       
-      // Also draw the besearch cycles immediately
-      ctx.value.fillStyle = 'yellow'
-      ctx.value.font = 'bold 36px Arial'
-      ctx.value.fillText('besearch1', 200, 300)
-      ctx.value.fillText('besearch2', 500, 400)
-        
-      // Load images if not already loaded
-      if (!beeCycleImage.value) {
-        beeCycleImage.value = new Image()
-        beeCycleImage.value.src = beeCycle
-        beeCycleImage.value.onload = () => {
-          console.log('BeeCycle image loaded')
-          initializeCanvas()
-        }
-      }
-      
-      if (!peerImage.value) {
-        peerImage.value = new Image()
-        peerImage.value.src = peerLogo
-        peerImage.value.onload = () => {
-          console.log('Peer image loaded')
-        }
-      }
-      
-      // If images already loaded, initialize immediately
-      if (beeCycleImage.value && beeCycleImage.value.complete) {
-        initializeCanvas()
+      // Start game loop if not already running
+      if (!gameLoopRunning) {
+        gameLoopRunning = true
+        gameLoop()
       }
     }
   })
