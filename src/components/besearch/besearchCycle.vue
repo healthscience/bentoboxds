@@ -1283,6 +1283,7 @@ const handleKeyUp = (e) => {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  min-height: 0; /* Important for flex overflow */
 }
 
 .cycle-toolbar .cycle-info {
@@ -1398,8 +1399,9 @@ const handleKeyUp = (e) => {
   display: flex;
   gap: 12px;
   padding: 16px 24px;
-  background: #f8f9fa;
   border-top: 1px solid #e0e0e0;
+  background: #f8f9fa;
+  flex-shrink: 0; /* Prevent shrinking */
 }
 
 .cycle-toolbar .action-btn {

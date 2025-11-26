@@ -489,6 +489,7 @@ defineExpose({
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-height: 0; /* Important for flex overflow */
 }
 
 .detail-content {
