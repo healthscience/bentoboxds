@@ -45,6 +45,7 @@
             @mousedown="handleCanvasMouseDown($event)"
             @mousemove="handleCanvasMouseMove($event)"
             @mouseup="handleCanvasMouseUp($event)"
+            @dblclick="handleCanvasDoubleClick($event)"
             @mouseleave="handleCanvasMouseUp($event)"
           ></canvas>
         </div>
@@ -107,12 +108,12 @@
                 No interventions linked yet. Drag interventions near this cycle to link them.
               </div>
             </div>
-            
-            <div class="toolbar-actions">
-              <button class="action-btn primary" @click="saveCycleChanges">Save Changes</button>
-              <button class="action-btn" @click="duplicateCycle">Duplicate</button>
-              <button class="action-btn danger" @click="deleteCycle">Delete</button>
-            </div>
+          </div>
+          
+          <div class="toolbar-actions">
+            <button class="action-btn primary" @click="saveCycleChanges">Save Changes</button>
+            <button class="action-btn" @click="duplicateCycle">Duplicate</button>
+            <button class="action-btn danger" @click="deleteCycle">Delete</button>
           </div>
         </div>
       </template>
@@ -601,10 +602,24 @@ const handleKeyUp = (e) => {
       const distance = Math.sqrt(Math.pow(x - cycle.x, 2) + Math.pow(y - cycle.y, 2))
       
       if (distance <= 60) { // 60px radius for cycle click detection
-        if (event.shiftKey) {
-          // Shift+click to open cycle details/edit
+        // Check if clicking on edit button (top-right area)
+        const angleToClick = Math.atan2(y - cycle.y, x - cycle.x)
+        const editButtonAngle = -Math.PI / 4 // Top-right at -45 degrees
+        const angleDiff = Math.abs(angleToClick - editButtonAngle)
+        
+        if (distance > 40 && distance <= 60 && angleDiff < Math.PI / 8) {
+          // Clicked on edit button area
           selectedCycle.value = cycle
           showCycleToolbar.value = true
+        } else if (distance > 40 && distance <= 60 && Math.abs(angleToClick - (3 * Math.PI / 4)) < Math.PI / 8) {
+          // Clicked on remove button area (top-left)
+          if (confirm(`Delete ${cycle.name}?`)) {
+            const index = storeBesearch.besearchCyles.findIndex(c => c.id === cycle.id)
+            if (index !== -1) {
+              storeBesearch.besearchCyles.splice(index, 1)
+              updateCanvas()
+            }
+          }
         } else {
           // Regular click to start dragging
           draggingCycle.value = cycle
@@ -799,6 +814,36 @@ const handleKeyUp = (e) => {
     const imageSize = 40 // Fixed size for the cycle image
     ctx.drawImage(beeCycleImage.value, x - imageSize/2, y - imageSize/2, imageSize, imageSize)
     ctx.restore()
+    
+    // Draw edit icon (top-right)
+    ctx.save()
+    const editX = centerX + 45 * Math.cos(-Math.PI / 4)
+    const editY = centerY + 45 * Math.sin(-Math.PI / 4)
+    ctx.fillStyle = '#007bff'
+    ctx.beginPath()
+    ctx.arc(editX, editY, 12, 0, 2 * Math.PI)
+    ctx.fill()
+    ctx.fillStyle = 'white'
+    ctx.font = '16px Arial'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText('✎', editX, editY)
+    ctx.restore()
+    
+    // Draw remove icon (top-left)
+    ctx.save()
+    const removeX = centerX + 45 * Math.cos(3 * Math.PI / 4)
+    const removeY = centerY + 45 * Math.sin(3 * Math.PI / 4)
+    ctx.fillStyle = '#dc3545'
+    ctx.beginPath()
+    ctx.arc(removeX, removeY, 12, 0, 2 * Math.PI)
+    ctx.fill()
+    ctx.fillStyle = 'white'
+    ctx.font = '14px Arial'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText('✕', removeX, removeY)
+    ctx.restore()
   }
 
   /* methods */
@@ -808,6 +853,24 @@ const handleKeyUp = (e) => {
 
   const handleBesearchClick = (event) => {
     // Handle canvas click events here
+  }
+  
+  const handleCanvasDoubleClick = (event) => {
+    const rect = canvasbe.value.getBoundingClientRect()
+    const x = event.clientX - rect.left
+    const y = event.clientY - rect.top
+    
+    // Check if double-click is on any besearch cycle
+    for (const cycle of storeBesearch.besearchCyles) {
+      const distance = Math.sqrt(Math.pow(x - cycle.x, 2) + Math.pow(y - cycle.y, 2))
+      
+      if (distance <= 60) { // 60px radius for cycle click detection
+        selectedCycle.value = cycle
+        showCycleToolbar.value = true
+        event.preventDefault()
+        return
+      }
+    }
   }
   
   // Cycle toolbar methods
