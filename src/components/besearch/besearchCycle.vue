@@ -58,6 +58,7 @@
           @edit="handleInterventionEdit"
           @delete="handleInterventionDelete"
           @link-cycle="handleLinkCycle"
+          @add-intervention-to-canvas="handleAddInterventionToCanvas"
         />
       </template>
       <template #footer>
@@ -105,6 +106,9 @@ const currentX = ref(0)
 // Intervention toolbar refs
 const showInterventionToolbar = ref(false)
 const interventionToolbarRef = ref(null)
+
+// Canvas interventions
+const canvasInterventions = ref([])
 
 // Add these variables to your existing refs
 const peer = ref({
@@ -221,6 +225,120 @@ onMounted(() => {
     // Handle linking intervention to besearch cycle
   }
 
+  const handleAddInterventionToCanvas = (data) => {
+    console.log('Adding intervention to canvas:', data)
+    const { intervention, position } = data
+    
+    // Create a new intervention object on the canvas
+    const canvasIntervention = {
+      id: `canvas-${intervention.id}-${Date.now()}`,
+      interventionId: intervention.id,
+      name: intervention.name,
+      description: intervention.description,
+      status: intervention.status,
+      biomarkers: intervention.biomarkers,
+      position: position,
+      isDragging: false,
+      linkedCycles: []
+    }
+    
+    // Add to canvas interventions array (we'll need to create this)
+    if (!canvasInterventions.value) {
+      canvasInterventions.value = []
+    }
+    canvasInterventions.value.push(canvasIntervention)
+    
+    // Redraw canvas to show the new intervention
+    updateCanvas()
+  }
+
+  // Draw interventions on canvas
+  const drawInterventions = (ctx) => {
+    canvasInterventions.value.forEach(intervention => {
+      // Draw intervention box
+      ctx.save()
+      
+      // Box background
+      ctx.fillStyle = '#ffffff'
+      ctx.strokeStyle = getStatusColor(intervention.status)
+      ctx.lineWidth = 3
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.2)'
+      ctx.shadowBlur = 5
+      ctx.shadowOffsetX = 2
+      ctx.shadowOffsetY = 2
+      
+      const boxWidth = 250
+      const boxHeight = 120
+      
+      // Draw rounded rectangle
+      ctx.beginPath()
+      ctx.roundRect(intervention.position.x, intervention.position.y, boxWidth, boxHeight, 10)
+      ctx.fill()
+      ctx.stroke()
+      
+      // Draw drag bar at top
+      ctx.fillStyle = '#e0e0e0'
+      ctx.fillRect(intervention.position.x, intervention.position.y, boxWidth, 25)
+      
+      // Draw intervention name
+      ctx.fillStyle = '#333'
+      ctx.font = 'bold 14px Arial'
+      ctx.fillText(intervention.name, intervention.position.x + 10, intervention.position.y + 18)
+      
+      // Draw status badge
+      const statusX = intervention.position.x + boxWidth - 80
+      ctx.fillStyle = getStatusColor(intervention.status)
+      ctx.font = '12px Arial'
+      ctx.fillText(intervention.status, statusX, intervention.position.y + 18)
+      
+      // Draw description
+      ctx.fillStyle = '#666'
+      ctx.font = '12px Arial'
+      const lines = wrapText(ctx, intervention.description, boxWidth - 20)
+      lines.forEach((line, index) => {
+        if (index < 2) { // Max 2 lines
+          ctx.fillText(line, intervention.position.x + 10, intervention.position.y + 45 + (index * 15))
+        }
+      })
+      
+      // Draw biomarker count
+      ctx.fillStyle = '#999'
+      ctx.font = '11px Arial'
+      ctx.fillText(`${intervention.biomarkers.length} biomarkers`, intervention.position.x + 10, intervention.position.y + 100)
+      
+      ctx.restore()
+    })
+  }
+  
+  const getStatusColor = (status) => {
+    const colors = {
+      'working': '#4CAF50',
+      'experimentation': '#FF9800',
+      'no effect': '#F44336',
+      'pending': '#9E9E9E'
+    }
+    return colors[status] || '#9E9E9E'
+  }
+  
+  const wrapText = (ctx, text, maxWidth) => {
+    const words = text.split(' ')
+    const lines = []
+    let currentLine = words[0]
+    
+    for (let i = 1; i < words.length; i++) {
+      const word = words[i]
+      const width = ctx.measureText(currentLine + ' ' + word).width
+      if (width < maxWidth) {
+        currentLine += ' ' + word
+      } else {
+        lines.push(currentLine)
+        currentLine = word
+      }
+    }
+    lines.push(currentLine)
+    return lines
+  }
+
   // Add this new function to draw the peer
   const drawPeer = (ctx) => {
     if (!peerImage.value || !peerImage.value.complete) {
@@ -335,6 +453,9 @@ const handleKeyUp = (e) => {
       drawBeeCycle(ctx, bes)
     })
     
+    // Draw interventions
+    drawInterventions(ctx)
+    
     // Draw the peer last (foreground layer)
     drawPeer(ctx)
   }
@@ -345,6 +466,9 @@ const handleKeyUp = (e) => {
     ctx.fillStyle = '#140d6b'
     ctx.font = '24px Arial'
     ctx.fillText('Body Mode', 50, 50)
+    
+    // Draw interventions
+    drawInterventions(ctx)
   }
 
   const renderEarthMode = (ctx) => {
@@ -353,6 +477,9 @@ const handleKeyUp = (e) => {
     ctx.fillStyle = '#140d6b'
     ctx.font = '24px Arial'
     ctx.fillText('Earth Mode', 50, 50)
+    
+    // Draw interventions
+    drawInterventions(ctx)
   }
 
   /* life tools */

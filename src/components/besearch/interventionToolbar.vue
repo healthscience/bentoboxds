@@ -86,7 +86,8 @@
           </div>
 
           <div class="detail-actions">
-            <button class="action-btn primary" @click="editIntervention">Edit</button>
+            <button class="action-btn primary" @click="addToCanvas">Add to Canvas</button>
+            <button class="action-btn" @click="editIntervention">Edit</button>
             <button class="action-btn" @click="linkToCycle">Link to Cycle</button>
             <button class="action-btn danger" @click="deleteIntervention">Delete</button>
           </div>
@@ -106,7 +107,7 @@ const props = defineProps({
   intervention: Object
 })
 
-const emit = defineEmits(['close', 'select-intervention', 'edit', 'delete', 'link-cycle'])
+const emit = defineEmits(['close', 'select-intervention', 'edit', 'delete', 'link-cycle', 'add-intervention-to-canvas'])
 
 const viewMode = ref('list') // 'list' or 'detail'
 const selectedCategory = ref('')
@@ -280,6 +281,21 @@ const backToList = () => {
 
 const closeToolbar = () => {
   emit('close')
+}
+
+const addToCanvas = () => {
+  if (selectedIntervention.value) {
+    // Emit event with intervention data and suggested position (top-right)
+    emit('add-intervention-to-canvas', {
+      intervention: selectedIntervention.value,
+      position: {
+        x: window.innerWidth - 300, // 300px from right edge
+        y: 100 // 100px from top
+      }
+    })
+    // Close the toolbar after adding
+    emit('close')
+  }
 }
 
 const editIntervention = () => {
