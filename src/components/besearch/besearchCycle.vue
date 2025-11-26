@@ -24,21 +24,21 @@
               :class="{ 'open': isLifeToolsOpen, 'transparent': true }"
               class="life-tools-besearch"
             >
-              <button
-                @click="toggleLifeTools()"
-                @mousedown="startDrag"
-                @mousemove="drag"
-                @mouseup="endDrag"
-                @mouseleave="endDrag"
-                class="toggle-life-tools-button"
-              >
-                <div class="key-to-life">
-                  <div class="tear"></div>
-                  <div class="key-head">be</div>
-                </div>
-              </button>
               <life-tools @mode-selected="handleModeChange" @peer-moved="handlePeerMoved"  @peer-intervention="handlePeerIntervention"></life-tools>
             </div>
+            <button
+              @click="toggleLifeTools()"
+              @mousedown="startDrag"
+              @mousemove="drag"
+              @mouseup="endDrag"
+              @mouseleave="endDrag"
+              class="toggle-life-tools-button"
+            >
+              <div class="key-to-life">
+                <div class="tear"></div>
+                <div class="key-head">be</div>
+              </div>
+            </button>
           </div>
           <canvas id="besearch-cycles" :width="canvasWidth" :height="canvasHeight" ref="canvasbe" 
             @click="handleBesearchClick($event)"
@@ -1153,8 +1153,6 @@ const handleKeyUp = (e) => {
 #life-tools-container {
   position: relative;
   height: 100%;
-  /* Debug: make container visible */
-  background-color: rgba(255, 0, 0, 0.1);
   min-width: 50px;
   grid-column: 1; /* Explicitly place in first column */
   z-index: 20; /* Higher than canvas */
@@ -1179,28 +1177,29 @@ const handleKeyUp = (e) => {
 .toggle-life-tools-button {
   position: absolute;
   top: 50%;
-  right: -20px;
+  left: 10px; /* Position from left edge of container */
   transform: translateY(-50%);
   width: 60px;
   height: 60px;
-  background-color: transparent;
-  border: none;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(0, 0, 0, 0.1);
   border-radius: 50%;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   z-index: 40;
   cursor: pointer;
-  transition: transform 0.3s ease;
+  transition: all 0.3s ease;
   display: grid;
   align-items: center;
   justify-content: center;
 }
 
 .toggle-life-tools-button:hover {
-  transform: scale(1.1);
+  transform: translateY(-50%) scale(1.1);
+  background-color: rgba(255, 255, 255, 1);
 }
 
 .toggle-life-tools-button:active {
-  transform: scale(0.9);
+  transform: translateY(-50%) scale(0.9);
 }
 
 .key-to-life {
