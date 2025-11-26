@@ -40,7 +40,13 @@
               <life-tools @mode-selected="handleModeChange" @peer-moved="handlePeerMoved"  @peer-intervention="handlePeerIntervention"></life-tools>
             </div>
           </div>
-          <canvas id="besearch-cycles" :width="canvasWidth" :height="canvasHeight" ref="canvasbe" @click="handleBesearchClick($event)"></canvas>
+          <canvas id="besearch-cycles" :width="canvasWidth" :height="canvasHeight" ref="canvasbe" 
+            @click="handleBesearchClick($event)"
+            @mousedown="handleCanvasMouseDown($event)"
+            @mousemove="handleCanvasMouseMove($event)"
+            @mouseup="handleCanvasMouseUp($event)"
+            @mouseleave="handleCanvasMouseUp($event)"
+          ></canvas>
         </div>
         <div id="beebee-agent">
           <button id="open-beebee" @click.prevent="setShowBeeBee">
@@ -109,6 +115,8 @@ const interventionToolbarRef = ref(null)
 
 // Canvas interventions
 const canvasInterventions = ref([])
+const draggingIntervention = ref(null)
+const dragOffset = ref({ x: 0, y: 0 })
 
 // Add these variables to your existing refs
 const peer = ref({
@@ -257,6 +265,11 @@ onMounted(() => {
     canvasInterventions.value.forEach(intervention => {
       // Draw intervention box
       ctx.save()
+      
+      // Apply opacity if being dragged
+      if (draggingIntervention.value && draggingIntervention.value.id === intervention.id) {
+        ctx.globalAlpha = 0.7
+      }
       
       // Box background
       ctx.fillStyle = '#ffffff'
@@ -508,6 +521,75 @@ const handleKeyUp = (e) => {
 
   const endDrag = () => {
     isDragging.value = false
+  }
+  
+  // Canvas mouse event handlers for intervention dragging
+  const handleCanvasMouseDown = (event) => {
+    const rect = canvasbe.value.getBoundingClientRect()
+    const x = event.clientX - rect.left
+    const y = event.clientY - rect.top
+    
+    // Check if click is on any intervention's drag bar
+    for (const intervention of canvasInterventions.value) {
+      const boxWidth = 250
+      const dragBarHeight = 25
+      
+      if (x >= intervention.position.x && 
+          x <= intervention.position.x + boxWidth &&
+          y >= intervention.position.y && 
+          y <= intervention.position.y + dragBarHeight) {
+        // Start dragging this intervention
+        draggingIntervention.value = intervention
+        dragOffset.value = {
+          x: x - intervention.position.x,
+          y: y - intervention.position.y
+        }
+        event.preventDefault()
+        break
+      }
+    }
+  }
+  
+  const handleCanvasMouseMove = (event) => {
+    const rect = canvasbe.value.getBoundingClientRect()
+    const x = event.clientX - rect.left
+    const y = event.clientY - rect.top
+    
+    if (draggingIntervention.value) {
+      // Update intervention position
+      draggingIntervention.value.position.x = x - dragOffset.value.x
+      draggingIntervention.value.position.y = y - dragOffset.value.y
+      
+      // Redraw canvas
+      updateCanvas()
+    } else {
+      // Check if hovering over drag bar for cursor change
+      let isOverDragBar = false
+      for (const intervention of canvasInterventions.value) {
+        const boxWidth = 250
+        const dragBarHeight = 25
+        
+        if (x >= intervention.position.x && 
+            x <= intervention.position.x + boxWidth &&
+            y >= intervention.position.y && 
+            y <= intervention.position.y + dragBarHeight) {
+          isOverDragBar = true
+          break
+        }
+      }
+      
+      canvasbe.value.style.cursor = isOverDragBar ? 'move' : 'default'
+    }
+  }
+  
+  const handleCanvasMouseUp = (event) => {
+    if (draggingIntervention.value) {
+      // Check if intervention is near any besearch cycle for linking
+      // TODO: Implement proximity-based linking
+      
+      draggingIntervention.value = null
+      dragOffset.value = { x: 0, y: 0 }
+    }
   }
 
   const drawText = (ctx) => {
