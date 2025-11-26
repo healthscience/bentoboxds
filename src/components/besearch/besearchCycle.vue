@@ -189,6 +189,10 @@ const peer = ref({
   direction: { x: 0, y: 0 }
 })
 
+// Game world viewport
+const viewport = ref({ x: 0, y: 0 })
+const worldBounds = { width: 5000, height: 5000 }
+
 defineExpose({ canvasbe })
 
 /* on mount */
@@ -203,6 +207,14 @@ onMounted(() => {
     
     peerImage.value = new Image()
     peerImage.value.src = peerLogo
+    
+    // Restore canvas state from store
+    const canvasState = storeBesearch.canvasState
+    peer.value.x = canvasState.peerPosition.x
+    peer.value.y = canvasState.peerPosition.y
+    peer.value.direction = canvasState.peerDirection
+    viewport.value = { ...canvasState.viewport }
+    canvasInterventions.value = [...canvasState.interventions]
     
     updateCanvas()
     // Set up keyboard event listeners
@@ -247,6 +259,9 @@ onMounted(() => {
     // Update direction and movement state
     peer.value.direction = peerData.direction
     peer.value.isMoving = peerData.isMoving
+    
+    // Save direction to store
+    storeBesearch.updatePeerDirection(peerData.direction)
 
     // Update canvas
     updateCanvas()
@@ -328,6 +343,9 @@ onMounted(() => {
       canvasInterventions.value = []
     }
     canvasInterventions.value.push(canvasIntervention)
+    
+    // Save to store
+    storeBesearch.addIntervention(canvasIntervention)
     
     console.log('Canvas interventions after add:', canvasInterventions.value.length)
     
@@ -497,13 +515,32 @@ const handleKeyUp = (e) => {
     }
     
     if (peer.value.isMoving) {
-      // Update peer position
+      // Update peer position in world coordinates
       peer.value.x += peer.value.direction.x * peer.value.speed
       peer.value.y += peer.value.direction.y * peer.value.speed
 
-      // Keep peer within canvas bounds
-      peer.value.x = Math.max(0, Math.min(canvas.value.width - peer.value.width, peer.value.x))
-      peer.value.y = Math.max(0, Math.min(canvas.value.height - peer.value.height, peer.value.y))
+      // Keep peer within world bounds
+      peer.value.x = Math.max(0, Math.min(worldBounds.width - peer.value.width, peer.value.x))
+      peer.value.y = Math.max(0, Math.min(worldBounds.height - peer.value.height, peer.value.y))
+      
+      // Update viewport to follow peer (game-world scrolling)
+      const screenCenterX = canvasWidth.value / 2
+      const screenCenterY = canvasHeight.value / 2
+      
+      // Calculate desired viewport position to center peer
+      let newViewportX = peer.value.x - screenCenterX + peer.value.width / 2
+      let newViewportY = peer.value.y - screenCenterY + peer.value.height / 2
+      
+      // Constrain viewport to world bounds
+      newViewportX = Math.max(0, Math.min(worldBounds.width - canvasWidth.value, newViewportX))
+      newViewportY = Math.max(0, Math.min(worldBounds.height - canvasHeight.value, newViewportY))
+      
+      viewport.value.x = newViewportX
+      viewport.value.y = newViewportY
+      
+      // Save state to store
+      storeBesearch.updatePeerPosition({ x: peer.value.x, y: peer.value.y })
+      storeBesearch.updateViewport(viewport.value)
     }
     
     // Always update canvas to show animations
@@ -522,6 +559,12 @@ const handleKeyUp = (e) => {
     if (!ctx.value) return
 
     ctx.value.clearRect(0, 0, canvas.value.width, canvas.value.height)
+    
+    // Save the context state
+    ctx.value.save()
+    
+    // Apply viewport transformation
+    ctx.value.translate(-viewport.value.x, -viewport.value.y)
 
     switch(currentMode.value) {
       case 'cues':
@@ -534,6 +577,9 @@ const handleKeyUp = (e) => {
         renderEarthMode(ctx.value)
         break
     }
+    
+    // Restore the context state
+    ctx.value.restore()
   }
 
   const renderCuesMode = (ctx) => {
@@ -610,8 +656,8 @@ const handleKeyUp = (e) => {
   // Canvas mouse event handlers for intervention dragging
   const handleCanvasMouseDown = (event) => {
     const rect = canvasbe.value.getBoundingClientRect()
-    const x = event.clientX - rect.left
-    const y = event.clientY - rect.top
+    const x = event.clientX - rect.left + viewport.value.x
+    const y = event.clientY - rect.top + viewport.value.y
     
     // Check if click is on any besearch cycle
     for (const cycle of storeBesearch.besearchCyles) {
@@ -685,8 +731,8 @@ const handleKeyUp = (e) => {
   
   const handleCanvasMouseMove = (event) => {
     const rect = canvasbe.value.getBoundingClientRect()
-    const x = event.clientX - rect.left
-    const y = event.clientY - rect.top
+    const x = event.clientX - rect.left + viewport.value.x
+    const y = event.clientY - rect.top + viewport.value.y
     
     if (draggingCycle.value) {
       // Update cycle position
@@ -873,8 +919,8 @@ const handleKeyUp = (e) => {
   
   const handleCanvasDoubleClick = (event) => {
     const rect = canvasbe.value.getBoundingClientRect()
-    const x = event.clientX - rect.left
-    const y = event.clientY - rect.top
+    const x = event.clientX - rect.left + viewport.value.x
+    const y = event.clientY - rect.top + viewport.value.y
     
     // Check if double-click is on any besearch cycle
     for (const cycle of storeBesearch.besearchCyles) {
@@ -973,6 +1019,12 @@ const handleKeyUp = (e) => {
 #besearch-holder {
   display: grid;
   grid-template-columns: 1fr 7fr;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
 }
 
 #cycle-periods {
@@ -988,6 +1040,9 @@ const handleKeyUp = (e) => {
   border-radius: 2%;
   width: 100%;
   height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 #besearch-modal-header {
