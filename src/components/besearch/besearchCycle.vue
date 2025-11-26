@@ -263,7 +263,18 @@ onMounted(() => {
       // Get canvas element
       canvas.value = document.getElementById('besearch-cycles')
       if (canvas.value) {
+        // Set canvas dimensions
+        canvas.value.width = window.innerWidth - 200 // Account for life tools sidebar
+        canvas.value.height = window.innerHeight - 100
+        
         ctx.value = canvas.value.getContext('2d')
+        
+        // Draw immediate test to verify canvas is working
+        ctx.value.fillStyle = 'blue'
+        ctx.value.fillRect(0, 0, canvas.value.width, canvas.value.height)
+        ctx.value.fillStyle = 'white'
+        ctx.value.font = '48px Arial'
+        ctx.value.fillText('CANVAS IS WORKING!', 200, 200)
         
         // Load images if not already loaded
         if (!beeCycleImage.value) {
@@ -316,6 +327,13 @@ onMounted(() => {
     ctx.value = canvas.value.getContext('2d')
     
     console.log('Besearch cycles from store:', liveBesearch.value)
+    
+    // Draw a test rectangle to verify canvas is working
+    ctx.value.fillStyle = 'red'
+    ctx.value.fillRect(100, 100, 200, 200)
+    ctx.value.fillStyle = 'black'
+    ctx.value.font = '30px Arial'
+    ctx.value.fillText('Canvas Test', 150, 150)
     
     // Start game loop if not already running
     if (!gameLoopRunning) {
@@ -1142,6 +1160,8 @@ const handleKeyUp = (e) => {
   position: absolute;
   top: 0;
   left: 0;
+  z-index: 1;
+  background-color: rgba(255, 255, 255, 0.9);
 }
 
 #besearch-modal-header {
