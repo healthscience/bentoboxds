@@ -305,7 +305,11 @@ onMounted(() => {
     
     // Call updateCanvas to draw the besearch cycles
     console.log('Calling updateCanvas from initializeCanvas')
-    updateCanvas()
+    // Add a small delay to ensure everything is ready
+    setTimeout(() => {
+      console.log('Delayed updateCanvas call')
+      updateCanvas()
+    }, 100)
   }
 
   /* methods */
