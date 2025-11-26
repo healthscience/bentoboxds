@@ -208,7 +208,32 @@ onMounted(() => {
   const canvasState = storeBesearch.canvasState
   peer.value.x = canvasState.peerPosition.x
   peer.value.y = canvasState.peerPosition.y
-  peer.value.direction = canvasState.peerDirection
+  
+  // Handle direction - ensure it's always an object
+  if (typeof canvasState.peerDirection === 'string') {
+    // Convert string direction to object format
+    switch(canvasState.peerDirection) {
+      case 'up':
+        peer.value.direction = { x: 0, y: -1 }
+        break
+      case 'down':
+        peer.value.direction = { x: 0, y: 1 }
+        break
+      case 'left':
+        peer.value.direction = { x: -1, y: 0 }
+        break
+      case 'right':
+        peer.value.direction = { x: 1, y: 0 }
+        break
+      default:
+        peer.value.direction = { x: 0, y: 0 }
+    }
+  } else if (canvasState.peerDirection && typeof canvasState.peerDirection === 'object') {
+    peer.value.direction = { ...canvasState.peerDirection }
+  } else {
+    peer.value.direction = { x: 0, y: 0 }
+  }
+  
   viewport.value = { ...canvasState.viewport }
   canvasInterventions.value = [...canvasState.interventions]
   
@@ -323,7 +348,29 @@ onMounted(() => {
   // Add these methods to handle peer movement events
   const handlePeerMoved = (peerData) => {
     // Update direction and movement state
-    peer.value.direction = peerData.direction
+    // Handle both object and string formats for direction
+    if (typeof peerData.direction === 'string') {
+      // Convert string direction to object format
+      switch(peerData.direction) {
+        case 'up':
+          peer.value.direction = { x: 0, y: -1 }
+          break
+        case 'down':
+          peer.value.direction = { x: 0, y: 1 }
+          break
+        case 'left':
+          peer.value.direction = { x: -1, y: 0 }
+          break
+        case 'right':
+          peer.value.direction = { x: 1, y: 0 }
+          break
+        default:
+          peer.value.direction = { x: 0, y: 0 }
+      }
+    } else if (peerData.direction && typeof peerData.direction === 'object') {
+      peer.value.direction = { ...peerData.direction }
+    }
+    
     peer.value.isMoving = peerData.isMoving
     
     // Save direction to store
