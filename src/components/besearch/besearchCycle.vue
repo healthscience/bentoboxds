@@ -25,20 +25,20 @@
               class="life-tools-besearch"
             >
               <life-tools @mode-selected="handleModeChange" @peer-moved="handlePeerMoved"  @peer-intervention="handlePeerIntervention"></life-tools>
-              <button
-                @click="toggleLifeTools()"
-                @mousedown="startDrag"
-                @mousemove="drag"
-                @mouseup="endDrag"
-                @mouseleave="endDrag"
-                class="toggle-life-tools-button"
-              >
-                <div class="key-to-life">
-                  <div class="tear"></div>
-                  <div class="key-head">be</div>
-                </div>
-              </button>
             </div>
+            <button
+              @click="toggleLifeTools()"
+              @mousedown="startDrag"
+              @mousemove="drag"
+              @mouseup="endDrag"
+              @mouseleave="endDrag"
+              class="toggle-life-tools-button"
+            >
+              <div class="key-to-life">
+                <div class="tear"></div>
+                <div class="key-head">be</div>
+              </div>
+            </button>
           </div>
           <canvas id="besearch-cycles" :width="canvasWidth" :height="canvasHeight" ref="canvasbe" 
             @click="handleBesearchClick($event)"
@@ -142,7 +142,7 @@ const storeAI = aiInterfaceStore()
 const storeBentobox = bentoboxStore()
 const storeBesearch = besearchStore()
 
-// Single canvas reference - template uses canvasbe
+// Canvas reference - template uses ref="canvasbe"
 const canvasbe = ref(null)
 const currentMode = ref('cues')
 const canvasWidth = ref(window.innerWidth)
@@ -239,7 +239,36 @@ onMounted(() => {
     return storeBesearch.besearchCyles
   })
 
-  // Removed duplicate watcher - using the one at line 1109 instead
+  // Watch for modal open/close
+  // The watch will handle canvas initialization when modal opens
+  watch(bentoBesearchStatus, async (newValue) => {
+    if (newValue) {
+      await nextTick()
+      
+      // NOW we can safely access the canvas
+      if (!canvasbe.value) {
+        console.error('Canvas ref not available')
+        return
+      }
+      
+      ctx.value = canvasbe.value.getContext('2d')
+      
+      // Set dimensions and initialize
+      const width = window.innerWidth - 200
+      const height = window.innerHeight - 100
+      canvasbe.value.width = width
+      canvasbe.value.height = height
+      
+      // Initialize canvas with besearch cycles
+      initializeCanvas()
+      
+      // Start game loop if not already running
+      if (!gameLoopRunning) {
+        gameLoopRunning = true
+        gameLoop()
+      }
+    }
+  })
 
   // Track if game loop is running
   let gameLoopRunning = false
@@ -266,8 +295,13 @@ onMounted(() => {
     ctx.value = canvasbe.value.getContext('2d')
     
     console.log('Besearch cycles from store:', liveBesearch.value)
-    console.log('Canvas context available:', !!ctx.value)
-    console.log('Current mode:', currentMode.value)
+    
+    // Draw a test rectangle to verify canvas is working
+    ctx.value.fillStyle = 'red'
+    ctx.value.fillRect(100, 100, 200, 200)
+    ctx.value.fillStyle = 'black'
+    ctx.value.font = '30px Arial'
+    ctx.value.fillText('Canvas Test', 150, 150)
     
     // Start game loop if not already running
     if (!gameLoopRunning) {
@@ -275,16 +309,8 @@ onMounted(() => {
       gameLoop()
     }
     
-    // Call updateCanvas to draw the besearch cycles
-    console.log('Calling updateCanvas from initializeCanvas')
-    
-    // Test drawing directly
-    ctx.value.fillStyle = 'red'
-    ctx.value.fillRect(100, 100, 200, 200)
-    ctx.value.fillStyle = 'black'
-    ctx.value.font = '30px Arial'
-    ctx.value.fillText('TEST CANVAS', 150, 200)
-    
+    // The besearch cycles from store will be rendered automatically
+    // by the updateCanvas function
     updateCanvas()
   }
 
@@ -360,9 +386,8 @@ onMounted(() => {
     const { intervention } = data
     
     // Calculate position relative to canvas dimensions
-    console.log('Canvas dimensions:', canvasWidth.value, canvasHeight.value)
     const position = {
-      x: 800, // Fixed position for now
+      x: canvasWidth.value - 300, // 300px from right edge
       y: 100 // 100px from top
     }
     
@@ -628,12 +653,13 @@ const handleKeyUp = (e) => {
   }
 
   const renderCuesMode = (ctx) => {
-    // Don't clear again - updateCanvas already cleared and set up the context
+    // Clear the entire canvas first
+    ctx.clearRect(0, 0, canvasbe.value.width, canvasbe.value.height)
     
-    // Draw title (accounting for viewport transformation)
+    // Draw title
     ctx.fillStyle = '#140d6b'
     ctx.font = '24px Arial'
-    ctx.fillText('Cues Space Mode', viewport.value.x + 50, viewport.value.y + 50)
+    ctx.fillText('Cues Space Mode', 50, 50)
 
     console.log('liveBesearch.value:', liveBesearch.value)
     console.log('Number of besearch cycles:', liveBesearch.value.length)
@@ -969,14 +995,6 @@ const handleKeyUp = (e) => {
 
   /* methods */
   const closeBentoBesearch = () => {
-    // Save canvas state before closing
-    storeBesearch.saveCanvasState({
-      peerPosition: { x: peer.value.x, y: peer.value.y },
-      peerDirection: peer.value.direction,
-      viewport: { ...viewport.value },
-      interventions: [...canvasInterventions.value]
-    })
-    
     storeAI.bentobesearchState = false
   }
 
@@ -1080,24 +1098,6 @@ const handleKeyUp = (e) => {
       cycleEditData.active = newCycle.active !== false
     }
   })
-  
-  // Watch for modal visibility changes
-  watch(bentoBesearchStatus, async (newVal) => {
-    console.log('Modal visibility changed:', newVal)
-    if (newVal) {
-      // Wait for DOM to update
-      await nextTick()
-      
-      // Initialize canvas when modal opens
-      if (canvasbe.value) {
-        ctx.value = canvasbe.value.getContext('2d')
-        console.log('Canvas initialized from watcher')
-        initializeCanvas()
-      } else {
-        console.log('Canvas ref not available yet')
-      }
-    }
-  })
 </script>
 
 <style scoped>
@@ -1178,7 +1178,7 @@ const handleKeyUp = (e) => {
 .toggle-life-tools-button {
   position: absolute;
   top: 50%;
-  right: -30px; /* Position on the right edge of life-tools panel */
+  left: 10px; /* Position from left edge of container */
   transform: translateY(-50%);
   width: 60px;
   height: 60px;
