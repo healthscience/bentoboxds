@@ -216,7 +216,12 @@ onMounted(() => {
     viewport.value = { ...canvasState.viewport }
     canvasInterventions.value = [...canvasState.interventions]
     
-    updateCanvas()
+    // Initialize canvas if modal is already open
+    if (bentoBesearchStatus.value) {
+      initializeCanvas()
+    } else {
+      updateCanvas()
+    }
     // Set up keyboard event listeners
     window.addEventListener('keydown', handleKeyDown)
     window.addEventListener('keyup', handleKeyUp)
@@ -247,6 +252,27 @@ onMounted(() => {
   const liveBesearch = computed(() => {
     return storeBesearch.besearchCyles
   })
+
+  // Watch for modal open/close
+  watch(bentoBesearchStatus, (newValue) => {
+    if (newValue && canvas.value) {
+      // Modal is opening, initialize canvas
+      initializeCanvas()
+    }
+  })
+
+  // Initialize canvas with besearch data
+  const initializeCanvas = () => {
+    if (!ctx.value || !canvas.value) return
+    
+    // Ensure canvas size is set
+    canvasWidth.value = window.innerWidth
+    canvasHeight.value = window.innerHeight - 100
+    
+    // The besearch cycles from store will be rendered automatically
+    // by the updateCanvas function
+    updateCanvas()
+  }
 
   /* methods */
   const setShowBeeBee = () => {
