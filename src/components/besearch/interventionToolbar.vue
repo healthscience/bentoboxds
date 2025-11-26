@@ -43,48 +43,50 @@
           <button class="close-btn" @click="closeToolbar">✕</button>
         </div>
         
-        <div class="detail-content">
-          <div class="detail-section">
-            <h4>Description</h4>
-            <p>{{ selectedIntervention.description }}</p>
-            <div class="status-info">
-              <span>Status: </span>
-              <span class="status-badge" :class="getStatusClass(selectedIntervention.status)">
-                {{ selectedIntervention.status }}
-              </span>
-            </div>
-          </div>
-
-          <div class="detail-section">
-            <h4>Baseline Biomarkers</h4>
-            <div class="biomarkers-list">
-              <span 
-                v-for="biomarker in selectedIntervention.biomarkers" 
-                :key="biomarker"
-                class="biomarker-tag"
-              >
-                {{ biomarker }}
-              </span>
-            </div>
-          </div>
-
-          <div class="detail-section">
-            <h4>Linked Besearch Cycles ({{ selectedIntervention.besearchCycles?.length || 0 }})</h4>
-            <div v-if="selectedIntervention.besearchCycles?.length" class="cycles-list">
-              <div 
-                v-for="cycleId in selectedIntervention.besearchCycles" 
-                :key="cycleId"
-                class="cycle-item"
-              >
-                <span class="cycle-icon">🔄</span>
-                <span>{{ cycleId }}</span>
+        <div class="detail-content-wrapper">
+          <div class="detail-content">
+            <div class="detail-section">
+              <h4>Description</h4>
+              <p>{{ selectedIntervention.description }}</p>
+              <div class="status-info">
+                <span>Status: </span>
+                <span class="status-badge" :class="getStatusClass(selectedIntervention.status)">
+                  {{ selectedIntervention.status }}
+                </span>
               </div>
             </div>
-            <div v-else class="no-cycles">
-              No besearch cycles linked yet
+
+            <div class="detail-section">
+              <h4>Baseline Biomarkers</h4>
+              <div class="biomarkers-list">
+                <span 
+                  v-for="biomarker in selectedIntervention.biomarkers" 
+                  :key="biomarker"
+                  class="biomarker-tag"
+                >
+                  {{ biomarker }}
+                </span>
+              </div>
+            </div>
+
+            <div class="detail-section">
+              <h4>Linked Besearch Cycles ({{ selectedIntervention.besearchCycles?.length || 0 }})</h4>
+              <div v-if="selectedIntervention.besearchCycles?.length" class="cycles-list">
+                <div 
+                  v-for="cycleId in selectedIntervention.besearchCycles" 
+                  :key="cycleId"
+                  class="cycle-item"
+                >
+                  <span class="cycle-icon">🔄</span>
+                  <span>{{ cycleId }}</span>
+                </div>
+              </div>
+              <div v-else class="no-cycles">
+                No besearch cycles linked yet
+              </div>
             </div>
           </div>
-
+          
           <div class="detail-actions">
             <button class="action-btn primary" @click="addToCanvas">Add to Canvas</button>
             <button class="action-btn" @click="editIntervention">Edit</button>
@@ -482,6 +484,13 @@ defineExpose({
   flex-direction: column;
 }
 
+.detail-content-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 .detail-content {
   flex: 1;
   padding: 24px;
@@ -545,11 +554,12 @@ defineExpose({
 }
 
 .detail-actions {
-  grid-column: 1 / -1;
   display: flex;
   gap: 12px;
-  padding-top: 16px;
+  padding: 16px 24px;
+  background: #f8f9fa;
   border-top: 1px solid #e0e0e0;
+  flex-shrink: 0;
 }
 
 .action-btn {

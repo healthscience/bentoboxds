@@ -258,6 +258,9 @@ onMounted(() => {
     
     // Redraw canvas to show the new intervention
     updateCanvas()
+    
+    // Auto-close the life tools panel
+    isLifeToolsOpen.value = false
   }
 
   // Draw interventions on canvas
