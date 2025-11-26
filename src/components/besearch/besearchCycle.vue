@@ -1241,7 +1241,7 @@ const handleKeyUp = (e) => {
 
 @media (min-width: 1024px) {
   #besearch-holder {
-    display: flex;
+    display: grid;
     width: 100%;
     height: 100%;
     position: relative;
@@ -1396,7 +1396,7 @@ const handleKeyUp = (e) => {
 }
 
 .cycle-toolbar .toolbar-header {
-  display: flex;
+  display: grid;
   align-items: center;
   justify-content: space-between;
   padding: 16px 24px;
@@ -1440,8 +1440,8 @@ const handleKeyUp = (e) => {
 }
 
 .cycle-toolbar .info-field {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-direction: column;
   gap: 8px;
 }
 
@@ -1475,7 +1475,7 @@ const handleKeyUp = (e) => {
 }
 
 .cycle-toolbar .linked-interventions {
-  flex: 1;
+  grid: 1;
 }
 
 .cycle-toolbar .linked-interventions h4 {
@@ -1485,13 +1485,13 @@ const handleKeyUp = (e) => {
 }
 
 .cycle-toolbar .interventions-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-direction: column;
   gap: 8px;
 }
 
 .cycle-toolbar .linked-item {
-  display: flex;
+  display: grid;
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
