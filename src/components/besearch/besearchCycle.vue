@@ -784,13 +784,9 @@ const handleKeyUp = (e) => {
     const x = event.clientX - rect.left + viewport.value.x
     const y = event.clientY - rect.top + viewport.value.y
     
-    console.log('Mouse down at:', x, y)
-    console.log('Besearch cycles:', storeBesearch.besearchCyles)
-    
     // Check if click is on any besearch cycle
     for (const cycle of storeBesearch.besearchCyles) {
       const distance = Math.sqrt(Math.pow(x - cycle.x, 2) + Math.pow(y - cycle.y, 2))
-      console.log(`Checking cycle ${cycle.name} at (${cycle.x}, ${cycle.y}), distance: ${distance}`)
       
       if (distance <= 60) { // 60px radius for cycle click detection
         // Check if clicking on edit button (top-right area)
@@ -872,8 +868,8 @@ const handleKeyUp = (e) => {
       updateCanvas()
     } else if (draggingIntervention.value) {
       // Update intervention position
-      draggingIntervention.value.position.x = x - dragOffset.value.x
-      draggingIntervention.value.position.y = y - dragOffset.value.y
+      draggingIntervention.value.x = x - dragOffset.value.x
+      draggingIntervention.value.y = y - dragOffset.value.y
       
       // Redraw canvas
       updateCanvas()
@@ -884,14 +880,14 @@ const handleKeyUp = (e) => {
         const boxWidth = 250
         const dragBarHeight = 25
         
-        if (x >= intervention.position.x && 
-            x <= intervention.position.x + boxWidth &&
-            y >= intervention.position.y && 
-            y <= intervention.position.y + dragBarHeight) {
+        if (x >= intervention.x && 
+            x <= intervention.x + boxWidth &&
+            y >= intervention.y && 
+            y <= intervention.y + dragBarHeight) {
           
           // Check if over remove button
-          if (x >= intervention.position.x + boxWidth - 30 && 
-              x <= intervention.position.x + boxWidth - 10) {
+          if (x >= intervention.x + boxWidth - 30 && 
+              x <= intervention.x + boxWidth - 10) {
             cursor = 'pointer'
           } else {
             cursor = 'move'
@@ -911,8 +907,8 @@ const handleKeyUp = (e) => {
       dragOffset.value = { x: 0, y: 0 }
     } else if (draggingIntervention.value) {
       // Check if intervention is near any besearch cycle for linking
-      const interventionCenterX = draggingIntervention.value.position.x + 125 // half of box width
-      const interventionCenterY = draggingIntervention.value.position.y + 60 // half of box height
+      const interventionCenterX = draggingIntervention.value.x + 125 // half of box width
+      const interventionCenterY = draggingIntervention.value.y + 60 // half of box height
       
       // Clear existing links for this intervention
       draggingIntervention.value.linkedCycles = []
