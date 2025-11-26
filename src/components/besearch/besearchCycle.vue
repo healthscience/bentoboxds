@@ -37,7 +37,7 @@
                   <div class="key-head">be</div>
                 </div>
               </button>
-              <life-tools @mode-selected="handleModeChange" @peer-moved="handlePeerMoved"  @peer-intervention="handlePeerIntervention"></life-tools>
+              <LifeTools @mode-selected="handleModeChange" @peer-moved="handlePeerMoved"  @peer-intervention="handlePeerIntervention"></LifeTools>
             </div>
           </div>
           <canvas id="besearch-cycles" :width="canvasWidth" :height="canvasHeight" ref="canvasbe" 
