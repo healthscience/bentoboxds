@@ -142,13 +142,12 @@ const storeAI = aiInterfaceStore()
 const storeBentobox = bentoboxStore()
 const storeBesearch = besearchStore()
 
-const canvas = ref(null)
-const canvasbe = ref(null) // Note: template uses canvasRef, need to sync these
+// Single canvas reference - template uses canvasbe
+const canvasbe = ref(null)
 const currentMode = ref('cues')
 const canvasWidth = ref(window.innerWidth)
 const canvasHeight = ref(window.innerHeight - 100) // Leave some space for header
 const isLifeToolsOpen = ref(false)
-const canvasRef = ref(null)
 const ctx = ref(null)
 const angle = ref(0)
 const radius = ref(100)
@@ -220,9 +219,9 @@ onMounted(() => {
   window.addEventListener('resize', () => {
     canvasWidth.value = window.innerWidth
     canvasHeight.value = window.innerHeight - 100
-    if (canvas.value) {
-      canvas.value.width = canvasWidth.value
-      canvas.value.height = canvasHeight.value
+    if (canvasbe.value) {
+      canvasbe.value.width = canvasWidth.value
+      canvasbe.value.height = canvasHeight.value
     }
   })
 })
@@ -240,34 +239,7 @@ onMounted(() => {
     return storeBesearch.besearchCyles
   })
 
-  // Watch for modal open/close
-  // The watch will handle canvas initialization when modal opens
-  watch(bentoBesearchStatus, async (newValue) => {
-    if (newValue) {
-      await nextTick()
-      
-      // NOW we can safely access the canvas
-      if (!canvasRef.value) {
-        console.error('Canvas ref not available')
-        return
-      }
-      
-      canvas.value = canvasRef.value
-      ctx.value = canvas.value.getContext('2d')
-      
-      // Set dimensions and initialize
-      const width = window.innerWidth - 200
-      const height = window.innerHeight - 100
-      canvas.value.width = width
-      canvas.value.height = height
-      
-      // Start game loop if not already running
-      if (!gameLoopRunning) {
-        gameLoopRunning = true
-        gameLoop()
-      }
-    }
-  })
+  // Removed duplicate watcher - using the one at line 1109 instead
 
   // Track if game loop is running
   let gameLoopRunning = false
@@ -275,8 +247,8 @@ onMounted(() => {
   // Initialize canvas with besearch data
   const initializeCanvas = () => {
     console.log('initializeCanvas called')
-    if (!ctx.value || !canvas.value) {
-      console.log('No context or canvas:', ctx.value, canvas.value)
+    if (!ctx.value || !canvasbe.value) {
+      console.log('No context or canvas:', ctx.value, canvasbe.value)
       return
     }
     
@@ -287,11 +259,11 @@ onMounted(() => {
     console.log('Setting canvas dimensions:', canvasWidth.value, canvasHeight.value)
     
     // Force canvas to update its actual dimensions
-    canvas.value.width = canvasWidth.value
-    canvas.value.height = canvasHeight.value
+    canvasbe.value.width = canvasWidth.value
+    canvasbe.value.height = canvasHeight.value
     
     // Re-get context after setting dimensions (canvas clear on resize)
-    ctx.value = canvas.value.getContext('2d')
+    ctx.value = canvasbe.value.getContext('2d')
     
     console.log('Besearch cycles from store:', liveBesearch.value)
     console.log('Canvas context available:', !!ctx.value)
@@ -305,11 +277,15 @@ onMounted(() => {
     
     // Call updateCanvas to draw the besearch cycles
     console.log('Calling updateCanvas from initializeCanvas')
-    // Add a small delay to ensure everything is ready
-    setTimeout(() => {
-      console.log('Delayed updateCanvas call')
-      updateCanvas()
-    }, 100)
+    
+    // Test drawing directly
+    ctx.value.fillStyle = 'red'
+    ctx.value.fillRect(100, 100, 200, 200)
+    ctx.value.fillStyle = 'black'
+    ctx.value.font = '30px Arial'
+    ctx.value.fillText('TEST CANVAS', 150, 200)
+    
+    updateCanvas()
   }
 
   /* methods */
@@ -627,7 +603,7 @@ const handleKeyUp = (e) => {
     }
 
     console.log('updateCanvas called, mode:', currentMode.value)
-    ctx.value.clearRect(0, 0, canvas.value.width, canvas.value.height)
+    ctx.value.clearRect(0, 0, canvasbe.value.width, canvasbe.value.height)
     
     // Save the context state
     ctx.value.save()
@@ -681,7 +657,7 @@ const handleKeyUp = (e) => {
 
   const renderBodyMode = (ctx) => {
     // Draw body content without background color
-    ctx.clearRect(0, 0, canvas.value.width, canvas.value.height)
+    ctx.clearRect(0, 0, canvasbe.value.width, canvasbe.value.height)
     ctx.fillStyle = '#140d6b'
     ctx.font = '24px Arial'
     ctx.fillText('Body Mode', 50, 50)
@@ -692,7 +668,7 @@ const handleKeyUp = (e) => {
 
   const renderEarthMode = (ctx) => {
     // Draw earth content without background color
-    ctx.clearRect(0, 0, canvas.value.width, canvas.value.height)
+    ctx.clearRect(0, 0, canvasbe.value.width, canvasbe.value.height)
     ctx.fillStyle = '#140d6b'
     ctx.font = '24px Arial'
     ctx.fillText('Earth Mode', 50, 50)
@@ -1001,7 +977,7 @@ const handleKeyUp = (e) => {
       interventions: [...canvasInterventions.value]
     })
     
-    storeAI.bentobesearchState = !storeAI.bentobesearchState
+    storeAI.bentobesearchState = false
   }
 
   const handleBesearchClick = (event) => {
@@ -1114,8 +1090,7 @@ const handleKeyUp = (e) => {
       
       // Initialize canvas when modal opens
       if (canvasbe.value) {
-        canvas.value = canvasbe.value
-        ctx.value = canvas.value.getContext('2d')
+        ctx.value = canvasbe.value.getContext('2d')
         console.log('Canvas initialized from watcher')
         initializeCanvas()
       } else {
