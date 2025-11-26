@@ -129,7 +129,7 @@ import peerLogo from '@/assets/peerlogo.png'
 import LifeTools from '@/components/besearch/lifetools/lifeNavtools.vue'
 import InterventionToolbar from '@/components/besearch/interventionToolbar.vue'
 import beeCycle from '@/assets/besearch-cycle.png'
-import { ref, computed, onMounted, reactive, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, reactive, watch } from 'vue'
 import BeebeeAi from '@/components/beebeehelp/spaceChat.vue'
 import ModalBesearch from '@/components/besearch/besearchModal.vue'
 import { cuesStore } from '@/stores/cuesStore.js'
@@ -144,8 +144,8 @@ const storeBesearch = besearchStore()
 
 const canvas = ref(null)
 const currentMode = ref('cues')
-const canvasWidth = ref(1400)
-const canvasHeight = ref(900)
+const canvasWidth = ref(window.innerWidth)
+const canvasHeight = ref(window.innerHeight - 100) // Leave some space for header
 const isLifeToolsOpen = ref(false)
 const canvasbe = ref(null)
 const ctx = ref(null)
@@ -208,6 +208,13 @@ onMounted(() => {
     // Set up keyboard event listeners
     window.addEventListener('keydown', handleKeyDown)
     window.addEventListener('keyup', handleKeyUp)
+    
+    // Handle window resize
+    window.addEventListener('resize', () => {
+      canvasWidth.value = window.innerWidth
+      canvasHeight.value = window.innerHeight - 100
+      updateCanvas()
+    })
 
     // Start the game loop
     gameLoop()
@@ -295,7 +302,13 @@ onMounted(() => {
 
   const handleAddInterventionToCanvas = (data) => {
     console.log('Adding intervention to canvas:', data)
-    const { intervention, position } = data
+    const { intervention } = data
+    
+    // Calculate position relative to canvas dimensions
+    const position = {
+      x: canvasWidth.value - 300, // 300px from right edge
+      y: 100 // 100px from top
+    }
     
     // Create a new intervention object on the canvas
     const canvasIntervention = {
@@ -316,6 +329,8 @@ onMounted(() => {
     }
     canvasInterventions.value.push(canvasIntervention)
     
+    console.log('Canvas interventions after add:', canvasInterventions.value.length)
+    
     // Redraw canvas to show the new intervention
     updateCanvas()
     
@@ -325,6 +340,7 @@ onMounted(() => {
 
   // Draw interventions on canvas
   const drawInterventions = (ctx) => {
+    console.log('Drawing interventions:', canvasInterventions.value.length)
     canvasInterventions.value.forEach(intervention => {
       // Draw intervention box
       ctx.save()
@@ -970,6 +986,8 @@ const handleKeyUp = (e) => {
   display: block;
   border: 1px solid rgb(128, 122, 180);
   border-radius: 2%;
+  width: 100%;
+  height: 100%;
 }
 
 #besearch-modal-header {
@@ -1078,8 +1096,10 @@ const handleKeyUp = (e) => {
 
 @media (min-width: 1024px) {
   #besearch-holder {
-    display: grid;
-    grid-template-columns: .1fr 9fr;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    position: relative;
   }
 
   #cycle-periods {
@@ -1093,6 +1113,8 @@ const handleKeyUp = (e) => {
     display: block;
     border: 1px solid rgb(128, 122, 180);
     border-radius: 2%;
+    width: 100%;
+    height: 100%;
   }
 
   #besearch-modal-header {
