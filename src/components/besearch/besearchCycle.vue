@@ -1152,6 +1152,12 @@ const handleKeyUp = (e) => {
 
 #life-tools-container {
   position: relative;
+  height: 100%;
+  /* Debug: make container visible */
+  background-color: rgba(255, 0, 0, 0.1);
+  min-width: 50px;
+  grid-column: 1; /* Explicitly place in first column */
+  z-index: 20; /* Higher than canvas */
 }
 
 #life-tools-besearch {
@@ -1163,7 +1169,7 @@ const handleKeyUp = (e) => {
   background-color: white;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: left 0.3s ease;
-  z-index: 10;
+  z-index: 30; /* Higher than canvas and container */
 }
 
 #life-tools-besearch.open {
