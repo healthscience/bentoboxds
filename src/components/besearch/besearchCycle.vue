@@ -295,21 +295,13 @@ onMounted(() => {
     
     console.log('Besearch cycles from store:', liveBesearch.value)
     
-    // Draw a test rectangle to verify canvas is working
-    ctx.value.fillStyle = 'red'
-    ctx.value.fillRect(100, 100, 200, 200)
-    ctx.value.fillStyle = 'black'
-    ctx.value.font = '30px Arial'
-    ctx.value.fillText('Canvas Test', 150, 150)
-    
     // Start game loop if not already running
     if (!gameLoopRunning) {
       gameLoopRunning = true
       gameLoop()
     }
     
-    // The besearch cycles from store will be rendered automatically
-    // by the updateCanvas function
+    // Call updateCanvas to draw the besearch cycles
     updateCanvas()
   }
 
@@ -994,6 +986,14 @@ const handleKeyUp = (e) => {
 
   /* methods */
   const closeBentoBesearch = () => {
+    // Save canvas state before closing
+    storeBesearch.saveCanvasState({
+      peerPosition: { x: peer.value.x, y: peer.value.y },
+      peerDirection: peer.value.direction,
+      viewport: { ...viewport.value },
+      interventions: [...canvasInterventions.value]
+    })
+    
     storeAI.bentobesearchState = !storeAI.bentobesearchState
   }
 
@@ -1095,6 +1095,25 @@ const handleKeyUp = (e) => {
       cycleEditData.name = newCycle.name || ''
       cycleEditData.description = newCycle.description || ''
       cycleEditData.active = newCycle.active !== false
+    }
+  })
+  
+  // Watch for modal visibility changes
+  watch(bentoBesearchStatus, async (newVal) => {
+    console.log('Modal visibility changed:', newVal)
+    if (newVal) {
+      // Wait for DOM to update
+      await nextTick()
+      
+      // Initialize canvas when modal opens
+      if (canvasbe.value) {
+        canvas.value = canvasbe.value
+        ctx.value = canvas.value.getContext('2d')
+        console.log('Canvas initialized from watcher')
+        initializeCanvas()
+      } else {
+        console.log('Canvas ref not available yet')
+      }
     }
   })
 </script>
