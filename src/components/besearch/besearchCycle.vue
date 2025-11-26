@@ -25,20 +25,20 @@
               class="life-tools-besearch"
             >
               <life-tools @mode-selected="handleModeChange" @peer-moved="handlePeerMoved"  @peer-intervention="handlePeerIntervention"></life-tools>
+              <button
+                @click="toggleLifeTools()"
+                @mousedown="startDrag"
+                @mousemove="drag"
+                @mouseup="endDrag"
+                @mouseleave="endDrag"
+                class="toggle-life-tools-button"
+              >
+                <div class="key-to-life">
+                  <div class="tear"></div>
+                  <div class="key-head">be</div>
+                </div>
+              </button>
             </div>
-            <button
-              @click="toggleLifeTools()"
-              @mousedown="startDrag"
-              @mousemove="drag"
-              @mouseup="endDrag"
-              @mouseleave="endDrag"
-              class="toggle-life-tools-button"
-            >
-              <div class="key-to-life">
-                <div class="tear"></div>
-                <div class="key-head">be</div>
-              </div>
-            </button>
           </div>
           <canvas id="besearch-cycles" :width="canvasWidth" :height="canvasHeight" ref="canvasbe" 
             @click="handleBesearchClick($event)"
@@ -1177,7 +1177,7 @@ const handleKeyUp = (e) => {
 .toggle-life-tools-button {
   position: absolute;
   top: 50%;
-  left: 10px; /* Position from left edge of container */
+  right: -30px; /* Position on the right edge of life-tools panel */
   transform: translateY(-50%);
   width: 60px;
   height: 60px;
