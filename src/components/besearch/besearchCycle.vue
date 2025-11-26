@@ -40,7 +40,7 @@
               <life-tools @mode-selected="handleModeChange" @peer-moved="handlePeerMoved"  @peer-intervention="handlePeerIntervention"></life-tools>
             </div>
           </div>
-          <canvas id="besearch-cycles" :width="canvasWidth" :height="canvasHeight" ref="canvasRef" 
+          <canvas id="besearch-cycles" :width="canvasWidth" :height="canvasHeight" ref="canvasbe" 
             @click="handleBesearchClick($event)"
             @mousedown="handleCanvasMouseDown($event)"
             @mousemove="handleCanvasMouseMove($event)"
@@ -143,7 +143,7 @@ const storeBentobox = bentoboxStore()
 const storeBesearch = besearchStore()
 
 const canvas = ref(null)
-const canvasbe = ref(null)
+const canvasbe = ref(null) // Note: template uses canvasRef, need to sync these
 const currentMode = ref('cues')
 const canvasWidth = ref(window.innerWidth)
 const canvasHeight = ref(window.innerHeight - 100) // Leave some space for header
@@ -216,7 +216,15 @@ onMounted(() => {
   // Set up event listeners
   window.addEventListener('keydown', handleKeyDown)
   window.addEventListener('keyup', handleKeyUp)
-  window.addEventListener('resize', handleResize)
+  // Handle window resize
+  window.addEventListener('resize', () => {
+    canvasWidth.value = window.innerWidth
+    canvasHeight.value = window.innerHeight - 100
+    if (canvas.value) {
+      canvas.value.width = canvasWidth.value
+      canvas.value.height = canvasHeight.value
+    }
+  })
 })
 
   /* computed */
