@@ -264,7 +264,29 @@ onMounted(() => {
       canvas.value = document.getElementById('besearch-cycles')
       if (canvas.value) {
         ctx.value = canvas.value.getContext('2d')
-        initializeCanvas()
+        
+        // Load images if not already loaded
+        if (!beeCycleImage.value) {
+          beeCycleImage.value = new Image()
+          beeCycleImage.value.src = beeCycle
+          beeCycleImage.value.onload = () => {
+            console.log('BeeCycle image loaded')
+            initializeCanvas()
+          }
+        }
+        
+        if (!peerImage.value) {
+          peerImage.value = new Image()
+          peerImage.value.src = peerLogo
+          peerImage.value.onload = () => {
+            console.log('Peer image loaded')
+          }
+        }
+        
+        // If images already loaded, initialize immediately
+        if (beeCycleImage.value && beeCycleImage.value.complete) {
+          initializeCanvas()
+        }
       }
     }
   })
@@ -650,7 +672,7 @@ const handleKeyUp = (e) => {
     ctx.fillText('Cues Space Mode', 50, 50)
 
     // Draw all besearch cycles first (background layer)
-    storeBesearch.besearchCyles.forEach(bes => {
+    liveBesearch.value.forEach(bes => {
       drawBeeCycle(ctx, bes)
     })
     
@@ -875,7 +897,9 @@ const handleKeyUp = (e) => {
 
   /* besearch cycles location on canvas */
   const drawBeeCycle = (ctx, bes) => {
+    console.log('Drawing besearch cycle:', bes.name, 'at', bes.x, bes.y)
     if (!beeCycleImage.value || !beeCycleImage.value.complete) {
+      console.log('BeeCycle image not loaded yet')
       return // Image not loaded yet
     }
 
