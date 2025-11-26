@@ -129,7 +129,7 @@ import peerLogo from '@/assets/peerlogo.png'
 import LifeTools from '@/components/besearch/lifetools/lifeNavtools.vue'
 import InterventionToolbar from '@/components/besearch/interventionToolbar.vue'
 import beeCycle from '@/assets/besearch-cycle.png'
-import { ref, computed, onMounted, onUnmounted, reactive, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, reactive, watch, nextTick } from 'vue'
 import BeebeeAi from '@/components/beebeehelp/spaceChat.vue'
 import ModalBesearch from '@/components/besearch/besearchModal.vue'
 import { cuesStore } from '@/stores/cuesStore.js'
@@ -234,6 +234,7 @@ onMounted(() => {
     })
 
     // Start the game loop
+    gameLoopRunning = true
     gameLoop()
   } else {
     console.error('Canvas element not found')
@@ -254,20 +255,51 @@ onMounted(() => {
   })
 
   // Watch for modal open/close
-  watch(bentoBesearchStatus, (newValue) => {
-    if (newValue && canvas.value) {
-      // Modal is opening, initialize canvas
-      initializeCanvas()
+  watch(bentoBesearchStatus, async (newValue) => {
+    if (newValue) {
+      // Modal is opening, wait for DOM to update
+      await nextTick()
+      
+      // Get canvas element
+      canvas.value = document.getElementById('besearch-cycles')
+      if (canvas.value) {
+        ctx.value = canvas.value.getContext('2d')
+        initializeCanvas()
+      }
     }
   })
 
+  // Track if game loop is running
+  let gameLoopRunning = false
+
   // Initialize canvas with besearch data
   const initializeCanvas = () => {
-    if (!ctx.value || !canvas.value) return
+    console.log('initializeCanvas called')
+    if (!ctx.value || !canvas.value) {
+      console.log('No context or canvas:', ctx.value, canvas.value)
+      return
+    }
     
     // Ensure canvas size is set
     canvasWidth.value = window.innerWidth
     canvasHeight.value = window.innerHeight - 100
+    
+    console.log('Setting canvas dimensions:', canvasWidth.value, canvasHeight.value)
+    
+    // Force canvas to update its actual dimensions
+    canvas.value.width = canvasWidth.value
+    canvas.value.height = canvasHeight.value
+    
+    // Re-get context after setting dimensions (canvas clear on resize)
+    ctx.value = canvas.value.getContext('2d')
+    
+    console.log('Besearch cycles from store:', liveBesearch.value)
+    
+    // Start game loop if not already running
+    if (!gameLoopRunning) {
+      gameLoopRunning = true
+      gameLoop()
+    }
     
     // The besearch cycles from store will be rendered automatically
     // by the updateCanvas function
