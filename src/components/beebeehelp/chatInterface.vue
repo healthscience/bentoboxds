@@ -64,7 +64,7 @@
       </div>
       <div id="buttommove" ref="targetId">{{ updateBottom }}</div>
     </div>
-    <div class="chat-input" v-if="storeAI.beebeeContext !== 'chatspace'">
+    <div class="chat-input" v-if="!contextFilter">
       <input-box></input-box>
     </div>
   </div>
@@ -103,7 +103,11 @@ const chatPairs = computed(() => {
 })
 
 const chatHistory = computed(() => {
-  return chatStore.chatHistory
+  const all = chatStore.chatHistory
+  if (props.contextFilter) {
+    return all.filter(m => (m.context || m.metadata?.context || null) === props.contextFilter)
+  }
+  return all
 })
 
 const chatAsk = computed(() => {

@@ -37,14 +37,24 @@
 import ModalChat from '@/components/beebeehelp/chatModal.vue' 
 import ChatInterface from '@/components/beebeehelp/chatInterface.vue'
 import inputBox from '@/components/beebeehelp/inputBox.vue'
-import { computed } from 'vue'
+import { computed, onMounted, onBeforeUnmount } from 'vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
 const storeAI = aiInterfaceStore()
+let previousContext = null
 
 /* computed */
 const bentochatStatus = computed(() => {
   return storeAI.bentochatState
+})
+
+onMounted(() => {
+  previousContext = storeAI.beebeeContext
+  storeAI.beebeeContext = 'chatspace'
+})
+
+onBeforeUnmount(() => {
+  storeAI.beebeeContext = previousContext || 'chat'
 })
 
 /* methods */
