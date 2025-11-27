@@ -785,6 +785,9 @@ const handleKeyUp = (e) => {
     const x = event.clientX - rect.left + viewport.value.x
     const y = event.clientY - rect.top + viewport.value.y
     
+    console.log('Mouse down at:', x, y)
+    console.log('Interventions:', canvasInterventions.value)
+    
     // Check if click is on any besearch cycle
     for (const cycle of storeBesearch.besearchCyles) {
       const distance = Math.sqrt(Math.pow(x - cycle.x, 2) + Math.pow(y - cycle.y, 2))
@@ -826,11 +829,16 @@ const handleKeyUp = (e) => {
       const boxWidth = 250
       const dragBarHeight = 25
       
+      console.log('Checking intervention:', intervention.name, 'at', intervention.x, intervention.y)
+      console.log('Click bounds check:', x, '>=', intervention.x, '&&', x, '<=', intervention.x + boxWidth)
+      console.log('Y bounds check:', y, '>=', intervention.y, '&&', y, '<=', intervention.y + dragBarHeight)
+      
       // Check if click is on drag bar
       if (x >= intervention.x && 
           x <= intervention.x + boxWidth &&
           y >= intervention.y && 
           y <= intervention.y + dragBarHeight) {
+        console.log('Click is on intervention drag bar!')
         
         // Check if click is on remove button (X)
         if (x >= intervention.x + boxWidth - 30 && 
