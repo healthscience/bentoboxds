@@ -19,22 +19,12 @@
       </template>
       <template #body>
         <div class="space-chat">
-          <div class="context-selector">
-            <button
-              v-for="context in contexts"
-              :key="context.value"
-              @click="switchContext(context.value)"
-              :class="{ active: currentContext === context.value }"
-            >
-              {{ context.label }}
-            </button>
-          </div>
           <div class="context-content">
-            <component :is="currentContextComponent" :message="currentMessage"></component>
+            <chat-interface :context-filter="'chatspace'"></chat-interface>
           </div>
         </div>
         <div class="chat-input">
-          <input-box :chatcontext="currentContext"></input-box>
+          <input-box></input-box>
         </div>
       </template>
       <template #footer>
@@ -45,33 +35,22 @@
 
 <script setup>
 import ModalChat from '@/components/beebeehelp/chatModal.vue' 
+import ChatInterface from '@/components/beebeehelp/chatInterface.vue'
 import inputBox from '@/components/beebeehelp/inputBox.vue'
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
-import { useChatStore } from '@/stores/chatStore.js'
 
-  const storeAI = aiInterfaceStore()
-const chatStore = useChatStore()
+const storeAI = aiInterfaceStore()
 
-  /* computed */
-  const bentochatStatus = computed(() => {
-    return storeAI.bentochatState
-  })
-
-
-const currentMessage = computed(() => {
-  return chatStore.chatPairs
+/* computed */
+const bentochatStatus = computed(() => {
+  return storeAI.bentochatState
 })
 
-const switchContext = (context) => {
-  currentContext.value = context
-  chatStore.switchContext(context)
+/* methods */
+const closeBentoChat = () => {
+  storeAI.bentochatState = !storeAI.bentochatState
 }
-
-  /* methods */
-  const closeBentoChat = () => {
-    storeAI.bentochatState = !storeAI.bentochatState
-  }
 </script>
 
 <style scoped>

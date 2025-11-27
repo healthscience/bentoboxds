@@ -81,6 +81,10 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 import { useChatStore } from '@/stores/chatStore.js'
 
+const props = defineProps({
+  contextFilter: { type: String, default: null }
+})
+
 const storeAI = aiInterfaceStore()
 const storeLibrary = libraryStore()
 const chatStore = useChatStore()
