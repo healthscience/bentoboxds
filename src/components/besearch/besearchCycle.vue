@@ -766,6 +766,7 @@ const handleKeyUp = (e) => {
   
   // Canvas mouse event handlers for intervention dragging
   const handleCanvasMouseDown = (event) => {
+    console.log('Mouse down event fired')
     const rect = canvasbe.value.getBoundingClientRect()
     const x = event.clientX - rect.left + viewport.value.x
     const y = event.clientY - rect.top + viewport.value.y
@@ -1038,6 +1039,7 @@ const handleKeyUp = (e) => {
 
   const handleBesearchClick = (event) => {
     // Handle canvas click events here
+    console.log('Click event fired')
   }
   
   const handleCanvasDoubleClick = (event) => {
