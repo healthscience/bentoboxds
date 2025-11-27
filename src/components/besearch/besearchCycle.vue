@@ -427,9 +427,14 @@ onMounted(() => {
     
     // Calculate position relative to canvas dimensions
     console.log('Canvas width:', canvasWidth.value)
+    
+    // Offset each new intervention to avoid stacking
+    const interventionCount = canvasInterventions.value ? canvasInterventions.value.length : 0
+    const offsetY = interventionCount * 150 // 150px vertical spacing between interventions
+    
     const position = {
       x: canvasWidth.value - 300, // 300px from right edge
-      y: 100 // 100px from top
+      y: 100 + offsetY // Start at 100px from top, then offset for each intervention
     }
     console.log('Intervention will be positioned at:', position)
     
@@ -768,7 +773,6 @@ const handleKeyUp = (e) => {
   
   // Canvas mouse event handlers for intervention dragging
   const handleCanvasMouseDown = (event) => {
-    console.log('Mouse down event fired')
     const rect = canvasbe.value.getBoundingClientRect()
     const x = event.clientX - rect.left + viewport.value.x
     const y = event.clientY - rect.top + viewport.value.y
@@ -810,17 +814,9 @@ const handleKeyUp = (e) => {
     }
     
     // Check if click is on any intervention
-    if (canvasInterventions.value.length > 0) {
-      console.log('Checking interventions. Click at:', x, y)
-      console.log('Interventions:', canvasInterventions.value.map(i => ({name: i.name, x: i.x, y: i.y})))
-    }
-    
     for (const intervention of canvasInterventions.value) {
       const boxWidth = 250
       const dragBarHeight = 25
-      
-      console.log(`Intervention ${intervention.name} bounds: x=${intervention.x} to ${intervention.x + boxWidth}, y=${intervention.y} to ${intervention.y + dragBarHeight}`)
-      console.log(`Click at: x=${x}, y=${y}`)
       
       // Check if click is on drag bar
       if (x >= intervention.x && 
@@ -1044,7 +1040,6 @@ const handleKeyUp = (e) => {
 
   const handleBesearchClick = (event) => {
     // Handle canvas click events here
-    console.log('Click event fired')
   }
   
   const handleCanvasDoubleClick = (event) => {
