@@ -496,29 +496,29 @@ onMounted(() => {
       
       // Draw rounded rectangle
       ctx.beginPath()
-      ctx.roundRect(intervention.position.x, intervention.position.y, boxWidth, boxHeight, 10)
+      ctx.roundRect(intervention.x, intervention.y, boxWidth, boxHeight, 10)
       ctx.fill()
       ctx.stroke()
       
       // Draw drag bar at top
       ctx.fillStyle = '#e0e0e0'
-      ctx.fillRect(intervention.position.x, intervention.position.y, boxWidth, 25)
+      ctx.fillRect(intervention.x, intervention.y, boxWidth, 25)
       
       // Draw intervention name
       ctx.fillStyle = '#333'
       ctx.font = 'bold 14px Arial'
-      ctx.fillText(intervention.name, intervention.position.x + 10, intervention.position.y + 18)
+      ctx.fillText(intervention.name, intervention.x + 10, intervention.y + 18)
       
       // Draw remove button (X) on the right side of drag bar
       ctx.fillStyle = '#666'
       ctx.font = 'bold 16px Arial'
-      ctx.fillText('×', intervention.position.x + boxWidth - 20, intervention.position.y + 18)
+      ctx.fillText('×', intervention.x + boxWidth - 20, intervention.y + 18)
       
       // Draw status badge
-      const statusX = intervention.position.x + boxWidth - 80
+      const statusX = intervention.x + boxWidth - 80
       ctx.fillStyle = getStatusColor(intervention.status)
       ctx.font = '12px Arial'
-      ctx.fillText(intervention.status, statusX, intervention.position.y + 18)
+      ctx.fillText(intervention.status, statusX, intervention.y + 18)
       
       // Draw description
       ctx.fillStyle = '#666'
@@ -526,14 +526,14 @@ onMounted(() => {
       const lines = wrapText(ctx, intervention.description, boxWidth - 20)
       lines.forEach((line, index) => {
         if (index < 2) { // Max 2 lines
-          ctx.fillText(line, intervention.position.x + 10, intervention.position.y + 45 + (index * 15))
+          ctx.fillText(line, intervention.x + 10, intervention.y + 45 + (index * 15))
         }
       })
       
       // Draw biomarker count
       ctx.fillStyle = '#999'
       ctx.font = '11px Arial'
-      ctx.fillText(`${intervention.biomarkers.length} biomarkers`, intervention.position.x + 10, intervention.position.y + 100)
+      ctx.fillText(`${intervention.biomarkers.length} biomarkers`, intervention.x + 10, intervention.y + 100)
       
       ctx.restore()
     })
@@ -822,9 +822,7 @@ const handleKeyUp = (e) => {
     }
     
     // Check if click is on any intervention
-    console.log('Checking interventions:', canvasInterventions.value)
     for (const intervention of canvasInterventions.value) {
-      console.log('Intervention:', intervention)
       const boxWidth = 250
       const dragBarHeight = 25
       
@@ -833,7 +831,6 @@ const handleKeyUp = (e) => {
           x <= intervention.x + boxWidth &&
           y >= intervention.y && 
           y <= intervention.y + dragBarHeight) {
-        console.log('Click detected on intervention drag bar')
         
         // Check if click is on remove button (X)
         if (x >= intervention.x + boxWidth - 30 && 
@@ -990,8 +987,8 @@ const handleKeyUp = (e) => {
       // Draw connection lines
       ctx.globalAlpha = 0.3
       linkedInterventions.forEach(intervention => {
-        const interventionCenterX = intervention.position.x + 125
-        const interventionCenterY = intervention.position.y + 60
+        const interventionCenterX = intervention.x + 125
+        const interventionCenterY = intervention.y + 60
         
         ctx.strokeStyle = getStatusColor(intervention.status)
         ctx.lineWidth = 2
