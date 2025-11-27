@@ -1,6 +1,6 @@
 <template>
   <div id="chat-interface">
-    <welcome-beebee v-if="beginChat === false"></welcome-beebee>
+    <welcome-beebee v-if="beginChat === false && !props.contextFilter"></welcome-beebee>
     <div id="natlang-ai">
       <div id="conversation">
         <div v-for="(message, index) in chatHistory" :key="index">
@@ -64,7 +64,7 @@
       </div>
       <div id="buttommove" ref="targetId">{{ updateBottom }}</div>
     </div>
-    <div class="chat-input" v-if="!contextFilter">
+    <div class="chat-input" v-if="!props.contextFilter">
       <input-box></input-box>
     </div>
   </div>
