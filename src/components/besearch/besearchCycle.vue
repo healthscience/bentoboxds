@@ -300,17 +300,13 @@ onMounted(() => {
 
   // Initialize canvas with besearch data
   const initializeCanvas = () => {
-    console.log('initializeCanvas called')
     if (!ctx.value || !canvasbe.value) {
-      console.log('No context or canvas:', ctx.value, canvasbe.value)
       return
     }
     
     // Ensure canvas size is set
     canvasWidth.value = window.innerWidth
     canvasHeight.value = window.innerHeight - 100
-    
-    console.log('Setting canvas dimensions:', canvasWidth.value, canvasHeight.value)
     
     // Force canvas to update its actual dimensions
     canvasbe.value.width = canvasWidth.value
@@ -381,15 +377,12 @@ onMounted(() => {
   }
 
   const handlePeerIntervention = (event) => {
-    console.log('Intervention event:', event)
-    
     if (event.type === 'select' && event.intervention) {
       // When a specific intervention is selected from the list
       showInterventionToolbar.value = true
       interventionToolbarRef.value?.showIntervention(event.intervention)
     } else if (event.type === 'create') {
       // Handle create new intervention
-      console.log('Creating new intervention')
     } else if (typeof event === 'string') {
       // When a category is clicked
       const categories = ['prevention', 'repair', 'rejuvenation']
@@ -671,11 +664,8 @@ const handleKeyUp = (e) => {
 
   const updateCanvas = () => {
     if (!ctx.value || !canvasbe.value) {
-      console.log('No context or canvas in updateCanvas')
       return
     }
-
-    console.log('updateCanvas called, mode:', currentMode.value)
     ctx.value.clearRect(0, 0, canvasbe.value.width, canvasbe.value.height)
     
     // Save the context state
@@ -709,13 +699,8 @@ const handleKeyUp = (e) => {
     ctx.font = '24px Arial'
     ctx.fillText('Cues Space Mode', 50, 50)
 
-    console.log('liveBesearch.value:', liveBesearch.value)
-    console.log('Number of besearch cycles:', liveBesearch.value.length)
-    console.log('Direct store access:', storeBesearch.besearchCyles)
-    
     // Use direct store access as fallback if computed property is empty
     const cycles = liveBesearch.value.length > 0 ? liveBesearch.value : storeBesearch.besearchCyles
-    console.log('Using cycles:', cycles)
     
     // Draw all besearch cycles first (background layer)
     cycles.forEach(bes => {
@@ -785,9 +770,6 @@ const handleKeyUp = (e) => {
     const x = event.clientX - rect.left + viewport.value.x
     const y = event.clientY - rect.top + viewport.value.y
     
-    console.log('Mouse down at:', x, y)
-    console.log('Interventions:', canvasInterventions.value)
-    
     // Check if click is on any besearch cycle
     for (const cycle of storeBesearch.besearchCyles) {
       const distance = Math.sqrt(Math.pow(x - cycle.x, 2) + Math.pow(y - cycle.y, 2))
@@ -825,20 +807,21 @@ const handleKeyUp = (e) => {
     }
     
     // Check if click is on any intervention
+    if (canvasInterventions.value.length > 0) {
+      console.log('Checking interventions. Click at:', x, y)
+      console.log('Interventions:', canvasInterventions.value.map(i => ({name: i.name, x: i.x, y: i.y})))
+    }
+    
     for (const intervention of canvasInterventions.value) {
       const boxWidth = 250
       const dragBarHeight = 25
-      
-      console.log('Checking intervention:', intervention.name, 'at', intervention.x, intervention.y)
-      console.log('Click bounds check:', x, '>=', intervention.x, '&&', x, '<=', intervention.x + boxWidth)
-      console.log('Y bounds check:', y, '>=', intervention.y, '&&', y, '<=', intervention.y + dragBarHeight)
       
       // Check if click is on drag bar
       if (x >= intervention.x && 
           x <= intervention.x + boxWidth &&
           y >= intervention.y && 
           y <= intervention.y + dragBarHeight) {
-        console.log('Click is on intervention drag bar!')
+        console.log('Click detected on intervention:', intervention.name)
         
         // Check if click is on remove button (X)
         if (x >= intervention.x + boxWidth - 30 && 
@@ -967,7 +950,6 @@ const handleKeyUp = (e) => {
     ctx.restore()
     
     if (!beeCycleImage.value || !beeCycleImage.value.complete) {
-      console.log('BeeCycle image not loaded yet')
       return // Skip image drawing but text is already drawn
     }
     const x = centerX + radius.value * Math.cos(angle.value)
