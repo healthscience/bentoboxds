@@ -426,10 +426,17 @@ onMounted(() => {
     const { intervention } = data
     
     // Calculate position relative to canvas dimensions
+    console.log('Canvas width:', canvasWidth.value)
+    
+    // Offset each new intervention to avoid stacking
+    const interventionCount = canvasInterventions.value ? canvasInterventions.value.length : 0
+    const offsetY = interventionCount * 150 // 150px vertical spacing between interventions
+    
     const position = {
       x: canvasWidth.value - 300, // 300px from right edge
-      y: 100 // 100px from top
+      y: 100 + offsetY // Start at 100px from top, then offset for each intervention
     }
+    console.log('Intervention will be positioned at:', position)
     
     // Create a new intervention object on the canvas
     const canvasIntervention = {
@@ -807,11 +814,6 @@ const handleKeyUp = (e) => {
     }
     
     // Check if click is on any intervention
-    if (canvasInterventions.value.length > 0) {
-      console.log('Checking interventions. Click at:', x, y)
-      console.log('Interventions:', canvasInterventions.value.map(i => ({name: i.name, x: i.x, y: i.y})))
-    }
-    
     for (const intervention of canvasInterventions.value) {
       const boxWidth = 250
       const dragBarHeight = 25
