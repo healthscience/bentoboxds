@@ -46,10 +46,6 @@
 <script setup>
 import ModalChat from '@/components/beebeehelp/chatModal.vue' 
 import inputBox from '@/components/beebeehelp/inputBox.vue'
-import CuespaceContext from '@/components/beebeehelp/contexts/CuespaceContext.vue'
-import GraphContext from '@/components/beebeehelp/contexts/GraphContext.vue'
-import ChartContext from '@/components/beebeehelp/contexts/ChartContext.vue'
-import SearchContext from '@/components/beebeehelp/contexts/SearchContext.vue'
 import { ref, computed } from 'vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { useChatStore } from '@/stores/chatStore.js'
@@ -62,30 +58,6 @@ const chatStore = useChatStore()
     return storeAI.bentochatState
   })
 
-/* context management */
-const contexts = [
-  { value: 'cuespace', label: 'Cuespace' },
-  { value: 'graph', label: 'Graph' },
-  { value: 'chart', label: 'Chart' },
-  { value: 'search', label: 'Search' }
-]
-
-const currentContext = ref('cuespace')
-
-const currentContextComponent = computed(() => {
-  switch (currentContext.value) {
-    case 'cuespace':
-      return CuespaceContext
-    case 'graph':
-      return GraphContext
-    case 'chart':
-      return ChartContext
-    case 'search':
-      return SearchContext
-    default:
-      return CuespaceContext
-  }
-})
 
 const currentMessage = computed(() => {
   return chatStore.chatPairs
