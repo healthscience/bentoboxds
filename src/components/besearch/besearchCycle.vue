@@ -446,7 +446,8 @@ onMounted(() => {
       description: intervention.description,
       status: intervention.status,
       biomarkers: intervention.biomarkers,
-      position: position,
+      x: position.x,
+      y: position.y,
       isDragging: false,
       linkedCycles: []
     }
@@ -821,7 +822,9 @@ const handleKeyUp = (e) => {
     }
     
     // Check if click is on any intervention
+    console.log('Checking interventions:', canvasInterventions.value)
     for (const intervention of canvasInterventions.value) {
+      console.log('Intervention:', intervention)
       const boxWidth = 250
       const dragBarHeight = 25
       
@@ -830,6 +833,7 @@ const handleKeyUp = (e) => {
           x <= intervention.x + boxWidth &&
           y >= intervention.y && 
           y <= intervention.y + dragBarHeight) {
+        console.log('Click detected on intervention drag bar')
         
         // Check if click is on remove button (X)
         if (x >= intervention.x + boxWidth - 30 && 
