@@ -426,10 +426,12 @@ onMounted(() => {
     const { intervention } = data
     
     // Calculate position relative to canvas dimensions
+    console.log('Canvas width:', canvasWidth.value)
     const position = {
       x: canvasWidth.value - 300, // 300px from right edge
       y: 100 // 100px from top
     }
+    console.log('Intervention will be positioned at:', position)
     
     // Create a new intervention object on the canvas
     const canvasIntervention = {
@@ -816,6 +818,9 @@ const handleKeyUp = (e) => {
     for (const intervention of canvasInterventions.value) {
       const boxWidth = 250
       const dragBarHeight = 25
+      
+      console.log(`Intervention ${intervention.name} bounds: x=${intervention.x} to ${intervention.x + boxWidth}, y=${intervention.y} to ${intervention.y + dragBarHeight}`)
+      console.log(`Click at: x=${x}, y=${y}`)
       
       // Check if click is on drag bar
       if (x >= intervention.x && 
