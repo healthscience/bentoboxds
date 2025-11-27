@@ -934,7 +934,7 @@ const handleKeyUp = (e) => {
 
   /* besearch cycles location on canvas */
   const drawBeeCycle = (ctx, bes) => {
-    console.log('Drawing besearch cycle:', bes.name, 'at', bes.x, bes.y)
+    // console.log('Drawing besearch cycle:', bes.name, 'at', bes.x, bes.y)
     
     // Always draw the text, even if image isn't loaded
     const centerX = bes.x
