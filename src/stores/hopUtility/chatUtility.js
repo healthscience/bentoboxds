@@ -221,7 +221,7 @@ class ChatUtility {
   }
 
   // Create a new question template
-  createQuestionTemplate(text, context, toolsUsed, dataInfo, bboxid) {
+  createQuestionTemplate(text, context, toolsUsed, bboxid) {
     return {
       id: this.generateUniqueId(),
       bboxid: bboxid || this.generateBboxId(),
@@ -229,11 +229,8 @@ class ChatUtility {
       text: text,
       timestamp: new Date(),
       context: context,
-      metadata: {
-        compute: false,
-        tools: toolsUsed || [],
-        dataInfo: dataInfo || null
-      },
+      tools: toolsUsed,
+      metadata: {},
       reply: {
         content: '',
         status: 'pending',
@@ -287,13 +284,16 @@ class ChatUtility {
 
   // Prepare a question for sending to HOP
   prepareQuestionForHOP(question) {
+    console.log('quceston for HOP===')
+    console.log(question)
     return {
       type: 'question',
       data: {
         text: question.text,
         context: question.context,
         // metadata: question.metadata,
-        bboxid: question.bboxid
+        bboxid: question.bboxid,
+        tools: question.tools
       }
     }
   }

@@ -32,7 +32,7 @@
     </div>
     <div id="tool-agents">
       <div id="tools-list">
-          <div id="upload-link" class="tool-type" @click="toolAgent('upload')">@upload</div>
+          <div id="upload-link" class="tool-type" @click="toolAgent('upload')" :class="{ 'active-tool': storeAI.isUploadMode }">@upload</div>
           <div class="tool-type" @click="toolAgent('library')">@library</div>
           <div class="tool-type" :class="{ 'active-tool': storeTraining.isTrainingMode }" @click="toolAgent('training')">
             {{ storeTraining.isTrainingMode ? '@training ✓' : '@training' }}
@@ -129,7 +129,9 @@ import { ref, computed, watch } from 'vue'
   }
 
   const toolAgent = (tool) => {
+    storeAI.inputTools.push(tool)
     if (tool === 'upload') {
+      storeAI.isUploadMode = true
       storeAI.dataBoxStatus = true
       storeLibrary.uploadStatus = true
       storeLibrary.libraryStatus = false
