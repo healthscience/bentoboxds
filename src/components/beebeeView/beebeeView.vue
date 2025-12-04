@@ -41,7 +41,7 @@
       </div>
       <div id="beebee-bento-chat">
         <div class="beebee-home">
-          <beebee-chat :context-filter="'chat'"></beebee-chat>
+          <beebee-chat :context-filter="activeContextFilter"></beebee-chat>
         </div>
       </div>
     </div>
@@ -118,6 +118,17 @@ import { computed } from 'vue'
   const historyCuesList = computed(() => {
     return storeAI.historyCuesList
   })
+
+  const activeContextFilter = computed(() => {
+    // If a chatspace item is active in the menu, let main view follow it; otherwise default to 'chat'
+    const activeItem = storeBentobox.chatList.find(c => c.active)
+    if (activeItem && activeItem.context === 'chatspace') {
+      // Show the space conversation in main view for the active cue
+      return { type: 'chatspace', id: activeItem.chatid }
+    }
+    return 'chat'
+  })
+
 
   /* methods */
   const setMove = async (event) => {
