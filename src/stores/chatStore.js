@@ -6,7 +6,8 @@ export const useChatStore = defineStore('chat', {
     storeAI: aiInterfaceStore(),
     subscribers: [],
     bottom: null,
-    chatHistory: [],
+    chatHistory: {}, // { [conversationId]: Message[] }
+    bbidToConv: {},
     currentStreamingMessage: null,
     beginChat: false
   }),
@@ -57,15 +58,25 @@ export const useChatStore = defineStore('chat', {
       this.storeAI.choicedeviceEvent()
     },
     addMessage(message) {
-      if (message && message.conversationId == null) {
+      if (!message) return
+      // Determine conversation id
+      let convId = message.conversationId
+      if (!convId) {
         const ctx = message.context || message.metadata?.context
         if (ctx && typeof ctx === 'object' && ctx.type === 'chatspace') {
-          message.conversationId = ctx.id || ctx.cueid || this.storeAI.chatAttention || 'chat'
-        } else {
-          message.conversationId = this.storeAI.chatAttention || 'chat'
+          convId = ctx.id || ctx.cueid
         }
       }
-      this.chatHistory.push(message)
+      if (!convId) convId = this.storeAI.chatAttention || 'chat'
+      message.conversationId = convId
+      // Track bbid mapping for streaming updates
+      if (message.bbid || message.bboxid) {
+        const bb = message.bbid || message.bboxid
+        this.bbidToConv[bb] = convId
+      }
+      // Ensure bucket
+      if (!this.chatHistory[convId]) this.chatHistory[convId] = []
+      this.chatHistory[convId].push(message)
       this.notifySubscribers({ type: 'newMessage', payload: message }, this.$state)
     },
     addUploadMessag(uploadInfo) {
@@ -175,19 +186,23 @@ export const useChatStore = defineStore('chat', {
         }
         // Find ANY agent message that isn't complete
         // First try to match by bboxid if available
+        // Resolve conversation bucket via explicit conversationId, mapping, or current attention
+        const convId = message.conversationId || this.bbidToConv[message.bbid] || (() => {
+          const ctx = message.context || message.metadata?.context
+          if (ctx && typeof ctx === 'object' && ctx.type === 'chatspace') return ctx.id || ctx.cueid
+          return this.storeAI.chatAttention || 'chat'
+        })()
+        if (!this.chatHistory[convId]) this.chatHistory[convId] = []
+        // Find ANY agent message in this conversation that isn't complete
         let existingIndex = -1
         if (message.bbid) {
-          existingIndex = this.chatHistory.findIndex(
-            msg => {
-              return msg.type === 'agent' && msg.bboxid === message.bbid && msg.status !== 'complete'
-            }
+          existingIndex = this.chatHistory[convId].findIndex(
+            msg => msg.type === 'agent' && msg.bboxid === message.bbid && msg.status !== 'complete'
           )
         }
-        // If no match by bboxid, find the most recent pending/streaming agent message
         if (existingIndex === -1) {
-          // Look for the last agent message that's pending or streaming
-          for (let i = this.chatHistory.length - 1; i >= 0; i--) {
-            const msg = this.chatHistory[i]
+          for (let i = this.chatHistory[convId].length - 1; i >= 0; i--) {
+            const msg = this.chatHistory[convId][i]
             if (msg.type === 'agent' && (msg.status === 'pending' || msg.status === 'streaming')) {
               existingIndex = i
               break
@@ -196,21 +211,21 @@ export const useChatStore = defineStore('chat', {
         }
         if (existingIndex !== -1) {
           // Update bboxid if it was null
-          if (!this.chatHistory[existingIndex].bboxid && message.bbid) {
-            this.chatHistory[existingIndex].bboxid = message.bbid
+          if (!this.chatHistory[convId][existingIndex].bboxid && message.bbid) {
+            this.chatHistory[convId][existingIndex].bboxid = message.bbid
           }
           // Check if this looks like a streaming update
           // Always treat as streaming if the message is already streaming or if it's short content
           const isPartialContent = textContent && textContent.length < 50 && !textContent.includes('.') && !textContent.includes('!')
-          const isAlreadyStreaming = this.chatHistory[existingIndex].status === 'streaming'
+          const isAlreadyStreaming = this.chatHistory[convId][existingIndex].status === 'streaming'
 
           if (isPartialContent || isAlreadyStreaming) {
             // Append to existing content for streaming
             // Add a space between words when appending
-            const currentContent = this.chatHistory[existingIndex].content || ''
+            const currentContent = this.chatHistory[convId][existingIndex].content || ''
             const needsSpace = currentContent.length > 0 && !currentContent.endsWith(' ') && textContent.length > 0
-            this.chatHistory[existingIndex] = {
-              ...this.chatHistory[existingIndex],
+            this.chatHistory[convId][existingIndex] = {
+              ...this.chatHistory[convId][existingIndex],
               content: currentContent + (needsSpace ? ' ' : '') + textContent,
               status: 'streaming',
               timestamp: new Date(),
@@ -218,17 +233,17 @@ export const useChatStore = defineStore('chat', {
             }
           } else {
             // Replace content for complete messages
-            this.chatHistory[existingIndex] = {
-              ...this.chatHistory[existingIndex],
+            this.chatHistory[convId][existingIndex] = {
+              ...this.chatHistory[convId][existingIndex],
               content: textContent,
               status: 'complete',
               timestamp: new Date(),
               metadata: message.metadata || {},
-              conversationId: this.storeAI.chatAttention || this.chatHistory[existingIndex].conversationId
+              conversationId: this.storeAI.chatAttention || this.chatHistory[convId][existingIndex].conversationId
             }
           }
           // Notify subscribers about the update
-          this.notifySubscribers({ type: 'messageUpdate', payload: this.chatHistory[existingIndex] }, this.$state)
+          this.notifySubscribers({ type: 'messageUpdate', payload: this.chatHistory[convId][existingIndex] }, this.$state)
         } else {
           // This really shouldn't happen - it means we got an agent reply without a pending message
           // Don't create a new message - this is likely a duplicate
@@ -243,23 +258,23 @@ export const useChatStore = defineStore('chat', {
         // console.log('Token data:', message.data)
         // console.log('Token bbid:', message.bbid)
         // Find the most recent pending/streaming agent message
+        // Resolve conversation bucket via bbid mapping or fallback
+        const convId = this.bbidToConv[message.bbid] || this.storeAI.chatAttention || 'chat'
+        if (!this.chatHistory[convId]) this.chatHistory[convId] = []
+        // Find the most recent pending/streaming agent message in this conversation
         let targetIndex = -1
-        // First try to find by bbid if available
         if (message.bbid) {
-          for (let i = this.chatHistory.length - 1; i >= 0; i--) {
-            const msg = this.chatHistory[i]
-            console.log('exising mememe')
-            console.log(msg)
+          for (let i = this.chatHistory[convId].length - 1; i >= 0; i--) {
+            const msg = this.chatHistory[convId][i]
             if (msg.type === 'agent' && msg.bboxid === message.bbid && (msg.status === 'pending' || msg.status === 'streaming')) {
               targetIndex = i
               break
             }
           }
         }
-        // If not found by bbid, find the most recent pending/streaming message
         if (targetIndex === -1) {
-          for (let i = this.chatHistory.length - 1; i >= 0; i--) {
-            const msg = this.chatHistory[i]
+          for (let i = this.chatHistory[convId].length - 1; i >= 0; i--) {
+            const msg = this.chatHistory[convId][i]
             if (msg.type === 'agent' && (msg.status === 'pending' || msg.status === 'streaming')) {
               targetIndex = i
               break
@@ -268,8 +283,8 @@ export const useChatStore = defineStore('chat', {
         }
         if (targetIndex !== -1) {
           // Update bbid if it was null
-          if (!this.chatHistory[targetIndex].bboxid && message.bbid) {
-            this.chatHistory[targetIndex].bboxid = message.bbid
+          if (!this.chatHistory[convId][targetIndex].bboxid && message.bbid) {
+            this.chatHistory[convId][targetIndex].bboxid = message.bbid
           }
           // Extract text from token data - it should be a simple string
           let tokenText = ''
@@ -281,23 +296,21 @@ export const useChatStore = defineStore('chat', {
             tokenText = message.data.content
           }
           // Append token to existing message
-          const currentContent = this.chatHistory[targetIndex].content || ''
+          const currentContent = this.chatHistory[convId][targetIndex].content || ''
           // Don't add space before punctuation
           const needsSpace = currentContent.length > 0 && 
                            !currentContent.endsWith(' ') && 
                            tokenText.length > 0 &&
                            !tokenText.match(/^[.,!?;:]/)
           
-          this.chatHistory[targetIndex] = {
-            ...this.chatHistory[targetIndex],
+          this.chatHistory[convId][targetIndex] = {
+            ...this.chatHistory[convId][targetIndex],
             content: currentContent + (needsSpace ? ' ' : '') + tokenText,
             status: 'streaming',
             timestamp: new Date()
           }
-          console.log('index update')
-          console.log(this.chatHistory[targetIndex])
           // Notify subscribers
-          this.notifySubscribers({ type: 'messageUpdate', payload: this.chatHistory[targetIndex] }, this.$state)
+          this.notifySubscribers({ type: 'messageUpdate', payload: this.chatHistory[convId][targetIndex] }, this.$state)
         } else {
           console.error('No pending/streaming message found for token')
           console.error('Current chat history:', this.chatHistory)
@@ -306,16 +319,21 @@ export const useChatStore = defineStore('chat', {
       // Handle end of streaming
       else if (message.type === 'stream-end' || message.type === 'streaming-complete') {     
         // Find the most recent streaming agent message
-        for (let i = this.chatHistory.length - 1; i >= 0; i--) {
-          const msg = this.chatHistory[i]
-          if (msg.type === 'agent' && msg.status === 'streaming') {
-            this.chatHistory[i] = {
-              ...this.chatHistory[i],
-              status: 'complete',
-              timestamp: new Date()
+        // End streaming within active conversation bucket
+        {
+          const convId = this.storeAI.chatAttention || 'chat'
+          const bucket = this.chatHistory[convId] || []
+          for (let i = bucket.length - 1; i >= 0; i--) {
+            const msg = bucket[i]
+            if (msg.type === 'agent' && msg.status === 'streaming') {
+              this.chatHistory[convId][i] = {
+                ...this.chatHistory[convId][i],
+                status: 'complete',
+                timestamp: new Date()
+              }
+              this.notifySubscribers({ type: 'messageUpdate', payload: this.chatHistory[convId][i] }, this.$state)
+              break
             }
-            this.notifySubscribers({ type: 'messageUpdate', payload: this.chatHistory[i] }, this.$state)
-            break
           }
         }
         this.endStreamingMessage()

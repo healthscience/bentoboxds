@@ -94,9 +94,8 @@ const chatPairs = computed(() => {
 })
 
 const chatHistory = computed(() => {
-  // Simplified: always show only messages belonging to the selected conversationId
-  const current = storeAI.chatAttention
-  return chatStore.chatHistory.filter(m => m.conversationId === current)
+  // Keyed-by-conversation: read array for active conversation
+  return chatStore.chatHistory?.[storeAI.chatAttention] || []
 })
 
 const chatAsk = computed(() => {
@@ -122,16 +121,9 @@ watch(
     if (!prevActive || !nextActive) return;
 
     if (prevActive.id !== nextActive.id) {
-      chatStore.chatHistory = chatStore.chatHistory.filter(m => {
-        const ctx = m.context || m.metadata?.context;
-
-        if (!ctx) return false;
-
-        if (typeof ctx === 'string') return ctx === 'chat';
-
-        const attention = storeAI.chatAttention;
-        return ctx.type === 'chatspace' && (ctx.id === attention || ctx.cueid === attention);
-      });
+      // No pruning required; chatStore.chatHistory is keyed by conversation
+      const current = storeAI.chatAttention
+      if (!chatStore.chatHistory[current]) chatStore.chatHistory[current] = []
     }
   },
   { deep: true }
@@ -144,20 +136,10 @@ const handleUpdate = (mutation, state) => {
   chatStore.handleIncomingMessage(mutation, state)
 }
 
-// Clear conversation flow when switching active chat: keep only current conversationId
+// No need to prune arrays now; chatHistory is keyed. We keep watcher as no-op to maintain any side-effects if needed.
 watch(
   () => storeBentobox.chatList.map(c => ({ id: c.chatid, active: c.active })),
-  (newList, oldList) => {
-    const prevActive = oldList?.find(c => c.active)
-    const nextActive = newList?.find(c => c.active)
-    if (!nextActive) return
-    if (!prevActive || prevActive.id !== nextActive.id) {
-      const current = storeAI.chatAttention
-      const only = chatStore.chatHistory.filter(m => m.conversationId === current)
-      chatStore.chatHistory.splice(0, chatStore.chatHistory.length, ...only)
-      chatStore.beginChat = only.length > 0
-    }
-  },
+  () => {},
   { deep: true }
 )
 
