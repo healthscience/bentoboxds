@@ -1,9 +1,9 @@
 <template>
   <div id="chat-interface">
     <welcome-beebee v-if="beginChat === false && (!props.contextFilter || (typeof props.contextFilter==='string' && props.contextFilter==='chat'))"></welcome-beebee>
-    <div id="natlang-ai">pp {{ chatStore.chatHistory }}
+    <div id="natlang-ai">
       <div id="conversation">
-        <div v-for="(message, index) in chatConversation" :key="index">iii {{ message }}
+        <div v-for="(message, index) in chatHistory" :key="index">
           <!-- Peer message -->
           <div v-if="message.type === 'peer'" class="peer-message">
             <peer-message
@@ -73,7 +73,9 @@ const props = defineProps({
   contextFilter: { type: [String, Object], default: null }
 })
 
+
 const storeBentobox = bentoboxStore()
+
 const storeAI = aiInterfaceStore()
 const storeLibrary = libraryStore()
 const chatStore = useChatStore()
@@ -134,8 +136,6 @@ const handleUpdate = (mutation, state) => {
   chatStore.handleIncomingMessage(mutation, state)
 }
 
-<<<<<<< HEAD
-=======
 // No need to prune arrays now; chatHistory is keyed. We keep watcher as no-op to maintain any side-effects if needed.
 watch(
   () => storeBentobox.chatList.map(c => ({ id: c.chatid, active: c.active })),
@@ -143,7 +143,6 @@ watch(
   { deep: true }
 )
 
->>>>>>> f81146ac01dcdf72f803ec14eb79271fe1b1a1e0
 storeAI.subscribe(handleUpdate)
 
 // Unsubscribe when the component is unmounted
@@ -157,6 +156,16 @@ const updateBottom = computed(() => {
 })
 
 const targetId = ref(null)
+
+// Watch for changes in chat history to auto-scroll
+watch(chatHistory, () => {
+  nextTick(() => {
+    const conversation = document.getElementById('conversation')
+    if (conversation) {
+      conversation.scrollTop = conversation.scrollHeight
+    }
+  })
+}, { deep: true })
 
 // Function to handle incoming messages
 const handleIncomingMessage = (message) => {
