@@ -146,23 +146,28 @@ const handleUpdate = (mutation, state) => {
 
 // Clear conversation flow when active chat menu selection changes
 watch(
-  () => storeBentobox.chatList.map(c => ({ id: c.chatid, active: c.active }))),
+  () => storeBentobox.chatList.map(c => ({ id: c.chatid, active: c.active })),
   (newList, oldList) => {
-    const prevActive = oldList?.find(c => c.active)
-    const nextActive = newList?.find(c => c.active)
-    if (!prevActive || !nextActive) return
+    const prevActive = oldList?.find(c => c.active);
+    const nextActive = newList?.find(c => c.active);
+
+    if (!prevActive || !nextActive) return;
+
     if (prevActive.id !== nextActive.id) {
       chatStore.chatHistory = chatStore.chatHistory.filter(m => {
-        const ctx = m.context || m.metadata?.context
-        if (!ctx) return false
-        if (typeof ctx === 'string') return ctx === 'chat'
-        const attention = storeAI.chatAttention
-        return ctx.type === 'chatspace' && (ctx.id === attention || ctx.cueid === attention)
-      })
+        const ctx = m.context || m.metadata?.context;
+
+        if (!ctx) return false;
+
+        if (typeof ctx === 'string') return ctx === 'chat';
+
+        const attention = storeAI.chatAttention;
+        return ctx.type === 'chatspace' && (ctx.id === attention || ctx.cueid === attention);
+      });
     }
   },
   { deep: true }
-)
+);
 
 storeAI.subscribe(handleUpdate)
 
