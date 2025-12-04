@@ -3,7 +3,7 @@
     <welcome-beebee v-if="beginChat === false && (!props.contextFilter || (typeof props.contextFilter==='string' && props.contextFilter==='chat'))"></welcome-beebee>
     <div id="natlang-ai">
       <div id="conversation">
-        <div v-for="(message, index) in chatHistory" :key="index">
+        <div v-for="(message, index) in chatHistory" :key="index">iii {{ message.bbid }}
           <!-- Peer message -->
           <div v-if="message.type === 'peer'" class="peer-message">
             <peer-message
@@ -73,9 +73,7 @@ const props = defineProps({
   contextFilter: { type: [String, Object], default: null }
 })
 
-
 const storeBentobox = bentoboxStore()
-
 const storeAI = aiInterfaceStore()
 const storeLibrary = libraryStore()
 const chatStore = useChatStore()
