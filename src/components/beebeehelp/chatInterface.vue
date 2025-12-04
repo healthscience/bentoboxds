@@ -1,5 +1,5 @@
 <template>
-  <div id="chat-interface">
+  <div id="chat-interface">dd {{ contextFilter }}
     <welcome-beebee v-if="beginChat === false && (!props.contextFilter || (typeof props.contextFilter==='string' && props.contextFilter==='chat'))"></welcome-beebee>
     <div id="natlang-ai">
       <div id="conversation">
@@ -51,7 +51,7 @@
       </div>
       <div id="buttommove" ref="targetId">{{ updateBottom }}</div>
     </div>
-    <div class="chat-input" v-if="!props.contextFilter">
+    <div class="chat-input" v-if="contextFilter === 'chat'">
       <input-box></input-box>
     </div>
   </div>
