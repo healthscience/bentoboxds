@@ -3,7 +3,7 @@
     <welcome-beebee v-if="beginChat === false && !props.contextFilter"></welcome-beebee>
     <div id="natlang-ai">
       <div id="conversation">
-        <div v-for="(message, index) in chatHistory" :key="index">
+        <div v-for="(message, index) in chatHistory" :key="index">dd{{ message.type }}
           <!-- Peer message -->
           <div v-if="message.type === 'peer'" class="peer-message">
             <peer-message
@@ -15,7 +15,7 @@
           </div>
 
           <!-- AI message with streaming support -->
-          <div v-else-if="message.type === 'agent'" class="ai-message">
+          <div v-else-if="message.type === 'agent'" class="ai-message">agent>>
             <!-- Show loading indicator if message is pending -->
             <div v-if="message.status === 'pending'" class="ai-loading">
               <img class="loading-beebee" src="../../../assets/logo.png" alt="bbAI">
@@ -41,19 +41,21 @@
               </div>
             </div>
             <div v-if="message.status === 'streaming' && message.content" class="streaming-indicator">...</div>
+                      <!-- Show actual message content -->
+            <div id="agent-tools-vis" v-else-if="message.type === 'agent-reply' || message.type === 'agent'" class="ai-message">
+              <agent-message
+              :message="message.content"
+              :timestamp="message.timestamp"
+              :bboxid="message.bbid"
+              :status="message.status"
+              :type="message.type",
+              :messageType="message.messageType"
+              :metadata="message.metadata"
+              >
+              </agent-message>
+            </div>
           </div>
-          <!-- Show actual message content -->
-          <div id="agent-tools-vis" v-else-if="message.type === 'agent-reply'" class="ai-message">
-            <agent-message
-            :message="message.content"
-            :timestamp="message.timestamp"
-            :bboxid="message.bbid"
-            :status="message.status"
-            :messageType="message.messageType"
-            :metadata="message.metadata"
-            >
-            </agent-message>
-          </div>
+
           <!-- System message -->
           <div v-else-if="message.type === 'system'" class="system-message">
             <system-message

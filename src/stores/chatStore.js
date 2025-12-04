@@ -279,6 +279,8 @@ export const useChatStore = defineStore('chat', {
             status: 'streaming',
             timestamp: new Date()
           }
+          console.log('index update')
+          console.log(this.chatHistory[targetIndex])
           // Notify subscribers
           this.notifySubscribers({ type: 'messageUpdate', payload: this.chatHistory[targetIndex] }, this.$state)
         } else {
