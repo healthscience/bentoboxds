@@ -116,18 +116,15 @@ class FileHandler {
 				storeLibrary.fileBund.content = fileContent
 				// build for chart interface
 				question.bbid = hashQuestion
-				let bbReply = {}
-				bbReply.type = 'bbai-reply'
-				bbReply.data = { text: 'summary of file data file is csv, heading are:', filedata: { type: 'csv', file: fileBundle, columns: 'one', grid: storeLibrary.linesLimit }, prompt: 'Select data to chart:', options: headerLocal[hashQuestion], }
-				bbReply.bbid = hashQuestion
-				let newPair = {}
-				newPair.question = question
-				newPair.reply = bbReply
-				storeAI.historyPair[storeAI.chatAttention].push(newPair)
+				let fileData = {}
+				fileData.content = { text: 'summary of file data file is csv, heading are:', filedata: { type: 'csv', file: fileBundle, columns: 'one', grid: storeLibrary.linesLimit }, prompt: 'Select data to chart:', options: headerLocal[hashQuestion], }
+				fileData.bbid = hashQuestion
+				storeLibrary.uploadHolder.push({ uploadid: hashQuestion, data: fileData })
+				console.log(storeLibrary.uploadHolder)
 				// if csv  active viewer
-				storeLibrary.csvpreviewLive = true
+				// storeLibrary.csvpreviewLive = true
 			} else {
-				console.log('yes data box pen')
+				console.log('yes data box open')
 				// extract headers assume first line
 				const localHeaderExtract = (lineOne) => {
 					let headerInfo = lineOne.split(',')

@@ -11,6 +11,11 @@
       {{ agentFeedback.feedback }}
       </div>
     </div>
+    <div id="upload-summary" v-if="uploadCurrent === true">
+      <div class="file-upload-summary" v-for="file of filesUploaded">
+          {{ file.name }}
+      </div>
+    </div>
     <div id="input-tools">
       <form id="ask-ai-form" @submit.prevent="storeAI.submitAsk()">
         <label for="askname"></label><!--  v-on:keyup="storeAI.actionNatlangIn($event)" -->
@@ -35,7 +40,7 @@
           <div id="upload-link" class="tool-type" @click="toolAgent('upload')" :class="{ 'active-tool': storeAI.isUploadMode }">@upload</div>
           <div class="tool-type" @click="toolAgent('library')">@library</div>
           <div class="tool-type" :class="{ 'active-tool': storeTraining.isTrainingMode }" @click="toolAgent('training')">
-            {{ storeTraining.isTrainingMode ? '@training ✓' : '@training' }}
+            {{ storeTraining.isTrainingMode ? '@train ✓' : '@train' }}
           </div>
       </div>
     </div>
@@ -85,6 +90,14 @@ import { ref, computed, watch } from 'vue'
   /* computed */
   const beebeeAIStatus = computed(() => {
     return storeAI.helpchatAsk
+  })
+
+  const uploadCurrent = computed(() => {
+    return storeLibrary.uploadFileStatus
+  })
+
+  const filesUploaded = computed(() => {
+    return storeLibrary.fileBundleList
   })
 
   const agentProgressUpdate = computed(() => {

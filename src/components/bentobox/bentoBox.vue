@@ -1,5 +1,5 @@
 <template>
-  <div id="bentobox-data-live" v-if="typeof storeAI.visData[props.bboxid] === 'undefined'">
+  <div id="bentobox-data-live" v-if="typeof storeBentobox.bentoboxData[props.bboxid] === 'undefined'">
     <button @click="viewSaveExperiment(props.bboxid, props.contractid)">View experiment</button>
   </div>
   <div v-else>ppp
@@ -196,7 +196,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
   })
 
   const chartData = computed(() => {
-    return storeAI.visData[props.bboxid]
+    return storeBentobox.bentoboxData[props.bboxid]
   })
 
   const computeList = computed(() => {

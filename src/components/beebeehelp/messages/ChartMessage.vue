@@ -1,40 +1,42 @@
 <template>
   <div class="chart-message">
-    <div v-if="message.type === 'hopquery'">
+    <!-- interactive messages -->
+    <div id="bentobox-view" v-if="messageType === 'datatype'">
       <span>Datatype: {{ message.data.library.text }} for month {{ message.data.time.words.day }} day {{ message.data.time.words.month }}</span>---
       <button id="new-query" @click.prevent="beebeeChartSpace(message.data)">yes, produce chart</button>
     </div>
-    <div v-else-if="message.type === 'experiment' && message.data">
-      <button @click="viewSaveExperiment(message.bbid, message.data)">View experiment</button>
+    <div v-else-if="messageType === 'experiment'">
+      <button @click="viewSaveExperiment(bboxid, 'need to add')">View experiment</button>
     </div>
-    <div v-else-if="message.type === 'network-library-n1'">
+    <div v-else-if="messageType === 'network-library-n1'">
       {{ message?.data?.text?.boardname }}<button @click="publibLibAdd(message.data.text)"> yes add this Cue space to public library</button>
     </div>
-    <div id="beebee-chartspace" v-if="storeAI.beebeeChatLog[message?.bbid] === true && storeAI.visData[message.bbid].datasets[0]?.data !== undefined">
-      <!--the slimed down bentobox to chart and bring in tools as needed  storeAI.beebeeChatLog[chati?.question] !== undefined &&  -->
-      <div  v-if="message?.data?.text !== undefined && message?.data?.text.length > 0">
-        {{ message?.data?.text }}
-      </div>
-      <bento-box :bboxid="message?.bbid"></bento-box>
+    <!-- now build a bentox-->
+    <div id="beebee-chartspace" v-if="storeBentobox.beebeeChatLog[bboxid] === true && storeBentobox.bentoboxData[bboxid].datasets[0]?.data !== undefined">
+      <bento-box :bboxid="bboxid"></bento-box>
     </div>
-    <div v-else-if="message?.data?.text !== undefined && message?.data?.text.length > 0">
+    <!--<div v-else-if="message?.data?.text !== undefined && message?.data?.text.length > 0">
       {{ message?.data?.text }}
       <bento-box :bboxid="message?.bbid"></bento-box>
-    </div>
+    </div> -->
   </div>
 </template>
 
 <script setup>
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { libraryStore } from '@/stores/libraryStore.js'
+import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import BentoBox from '@/components/bentobox/baseBox.vue'
 
 const props = defineProps({
-  message: Object
+  bboxid: String,
+  status: String,
+  messageType: String,
 })
 
 const storeAI = aiInterfaceStore()
 const storeLibrary = libraryStore()
+const storeBentobox = bentoboxStore()
 
 const viewSaveExperiment = (bbid, contractID) => {
   storeLibrary.prepareLibraryViewFromContract(bbid, contractID)

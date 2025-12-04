@@ -1,52 +1,35 @@
 <template>
-  <div class="system-message-container">
-    <div class="system-message-content">
-      <p>{{ message }}</p>
+  <div class="system-message">
+    <div v-if="message.action === 'agent-response'">
+      {{ message.data }}
     </div>
-    <div class="system-message-time">{{ formattedTime }}</div>
+    <div v-else-if="message.action === 'hop-learn-feedback'">
+      {{ message.data.agent }} Please start the LLM in accounts settings.
+    </div>
+    <div v-else>
+      <div class="system-text">
+        {{ message?.data?.text }} - {{ message.data?.type }}
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
-
 const props = defineProps({
-  message: {
-    type: String,
-    required: true
-  },
-  timestamp: {
-    type: Date,
-    default: () => new Date()
-  }
-})
-
-const formattedTime = computed(() => {
-  return props.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  message: Object
 })
 </script>
 
 <style scoped>
-.system-message-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 10px;
+.system-message {
+  padding: 1em;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  margin: 0.5em 0;
+  border-left: 4px solid #007bff;
 }
 
-.system-message-content {
-  background-color: #e9ecef;
-  color: #495057;
-  padding: 5px 10px;
-  border-radius: 12px;
-  max-width: 80%;
-  word-wrap: break-word;
-  font-size: 0.8em;
-}
-
-.system-message-time {
-  font-size: 0.6em;
-  color: #6c757d;
-  margin-top: 2px;
+.system-text {
+  color: #333;
 }
 </style>

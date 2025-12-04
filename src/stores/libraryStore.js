@@ -17,7 +17,7 @@ export const libraryStore = defineStore('librarystore', {
     joinFeedback: false,
     storeCues: cuesStore(),
     storeAI: aiInterfaceStore(),
-    storeBentoBox: bentoboxStore(),
+    storeBentobox: bentoboxStore(),
     utilLibrary: new LibraryUtility(),
     sendSocket: useSocketStore(),
     liveChatUtil: new ChatUtilty(),
@@ -123,6 +123,8 @@ export const libraryStore = defineStore('librarystore', {
       }
     },
     joinOptions: {},
+    uploadFileStatus: false,
+    uploadHolder: [],
     fileBund: {},
     fileBundleList: [],
     linesLimit: {},
@@ -309,21 +311,21 @@ export const libraryStore = defineStore('librarystore', {
             this.devicesJoin = message.data.devices
           }
           // set open data x and y axis , category, device etc.
-          this.storeBentoBox.openDataSettings[this.liveBBox] = {}
+          this.storeBentobox.openDataSettings[this.liveBBox] = {}
           // what is data
           let desribesD = Object.keys(message.data)
           for (let dd of desribesD) {
             if (dd === 'headers') {
               this.newDatafile.columns = message.data.headers
-              this.storeBentoBox.openDataSettings[this.liveBBox].yaxis = this.newDatafile.columns
+              this.storeBentobox.openDataSettings[this.liveBBox].yaxis = this.newDatafile.columns
             }
             if (dd === 'tables') {
               this.newDatafile.devicecolumns = message.data.tables.headers
-              this.storeBentoBox.openDataSettings[this.liveBBox].yaxis = this.newDatafile.devicecolumns
+              this.storeBentobox.openDataSettings[this.liveBBox].yaxis = this.newDatafile.devicecolumns
             }
             if (dd === 'devices') {
               this.newDatafile.device = message.data.devices
-              this.storeBentoBox.openDataSettings[this.liveBBox].devices = this.newDatafile.device
+              this.storeBentobox.openDataSettings[this.liveBBox].devices = this.newDatafile.device
             }
           }
         }
@@ -356,7 +358,7 @@ export const libraryStore = defineStore('librarystore', {
           }
         }
         // check if start cues are here and needing processed
-        if (this.storeBentoBox.libraryCheck === false) {
+        if (this.storeBentobox.libraryCheck === false) {
           // yes go ahead and expand cues
           let updateCueExpand = []
           for (let cueContract of this.storeCues.waitingCues) {

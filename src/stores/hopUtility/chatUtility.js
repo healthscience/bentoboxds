@@ -293,7 +293,8 @@ class ChatUtility {
         context: question.context,
         // metadata: question.metadata,
         bboxid: question.bboxid,
-        tools: question.tools
+        tools: question.tools,
+        upload: question.upload
       }
     }
   }

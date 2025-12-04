@@ -48,39 +48,39 @@ import FileHander from '@/components/dataspace/upload/utils/fileHandler.js'
 // File Management
 import useFileList from '@/components/dataspace/upload/compositions/fileList.js'
 
-const { files, addFiles, removeFile } = useFileList()
+  const { files, addFiles, removeFile } = useFileList()
 
-	/* computed */
+  /* computed */
 	const uploadStatus = computed(() => {
     return storeLibrary.uploadStatus
   })
 
-	/* methods */
-	function onInputChange(e) {
-		console.log('file input -------name--------')
-		console.log(e.target.files[0])
-		file.value = e.target.files[0]
-		let fileName = file.value.name
-		storeLibrary.fileBund.name = fileName
-		console.log(storeLibrary.fileBund)
-		let addF = addFiles(e.target.files)
-		//e.target.value = null // reset so that selecting the same file again will still cause it to fire this change
-	}
+  /* methods */
+  function onInputChange(e) {
+	console.log('file input -------name--------')
+	console.log(e.target.files[0])
+	file.value = e.target.files[0]
+	let fileName = file.value.name
+	storeLibrary.fileBund.name = fileName
+	console.log(storeLibrary.fileBund)
+	let addF = addFiles(e.target.files)
+	//e.target.value = null // reset so that selecting the same file again will still cause it to fire this change
+  }
 
-	const closedataBox = () => {
+  const closedataBox = () => {
     storeAI.dataBoxStatus = !storeAI.dataBoxStatus
     storeLibrary.uploadStatus = false
   }
 
 
-// Uploader
-// import createUploader from '@/components/dataspace/upload/compositions/fileUploader.js'
-// const { uploadFiles } = createUploader('url')
-const removeFileEvent = (file) => {
-	removeFile(file)
-}
+  // Uploader
+  // import createUploader from '@/components/dataspace/upload/compositions/fileUploader.js'
+  // const { uploadFiles } = createUploader('url')
+  const removeFileEvent = (file) => {
+    removeFile(file)
+  }
 
-const checkElectron = () => {
+  const checkElectron = () => {
     // Renderer process
 	if (typeof window !== 'undefined' && typeof window.process === 'object' && window.process.type === 'renderer') {
 			return true
@@ -94,9 +94,11 @@ const checkElectron = () => {
 			return true
 	}
 	return false
-}
+  }
 
-const saveFiles = (files) => {
+  const saveFiles = (files) => {
+	// inform beebee files uploaded
+	storeLibrary.uploadFileStatus = true
 	for (let file of files) {
 		let fileSize = file.file.size
 		let largeFileStatus = false
@@ -127,14 +129,15 @@ const saveFiles = (files) => {
 		fileBundle.path = file.file.url
 		fileBundle.type = file.file.type
 		storeLibrary.fileBundleList.push(fileBundle)
+		console.log('after push to list files')
 		// give summary back to peer
 		if (file.file.type === 'text/csv') {
 			storeLibrary.csvpreviewLive = true
 			// use hander large or small?
 			if (largeFileStatus === false) {
-				HandleLargeFiles.csvHandler(file, storeAI, storeLibrary, hashObject, fileBundle)
+			  HandleLargeFiles.csvHandler(file, storeAI, storeLibrary, hashObject, fileBundle)
 			} else {
-				HandleLargeFiles.handleLargeFile(file.file, 'csv', storeLibrary )
+			  HandleLargeFiles.handleLargeFile(file.file, 'csv', storeLibrary )
 			}
 		} else if (file.file.type === 'image/png') {
 			storeLibrary.imagepreviewLive = true
@@ -358,16 +361,16 @@ const saveFiles = (files) => {
 		removeFile(file)
   }
 
-	const localHeaderExtract = (lineOne) => {
-		let headerInfo = lineOne.split(',')
-		return headerInfo
-	}
-	// need to close databox if enter from chat
-	if (storeLibrary.libraryStatus === false) {
-		storeAI.dataBoxStatus = false
+  const localHeaderExtract = (lineOne) => {
+    let headerInfo = lineOne.split(',')
+	  return headerInfo
+  }
+  // need to close databox if enter from chat
+  if (storeLibrary.libraryStatus === false) {
+	storeAI.dataBoxStatus = false
     storeLibrary.uploadStatus = false
     storeLibrary.libraryStatus = false
-	}
+  }
 }
 </script>
 

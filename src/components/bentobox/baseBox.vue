@@ -31,7 +31,7 @@
       </div>
     </div>
   </div>
-  <bentobox-focus v-if="storeAI.expandBentobox[props.bboxid] === true" :bboxid="props.bboxid"></bentobox-focus>
+  <bentobox-focus v-if="storeBentobox.expandBentobox[props.bboxid] === true" :bboxid="props.bboxid"></bentobox-focus>
 </template>
 
 <script setup>
@@ -52,8 +52,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   /* computed */
   const chartData = computed(() => {
-    if (storeAI.visData[props.bboxid]) {
-      return storeAI.visData[props.bboxid]
+    if (storeBentobox.bentoboxData[props.bboxid]) {
+      return storeBentobox.bentoboxData[props.bboxid]
     } else {
       return false
     }

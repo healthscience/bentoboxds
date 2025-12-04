@@ -25,7 +25,7 @@
                   <span></span>
                   <span></span>
                 </div>
-                <span class="loading-text">beebee is shaping a reply...</span>
+                <span class="loading-text">beebee is shaping a reply...1</span>
               </div>
             </div>
             <!-- Show streaming indicator if message is streaming but empty -->
@@ -37,22 +37,23 @@
                   <span></span>
                   <span></span>
                 </div>
-                <span class="loading-text">beebee is shaping a reply...</span>
+                <span class="loading-text">beebee is shaping a reply...2</span>
               </div>
             </div>
-            <!-- Show actual message content -->
-            <agent-message
-              v-else
-              :message="message.content"
-              :timestamp="message.timestamp"
-              :bboxid="message.bboxid"
-              :status="message.status"
-              :message-type="message.messageType"
-              :metadata="message.metadata"
-            ></agent-message>
             <div v-if="message.status === 'streaming' && message.content" class="streaming-indicator">...</div>
           </div>
-
+          <!-- Show actual message content -->
+          <div id="agent-tools-vis" v-else-if="message.type === 'agent-reply'" class="ai-message">
+            <agent-message
+            :message="message.content"
+            :timestamp="message.timestamp"
+            :bboxid="message.bbid"
+            :status="message.status"
+            :messageType="message.messageType"
+            :metadata="message.metadata"
+            >
+            </agent-message>
+          </div>
           <!-- System message -->
           <div v-else-if="message.type === 'system'" class="system-message">
             <system-message
@@ -71,12 +72,12 @@
 </template>
 
 <script setup>
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import WelcomeBeebee from '@/components/beebeehelp/welcomeBeebee.vue'
 import inputBox from '@/components/beebeehelp/inputBox.vue'
 import PeerMessage from '@/components/beebeehelp/messages/peerMessage.vue'
-import AgentMessage from '@/components/beebeehelp/messages/AIMessage.vue'
+import AgentMessage from '@/components/beebeehelp/messages/AgentMessage.vue'
 import SystemMessage from '@/components/beebeehelp/messages/systemMessage.vue'
-import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 import { useChatStore } from '@/stores/chatStore.js'
@@ -195,7 +196,67 @@ defineExpose({
 
 #conversation {
   display: block;
-  min-height: 100px;
+  min-height: 400px;
+  font-size: .8em;
+	background-color: #e7eaf5;
+	background-image:
+		linear-gradient(
+		    25deg,
+			  transparent 65%,
+			  hsla(205,50%,90%,1),
+			  transparent 70%
+		    ),
+		linear-gradient(
+		    -25deg,
+			  transparent 65%,
+			  hsla(205,50%,90%,1),
+			  transparent 70%
+		    ),
+		linear-gradient(
+		    -25deg,
+			  transparent 30%,
+			  hsla(205,50%,90%,1),
+			  transparent 35%
+		    ),
+		linear-gradient(
+		    25deg,
+			  transparent 30%,
+			  hsla(205,50%,90%,1),
+			  transparent 35%
+		    ),		
+		linear-gradient(
+		    65deg,
+			  transparent 65%,
+			  hsla(205,50%,90%,1),
+			  transparent 70%
+		    ),
+		linear-gradient(
+		    -65deg,
+			  transparent 65%,
+			  hsla(205,50%,90%,1),
+			  transparent 70%
+		    ),
+		linear-gradient(
+		    -65deg,
+			  transparent 30%,
+			  hsla(205,50%,90%,1),
+			  transparent 35%
+		    ),
+		linear-gradient(
+		    65deg,
+			  transparent 30%,
+			  hsla(205,50%,90%,1),
+			  transparent 35%
+		    );
+	background-size: 
+		5em 2em,
+		5em 2em,
+		5em 2em,
+		5em 2em,	
+		2em 5em,
+		2em 5em,
+		2em 5em,
+		2em 5em;
 }
 
 .message-container {

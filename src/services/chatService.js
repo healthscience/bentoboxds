@@ -5,33 +5,27 @@ class ChatService {
     this.chatUtility = new ChatUtility()
     this.currentContext = 'chat'
   }
-
   // Initialize chat service
   initChat(context) {
     this.currentContext = context
     this.chatUtility.initChat(context)
   }
-
   // Create a new chat
   createNewChat(context, bboxid) {
     return this.chatUtility.createChatTemplate(context, bboxid)
   }
-
   // Create a new question
   createNewQuestion(text, context, toolsUsed, dataInfo, bboxid) {
     return this.chatUtility.createQuestionTemplate(text, context, toolsUsed, dataInfo, bboxid)
   }
-
   // Prepare a question for sending to HOP
   prepareQuestionForHOP(question) {
     return this.chatUtility.prepareQuestionForHOP(question)
   }
-
   // Create a feedback message
   createFeedbackMessage(message, bboxid) {
     return this.chatUtility.createFeedbackMessage(message, bboxid)
   }
-
   // Process incoming messages from HOP
   processIncomingMessage(message) {
     // Determine message type and process accordingly

@@ -113,7 +113,7 @@ const selectedTimeFormat = ref('timeseries')
   })
 
   const expandFocus = computed(() => {
-    return storeAI.expandBentobox[props.bboxid]    
+    return storeBentobox.expandBentobox[props.bboxid]    
   })
 
   /* methods */
@@ -134,7 +134,7 @@ const selectedTimeFormat = ref('timeseries')
   }
 
   const clickExpandBentobox = (boxid) => {
-    storeAI.expandBentobox[boxid] = true
+    storeBentobox.expandBentobox[boxid] = true
   }
 
   const clickSummaryLib = (boxid) => {

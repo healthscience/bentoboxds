@@ -16,7 +16,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     storeAcc: accountStore(),
     sendSocket: useSocketStore(),
     storeCues: cuesStore(),
-    storeBentoBox: bentoboxStore(),
+    storeBentobox: bentoboxStore(),
     storeLibrary: libraryStore(),
     storeChat: useChatStore(),
     liveDataParse: new DataPraser(),
@@ -94,11 +94,9 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     visData: {},
     tempNumberData: {},
     tempLabelData: {},
-    expandBentobox: {},
     activeFuture: {},
     futureLabelData: {},
     futureNumberData: {},
-    beebeeChatLog: {},
     historySpacePair: {},
     bentochatState: false,
     bentospaceState: false,
@@ -136,7 +134,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     },
     // Notify all subscribers of a change
     notifySubscribers(mutation, state) {
-      console.log('notify chat ui of new message')
       this.subscribers.forEach(subscriber => subscriber(mutation, state))
     },
     clearData () {
@@ -181,7 +178,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       // this.storeChat.beginChat = true
     },
     async submitAsk (dataInfo) {
-
       // check for context of beebee default is Chat, other option spaces, cues(decisions)
       /*if (this.beebeeContext === 'chat') {
         // remove start boxes
@@ -253,8 +249,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       } else if (this.beebeeContext === 'cues-decision') {
         this.decisionDoughnutCue = true
       }*/
-      console.log('sub to beebee--------------------------')
-      console.log(dataInfo)
       try {
         // 1. Determine the context
         const context = this.beebeeContext || 'chat'
@@ -272,7 +266,12 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           this.storeChat.addMessage(feedbackMessage)
           return
         }
-
+        // 3. upload files?
+        let uploadAttached = false
+        if (this.storeLibrary.uploadFileStatus === true) {
+          // file(s) are the conetxt for input
+          uploadAttached = true
+        }
         // 4. Prepare the question object
         const question = this.liveChatUtil.createQuestionTemplate(
           this.askQuestion.text,
@@ -280,10 +279,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           toolsUsed,
           null
         )
-
         console.log('question++++++++++++++')
         console.log(question)
-
         // 5. Check if this is a new chat or adding to existing
         let chat
         if (this.isNewChat(context)) {
@@ -298,20 +295,23 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         // 6. Add the question to the chat
         chat.questions.push(question)
         chat.currentQuestion = question
-
         // 7. Update the chat history
         this.updateChatHistory(chat, context)
-        // 9. Prepare the question for HOP
-        const hopQuestion = this.liveChatUtil.prepareQuestionForHOP(question)
-        console.log('HOP format quetion')
-        console.log(hopQuestion)
-        // 10. Send the question to HOP for processing
-        this.actionAgentQuestion(hopQuestion, question)
-
+        // if file upload then show charting options
+        if (uploadAttached === true) {
+          // add reply data select mode
+          question.upload = this.storeLibrary.uploadHolder[0]
+          const hopQuestion = this.liveChatUtil.prepareQuestionForHOP(question)
+          this.actionAgentQuestion(hopQuestion, question)
+        } else {
+          // 9. Prepare the question for HOP
+          const hopQuestion = this.liveChatUtil.prepareQuestionForHOP(question)
+          // 10. Send the question to HOP for processing
+          this.actionAgentQuestion(hopQuestion, question)
+        }
         // 11. Clear the input for the next question
         this.askQuestion.text = ''
         this.askQuestion.compute = false
-
         // 12. Notify subscribers about the new question
         this.notifySubscribers({
           type: 'newQuestion',
@@ -322,7 +322,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
             context: context
           }
         })
-
       } catch (error) {
         console.error('Error submitting question:', error)
         // Provide error feedback
@@ -331,43 +330,40 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         )
         this.storeChat.addMessage(errorMessage)
       }
-  },
-  // Helper functions
-  isNewChat(context) {
-    return !this.historyPair[context] || this.historyPair[context].length === 0
-  },
-
-  getCurrentChat(context) {
-    return this.historyPair[context][this.historyPair[context].length - 1]
-  },
-
-  updateChatHistory(chat, context) {
-    if (!this.historyPair[context]) {
-      this.historyPair[context] = []
-    }
-
-    // Update or add the chat
-    const existingIndex = this.historyPair[context].findIndex(c => c.id === chat.id)
-    if (existingIndex >= 0) {
-      this.historyPair[context][existingIndex] = chat
-    } else {
-      this.historyPair[context].push(chat)
-    }
-  },
+    },
+    // Helper functions
+    isNewChat(context) {
+      return !this.historyPair[context] || this.historyPair[context].length === 0
+    },
+    getCurrentChat(context) {
+      return this.historyPair[context][this.historyPair[context].length - 1]
+    },
+    updateChatHistory(chat, context) {
+      if (!this.historyPair[context]) {
+        this.historyPair[context] = []
+      }
+      // Update or add the chat
+      const existingIndex = this.historyPair[context].findIndex(c => c.id === chat.id)
+      if (existingIndex >= 0) {
+        this.historyPair[context][existingIndex] = chat
+      } else {
+        this.historyPair[context].push(chat)
+      }
+    },
     trackAgentProgress (bboxID) {
-      // setup chat feedback object if need
-      if (this.agentProgress[this.chatAttention] === undefined) {
-        this.agentProgress[this.chatAttention] = {}
-      }
-      // need some sort of loop
-      let agentLoopActive = true
-      if (agentLoopActive === true) {
-        this.agentProgress[this.chatAttention] = {}  // TODO  setup object better to allow deeper reactivity
-        this.agentProgress[this.chatAttention][bboxID] = {}
-        this.agentProgress[this.chatAttention][bboxID] = { feedback: '', timeCounter: 1, show: true }
-      } else if (agentLoopActive === false) {
-        this.agentProgress[this.chatAttention][bboxID] = { feedback: 'agent flow complete', timeCounter: 0, show: false }
-      }
+        // setup chat feedback object if need
+        if (this.agentProgress[this.chatAttention] === undefined) {
+          this.agentProgress[this.chatAttention] = {}
+        }
+        // need some sort of loop
+        let agentLoopActive = true
+        if (agentLoopActive === true) {
+          this.agentProgress[this.chatAttention] = {}  // TODO  setup object better to allow deeper reactivity
+          this.agentProgress[this.chatAttention][bboxID] = {}
+          this.agentProgress[this.chatAttention][bboxID] = { feedback: '', timeCounter: 1, show: true }
+        } else if (agentLoopActive === false) {
+          this.agentProgress[this.chatAttention][bboxID] = { feedback: 'agent flow complete', timeCounter: 0, show: false }
+        }
     },
     trackAgentProgressUpdate (inputID) {
       // loop over and set feedback to false
@@ -386,7 +382,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     },
     processAgentFeedback (data) {
       this.agentProgress[this.chatAttention] = {}
-      this.agentProgress[this.chatAttention][data.bbid] = { feedback: '', timeCounter: 1, show: false }
+      this.agentProgress[this.chatAttention][data.bbid] = { feedback: '= TOKEN MESSAGE RECEIVED =', timeCounter: 1, show: false }
     },
     largeFilesubmitAsk (dataInfo) {
       // console.log('large file prep')
@@ -408,8 +404,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.qcount++      
     },
     actionAgentQuestion (hopQuestion, originalQuestion) {
-      console.log('action agent question in3333333333333333')
-      console.log(hopQuestion)
       let hashQuestion = hashObject(hopQuestion)
       let aiMessageout = {}
       aiMessageout.type = 'bbai'
@@ -448,7 +442,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         const tools = this.extractToolsFromQuestion(questionText)
         
         // Add user question to chat history
-        const userMessage = this.storeChat.addUserQuestion(questionText, tools)
+        const userMessage = this.storeChat.addPeerQuestion(questionText, tools)
         
         // Create message for HOP
         let saveQ = {}
@@ -484,16 +478,12 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         console.log('No question text entered')
       }
     },
-    
     extractToolsFromQuestion(text) {
       const toolRegex = /@(\w+)/g
       const matches = text.match(toolRegex) || []
       return matches.map(match => match.substring(1))
     },
     processStreamReply (received) {
-      console.log('stream reply from beebee')
-      console.log(received)
-      console.log('received.data:', received.data)
       if (received.type === 'bbai-stream-reply') {
         // Check if this is just a text token or a structured message
         const messageData = typeof received.data === 'string' 
@@ -512,6 +502,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     processReply (received) {
+      console.log('process reply  blind data select, or bentobox?')
+      console.log(received)
       if (received.action === 'agent-task') {
         if (received.task === 'cale-evolution') {
           this.boxModelUpdate[received.context.bbid] = {}
@@ -559,11 +551,11 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
             if (questionCount[0].data?.filedata) {
               // set box detail setings
               let opendataToolbar = this.liveChatUtil.setOpendataToolbar()
-              this.storeBentoBox.boxToolStatus[received.bbid] = {}
-              this.storeBentoBox.boxToolStatus[received.bbid] = opendataToolbar
-              this.storeBentoBox.devicesettings[received.bbid] = {}
-              this.storeBentoBox.devicesettings[received.bbid] = this.storeBentoBox.settings
-              this.storeBentoBox.chartStyle[received.bbid] = 'line' // this.boxSettings.chartstyle  // 'line'
+              this.storeBentobox.boxToolStatus[received.bbid] = {}
+              this.storeBentobox.boxToolStatus[received.bbid] = opendataToolbar
+              this.storeBentobox.devicesettings[received.bbid] = {}
+              this.storeBentobox.devicesettings[received.bbid] = this.storeBentobox.settings
+              this.storeBentobox.chartStyle[received.bbid] = 'line' // this.boxSettings.chartstyle  // 'line'
             } else {
               let pairBB = {}
               pairBB.question = questionStart
@@ -572,9 +564,9 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
               if (this.storeAcc.peerauth === false) {
               } else {
                 this.historyPair[this.chatAttention].push(pairBB)
-                this.storeBentoBox.boxToolStatus[received.bbid] = this.boxSettings
-                this.storeBentoBox.devicesettings[received.bbid] = {}
-                this.storeBentoBox.devicesettings[received.bbid] = this.storeBentoBox.settings
+                this.storeBentobox.boxToolStatus[received.bbid] = this.boxSettings
+                this.storeBentobox.devicesettings[received.bbid] = {}
+                this.storeBentobox.devicesettings[received.bbid] = this.storeBentobox.settings
               }
             }
             // stop any agent feedback message
@@ -754,7 +746,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.liveBspace = cueContract // get from notificationspaceID
       // make button green
       let spaceLiveList = []
-      for (let spi of this.storeBentoBox.spaceList) {
+      for (let spi of this.storeBentobox.spaceList) {
         if (spi.spaceid === cueContract.spaceid) {
           spi.active = true
           spaceLiveList.push(spi)
@@ -763,33 +755,37 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           spaceLiveList.push(spi)
         }
       }
-      this.storeBentoBox.spaceList = spaceLiveList
+      this.storeBentobox.spaceList = spaceLiveList
       // now setup N=1 media, research, markers, products
       let contentTypes = Object.keys(notItem.data.data.content)
       for (let spcont of contentTypes) {
         // media, research etc.
         if (spcont === 'media') {
-          this.storeBentoBox.prepareMediaSpace(notItem.data.data.content[spcont])
+          this.storeBentobox.prepareMediaSpace(notItem.data.data.content[spcont])
         } else if (spcont === 'research') {
-          this.storeBentoBox.prepareResearchSpace(notItem.data.data.content[spcont])
+          this.storeBentobox.prepareResearchSpace(notItem.data.data.content[spcont])
         } else if (spcont === 'markers') {
-          this.storeBentoBox.prepareMarkerSpace(notItem.data.data.content[spcont])
+          this.storeBentobox.prepareMarkerSpace(notItem.data.data.content[spcont])
         } else if (spcont === 'products') {
-          this.storeBentoBox.prepareProductSpace(notItem.data.data.content[spcont])
+          this.storeBentobox.prepareProductSpace(notItem.data.data.content[spcont])
         }
       }
     },
     processPeerData (dataNetwork) {
+      console.log('bentobox from network')
+      console.log(dataNetwork)
       let matchBBID = dataNetwork.bbid
       let hopDataChart = dataNetwork.data
       // create a pair for chat display
-      this.visData[matchBBID] = hopDataChart
-      this.storeBentoBox.setChartstyle(matchBBID, 'line')
-      this.expandBentobox[matchBBID] = false
-      this.beebeeChatLog[matchBBID] = true
+      this.storeBentobox.bentoboxData[matchBBID] = hopDataChart
+      this.storeBentobox.setChartstyle(matchBBID, 'line')
+      this.storeBentobox.expandBentobox[matchBBID] = false
+      this.storeBentobox.beebeeChatLog[matchBBID] = true
       this.bentoboxList['space1'] = []
     },
     processHOPsummary (dataSummary) {
+      console.log('HOP -- SafeFlow summary')
+      console.log(dataSummary)
       // match bbid to HOP ID
       if (dataSummary?.data !== undefined) {
         let inputID = Object.keys(dataSummary.data)
@@ -799,6 +795,9 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     processHOPdata (dataHOP) {
+      // HOP return bentobox data
+      console.log('hop data back from SafeFlow via HOP')
+      console.log(dataHOP)
       // match input id to bbid
       // is the data for past or future or no data
       if (dataHOP?.data?.data === 'none') {
@@ -812,38 +811,49 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         this.computeModuleLast[boxID] = dataHOP.context.tempComputeMod.info
         // set open data toolbar
         let opendataToolbar = this.liveChatUtil.setOpendataToolbar()
-        this.storeBentoBox.boxToolStatus[boxID] = {}
-        this.storeBentoBox.boxToolStatus[boxID] = opendataToolbar
+        this.storeBentobox.boxToolStatus[boxID] = {}
+        this.storeBentobox.boxToolStatus[boxID] = opendataToolbar
         // only need to prepare chat is current mode chat, if space ignore
         if (this.beebeeContext === 'chat') {
-          let pairBB = this.liveChatUtil.prepareChatQandA(boxID, matchSummary)
-          this.historyPair[this.chatAttention].push(pairBB)
+          // prepare message for agent to say no data for this HOPquery
+          //let pairBB = this.liveChatUtil.prepareChatQandA(boxID, matchSummary)
+          //this.historyPair[this.chatAttention].push(pairBB)
         }
         let hopDataChart = {}
         hopDataChart.datasets = [ { label: 'datatype11', data: [] } ]
         hopDataChart.labels = []
-        this.visData[boxID] = hopDataChart
-        this.storeBentoBox.setChartstyle(boxID, dataHOP.context.moduleorder.visualise.value.info.settings.visualise)
-        // this.expandBentobox[boxID] = true
-        this.beebeeChatLog[boxID] = true
+        this.storeBentobox.bentoboxData[boxID] = hopDataChart
+        this.storeBentobox.setChartstyle(boxID, dataHOP.context.moduleorder.visualise.value.info.settings.visualise)
+        // this.storeBentobox.expandBentobox[boxID] = true
+        this.storeBentobox.beebeeChatLog[boxID] = true
         this.chatBottom++
       } else if (dataHOP.type === 'sf-newEntityRange') {
-         this.dataBoxStatus = false
+        // new bentobox data
+        this.dataBoxStatus = false
         let matchBBID = this.liveChatUtil.matchHOPbbid(dataHOP.data.context.shell, this.bbidHOPid)
+        console.log('match----------')
+        console.log(matchBBID)
         this.bboxFeedback[matchBBID] = {}
         // was HOPquery made from chat?
-        if (true) {
+        if (this.beebeeContext === 'chat') {
           // update the latest compute module contract back from HOP
           if (dataHOP.context.tempComputeMod !== undefined) {
             this.computeModuleLast[matchBBID] = dataHOP.context.tempComputeMod.info
           }
+          // set default space  NEEDS BETTER LOGIC
           this.bentoboxList['space1'] = []
-          // this.expandBentobox[matchBBID] = true
-          this.beebeeChatLog[matchBBID] = true
-        }
-        // prepare space if HOPquery space asked for
-        if (true) {
-
+          // this.storeBentobox.expandBentobox[matchBBID] = true
+          this.storeBentobox.beebeeChatLog[matchBBID] = true
+          // prepare the chat message for agent reply
+          this.storeChat.handleIncomingMessage({
+            type: 'agent-reply',
+            bbid: matchBBID,
+            data: { type: 'bentobox'},
+            status: 'bentobox',
+            messageType: 'bentobox',
+            metadata: {},
+            context: dataHOP.context
+          })
         }
         // set the data for visualizations
         let hopDataChart = {}
@@ -851,12 +861,12 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         hopDataChart.labels = dataHOP.data.data.chartPackage.labels
         // double check data to display if not produce beebee feedback message
         if (hopDataChart.labels.length > 0) {
-          this.visData[matchBBID] = hopDataChart
-          this.storeBentoBox.setChartstyle(matchBBID, dataHOP.context.moduleorder.visualise.value.info.settings.visualise)
+          this.storeBentobox.bentoboxData[matchBBID] = hopDataChart
+          this.storeBentobox.setChartstyle(matchBBID, dataHOP.context.moduleorder.visualise.value.info.settings.visualise)
         } else {
           this.bboxFeedback[matchBBID] = { text: 'No data for this HOPquery' }
           // clear view experiment on bentobox
-          this.visData[matchBBID] = { text: 'live'}
+          this.storeBentobox.bentoboxData[matchBBID] = { text: 'live'}
         }
       } else {
         // data for future prediction
@@ -947,7 +957,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         this.boxLibSummary[boxid].data.modules = computeLatestModules
         // let modulesContracts = NXPcontract[key[0]].modules
         let extractedOD = this.storeLibrary.utilLibrary.moduleExtractSettings(computeLatestModules)
-        this.storeBentoBox.openDataSettings[boxid] = extractedOD
+        this.storeBentobox.openDataSettings[boxid] = extractedOD
         return true
       }
     },
@@ -976,7 +986,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       if (settingsData !== undefined) {
         for (let bbi of settingsData) {
           bbidPerChat.push(bbi.reply.bbid)
-          let visD = this.visData[bbi.reply.bbid]
+          let visD = this.storeBentobox.bentoboxData[bbi.reply.bbid]
           visDataperChat.push(visD)
         }
       } else {
@@ -1008,10 +1018,10 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         let visDataperSpace = []
         let locationPerSpace = []
         for (let bbi of boxidPerspace) {
-          let visD = this.visData[bbi.bboxid]
+          let visD = this.storeBentobox.bentoboxData[bbi.bboxid]
           visDataperSpace.push(visD)
           // current location to save
-          locationPerSpace.push({ bboxid: bbi.bboxid, location: this.storeBentoBox.locationBbox[message.data.cueid][bbi.bboxid] })
+          locationPerSpace.push({ bboxid: bbi.bboxid, location: this.storeBentobox.locationBbox[message.data.cueid][bbi.bboxid] })
         }
         // build media info per space
         let saveData = {}
@@ -1029,13 +1039,13 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
       // cues
       // media
-      // let mediaidPerspace = this.storeBentoBox.videoMedia[message.data.cueid]
+      // let mediaidPerspace = this.storeBentobox.videoMedia[message.data.cueid]
       // research
-      // let researchidPerspace = this.storeBentoBox.researchMedia[message.data.cueid]
+      // let researchidPerspace = this.storeBentobox.researchMedia[message.data.cueid]
       // markers
-      // let markeridPerspace = this.storeBentoBox.markerMedia[message.data.cueid]
+      // let markeridPerspace = this.storeBentobox.markerMedia[message.data.cueid]
       // products
-      // let productidPerspace = this.storeBentoBox.ProductMedia[message.data.cueid]
+      // let productidPerspace = this.storeBentobox.ProductMedia[message.data.cueid]
     },
     prepareAI (message) {
       // need to build DML structure, proof of work hash

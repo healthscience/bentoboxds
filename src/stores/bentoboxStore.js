@@ -22,7 +22,10 @@ export const bentoboxStore = defineStore('bentostore', {
       }
     ],
     chartStyle: {},
+    bentoboxData: {},
     bbToolbarOpendata: {},
+    beebeeChatLog: {},
+    expandBentobox: {},
     boxToolStatus: {},
     /* {
       opendatatools: { active: false },
