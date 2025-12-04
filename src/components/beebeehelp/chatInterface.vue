@@ -144,27 +144,28 @@ const beginChat = computed(() => {
 const bottom = ref(null)
 // Clear conversation flow when the active menu chat changes by slicing out non-matching messages
 watch(
-  () => storeBentobox.chatList.map(c => ({ id: c.chatid, active: c.active, context: c.context }))),
+  () => storeBentobox.chatList.map(c => ({ id: c.chatid, active: c.active })),
   (newList, oldList) => {
-    const prevActive = oldList?.find(c => c.active)
-    const nextActive = newList?.find(c => c.active)
-    if (!nextActive) return
-    if (!prevActive || prevActive.id !== nextActive.id || prevActive.context !== nextActive.context) {
-      const only = chatStore.chatHistory.filter(m => {
-        const ctx = m.context || m.metadata?.context
-        if (!ctx) return false
-        if (nextActive.context === 'chatspace') {
-          if (typeof ctx === 'string') return false
-          return ctx.type === 'chatspace' && (ctx.id === nextActive.id || ctx.cueid === nextActive.id)
-        }
-        return (typeof ctx === 'string') ? ctx === 'chat' : (ctx.type === 'chat')
-      })
-      chatStore.chatHistory.splice(0, chatStore.chatHistory.length, ...only)
-      chatStore.beginChat = only.length > 0
+    const prevActive = oldList?.find(c => c.active);
+    const nextActive = newList?.find(c => c.active);
+
+    if (!prevActive || !nextActive) return;
+
+    if (prevActive.id !== nextActive.id) {
+      chatStore.chatHistory = chatStore.chatHistory.filter(m => {
+        const ctx = m.context || m.metadata?.context;
+
+        if (!ctx) return false;
+
+        if (typeof ctx === 'string') return ctx === 'chat';
+
+        const attention = storeAI.chatAttention;
+        return ctx.type === 'chatspace' && (ctx.id === attention || ctx.cueid === attention);
+      });
     }
   },
   { deep: true }
-)
+);
 
 
 /** subscribed to events */
