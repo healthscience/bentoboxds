@@ -34,7 +34,9 @@
               :timestamp="message.timestamp"
               :bboxid="message.bboxid || message.bbid"
               :status="message.status"
-              :messageType="message.type === 'agent' ? 'agent' : (message.messageType || (message.data && message.data.type) || 'agent')"
+              :messageType="message.type === 'agent' ? 'agent' :
+               message.messageType === 'bentobox' ? 'bentobox' :
+               message.messageType || (message.data && message.data.type) || 'text'"
               :metadata="message.metadata"
             />
           </div>
