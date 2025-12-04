@@ -252,9 +252,10 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       try {
         // 1. Determine the context
         const baseContext = this.beebeeContext || 'chat'
-        const keyContext = baseContext
-        const displayContext = (baseContext === 'chatspace')
-          ? { type: 'chatspace', id: this.liveBspace?.cueid || this.liveBspace?.spaceid }
+        const cueId = this.liveBspace?.cueid || this.liveBspace?.spaceid
+        const keyContext = (baseContext === 'chatspace' && cueId) ? cueId : 'chat'
+        const displayContext = (baseContext === 'chatspace' && cueId)
+          ? { type: 'chatspace', id: cueId }
           : baseContext
         console.log('submit context:', displayContext)
         // 2. Check for tools in the question text 

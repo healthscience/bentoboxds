@@ -142,9 +142,8 @@ export const useChatStore = defineStore('chat', {
           })
           return
         } else if (message.data.type === 'bentobox') {
-          // bentobox
+          // bentobox reply will be applied to existing placeholder
           console.log('bentobox data please')
-          this.addMessage(message)
         }
         // Extract the text content
         let textContent = ''
