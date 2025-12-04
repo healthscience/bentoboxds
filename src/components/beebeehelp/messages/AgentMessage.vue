@@ -1,14 +1,17 @@
 <template>
-  <div class="beebee-reply">agent m {{ message }} ii {{ type }}
+  <div class="beebee-reply">
     <span class="right-time">{{ formattedTime }}</span>
     <div class="reply-text-chart">
-      <div class="right-chat" v-if="type === 'agent'">
+      <div class="right-chat" v-if="messageType === 'agent'">
         <div v-if="isSimpleTextMessage" class="ai-text-message">
           {{ messageContent }}
         </div>
+        <div class="beebee">
+          <img class="right-chat-beebee" src="../../../assets/logo.png" alt="bbAI">
+        </div>
       </div>
       <!-- Complex message types -->
-      <div class="right-chat" v-else-if="type !== 'agent'">
+      <div class="right-chat" v-else-if="messageType !== 'agent'">
         <tool-message v-if="messageType === 'upload' || messageType === 'library-peerlibrary' || messageType.action === 'library'" :message="messageData">
         </tool-message>
         <data-table v-else-if="messageType === 'datatable'">
@@ -44,7 +47,6 @@ const props = defineProps({
   timestamp: Date,
   bboxid: String,
   status: String,
-  type: String,
   messageType: String,
   metadata: Object
 })
