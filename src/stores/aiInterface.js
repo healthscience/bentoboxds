@@ -201,9 +201,13 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       console.log('set chat history')
       console.log(chat)
       console.log(this.historyPair)
+      console.log(this.chatAttention)
       // does the chat history exist if not setup
       if (this.historyPair.hasOwnProperty(chat.chatid) === false) {
         this.historyPair[chat.chatid] = []
+      } else {
+        // set live chat ID
+
       }
       // this.storeChat.beginChat = true
     },

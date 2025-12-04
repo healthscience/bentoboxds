@@ -1,9 +1,9 @@
 <template>
   <div id="chat-interface">
     <welcome-beebee v-if="beginChat === false && (!props.contextFilter || (typeof props.contextFilter==='string' && props.contextFilter==='chat'))"></welcome-beebee>
-    <div id="natlang-ai">
+    <div id="natlang-ai">pp {{ chatStore.chatHistory }}
       <div id="conversation">
-        <div v-for="(message, index) in chatHistory" :key="index">iii {{ message.bbid }}
+        <div v-for="(message, index) in chatConversation" :key="index">iii {{ message }}
           <!-- Peer message -->
           <div v-if="message.type === 'peer'" class="peer-message">
             <peer-message
@@ -91,10 +91,13 @@ const chatPairs = computed(() => {
   return chatStore.chatPairs
 })
 
-const chatHistory = computed(() => {
+const chatConversation = computed(() => {
   // Simplified: always show only messages belonging to the selected conversationId
   const current = storeAI.chatAttention
-  return chatStore.chatHistory.filter(m => m.conversationId === current)
+  console.log('current chat attention')
+  console.log(current)
+  console.log(chatStore.chatHistory)
+  return chatStore.chatHistory
 })
 
 const chatAsk = computed(() => {
@@ -110,54 +113,12 @@ const beginChat = computed(() => {
 })
 
 const bottom = ref(null)
-// Clear conversation flow when the active menu chat changes by slicing out non-matching messages
-watch(
-  () => storeBentobox.chatList.map(c => ({ id: c.chatid, active: c.active })),
-  (newList, oldList) => {
-    const prevActive = oldList?.find(c => c.active);
-    const nextActive = newList?.find(c => c.active);
-
-    if (!prevActive || !nextActive) return;
-
-    if (prevActive.id !== nextActive.id) {
-      chatStore.chatHistory = chatStore.chatHistory.filter(m => {
-        const ctx = m.context || m.metadata?.context;
-
-        if (!ctx) return false;
-
-        if (typeof ctx === 'string') return ctx === 'chat';
-
-        const attention = storeAI.chatAttention;
-        return ctx.type === 'chatspace' && (ctx.id === attention || ctx.cueid === attention);
-      });
-    }
-  },
-  { deep: true }
-);
-
 
 /** subscribed to events */
 // Add a subscribe method to the actions
 const handleUpdate = (mutation, state) => {
   chatStore.handleIncomingMessage(mutation, state)
 }
-
-// Clear conversation flow when switching active chat: keep only current conversationId
-watch(
-  () => storeBentobox.chatList.map(c => ({ id: c.chatid, active: c.active })),
-  (newList, oldList) => {
-    const prevActive = oldList?.find(c => c.active)
-    const nextActive = newList?.find(c => c.active)
-    if (!nextActive) return
-    if (!prevActive || prevActive.id !== nextActive.id) {
-      const current = storeAI.chatAttention
-      const only = chatStore.chatHistory.filter(m => m.conversationId === current)
-      chatStore.chatHistory.splice(0, chatStore.chatHistory.length, ...only)
-      chatStore.beginChat = only.length > 0
-    }
-  },
-  { deep: true }
-)
 
 storeAI.subscribe(handleUpdate)
 
@@ -172,16 +133,6 @@ const updateBottom = computed(() => {
 })
 
 const targetId = ref(null)
-
-// Watch for changes in chat history to auto-scroll
-watch(chatHistory, () => {
-  nextTick(() => {
-    const conversation = document.getElementById('conversation')
-    if (conversation) {
-      conversation.scrollTop = conversation.scrollHeight
-    }
-  })
-}, { deep: true })
 
 // Function to handle incoming messages
 const handleIncomingMessage = (message) => {
