@@ -1006,21 +1006,40 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     openCueSpaceSettings (cue) {
-      let cueSpace = {}
-      cueSpace.cueid = cue.key
-      cueSpace.name = cue.value.concept.name
-      this.liveBspace = cueSpace
-      // prepare chat for space
-      let newChatItem = {}
-      newChatItem.name = cue.value.concept.name
-      newChatItem.chatid = cue.key
-      newChatItem.active = true
-      //setup chat history holder
-      this.setupChatHistory(newChatItem)
-      this.chatAttention = cue.key
+      const cueId = cue.key
+      const name = cue.value.concept.name
+      this.liveBspace = { cueid: cueId, name }
+      // prepare chat for space and ensure it appears in chat menu
+      const now = Date.now()
+      const newChatItem = {
+        name,
+        chatid: cueId,
+        active: true,
+        createTimestamp: now,
+        lastTimestamp: now,
+        useCount: 0,
+        favoriteCount: 0
+      }
+      // add/update in chat menu
+      const existingIdx = this.storeBentobox.chatList.findIndex(c => c.chatid === cueId)
+      let finalChatItem = newChatItem
+      if (existingIdx === -1) {
+        this.storeBentobox.chatList = this.storeBentobox.chatList.map(c => ({ ...c, active: false }))
+        this.storeBentobox.chatList.push(newChatItem)
+      } else {
+        const existing = this.storeBentobox.chatList[existingIdx]
+        const updated = { ...existing, active: true, lastTimestamp: now, useCount: (existing.useCount || 0) + 1 }
+        const list = this.storeBentobox.chatList.map((c, i) => i === existingIdx ? updated : { ...c, active: false })
+        this.storeBentobox.chatList = list
+        finalChatItem = updated
+      }
+      // setup chat history holder and focus
+      this.setupChatHistory(finalChatItem)
+      this.chatAttention = cueId
       this.storeCues.cueContext = 'space'
       this.beebeeContext = 'chatspace'
       this.bentospaceState = true
+      this.historyList = true
     },
     prepareChatBentoBoxSave (message) {
       // historyPair may store either full pairs or chat objects; handle both safely
