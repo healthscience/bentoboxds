@@ -838,27 +838,42 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         console.log('match----------')
         console.log(matchBBID)
         this.bboxFeedback[matchBBID] = {}
-        // was HOPquery made from chat?
-        if (this.beebeeContext === 'chat') {
-          // update the latest compute module contract back from HOP
-          if (dataHOP.context.tempComputeMod !== undefined) {
-            this.computeModuleLast[matchBBID] = dataHOP.context.tempComputeMod.info
-          }
-          // set default space  NEEDS BETTER LOGIC
-          this.bentoboxList['space1'] = []
-          // this.storeBentobox.expandBentobox[matchBBID] = true
-          this.storeBentobox.beebeeChatLog[matchBBID] = true
-          // prepare the chat message for agent reply
-          this.storeChat.handleIncomingMessage({
-            type: 'agent-reply',
-            bbid: matchBBID,
-            data: { type: 'bentobox'},
-            status: 'bentobox',
-            messageType: 'bentobox',
-            metadata: {},
-            context: dataHOP.context
-          })
+        // update the latest compute module contract back from HOP (if provided)
+        if (dataHOP.context.tempComputeMod !== undefined) {
+          this.computeModuleLast[matchBBID] = dataHOP.context.tempComputeMod.info
         }
+        // set default space  NEEDS BETTER LOGIC
+        this.bentoboxList['space1'] = []
+        // this.storeBentobox.expandBentobox[matchBBID] = true
+        this.storeBentobox.beebeeChatLog[matchBBID] = true
+
+        // Determine the correct chat context for this bbid
+        let contextForReply = null
+        const hist = this.storeChat.chatHistory
+        for (let i = hist.length - 1; i >= 0; i--) {
+          const msg = hist[i]
+          if ((msg.bboxid === matchBBID || msg.bbid === matchBBID) && (msg.type === 'peer' || msg.type === 'agent')) {
+            contextForReply = msg.context || msg.metadata?.context || null
+            if (contextForReply) break
+          }
+        }
+        if (!contextForReply) {
+          // Fall back to current UI context with id for space chat
+          contextForReply = (this.beebeeContext === 'chatspace')
+            ? { type: 'chatspace', id: this.liveBspace?.cueid || this.liveBspace?.spaceid }
+            : 'chat'
+        }
+
+        // prepare the chat message for agent reply
+        this.storeChat.handleIncomingMessage({
+          type: 'agent-reply',
+          bbid: matchBBID,
+          data: { type: 'bentobox'},
+          status: 'bentobox',
+          messageType: 'bentobox',
+          metadata: {},
+          context: contextForReply
+        })
         // set the data for visualizations
         let hopDataChart = {}
         hopDataChart.datasets = dataHOP.data.data.chartPackage.datasets
