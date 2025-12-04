@@ -41,7 +41,7 @@
       </div>
       <div id="beebee-bento-chat">
         <div class="beebee-home">
-          <beebee-chat :context-filter="activeContextFilter"></beebee-chat>
+          <beebee-chat :context-filter="'chat'"></beebee-chat>
         </div>
       </div>
     </div>

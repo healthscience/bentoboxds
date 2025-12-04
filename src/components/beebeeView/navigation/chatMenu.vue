@@ -134,22 +134,10 @@ const hoverCheck = (sis) => {
 }
 
 const selectChat = (chat) => {
-  // If this menu item represents a space chat, open the spaceChat modal and focus that cue
-  if (chat.context === 'chatspace') {
-    storeAI.beebeeContext = 'chatspace'
-    storeAI.liveBspace = { cueid: chat.chatid, name: chat.name }
-    // Ensure it exists in the menu with timestamps and focus
-    if (typeof storeAI.ensureSpaceChatInMenu === 'function') {
-      storeAI.ensureSpaceChatInMenu(chat.chatid, chat.name)
-    }
-    storeAI.bentochatState = true
-  } else {
-    // Default main chat selection behavior
-    storeAI.beebeeContext = 'chat'
-    storeAI.chatAttention = chat.chatid
-    // setup historypair
-    storeAI.setupChatHistory(chat)
-  }
+  // Always switch the active conversation in main view, no modal toggling
+  storeAI.chatAttention = chat.chatid
+  storeAI.setupChatHistory(chat)
+
   // Update active state and timestamps in the list
   let chatLiveList = []
   for (let chi of storeBentobox.chatList) {
