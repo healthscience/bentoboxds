@@ -20,7 +20,7 @@
       <template #body>
         <div class="space-chat">
           <div class="context-content">
-            <chat-interface :context-filter="'chatspace'"></chat-interface>
+            <chat-interface :context-filter="{ type: 'chatspace', id: storeAI.liveBspace?.cueid || storeAI.liveBspace?.spaceid }"></chat-interface>
           </div>
         </div>
         <div class="chat-input">
