@@ -127,6 +127,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         const newItem = {
           name: label,
           chatid: cueId,
+          context: 'chatspace',
           active: true,
           createTimestamp: now,
           lastTimestamp: now,
