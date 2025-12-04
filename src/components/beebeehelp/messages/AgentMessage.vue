@@ -1,5 +1,5 @@
 <template>
-  <div class="beebee-reply">dd{{ messageType }}
+  <div class="beebee-reply">
     <span class="right-time">{{ formattedTime }}</span>
     <div class="reply-text-chart">
       <div class="right-chat" v-if="messageType === 'agent'">

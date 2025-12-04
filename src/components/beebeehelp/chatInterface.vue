@@ -3,7 +3,7 @@
     <welcome-beebee v-if="beginChat === false && !props.contextFilter"></welcome-beebee>
     <div id="natlang-ai">
       <div id="conversation">
-        <div v-for="(message, index) in chatHistory" :key="index">dd{{ message.type }}
+        <div v-for="(message, index) in chatHistory" :key="index">
           <!-- Peer message -->
           <div v-if="message.type === 'peer'" class="peer-message">
             <peer-message
