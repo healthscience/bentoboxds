@@ -14,10 +14,10 @@
             ></peer-message>
           </div>
 
-          <!-- AI message with streaming support -->
-          <div v-else-if="message.type === 'agent'" class="ai-message">agent>>
-            <!-- Show loading indicator if message is pending -->
-            <div v-if="message.status === 'pending'" class="ai-loading">
+          <!-- Agent/AI message: render content and support streaming -->
+          <div v-else-if="message.type === 'agent' || message.type === 'agent-reply'" class="ai-message">
+            <!-- Optional loading indicator for pending -->
+            <div v-if="message.status === 'pending' && !message.content" class="ai-loading">
               <img class="loading-beebee" src="../../../assets/logo.png" alt="bbAI">
               <div class="loading-content">
                 <div class="typing-indicator">
@@ -25,37 +25,19 @@
                   <span></span>
                   <span></span>
                 </div>
-                <span class="loading-text">beebee is shaping a reply...1</span>
+                <span class="loading-text">beebee is shaping a reply...</span>
               </div>
             </div>
-            <!-- Show streaming indicator if message is streaming but empty -->
-            <div v-else-if="message.status === 'streaming' && !message.content" class="ai-loading">
-              <img class="loading-beebee" src="../../../assets/logo.png" alt="bbAI">
-              <div class="loading-content">
-                <div class="typing-indicator">
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                </div>
-                <span class="loading-text">beebee is shaping a reply...2</span>
-              </div>
-            </div>
-            <div v-if="message.status === 'streaming' && message.content" class="streaming-indicator">...</div>
-                      <!-- Show actual message content -->
-            <div id="agent-tools-vis" v-else-if="message.type === 'agent-reply' || message.type === 'agent'" class="ai-message">
-              <agent-message
-              :message="message.content"
+            <!-- Actual message (streaming or complete) -->
+            <agent-message
+              :message="message.type === 'agent-reply' ? (message.data || message.content) : message.content"
               :timestamp="message.timestamp"
-              :bboxid="message.bbid"
+              :bboxid="message.bboxid || message.bbid"
               :status="message.status"
-              :type="message.type",
-              :messageType="message.messageType"
+              :messageType="message.type === 'agent' ? 'agent' : (message.messageType || (message.data && message.data.type) || 'agent')"
               :metadata="message.metadata"
-              >
-              </agent-message>
-            </div>
+            />
           </div>
-
           <!-- System message -->
           <div v-else-if="message.type === 'system'" class="system-message">
             <system-message
@@ -85,7 +67,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
 import { useChatStore } from '@/stores/chatStore.js'
 
 const props = defineProps({
-  contextFilter: { type: String, default: null }
+  contextFilter: { type: [String, Object], default: null }
 })
 
 const storeAI = aiInterfaceStore()
@@ -107,8 +89,25 @@ const chatPairs = computed(() => {
 
 const chatHistory = computed(() => {
   const all = chatStore.chatHistory
-  if (props.contextFilter) {
-    return all.filter(m => (m.context || m.metadata?.context || null) === props.contextFilter)
+  const f = props.contextFilter
+  if (!f) return all
+
+  if (typeof f === 'string') {
+    return all.filter(m => {
+      const ctx = m.context || m.metadata?.context
+      if (!ctx) return false
+      return (typeof ctx === 'string') ? ctx === f : (ctx.type === f)
+    })
+  }
+
+  if (typeof f === 'object') {
+    return all.filter(m => {
+      const ctx = m.context || m.metadata?.context
+      if (!ctx) return false
+      if (typeof ctx === 'string') return ctx === f.type
+      if (f.id != null) return ctx.type === f.type && (ctx.id === f.id || ctx.cueid === f.id)
+      return ctx.type === f.type
+    })
   }
   return all
 })
