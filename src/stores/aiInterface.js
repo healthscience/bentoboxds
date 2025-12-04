@@ -251,8 +251,12 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }*/
       try {
         // 1. Determine the context
-        const context = this.beebeeContext || 'chat'
-        console.log(context)
+        const baseContext = this.beebeeContext || 'chat'
+        const keyContext = baseContext
+        const displayContext = (baseContext === 'chatspace')
+          ? { type: 'chatspace', id: this.liveBspace?.cueid || this.liveBspace?.spaceid }
+          : baseContext
+        console.log('submit context:', displayContext)
         // 2. Check for tools in the question text 
         let toolsUsed = []
         toolsUsed = this.inputTools
@@ -275,7 +279,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         // 4. Prepare the question object
         const question = this.liveChatUtil.createQuestionTemplate(
           this.askQuestion.text,
-          context,
+          displayContext,
           toolsUsed,
           null
         )
@@ -283,20 +287,20 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         console.log(question)
         // 5. Check if this is a new chat or adding to existing
         let chat
-        if (this.isNewChat(context)) {
+        if (this.isNewChat(keyContext)) {
           // Create a new chat
-          chat = this.liveChatUtil.createChatTemplate(context, question.bboxid)
+          chat = this.liveChatUtil.createChatTemplate(keyContext, question.bboxid)
           this.startChat = false
           this.historyBar = true
         } else {
           // Get the current chat for this context
-          chat = this.getCurrentChat(context)
+          chat = this.getCurrentChat(keyContext)
         }
         // 6. Add the question to the chat
         chat.questions.push(question)
         chat.currentQuestion = question
         // 7. Update the chat history
-        this.updateChatHistory(chat, context)
+        this.updateChatHistory(chat, keyContext)
         // if file upload then show charting options
         if (uploadAttached === true) {
           // add reply data select mode
@@ -319,7 +323,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
             chatId: chat.id,
             questionId: question.id,
             bboxid: question.bboxid,
-            context: context
+            context: displayContext
           }
         })
       } catch (error) {
