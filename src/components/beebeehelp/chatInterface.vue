@@ -67,10 +67,14 @@ import SystemMessage from '@/components/beebeehelp/messages/systemMessage.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 import { useChatStore } from '@/stores/chatStore.js'
+import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
 const props = defineProps({
   contextFilter: { type: [String, Object], default: null }
 })
+
+
+const storeBentobox = bentoboxStore()
 
 const storeAI = aiInterfaceStore()
 const storeLibrary = libraryStore()
@@ -139,6 +143,26 @@ const bottom = ref(null)
 const handleUpdate = (mutation, state) => {
   chatStore.handleIncomingMessage(mutation, state)
 }
+
+// Clear conversation flow when active chat menu selection changes
+watch(
+  () => storeBentobox.chatList.map(c => ({ id: c.chatid, active: c.active }))),
+  (newList, oldList) => {
+    const prevActive = oldList?.find(c => c.active)
+    const nextActive = newList?.find(c => c.active)
+    if (!prevActive || !nextActive) return
+    if (prevActive.id !== nextActive.id) {
+      chatStore.chatHistory = chatStore.chatHistory.filter(m => {
+        const ctx = m.context || m.metadata?.context
+        if (!ctx) return false
+        if (typeof ctx === 'string') return ctx === 'chat'
+        const attention = storeAI.chatAttention
+        return ctx.type === 'chatspace' && (ctx.id === attention || ctx.cueid === attention)
+      })
+    }
+  },
+  { deep: true }
+)
 
 storeAI.subscribe(handleUpdate)
 
