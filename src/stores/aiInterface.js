@@ -999,18 +999,31 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.bentospaceState = true
     },
     prepareChatBentoBoxSave (message) {
-      let settingsData = this.historyPair[message.data.chatid]
+      // historyPair may store either full pairs or chat objects; handle both safely
+      let settingsData = this.historyPair[message.data.chatid] || []
       let bbidPerChat = []
       // loop over data to match to visualisation alread prepared.  (note. or HOPQuery to re-create via HOP)
       let visDataperChat = []
-      if (settingsData !== undefined) {
+      if (Array.isArray(settingsData)) {
         for (let bbi of settingsData) {
-          bbidPerChat.push(bbi.reply.bbid)
-          let visD = this.storeBentobox.bentoboxData[bbi.reply.bbid]
-          visDataperChat.push(visD)
+          // handle either a pair with reply.bbid or a chat object with questions
+          const bbid = bbi?.reply?.bbid || bbi?.reply?.bboxid || bbi?.bbid || bbi?.bboxid
+          if (bbid) {
+            bbidPerChat.push(bbid)
+            const visD = this.storeBentobox.bentoboxData[bbid]
+            visDataperChat.push(visD)
+          }
         }
-      } else {
-        settingsData = []
+      } else if (settingsData && settingsData.questions) {
+        // If settingsData is a chat object
+        for (let q of settingsData.questions) {
+          const bbid = q?.reply?.bbid || q?.reply?.bboxid || q?.bbid || q?.bboxid
+          if (bbid) {
+            bbidPerChat.push(bbid)
+            const visD = this.storeBentobox.bentoboxData[bbid]
+            visDataperChat.push(visD)
+          }
+        }
       }
       // save HOP summary info ie. HOPquery
       let hopQuery = []
