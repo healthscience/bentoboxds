@@ -186,21 +186,7 @@ defineExpose({
   width: 100%;
   overflow-y: scroll;
   overflow-x: hidden;
-}
-
-#natlang-ai {
-  display: block;
-  border: 1px solid grey;
-  padding: 1em;
-  border-radius: 1em;
-  height: 60vh;
-  overflow-y: scroll;
-}
-
-#conversation {
-  display: block;
-  min-height: 400px;
-  font-size: .8em;
+    font-size: .8em;
 	background-color: #e7eaf5;
 	background-image:
 		linear-gradient(
@@ -260,6 +246,20 @@ defineExpose({
 		2em 5em,
 		2em 5em,
 		2em 5em;
+}
+
+#natlang-ai {
+  display: block;
+  border: 1px solid grey;
+  padding: 1em;
+  border-radius: 1em;
+  height: 60vh;
+  overflow-y: scroll;
+}
+
+#conversation {
+  display: block;
+  min-height: 400px;
 }
 
 .message-container {
