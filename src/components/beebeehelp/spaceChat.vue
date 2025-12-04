@@ -51,6 +51,12 @@ const bentochatStatus = computed(() => {
 onMounted(() => {
   previousContext = storeAI.beebeeContext
   storeAI.beebeeContext = 'chatspace'
+  // Ensure the space chat is present in the chat menu with timestamps
+  const cueId = storeAI.liveBspace?.cueid || storeAI.liveBspace?.spaceid
+  const name = storeAI.liveBspace?.name
+  if (cueId) {
+    storeAI.ensureSpaceChatInMenu(cueId, name)
+  }
 })
 
 onBeforeUnmount(() => {

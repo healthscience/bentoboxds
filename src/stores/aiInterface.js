@@ -118,6 +118,34 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     agentStatus: false,
     modelLoading: false,
     agentModelDefault: {},
+    ensureSpaceChatInMenu (cueId, name) {
+      if (!cueId) return
+      const now = Date.now()
+      const label = name || cueId
+      const idx = this.storeBentobox.chatList.findIndex(c => c.chatid === cueId)
+      if (idx === -1) {
+        const newItem = {
+          name: label,
+          chatid: cueId,
+          active: true,
+          createTimestamp: now,
+          lastTimestamp: now,
+          useCount: 0,
+          favoriteCount: 0
+        }
+        this.storeBentobox.chatList = this.storeBentobox.chatList.map(c => ({ ...c, active: false }))
+        this.storeBentobox.chatList.push(newItem)
+        this.setupChatHistory(newItem)
+      } else {
+        const existing = this.storeBentobox.chatList[idx]
+        const updated = { ...existing, name: label, active: true, lastTimestamp: now, useCount: (existing.useCount || 0) + 1 }
+        this.storeBentobox.chatList = this.storeBentobox.chatList.map((c, i) => i === idx ? updated : { ...c, active: false })
+        this.setupChatHistory(updated)
+      }
+      this.chatAttention = cueId
+      this.historyList = true
+    },
+
     previousLLM: {}
   }),
   actions: {
