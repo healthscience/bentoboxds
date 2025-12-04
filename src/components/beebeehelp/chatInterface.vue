@@ -99,14 +99,19 @@ const chatHistory = computed(() => {
   if (!f) return all
 
   if (typeof f === 'string') {
+    // Main view behavior: show selected conversation
+    const activeItem = storeBentobox.chatList.find(c => c.active)
     return all.filter(m => {
       const ctx = m.context || m.metadata?.context
       if (!ctx) return false
       if (f === 'chat') {
-        if (typeof ctx === 'string') return ctx === 'chat'
-        const attention = storeAI.chatAttention
-        if (ctx.type === 'chatspace' && (ctx.id === attention || ctx.cueid === attention)) return true
-        return false
+        // If a space chat is selected in the menu, show only that space conversation
+        if (activeItem && activeItem.context === 'chatspace') {
+          if (typeof ctx === 'string') return false
+          return ctx.type === 'chatspace' && (ctx.id === activeItem.chatid || ctx.cueid === activeItem.chatid)
+        }
+        // Otherwise show only main chat messages
+        return (typeof ctx === 'string') ? ctx === 'chat' : (ctx.type === 'chat')
       }
       return (typeof ctx === 'string') ? ctx === f : (ctx.type === f)
     })
@@ -137,6 +142,30 @@ const beginChat = computed(() => {
 })
 
 const bottom = ref(null)
+// Clear conversation flow when the active menu chat changes by slicing out non-matching messages
+watch(
+  () => storeBentobox.chatList.map(c => ({ id: c.chatid, active: c.active, context: c.context }))),
+  (newList, oldList) => {
+    const prevActive = oldList?.find(c => c.active)
+    const nextActive = newList?.find(c => c.active)
+    if (!nextActive) return
+    if (!prevActive || prevActive.id !== nextActive.id || prevActive.context !== nextActive.context) {
+      const only = chatStore.chatHistory.filter(m => {
+        const ctx = m.context || m.metadata?.context
+        if (!ctx) return false
+        if (nextActive.context === 'chatspace') {
+          if (typeof ctx === 'string') return false
+          return ctx.type === 'chatspace' && (ctx.id === nextActive.id || ctx.cueid === nextActive.id)
+        }
+        return (typeof ctx === 'string') ? ctx === 'chat' : (ctx.type === 'chat')
+      })
+      chatStore.chatHistory.splice(0, chatStore.chatHistory.length, ...only)
+      chatStore.beginChat = only.length > 0
+    }
+  },
+  { deep: true }
+)
+
 
 /** subscribed to events */
 // Add a subscribe method to the actions
