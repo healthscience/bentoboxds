@@ -94,39 +94,9 @@ const chatPairs = computed(() => {
 })
 
 const chatHistory = computed(() => {
-  const all = chatStore.chatHistory
-  const f = props.contextFilter
-  if (!f) return all
-
-  if (typeof f === 'string') {
-    // Main view behavior: show selected conversation
-    const activeItem = storeBentobox.chatList.find(c => c.active)
-    return all.filter(m => {
-      const ctx = m.context || m.metadata?.context
-      if (!ctx) return false
-      if (f === 'chat') {
-        // If a space chat is selected in the menu, show only that space conversation
-        if (activeItem && activeItem.context === 'chatspace') {
-          if (typeof ctx === 'string') return false
-          return ctx.type === 'chatspace' && (ctx.id === activeItem.chatid || ctx.cueid === activeItem.chatid)
-        }
-        // Otherwise show only main chat messages
-        return (typeof ctx === 'string') ? ctx === 'chat' : (ctx.type === 'chat')
-      }
-      return (typeof ctx === 'string') ? ctx === f : (ctx.type === f)
-    })
-  }
-
-  if (typeof f === 'object') {
-    return all.filter(m => {
-      const ctx = m.context || m.metadata?.context
-      if (!ctx) return false
-      if (typeof ctx === 'string') return ctx === f.type
-      if (f.id != null) return ctx.type === f.type && (ctx.id === f.id || ctx.cueid === f.id)
-      return ctx.type === f.type
-    })
-  }
-  return all
+  // Simplified: always show only messages belonging to the selected conversationId
+  const current = storeAI.chatAttention
+  return chatStore.chatHistory.filter(m => m.conversationId === current)
 })
 
 const chatAsk = computed(() => {
@@ -174,30 +144,22 @@ const handleUpdate = (mutation, state) => {
   chatStore.handleIncomingMessage(mutation, state)
 }
 
-// Clear conversation flow when active chat menu selection changes
+// Clear conversation flow when switching active chat: keep only current conversationId
 watch(
   () => storeBentobox.chatList.map(c => ({ id: c.chatid, active: c.active })),
   (newList, oldList) => {
-    const prevActive = oldList?.find(c => c.active);
-    const nextActive = newList?.find(c => c.active);
-
-    if (!prevActive || !nextActive) return;
-
-    if (prevActive.id !== nextActive.id) {
-      chatStore.chatHistory = chatStore.chatHistory.filter(m => {
-        const ctx = m.context || m.metadata?.context;
-
-        if (!ctx) return false;
-
-        if (typeof ctx === 'string') return ctx === 'chat';
-
-        const attention = storeAI.chatAttention;
-        return ctx.type === 'chatspace' && (ctx.id === attention || ctx.cueid === attention);
-      });
+    const prevActive = oldList?.find(c => c.active)
+    const nextActive = newList?.find(c => c.active)
+    if (!nextActive) return
+    if (!prevActive || prevActive.id !== nextActive.id) {
+      const current = storeAI.chatAttention
+      const only = chatStore.chatHistory.filter(m => m.conversationId === current)
+      chatStore.chatHistory.splice(0, chatStore.chatHistory.length, ...only)
+      chatStore.beginChat = only.length > 0
     }
   },
   { deep: true }
-);
+)
 
 storeAI.subscribe(handleUpdate)
 

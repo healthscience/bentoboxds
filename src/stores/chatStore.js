@@ -107,7 +107,8 @@ export const useChatStore = defineStore('chat', {
           timestamp: new Date(),
           bboxid: message.bbid,
           tools: message.tools || [],
-          context: message.context
+          context: message.context,
+          conversationId: this.storeAI.chatAttention
         }
 
         // Add peer message to chat history
@@ -122,7 +123,8 @@ export const useChatStore = defineStore('chat', {
           status: 'pending',
           messageType: 'response',
           metadata: {},
-          context: message.context
+          context: message.context,
+          conversationId: this.storeAI.chatAttention
         }
         this.addMessage(aiPlaceholder)
         
