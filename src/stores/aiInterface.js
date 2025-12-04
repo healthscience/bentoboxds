@@ -490,19 +490,43 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     },
     processStreamReply (received) {
       if (received.type === 'bbai-stream-reply') {
-        // Check if this is just a text token or a structured message
+        // Normalize data shape
         const messageData = typeof received.data === 'string' 
           ? { text: received.data }
           : received.data
-          
+        
+        // Normalize bbid/bboxid
+        const incomingBbid = received.bbid || messageData?.bboxid || messageData?.bbid
+
+        // Derive context if missing on stream packets
+        let derivedContext = received.context
+        if (!derivedContext) {
+          // Look back through chat history for a matching peer/agent with same bbid/bboxid
+          const hist = this.storeChat.chatHistory || []
+          for (let i = hist.length - 1; i >= 0; i--) {
+            const msg = hist[i]
+            if ((msg.bboxid === incomingBbid || msg.bbid === incomingBbid) && (msg.type === 'peer' || msg.type === 'agent')) {
+              derivedContext = msg.context || msg.metadata?.context
+              if (derivedContext) break
+            }
+          }
+          if (!derivedContext) {
+            // Fallback to current UI context with id when in space chat
+            const cueId = this.liveBspace?.cueid || this.liveBspace?.spaceid
+            derivedContext = (this.beebeeContext === 'chatspace' && cueId)
+              ? { type: 'chatspace', id: cueId }
+              : 'chat'
+          }
+        }
+
         this.storeChat.handleIncomingMessage({
           type: 'agent-reply',
-          bbid: received.bbid,
+          bbid: incomingBbid,
           data: messageData,
           status: received.status || 'streaming',
           messageType: received.messageType || 'response',
           metadata: received.metadata || {},
-          context: received.context
+          context: derivedContext
         })
       }
     },

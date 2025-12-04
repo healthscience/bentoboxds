@@ -142,8 +142,13 @@ export const useChatStore = defineStore('chat', {
           })
           return
         } else if (message.data.type === 'bentobox') {
-          // bentobox reply will be applied to existing placeholder
+          // bentobox reply message (non-text) -> add as its own entry so UI can render bentobox block
           console.log('bentobox data please')
+          this.addMessage({
+            ...message,
+            status: message.status || 'complete'
+          })
+          return
         }
         // Extract the text content
         let textContent = ''
