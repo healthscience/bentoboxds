@@ -556,7 +556,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           status: received.status || 'streaming',
           messageType: received.messageType || 'response',
           metadata: received.metadata || {},
-          context: derivedContext
+          context: derivedContext,
+          conversationId: this.chatAttention
         })
       }
     },

@@ -57,6 +57,14 @@ export const useChatStore = defineStore('chat', {
       this.storeAI.choicedeviceEvent()
     },
     addMessage(message) {
+      if (message && message.conversationId == null) {
+        const ctx = message.context || message.metadata?.context
+        if (ctx && typeof ctx === 'object' && ctx.type === 'chatspace') {
+          message.conversationId = ctx.id || ctx.cueid || this.storeAI.chatAttention || 'chat'
+        } else {
+          message.conversationId = this.storeAI.chatAttention || 'chat'
+        }
+      }
       this.chatHistory.push(message)
       this.notifySubscribers({ type: 'newMessage', payload: message }, this.$state)
     },
@@ -215,7 +223,8 @@ export const useChatStore = defineStore('chat', {
               content: textContent,
               status: 'complete',
               timestamp: new Date(),
-              metadata: message.metadata || {}
+              metadata: message.metadata || {},
+              conversationId: this.storeAI.chatAttention || this.chatHistory[existingIndex].conversationId
             }
           }
           // Notify subscribers about the update
@@ -327,13 +336,15 @@ export const useChatStore = defineStore('chat', {
     },
     // Add a method to handle user questions
     addPeerQuestion(text, tools = []) {
+      const convId = this.storeAI.chatAttention
       const peerMessage = {
         type: 'peer',
         content: text,
         timestamp: new Date(),
         bboxid: null, // Will be set by HOP
         tools: tools,
-        context: this.storeAI.beebeeContext || 'chat'
+        context: this.storeAI.beebeeContext || 'chat',
+        conversationId: convId
       }
       this.addMessage(peerMessage)
       // Add placeholder for AI response
@@ -345,7 +356,8 @@ export const useChatStore = defineStore('chat', {
         status: 'pending',
         messageType: 'response',
         metadata: {},
-        context: this.storeAI.beebeeContext || 'chat'
+        context: this.storeAI.beebeeContext || 'chat',
+        conversationId: convId
       }
       this.addMessage(aiPlaceholder)
       this.beginChat = true
