@@ -43,7 +43,7 @@
           <!-- System message -->
           <div v-else-if="message.type === 'system'" class="system-message">
             <system-message
-              :message="message.content"
+              :message="message"
               :timestamp="message.timestamp"
             ></system-message>
           </div>

@@ -372,10 +372,22 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     },
     // Helper functions
     isNewChat(context) {
-      return !this.historyPair[context] || this.historyPair[context].length === 0
+      const bucket = this.historyPair[context]
+      if (!Array.isArray(bucket) || bucket.length === 0) return true
+      for (let i = bucket.length - 1; i >= 0; i--) {
+        const item = bucket[i]
+        if (item && Array.isArray(item.questions)) return false
+      }
+      return true
     },
     getCurrentChat(context) {
-      return this.historyPair[context][this.historyPair[context].length - 1]
+      const bucket = this.historyPair[context]
+      if (!Array.isArray(bucket) || bucket.length === 0) return null
+      for (let i = bucket.length - 1; i >= 0; i--) {
+        const item = bucket[i]
+        if (item && Array.isArray(item.questions)) return item
+      }
+      return null
     },
     updateChatHistory(chat, context) {
       if (!this.historyPair[context]) {
