@@ -98,6 +98,12 @@ const chatHistory = computed(() => {
     return all.filter(m => {
       const ctx = m.context || m.metadata?.context
       if (!ctx) return false
+      if (f === 'chat') {
+        if (typeof ctx === 'string') return ctx === 'chat'
+        const attention = storeAI.chatAttention
+        if (ctx.type === 'chatspace' && (ctx.id === attention || ctx.cueid === attention)) return true
+        return false
+      }
       return (typeof ctx === 'string') ? ctx === f : (ctx.type === f)
     })
   }
