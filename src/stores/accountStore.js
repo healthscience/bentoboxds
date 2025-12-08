@@ -36,8 +36,8 @@ export const accountStore = defineStore('account', {
   }),
   actions: {
     processReply (received) {
-      console.log('received HOP')
-      console.log(received)
+      // console.log('received HOP')
+      // console.log(received)
       if (received.action === 'hop-verify') {
         // set token for subsequent HOP messages
         this.sendSocket.jwt = received.data.jwt

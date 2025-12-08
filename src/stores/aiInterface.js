@@ -144,7 +144,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         this.setupChatHistory(updated)
       }
       this.chatAttention = cueId
-      this.historyList = true
+      // this.historyList = true
     },
 
     previousLLM: {}
@@ -198,10 +198,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     setupChatHistory (chat) {
-      console.log('set chat history')
-      console.log(chat)
-      console.log(this.historyPair)
-      console.log(this.chatAttention)
       // does the chat history exist if not setup
       if (this.historyPair.hasOwnProperty(chat.chatid) === false) {
         this.historyPair[chat.chatid] = []
@@ -212,77 +208,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       // this.storeChat.beginChat = true
     },
     async submitAsk (dataInfo) {
-      // check for context of beebee default is Chat, other option spaces, cues(decisions)
-      /*if (this.beebeeContext === 'chat') {
-        // remove start boxes
-        this.startChat = false
-        this.historyBar = true
-        let saveQ = {}
-        saveQ.count = this.qcount
-        saveQ.text = this.askQuestion.text
-        saveQ.compute = this.askQuestion.compute
-        saveQ.active = true
-        let date = new Date()
-        // get the time as a string
-        let time = date.toLocaleTimeString()
-        saveQ.time = time
-        this.inputAskHistory.push(saveQ)
-        // provide feedback else forward to beebeeLogic via HOP
-        if (this.askQuestion.text === 'yes') {
-          let lastQuestion = this.historyPair[this.chatAttention].slice(-1)
-          lastQuestion[0].reply.data.content = lastQuestion.reply.data.grid // this.storeLibrary.linesLimit
-          this.actionFileAskInput(lastQuestion[0].reply)
-        } else if (dataInfo?.id) {
-          // if bbid match to that
-          let matchBBox = {}
-          let questionCount = []
-          for (let hpair of this.historyPair[this.chatAttention]) {
-            if (hpair.reply.bbid === dataInfo.bbid) {
-              matchBBox = hpair
-              questionCount.push(hpair)
-            }
-          }
-          if (questionCount.length > 1) {
-            matchBBox = questionCount[0]
-          }
-          if (matchBBox) {
-            let lastQuestion = matchBBox
-            lastQuestion.reply.data.content = matchBBox.reply.data.filedata.grid
-            lastQuestion.reply.data.context = dataInfo
-            this.currentQuestion = lastQuestion
-            this.actionFileAskInput(lastQuestion.reply)
-          } else {
-            // need to check if same pair but different data type context?
-            let checkCurrentQ = Object.keys(this.currentQuestion)
-            if (checkCurrentQ.length > 0) {
-              let lastQuestion = this.currentQuestion
-              lastQuestion[0].reply.data.context = dataInfo
-              this.actionFileAskInput(lastQuestion[0].reply)
-            } else {
-              let lastQuestion = this.historyPair[this.chatAttention].slice(-1)
-              lastQuestion[0].reply.data.content = this.storeLibrary.linesLimit
-              lastQuestion[0].reply.data.context = dataInfo
-              this.currentQuestion = lastQuestion
-              this.actionFileAskInput(lastQuestion[0].reply)
-            }
-          }
-        } else {
-          this.actionHelpAskInput()
-        }
-      } else if (this.beebeeContext === 'chatspace') {
-        let spaceChatPrep = this.liveChatspaceUtil.prepareChatQandA(this.askQuestion, this.liveBspace)
-        // check pair has been setup
-        if (this.historyPair[this.liveBspace.cueid] === undefined) {
-          this.historyPair[this.liveBspace.cueid] = []
-        }
-        this.historyPair[this.liveBspace.cueid].push(spaceChatPrep)
-        // send to HOP and route to Agents required to reply
-        this.actionAgentQuestion(spaceChatPrep.question)
-        this.askQuestion.text = ''
-      } else if (this.beebeeContext === 'graph') {
-      } else if (this.beebeeContext === 'cues-decision') {
-        this.decisionDoughnutCue = true
-      }*/
       try {
         // 1. Determine the context
         const baseContext = this.beebeeContext || 'chat'
@@ -291,12 +216,9 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         const displayContext = (baseContext === 'chatspace' && cueId)
           ? { type: 'chatspace', id: cueId }
           : baseContext
-        console.log('submit context:', displayContext)
         // 2. Check for tools in the question text 
         let toolsUsed = []
         toolsUsed = this.inputTools
-        console.log('tools used')
-        console.log(toolsUsed)
         // 3. Validate the question
         const validationResult = this.liveChatUtil.validateQuestion(this.askQuestion.text, toolsUsed)
         if (!validationResult.isValid) {
@@ -318,8 +240,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           toolsUsed,
           null
         )
-        console.log('question++++++++++++++')
-        console.log(question)
         // 5. Check if this is a new chat or adding to existing
         let chat
         if (this.isNewChat(keyContext)) {
@@ -345,6 +265,23 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         } else {
           // 9. Prepare the question for HOP
           const hopQuestion = this.liveChatUtil.prepareQuestionForHOP(question)
+          // this the first time chat context or first time after start need to add chat history
+          let chatHistoryLength = this.storeChat.chatHistory[chat.bboxid]
+          console.log('chat history lengthat fir stoorororo')
+          console.log(chatHistoryLength)
+          if (chatHistoryLength === undefined) {
+            chatHistoryLength = []
+          }
+          if (chatHistoryLength.length === 0) {
+            // inform beebee new session with unique ID needs setting up
+            hopQuestion.session = true
+          } else if (chatHistoryLength.length > 0) {
+            // feed in history into session before next prompt
+            hopQuestion.session = false
+            hopQuestion.historyChat = chatHistoryLength
+          } else {
+            hopQuestion.session = false
+          }
           // 10. Send the question to HOP for processing
           this.actionAgentQuestion(hopQuestion, question)
         }
