@@ -13,7 +13,7 @@ export const bentoboxStore = defineStore('bentostore', {
     liveChatUtil: new ChatUtilty(),
     chatList: [
       {
-        name:'latest', chatid:'0123456543210', active: true
+        name:'latest', chatid:'chat', active: true
       }
     ],
     spaceList: [

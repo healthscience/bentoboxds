@@ -195,7 +195,7 @@ class ChatUtility {
       // first time
       let firstChat = {}
       firstChat.name = "latest"
-      firstChat.chatid = "0123456543210"
+      firstChat.chatid = "chat"
       firstChat.active = true
       firstChat.createTimestamp = DateTime.now().toMillis()
       firstChat.lastTimestamp = DateTime.now().toMillis()

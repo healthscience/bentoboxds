@@ -229,8 +229,9 @@ import { mapminiStore } from '@/stores/mapStore.js'
     saveBentoBoxsetting.reftype = 'chat-history'
     saveBentoBoxsetting.action = 'save'
     saveBentoBoxsetting.task = 'save'
-    saveBentoBoxsetting.data = { chatid: chat.cueid, name: chat.name, active: false }
-    saveBentoBoxsetting.bbid = ''
+    const effectiveChatId = chat.cueid || chat.spaceid || chat.chatid
+    saveBentoBoxsetting.data = { chatid: effectiveChatId, name: chat.name, active: false, context: 'chatspace' }
+    saveBentoBoxsetting.bbid = effectiveChatId
     storeAI.prepareChatBentoBoxSave(saveBentoBoxsetting)
   }
 

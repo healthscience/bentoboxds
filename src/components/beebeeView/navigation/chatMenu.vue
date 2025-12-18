@@ -161,8 +161,10 @@ const newChatchannel = () => {
 
 const saveChatname = () => {
   saveChat.value = !saveChat.value
-  // uuid for chat
-  let chatID = hashObject(newChatname.value + new Date())
+  // robust uuid for chat (namespace with prefix when available)
+  let chatID = (typeof crypto !== 'undefined' && crypto.randomUUID)
+    ? `chat:${crypto.randomUUID()}`
+    : hashObject(newChatname.value + Date.now() + Math.random())
   let newChatItem = {}
   newChatItem.name = newChatname.value
   newChatItem.chatid = chatID
@@ -196,8 +198,11 @@ const saveChatHistory = (chat) => {
   saveBentoBoxsetting.reftype = 'chat-history'
   saveBentoBoxsetting.action = 'save'
   saveBentoBoxsetting.task = 'save'
-  saveBentoBoxsetting.data = chat
-  saveBentoBoxsetting.bbid = ''
+  // Map to historyPair bucket key: space chats use cue/space id; main/manual use 'chat'
+  const isSpaceChat = chat && chat.context === 'chatspace'
+  const effectiveChatId = isSpaceChat ? chat.chatid : 'chat'
+  saveBentoBoxsetting.data = { ...chat, chatid: effectiveChatId }
+  saveBentoBoxsetting.bbid = effectiveChatId
   storeAI.prepareChatBentoBoxSave(saveBentoBoxsetting)
 }
 
