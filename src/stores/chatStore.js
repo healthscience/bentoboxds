@@ -381,6 +381,50 @@ export const useChatStore = defineStore('chat', {
       this.beginChat = true
       return peerMessage
     }
+,
+    hydrateFromSaved(records) {
+      if (!Array.isArray(records)) return
+      for (const rec of records) {
+        const saved = rec?.value || {}
+        const chatMeta = saved.chat || {}
+        const convId = chatMeta.chatid
+        if (!convId) continue
+        const isSpace = chatMeta.context === 'chatspace'
+        const ctx = isSpace ? { type: 'chatspace', id: convId } : 'chat'
+        const pairs = Array.isArray(saved.pair) ? saved.pair : []
+        for (const pair of pairs) {
+          const q = pair?.question || pair?.input || {}
+          const r = pair?.reply || pair?.output || {}
+          const qBbid = q?.bbid || q?.bboxid
+          const peerText = (q?.data && (q.data.text || q.data.content || q.data?.data?.text)) || q?.text || q?.content || ''
+          this.addMessage({
+            type: 'peer',
+            content: peerText,
+            timestamp: new Date(),
+            bboxid: qBbid || null,
+            tools: q?.tools || [],
+            context: ctx,
+            conversationId: convId
+          })
+          const rData = r?.data || r
+          const isBBox = rData && (rData.type === 'bentobox')
+          const replyText = (rData && (rData.text || rData.content)) || r?.text || r?.content || ''
+          this.addMessage({
+            type: 'agent',
+            content: isBBox ? rData : replyText,
+            timestamp: new Date(),
+            bboxid: r?.bbid || r?.bboxid || qBbid || null,
+            status: 'complete',
+            messageType: isBBox ? 'bentobox' : 'response',
+            metadata: r?.metadata || {},
+            context: ctx,
+            conversationId: convId
+          })
+        }
+        if (pairs.length > 0) this.beginChat = true
+      }
+    }
+
 }
 })
 
