@@ -154,12 +154,14 @@ import ShareProtocol from '@/components/bentobox/tools/shareForm.vue'
 import MininavMap from '@/components/bentospace/map/mininavMap.vue'
 import { cuesStore } from '@/stores/cuesStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
+import { useChatStore } from '@/stores/chatStore.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 import { mapminiStore } from '@/stores/mapStore.js'
 
   const storeCues = cuesStore()
   const storeAI = aiInterfaceStore()
+  const storeChat = useChatStore()
   const storeBentobox = bentoboxStore()
   const storeLibrary = libraryStore()
   const storeMmap = mapminiStore()
@@ -232,7 +234,7 @@ import { mapminiStore } from '@/stores/mapStore.js'
     const effectiveChatId = chat.cueid || chat.spaceid || chat.chatid
     saveBentoBoxsetting.data = { chatid: effectiveChatId, name: chat.name, active: false, context: 'chatspace' }
     saveBentoBoxsetting.bbid = effectiveChatId
-    storeAI.prepareChatBentoBoxSave(saveBentoBoxsetting)
+    storeChat.prepareChatBentoBoxSave(saveBentoBoxsetting)
   }
 
   const setzoomScale = (change) => {

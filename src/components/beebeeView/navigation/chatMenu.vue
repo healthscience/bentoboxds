@@ -62,11 +62,13 @@
 
 <script setup>
 import hashObject from 'object-hash'
+import { useChatStore } from '@/stores/chatStore.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { ref, computed } from 'vue'
 import { DateTime } from 'luxon' // Import Luxon
 
+const storeChat = useChatStore()
 const storeAI = aiInterfaceStore()
 const storeBentobox = bentoboxStore()
 
@@ -203,7 +205,7 @@ const saveChatHistory = (chat) => {
   const effectiveChatId = isSpaceChat ? chat.chatid : 'chat'
   saveBentoBoxsetting.data = { ...chat, chatid: effectiveChatId }
   saveBentoBoxsetting.bbid = effectiveChatId
-  storeAI.prepareChatBentoBoxSave(saveBentoBoxsetting)
+  storeChat.prepareChatBentoBoxSave(saveBentoBoxsetting)
 }
 
 const deleteChatHistory = (chat) => {
