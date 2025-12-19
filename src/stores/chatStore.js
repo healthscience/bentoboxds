@@ -428,7 +428,7 @@ export const useChatStore = defineStore('chat', {
           // prepare chat dialogues
           let chatMenu = []
           if (message.data.length !== 0) {
-            chatMenu = this.liveChatUtil.prepareChatMenu(message.data)
+            chatMenu = this.storeAI.liveChatUtil.prepareChatMenu(message.data)
             this.storeAI.chatAttention = chatMenu[0].chatid
             let setOneActive = []
             let chatAct = 0
@@ -444,6 +444,10 @@ export const useChatStore = defineStore('chat', {
               }
               this.storeAI.setupChatHistory(chat)
             } 
+            // reflect menu in bentobox store list
+            if (this.storeAI && this.storeAI.storeBentobox) {
+              this.storeAI.storeBentobox.chatList = setOneActive
+            }
             this.chatList = setOneActive
             // hydrate chatStore.chatHistory from saved pairs per conversation
             try {
