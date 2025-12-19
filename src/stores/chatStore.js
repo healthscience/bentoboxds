@@ -1,8 +1,10 @@
 import { defineStore } from 'pinia'
+import { useSocketStore } from '@/stores/socket.js'
 import { aiInterfaceStore } from "@/stores/aiInterface.js"
 
 export const useChatStore = defineStore('chat', {
   state: () => ({
+    sendSocket: useSocketStore(),
     storeAI: aiInterfaceStore(),
     subscribers: [],
     bottom: null,
