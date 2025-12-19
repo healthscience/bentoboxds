@@ -14,7 +14,7 @@
 - **Default Port**: 5173 (HTTPS)
 - **Framework**: Vue 3 with Pinia stores
 
-### 2. HOP Server (hop-ecs)
+### 2. HOP peer to peer (hop-ecs)
 - **Port**: 9888
 - **Version**: 0.4.7
 - **Purpose**: Entity Component System for AI/chat functionality

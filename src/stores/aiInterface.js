@@ -1029,7 +1029,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       // historyPair may store either full pairs or chat objects; handle both safely
       let settingsData = this.historyPair[message.data.chatid] || []
       let bbidPerChat = []
-      // loop over data to match to visualisation alread prepared.  (note. or HOPQuery to re-create via HOP)
+      // loop over data to match to visualisation already prepared.  (note. or HOPQuery to re-create via HOP)
       let visDataperChat = []
       if (Array.isArray(settingsData)) {
         for (let bbi of settingsData) {
@@ -1068,7 +1068,9 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       saveData.visData = visDataperChat
       saveData.hop = hopQuery
       message.data = saveData
-      this.sendSocket.send_message(message)
+      console.log('save chat')
+      console.log(message)
+      // this.sendSocket.send_message(message)
     },
     prepareSpaceSave (message) {
       // match bentoboxes, cues, content (media, research, markers, products)

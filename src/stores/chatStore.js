@@ -114,8 +114,8 @@ export const useChatStore = defineStore('chat', {
       }
     },
     handleIncomingMessage(message) {
-      console.log('incoming message======chatStore')
-      console.log(message)
+      // console.log('incoming message======chatStore')
+      // console.log(message)
       // Handle incoming messages and update the chat state
       // Check if this is a peer question
       if (message.type === 'peer-question') {
@@ -253,7 +253,6 @@ export const useChatStore = defineStore('chat', {
       }
       // Handle streaming tokens
       else if (message.type === 'token') {
-        console.log('=== TOKEN MESSAGE RECEIVED ===')
         // console.log('Full token message:', message)
         // console.log('Token data:', message.data)
         // console.log('Token bbid:', message.bbid)
