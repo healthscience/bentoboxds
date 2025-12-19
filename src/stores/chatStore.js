@@ -526,51 +526,51 @@ export const useChatStore = defineStore('chat', {
       } 
     },
     prepareChatBentoBoxSave (message) {
-      // historyPair may store either full pairs or chat objects; handle both safely
-      let settingsData = this.historyPair[message.data.chatid] || []
+      // Read saved pairs from AI store's historyPair using the effective chat id
+      const effectiveId = message?.data?.chatid || this.storeAI.chatAttention || 'chat'
+      const historyPair = this.storeAI.historyPair || {}
+      let settingsData = historyPair[effectiveId] || []
       let bbidPerChat = []
-      // loop over data to match to visualisation already prepared.  (note. or HOPQuery to re-create via HOP)
+      // match visualisation already prepared.  (note. or HOPQuery to re-create via HOP)
       let visDataperChat = []
       if (Array.isArray(settingsData)) {
         for (let bbi of settingsData) {
-          // handle either a pair with reply.bbid or a chat object with questions
           const bbid = bbi?.reply?.bbid || bbi?.reply?.bboxid || bbi?.bbid || bbi?.bboxid
           if (bbid) {
             bbidPerChat.push(bbid)
-            const visD = this.storeBentobox.bentoboxData[bbid]
+            const visD = this.storeAI.storeBentobox?.bentoboxData?.[bbid]
             visDataperChat.push(visD)
           }
         }
       } else if (settingsData && settingsData.questions) {
-        // If settingsData is a chat object
         for (let q of settingsData.questions) {
           const bbid = q?.reply?.bbid || q?.reply?.bboxid || q?.bbid || q?.bboxid
           if (bbid) {
             bbidPerChat.push(bbid)
-            const visD = this.storeBentobox.bentoboxData[bbid]
+            const visD = this.storeAI.storeBentobox?.bentoboxData?.[bbid]
             visDataperChat.push(visD)
           }
         }
       }
       // save HOP summary info ie. HOPquery
       let hopQuery = []
+      const hopSummary = this.storeAI.hopSummary || []
       for (let bb of bbidPerChat) {
-        for (let hp of this.hopSummary) {
+        for (let hp of hopSummary) {
           if (bb === hp.summary.bbid) {
-            // save full summary to bentobox store???
             hopQuery.push(hp.summary.bbid)
           }
         }
       }
-      let saveData = {}
-      saveData.pair = settingsData
-      saveData.chat = message.data
-      saveData.visData = visDataperChat
-      saveData.hop = hopQuery
+      const saveData = {
+        pair: settingsData,
+        chat: message.data,
+        visData: visDataperChat,
+        hop: hopQuery
+      }
       message.data = saveData
-      console.log('save chat')
-      console.log(message)
-      this.sendSocket.send_message(message)
+      console.log('[chatStore] save chat payload', message)
+      this.storeAI.sendMessageHOP(message)
     }
   }
 })
