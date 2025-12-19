@@ -1070,7 +1070,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       message.data = saveData
       console.log('save chat')
       console.log(message)
-      // this.sendSocket.send_message(message)
+      this.sendSocket.send_message(message)
     },
     prepareSpaceSave (message) {
       // match bentoboxes, cues, content (media, research, markers, products)

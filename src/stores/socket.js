@@ -4,12 +4,14 @@ import { aiInterfaceStore } from "@/stores/aiInterface.js"
 import { libraryStore } from "@/stores/libraryStore.js"
 import { accountStore } from "@/stores/accountStore.js"
 import { bentoboxStore } from "@/stores/bentoboxStore.js"
+import { useChatStore } from '@/stores/chatStore.js'
 import { cuesStore } from "@/stores/cuesStore.js"
 
 export const useSocketStore = defineStore({
   id: "socket",
   state: () => ({
     bentoboxStore: bentoboxStore(),
+    chatStore: useChatStore(),
     aiStore: aiInterfaceStore(),
     storeCues: cuesStore(),
     libStore: libraryStore(),
@@ -61,6 +63,8 @@ export const useSocketStore = defineStore({
       // parse and route to logic processing
       if (received.type === 'bentobox') {
         this.bentoboxStore.processReply(received)
+      } else if (received.type === 'chat') {
+        this.chatStore.processReply(received)
       } else if (received.type === 'library') {
         this.libStore.processReply(received)
       } else if (received.type == 'publiclibrary') {
