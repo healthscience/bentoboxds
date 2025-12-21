@@ -528,44 +528,69 @@ export const useChatStore = defineStore('chat', {
       } 
     },
     prepareChatBentoBoxSave (message) {
-      // Read saved pairs from AI store's historyPair using the effective chat id
+      // Normalize and serialize history for the effective chat id
       const effectiveId = message?.data?.chatid || this.storeAI.chatAttention || 'chat'
       const historyPair = this.storeAI.historyPair || {}
-      let settingsData = historyPair[effectiveId] || []
-      let bbidPerChat = []
-      // match visualisation already prepared.  (note. or HOPQuery to re-create via HOP)
-      let visDataperChat = []
-      if (Array.isArray(settingsData)) {
-        for (let bbi of settingsData) {
-          const bbid = bbi?.reply?.bbid || bbi?.reply?.bboxid || bbi?.bbid || bbi?.bboxid
-          if (bbid) {
-            bbidPerChat.push(bbid)
-            const visD = this.storeAI.storeBentobox?.bentoboxData?.[bbid]
-            visDataperChat.push(visD)
+      const rawList = Array.isArray(historyPair[effectiveId]) ? historyPair[effectiveId] : []
+      const getText = (obj) => (obj?.data?.text ?? obj?.text ?? obj?.content ?? '')
+      const normalizedPairs = []
+      const bbidPerChat = []
+
+      for (const item of rawList) {
+        // Prefer explicit pair shape { question, reply }
+        let q = item?.question
+        let r = item?.reply
+        // Fallbacks to support alternate shapes
+        if (!q) q = item?.currentQuestion || (Array.isArray(item?.questions) ? item.questions[0] : null)
+        // Build normalized question
+        let normQ = null
+        if (q) {
+          normQ = {
+            id: q.id,
+            text: getText(q),
+            tools: q.tools || [],
+            timestamp: q.timestamp || null,
+            bbid: q.bboxid || q.bbid || item?.bboxid || item?.bbid || null
           }
         }
-      } else if (settingsData && settingsData.questions) {
-        for (let q of settingsData.questions) {
-          const bbid = q?.reply?.bbid || q?.reply?.bboxid || q?.bbid || q?.bboxid
-          if (bbid) {
-            bbidPerChat.push(bbid)
-            const visD = this.storeAI.storeBentobox?.bentoboxData?.[bbid]
-            visDataperChat.push(visD)
+        // Build normalized reply if present
+        let normR = null
+        if (r) {
+          const rd = r.data || r
+          const isBBox = (rd && (rd.type === 'bentobox')) || (r.type === 'bentobox')
+          const rBbid = r.bbid || r.bboxid || (normQ && normQ.bbid) || null
+          if (isBBox) {
+            normR = { type: 'bentobox', data: rd, bbid: rBbid, timestamp: r.timestamp || null, status: 'complete' }
+          } else {
+            const t = (rd && (rd.text || rd.content)) || ''
+            normR = { type: 'text', text: t, bbid: rBbid, timestamp: r.timestamp || null, status: 'complete' }
           }
+        }
+        if (normQ) {
+          normalizedPairs.push({ question: normQ, reply: normR })
+          if (normR && normR.bbid) bbidPerChat.push(normR.bbid)
         }
       }
-      // save HOP summary info ie. HOPquery
-      let hopQuery = []
+
+      // Match any visualization data for replies we have bbids for
+      const visDataperChat = []
+      for (const bbid of bbidPerChat) {
+        const visD = this.storeAI.storeBentobox?.bentoboxData?.[bbid]
+        visDataperChat.push(visD ?? null)
+      }
+
+      // Summary info (optional)
+      const hopQuery = []
       const hopSummary = this.storeAI.hopSummary || []
-      for (let bb of bbidPerChat) {
-        for (let hp of hopSummary) {
-          if (bb === hp.summary.bbid) {
-            hopQuery.push(hp.summary.bbid)
-          }
+      for (const bb of bbidPerChat) {
+        for (const hp of hopSummary) {
+          if (bb === hp.summary.bbid) hopQuery.push(hp.summary.bbid)
         }
       }
+
       const saveData = {
-        pair: settingsData,
+        version: 1,
+        pair: normalizedPairs,
         chat: message.data,
         visData: visDataperChat,
         hop: hopQuery
