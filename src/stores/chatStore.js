@@ -393,9 +393,10 @@ export const useChatStore = defineStore('chat', {
         const ctx = isSpace ? { type: 'chatspace', id: convId } : 'chat'
         const pairs = Array.isArray(saved.pair) ? saved.pair : []
         for (const pair of pairs) {
-          const q = pair?.question || pair?.input || {}
-          const r = pair?.reply || pair?.output || {}
-          const qBbid = q?.bbid || q?.bboxid
+          const p = pair || {}
+          const q = p.question || p.input || p.currentQuestion || (Array.isArray(p.questions) ? p.questions[0] : {}) || {}
+          const r = p.reply || p.output || q.reply || {}
+          const qBbid = p?.bbid || p?.bboxid || q?.bbid || q?.bboxid
           const peerText = (q?.data && (q.data.text || q.data.content || q.data?.data?.text)) || q?.text || q?.content || ''
           this.addMessage({
             type: 'peer',
@@ -414,7 +415,7 @@ export const useChatStore = defineStore('chat', {
             content: isBBox ? rData : replyText,
             timestamp: new Date(),
             bboxid: r?.bbid || r?.bboxid || qBbid || null,
-            status: 'complete',
+            status: r?.status || 'complete',
             messageType: isBBox ? 'bentobox' : 'response',
             metadata: r?.metadata || {},
             context: ctx,
@@ -464,9 +465,10 @@ export const useChatStore = defineStore('chat', {
                   const ctx = isSpace ? { type: 'chatspace', id: convId } : 'chat'
                   const pairs = Array.isArray(saved.pair) ? saved.pair : []
                   for (const pair of pairs) {
-                    const q = pair?.question || pair?.input || {}
-                    const r = pair?.reply || pair?.output || {}
-                    const qBbid = q?.bbid || q?.bboxid
+                    const p = pair || {}
+                    const q = p.question || p.input || p.currentQuestion || (Array.isArray(p.questions) ? p.questions[0] : {}) || {}
+                    const r = p.reply || p.output || q.reply || {}
+                    const qBbid = p?.bbid || p?.bboxid || q?.bbid || q?.bboxid
                     const peerText = (q?.data && (q.data.text || q.data.content || q.data?.data?.text)) || q?.text || q?.content || ''
                     // peer message
                     chatStore.addMessage({
@@ -487,7 +489,7 @@ export const useChatStore = defineStore('chat', {
                       content: isBBox ? rData : replyText,
                       timestamp: new Date(),
                       bboxid: r?.bbid || r?.bboxid || qBbid || null,
-                      status: 'complete',
+                      status: r?.status || 'complete',
                       messageType: isBBox ? 'bentobox' : 'response',
                       metadata: r?.metadata || {},
                       context: ctx,
