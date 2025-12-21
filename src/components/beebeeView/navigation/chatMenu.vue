@@ -203,7 +203,8 @@ const saveChatHistory = (chat) => {
   // Map to historyPair bucket key: space chats use cue/space id; main/manual use 'chat'
   const isSpaceChat = chat && chat.context === 'chatspace'
   const effectiveChatId = isSpaceChat ? chat.chatid : 'chat'
-  saveBentoBoxsetting.data = { ...chat, chatid: effectiveChatId }
+  // Pass through the UI chat id so we can merge pairs saved under chat:<uuid>
+  saveBentoBoxsetting.data = { ...chat, uiChatId: chat.chatid, chatid: effectiveChatId }
   saveBentoBoxsetting.bbid = effectiveChatId
   storeChat.prepareChatBentoBoxSave(saveBentoBoxsetting)
 }

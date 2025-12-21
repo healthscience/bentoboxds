@@ -530,10 +530,14 @@ export const useChatStore = defineStore('chat', {
     prepareChatBentoBoxSave (message) {
       // Normalize and serialize history for the effective chat id
       const effectiveId = message?.data?.chatid || this.storeAI.chatAttention || 'chat'
+      const uiChatId = message?.data?.uiChatId || null
       const historyPair = this.storeAI.historyPair || {}
-      const rawList = Array.isArray(historyPair[effectiveId]) ? historyPair[effectiveId] : []
+      // Merge any items saved under UI-only chat:<uuid> into effective bucket when saving
+      const rawMain = Array.isArray(historyPair[effectiveId]) ? historyPair[effectiveId] : []
+      const rawUi = uiChatId && Array.isArray(historyPair[uiChatId]) ? historyPair[uiChatId] : []
+      const rawList = rawMain.concat(rawUi)
       const getText = (obj) => (obj?.data?.text ?? obj?.text ?? obj?.content ?? '')
-      const normalizedPairs = []
+      const pairMap = new Map()
       const bbidPerChat = []
 
       for (const item of rawList) {
@@ -567,10 +571,25 @@ export const useChatStore = defineStore('chat', {
           }
         }
         if (normQ) {
-          normalizedPairs.push({ question: normQ, reply: normR })
-          if (normR && normR.bbid) bbidPerChat.push(normR.bbid)
+          const key = normQ.bbid || normQ.id || `${normQ.timestamp}`
+          const existing = pairMap.get(key)
+          // choose the most complete entry: prefer replies with non-empty text or bentobox
+          const hasGoodReply = (x) => x && (x.type === 'bentobox' || (x.text && x.text.trim().length > 0))
+          if (!existing) {
+            pairMap.set(key, { question: normQ, reply: normR })
+          } else {
+            const chosen = { ...existing }
+            // keep latest question text if present
+            if (normQ.text && normQ.text.length > 0) chosen.question = normQ
+            // upgrade reply if new one is better
+            if (hasGoodReply(normR) || !hasGoodReply(chosen.reply)) chosen.reply = normR
+            pairMap.set(key, chosen)
+          }
+          if (normR && normR.bbid && !bbidPerChat.includes(normR.bbid)) bbidPerChat.push(normR.bbid)
         }
       }
+
+      const normalizedPairs = Array.from(pairMap.values())
 
       // Match any visualization data for replies we have bbids for
       const visDataperChat = []
