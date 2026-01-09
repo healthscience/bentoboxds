@@ -145,6 +145,24 @@ export const bentoboxStore = defineStore('bentostore', {
           this.storeCues.getMostLastusedItems(this.storeCues.cuesList)
           // time
           // this.storeCues.getMostPopularItems(this.storeCues.cuesList)
+          // Add cue space chats to chatList
+          for (let cue of updateCueExpand) {
+            const cueId = cue.key
+            const name = cue.value.concept.name
+            const existingIndex = this.chatList.findIndex(c => c.chatid === cueId)
+            if (existingIndex === -1) {
+              this.chatList.push({
+                name,
+                chatid: cueId,
+                context: 'chatspace',
+                active: false,
+                createTimestamp: cue.value.computational?.timestamp || Date.now(),
+                lastTimestamp: cue.value.computational?.timestamp || Date.now(),
+                useCount: 0,
+                favoriteCount: 0
+              })
+            }
+          }
         } else {
           this.storeCues.waitingCues = message.data
         }
@@ -158,6 +176,18 @@ export const bentoboxStore = defineStore('bentostore', {
         // this.storeCues.
       } else if (message.reftype.trim() === 'product-history') {
         this.prepareProductSpace(message.data)
+      } else if (message.reftype.trim() === 'chat-history') {
+        // Load saved chat into chatList
+        const savedChat = message.data
+        if (savedChat && savedChat.chatid) {
+          const existingIndex = this.chatList.findIndex(c => c.chatid === savedChat.chatid)
+          if (existingIndex === -1) {
+            this.chatList.push(savedChat)
+          } else {
+            // Update existing
+            this.chatList[existingIndex] = savedChat
+          }
+        }
       } else if (message.reftype.trim() === 'bentobox-history') {
       }
     },

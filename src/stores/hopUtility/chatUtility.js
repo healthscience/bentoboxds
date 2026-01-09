@@ -186,6 +186,8 @@ class ChatUtility {
   *
   */
   prepareChatMenu = function (chatData) {
+    console.log('parepare chat menu')
+    console.log(chatData)
     let menuList = []
     if (chatData.length !== 0) {
       for (let chat of chatData) {

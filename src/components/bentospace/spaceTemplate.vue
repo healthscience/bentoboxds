@@ -135,6 +135,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { DateTime } from 'luxon'
 import ModalSpace from '@/components/bentospace/spaceModal.vue'
 import CuesPrepared from '@/components/bentocues/prepareCues.vue'
 import LibraryexpView from '@/components/dataspace/experimentNXPView.vue'
@@ -232,7 +233,16 @@ import { mapminiStore } from '@/stores/mapStore.js'
     saveBentoBoxsetting.action = 'save'
     saveBentoBoxsetting.task = 'save'
     const effectiveChatId = chat.cueid || chat.spaceid || chat.chatid
-    saveBentoBoxsetting.data = { chatid: effectiveChatId, name: chat.name, active: false, context: 'chatspace' }
+    saveBentoBoxsetting.data = {
+      chatid: effectiveChatId,
+      name: chat.name,
+      active: false,
+      context: 'chatspace',
+      createTimestamp: DateTime.now().toMillis(),
+      lastTimestamp: DateTime.now().toMillis(),
+      useCount: 0,
+      favoriteCount: 0
+    }
     saveBentoBoxsetting.bbid = effectiveChatId
     storeChat.prepareChatBentoBoxSave(saveBentoBoxsetting)
   }

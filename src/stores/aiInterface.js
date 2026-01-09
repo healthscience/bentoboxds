@@ -144,7 +144,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         this.setupChatHistory(updated)
       }
       this.chatAttention = cueId
-      // this.historyList = true
+      this.historyList = true
     },
 
     previousLLM: {}
@@ -208,6 +208,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       // this.storeChat.beginChat = true
     },
     async submitAsk (dataInfo) {
+      console.log('submit ask')
+      console.log(this.beebeeContext)
       try {
         // 1. Determine the context
         const baseContext = this.beebeeContext || 'chat'
@@ -267,8 +269,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           const hopQuestion = this.liveChatUtil.prepareQuestionForHOP(question)
           // this the first time chat context or first time after start need to add chat history
           let chatHistoryLength = this.storeChat.chatHistory[chat.bboxid]
-          console.log('chat history lengthat fir stoorororo')
-          console.log(chatHistoryLength)
           if (chatHistoryLength === undefined) {
             chatHistoryLength = []
           }

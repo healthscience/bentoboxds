@@ -40,7 +40,7 @@
           <div id="upload-link" class="tool-type" @click="toolAgent('upload')" :class="{ 'active-tool': storeAI.isUploadMode }">@upload</div>
           <div class="tool-type" @click="toolAgent('library')">@library</div>
           <div class="tool-type" :class="{ 'active-tool': storeTraining.isTrainingMode }" @click="toolAgent('training')">
-            {{ storeTraining.isTrainingMode ? '@train ✓' : '@train' }}
+            {{ storeTraining.isTrainingMode ? '@train ✓' : '@teach' }}
           </div>
       </div>
     </div>

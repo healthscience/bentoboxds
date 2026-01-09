@@ -427,6 +427,8 @@ export const useChatStore = defineStore('chat', {
     },
     processReply (message) {
       if (message.reftype.trim() === 'chat-history') {
+        console.log('process chat history')
+        console.log(message)
         if (message.action.trim() === 'start') {
           // prepare chat dialogues
           let chatMenu = []
@@ -505,7 +507,7 @@ export const useChatStore = defineStore('chat', {
             // what items was last uses ie time or could be favourite ie most frequent use
             this.storeAI.chatAttention = this.chatList[0].chatid
           } else {
-            let firstChatmenu = this.liveChatUtil.prepareChatMenu([])
+            let firstChatmenu = this.storeAI.liveChatUtil.prepareChatMenu([])
             this.chatList = firstChatmenu
             // save latest first time only
             let saveData = {}
@@ -533,61 +535,58 @@ export const useChatStore = defineStore('chat', {
       // Normalize and serialize history for the effective chat id
       const effectiveId = message?.data?.chatid || this.storeAI.chatAttention || 'chat'
       const uiChatId = message?.data?.uiChatId || null
-      const historyPair = this.storeAI.historyPair || {}
-      // Merge any items saved under UI-only chat:<uuid> into effective bucket when saving
-      const rawMain = Array.isArray(historyPair[effectiveId]) ? historyPair[effectiveId] : []
-      const rawUi = uiChatId && Array.isArray(historyPair[uiChatId]) ? historyPair[uiChatId] : []
-      const rawList = rawMain.concat(rawUi)
-      const getText = (obj) => (obj?.data?.text ?? obj?.text ?? obj?.content ?? '')
+
+      // Get messages from chatHistory instead of historyPair
+      const chatMessages = this.chatHistory[effectiveId] || []
+      const uiMessages = uiChatId && this.chatHistory[uiChatId] ? this.chatHistory[uiChatId] : []
+      const allMessages = [...chatMessages, ...uiMessages]
+
       const pairMap = new Map()
       const bbidPerChat = []
 
-      for (const item of rawList) {
-        // Prefer explicit pair shape { question, reply }
-        let q = item?.question
-        let r = item?.reply
-        // Fallbacks to support alternate shapes
-        if (!q) q = item?.currentQuestion || (Array.isArray(item?.questions) ? item.questions[0] : null)
-        // Build normalized question
-        let normQ = null
-        if (q) {
-          normQ = {
-            id: q.id,
-            text: getText(q),
-            tools: q.tools || [],
-            timestamp: q.timestamp || null,
-            bbid: q.bboxid || q.bbid || item?.bboxid || item?.bbid || null
+      // Group messages into question-reply pairs
+      let currentQuestion = null
+      for (const msg of allMessages) {
+        if (msg.type === 'peer') {
+          // This is a question
+          currentQuestion = {
+            id: msg.bboxid || msg.id || `q_${Date.now()}`,
+            text: msg.content || '',
+            tools: msg.tools || [],
+            timestamp: msg.timestamp || null,
+            bbid: msg.bboxid || null
           }
-        }
-        // Build normalized reply if present
-        let normR = null
-        if (r) {
-          const rd = r.data || r
-          const isBBox = (rd && (rd.type === 'bentobox')) || (r.type === 'bentobox')
-          const rBbid = r.bbid || r.bboxid || (normQ && normQ.bbid) || null
+        } else if (msg.type === 'agent' && currentQuestion) {
+          // This is a reply to the current question
+          let normR = null
+          const isBBox = msg.messageType === 'bentobox' || (msg.content && typeof msg.content === 'object' && msg.content.type === 'bentobox')
+
           if (isBBox) {
-            normR = { type: 'bentobox', data: rd, bbid: rBbid, timestamp: r.timestamp || null, status: 'complete' }
+            normR = {
+              type: 'bentobox',
+              data: msg.content,
+              bbid: msg.bboxid,
+              timestamp: msg.timestamp || null,
+              status: 'complete'
+            }
           } else {
-            const t = (rd && (rd.text || rd.content)) || ''
-            normR = { type: 'text', text: t, bbid: rBbid, timestamp: r.timestamp || null, status: 'complete' }
+            normR = {
+              type: 'text',
+              text: msg.content || '',
+              bbid: msg.bboxid,
+              timestamp: msg.timestamp || null,
+              status: 'complete'
+            }
           }
-        }
-        if (normQ) {
-          const key = normQ.bbid || normQ.id || `${normQ.timestamp}`
-          const existing = pairMap.get(key)
-          // choose the most complete entry: prefer replies with non-empty text or bentobox
-          const hasGoodReply = (x) => x && (x.type === 'bentobox' || (x.text && x.text.trim().length > 0))
-          if (!existing) {
-            pairMap.set(key, { question: normQ, reply: normR })
-          } else {
-            const chosen = { ...existing }
-            // keep latest question text if present
-            if (normQ.text && normQ.text.length > 0) chosen.question = normQ
-            // upgrade reply if new one is better
-            if (hasGoodReply(normR) || !hasGoodReply(chosen.reply)) chosen.reply = normR
-            pairMap.set(key, chosen)
+
+          const key = currentQuestion.bbid || currentQuestion.id || `${currentQuestion.timestamp}`
+          pairMap.set(key, { question: currentQuestion, reply: normR })
+
+          if (normR && normR.bbid && !bbidPerChat.includes(normR.bbid)) {
+            bbidPerChat.push(normR.bbid)
           }
-          if (normR && normR.bbid && !bbidPerChat.includes(normR.bbid)) bbidPerChat.push(normR.bbid)
+
+          currentQuestion = null // Reset for next pair
         }
       }
 
