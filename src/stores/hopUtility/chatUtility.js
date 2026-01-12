@@ -186,8 +186,6 @@ class ChatUtility {
   *
   */
   prepareChatMenu = function (chatData) {
-    console.log('parepare chat menu')
-    console.log(chatData)
     let menuList = []
     if (chatData.length !== 0) {
       for (let chat of chatData) {
@@ -271,13 +269,13 @@ class ChatUtility {
     }
 
     // Check for unsupported tools
-    const supportedTools = ['upload', 'library', 'training']
+    const supportedTools = ['upload', 'library', 'teaching']
     const unsupportedTools = toolsUsed.filter(tool => !supportedTools.includes(tool))
 
     if (unsupportedTools.length > 0) {
       return {
         isValid: false,
-        message: `Unsupported tool(s): ${unsupportedTools.join(', ')}. Supported tools: @upload, @library, @training`
+        message: `Unsupported tool(s): ${unsupportedTools.join(', ')}. Supported tools: @upload, @library, @teaching`
       }
     }
 

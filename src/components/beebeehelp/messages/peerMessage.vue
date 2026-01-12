@@ -48,7 +48,7 @@ const formattedTime = computed(() => {
 .peer-ask {
   display: grid;
   grid-template-columns: 1fr 4fr 1fr;
-  background-color: pink;
+  background: linear-gradient(to right, #FFF0F5, #F8BBD9);
   border-radius: 25px;
   width: 80%;
 }
@@ -65,13 +65,14 @@ const formattedTime = computed(() => {
 }
 
 .peer-message-bubble {
-  background-color: #007bff;
+  background-color: #1565C0;
   color: white;
   padding: 10px 15px;
   border-radius: 18px 18px 18px 0;
   max-width: 70%;
   word-wrap: break-word;
   margin-bottom: 2px;
+  font-size: 14px;
 }
 
 .peer-message-time {

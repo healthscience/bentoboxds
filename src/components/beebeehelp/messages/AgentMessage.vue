@@ -178,5 +178,6 @@ const choicedeviceEvent = () => {
   border-radius: 18px;
   margin: 5px 0;
   word-wrap: break-word;
+  font-size: 14px;
 }
 </style>

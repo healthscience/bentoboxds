@@ -3,6 +3,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import LibraryUtility from '@/stores/hopUtility/libraryUtility.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { useSocketStore } from '@/stores/socket.js'
+import { teachingStore } from './teachingStore'
 import hashObject from 'object-hash'
 import ChatUtilty from '@/stores/hopUtility/chatUtility.js'
 import { cuesStore } from "@/stores/cuesStore.js"
@@ -21,6 +22,7 @@ export const libraryStore = defineStore('librarystore', {
     utilLibrary: new LibraryUtility(),
     sendSocket: useSocketStore(),
     liveChatUtil: new ChatUtilty(),
+    storeTeach: teachingStore(),
     startPubLibrary: false,
     replicateFeedback: {},
     libraryMessage: '',
@@ -391,6 +393,9 @@ export const libraryStore = defineStore('librarystore', {
           }
           this.storeCues.cuesList = updateCueList
         }
+      } else if (message.action === 'beebeelearn-contract' || message.action === 'teach-history') {
+        // pass on to chat store
+        this.storeTeach.processReply(message)
       } else if (message.action === 'model-contract') {
         // first time save for update?
         if (message.task === 'save-complete') {

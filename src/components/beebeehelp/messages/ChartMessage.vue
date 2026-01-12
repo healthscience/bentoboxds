@@ -58,6 +58,7 @@ const beebeeChartSpace = (data) => {
   background-color: #e6f7ff;
   border-radius: 8px;
   margin: 0.5em 0;
+  font-size: 14px;
 }
 
 #beebee-chartspace {

@@ -28,6 +28,9 @@
         <button class="button-lib-data" v-bind:class="{ active: newModulebuild === true }" @click="nxpAdd">
           + new NXP
         </button>
+        <button class="button-lib-data" v-bind:class="{ active: teachStatus === true }" @click="teachViewer">
+          @teach
+        </button>
       </template>
       <template #body>
         <!-- data utilities-->
@@ -43,6 +46,7 @@
         <libraryexp-view v-if="storeLibrary.libPeerview === true"></libraryexp-view>
         <newnxp-view v-if="storeLibrary.newNXP === true"></newnxp-view>
         <joinnxp-view v-if="storeLibrary.joinNXP === true"></joinnxp-view>
+        <teach-view v-if="teachStatus === true"></teach-view>
       </template>
       <template #footer>
       </template>
@@ -61,13 +65,16 @@ import NetworkLibrary from '@/components/library/index.vue'
 import LibraryexpView from '@/components/dataspace/experimentNXPView.vue'
 import NewnxpView from '@/components/dataspace/newnxpView.vue'
 import JoinnxpView from '@/components/library/contracts/join/joinnxpView.vue'
+import TeachView from '@/components/dataspace/teach/teachView.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { libraryStore } from '@/stores/libraryStore.js'
+import { teachingStore } from '@/stores/teachingStore.js'
 
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
   const storeLibrary = libraryStore()
+  const storeTeach = teachingStore()
 
   const uploadStatus = computed(() => {
     return storeLibrary.uploadStatus
@@ -102,6 +109,11 @@ import { libraryStore } from '@/stores/libraryStore.js'
     return storeLibrary.newNXP
   })
 
+  const teachStatus = computed(() => {
+    return storeTeach.teachHistoryStatus
+  })
+
+  /* methods */
   const closedataBox = () => {
     storeAI.dataBoxStatus = !storeAI.dataBoxStatus
     storeLibrary.uploadStatus = false
@@ -140,6 +152,11 @@ import { libraryStore } from '@/stores/libraryStore.js'
       storeLibrary.saveSuccessnxp = false
     }
   }
+
+  const teachViewer = () => {
+    storeTeach.teachHistoryStatus = !storeTeach.teachHistoryStatus
+  }
+
 </script>
 
 <style scoped>

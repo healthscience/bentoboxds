@@ -31,5 +31,6 @@ const props = defineProps({
 
 .system-text {
   color: #333;
+  font-size: 14px;
 }
 </style>

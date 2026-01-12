@@ -427,8 +427,6 @@ export const useChatStore = defineStore('chat', {
     },
     processReply (message) {
       if (message.reftype.trim() === 'chat-history') {
-        console.log('process chat history')
-        console.log(message)
         if (message.action.trim() === 'start') {
           // prepare chat dialogues
           let chatMenu = []

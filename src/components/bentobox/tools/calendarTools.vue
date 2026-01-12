@@ -75,12 +75,12 @@ import { ref, computed, onMounted, onBeforeMount, shallowRef } from 'vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
-import { trainingStore } from '@/stores/trainingStore.js'
+import { teachingStore } from '@/stores/teachingStore.js'
 
   const storeAI = aiInterfaceStore()
   const storeLibrary = libraryStore()
   const storeBentobox = bentoboxStore()
-  const storeTraining = trainingStore()
+  const storeTeaching = teachingStore()
 
   const props = defineProps({
     bboxid: String
@@ -141,8 +141,8 @@ import { trainingStore } from '@/stores/trainingStore.js'
     let startDay = timeCaptured.startOf('day')
     mutDate.value = startDay.toMillis()
     
-    // Log for training mode
-    storeTraining.logAction(
+    // Log for teaching mode
+    storeTeaching.logAction(
       'CalendarTools',
       'handleDate',
       { 
@@ -256,8 +256,8 @@ import { trainingStore } from '@/stores/trainingStore.js'
     }
     setDateStatus.value = false
     
-    // Log for training mode
-    storeTraining.logAction(
+    // Log for teaching mode
+    storeTeaching.logAction(
       'CalendarTools',
       'updateHOPquery',
       { 

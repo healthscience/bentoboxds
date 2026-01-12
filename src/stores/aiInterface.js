@@ -10,6 +10,7 @@ import ChatUtilty from '@/stores/hopUtility/chatUtility.js'
 import ChatspaceUtilty from '@/stores/hopUtility/chatspaceUtility.js'
 import { accountStore } from "@/stores/accountStore.js"
 import { cuesStore } from "@/stores/cuesStore.js"
+import { teachingStore } from '@/stores/teachingStore.js'
 
 export const aiInterfaceStore = defineStore('beebeeAIstore', {
   state: () => ({
@@ -19,6 +20,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     storeBentobox: bentoboxStore(),
     storeLibrary: libraryStore(),
     storeChat: useChatStore(),
+    storeTeaching: teachingStore(),
     liveDataParse: new DataPraser(),
     liveChatUtil: new ChatUtilty(),
     liveChatspaceUtil: new ChatspaceUtilty(),

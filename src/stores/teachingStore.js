@@ -1,14 +1,15 @@
 import { defineStore } from 'pinia'
 import { useSocketStore } from '@/stores/socket.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
-import TrainingUtility from '@/stores/hopUtility/trainingUtility.js'
+import { aiInterfaceStore } from '@/stores/aiInterface.js'
+import TeachingUtility from '@/stores/hopUtility/teachingUtility.js'
 
-export const trainingStore = defineStore('training', {
+export const teachingStore = defineStore('teaching', {
   state: () => ({
     storeBentoBox: bentoboxStore(),
     sendSocket: useSocketStore(),
-    trainingUtil: new TrainingUtility(),
-    isTrainingMode: false,
+    teachingUtil: new TeachingUtility(),
+    isTeachingMode: false,
     currentQuery: '',
     currentSession: {
       id: null,
@@ -19,25 +20,25 @@ export const trainingStore = defineStore('training', {
     },
     completedSessions: [],
     pendingSessions: [],
-    trainingStats: {
+    teachingStats: {
       totalSessions: 0,
       totalActions: 0,
       lastSessionDate: null
     },
-    trainingFeedback: '',
+    teachingFeedback: '',
     saveStatus: false,
-    syncStatus: false
+    syncStatus: false,
+    teachHistoryStatus: false,
+    teachHistory: []
   }),
-
   getters: {
-    hasActiveSession: (state) => state.isTrainingMode && state.currentSession.id !== null,
+    hasActiveSession: (state) => state.isTeachingMode && state.currentSession.id !== null,
     sessionActionCount: (state) => state.currentSession.actions.length,
     recentSessions: (state) => state.completedSessions.slice(-10)
   },
-
   actions: {
-    startTrainingSession(query) {
-      this.isTrainingMode = true
+    startTeachingSession(query) {
+      this.isTeachingMode = true
       this.currentQuery = query
       this.currentSession = {
         id: Date.now().toString(),
@@ -46,12 +47,11 @@ export const trainingStore = defineStore('training', {
         startTime: new Date().toISOString(),
         peerId: this.getPeerId()
       }
-      console.log('Training session started:', this.currentSession)
+      console.log('Teaching session started:', this.currentSession)
     },
-
     logAction(component, method, args, result = null) {
-      if (!this.isTrainingMode) return
-      
+      if (!this.isTeachingMode) return
+
       const action = {
         component,
         method,
@@ -60,68 +60,64 @@ export const trainingStore = defineStore('training', {
         timestamp: Date.now(),
         order: this.currentSession.actions.length
       }
-      
+
       this.currentSession.actions.push(action)
       console.log('Action logged:', action)
     },
-
     async completeSession() {
-      if (!this.isTrainingMode || !this.currentSession.id) return
-      
+      if (!this.isTeachingMode || !this.currentSession.id) return
+
       const session = {
         ...this.currentSession,
         endTime: new Date().toISOString(),
         completed: true
       }
-      
+
       // Add to completed sessions
       this.completedSessions.push(session)
       this.pendingSessions.push(session)
-      
+
       // Update stats
-      this.trainingStats.totalSessions++
-      this.trainingStats.totalActions += session.actions.length
-      this.trainingStats.lastSessionDate = session.endTime
-      
+      this.teachingStats.totalSessions++
+      this.teachingStats.totalActions += session.actions.length
+      this.teachingStats.lastSessionDate = session.endTime
+
       // Save to HOP
       try {
-        await this.saveToHOP(session)
-        this.trainingFeedback = 'Training example saved successfully!'
+        this.saveToHOP(session)
+        this.teachingFeedback = 'Teaching example saved successfully!'
         this.saveStatus = true
       } catch (error) {
-        console.error('Error saving training session:', error)
-        this.trainingFeedback = 'Error saving training example. Will retry later.'
+        console.error('Error saving teaching session:', error)
+        this.teachingFeedback = 'Error saving teaching example. Will retry later.'
         this.saveStatus = false
       }
-      
+
       // Reset session
       this.resetSession()
     },
-
     saveToHOP(session) {
       // Prepare message for HOP
-      const beebeeContract = {}
-      beebeeContract.type = 'library'
-      beebeeContract.action = 'beebee-learn'
-      beebeeContract.reftype = 'train-hopquery'
-      beebeeContract.task = 'PUT'
-      beebeeContract.privacy = 'public'
-      beebeeContract.data = session
+      const beebeeTeach = {}
+      beebeeTeach.type = 'library'
+      beebeeTeach.action = 'beebee-teach'
+      beebeeTeach.reftype = 'teach-hopquery'
+      beebeeTeach.task = 'PUT'
+      beebeeTeach.privacy = 'public'
+      beebeeTeach.data = session
       // Send via socket to HOP
-      console.log('Saving to HOP beebee store:', beebeeContract)
-      // this.sendSocket.send_message(beebeeContract)
+      console.log('Saving to HOP beebee store:', beebeeTeach)
+      this.sendSocket.send_message(beebeeTeach)
     },
-
     cancelSession() {
-      if (this.isTrainingMode) {
-        console.log('Training session cancelled')
-        this.trainingFeedback = 'Training session cancelled'
+      if (this.isTeachingMode) {
+        console.log('Teaching session cancelled')
+        this.teachingFeedback = 'Teaching session cancelled'
       }
       this.resetSession()
     },
-
     resetSession() {
-      this.isTrainingMode = false
+      this.isTeachingMode = false
       this.currentQuery = ''
       this.currentSession = {
         id: null,
@@ -131,20 +127,18 @@ export const trainingStore = defineStore('training', {
         peerId: null
       }
     },
-
     getPeerId() {
       // Get peer ID from bentobox store or generate one
       const peerId = this.storeBentoBox.peerId || 'peer-' + Date.now()
       return peerId
     },
-
     async syncPendingSessions() {
       if (this.pendingSessions.length === 0) return
-      
+
       this.syncStatus = true
       const sessionsToSync = [...this.pendingSessions]
       this.pendingSessions = []
-      
+
       for (const session of sessionsToSync) {
         try {
           await this.saveToHOP(session)
@@ -153,16 +147,53 @@ export const trainingStore = defineStore('training', {
           this.pendingSessions.push(session)
         }
       }
-      
+
       this.syncStatus = false
     },
-
     clearCompletedSessions() {
       this.completedSessions = []
-      this.trainingStats = {
+      this.teachingStats = {
         totalSessions: 0,
         totalActions: 0,
         lastSessionDate: null
+      }
+    },
+    loadTeachHistory() {
+      const message = {
+        type: 'library',
+        action: 'contracts',
+        reftype: 'teach-history',
+        task: 'GET',
+        privacy: 'private',
+        data: {}
+      }
+      this.sendSocket.send_message(message)
+    },
+    deleteTeachSession(sessionId) {
+      // remove from live list of teach sessions
+      for (let i = 0; i < this.teachHistory.length; i++) {
+        if (this.teachHistory[i].key === sessionId) {
+          this.teachHistory.splice(i, 1)
+          break
+        }
+      }
+
+      let message = {
+        type: 'library',
+        action: 'beebee-teach',
+        reftype: 'delete-session',
+        task: 'DEL',
+        privacy: 'public',
+        data: { key: sessionId }
+      }
+      this.sendSocket.send_message(message)
+    },
+    processReply (message) {
+      if (message.action === 'contracts') {
+        
+      } else if (message.reftype === 'teach-history') {
+        // set the save @teach ready for display if asked for
+        this.teachHistory = message.data
       }
     }
   }

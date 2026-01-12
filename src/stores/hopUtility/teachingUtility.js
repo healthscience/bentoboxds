@@ -1,9 +1,9 @@
 /**
- * Training Utility
- * Handles training data processing and validation
+ * Teaching Utility
+ * Handles teaching data processing and validation
  */
 
-class TrainingUtility {
+class TeachingUtility {
   constructor() {
     this.sessionValidation = {
       minActions: 1,
@@ -13,7 +13,7 @@ class TrainingUtility {
   }
 
   /**
-   * Validate a training session
+   * Validate a teaching session
    */
   validateSession(session) {
     if (!session || !session.id) {
@@ -214,4 +214,4 @@ class TrainingUtility {
   }
 }
 
-export default TrainingUtility
+export default TeachingUtility

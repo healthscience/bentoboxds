@@ -104,10 +104,12 @@ import { ref, computed, shallowRef } from 'vue'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
+import { teachingStore } from '@/stores/teachingStore.js'
 
   const storeLibrary = libraryStore()
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
+  const storeTeaching = teachingStore()
 
   let feedback = ref([])
   let opendataSettings = ref( {
@@ -175,6 +177,9 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     HOPcontext.update = updateECS
     // close the calendar options and dispay date summary selected
     storeLibrary.updateHOPqueryContracts(HOPcontext)
+    if (storeTeaching.isTeachingMode) {
+      storeTeaching.logAction('opendataTools', 'updateOpenDataHOP', [opendataSettings.value], null)
+    }
   }
 
 </script>

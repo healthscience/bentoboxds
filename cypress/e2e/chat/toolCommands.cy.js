@@ -44,15 +44,15 @@ describe('Tool Commands', () => {
     cy.get('.library-interface').should('be.visible')
   })
 
-  it('should execute training tool command', () => {
-    // Step 1: Type a training command and send it
-    cy.get('.chat-input input').type('@training{enter}')
+  it('should execute teaching tool command', () => {
+    // Step 1: Type a teaching command and send it
+    cy.get('.chat-input input').type('@teach{enter}')
 
     // Step 2: Verify the command is displayed
-    cy.get('.chat-message').should('contain', '@training')
+    cy.get('.chat-message').should('contain', '@teach')
 
-    // Step 3: Verify the training interface is displayed
-    cy.get('.training-interface').should('be.visible')
+    // Step 3: Verify the teaching interface is displayed
+    cy.get('.teaching-interface').should('be.visible')
   })
 
   after(() => {

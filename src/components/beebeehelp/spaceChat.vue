@@ -153,7 +153,7 @@ const closeBentoChat = () => {
 
   .chat-input {
     position: fixed;
-    bottom: 26px;
+    bottom: 32px;
   }
 
   .space-chat {

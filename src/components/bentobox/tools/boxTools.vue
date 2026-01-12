@@ -71,12 +71,14 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { accountStore } from '@/stores/accountStore.js'
 import { libraryStore } from '@/stores/libraryStore.js'
+import { teachingStore } from '@/stores/teachingStore.js'
 
   const storeCues = cuesStore()
   const storeAccount = accountStore()
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
   const storeLibrary = libraryStore()
+  const storeTeaching = teachingStore()
 
   let shareSelect = ref(false)
   const shareForm = ref(false)
@@ -105,6 +107,9 @@ const selectedTimeFormat = ref('timeseries')
 
   const clickVisTools = (boxid) => {
     storeBentobox.boxtoolsShow[boxid] = !storeBentobox.boxtoolsShow[boxid]
+    if (storeTeaching.isTeachingMode) {
+      storeTeaching.logAction('boxTools', 'clickVisTools', [boxid], storeBentobox.boxtoolsShow[boxid])
+    }
   }
 
   /* computed */
@@ -120,36 +125,57 @@ const selectedTimeFormat = ref('timeseries')
   const besearchCycle = () => {
     // display cycle option
     besearchSelect.value = !besearchSelect.value
+    if (storeTeaching.isTeachingMode) {
+      storeTeaching.logAction('boxTools', 'besearchCycle', [props.bboxid], besearchSelect.value)
+    }
   }
 
   const selectBesearchCycle = () => {
     console.log('select besearch cycle')
     console.log(besearchSave.value)
+    if (storeTeaching.isTeachingMode) {
+      storeTeaching.logAction('boxTools', 'selectBesearchCycle', [besearchSave.value], null)
+    }
   }
 
   const openLibrary = () => {
     storeAI.dataBoxStatus = true
     storeAI.uploadStatus = false
     storeLibrary.libraryStatus = true
+    if (storeTeaching.isTeachingMode) {
+      storeTeaching.logAction('boxTools', 'openLibrary', [], null)
+    }
   }
 
   const clickExpandBentobox = (boxid) => {
     storeBentobox.expandBentobox[boxid] = true
+    if (storeTeaching.isTeachingMode) {
+      storeTeaching.logAction('boxTools', 'clickExpandBentobox', [boxid], true)
+    }
   }
 
   const clickSummaryLib = (boxid) => {
     libSum.value = !libSum.value
     storeAI.prepareLibrarySummary(boxid)
+    if (storeTeaching.isTeachingMode) {
+      storeTeaching.logAction('boxTools', 'clickSummaryLib', [boxid], libSum.value)
+    }
   }
 
   const clickShareSpace = (boxid) => {
     shareForm.value = !shareForm.value
+    if (storeTeaching.isTeachingMode) {
+      storeTeaching.logAction('boxTools', 'clickShareSpace', [boxid], shareForm.value)
+    }
   }
 
   const clickAddbentoSpace = (boxid) => {
     // show the space list
     shareSelect.value = !shareSelect.value
     storeAI.prepareLibrarySummary(boxid)
+    if (storeTeaching.isTeachingMode) {
+      storeTeaching.logAction('boxTools', 'clickAddbentoSpace', [boxid], shareSelect.value)
+    }
   }
 
   /*  computed */

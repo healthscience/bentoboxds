@@ -1,9 +1,9 @@
 <template>
   <div id="ai-interaction">
-    <div class="training-mode-banner" v-if="storeTraining.isTrainingMode">
-      <div class="training-status">
-        🎯 Training Mode Active - Query: "{{ storeTraining.currentQuery }}"
-        <span class="action-count">({{ storeTraining.sessionActionCount }} actions logged)</span>
+    <div class="teaching-mode-banner" v-if="storeTeaching.isTeachingMode">
+      <div class="teaching-status">
+        🎯 Teaching Mode Active - Query: "{{ storeTeaching.currentQuery }}"
+        <span class="action-count">({{ storeTeaching.sessionActionCount }} actions logged)</span>
       </div>
     </div>
     <div class="agent-feedback-progress" v-for="agentFeedback of agentProgressUpdate">
@@ -39,8 +39,8 @@
       <div id="tools-list">
           <div id="upload-link" class="tool-type" @click="toolAgent('upload')" :class="{ 'active-tool': storeAI.isUploadMode }">@upload</div>
           <div class="tool-type" @click="toolAgent('library')">@library</div>
-          <div class="tool-type" :class="{ 'active-tool': storeTraining.isTrainingMode }" @click="toolAgent('training')">
-            {{ storeTraining.isTrainingMode ? '@train ✓' : '@teach' }}
+          <div class="tool-type" :class="{ 'active-tool': storeTeaching.isTeachingMode }" @click="toolAgent('teaching')">
+            {{ storeTeaching.isTeachingMode ? '@teach ✓' : '@teach' }}
           </div>
       </div>
     </div>
@@ -52,12 +52,12 @@
 import DataBox from '@/components/dataspace/dataBox.vue'
 import { libraryStore } from '@/stores/libraryStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
-import { trainingStore } from '@/stores/trainingStore.js'
+import { teachingStore } from '@/stores/teachingStore.js'
 import { ref, computed, watch } from 'vue'
 
   const storeLibrary = libraryStore()
   const storeAI = aiInterfaceStore()
-  const storeTraining = trainingStore()
+  const storeTeaching = teachingStore()
 
   const props = defineProps({
     prompt: Object,
@@ -128,8 +128,8 @@ import { ref, computed, watch } from 'vue'
     return storeAI.dataBoxStatus
   })
 
-  const trainingModeBackground = computed(() => {
-    return storeAI.trainingMode ? 'rgb(208, 209, 224)' : 'white'
+  const teachingModeBackground = computed(() => {
+    return storeTeaching.isTeachingMode ? 'rgb(208, 209, 224)' : 'white'
   })
 
   /* methods */
@@ -152,27 +152,25 @@ import { ref, computed, watch } from 'vue'
       storeAI.dataBoxStatus = true
       storeAI.uploadStatus = false
       storeLibrary.libraryStatus = true
-    } else if (tool === 'training') {
+    } else if (tool === 'teaching') {
       storeAI.dataBoxStatus = false
       storeAI.uploadStatus = false
       storeLibrary.libraryStatus = false
-      
-      // Toggle training mode
-      if (!storeTraining.isTrainingMode && storeAI.askQuestion.text) {
-        // Start training session with current query
-        storeTraining.startTrainingSession(storeAI.askQuestion.text)
-        storeAI.trainingMode = true
-      } else if (storeTraining.isTrainingMode) {
-        // Complete or cancel training session
-        if (storeTraining.sessionActionCount > 0) {
-          storeTraining.completeSession()
+
+      // Toggle teaching mode
+      if (!storeTeaching.isTeachingMode && storeAI.askQuestion.text) {
+        // Start teaching session with current query
+        storeTeaching.startTeachingSession(storeAI.askQuestion.text)
+      } else if (storeTeaching.isTeachingMode) {
+        // Complete or cancel teaching session
+        if (storeTeaching.sessionActionCount > 0) {
+          storeTeaching.completeSession()
         } else {
-          storeTraining.cancelSession()
+          storeTeaching.cancelSession()
         }
-        storeAI.trainingMode = false
       } else {
         // No query entered
-        alert('Please enter a query before starting training mode')
+        alert('Please enter a query before starting teaching mode')
       }
     }
   }
@@ -186,7 +184,7 @@ import { ref, computed, watch } from 'vue'
   grid-template-columns: 1fr;
 }
 
-.training-mode-banner {
+.teaching-mode-banner {
   background-color: #f0f8ff;
   border: 2px solid #4a90e2;
   border-radius: 8px;
@@ -194,7 +192,7 @@ import { ref, computed, watch } from 'vue'
   margin-bottom: 10px;
 }
 
-.training-status {
+.teaching-status {
   font-size: 14px;
   color: #333;
   font-weight: 500;
@@ -222,7 +220,7 @@ import { ref, computed, watch } from 'vue'
   font-size: 1.2em;
   height:4em;
   width: 100%;
-  background-color: v-bind(trainingModeBackground);
+  background-color: v-bind(teachingModeBackground);
 }
 
 #tool-agents {
@@ -316,7 +314,7 @@ import { ref, computed, watch } from 'vue'
     height:4em;
     width: 100%;
     opacity: 100%;
-    background-color: v-bind(trainingModeBackground);
+    background-color: v-bind(teachingModeBackground);
   }
 
   #natlang-ask {
