@@ -785,8 +785,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     processPeerData (dataNetwork) {
-      console.log('bentobox from network')
-      console.log(dataNetwork)
       let matchBBID = dataNetwork.bbid
       let hopDataChart = dataNetwork.data
       // create a pair for chat display
@@ -797,8 +795,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.bentoboxList['space1'] = []
     },
     processHOPsummary (dataSummary) {
-      console.log('HOP -- SafeFlow summary')
-      console.log(dataSummary)
       // match bbid to HOP ID
       if (dataSummary?.data !== undefined) {
         let inputID = Object.keys(dataSummary.data)
@@ -844,8 +840,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         // new bentobox data
         this.dataBoxStatus = false
         let matchBBID = this.liveChatUtil.matchHOPbbid(dataHOP.data.context.shell, this.bbidHOPid)
-        console.log('match----------')
-        console.log(matchBBID)
         this.bboxFeedback[matchBBID] = {}
         // update the latest compute module contract back from HOP (if provided)
         if (dataHOP.context.tempComputeMod !== undefined) {

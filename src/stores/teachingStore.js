@@ -106,12 +106,10 @@ export const teachingStore = defineStore('teaching', {
       beebeeTeach.privacy = 'public'
       beebeeTeach.data = session
       // Send via socket to HOP
-      console.log('Saving to HOP beebee store:', beebeeTeach)
       this.sendSocket.send_message(beebeeTeach)
     },
     cancelSession() {
       if (this.isTeachingMode) {
-        console.log('Teaching session cancelled')
         this.teachingFeedback = 'Teaching session cancelled'
       }
       this.resetSession()
@@ -189,8 +187,8 @@ export const teachingStore = defineStore('teaching', {
       this.sendSocket.send_message(message)
     },
     processReply (message) {
-      if (message.action === 'contracts') {
-        
+      if (message.action === 'beebeelearn-contract') {
+        this.teachHistory.push(message.data.data)        
       } else if (message.reftype === 'teach-history') {
         // set the save @teach ready for display if asked for
         this.teachHistory = message.data

@@ -156,7 +156,6 @@ export const useChatStore = defineStore('chat', {
       else if (message.type === 'agent-reply') {
         // Check if this is actually a token message wrapped in agent-reply
         if (message.data?.type === 'token') {
-          console.log('toekn in')
           // Redirect to token handler with proper structure
           this.handleIncomingMessage({
             type: 'token',
@@ -166,7 +165,6 @@ export const useChatStore = defineStore('chat', {
           return
         } else if (message.data.type === 'bentobox') {
           // bentobox reply message (non-text) -> add as its own entry so UI can render bentobox block
-          console.log('bentobox data please')
           this.addMessage({
             ...message,
             status: message.status || 'complete'
@@ -614,7 +612,6 @@ export const useChatStore = defineStore('chat', {
         hop: hopQuery
       }
       message.data = saveData
-      console.log('[chatStore] save chat payload', message)
       this.storeAI.sendMessageHOP(message)
     }
   }

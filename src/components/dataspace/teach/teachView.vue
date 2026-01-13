@@ -7,7 +7,7 @@
         <div v-for="session in teachHistory" :key="session.id" class="session-item">
           <div class="session-summary">
             <span class="session-id">{{ session.key }}</span>
-            <span class="session-actions">{{ session.value.query }} </span>
+            <span class="session-actions">{{ session.value?.query }} </span>
             <span class="session-actions">{{ session.value.actions?.length || 0 }} actions</span>
             <span class="session-date">{{ formatTimestamp(session.value.endTime) }}</span>
             <button @click="viewSession(session)" class="view-btn">View Details</button>
