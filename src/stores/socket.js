@@ -6,6 +6,7 @@ import { accountStore } from "@/stores/accountStore.js"
 import { bentoboxStore } from "@/stores/bentoboxStore.js"
 import { useChatStore } from '@/stores/chatStore.js'
 import { cuesStore } from "@/stores/cuesStore.js"
+import { besearchStore } from "@/stores/besearchStore.js"
 
 export const useSocketStore = defineStore({
   id: "socket",
@@ -16,6 +17,7 @@ export const useSocketStore = defineStore({
     storeCues: cuesStore(),
     libStore: libraryStore(),
     accStore: accountStore(),
+    besearchStore: besearchStore(),
     jwt: '',
     count: 0,
     websocket: {},
@@ -90,8 +92,10 @@ export const useSocketStore = defineStore({
         this.aiStore.processHOPdata(received)
       } else if (received.type === 'account') {
         this.accStore.processReply(received)
+      } else if (received.type === 'besearch') {
+        this.besearchStore.processReply(received)
       } else if (received.type == '') {
-        console.log('error')       
+        console.log('error')
       }
     
     },

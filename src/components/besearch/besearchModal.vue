@@ -1,30 +1,28 @@
 <template>
-    <Transition name="modal">
-      <div v-if="show" class="modal-mask" @click="emit('close')">
-        <div class="modal-container" @click.stop>
-          <div class="modal-header">
-            <slot name="header">default header</slot>
-          </div>
-          <div class="modal-body">
-            <slot name="body">
-              
-              default body
-            </slot>
-          </div>
-  
-          <div class="modal-footer">
-            <slot name="footer">
-              Cues
-              <button
-                class="modal-default-button"
-                @click="$emit('close')"
-              >close</button>
-            </slot>
-          </div>
-        </div>
+  <div v-if="show" class="modal-mask" @click="emit('close')">
+    <div class="modal-container" @click.stop>
+      <div class="modal-header">
+        <slot name="header">default header</slot>
       </div>
-    </Transition>
-  </template>
+      <div class="modal-body">
+        <slot name="body">
+          default body
+        </slot>
+      </div>
+      <div class="modal-footer">
+        <slot name="footer">
+          Cues
+          <button
+            class="modal-default-button"
+            @click="$emit('close')"
+          >
+            close
+          </button>
+        </slot>
+      </div>
+    </div>
+  </div>
+</template>
   
   <script setup>
   
@@ -47,36 +45,51 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(82, 84, 171, 0.4); /* #5254ab; */
-    display: flex;
+    background-color: rgba(82, 84, 171, 0.4);
+    display: grid;
+    place-items: center;
     transition: opacity 0.3s ease;
     opacity: 1;
   }
   
   .modal-container {
-    width: 92vw;
-    height: 92vh;
-    margin: auto;
+    display: grid;
+    grid-template-rows: auto 1fr auto; /* header, body, footer */
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
     padding: 20px 30px;
     background: white;
-    border-radius: 2px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.33);
+    border-radius: 0;
+    box-shadow: none;
     transition: all 0.3s ease;
-    overflow: scroll;
+    overflow: hidden;
+    box-sizing: border-box;
+    gap: 0;
   }
   
   .modal-header {
-  margin-top: 0;
-  color: #42b983;
-}
+    grid-row: 1;
+    margin: 0;
+    color: #42b983;
+  }
 
-.modal-body {
-  margin: 20px 0;
-}
+  .modal-body {
+    grid-row: 2;
+    display: grid; /* Changed from flex to grid */
+    grid-template-rows: 1fr auto; /* Main content, then beebee-agent */
+    overflow: hidden;
+    min-height: 0; /* Critical for grid children to shrink */
+    gap: 0;
+  }
 
-.modal-default-button {
-  float: right;
-}
+  .modal-footer {
+    grid-row: 3;
+  }
+
+  .modal-default-button {
+    float: right;
+  }
 
 /*
  * The following styles are auto-applied to elements with

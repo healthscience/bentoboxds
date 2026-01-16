@@ -1,6 +1,6 @@
 <template>
   <div id="besearch-tools">
-    <h3>Besearch tools</h3>
+    <h3>Besearch</h3>
     <div class="besearch-control-buttons">
       <button @click="besearchTool('create')" class="control-button">Create</button>
       <button @click="besearchTool('start')" class="control-button">Start</button>

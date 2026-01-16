@@ -23,8 +23,9 @@
               id="life-tools-besearch"
               :class="{ 'open': isLifeToolsOpen, 'transparent': true }"
               class="life-tools-besearch"
+              :style="{ width: panelWidth + 'px' }"
             >
-              <life-tools @mode-selected="handleModeChange" @peer-moved="handlePeerMoved"  @peer-intervention="handlePeerIntervention"></life-tools>
+              <life-tools :isLTOpen="isLifeToolsOpen" @mode-selected="handleModeChange" @peer-moved="handlePeerMoved"></life-tools>
             </div>
             <button
               @click="toggleLifeTools()"
@@ -32,7 +33,8 @@
               @mousemove="drag"
               @mouseup="endDrag"
               @mouseleave="endDrag"
-              class="toggle-life-tools-button"
+              :class="['toggle-life-tools-button', { 'panel-open': isLifeToolsOpen }]"
+              :style="{ left: (isLifeToolsOpen ? panelWidth - 20 + 'px' : '10px') }"
             >
               <div class="key-to-life">
                 <div class="tear"></div>
@@ -40,22 +42,22 @@
               </div>
             </button>
           </div>
-          <canvas id="besearch-cycles" :width="canvasWidth" :height="canvasHeight" ref="canvasbe" 
-            @click="handleBesearchClick($event)"
-            @mousedown="handleCanvasMouseDown($event)"
-            @mousemove="handleCanvasMouseMove($event)"
-            @mouseup="handleCanvasMouseUp($event)"
-            @dblclick="handleCanvasDoubleClick($event)"
-            @mouseleave="handleCanvasMouseUp($event)"
-          ></canvas>
+          <div id="canvas-container" ref="canvasContainer">
+            <div id="mode-display">{{ canvasState.currentMode }}</div>
+            <div id="zoom-controls">
+              <button @click="zoomIn" class="zoom-btn">+</button>
+              <span class="zoom-display">{{ zoomPercentage }}%</span>
+              <button @click="zoomOut" class="zoom-btn">-</button>
+            </div>
+            <canvas id="besearch-world" ref="canvasbe"></canvas>
+          </div>
         </div>
         <div id="beebee-agent">
           <button id="open-beebee" @click.prevent="setShowBeeBee">
             beebee
           </button>
-         <beebee-ai></beebee-ai>
+          <beebee-ai></beebee-ai>
         </div>
-        
         <!-- Intervention Toolbar -->
         <intervention-toolbar 
           ref="interventionToolbarRef"
@@ -67,55 +69,6 @@
           @link-cycle="handleLinkCycle"
           @add-intervention-to-canvas="handleAddInterventionToCanvas"
         />
-        
-        <!-- Besearch Cycle Toolbar -->
-        <div v-if="showCycleToolbar" class="cycle-toolbar">
-          <div class="toolbar-header">
-            <h3>{{ selectedCycle?.name || 'Besearch Cycle' }}</h3>
-            <button class="close-btn" @click="closeCycleToolbar">✕</button>
-          </div>
-          
-          <div class="toolbar-content">
-            <div class="cycle-info">
-              <div class="info-field">
-                <label>Name:</label>
-                <input v-model="cycleEditData.name" type="text" class="input-field" />
-              </div>
-              <div class="info-field">
-                <label>Description:</label>
-                <textarea v-model="cycleEditData.description" class="textarea-field" rows="3"></textarea>
-              </div>
-              <div class="info-field">
-                <label>Status:</label>
-                <select v-model="cycleEditData.active" class="select-field">
-                  <option :value="true">Active</option>
-                  <option :value="false">Inactive</option>
-                </select>
-              </div>
-            </div>
-            
-            <div class="linked-interventions">
-              <h4>Linked Interventions ({{ getLinkedInterventions().length }})</h4>
-              <div v-if="getLinkedInterventions().length" class="interventions-list">
-                <div v-for="intervention in getLinkedInterventions()" :key="intervention.id" class="linked-item">
-                  <span>{{ intervention.name }}</span>
-                  <span class="status-badge" :class="getStatusClass(intervention.status)">
-                    {{ intervention.status }}
-                  </span>
-                </div>
-              </div>
-              <div v-else class="empty-state">
-                No interventions linked yet. Drag interventions near this cycle to link them.
-              </div>
-            </div>
-          </div>
-          
-          <div class="toolbar-actions">
-            <button class="action-btn primary" @click="saveCycleChanges">Save Changes</button>
-            <button class="action-btn" @click="duplicateCycle">Duplicate</button>
-            <button class="action-btn danger" @click="deleteCycle">Delete</button>
-          </div>
-        </div>
       </template>
       <template #footer>
         Besearch
@@ -125,10 +78,8 @@
 </template>
 
 <script setup>
-import peerLogo from '@/assets/peerlogo.png'
 import LifeTools from '@/components/besearch/lifetools/lifeNavtools.vue'
 import InterventionToolbar from '@/components/besearch/interventionToolbar.vue'
-import beeCycle from '@/assets/besearch-cycle.png'
 import { ref, computed, onMounted, onUnmounted, reactive, watch, nextTick } from 'vue'
 import BeebeeAi from '@/components/beebeehelp/spaceChat.vue'
 import ModalBesearch from '@/components/besearch/besearchModal.vue'
@@ -136,119 +87,111 @@ import { cuesStore } from '@/stores/cuesStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { besearchStore } from '@/stores/besearchStore.js'
+import { useBesearchCanvas } from '@/composables/useBesearchCanvas.js'
 
 const storeCues = cuesStore()
 const storeAI = aiInterfaceStore()
 const storeBentobox = bentoboxStore()
 const storeBesearch = besearchStore()
 
-// Canvas reference - template uses ref="canvasbe"
+// Canvas references
 const canvasbe = ref(null)
-const currentMode = ref('cues')
-const canvasWidth = ref(window.innerWidth)
-const canvasHeight = ref(window.innerHeight - 100) // Leave some space for header
+const canvasContainer = ref(null)
+
+// Panel management
 const isLifeToolsOpen = ref(false)
-const ctx = ref(null)
-const angle = ref(0)
-const radius = ref(100)
-let cyclesCompleted = 0
-const totalCycles = 3
-const beeCycleImage = ref(null)
-const peerImage = ref(null)
 const isDragging = ref(false)
 const startX = ref(0)
 const currentX = ref(0)
+const panelWidth = ref(300) // Default panel width
+
+// Zoom display
+const zoomPercentage = ref(100)
 
 // Intervention toolbar refs
 const showInterventionToolbar = ref(false)
 const interventionToolbarRef = ref(null)
 
-// Canvas interventions
-const canvasInterventions = ref([])
-const draggingIntervention = ref(null)
-const dragOffset = ref({ x: 0, y: 0 })
+// ResizeObserver reference for cleanup
+let resizeObserver = null
+let lastKnownSize = { width: 0, height: 0 }
+let isResizing = false
 
-// Besearch cycle state
-const draggingCycle = ref(null)
-const selectedCycle = ref(null)
-const showCycleToolbar = ref(false)
-const cycleEditData = reactive({
-  name: '',
-  description: '',
-  active: true
+// Use the new canvas composable
+const {
+  canvasState,
+  setMode,
+  updatePeerPosition,
+  updatePeerDirection,
+  addIntervention,
+  getCanvasManager
+} = useBesearchCanvas(canvasbe, (zoom) => {
+  // Callback to update zoom percentage when zoom changes from any source
+  zoomPercentage.value = Math.round(zoom * 100)
 })
-
-// Add these variables to your existing refs
-const peer = ref({
-  x: 100,
-  y: 100,
-  width: 30,
-  height: 30,
-  speed: 5,
-  isMoving: false,
-  direction: { x: 0, y: 0 }
-})
-
-// Game world viewport
-const viewport = ref({ x: 0, y: 0 })
-const worldBounds = { width: 5000, height: 5000 }
 
 defineExpose({ canvasbe })
 
 /* on mount */
 onMounted(() => {
-  // Only load images and restore state - don't try to access canvas yet
-  beeCycleImage.value = new Image()
-  beeCycleImage.value.src = beeCycle
-  
-  peerImage.value = new Image()
-  peerImage.value.src = peerLogo
-  
-  // Restore state from store
-  const canvasState = storeBesearch.canvasState
-  peer.value.x = canvasState.peerPosition.x
-  peer.value.y = canvasState.peerPosition.y
-  
-  // Handle direction - ensure it's always an object
-  if (typeof canvasState.peerDirection === 'string') {
-    // Convert string direction to object format
-    switch(canvasState.peerDirection) {
-      case 'up':
-        peer.value.direction = { x: 0, y: -1 }
-        break
-      case 'down':
-        peer.value.direction = { x: 0, y: 1 }
-        break
-      case 'left':
-        peer.value.direction = { x: -1, y: 0 }
-        break
-      case 'right':
-        peer.value.direction = { x: 1, y: 0 }
-        break
-      default:
-        peer.value.direction = { x: 0, y: 0 }
-    }
-  } else if (canvasState.peerDirection && typeof canvasState.peerDirection === 'object') {
-    peer.value.direction = { ...canvasState.peerDirection }
-  } else {
-    peer.value.direction = { x: 0, y: 0 }
+  console.log('besearchCycle: Component mounted')
+  // Canvas initialization is now handled by the useBesearchCanvas composable
+
+  // Add ResizeObserver to handle window resize
+  // Watch the canvas container instead of the canvas itself
+  // This ensures we detect when the container grows/shrinks
+  if (canvasContainer.value) {
+    resizeObserver = new ResizeObserver((entries) => {
+      if (isResizing) {
+        console.log('besearchCycle: Skipping resize (already resizing)')
+        return
+      }
+      
+      for (const entry of entries) {
+        const newWidth = entry.contentRect.width
+        const newHeight = entry.contentRect.height
+        
+        // Only resize if dimensions actually changed significantly (more than 5px)
+        // This prevents the feedback loop from setupCanvas
+        if (Math.abs(newWidth - lastKnownSize.width) > 5 ||
+            Math.abs(newHeight - lastKnownSize.height) > 5) {
+          console.log('besearchCycle: Significant container resize detected:', {
+            old: lastKnownSize,
+            new: { width: newWidth, height: newHeight }
+          })
+          
+          lastKnownSize = { width: newWidth, height: newHeight }
+          isResizing = true
+          
+          const manager = getCanvasManager()
+          if (manager) {
+            // Call the full handleResize method which includes re-centering
+            manager.handleResize()
+          }
+          
+          // Reset flag after a delay
+          setTimeout(() => {
+            isResizing = false
+          }, 200)
+        }
+      }
+    })
+    resizeObserver.observe(canvasContainer.value)
+    
+    // Store initial size
+    const rect = canvasContainer.value.getBoundingClientRect()
+    lastKnownSize = { width: rect.width, height: rect.height }
   }
-  
-  viewport.value = { ...canvasState.viewport }
-  canvasInterventions.value = [...canvasState.interventions]
-  
-  // Set up event listeners
-  window.addEventListener('keydown', handleKeyDown)
-  window.addEventListener('keyup', handleKeyUp)
-  // Handle window resize
-  window.addEventListener('resize', () => {
-    canvasWidth.value = window.innerWidth
-    canvasHeight.value = window.innerHeight - 100
-    if (canvasbe.value) {
-      canvasbe.value.width = canvasWidth.value
-      canvasbe.value.height = canvasHeight.value
-    }
-  })
+})
+
+/* on unmount */
+onUnmounted(() => {
+  console.log('besearchCycle: Component unmounting')
+  // Disconnect ResizeObserver
+  if (resizeObserver) {
+    resizeObserver.disconnect()
+    resizeObserver = null
+  }
 })
 
   /* computed */
@@ -260,80 +203,53 @@ onMounted(() => {
     return storeAI.bentobesearchState
   })
 
-  const liveBesearch = computed(() => {
-    return storeBesearch.besearchCyles
-  })
-
-  // Watch for modal open/close
-  // The watch will handle canvas initialization when modal opens
-  watch(bentoBesearchStatus, async (newValue) => {
-    if (newValue) {
-      await nextTick()
-      
-      // NOW we can safely access the canvas
-      if (!canvasbe.value) {
-        console.error('Canvas ref not available')
-        return
-      }
-      
-      ctx.value = canvasbe.value.getContext('2d')
-      
-      // Set dimensions and initialize
-      const width = window.innerWidth - 200
-      const height = window.innerHeight - 100
-      canvasbe.value.width = width
-      canvasbe.value.height = height
-      
-      // Initialize canvas with besearch cycles
-      initializeCanvas()
-      
-      // Start game loop if not already running
-      if (!gameLoopRunning) {
-        gameLoopRunning = true
-        gameLoop()
-      }
+// Watch for modal visibility to ensure canvas is properly initialized
+watch(bentoBesearchStatus, async (isOpen) => {
+  if (isOpen) {
+    console.log('besearchCycle: Modal opened, waiting for canvas to be ready...')
+    // Wait a bit for the modal to fully render
+    await nextTick()
+    await nextTick() // Double nextTick to ensure DOM is fully updated
+    
+    if (canvasbe.value) {
+      const rect = canvasbe.value.getBoundingClientRect()
+      console.log('besearchCycle: Canvas dimensions after modal open:', {
+        width: rect.width,
+        height: rect.height,
+        canvasWidth: canvasbe.value.width,
+        canvasHeight: canvasbe.value.height
+      })
     }
-  })
-
-  // Track if game loop is running
-  let gameLoopRunning = false
-
-  // Initialize canvas with besearch data
-  const initializeCanvas = () => {
-    if (!ctx.value || !canvasbe.value) {
-      return
-    }
-    
-    // Ensure canvas size is set
-    canvasWidth.value = window.innerWidth
-    canvasHeight.value = window.innerHeight - 100
-    
-    // Force canvas to update its actual dimensions
-    canvasbe.value.width = canvasWidth.value
-    canvasbe.value.height = canvasHeight.value
-    
-    // Re-get context after setting dimensions (canvas clear on resize)
-    ctx.value = canvasbe.value.getContext('2d')
-    
-    console.log('Besearch cycles from store:', liveBesearch.value)
-    
-    // Draw a test rectangle to verify canvas is working
-    ctx.value.fillStyle = 'red'
-    ctx.value.fillRect(100, 100, 200, 200)
-    ctx.value.fillStyle = 'black'
-    ctx.value.font = '30px Arial'
-    ctx.value.fillText('Canvas Test', 150, 150)
-    
-    // Start game loop if not already running
-    if (!gameLoopRunning) {
-      gameLoopRunning = true
-      gameLoop()
-    }
-    
-    // The besearch cycles from store will be rendered automatically
-    // by the updateCanvas function
-    updateCanvas()
   }
+})
+
+  // Watch store state for intervention selections
+  const selectedIntervention = computed(() => storeBesearch.selectedIntervention)
+  const selectedCategory = computed(() => storeBesearch.selectedCategory)
+
+  // Watch for intervention selections from store
+  watch(selectedIntervention, (newIntervention) => {
+    if (newIntervention) {
+      if (newIntervention.type === 'create') {
+        // Handle create new intervention
+        console.log('Create new intervention requested')
+      } else {
+        // Show intervention in toolbar
+        showInterventionToolbar.value = true
+        interventionToolbarRef.value?.showIntervention(newIntervention)
+      }
+    }
+  })
+
+  watch(selectedCategory, (newCategory) => {
+    if (newCategory) {
+      // Show category in toolbar
+      showInterventionToolbar.value = true
+      interventionToolbarRef.value?.showCategory(newCategory)
+    }
+  })
+
+  // Canvas initialization is now handled by useBesearchCanvas composable
 
   /* methods */
   const setShowBeeBee = () => {
@@ -341,60 +257,19 @@ onMounted(() => {
   }
 
   /** peer nav in canvas space **/
-  // Add these methods to handle peer movement events
+  // Handle peer movement events from life tools
   const handlePeerMoved = (peerData) => {
-    // Update direction and movement state
-    // Handle both object and string formats for direction
-    if (typeof peerData.direction === 'string') {
-      // Convert string direction to object format
-      switch(peerData.direction) {
-        case 'up':
-          peer.value.direction = { x: 0, y: -1 }
-          break
-        case 'down':
-          peer.value.direction = { x: 0, y: 1 }
-          break
-        case 'left':
-          peer.value.direction = { x: -1, y: 0 }
-          break
-        case 'right':
-          peer.value.direction = { x: 1, y: 0 }
-          break
-        default:
-          peer.value.direction = { x: 0, y: 0 }
-      }
-    } else if (peerData.direction && typeof peerData.direction === 'object') {
-      peer.value.direction = { ...peerData.direction }
-    }
-    
-    peer.value.isMoving = peerData.isMoving
-    
-    // Save direction to store
-    storeBesearch.updatePeerDirection(peerData.direction)
-
-    // Update canvas
-    updateCanvas()
+    // Delegate to canvas manager
+    updatePeerDirection(peerData.direction)
   }
 
-  const handlePeerIntervention = (event) => {
-    if (event.type === 'select' && event.intervention) {
-      // When a specific intervention is selected from the list
-      showInterventionToolbar.value = true
-      interventionToolbarRef.value?.showIntervention(event.intervention)
-    } else if (event.type === 'create') {
-      // Handle create new intervention
-    } else if (typeof event === 'string') {
-      // When a category is clicked
-      const categories = ['prevention', 'repair', 'rejuvenation']
-      if (categories.includes(event)) {
-        showInterventionToolbar.value = true
-        interventionToolbarRef.value?.showCategory(event)
-      }
-    }
-
-    // Update canvas to show intervention effect
-    updateCanvas()
+  // Handle mode changes from life tools
+  const handleModeChange = (mode) => {
+    setMode(mode)
+    // close the lifetools
+    isLifeToolsOpen.value = false
   }
+
 
   // Intervention toolbar handlers
   const closeInterventionToolbar = () => {
@@ -424,732 +299,106 @@ onMounted(() => {
   const handleAddInterventionToCanvas = (data) => {
     console.log('Adding intervention to canvas:', data)
     const { intervention } = data
-    
-    // Calculate position relative to canvas dimensions
-    console.log('Canvas width:', canvasWidth.value)
-    
-    // Offset each new intervention to avoid stacking
-    const interventionCount = canvasInterventions.value ? canvasInterventions.value.length : 0
-    const offsetY = interventionCount * 150 // 150px vertical spacing between interventions
-    
-    const position = {
-      x: canvasWidth.value - 300, // 300px from right edge
-      y: 100 + offsetY // Start at 100px from top, then offset for each intervention
-    }
-    console.log('Intervention will be positioned at:', position)
-    
-    // Create a new intervention object on the canvas
-    const canvasIntervention = {
-      id: `canvas-${intervention.id}-${Date.now()}`,
-      interventionId: intervention.id,
-      name: intervention.name,
-      description: intervention.description,
-      status: intervention.status,
-      biomarkers: intervention.biomarkers,
-      x: position.x,
-      y: position.y,
-      isDragging: false,
-      linkedCycles: []
-    }
-    
-    // Add to canvas interventions array (we'll need to create this)
-    if (!canvasInterventions.value) {
-      canvasInterventions.value = []
-    }
-    canvasInterventions.value.push(canvasIntervention)
-    
-    // Save to store
-    storeBesearch.addIntervention(canvasIntervention)
-    
-    console.log('Canvas interventions after add:', canvasInterventions.value.length)
-    
-    // Redraw canvas to show the new intervention
-    updateCanvas()
-    
+
+    // Delegate to canvas manager
+    addIntervention(intervention)
+
     // Auto-close the life tools panel
     isLifeToolsOpen.value = false
   }
 
-  // Draw interventions on canvas
-  const drawInterventions = (ctx) => {
-    console.log('Drawing interventions:', canvasInterventions.value.length)
-    canvasInterventions.value.forEach(intervention => {
-      // Draw intervention box
-      ctx.save()
-      
-      // Apply opacity if being dragged
-      if (draggingIntervention.value && draggingIntervention.value.id === intervention.id) {
-        ctx.globalAlpha = 0.7
-      }
-      
-      // Box background
-      ctx.fillStyle = '#ffffff'
-      ctx.strokeStyle = getStatusColor(intervention.status)
-      ctx.lineWidth = 3
-      ctx.shadowColor = 'rgba(0, 0, 0, 0.2)'
-      ctx.shadowBlur = 5
-      ctx.shadowOffsetX = 2
-      ctx.shadowOffsetY = 2
-      
-      const boxWidth = 250
-      const boxHeight = 120
-      
-      // Draw rounded rectangle
-      ctx.beginPath()
-      ctx.roundRect(intervention.x, intervention.y, boxWidth, boxHeight, 10)
-      ctx.fill()
-      ctx.stroke()
-      
-      // Draw drag bar at top
-      ctx.fillStyle = '#e0e0e0'
-      ctx.fillRect(intervention.x, intervention.y, boxWidth, 25)
-      
-      // Draw intervention name
-      ctx.fillStyle = '#333'
-      ctx.font = 'bold 14px Arial'
-      ctx.fillText(intervention.name, intervention.x + 10, intervention.y + 18)
-      
-      // Draw remove button (X) on the right side of drag bar
-      ctx.fillStyle = '#666'
-      ctx.font = 'bold 16px Arial'
-      ctx.fillText('×', intervention.x + boxWidth - 20, intervention.y + 18)
-      
-      // Draw status badge
-      const statusX = intervention.x + boxWidth - 80
-      ctx.fillStyle = getStatusColor(intervention.status)
-      ctx.font = '12px Arial'
-      ctx.fillText(intervention.status, statusX, intervention.y + 18)
-      
-      // Draw description
-      ctx.fillStyle = '#666'
-      ctx.font = '12px Arial'
-      const lines = wrapText(ctx, intervention.description, boxWidth - 20)
-      lines.forEach((line, index) => {
-        if (index < 2) { // Max 2 lines
-          ctx.fillText(line, intervention.x + 10, intervention.y + 45 + (index * 15))
-        }
-      })
-      
-      // Draw biomarker count
-      ctx.fillStyle = '#999'
-      ctx.font = '11px Arial'
-      ctx.fillText(`${intervention.biomarkers.length} biomarkers`, intervention.x + 10, intervention.y + 100)
-      
-      ctx.restore()
-    })
-  }
-  
-  const getStatusColor = (status) => {
-    const colors = {
-      'working': '#4CAF50',
-      'experimentation': '#FF9800',
-      'no effect': '#F44336',
-      'pending': '#9E9E9E'
+  // Canvas rendering and input handling is now delegated to BesearchCanvasManager
+
+  /* zoom controls */
+  const zoomIn = () => {
+    const manager = getCanvasManager()
+    if (manager && manager.stateManager) {
+      manager.stateManager.zoomIn()
+      // Update zoom percentage display
+      zoomPercentage.value = Math.round(manager.stateManager.zoom * 100)
+      canvasState.zoom = manager.stateManager.zoom
     }
-    return colors[status] || '#9E9E9E'
   }
-  
-  const wrapText = (ctx, text, maxWidth) => {
-    const words = text.split(' ')
-    const lines = []
-    let currentLine = words[0]
-    
-    for (let i = 1; i < words.length; i++) {
-      const word = words[i]
-      const width = ctx.measureText(currentLine + ' ' + word).width
-      if (width < maxWidth) {
-        currentLine += ' ' + word
-      } else {
-        lines.push(currentLine)
-        currentLine = word
-      }
+
+  const zoomOut = () => {
+    const manager = getCanvasManager()
+    if (manager && manager.stateManager) {
+      manager.stateManager.zoomOut()
+      // Update zoom percentage display
+      zoomPercentage.value = Math.round(manager.stateManager.zoom * 100)
+      canvasState.zoom = manager.stateManager.zoom
     }
-    lines.push(currentLine)
-    return lines
-  }
-
-  // Add this new function to draw the peer
-  const drawPeer = (ctx) => {
-    if (!peerImage.value || !peerImage.value.complete) {
-      return // Image not loaded yet
-    }
-    
-    // Draw the peer without clearing (since we clear the whole canvas each frame)
-    ctx.drawImage(
-      peerImage.value,
-      peer.value.x,
-      peer.value.y,
-      peer.value.width,
-      peer.value.height
-    )
-  }
-
-  // Add these keyboard control methods
-const handleKeyDown = (e) => {
-  switch(e.key) {
-    case 'ArrowUp':
-      peer.value.direction.y = -1
-      break
-    case 'ArrowDown':
-      peer.value.direction.y = 1
-      break
-    case 'ArrowLeft':
-      peer.value.direction.x = -1
-      break
-    case 'ArrowRight':
-      peer.value.direction.x = 1
-      break
-  }
-  peer.value.isMoving = true
-}
-
-const handleKeyUp = (e) => {
-  switch(e.key) {
-    case 'ArrowUp':
-    case 'ArrowDown':
-      peer.value.direction.y = 0
-      break
-    case 'ArrowLeft':
-    case 'ArrowRight':
-      peer.value.direction.x = 0
-      break
-  }
-
-  // Check if any direction key is still pressed
-  if (peer.value.direction.x === 0 && peer.value.direction.y === 0) {
-    peer.value.isMoving = false
-  }
-}
-
-  const gameLoop = () => {
-    // Update angle for besearch cycles animation
-    angle.value += 0.02
-    if (angle.value >= 2 * Math.PI) {
-      angle.value = 0
-    }
-    
-    if (peer.value.isMoving) {
-      // Update peer position in world coordinates
-      peer.value.x += peer.value.direction.x * peer.value.speed
-      peer.value.y += peer.value.direction.y * peer.value.speed
-
-      // Keep peer within world bounds
-      peer.value.x = Math.max(0, Math.min(worldBounds.width - peer.value.width, peer.value.x))
-      peer.value.y = Math.max(0, Math.min(worldBounds.height - peer.value.height, peer.value.y))
-      
-      // Update viewport to follow peer (game-world scrolling)
-      const screenCenterX = canvasWidth.value / 2
-      const screenCenterY = canvasHeight.value / 2
-      
-      // Calculate desired viewport position to center peer
-      let newViewportX = peer.value.x - screenCenterX + peer.value.width / 2
-      let newViewportY = peer.value.y - screenCenterY + peer.value.height / 2
-      
-      // Constrain viewport to world bounds
-      newViewportX = Math.max(0, Math.min(worldBounds.width - canvasWidth.value, newViewportX))
-      newViewportY = Math.max(0, Math.min(worldBounds.height - canvasHeight.value, newViewportY))
-      
-      viewport.value.x = newViewportX
-      viewport.value.y = newViewportY
-      
-      // Save state to store
-      storeBesearch.updatePeerPosition({ x: peer.value.x, y: peer.value.y })
-      storeBesearch.updateViewport(viewport.value)
-    }
-    
-    // Always update canvas to show animations
-    updateCanvas()
-
-    requestAnimationFrame(gameLoop)
-  }
-
-  // canvas mode
-  const handleModeChange = (mode) => {
-    currentMode.value = mode
-    updateCanvas()
-  }
-
-  const updateCanvas = () => {
-    if (!ctx.value || !canvasbe.value) {
-      return
-    }
-    ctx.value.clearRect(0, 0, canvasbe.value.width, canvasbe.value.height)
-    
-    // Save the context state
-    ctx.value.save()
-    
-    // Apply viewport transformation
-    ctx.value.translate(-viewport.value.x, -viewport.value.y)
-
-    switch(currentMode.value) {
-      case 'cues':
-        renderCuesMode(ctx.value)
-        break
-      case 'body':
-        renderBodyMode(ctx.value)
-        break
-      case 'earth':
-        renderEarthMode(ctx.value)
-        break
-    }
-    
-    // Restore the context state
-    ctx.value.restore()
-  }
-
-  const renderCuesMode = (ctx) => {
-    // Clear the entire canvas first
-    ctx.clearRect(0, 0, canvasbe.value.width, canvasbe.value.height)
-    
-    // Draw title
-    ctx.fillStyle = '#140d6b'
-    ctx.font = '24px Arial'
-    ctx.fillText('Cues Space Mode', 50, 50)
-
-    // Use direct store access as fallback if computed property is empty
-    const cycles = liveBesearch.value.length > 0 ? liveBesearch.value : storeBesearch.besearchCyles
-    
-    // Draw all besearch cycles first (background layer)
-    cycles.forEach(bes => {
-      drawBeeCycle(ctx, bes)
-    })
-    
-    // Draw interventions
-    drawInterventions(ctx)
-    
-    // Draw the peer last (foreground layer)
-    drawPeer(ctx)
-  }
-
-  const renderBodyMode = (ctx) => {
-    // Draw body content without background color
-    ctx.clearRect(0, 0, canvasbe.value.width, canvasbe.value.height)
-    ctx.fillStyle = '#140d6b'
-    ctx.font = '24px Arial'
-    ctx.fillText('Body Mode', 50, 50)
-    
-    // Draw interventions
-    drawInterventions(ctx)
-  }
-
-  const renderEarthMode = (ctx) => {
-    // Draw earth content without background color
-    ctx.clearRect(0, 0, canvasbe.value.width, canvasbe.value.height)
-    ctx.fillStyle = '#140d6b'
-    ctx.font = '24px Arial'
-    ctx.fillText('Earth Mode', 50, 50)
-    
-    // Draw interventions
-    drawInterventions(ctx)
   }
 
   /* life tools */
   const toggleLifeTools = () => {
     isLifeToolsOpen.value = !isLifeToolsOpen.value
+    if (isLifeToolsOpen.value) {
+      // Opening - set to default open width
+      panelWidth.value = 540
+    } else {
+      // Closing - reset to default closed width
+      panelWidth.value = 300
+    }
   }
 
   const startDrag = (event) => {
     isDragging.value = true
     startX.value = event.clientX
     currentX.value = event.clientX
+    // Store initial width when starting drag
+    event.preventDefault()
   }
 
   const drag = (event) => {
     if (!isDragging.value) return
-    currentX.value = event.clientX
-    const deltaX = currentX.value - startX.value
-    if (deltaX > 50) {
-      isLifeToolsOpen.value = true
-      isDragging.value = false
-    } else if (deltaX < -50) {
-      isLifeToolsOpen.value = false
-      isDragging.value = false
-    }
+
+    const deltaX = event.clientX - startX.value
+
+    // Update panel width based on drag distance
+    // Allow resizing between 200px and 800px
+    const newWidth = Math.max(200, Math.min(800, panelWidth.value + deltaX))
+    panelWidth.value = newWidth
+
+    event.preventDefault()
   }
 
   const endDrag = () => {
     isDragging.value = false
-  }
-  
-  // Canvas mouse event handlers for intervention dragging
-  const handleCanvasMouseDown = (event) => {
-    const rect = canvasbe.value.getBoundingClientRect()
-    const x = event.clientX - rect.left + viewport.value.x
-    const y = event.clientY - rect.top + viewport.value.y
-    
-    // Check if click is on any besearch cycle
-    for (const cycle of storeBesearch.besearchCyles) {
-      const distance = Math.sqrt(Math.pow(x - cycle.x, 2) + Math.pow(y - cycle.y, 2))
-      
-      if (distance <= 60) { // 60px radius for cycle click detection
-        // Check if clicking on edit button (top-right area)
-        const angleToClick = Math.atan2(y - cycle.y, x - cycle.x)
-        const editButtonAngle = -Math.PI / 4 // Top-right at -45 degrees
-        const angleDiff = Math.abs(angleToClick - editButtonAngle)
-        
-        if (distance > 40 && distance <= 60 && angleDiff < Math.PI / 8) {
-          // Clicked on edit button area
-          selectedCycle.value = cycle
-          showCycleToolbar.value = true
-        } else if (distance > 40 && distance <= 60 && Math.abs(angleToClick - (3 * Math.PI / 4)) < Math.PI / 8) {
-          // Clicked on remove button area (top-left)
-          if (confirm(`Delete ${cycle.name}?`)) {
-            const index = storeBesearch.besearchCyles.findIndex(c => c.id === cycle.id)
-            if (index !== -1) {
-              storeBesearch.besearchCyles.splice(index, 1)
-              updateCanvas()
-            }
-          }
-        } else {
-          // Regular click to start dragging
-          draggingCycle.value = cycle
-          dragOffset.value = {
-            x: x - cycle.x,
-            y: y - cycle.y
-          }
-        }
-        event.preventDefault()
-        return
-      }
-    }
-    
-    // Check if click is on any intervention
-    for (const intervention of canvasInterventions.value) {
-      const boxWidth = 250
-      const dragBarHeight = 25
-      
-      // Check if click is on drag bar
-      if (x >= intervention.x && 
-          x <= intervention.x + boxWidth &&
-          y >= intervention.y && 
-          y <= intervention.y + dragBarHeight) {
-        console.log('Click detected on intervention:', intervention.name)
-        
-        // Check if click is on remove button (X)
-        if (x >= intervention.x + boxWidth - 30 && 
-            x <= intervention.x + boxWidth - 10) {
-          // Remove intervention
-          const index = canvasInterventions.value.findIndex(i => i.id === intervention.id)
-          if (index !== -1) {
-            canvasInterventions.value.splice(index, 1)
-            updateCanvas()
-          }
-        } else {
-          // Start dragging this intervention
-          draggingIntervention.value = intervention
-          dragOffset.value = {
-            x: x - intervention.x,
-            y: y - intervention.y
-          }
-        }
-        event.preventDefault()
-        break
-      }
+    // Optionally snap to open/close states based on width
+    if (panelWidth.value > 400) {
+      isLifeToolsOpen.value = true
+    } else if (panelWidth.value < 250) {
+      isLifeToolsOpen.value = false
+      panelWidth.value = 300 // Reset to default when closed
     }
   }
   
-  const handleCanvasMouseMove = (event) => {
-    const rect = canvasbe.value.getBoundingClientRect()
-    const x = event.clientX - rect.left + viewport.value.x
-    const y = event.clientY - rect.top + viewport.value.y
-    
-    if (draggingCycle.value) {
-      // Update cycle position
-      draggingCycle.value.x = x - dragOffset.value.x
-      draggingCycle.value.y = y - dragOffset.value.y
-      
-      // Redraw canvas
-      updateCanvas()
-    } else if (draggingIntervention.value) {
-      // Update intervention position
-      draggingIntervention.value.x = x - dragOffset.value.x
-      draggingIntervention.value.y = y - dragOffset.value.y
-      
-      // Redraw canvas
-      updateCanvas()
-    } else {
-      // Check if hovering over drag bar or remove button for cursor change
-      let cursor = 'default'
-      for (const intervention of canvasInterventions.value) {
-        const boxWidth = 250
-        const dragBarHeight = 25
-        
-        if (x >= intervention.x && 
-            x <= intervention.x + boxWidth &&
-            y >= intervention.y && 
-            y <= intervention.y + dragBarHeight) {
-          
-          // Check if over remove button
-          if (x >= intervention.x + boxWidth - 30 && 
-              x <= intervention.x + boxWidth - 10) {
-            cursor = 'pointer'
-          } else {
-            cursor = 'move'
-          }
-          break
-        }
-      }
-      
-      canvasbe.value.style.cursor = cursor
-    }
-  }
-  
-  const handleCanvasMouseUp = (event) => {
-    if (draggingCycle.value) {
-      // Finished dragging cycle
-      draggingCycle.value = null
-      dragOffset.value = { x: 0, y: 0 }
-    } else if (draggingIntervention.value) {
-      // Check if intervention is near any besearch cycle for linking
-      const interventionCenterX = draggingIntervention.value.x + 125 // half of box width
-      const interventionCenterY = draggingIntervention.value.y + 60 // half of box height
-      
-      // Clear existing links for this intervention
-      draggingIntervention.value.linkedCycles = []
-      
-      // Check proximity to each besearch cycle
-      storeBesearch.besearchCyles.forEach(cycle => {
-        const distance = Math.sqrt(
-          Math.pow(interventionCenterX - cycle.x, 2) + 
-          Math.pow(interventionCenterY - cycle.y, 2)
-        )
-        
-        // If within 150 pixels, link them
-        if (distance < 150) {
-          draggingIntervention.value.linkedCycles.push(cycle.id)
-        }
-      })
-      
-      draggingIntervention.value = null
-      dragOffset.value = { x: 0, y: 0 }
-      updateCanvas() // Redraw to show any new links
-    }
-  }
-
-  const drawText = (ctx) => {
-    ctx.beginPath()
-    ctx.font = '20px Arial'
-    ctx.fillStyle = 'black'
-    ctx.textAlign = 'center'
-    ctx.fillText('Besearch cycles coming soon', 200, 100)
-  }
-
-  /* besearch cycles location on canvas */
-  const drawBeeCycle = (ctx, bes) => {
-    // console.log('Drawing besearch cycle:', bes.name, 'at', bes.x, bes.y)
-    
-    // Always draw the text, even if image isn't loaded
-    const centerX = bes.x
-    const centerY = bes.y
-    
-    // Draw the text for the besearch cycle first
-    ctx.save()
-    ctx.font = 'bold 24px Arial'
-    ctx.fillStyle = '#140d6b'
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
-    ctx.fillText(bes.name, centerX, centerY)
-    ctx.restore()
-    
-    if (!beeCycleImage.value || !beeCycleImage.value.complete) {
-      return // Skip image drawing but text is already drawn
-    }
-    const x = centerX + radius.value * Math.cos(angle.value)
-    const y = centerY + radius.value * Math.sin(angle.value)
-    
-    // Check if this cycle has linked interventions
-    const linkedInterventions = canvasInterventions.value.filter(intervention => 
-      intervention.linkedCycles.includes(bes.id)
-    )
-    
-    // Draw colored ring if there are linked interventions
-    if (linkedInterventions.length > 0) {
-      ctx.save()
-      
-      // Draw multiple rings for multiple interventions
-      linkedInterventions.forEach((intervention, index) => {
-        ctx.strokeStyle = getStatusColor(intervention.status)
-        ctx.lineWidth = 3
-        ctx.globalAlpha = 0.6
-        ctx.beginPath()
-        ctx.arc(centerX, centerY, 60 + (index * 10), 0, 2 * Math.PI)
-        ctx.stroke()
-      })
-      
-      // Draw connection lines
-      ctx.globalAlpha = 0.3
-      linkedInterventions.forEach(intervention => {
-        const interventionCenterX = intervention.x + 125
-        const interventionCenterY = intervention.y + 60
-        
-        ctx.strokeStyle = getStatusColor(intervention.status)
-        ctx.lineWidth = 2
-        ctx.setLineDash([5, 5])
-        ctx.beginPath()
-        ctx.moveTo(centerX, centerY)
-        ctx.lineTo(interventionCenterX, interventionCenterY)
-        ctx.stroke()
-      })
-      ctx.setLineDash([])
-      
-      ctx.restore()
-    }
-
-    // Text already drawn at the beginning of the function
-    
-    // Draw the image at the calculated position
-    const imageSize = 40 // Fixed size for the cycle image
-    ctx.drawImage(beeCycleImage.value, x - imageSize/2, y - imageSize/2, imageSize, imageSize)
-    ctx.restore()
-    
-    // Draw edit icon (top-right)
-    ctx.save()
-    const editX = centerX + 45 * Math.cos(-Math.PI / 4)
-    const editY = centerY + 45 * Math.sin(-Math.PI / 4)
-    ctx.fillStyle = '#007bff'
-    ctx.beginPath()
-    ctx.arc(editX, editY, 12, 0, 2 * Math.PI)
-    ctx.fill()
-    ctx.fillStyle = 'white'
-    ctx.font = '16px Arial'
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
-    ctx.fillText('✎', editX, editY)
-    ctx.restore()
-    
-    // Draw remove icon (top-left)
-    ctx.save()
-    const removeX = centerX + 45 * Math.cos(3 * Math.PI / 4)
-    const removeY = centerY + 45 * Math.sin(3 * Math.PI / 4)
-    ctx.fillStyle = '#dc3545'
-    ctx.beginPath()
-    ctx.arc(removeX, removeY, 12, 0, 2 * Math.PI)
-    ctx.fill()
-    ctx.fillStyle = 'white'
-    ctx.font = '14px Arial'
-    ctx.textAlign = 'center'
-    ctx.textBaseline = 'middle'
-    ctx.fillText('✕', removeX, removeY)
-    ctx.restore()
-  }
+  // Canvas input handling and rendering is now delegated to BesearchCanvasManager
 
   /* methods */
   const closeBentoBesearch = () => {
+    // Save current peer position before closing
+    if (getCanvasManager() && getCanvasManager().peer) {
+      const position = getCanvasManager().peer.getPosition()
+      storeBesearch.updatePeerPosition(position)
+    }
     storeAI.bentobesearchState = false
   }
 
-  const handleBesearchClick = (event) => {
-    // Handle canvas click events here
-  }
-  
-  const handleCanvasDoubleClick = (event) => {
-    const rect = canvasbe.value.getBoundingClientRect()
-    const x = event.clientX - rect.left + viewport.value.x
-    const y = event.clientY - rect.top + viewport.value.y
-    
-    // Check if double-click is on any besearch cycle
-    for (const cycle of storeBesearch.besearchCyles) {
-      const distance = Math.sqrt(Math.pow(x - cycle.x, 2) + Math.pow(y - cycle.y, 2))
-      
-      if (distance <= 60) { // 60px radius for cycle click detection
-        selectedCycle.value = cycle
-        showCycleToolbar.value = true
-        event.preventDefault()
-        return
-      }
-    }
-  }
-  
-  // Cycle toolbar methods
-  const closeCycleToolbar = () => {
-    showCycleToolbar.value = false
-    selectedCycle.value = null
-  }
-  
-  const getLinkedInterventions = () => {
-    if (!selectedCycle.value) return []
-    
-    // Find all interventions linked to this cycle
-    return canvasInterventions.value.filter(intervention => 
-      intervention.linkedCycles.includes(selectedCycle.value.id)
-    )
-  }
-  
-  const getStatusClass = (status) => {
-    return {
-      'working': 'status-working',
-      'experimentation': 'status-experimentation',
-      'no-effect': 'status-no-effect',
-      'pending': 'status-pending'
-    }[status] || 'status-pending'
-  }
-  
-  const saveCycleChanges = () => {
-    if (selectedCycle.value) {
-      // Update the cycle in the store
-      selectedCycle.value.name = cycleEditData.name
-      selectedCycle.value.description = cycleEditData.description
-      selectedCycle.value.active = cycleEditData.active
-      
-      // Save to store
-      storeBesearch.saveToHOP(selectedCycle.value)
-      
-      // Update canvas
-      updateCanvas()
-      closeCycleToolbar()
-    }
-  }
-  
-  const duplicateCycle = () => {
-    if (selectedCycle.value) {
-      const newCycle = {
-        id: `cycle-${Date.now()}`,
-        name: `${selectedCycle.value.name} (Copy)`,
-        besearchid: Date.now().toString(),
-        x: selectedCycle.value.x + 100,
-        y: selectedCycle.value.y + 100,
-        cueSpace: { ...selectedCycle.value.cueSpace },
-        active: true,
-        isDragging: false
-      }
-      
-      storeBesearch.besearchCyles.push(newCycle)
-      updateCanvas()
-      closeCycleToolbar()
-    }
-  }
-  
-  const deleteCycle = () => {
-    if (selectedCycle.value && confirm('Are you sure you want to delete this besearch cycle?')) {
-      const index = storeBesearch.besearchCyles.findIndex(c => c.id === selectedCycle.value.id)
-      if (index !== -1) {
-        storeBesearch.besearchCyles.splice(index, 1)
-        updateCanvas()
-        closeCycleToolbar()
-      }
-    }
-  }
-  
-  // Watch for selected cycle changes
-  watch(selectedCycle, (newCycle) => {
-    if (newCycle) {
-      cycleEditData.name = newCycle.name || ''
-      cycleEditData.description = newCycle.description || ''
-      cycleEditData.active = newCycle.active !== false
-    }
-  })
+  // Canvas event handling is now delegated to BesearchCanvasManager
 </script>
 
 <style scoped>
 #besearch-holder {
   display: grid;
-  grid-template-columns: 1fr 7fr;
-  width: 100vw;
-  height: 100vh;
+  grid-template-columns: auto 1fr;
+  grid-row: 1; /* First row in modal-body grid */
+  width: 100%;
+  height: 100%;
   overflow: hidden;
-  position: fixed;
-  top: 0;
-  left: 0;
+  position: relative;
+  min-height: 0; /* Critical for grid children to shrink properly */
 }
 
 #cycle-periods {
@@ -1159,16 +408,80 @@ const handleKeyUp = (e) => {
   margin-bottom: 1em;
 }
 
-#besearch-cycles {
-  display: block;
-  border: 2px solid red; /* Make border more visible for debugging */
+#canvas-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  grid-column: 2;
+  overflow: visible; /* Ensure zoom controls stay visible */
+  min-height: 0; /* Critical for grid children to shrink properly */
+  min-width: 0; /* Critical for grid children to shrink properly */
+}
+
+#mode-display {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+  z-index: 15;
+  text-transform: capitalize;
+}
+
+#zoom-controls {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  z-index: 15;
+}
+
+.zoom-btn {
+  width: 30px;
+  height: 30px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.zoom-btn:hover {
+  background-color: rgba(255, 255, 255, 1);
+}
+
+.zoom-display {
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #333;
+  min-width: 50px;
+  text-align: center;
+}
+
+#besearch-world {
+  display: block; /* Changed from grid to block for simpler layout */
+  border: 1px solid rgb(163, 155, 201);
   border-radius: 2%;
-  /* Remove absolute positioning to work with grid */
   position: relative;
   z-index: 10;
   background-color: white;
-  grid-column: 2; /* Explicitly place in second column */
-  min-height: 100vh;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box; /* Include border in dimensions */
 }
 
 #besearch-modal-header {
@@ -1209,6 +522,8 @@ const handleKeyUp = (e) => {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: left 0.3s ease;
   z-index: 30; /* Higher than canvas and container */
+  overflow-y: auto;
+  max-height: 100%;
 }
 
 #life-tools-besearch.open {
@@ -1218,7 +533,6 @@ const handleKeyUp = (e) => {
 .toggle-life-tools-button {
   position: absolute;
   top: 50%;
-  left: 10px; /* Position from left edge of container */
   transform: translateY(-50%);
   width: 60px;
   height: 60px;
@@ -1234,13 +548,14 @@ const handleKeyUp = (e) => {
   justify-content: center;
 }
 
-.toggle-life-tools-button:hover {
-  transform: translateY(-50%) scale(1.1);
-  background-color: rgba(255, 255, 255, 1);
+
+.toggle-life-tools-button.panel-open {
+  background-color: rgba(59, 130, 246, 0.9);
 }
 
-.toggle-life-tools-button:active {
-  transform: translateY(-50%) scale(0.9);
+.toggle-life-tools-button.panel-open .tear {
+  background-color: #1e40af;
+  border-color: #1e40af;
 }
 
 .key-to-life {
@@ -1277,8 +592,11 @@ const handleKeyUp = (e) => {
 }
 
 #beebee-agent {
+  grid-row: 2; /* Second row in modal-body grid */
   border: 2px solid red;
 }
+
+
 
 @media (min-width: 1024px) {
   #besearch-holder {
@@ -1295,9 +613,30 @@ const handleKeyUp = (e) => {
     margin-bottom: 1em;
   }
 
-  #besearch-cycles {
-    display: block;
-    border: 1px solid rgb(128, 122, 180);
+  #canvas-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  #mode-display {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    z-index: 15;
+    text-transform: capitalize;
+  }
+
+  #besearch-world {
+    display: grid;
+    grid-template-columns: 1fr;
+    border: 1px solid rgb(227, 229, 240); /* Make border more visible for debugging */
     border-radius: 2%;
     width: 100%;
     height: 100%;
@@ -1337,6 +676,8 @@ const handleKeyUp = (e) => {
     border-radius: 10px;
     transition: left 0.3s ease;
     z-index: 10;
+    overflow-y: auto;
+    max-height: 100%;
   }
 
   #life-tools-besearch.open {
@@ -1346,7 +687,6 @@ const handleKeyUp = (e) => {
   .toggle-life-tools-button {
     position: absolute;
     top: 50%;
-    right: -20px;
     transform: translateY(-50%);
     width: 60px;
     height: 60px;
@@ -1356,18 +696,19 @@ const handleKeyUp = (e) => {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     z-index: 40;
     cursor: pointer;
-    transition: transform 0.3s ease;
+    transition: all 0.3s ease;
     display: grid;
     align-items: center;
     justify-content: center;
   }
 
-  .toggle-life-tools-button:hover {
-    transform: scale(1.1);
+  .toggle-life-tools-button.panel-open {
+    background-color: rgba(59, 130, 246, 0.9);
   }
-
-  .toggle-life-tools-button:active {
-    transform: scale(0.9);
+  
+  .toggle-life-tools-button.panel-open .tear {
+    background-color: #1e40af;
+    border-color: #1e40af;
   }
 
   .key-to-life {
@@ -1420,207 +761,5 @@ const handleKeyUp = (e) => {
     background-color: white;
   }
 }
-/* Cycle Toolbar Styles */
-.cycle-toolbar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: white;
-  border-top: 2px solid #e0e0e0;
-  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-  max-height: 50vh;
-  height: 50vh;
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
-}
 
-.cycle-toolbar .toolbar-header {
-  display: grid;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 24px;
-  border-bottom: 1px solid #e0e0e0;
-  background: #f8f9fa;
-}
-
-.cycle-toolbar .toolbar-header h3 {
-  margin: 0;
-  font-size: 20px;
-}
-
-.cycle-toolbar .close-btn {
-  background: none;
-  border: none;
-  font-size: 24px;
-  cursor: pointer;
-  color: #666;
-  padding: 4px 8px;
-}
-
-.cycle-toolbar .close-btn:hover {
-  color: #333;
-}
-
-.cycle-toolbar .toolbar-content {
-  padding: 24px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  display: grid;
-  gap: 24px;
-}
-
-.cycle-toolbar .cycle-info {
-  display: grid;
-  grid-template-columns: 1fr 2fr 200px;
-  gap: 16px;
-  padding: 20px;
-  background: #f8f9fa;
-  border-radius: 8px;
-}
-
-.cycle-toolbar .info-field {
-  display: grid;
-  grid-direction: column;
-  gap: 8px;
-}
-
-.cycle-toolbar .info-field label {
-  font-size: 12px;
-  font-weight: 600;
-  color: #666;
-  text-transform: uppercase;
-}
-
-.cycle-toolbar .input-field,
-.cycle-toolbar .textarea-field,
-.cycle-toolbar .select-field {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-  font-family: inherit;
-}
-
-.cycle-toolbar .input-field:focus,
-.cycle-toolbar .textarea-field:focus,
-.cycle-toolbar .select-field:focus {
-  outline: none;
-  border-color: #007bff;
-}
-
-.cycle-toolbar .textarea-field {
-  resize: vertical;
-  min-height: 60px;
-}
-
-.cycle-toolbar .linked-interventions {
-  grid: 1;
-}
-
-.cycle-toolbar .linked-interventions h4 {
-  margin: 0 0 16px 0;
-  font-size: 16px;
-  color: #333;
-}
-
-.cycle-toolbar .interventions-list {
-  display: grid;
-  grid-direction: column;
-  gap: 8px;
-}
-
-.cycle-toolbar .linked-item {
-  display: grid;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  background: #f8f9fa;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-}
-
-.cycle-toolbar .linked-item span:first-child {
-  font-weight: 500;
-}
-
-.cycle-toolbar .status-badge {
-  font-size: 12px;
-  padding: 2px 8px;
-  border-radius: 12px;
-}
-
-.cycle-toolbar .status-working {
-  background: #d4edda;
-  color: #155724;
-}
-
-.cycle-toolbar .status-experimentation {
-  background: #fff3cd;
-  color: #856404;
-}
-
-.cycle-toolbar .status-no-effect {
-  background: #f8d7da;
-  color: #721c24;
-}
-
-.cycle-toolbar .status-pending {
-  background: #e2e3e5;
-  color: #383d41;
-}
-
-.cycle-toolbar .empty-state {
-  text-align: center;
-  padding: 40px;
-  color: #666;
-  font-style: italic;
-  background: #f8f9fa;
-  border-radius: 8px;
-}
-
-.cycle-toolbar .toolbar-actions {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 12px;
-  padding: 16px 24px;
-  border-top: 1px solid #e0e0e0;
-  background: #f8f9fa;
-}
-
-.cycle-toolbar .action-btn {
-  padding: 10px 20px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background: white;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.2s;
-}
-
-.cycle-toolbar .action-btn:hover {
-  background: #f8f9fa;
-}
-
-.cycle-toolbar .action-btn.primary {
-  background: #007bff;
-  color: white;
-  border-color: #007bff;
-}
-
-.cycle-toolbar .action-btn.primary:hover {
-  background: #0056b3;
-}
-
-.cycle-toolbar .action-btn.danger {
-  color: #dc3545;
-  border-color: #dc3545;
-}
-
-.cycle-toolbar .action-btn.danger:hover {
-  background: #dc3545;
-  color: white;
-}
 </style>

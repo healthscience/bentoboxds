@@ -1,35 +1,24 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
+import { useSocketStore } from '@/stores/socket.js'
 
 export const besearchStore = defineStore('besearchstore', {
   state: () => ({
-    besearchCyles: [
-      {
-        id: 'cycle-1',
-        name:'besearch1', 
-        besearchid:'0123456543210', 
-        x: 200,
-        y: 200,
-        cueSpace: { location: { width: 200, height: 200 }}, 
-        active: true,
-        isDragging: false
-      },
-      {
-        id: 'cycle-2',
-        name:'besearch2', 
-        besearchid:'0123456543212', 
-        x: 500,
-        y: 300,
-        cueSpace: { location: { width: 500, height: 300 }}, 
-        active: true,
-        isDragging: false
-      }
-    ],
+    socketStore: new useSocketStore(),
+    besearchCyles: [],
     spaceLocation: [
     ],
+    // UI state for component communication
+    selectedIntervention: null,
+    selectedCategory: null,
     // Canvas state persistence
     canvasState: {
-      peerPosition: { x: 400, y: 300 },
+      peerPositions: {
+        cues: { x: 400, y: 300 }, // Center of typical screen
+        body: { x: 400, y: 300 },
+        earth: { x: 400, y: 300 }
+      },
+      currentMode: 'cues',
       peerDirection: 'down',
       interventions: [],
       viewport: { x: 0, y: 0 }, // For game-world scrolling
@@ -37,21 +26,120 @@ export const besearchStore = defineStore('besearchstore', {
     }
   }),
   actions: {
-    saveToHOP(bcInfo) {
-      // Prepare message for HOP
-      let bcContract = {}
-      bcContract.type = 'library'
-      bcContract.action = 'besearch-cycle'
-      bcContract.reftype = 'train-hopquery'
-      bcContract.task = 'PUT'
-      bcContract.privacy = 'private'
-      bcContract.data = bcInfo
-      // Send via socket to HOP
-      console.log('Saving to HOP besearch store:', bcContract)
-     // this.sendSocket.send_message(bcContract)
+    // Save besearch data to HOP with specific action
+    saveToHOP(besearchData) {
+      try {
+        // Prepare message for HOP
+        let bcContract = {
+          type: 'library',
+          action: 'besearch',
+          reftype: 'besearch-create',
+          task: 'PUT',
+          privacy: 'private',
+          data: besearchData
+        }
+        console.log('Saving to HOP besearch store:', bcContract)
+        // Send via socket to HOP
+        this.socketStore.send_message(bcContract)
+        return { success: true, message: `operation saved successfully` }
+      } catch (error) {
+        console.error('Error saving to HOP:', error)
+        return { success: false, message: 'Failed to save: ' + error.message }
+      }
+    },
+    // delete besearch item
+    deleteToHOP(besearchItem) {
+      try {
+        // Prepare message for HOP
+        let bcContract = {
+          type: 'besearch',
+          action: 'besearch-cycle',
+          reftype: 'besearch-cycle',
+          task: 'DEL',
+          privacy: 'private',
+          data: besearchItem
+        }
+        console.log('Saving to HOP besearch store:', bcContract)
+        // Send via socket to HOP
+        this.socketStore.send_message(bcContract)
+        return { success: true, message: `${action} operation saved successfully` }
+      } catch (error) {
+        console.error('Error saving to HOP:', error)
+        return { success: false, message: 'Failed to save: ' + error.message }
+      }
+    },
+    // Load besearch data from HOP
+    async loadFromHOP() {
+      try {
+        const socketStore = this.socketStore
+
+        // Prepare query message for HOP
+        let queryContract = {
+          type: 'besearch',
+          action: 'besearch-cycle',
+          reftype: 'train-hopquery',
+          task: 'GET',
+          privacy: 'private',
+          data: {
+            operation: 'load',
+            timestamp: new Date().toISOString()
+          }
+        }
+
+        console.log('Loading from HOP besearch store:', queryContract)
+
+        if (socketStore.connection_ready) {
+          socketStore.send_message(queryContract)
+          return { success: true, message: 'Load request sent' }
+        } else {
+          console.warn('Socket not ready, cannot load from HOP')
+          return { success: false, message: 'Connection not ready, please try again' }
+        }
+      } catch (error) {
+        console.error('Error loading from HOP:', error)
+        return { success: false, message: 'Failed to load: ' + error.message }
+      }
+    },
+    // Process reply from HOP (to be called by socket store)
+    processReply(replyData) {
+      // saved or start data
+      if (replyData.action === 'besearch-history') {
+        console.log('start history besearch', replyData)
+      } else if (replyData.action === 'besearch-contract') {
+        // add besearch item to besearch world canvas
+        try {
+          console.log('Processing besearch reply from HOP:', replyData)
+          if (replyData.data && replyData.data.besearchCycles) {
+            // Update besearch cycles
+            this.besearchCyles = replyData.data.besearchCycles
+          }
+          if (replyData.data && replyData.data.canvasState) {
+            // Update canvas state
+            this.canvasState = { ...this.canvasState, ...replyData.data.canvasState }
+          }
+          this.isLoaded = true
+          this.isLoading = false
+          this.loadError = null
+          return { success: true, message: 'Data loaded successfully' }
+        } catch (error) {
+          console.error('Error processing HOP reply:', error)
+          this.isLoading = false
+          this.loadError = 'Failed to process reply: ' + error.message
+          return { success: false, message: 'Failed to process reply: ' + error.message }
+        }
+      }
     },
     updatePeerPosition(position) {
-      this.canvasState.peerPosition = { ...position }
+      if (this.canvasState.peerPositions[this.canvasState.currentMode]) {
+        this.canvasState.peerPositions[this.canvasState.currentMode] = { ...position }
+      }
+    },
+    getPeerPosition(mode = null) {
+      const targetMode = mode || this.canvasState.currentMode
+      return this.canvasState.peerPositions[targetMode] || { x: 800, y: 450 }
+    },
+    setCurrentMode(mode) {
+      this.canvasState.currentMode = mode
     },
     updatePeerDirection(direction) {
       this.canvasState.peerDirection = direction
@@ -70,6 +158,17 @@ export const besearchStore = defineStore('besearchstore', {
     },
     removeIntervention(id) {
       this.canvasState.interventions = this.canvasState.interventions.filter(i => i.id !== id)
+    },
+    // UI state management for component communication
+    setSelectedIntervention(intervention) {
+      this.selectedIntervention = intervention
+    },
+    setSelectedCategory(category) {
+      this.selectedCategory = category
+    },
+    clearSelection() {
+      this.selectedIntervention = null
+      this.selectedCategory = null
     }
   }
 })
