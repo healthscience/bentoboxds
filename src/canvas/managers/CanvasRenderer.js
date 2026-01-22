@@ -56,6 +56,8 @@ export class CanvasRenderer {
    * Setup canvas properties
    */
   setupCanvas() {
+    // Force a reflow to ensure we get the latest dimensions
+    void this.canvas.offsetHeight;
     // Enable high DPI support
     const dpr = window.devicePixelRatio || 1;
     const rect = this.canvas.getBoundingClientRect();
@@ -64,13 +66,10 @@ export class CanvasRenderer {
 
     // Validate dimensions
     if (width === 0 || height === 0) {
-      console.warn('Canvas has zero dimensions during setup:', { width, height });
-      console.warn('Canvas rect:', rect);
-      console.warn('Canvas parent:', this.canvas.parentElement?.getBoundingClientRect());
       // Set minimum dimensions to prevent complete failure
       const fallbackWidth = Math.max(width, 800);
       const fallbackHeight = Math.max(height, 600);
-      console.warn('Using fallback dimensions:', { fallbackWidth, fallbackHeight });
+      console.warn('CanvasRender--Using fallback dimensions:', { fallbackWidth, fallbackHeight });
       
       this.canvas.width = fallbackWidth * dpr;
       this.canvas.height = fallbackHeight * dpr;
@@ -86,23 +85,11 @@ export class CanvasRenderer {
     // Configure context
     this.ctx.imageSmoothingEnabled = true;
     this.ctx.imageSmoothingQuality = 'high';
-
     // Store DPR for coordinate conversion
     this.dpr = dpr;
-    
     // Store actual dimensions for reference
     this.width = this.canvas.width / dpr;
     this.height = this.canvas.height / dpr;
-    
-    console.log('Canvas setup complete:', {
-      cssWidth: width,
-      cssHeight: height,
-      canvasWidth: this.canvas.width,
-      canvasHeight: this.canvas.height,
-      dpr: dpr,
-      actualWidth: this.width,
-      actualHeight: this.height
-    });
   }
 
   /**
@@ -131,16 +118,12 @@ export class CanvasRenderer {
    */
   render() {
     if (!this.isRendering) return;
-
     // Clear canvas
     this.clear();
-
     // Update FPS counter
     this.updateFPS();
-
     // Render entities (to be implemented by subclasses or through composition)
     this.renderEntities();
-
     // Continue render loop
     this.frameId = requestAnimationFrame(this.render);
   }
@@ -187,9 +170,9 @@ export class CanvasRenderer {
    */
   renderBackground(mode, viewport, zoom, config) {
     this.ctx.save();
+    this.ctx.scale(this.dpr, this.dpr);
     this.ctx.translate(-viewport.x * zoom, -viewport.y * zoom);
     this.ctx.scale(zoom, zoom);
-
     switch (mode) {
       case 'cues':
         this.drawCuesBackground(viewport, config);
@@ -201,7 +184,6 @@ export class CanvasRenderer {
         this.drawEarthBackground(viewport, config);
         break;
     }
-
     this.ctx.restore();
   }
 

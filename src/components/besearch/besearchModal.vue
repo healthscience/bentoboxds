@@ -54,7 +54,7 @@
   
   .modal-container {
     display: grid;
-    grid-template-rows: auto 1fr auto; /* header, body, footer */
+    grid-template-rows: minmax(auto, max-content) minmax(0, 1fr) minmax(auto, max-content);
     width: 100vw;
     height: 100vh;
     margin: 0;
@@ -76,10 +76,11 @@
 
   .modal-body {
     grid-row: 2;
-    display: grid; /* Changed from flex to grid */
-    grid-template-rows: 1fr auto; /* Main content, then beebee-agent */
+    display: grid;
+    grid-template-rows: 1fr auto; /* Simplified - let grid distribute space */
     overflow: hidden;
-    min-height: 0; /* Critical for grid children to shrink */
+    min-height: 0;
+    height: 100%; /* Force body to take full grid cell height */
     gap: 0;
   }
 

@@ -34,7 +34,6 @@
           </div>
         </div>
       </div>
-
       <!-- Detail View - Shows when specific intervention is selected -->
       <div v-if="viewMode === 'detail'" class="toolbar-detail-view">
         <div class="toolbar-header">
@@ -42,7 +41,6 @@
           <h3>{{ selectedIntervention.name }}</h3>
           <button class="close-btn" @click="closeToolbar">✕</button>
         </div>
-        
         <div class="detail-content-wrapper">
           <div class="detail-content">
             <div class="detail-section">
@@ -55,7 +53,6 @@
                 </span>
               </div>
             </div>
-
             <div class="detail-section">
               <h4>Baseline Biomarkers</h4>
               <div class="biomarkers-list">
@@ -68,7 +65,38 @@
                 </span>
               </div>
             </div>
-
+            <div class="detail-section">
+              <h4>Consilience status </h4>
+              <div v-if="selectedIntervention.consilience?.length" class="cycles-list">
+                <div 
+                  v-for="consId in selectedIntervention.consilience" 
+                  :key="consId"
+                  class="cycle-item"
+                >
+                  <span class="cycle-icon">🔄</span>
+                  <span>{{ consId }}</span>
+                </div>
+              </div>
+              <div v-else class="no-cycles">
+                None established
+              </div>
+            </div>
+            <div class="detail-section">
+              <h4>Research</h4>
+              <div v-if="selectedIntervention.research?.length" class="cycles-list">
+                <div 
+                  v-for="resId in selectedIntervention.research" 
+                  :key="resId"
+                  class="cycle-item"
+                >
+                  <span class="cycle-icon">🔄</span>
+                  <span>{{ consId }}</span>
+                </div>
+              </div>
+              <div v-else class="no-cycles">
+                No research
+              </div>
+            </div>
             <div class="detail-section">
               <h4>Linked Besearch Cycles ({{ selectedIntervention.besearchCycles?.length || 0 }})</h4>
               <div v-if="selectedIntervention.besearchCycles?.length" class="cycles-list">
@@ -86,7 +114,6 @@
               </div>
             </div>
           </div>
-          
           <div class="detail-actions">
             <button class="action-btn primary" @click="addToCanvas">Add to Canvas</button>
             <button class="action-btn" @click="editIntervention">Edit</button>
@@ -115,131 +142,11 @@ const viewMode = ref('list') // 'list' or 'detail'
 const selectedCategory = ref('')
 const selectedIntervention = ref(null)
 
-// Sample data with status - this would come from props/store
-const sampleInterventions = {
-  prevention: [
-    // Human Health
-    {
-      id: 'prev-1',
-      name: 'Fasting Mimicking Diet',
-      description: '5-day low calorie plant-based diet that mimics fasting',
-      status: 'working',
-      biomarkers: ['IGF-1', 'Glucose', 'Ketones', 'CRP'],
-      besearchCycles: ['cycle-1', 'cycle-3']
-    },
-    {
-      id: 'prev-2',
-      name: 'Intermittent Fasting 16:8',
-      description: 'Daily 16-hour fasting window',
-      status: 'experimentation',
-      biomarkers: ['Insulin', 'Glucose', 'HbA1c'],
-      besearchCycles: ['cycle-2']
-    },
-    {
-      id: 'prev-3',
-      name: 'Caloric Restriction',
-      description: '20% reduction in daily calories',
-      status: 'no effect',
-      biomarkers: ['Weight', 'BMI', 'Leptin'],
-      besearchCycles: []
-    },
-    // Built Environment
-    {
-      id: 'prev-4',
-      name: 'Home Insulation Upgrade',
-      description: 'Improve thermal insulation to reduce energy loss and maintain healthy indoor temperature',
-      status: 'working',
-      biomarkers: ['Indoor Air Quality', 'Temperature Stability', 'Energy Usage', 'Respiratory Health'],
-      besearchCycles: ['cycle-7']
-    },
-    // Nature
-    {
-      id: 'prev-5',
-      name: 'Stop Sewage Pollution',
-      description: 'Prevent local sewage discharge into river system',
-      status: 'experimentation',
-      biomarkers: ['Water Quality Index', 'E.coli Levels', 'Dissolved Oxygen', 'Biodiversity Index'],
-      besearchCycles: ['cycle-8', 'cycle-9']
-    }
-  ],
-  repair: [
-    // Human Health
-    {
-      id: 'repair-1',
-      name: 'PEMF Joint Therapy',
-      description: 'Pulsed electromagnetic field for joints',
-      status: 'working',
-      biomarkers: ['CRP', 'IL-6', 'Range of Motion'],
-      besearchCycles: ['cycle-4']
-    },
-    {
-      id: 'repair-2',
-      name: 'Red Light Therapy',
-      description: 'Near-infrared light treatment',
-      status: 'experimentation',
-      biomarkers: ['Collagen', 'Wound Healing Rate'],
-      besearchCycles: []
-    },
-    // Built Environment
-    {
-      id: 'repair-3',
-      name: 'Roof Tile Restoration',
-      description: 'Fix and improve roofing tiles to prevent leaks and improve weather resistance',
-      status: 'working',
-      biomarkers: ['Structural Integrity', 'Water Damage Prevention', 'Indoor Humidity', 'Mold Risk'],
-      besearchCycles: ['cycle-10']
-    },
-    // Nature
-    {
-      id: 'repair-4',
-      name: 'Dam Removal Project',
-      description: 'Remove obsolete dams from river basin to restore natural water flow',
-      status: 'pending',
-      biomarkers: ['Fish Migration Routes', 'Sediment Flow', 'River Temperature', 'Aquatic Biodiversity'],
-      besearchCycles: ['cycle-11', 'cycle-12']
-    }
-  ],
-  rejuvenation: [
-    // Human Health
-    {
-      id: 'rejuv-1',
-      name: 'Exosome Therapy',
-      description: 'Stem cell-derived exosomes',
-      status: 'experimentation',
-      biomarkers: ['Telomere Length', 'Senescent Cells', 'NAD+'],
-      besearchCycles: ['cycle-5', 'cycle-6']
-    },
-    {
-      id: 'rejuv-2',
-      name: 'NAD+ IV Therapy',
-      description: 'Intravenous NAD+ infusion',
-      status: 'working',
-      biomarkers: ['NAD+ Levels', 'ATP', 'Mitochondrial Function'],
-      besearchCycles: []
-    },
-    // Built Environment
-    {
-      id: 'rejuv-3',
-      name: 'Solar Panel Installation',
-      description: 'Add solar panels to old home for renewable energy generation',
-      status: 'working',
-      biomarkers: ['Carbon Footprint', 'Energy Independence', 'Air Quality Impact', 'Grid Resilience'],
-      besearchCycles: ['cycle-13']
-    },
-    // Nature
-    {
-      id: 'rejuv-4',
-      name: 'River Valley Rewilding',
-      description: 'Restore upper river basin valley to natural ecosystem',
-      status: 'experimentation',
-      biomarkers: ['Species Diversity', 'Carbon Sequestration', 'Soil Health', 'Watershed Function'],
-      besearchCycles: ['cycle-14', 'cycle-15', 'cycle-16']
-    }
-  ]
-}
-
 const categoryInterventions = computed(() => {
-  return sampleInterventions[selectedCategory.value] || []
+  if (Array.isArray(props.interventions) && props.interventions.length) {
+    return props.interventions
+  }
+  return []
 })
 
 const getCategoryIcon = (category) => {

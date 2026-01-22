@@ -8,6 +8,9 @@ export const besearchStore = defineStore('besearchstore', {
     besearchCyles: [],
     spaceLocation: [
     ],
+    interventions: [],
+    markers: [],
+    networkExperiments: [],
     // UI state for component communication
     selectedIntervention: null,
     selectedCategory: null,
@@ -22,9 +25,46 @@ export const besearchStore = defineStore('besearchstore', {
       peerDirection: 'down',
       interventions: [],
       viewport: { x: 0, y: 0 }, // For game-world scrolling
+      zoom: 1.0,
+      panOffset: { x: 0, y: 0 },
       worldBounds: { width: 5000, height: 5000 } // Large game world
     }
   }),
+  getters: {
+    interventionsByCategory: (state) => {
+      const grouped = {
+        prevention: [],
+        repair: [],
+        rejuvenation: [],
+        experimental: [],
+        custom: []
+      }
+      for (const intervention of state.interventions) {
+        const category = intervention.category || 'custom'
+        if (!grouped[category]) {
+          grouped[category] = []
+        }
+        grouped[category].push(intervention)
+      }
+      return grouped
+    },
+    activeNetworkExperiments: (state) => {
+      return state.networkExperiments.map(nxp => ({
+        id: nxp.id,
+        name: nxp.name,
+        cueId: nxp.cueId,
+        status: nxp.status
+      }))
+    },
+    availableMarkers: (state) => {
+      return state.markers.map(marker => ({
+        id: marker.id,
+        name: marker.name,
+        cueId: marker.cueId,
+        datatype: marker.datatype
+      }))
+    }
+  },
   actions: {
     // Save besearch data to HOP with specific action
     saveToHOP(besearchData) {
@@ -38,7 +78,6 @@ export const besearchStore = defineStore('besearchstore', {
           privacy: 'private',
           data: besearchData
         }
-        console.log('Saving to HOP besearch store:', bcContract)
         // Send via socket to HOP
         this.socketStore.send_message(bcContract)
         return { success: true, message: `operation saved successfully` }
@@ -59,7 +98,6 @@ export const besearchStore = defineStore('besearchstore', {
           privacy: 'private',
           data: besearchItem
         }
-        console.log('Saving to HOP besearch store:', bcContract)
         // Send via socket to HOP
         this.socketStore.send_message(bcContract)
         return { success: true, message: `${action} operation saved successfully` }
@@ -85,9 +123,6 @@ export const besearchStore = defineStore('besearchstore', {
             timestamp: new Date().toISOString()
           }
         }
-
-        console.log('Loading from HOP besearch store:', queryContract)
-
         if (socketStore.connection_ready) {
           socketStore.send_message(queryContract)
           return { success: true, message: 'Load request sent' }
@@ -104,14 +139,21 @@ export const besearchStore = defineStore('besearchstore', {
     processReply(replyData) {
       // saved or start data
       if (replyData.action === 'besearch-history') {
-        console.log('start history besearch', replyData)
       } else if (replyData.action === 'besearch-contract') {
         // add besearch item to besearch world canvas
         try {
-          console.log('Processing besearch reply from HOP:', replyData)
           if (replyData.data && replyData.data.besearchCycles) {
             // Update besearch cycles
             this.besearchCyles = replyData.data.besearchCycles
+          }
+          if (replyData.data && replyData.data.interventions) {
+            this.interventions = replyData.data.interventions
+          }
+          if (replyData.data && replyData.data.markers) {
+            this.markers = replyData.data.markers
+          }
+          if (replyData.data && replyData.data.networkExperiments) {
+            this.networkExperiments = replyData.data.networkExperiments
           }
           if (replyData.data && replyData.data.canvasState) {
             // Update canvas state
@@ -132,11 +174,14 @@ export const besearchStore = defineStore('besearchstore', {
     updatePeerPosition(position) {
       if (this.canvasState.peerPositions[this.canvasState.currentMode]) {
         this.canvasState.peerPositions[this.canvasState.currentMode] = { ...position }
+      } else {
+        this.canvasState.peerPositions[this.canvasState.currentMode] = { ...position }
       }
     },
     getPeerPosition(mode = null) {
       const targetMode = mode || this.canvasState.currentMode
-      return this.canvasState.peerPositions[targetMode] || { x: 800, y: 450 }
+      const position = this.canvasState.peerPositions[targetMode] || { x: 800, y: 450 }
+      return position
     },
     setCurrentMode(mode) {
       this.canvasState.currentMode = mode
@@ -146,6 +191,12 @@ export const besearchStore = defineStore('besearchstore', {
     },
     updateViewport(viewport) {
       this.canvasState.viewport = { ...viewport }
+    },
+    updateZoom(zoom) {
+      this.canvasState.zoom = zoom
+    },
+    updatePanOffset(panOffset) {
+      this.canvasState.panOffset = { ...panOffset }
     },
     addIntervention(intervention) {
       this.canvasState.interventions.push(intervention)

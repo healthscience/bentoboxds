@@ -207,6 +207,12 @@ export class CanvasInputHandler {
    * Handle keyboard events
    */
   handleKeyDown(event) {
+    const target = event.target;
+    const tagName = target?.tagName?.toLowerCase();
+    const isEditable = target?.isContentEditable || tagName === 'input' || tagName === 'textarea' || tagName === 'select';
+    if (isEditable) {
+      return;
+    }
     // Handle peer movement with arrow keys or WASD
     let direction = null;
     switch (event.key) {

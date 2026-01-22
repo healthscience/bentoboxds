@@ -4,33 +4,41 @@
 export class CanvasStateManager {
   constructor(config = {}) {
     this.config = config;
+    this.canvasElement = config.canvasElement; // Store canvas reference
 
-    // Viewport state
+    // Viewport state with dynamic dimensions
+    // Using getters ensures dimensions are always current
     this.viewport = {
       x: 0,
       y: 0,
-      width: config.width || window.innerWidth,
-      height: config.height || window.innerHeight
+      get width() {
+        if (config.canvasElement) {
+          const rect = config.canvasElement.getBoundingClientRect();
+          return rect.width;
+        }
+        return config.width || 800;
+      },
+      get height() {
+        if (config.canvasElement) {
+          const rect = config.canvasElement.getBoundingClientRect();
+          return rect.height;
+        }
+        return config.height || 600;
+      }
     };
 
     // World bounds
     this.worldBounds = config.worldBounds || { width: 5000, height: 5000 };
-
     // Zoom and pan state
     this.zoom = 1.0;
     this.panOffset = { x: 0, y: 0 };
-
     // Current mode
     this.currentMode = 'cues';
-
     // Animation state
     this.animationAngle = 0;
-
     // Event callbacks
     this.onStateChange = null;
-    
-    console.log('CanvasStateManager: Initialized with viewport:', this.viewport);
-    console.log('CanvasStateManager: World bounds:', this.worldBounds);
+
   }
 
   /**
@@ -47,6 +55,8 @@ export class CanvasStateManager {
     this.viewport.y = maxY < 0 ? maxY / 2 : Math.max(0, Math.min(maxY, y));
     
     this.emitStateChange('viewport', { x: this.viewport.x, y: this.viewport.y });
+    // Emit pan event with current pan offset
+    this.emitStateChange('pan', { ...this.panOffset });
   }
 
   /**
@@ -54,6 +64,8 @@ export class CanvasStateManager {
    */
   pan(deltaX, deltaY) {
     this.setViewport(this.viewport.x + deltaX, this.viewport.y + deltaY);
+    // Emit pan event with current pan offset
+    this.emitStateChange('pan', { ...this.panOffset });
   }
 
   /**
@@ -68,6 +80,8 @@ export class CanvasStateManager {
       const zoomFactor = this.zoom / oldZoom;
       this.panOffset.x = center.x - (center.x - this.panOffset.x) * zoomFactor;
       this.panOffset.y = center.y - (center.y - this.panOffset.y) * zoomFactor;
+      // Emit pan event when pan offset changes
+      this.emitStateChange('pan', { ...this.panOffset });
     }
 
     this.emitStateChange('zoom', this.zoom);
@@ -99,16 +113,13 @@ export class CanvasStateManager {
    */
   setMode(mode) {
     this.currentMode = mode;
-
     // Update world bounds for the new mode
     if (this.config.modeSettings && this.config.modeSettings[mode]) {
       this.worldBounds = { ...this.config.modeSettings[mode].worldBounds };
     }
-
     // Clamp viewport to new bounds
     this.viewport.x = Math.max(0, Math.min(this.worldBounds.width - this.viewport.width, this.viewport.x));
     this.viewport.y = Math.max(0, Math.min(this.worldBounds.height - this.viewport.height, this.viewport.y));
-
     this.emitStateChange('mode', mode);
   }
 
@@ -250,30 +261,55 @@ export class CanvasStateManager {
    * Set state from serialized data
    */
   setState(state) {
+    let panOffsetChanged = false;
+    let zoomChanged = false;
+    let viewportChanged = false;
+    let modeChanged = false;
+    
     if (state.viewport) {
       this.viewport = { ...state.viewport };
+      viewportChanged = true;
     }
     if (state.zoom !== undefined) {
       this.zoom = state.zoom;
+      zoomChanged = true;
     }
     if (state.panOffset) {
       this.panOffset = { ...state.panOffset };
+      panOffsetChanged = true;
     }
     if (state.currentMode) {
       this.currentMode = state.currentMode;
+      modeChanged = true;
     }
     if (state.animationAngle !== undefined) {
       this.animationAngle = state.animationAngle;
+    }
+    // Emit events for changed properties
+    if (viewportChanged) {
+      this.emitStateChange('viewport', { x: this.viewport.x, y: this.viewport.y });
+    }
+    if (zoomChanged) {
+      this.emitStateChange('zoom', this.zoom);
+    }
+    if (panOffsetChanged) {
+      this.emitStateChange('pan', { ...this.panOffset });
+    }
+    if (modeChanged) {
+      this.emitStateChange('mode', this.currentMode);
     }
   }
 
   /**
    * Handle window resize
+   * Note: Viewport dimensions are now dynamic via getters, so this just emits the event
    */
   handleResize(newWidth, newHeight) {
-    this.viewport.width = newWidth;
-    this.viewport.height = newHeight;
-    this.emitStateChange('resize', { width: newWidth, height: newHeight });
+    // Viewport dimensions update automatically via getters
+    // Just emit the resize event for any listeners
+    this.emitStateChange('resize', { width: this.viewport.width, height: this.viewport.height });
+    // Emit pan event with current pan offset
+    this.emitStateChange('pan', { ...this.panOffset });
   }
 }
 

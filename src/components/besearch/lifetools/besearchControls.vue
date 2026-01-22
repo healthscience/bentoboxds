@@ -26,6 +26,7 @@ import { besearchStore } from '@/stores/besearchStore.js'
 const storeBesearch = besearchStore()
 const showCreateForm = ref(false)
 
+/* methods */
 const handleCreate = () => {
   showCreateForm.value = true
 }
@@ -35,23 +36,21 @@ const handleCloseCreateForm = () => {
 }
 
 const handleCreateBesearchCycle = async (formData) => {
-  console.log('Creating besearch cycle:', formData)
-  // Create new besearch cycle object
-  const newCycle = {
-    id: `cycle-${Date.now()}`,
+  console.log('Creating besearch intervention:', formData)
+  const newIntervention = {
+    id: `intervention-${Date.now()}`,
     name: formData.name,
-    besearchid: Date.now().toString(),
-    x: Math.random() * 400 + 100, // Random position on canvas
-    y: Math.random() * 300 + 100,
-    cueSpace: { location: { width: 200, height: 200 }},
-    active: true,
-    isDragging: false,
-    networkExperiment: formData.networkExperiment,
-    frequency: formData.frequency,
-    createdAt: new Date().toISOString()
+    description: formData.description,
+    category: formData.category,
+    status: formData.status,
+    networkExperimentId: formData.networkExperiment,
+    markerIds: [formData.marker],
+    consilience: [],
+    besearchCycles: [],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   }
-  // Save to HOP
-  storeBesearch.saveToHOP(newCycle)
+  storeBesearch.saveToHOP(newIntervention)
 }
 
 const handleStart = async () => {

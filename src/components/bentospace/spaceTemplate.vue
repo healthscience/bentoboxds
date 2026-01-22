@@ -31,6 +31,9 @@
           <div id="cues-connector">
             <button class="space-agent" @click="cueConnect()" v-bind:class="{ active: cuesTools === true }">Cues</button>
           </div>
+          <div id="besearch-connector">
+            <button class="space-agent" @click="besearchConnect()" v-bind:class="{ active: besearchTools === true }">Besearch</button>
+          </div>
           <div id="decision-tools">
             <button class="space-agent" @click="addCueDecision()" v-bind:class="{ active: spaceDecision === true }">+ decision</button>
             <img class="cues-holitic-wheel" src="../.././assets/cues-holistic-icon.png" alt="cues" @click=cuesHolistic()>
@@ -88,6 +91,13 @@
             </div>
           </div>
         </div>
+        <div id="besearch-holder">
+          <besearch-create-form
+            :show="besearchTools"
+            @close="handleCloseCreateForm"
+            @save="handleCreateBesearchCycle"
+          />
+        </div>
         <div id="share-protocol" v-if="shareTools === true">
           <header>Share protocol</header>
           <share-protocol :bboxid="''" :shareType="'cue-space'"></share-protocol>
@@ -138,6 +148,7 @@ import { ref, computed } from 'vue'
 import { DateTime } from 'luxon'
 import ModalSpace from '@/components/bentospace/spaceModal.vue'
 import CuesPrepared from '@/components/bentocues/prepareCues.vue'
+import BesearchCreateForm from '@/components/besearch/lifetools/besearchCreateForm.vue'
 import LibraryexpView from '@/components/dataspace/experimentNXPView.vue'
 import NewnxpView from '@/components/dataspace/newnxpView.vue'
 import BentoBoxspace from '@/components/bentobox/bentoboxSpace.vue'
@@ -154,6 +165,7 @@ import BeebeeAi from '@/components/beebeehelp/spaceChat.vue'
 import ShareProtocol from '@/components/bentobox/tools/shareForm.vue'
 import MininavMap from '@/components/bentospace/map/mininavMap.vue'
 import { cuesStore } from '@/stores/cuesStore.js'
+import { besearchStore } from '@/stores/besearchStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { useChatStore } from '@/stores/chatStore.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
@@ -161,6 +173,7 @@ import { libraryStore } from '@/stores/libraryStore.js'
 import { mapminiStore } from '@/stores/mapStore.js'
 
   const storeCues = cuesStore()
+  const storeBesearch = besearchStore()
   const storeAI = aiInterfaceStore()
   const storeChat = useChatStore()
   const storeBentobox = bentoboxStore()
@@ -175,6 +188,7 @@ import { mapminiStore } from '@/stores/mapStore.js'
   )
   let wheelType = ref('cues')
   let cuesTools = ref(false)
+  let besearchTools = ref(false)
   let contextTools = ref(false)
   let shareTools = ref(false)
   let spaceN1setup = ref(false)
@@ -213,6 +227,28 @@ import { mapminiStore } from '@/stores/mapStore.js'
     saveChatHistory(storeAI.liveBspace)
     // close the chat
     storeAI.bentochatState = false
+  }
+
+  const handleCloseCreateForm = () => {
+    besearchTools.value = false
+  }
+
+  const handleCreateBesearchCycle = async (formData) => {
+    console.log('Creating besearch intervention:', formData)
+    const newIntervention = {
+      id: `intervention-${Date.now()}`,
+      name: formData.name,
+      description: formData.description,
+      category: formData.category,
+      status: formData.status,
+      networkExperimentId: formData.networkExperiment,
+      markerIds: [formData.marker],
+      consilience: [],
+      besearchCycles: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
+  storeBesearch.saveToHOP(newIntervention)
   }
 
   const saveSpaceHistory = (space) => {
@@ -339,6 +375,19 @@ import { mapminiStore } from '@/stores/mapStore.js'
     cuesTools.value = !cuesTools.value
   }
 
+  const besearchConnect = () => {
+    storeCues.cueContext = 'space'
+    // prepare cue wheel
+    // cueid and spaceid  mix need to standardise
+    let cueIDactive = ''
+    if (storeAI.liveBspace.spaceid !== undefined) {
+      cueIDactive = storeAI.liveBspace.spaceid
+    } else {
+      cueIDactive = storeAI.liveBspace.cueid
+    }
+    besearchTools.value = !besearchTools.value
+  }
+
   const contextAdd = () => {
     contextTools.value = !contextTools.value
   }
@@ -379,7 +428,7 @@ import { mapminiStore } from '@/stores/mapStore.js'
 
 #space-toolbar {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr 2fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 2fr 1fr;
   background-color: rgb(217, 226, 245);
 }
 

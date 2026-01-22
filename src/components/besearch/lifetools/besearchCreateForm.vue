@@ -19,14 +19,25 @@
           />
         </div>
         <div class="form-group">
-          <label for="besearch type">type</label>
+          <label for="cycleDescription">Description</label>
+          <textarea
+            id="cycleDescription"
+            v-model="formData.description"
+            placeholder="Describe the intervention"
+            required
+            class="form-textarea"
+            rows="3"
+          />
+        </div>
+        <div class="form-group">
+          <label for="besearchCategory">Category</label>
           <select
-            id="besearch-type"
-            v-model="formData.besearchType"
+            id="besearchCategory"
+            v-model="formData.category"
             required
             class="form-select"
           >
-            <option value="">Select type</option>
+            <option value="">Select category</option>
             <option value="prevention">Prevention</option>
             <option value="repair">Repair</option>
             <option value="rejuvenation">Rejuvenation</option>
@@ -35,20 +46,18 @@
           </select>
         </div>
         <div class="form-group">
-          <label for="besearch intervention">intervention</label>
+          <label for="status">Status</label>
           <select
-            id="besearch-type"
-            v-model="formData.besearchIntervention"
+            id="status"
+            v-model="formData.status"
             required
             class="form-select"
           >
-            <option value="">Select</option>
-            <option value="mind">mind</option>
-            <option value="exercise">exercise</option>
-            <option value="sleep">sleep</option>
-            <option value="food">food</option>
-            <option value="supplement">supplement</option>
-            <option value="therapy">therapy</option>
+            <option value="">Select status</option>
+            <option value="pending">Pending</option>
+            <option value="working">Working</option>
+            <option value="experimentation">Experimentation</option>
+            <option value="no effect">No effect</option>
           </select>
         </div>
         <div class="form-group">
@@ -59,25 +68,33 @@
             required
             class="form-select"
           >
-            <option value="">Select experiment type</option>
-            <option value="Experiment1">Experiment1</option>
-            <option value="Experiment2">Experiment2</option>
-            <option value="Experiment3">Experiment3</option>
-            <option value="Experiment4">Experiment4</option>
-            <option value="Experiment5">Experiment5</option>
+            <option value="">Select experiment</option>
+            <option
+              v-for="experiment in networkExperiments"
+              :key="experiment.id"
+              :value="experiment.id"
+            >
+              {{ experiment.name }}
+            </option>
           </select>
         </div>
         <div class="form-group">
-          <label for="besearch type">marker</label>
+          <label for="marker">Marker</label>
           <select
-            id="besearch-type"
-            v-model="formData.besearchMarker"
+            id="marker"
+            v-model="formData.marker"
             required
             class="form-select"
           >
             <option value="">Select marker</option>
-            <option value="marker1">marker1</option>
-           </select>
+            <option
+              v-for="marker in markers"
+              :key="marker.key"
+              :value="marker.id"
+            >
+              {{ marker.value.concept.name }}
+            </option>
+          </select>
         </div>
         <div class="form-group">
           <label for="frequency">Frequency of Cycle</label>
@@ -99,7 +116,7 @@
 
         <div class="form-actions">
           <button type="button" class="cancel-btn" @click="closeForm">Cancel</button>
-          <button type="submit" class="save-btn" :disabled="!isFormValid">Create Cycle</button>
+          <button type="submit" class="save-btn" :disabled="!isFormValid">Create</button>
         </div>
       </form>
     </div>
@@ -108,48 +125,84 @@
 
 <script setup>
 import { ref, computed, defineEmits, defineProps } from 'vue'
+import { besearchStore } from '@/stores/besearchStore.js'
+import { libraryStore } from '@/stores/libraryStore.js'
+import { cuesStore } from '@/stores/cuesStore.js'
 
-const props = defineProps({
-  show: {
-    type: Boolean,
-    default: false
+  const props = defineProps({
+    show: {
+      type: Boolean,
+      default: false
+    }
+  })
+
+  const emit = defineEmits(['close', 'save'])
+
+  const storeBesearch = besearchStore()
+  const storeLibrary = libraryStore()
+  const storeCues = cuesStore()
+
+  /* computed */
+  const networkExperiments = computed(() => {
+    return storeLibrary.peerExperimentList?.data || []
+  })
+  
+  const markers = computed(() => {
+    // sort into alphabetical order
+    const contracts = storeCues.markerList
+    // Sort the contracts by name in ascending order
+    const sortedContracts = contracts.sort((a, b) => {
+      if (a.type < b.type) return -1
+      if (a.type > b.type) return 1
+      return 0
+    })
+    return sortedContracts
+  })
+
+  const formData = ref({
+    name: '',
+    description: '',
+    category: '',
+    status: '',
+    networkExperiment: '',
+    marker: '',
+    frequency: ''
+  })
+
+  const isFormValid = computed(() => {
+    return formData.value.name.trim() &&
+          formData.value.description.trim() &&
+          formData.value.category &&
+          formData.value.status &&
+          formData.value.networkExperiment &&
+          formData.value.marker &&
+          formData.value.frequency
+  })
+
+  const handleSubmit = () => {
+    if (isFormValid.value) {
+      emit('save', { ...formData.value })
+      emit('close') // Close the overlay after successful submission
+      resetForm()
+    }
   }
-})
 
-const emit = defineEmits(['close', 'save'])
-
-const formData = ref({
-  name: '',
-  networkExperiment: '',
-  frequency: ''
-})
-
-const isFormValid = computed(() => {
-  return formData.value.name.trim() &&
-         formData.value.networkExperiment &&
-         formData.value.frequency
-})
-
-const handleSubmit = () => {
-  if (isFormValid.value) {
-    emit('save', { ...formData.value })
-    emit('close') // Close the overlay after successful submission
+  const closeForm = () => {
+    emit('close')
     resetForm()
   }
-}
 
-const closeForm = () => {
-  emit('close')
-  resetForm()
-}
-
-const resetForm = () => {
-  formData.value = {
-    name: '',
-    networkExperiment: '',
-    frequency: ''
+  const resetForm = () => {
+    formData.value = {
+      name: '',
+      description: '',
+      category: '',
+      status: '',
+      networkExperiment: '',
+      marker: '',
+      frequency: ''
+    }
   }
-}
 </script>
 
 <style scoped>
@@ -165,15 +218,15 @@ const resetForm = () => {
   display: grid;
   align-items: center;
   justify-content: center;
-  z-index: 10000;
+  z-index: 20000;
 }
 
 .besearch-create-form {
   background: white;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-  width: 90%;
-  max-width: 500px;
+  width: min(92vw, 760px);
+  max-width: 760px;
   max-height: 90vh;
   overflow-y: auto;
 }
@@ -227,7 +280,8 @@ const resetForm = () => {
 }
 
 .form-input,
-.form-select {
+.form-select,
+.form-textarea {
   width: 100%;
   padding: 10px 12px;
   border: 1px solid #ddd;
@@ -238,10 +292,15 @@ const resetForm = () => {
 }
 
 .form-input:focus,
-.form-select:focus {
+.form-select:focus,
+.form-textarea:focus {
   outline: none;
   border-color: #007bff;
   box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.form-textarea {
+  resize: vertical;
 }
 
 .form-select {

@@ -14,10 +14,15 @@ import { Intervention } from '../entities/Intervention.js';
 import { CanvasConfig } from '../config/CanvasConfig.js';
 
 export class BesearchCanvasManager {
+
   constructor(canvasElement, besearchStore, config = {}) {
     this.canvas = canvasElement;
     this.besearchStore = besearchStore;
     this.config = { ...CanvasConfig, ...config };
+    this.lastValidCanvasSize = {
+      width: this.config.width,
+      height: this.config.height
+    };
 
     // Core components
     this.renderer = null;
@@ -47,60 +52,37 @@ export class BesearchCanvasManager {
    * Initialize all canvas components
    */
   initializeComponents() {
-    console.log('BesearchCanvasManager: Initializing components...');
-    
     // Get actual canvas dimensions FIRST before creating any managers
     const rect = this.canvas.getBoundingClientRect();
-    
     // Validate dimensions
     if (rect.width === 0 || rect.height === 0) {
       console.error('BesearchCanvasManager: Canvas has zero dimensions!', rect);
       throw new Error('Canvas initialization failed: zero dimensions');
     }
-    
     // Create renderer to setup canvas (this may change canvas dimensions due to DPR)
     this.renderer = new CanvasRenderer(this.canvas);
-    
-    // Get dimensions AFTER renderer setup to account for any DPR scaling
-    const finalRect = this.canvas.getBoundingClientRect();
-    this.config.width = finalRect.width;
-    this.config.height = finalRect.height;
-
-    console.log('BesearchCanvasManager: Canvas dimensions after renderer setup:', {
-      width: finalRect.width,
-      height: finalRect.height,
-      canvasWidth: this.canvas.width,
-      canvasHeight: this.canvas.height
-    });
-
-    // Create state manager with correct dimensions
+    // Pass canvas element to config for dynamic viewport dimensions
+    this.config.canvasElement = this.canvas;
+    // Create state manager with canvas element reference for dynamic dimensions
     this.stateManager = new CanvasStateManager(this.config);
-
     // Create input handler
     this.inputHandler = new CanvasInputHandler(this.canvas, this, this.config.input);
-
     // Create game loop
     this.gameLoop = new GameLoop(
       this.update.bind(this),
       this.render.bind(this)
     );
-
     // Create data bridge
     this.dataBridge = new HOPDataBridge(this.besearchStore);
-
     // Set up input event callbacks
     this.inputHandler.setEventCallback(this.handleInputEvent.bind(this));
-
     // Set up state change callbacks
     this.stateManager.setStateChangeCallback(this.handleStateChange.bind(this));
-
     // Set up data bridge event listeners
     this.dataBridge.on('cycles-updated', this.handleCyclesUpdated.bind(this));
     this.dataBridge.on('intervention-selected', this.handleInterventionSelected.bind(this));
     this.dataBridge.on('category-selected', this.handleCategorySelected.bind(this));
     this.dataBridge.on('canvas-state-updated', this.handleCanvasStateUpdated.bind(this));
-    
-    console.log('BesearchCanvasManager: Components initialized successfully');
   }
 
   /**
@@ -112,49 +94,74 @@ export class BesearchCanvasManager {
   }
 
   /**
+   * Handle resize events
+   */
+  handleResize() {
+    // Update canvas dimensions
+    if (this.renderer) {
+      this.renderer.resize();
+    }
+    // Re-center viewport on peer if peer exists
+    if (this.peer) {
+      this.stateManager.centerOn(this.peer);
+    }
+  }
+
+  /**
    * Load initial data from store
    */
   loadInitialData() {
-    console.log('BesearchCanvasManager: Loading initial data...');
-    
     // Load canvas state
     const canvasState = this.dataBridge.getCanvasState();
+    // Restore zoom and panOffset from saved state if available
+    if (canvasState.zoom !== undefined) {
+      this.stateManager.zoom = canvasState.zoom;
+    } else {
+      this.stateManager.zoom = 1.0;
+    }
     
-    // Don't override viewport if it's already set correctly
-    // Only set zoom and panOffset from saved state
-    this.stateManager.zoom = 1.0;
-    this.stateManager.panOffset = { x: 0, y: 0 };
-
-    // Create peer - start at center of the world bounds
-    // This ensures the peer is in the middle of the explorable space
-    const worldCenterX = this.config.worldBounds.width / 2;
-    const worldCenterY = this.config.worldBounds.height / 2;
+    if (canvasState.panOffset) {
+      this.stateManager.panOffset = { ...canvasState.panOffset };
+    } else {
+      this.stateManager.panOffset = { x: 0, y: 0 };
+    }
+    
+    // Restore current mode if available
+    if (canvasState.currentMode) {
+      this.stateManager.setMode(canvasState.currentMode);
+    } else {
+    }
+    
+    // Create peer at saved position or center of the world bounds
+    let peerX = canvasState.peerPosition ? canvasState.peerPosition.x : this.config.worldBounds.width / 2;
+    let peerY = canvasState.peerPosition ? canvasState.peerPosition.y : this.config.worldBounds.height / 2;
     
     this.peer = new Peer({
-      x: worldCenterX,
-      y: worldCenterY,
-      direction: canvasState.peerDirection,
+      x: peerX,
+      y: peerY,
+      direction: canvasState.peerDirection || { x: 0, y: 0 },
       worldBounds: this.config.worldBounds
     });
-
-    // Center viewport on peer immediately after creation
-    this.stateManager.centerOn(this.peer);
-
+    
+    // Set viewport position from saved state or center on peer
+    if (canvasState.viewport) {
+      this.stateManager.setViewport(canvasState.viewport.x, canvasState.viewport.y);
+    } else {
+      // Center viewport on peer if no saved viewport position
+      this.stateManager.centerOn(this.peer);
+    }
+    
     // Load cycles
     const cycles = this.dataBridge.getBesearchCycles();
-    console.log('BesearchCanvasManager: Loading', cycles.length, 'cycles');
     cycles.forEach(cycleData => {
       this.addCycle(cycleData);
     });
-
+    
     // Load interventions
     const interventions = this.dataBridge.getInterventions();
-    console.log('BesearchCanvasManager: Loading', interventions.length, 'interventions');
     interventions.forEach(interventionData => {
       this.addIntervention(interventionData);
     });
-    
-    console.log('BesearchCanvasManager: Initial data loaded successfully');
   }
 
   /**
@@ -181,17 +188,14 @@ export class BesearchCanvasManager {
       // Center viewport on peer
       this.stateManager.centerOn(this.peer);
     }
-
     // Update cycles
     this.cycles.forEach(cycle => {
       cycle.update(deltaTime, this.stateManager.animationAngle);
     });
-
     // Update interventions
     this.interventions.forEach(intervention => {
       intervention.update(deltaTime);
     });
-
     // Update state manager animation
     this.stateManager.updateAnimation(deltaTime);
   }
@@ -202,21 +206,17 @@ export class BesearchCanvasManager {
   render() {
     // Clear canvas
     this.renderer.clear();
-
     // Get current viewport
     const viewport = this.stateManager.viewport;
     const zoom = this.stateManager.zoom;
-
     // Render background for current mode
     this.renderer.renderBackground(this.stateManager.currentMode, viewport, zoom, this.config);
-
     // Render entities (common for all modes)
     this.renderer.renderEntities({
       peer: this.peer,
       cycles: Array.from(this.cycles.values()),
       interventions: Array.from(this.interventions.values())
     }, viewport, zoom, this.stateManager.animationAngle, this.config);
-
     // Render mode-specific UI elements
     switch (this.stateManager.currentMode) {
       case 'cues':
@@ -266,6 +266,78 @@ export class BesearchCanvasManager {
       case 'mouseup':
         this.handleMouseUp(data);
         break;
+      case 'dragstart':
+        this.draggingEntity = data?.entity || null;
+        if (this.draggingEntity && data?.position) {
+          const worldPos = this.stateManager.screenToWorld(data.position);
+
+          if (this.draggingEntity instanceof Intervention) {
+            if (this.draggingEntity.isRemoveButton(worldPos.x, worldPos.y)) {
+              this.removeIntervention(this.draggingEntity.id);
+              this.draggingEntity = null;
+              return;
+            }
+
+            if (!this.draggingEntity.isDragBar(worldPos.x, worldPos.y)) {
+              this.draggingEntity = null;
+              return;
+            }
+
+            this.draggingEntity.isDragging = true;
+          }
+
+          if (this.draggingEntity instanceof BesearchCycle) {
+            if (this.draggingEntity.isEditButton(worldPos.x, worldPos.y)) {
+              this.emit('cycle-edit', this.draggingEntity);
+              this.draggingEntity = null;
+              return;
+            }
+            if (this.draggingEntity.isRemoveButton(worldPos.x, worldPos.y)) {
+              if (confirm(`Delete ${this.draggingEntity.name}?`)) {
+                this.removeCycle(this.draggingEntity.id);
+              }
+              this.draggingEntity = null;
+              return;
+            }
+          }
+
+          this.dragOffset = {
+            x: worldPos.x - this.draggingEntity.x,
+            y: worldPos.y - this.draggingEntity.y
+          };
+        }
+        break;
+      case 'drag':
+        if (this.draggingEntity && data?.position) {
+          const worldPos = this.stateManager.screenToWorld(data.position);
+          this.draggingEntity.setPosition(
+            worldPos.x - this.dragOffset.x,
+            worldPos.y - this.dragOffset.y
+          );
+        }
+        break;
+      case 'dragend':
+        if (this.draggingEntity) {
+          if (this.draggingEntity instanceof Intervention) {
+            this.checkInterventionCycleLinking(this.draggingEntity);
+            this.draggingEntity.isDragging = false;
+            this.dataBridge.updateIntervention(this.draggingEntity.id, {
+              x: this.draggingEntity.x,
+              y: this.draggingEntity.y
+            });
+          }
+
+          if (this.draggingEntity instanceof BesearchCycle) {
+            this.dataBridge.updateBesearchCycle(this.draggingEntity.id, {
+              x: this.draggingEntity.x,
+              y: this.draggingEntity.y
+            });
+          }
+
+          this.draggingEntity = null;
+          this.dragOffset = { x: 0, y: 0 };
+        }
+        break;
       case 'pan':
         this.stateManager.pan(data.delta.x, data.delta.y);
         break;
@@ -286,7 +358,6 @@ export class BesearchCanvasManager {
    */
   handleMouseDown(event) {
     const worldPos = this.stateManager.screenToWorld(event.position);
-
     // Check cycles first
     for (const cycle of this.cycles.values()) {
       if (cycle.containsPoint(worldPos.x, worldPos.y)) {
@@ -397,7 +468,7 @@ export class BesearchCanvasManager {
   /**
    * Set canvas mode
    */
-  setMode(mode) {
+  setMode(mode) {    
     // Save current peer position before switching
     if (this.peer) {
       this.dataBridge.updatePeerPosition(this.peer.getPosition());
@@ -413,6 +484,8 @@ export class BesearchCanvasManager {
     const newPosition = this.dataBridge.getCanvasState().peerPosition;
     if (this.peer) {
       this.peer.setPosition(newPosition.x, newPosition.y);
+      // Center viewport on peer after position is set
+      this.stateManager.centerOn(this.peer);
     }
   }
 
@@ -509,8 +582,14 @@ export class BesearchCanvasManager {
         this.dataBridge.updateViewport(data);
         break;
       case 'zoom':
+        // Save zoom to store
+        this.dataBridge.updateZoom(data);
         // Emit zoom change event for UI updates
         this.emit('zoom-changed', data);
+        break;
+      case 'pan':
+        // Save pan offset to store
+        this.dataBridge.updatePanOffset(data);
         break;
     }
   }
@@ -579,9 +658,15 @@ export class BesearchCanvasManager {
     const newWidth = rect.width;
     const newHeight = rect.height;
 
+    // Ignore zero-size measurements (e.g., hidden modal) to preserve last valid size
+    if (newWidth === 0 || newHeight === 0) {
+      return;
+    }
+
     // Update config
     this.config.width = newWidth;
     this.config.height = newHeight;
+    this.lastValidCanvasSize = { width: newWidth, height: newHeight };
 
     // Update state manager
     this.stateManager.handleResize(newWidth, newHeight);
@@ -702,7 +787,6 @@ export class BesearchCanvasManager {
     if (this.peer) entities.push(this.peer);
     entities.push(...Array.from(this.cycles.values()));
     entities.push(...Array.from(this.interventions.values()));
-
     return entities;
   }
 
@@ -734,19 +818,15 @@ export class BesearchCanvasManager {
    */
   destroy() {
     this.stop();
-
     if (this.inputHandler) {
       this.inputHandler.destroy();
     }
-
     if (this.gameLoop) {
       this.gameLoop.stop();
     }
-
     this.cycles.clear();
     this.interventions.clear();
     this.eventCallbacks.clear();
-
     window.removeEventListener('resize', this.handleResize);
   }
 }

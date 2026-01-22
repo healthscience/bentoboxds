@@ -5,7 +5,6 @@ export class HOPDataBridge {
   constructor(besearchStore) {
     this.besearchStore = besearchStore;
     this.eventListeners = new Map();
-
     this.setupStoreListeners();
   }
 
@@ -39,14 +38,20 @@ export class HOPDataBridge {
     if (!store) return {
       peerPosition: { x: 100, y: 100 },
       peerDirection: { x: 0, y: 0 },
-      viewport: { x: 0, y: 0 }
+      viewport: { x: 0, y: 0 },
+      currentMode: 'cues',
+      zoom: 1.0,
+      panOffset: { x: 0, y: 0 }
     }
-
-    return {
+    const canvasState = {
       peerPosition: store.getPeerPosition(),
       peerDirection: store.canvasState.peerDirection,
-      viewport: store.canvasState.viewport
+      viewport: store.canvasState.viewport,
+      currentMode: store.canvasState.currentMode,
+      zoom: store.canvasState.zoom,
+      panOffset: store.canvasState.panOffset
     };
+    return canvasState;
   }
 
   /**
@@ -73,6 +78,24 @@ export class HOPDataBridge {
   updateViewport(viewport) {
     if (this.besearchStore) {
       this.besearchStore.updateViewport(viewport);
+    }
+  }
+
+  /**
+   * Update zoom in store
+   */
+  updateZoom(zoom) {
+    if (this.besearchStore) {
+      this.besearchStore.updateZoom(zoom);
+    }
+  }
+
+  /**
+   * Update pan offset in store
+   */
+  updatePanOffset(panOffset) {
+    if (this.besearchStore) {
+      this.besearchStore.updatePanOffset(panOffset);
     }
   }
 

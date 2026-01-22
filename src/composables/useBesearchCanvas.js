@@ -1,4 +1,4 @@
-import { ref, reactive, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, reactive, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { BesearchCanvasManager } from '../canvas/managers/BesearchCanvasManager.js'
 import { besearchStore } from '../stores/besearchStore.js'
 
@@ -10,12 +10,15 @@ export function useBesearchCanvas(canvasRef, onZoomChange = null) {
     zoom: 1,
     pan: { x: 0, y: 0 }
   })
-
   // Canvas manager instance
   let canvasManager = null
-
   // Initialize canvas
   const initializeCanvas = async () => {
+    if (canvasManager) {
+      canvasManager.destroy();
+      canvasManager = null;
+      canvasState.isInitialized = false;
+    }
     if (!canvasRef.value) {
       console.warn('Canvas ref not available for initialization')
       return
@@ -28,31 +31,21 @@ export function useBesearchCanvas(canvasRef, onZoomChange = null) {
         console.error('Canvas failed to get valid dimensions after timeout')
         return
       }
-
-      console.log('Canvas initialized with dimensions:', dimensions)
-
-      const store = besearchStore()
-
+      const storeBesearch = besearchStore()
       // Load data from HOP before initializing canvas
-      await store.loadFromHOP()
-
-      canvasManager = new BesearchCanvasManager(canvasRef.value, store)
-
+      // await storeBesearch.loadFromHOP()
+      canvasManager = new BesearchCanvasManager(canvasRef.value, storeBesearch)
       // Set up event listeners
       canvasManager.on('intervention-selected', (intervention) => {
-        store.setSelectedIntervention(intervention)
+        storeBesearch.setSelectedIntervention(intervention)
       })
-
       canvasManager.on('category-selected', (category) => {
-        store.setSelectedCategory(category)
+        storeBesearch.setSelectedCategory(category)
       })
-
       canvasManager.on('cycle-edit', (cycle) => {
         // Handle cycle editing - could emit to parent component
-        console.log('Cycle edit requested:', cycle)
         // For now, we'll handle this in the component
       })
-
       // Listen for zoom changes to keep canvasState.zoom in sync
       canvasManager.on('zoom-changed', (zoom) => {
         canvasState.zoom = zoom
@@ -61,9 +54,7 @@ export function useBesearchCanvas(canvasRef, onZoomChange = null) {
           onZoomChange(zoom)
         }
       })
-
       canvasState.isInitialized = true
-
       // Start the canvas
       canvasManager.start()
     } catch (error) {
@@ -78,25 +69,20 @@ export function useBesearchCanvas(canvasRef, onZoomChange = null) {
   const waitForValidDimensions = (canvas, maxAttempts = 20, delayMs = 50) => {
     return new Promise((resolve) => {
       let attempts = 0
-      
       const checkDimensions = () => {
         const rect = canvas.getBoundingClientRect()
-        
         if (rect.width > 0 && rect.height > 0) {
           resolve({ width: rect.width, height: rect.height })
           return
         }
-        
         attempts++
         if (attempts >= maxAttempts) {
           console.warn('Canvas dimensions check timed out after', attempts, 'attempts')
           resolve(null)
           return
         }
-        
         setTimeout(checkDimensions, delayMs)
       }
-      
       checkDimensions()
     })
   }
@@ -191,37 +177,30 @@ export function useBesearchCanvas(canvasRef, onZoomChange = null) {
   })
 
   onUnmounted(() => {
-    destroy()
+    // destroy()
   })
 
   return {
     // State
     canvasState,
-
     // Initialization
     initializeCanvas,
     destroy,
-
     // Mode
     setMode,
-
     // Peer
     updatePeerPosition,
     updatePeerDirection,
-
     // Cycles
     addCycle,
     removeCycle,
-
     // Interventions
     addIntervention,
     removeIntervention,
-
     // Viewport
     zoomIn,
     zoomOut,
     resetZoom,
-
     // Direct access
     getCanvasManager
   }
