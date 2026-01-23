@@ -3,16 +3,12 @@
     <div id="bb-toolbar">
       <div class="bb-bar-main">a bentobox</div>
       <div class="bb-bar-main">
-        <button @click="besearchCycle(props.bboxid)">
-          besearch
-        </button>
-        <div id="besearch-cycle" v-if="besearchSelect">
-          <select class="select-cycle-save" id="besearch-options-save" v-model="besearchSave" @change="selectBesearchCycle()">
-            <option selected="" v-for="bsc in besearchList" :value="bsc.key">
-              {{ bsc.name }}
-            </option>
-          </select>
-        </div>
+        <bb-nexus-toolbar
+          anchor="bottom-right"
+          :initial-open="false"
+          :inline="true"
+          @action="handleNexusAction"
+        />
       </div>
       <div class="bb-bar-main">
         <button @click="clickSummaryLib(props.bboxid)" v-bind:class="{ active: libSum }">
@@ -46,6 +42,12 @@
     <share-protocol :bboxid="props.bboxid" :shareType="'privatechart'"></share-protocol>
   </div>
   <bb-tools v-if="boxToolsShow" :bboxid="props.bboxid"></bb-tools>
+  <besearch-create-form
+    :show="showBesearchCreate"
+    :initial-data="besearchPrefill"
+    @close="closeBesearchCreate"
+    @save="handleCreateBesearchCycle"
+  />
   <div id="library-summary" v-if="libSum">
     <div id="lib-summary">
       Library summary: {{ expLibrarySummary.key[0] }}
@@ -63,35 +65,30 @@
 
 <script setup>
 import BbTools from '@/components/bentobox/tools/vistoolBar.vue'
+import BbNexusToolbar from '@/components/nexus/bbNexusToolbar.vue'
+import BesearchCreateForm from '@/components/besearch/lifetools/besearchCreateForm.vue'
 import SpacesList from '@/components/bentobox/tools/share/spacesList.vue'
 import ShareProtocol from '@/components/bentobox/tools/shareForm.vue'
 import { ref, computed } from 'vue'
-import { cuesStore } from '@/stores/cuesStore.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { accountStore } from '@/stores/accountStore.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 import { teachingStore } from '@/stores/teachingStore.js'
+import { besearchStore } from '@/stores/besearchStore.js'
 
-  const storeCues = cuesStore()
   const storeAccount = accountStore()
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
   const storeLibrary = libraryStore()
   const storeTeaching = teachingStore()
+  const storeBesearch = besearchStore()
 
   let shareSelect = ref(false)
   const shareForm = ref(false)
   let libSum = ref(false)
-  let besearchList = ref([
-    { key: 'bsc-1111111', name: '24 hours' },
-    { key: 'bsc-2222222', name: '7 days' },
-    { key: 'bsc-3333333', name: '1 month' },
-    { key: 'bsc-4444444', name: '3 months' },
-    { key: 'bsc-5555555', name: '1 year' },
-  ])
-  let besearchSelect = ref('')
-  let besearchSave = ref('')
+  const showBesearchCreate = ref(false)
+  const besearchPrefill = ref({})
 
 const props = defineProps({
     bboxid: String
@@ -122,19 +119,120 @@ const selectedTimeFormat = ref('timeseries')
   })
 
   /* methods */
-  const besearchCycle = () => {
-    // display cycle option
-    besearchSelect.value = !besearchSelect.value
-    if (storeTeaching.isTeachingMode) {
-      storeTeaching.logAction('boxTools', 'besearchCycle', [props.bboxid], besearchSelect.value)
+  const buildBesearchPrefill = () => {
+    const cueContext = storeAI.liveBspace || {}
+    const cueId = cueContext.cueid || cueContext.spaceid || null
+    const cueName = cueContext.name || ''
+
+    const summary = storeAI.boxLibSummary?.[props.bboxid]?.data
+    const { contractKey: nxpContractId, contract: nxpContract } = storeLibrary.utilLibrary.resolveNXPFromSummary(
+      summary,
+      storeLibrary.peerLibraryNXP
+    )
+    const nxpName = nxpContract?.value?.name || nxpContract?.value?.concept?.name || ''
+
+    const computeMods = storeLibrary.utilLibrary.extractComputeModules(summary, nxpContractId)
+
+    const computeContract = computeMods[0]?.value?.info || null
+
+    besearchPrefill.value = {
+      name: nxpName ? `${nxpName} cycle` : (cueName ? `${cueName} cycle` : ''),
+      description: cueName ? `Derived from ${cueName} cue space` : '',
+      category: 'experimental',
+      status: 'working',
+      networkExperiment: nxpContractId || '',
+      marker: '',
+      frequency: 'daily',
+      cueId,
+      bboxid: props.bboxid,
+      nxpContractId,
+      computeContract
     }
   }
 
-  const selectBesearchCycle = () => {
-    console.log('select besearch cycle')
-    console.log(besearchSave.value)
+  const openBesearchCreate = () => {
+    storeAI.prepareLibrarySummary(props.bboxid)
+    buildBesearchPrefill()
+    showBesearchCreate.value = true
     if (storeTeaching.isTeachingMode) {
-      storeTeaching.logAction('boxTools', 'selectBesearchCycle', [besearchSave.value], null)
+      storeTeaching.logAction('boxTools', 'besearchCreate', [props.bboxid], true)
+    }
+  }
+
+  const closeBesearchCreate = () => {
+    showBesearchCreate.value = false
+  }
+
+  const handleCreateBesearchCycle = (formData) => {
+    const newCycle = {
+      id: `cycle-${Date.now()}`,
+      name: formData.name,
+      description: formData.description,
+      category: formData.category,
+      status: formData.status,
+      networkExperimentId: formData.networkExperiment,
+      markerIds: formData.marker ? [formData.marker] : [],
+      frequency: formData.frequency,
+      cueId: formData.cueId || storeAI.liveBspace?.cueid || null,
+      bboxid: formData.bboxid || props.bboxid,
+      nxpContractId: formData.nxpContractId || null,
+      computeContract: formData.computeContract || null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
+    storeBesearch.saveToHOP(newCycle)
+  }
+
+  const handleNexusAction = (action) => {
+    if (action === 'world:body') {
+      storeAI.bentobesearchState = true
+      storeBesearch.setNexusWorld('body')
+      return
+    }
+    if (action === 'world:cue') {
+      storeAI.bentobesearchState = true
+      storeBesearch.setNexusWorld('cues')
+      return
+    }
+    if (action === 'world:earth') {
+      storeAI.bentobesearchState = true
+      storeBesearch.setNexusWorld('earth')
+      return
+    }
+    if (action === 'besearch:create') {
+      openBesearchCreate()
+      return
+    }
+    if (action === 'besearch:start' || action === 'besearch:stop') {
+      return
+    }
+    if (action === 'context:cues') {
+      storeAI.bentocuesState = true
+      storeBesearch.setNexusContext({ source: 'bentobox', cueId: storeAI.liveBspace?.cueid || null })
+      return
+    }
+    if (action === 'context:library') {
+      storeAI.dataBoxStatus = true
+      storeLibrary.uploadStatus = false
+      storeLibrary.libraryStatus = true
+      storeBesearch.setNexusContext({ source: 'bentobox' })
+      return
+    }
+    if (action === 'context:space') {
+      storeAI.bentospaceState = true
+      storeBesearch.setNexusContext({ source: 'bentobox', spaceId: storeAI.liveBspace?.spaceid || null })
+      return
+    }
+    if (action === 'data:devices') {
+      storeAI.dataBoxStatus = true
+      storeLibrary.uploadStatus = false
+      storeLibrary.libraryStatus = false
+      storeBesearch.setNexusContext({ source: 'bentobox' })
+      return
+    }
+    if (action === 'peers:add' || action === 'peers:share') {
+      storeAccount.accountStatus = true
+      storeBesearch.setNexusContext({ source: 'bentobox' })
     }
   }
 
@@ -215,6 +313,7 @@ const selectedTimeFormat = ref('timeseries')
   text-align: center;
   cursor: pointer;
   z-index: 9;
+  overflow: visible;
 }
 
 #bentobox-cell {
@@ -226,6 +325,16 @@ const selectedTimeFormat = ref('timeseries')
 #bb-toolbar {
   display: grid;
   grid-template-columns: 4fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  align-items: center;
+  overflow: visible;
+  position: relative;
+  z-index: 30;
+}
+
+.bb-bar-main {
+  position: relative;
+  overflow: visible;
+  z-index: 31;
 }
 
 #bb-network-graph {

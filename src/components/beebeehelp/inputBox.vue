@@ -26,6 +26,9 @@
         BeeBee
       </button>
       <div id="agent-tools">
+        <button class="bbnexus-anchor" @click="openBbNexus" aria-label="Open bbNexus">
+          <img class="bbnexus-icon" src="../../assets/bbNexus-icon.png" alt="bbNexus" />
+        </button>
         <div id="agent-status" v-bind:class="{ active: agentStatus }" @mouseover="showAgents" @mouseleave="hideAgents">@a</div>
         <div id="agent-list" v-if="modelLoadingStatus === false && agentsActive === true">
           LLM is active
@@ -35,10 +38,17 @@
         </div>
       </div>
     </div>
+    <bb-nexus-toolbar
+      v-if="showBbNexus"
+      anchor="bottom-right"
+      :initial-open="storeAI.nexusAutoOpen"
+      @action="handleNexusAction"
+      @close="showBbNexus = false"
+    />
     <div id="tool-agents">
       <div id="tools-list">
-          <div id="upload-link" class="tool-type" @click="toolAgent('upload')" :class="{ 'active-tool': storeAI.isUploadMode }">@upload</div>
-          <div class="tool-type" @click="toolAgent('library')">@library</div>
+          <div id="upload-link" class="tool-type" @click="toolAgent('upload')" :class="{ 'active-tool': storeAI.isUploadMode, 'nexus-focus': nexusFocus === 'upload' }">@upload</div>
+          <div class="tool-type" @click="toolAgent('library')" :class="{ 'nexus-focus': nexusFocus === 'library' }">@library</div>
           <div class="tool-type" :class="{ 'active-tool': storeTeaching.isTeachingMode }" @click="toolAgent('teaching')">
             {{ storeTeaching.isTeachingMode ? '@teach ✓' : '@teach' }}
           </div>
@@ -49,8 +59,10 @@
 </template>
 
 <script setup>
-import DataBox from '@/components/dataspace/dataBox.vue'
+  import DataBox from '@/components/dataspace/dataBox.vue'
+  import BbNexusToolbar from '@/components/nexus/bbNexusToolbar.vue'
 import { libraryStore } from '@/stores/libraryStore.js'
+import { besearchStore } from '@/stores/besearchStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { teachingStore } from '@/stores/teachingStore.js'
 import { ref, computed, watch } from 'vue'
@@ -58,13 +70,16 @@ import { ref, computed, watch } from 'vue'
   const storeLibrary = libraryStore()
   const storeAI = aiInterfaceStore()
   const storeTeaching = teachingStore()
+  const storeBesearch = besearchStore()
 
   const props = defineProps({
     prompt: Object,
     chatcontext: String
    })
 
-   let agentsActive = ref(false)
+  let agentsActive = ref(false)
+  const showBbNexus = ref(false)
+  const nexusFocus = ref(null)
   // For watching the entire object
   /*
   watch(
@@ -175,6 +190,58 @@ import { ref, computed, watch } from 'vue'
     }
   }
 
+  const openBbNexus = () => {
+    storeAI.nexusAutoOpen = true
+    showBbNexus.value = !showBbNexus.value
+  }
+
+  const handleNexusAction = (action) => {
+    if (action === 'besearch:create') {
+      storeAI.bentobesearchState = false
+      storeBesearch.setNexusContext({ source: 'beebee' })
+      storeBesearch.openCreateForm()
+      return
+    }
+    if (action === 'context:library') {
+      nexusFocus.value = 'library'
+      toolAgent('library')
+      return
+    }
+    if (action === 'data:devices') {
+      nexusFocus.value = 'upload'
+      toolAgent('upload')
+      return
+    }
+    if (action === 'world:body') {
+      storeAI.bentobesearchState = true
+      storeBesearch.setNexusWorld('body')
+      return
+    }
+    if (action === 'world:cue') {
+      storeAI.bentobesearchState = true
+      storeBesearch.setNexusWorld('cues')
+      return
+    }
+    if (action === 'world:earth') {
+      storeAI.bentobesearchState = true
+      storeBesearch.setNexusWorld('earth')
+      return
+    }
+    if (action === 'context:cues') {
+      storeAI.cueAction = 'cues'
+      storeAI.bentocuesState = true
+      return
+    }
+    if (action === 'context:space') {
+      storeAI.bentospaceState = true
+      return
+    }
+    if (action === 'peers:add' || action === 'peers:share') {
+      storeAccount.accountStatus = true
+      return
+    }
+  }
+
 </script>
 
 <style scoped>
@@ -238,6 +305,23 @@ import { ref, computed, watch } from 'vue'
   display: inline-block;
   margin-right: 1em;
   cursor: pointer;
+}
+
+.bbnexus-anchor {
+  padding: 0;
+  border: none;
+  background: transparent;
+}
+
+.bbnexus-icon {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+}
+
+.nexus-focus {
+  color: #1e40af;
+  font-weight: 600;
 }
 
 .active-tool {

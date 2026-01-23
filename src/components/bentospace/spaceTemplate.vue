@@ -14,7 +14,7 @@
             Close
           </button>
           <div id="cue-space-header">
-            <div id="space-cue-title">BentoSpace # {{ storeAI.liveBspace.name }}</div>
+            <div id="space-cue-title">CueSpace # {{ storeAI.liveBspace.name }}</div>
             <div id="space-cueid"> - {{ storeAI.liveBspace.cueid }}</div>
             <div id="space-shared-cueid"> - {{ storeAI.sharePeer[storeAI.liveBspace.cueid] }}</div>
           </div>

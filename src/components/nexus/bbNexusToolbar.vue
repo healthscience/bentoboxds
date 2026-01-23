@@ -1,8 +1,9 @@
 <template>
   <div
+    ref="toolbarRef"
     class="bbnexus-toolbar"
-    :class="{ open: isOpen, dragging: isDragging }"
-    :style="{ top: position.y + 'px', left: position.x + 'px' }"
+    :class="{ open: isOpen, dragging: isDragging, inline: inline, 'anchor-bottom-right': !inline && isAnchored && anchor === 'bottom-right' }"
+    :style="isAnchored ? {} : { top: position.y + 'px', left: position.x + 'px' }"
   >
     <button
       class="bbnexus-toggle"
@@ -13,7 +14,25 @@
       <span class="bbnexus-label">bbNexus</span>
       <span class="bbnexus-grab">↔</span>
     </button>
+    <button v-if="isOpen" class="bbnexus-close" @click="emitClose">✕</button>
     <div class="bbnexus-panels" v-if="isOpen">
+      <div class="bbnexus-section">
+        <div class="bbnexus-title">Besearch</div>
+        <div class="bbnexus-buttons">
+          <button class="bbnexus-btn" @click="emitAction('besearch:create')">
+            <span class="bbnexus-btn-icon">🧪</span>
+            Create
+          </button>
+          <button class="bbnexus-btn" @click="emitAction('besearch:start')">
+            <span class="bbnexus-btn-icon">▶️</span>
+            Start
+          </button>
+          <button class="bbnexus-btn" @click="emitAction('besearch:stop')">
+            <span class="bbnexus-btn-icon">⏸️</span>
+            Stop
+          </button>
+        </div>
+      </div>
       <div class="bbnexus-section">
         <div class="bbnexus-title">Worlds</div>
         <div class="bbnexus-buttons">
@@ -92,11 +111,25 @@ const props = defineProps({
   activeWorld: {
     type: String,
     default: null
+  },
+  anchor: {
+    type: String,
+    default: null
+  },
+  initialOpen: {
+    type: Boolean,
+    default: false
+  },
+  inline: {
+    type: Boolean,
+    default: false
   }
 })
 
-const isOpen = ref(false)
+const isOpen = ref(props.initialOpen)
 const isDragging = ref(false)
+const isAnchored = ref(!!props.anchor)
+const toolbarRef = ref(null)
 const position = ref({ x: 120, y: 12 })
 const dragOffset = ref({ x: 0, y: 0 })
 
@@ -108,11 +141,23 @@ const emitAction = (action) => {
   emit('action', action)
 }
 
+const emitClose = () => {
+  emit('close')
+}
+
 const activeClass = (target) => {
   return props.activeWorld === target ? 'active' : ''
 }
 
 const startDrag = (event) => {
+  if (props.inline) {
+    return
+  }
+  if (isAnchored.value && toolbarRef.value) {
+    const rect = toolbarRef.value.getBoundingClientRect()
+    position.value = { x: rect.left, y: rect.top }
+    isAnchored.value = false
+  }
   isDragging.value = true
   dragOffset.value = {
     x: event.clientX - position.value.x,
@@ -151,6 +196,27 @@ onBeforeUnmount(() => {
   align-content: start;
 }
 
+.bbnexus-toolbar.inline {
+  position: relative;
+  top: auto;
+  left: auto;
+  z-index: 40;
+}
+
+.bbnexus-toolbar.inline .bbnexus-panels {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 50;
+}
+
+.bbnexus-toolbar.anchor-bottom-right {
+  right: 0;
+  bottom: 0;
+  top: auto;
+  left: auto;
+}
+
 .bbnexus-toggle {
   display: inline-flex;
   align-items: center;
@@ -161,6 +227,18 @@ onBeforeUnmount(() => {
   padding: 6px 12px;
   cursor: pointer;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.bbnexus-close {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid #d7d7e5;
+  background: #ffffff;
+  color: #5c5c78;
+  cursor: pointer;
+  align-self: start;
+  justify-self: end;
 }
 
 .bbnexus-grab {
@@ -233,5 +311,13 @@ onBeforeUnmount(() => {
 
 .bbnexus-btn:hover {
   background: #e8e8ff;
+}
+
+.anchor-bottom-right {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  left: auto;
+  top: auto;
 }
 </style>

@@ -1,6 +1,10 @@
 <template>
   <Teleport to="body">
-    <modal-besearch :show="bentoBesearchStatus" @close="closeBentoBesearch">
+    <modal-besearch
+      :show="bentoBesearchStatus"
+      :z-index="currentZIndex"
+      @close="closeBentoBesearch"
+    >
       Besearch
       <template #header>
         <div id="besearch-modal-header">
@@ -44,7 +48,7 @@
             </button>
           </div>
           <div id="canvas-container" ref="canvasContainer">
-            <div id="mode-display">{{ canvasState.currentMode }}</div>
+          <div id="mode-display">{{ storeBesearch.canvasState.currentMode }}</div>
             <div id="zoom-controls">
               <button @click="zoomIn" class="zoom-btn">+</button>
               <span class="zoom-display">{{ zoomPercentage }}%</span>
@@ -60,6 +64,7 @@
           </button>
           <beebee-ai></beebee-ai>
         </div>
+        <bento-cues />
         <!-- Intervention Toolbar -->
         <intervention-toolbar 
           ref="interventionToolbarRef"
@@ -81,21 +86,27 @@
 
 <script setup>
   import LifeTools from '@/components/besearch/lifetools/lifeNavtools.vue'
+  import BentoCues from '@/components/bentocues/healthCues.vue'
   import BbNexusToolbar from '@/components/nexus/bbNexusToolbar.vue'
 import InterventionToolbar from '@/components/besearch/interventionToolbar.vue'
 import { ref, computed, onMounted, onUnmounted, onUpdated, reactive, watch, nextTick } from 'vue'
-import BeebeeAi from '@/components/beebeehelp/spaceChat.vue'
+  import BeebeeAi from '@/components/beebeehelp/spaceChat.vue'
 import ModalBesearch from '@/components/besearch/besearchModal.vue'
-import { cuesStore } from '@/stores/cuesStore.js'
+  import { cuesStore } from '@/stores/cuesStore.js'
+  import { accountStore } from '@/stores/accountStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { besearchStore } from '@/stores/besearchStore.js'
+import { libraryStore } from '@/stores/libraryStore.js'
 import { useBesearchCanvas } from '@/composables/useBesearchCanvas.js'
 
   const storeCues = cuesStore()
   const storeAI = aiInterfaceStore()
+  const storeAccount = accountStore()
   const storeBentobox = bentoboxStore()
   const storeBesearch = besearchStore()
+  const storeLibrary = libraryStore()
+
 
   // Canvas references
   const canvasbe = ref(null)
@@ -179,7 +190,6 @@ import { useBesearchCanvas } from '@/composables/useBesearchCanvas.js'
 
   /* on unmount */
   onUnmounted(() => {
-    console.log('besearchCycle: Component unmounting')
     // Disconnect ResizeObserver
     /* if (resizeObserver) {
       resizeObserver.disconnect()
@@ -196,8 +206,14 @@ import { useBesearchCanvas } from '@/composables/useBesearchCanvas.js'
     return storeAI.bentobesearchState
   })
 
+  const currentZIndex = computed(() => {
+    return storeBentobox.isBentospaceActive ? 1100 : 1300
+  })
+
   const selectedIntervention = computed(() => storeBesearch.selectedIntervention)
   const selectedCategory = computed(() => storeBesearch.selectedCategory)
+  const nexusWorld = computed(() => storeBesearch.nexusContext.world)
+  const storeCanvasMode = computed(() => storeBesearch.canvasState.currentMode)
   const activeWorld = computed(() => {
     const mode = canvasState.currentMode
     if (mode === 'cues') return 'cues'
@@ -209,7 +225,6 @@ import { useBesearchCanvas } from '@/composables/useBesearchCanvas.js'
 
   // Watch for modal visibility to ensure canvas is properly initialized
   watch(bentoBesearchStatus, async (isOpen) => {
-  console.log('watch11111=============')
     if (isOpen) {
       // Wait a bit for the modal to fully render
       await nextTick()
@@ -264,6 +279,19 @@ import { useBesearchCanvas } from '@/composables/useBesearchCanvas.js'
     }
   })
 
+  watch(nexusWorld, (newWorld) => {
+    if (newWorld && canvasState.currentMode !== newWorld) {
+      setMode(newWorld)
+    }
+  })
+
+  watch(storeCanvasMode, (newMode) => {
+    if (newMode && canvasState.currentMode !== newMode) {
+      canvasState.currentMode = newMode
+      setMode(newMode)
+    }
+  })
+
   // Canvas initialization is now handled by useBesearchCanvas composable
   /* methods */
   const setShowBeeBee = () => {
@@ -284,8 +312,40 @@ import { useBesearchCanvas } from '@/composables/useBesearchCanvas.js'
     isLifeToolsOpen.value = false
   }
 
+
   const handleNexusAction = (action) => {
     console.log('bbNexus action:', action)
+    if (action === 'world:body') {
+      setMode('body')
+      storeBesearch.setNexusWorld('body')
+    } else if (action === 'world:cue') {
+      setMode('cues')
+      storeBesearch.setNexusWorld('cues')
+    } else if (action === 'world:earth') {
+      setMode('earth')
+      storeBesearch.setNexusWorld('earth')
+    } else if (action === 'besearch:create') {
+      storeBesearch.openCreateForm()
+    } else if (action === 'context:cues') {
+      storeAI.bentocuesState = true
+      storeBesearch.setNexusContext({ source: 'besearch', cueId: storeAI.liveBspace?.cueid || null })
+    } else if (action === 'context:library') {
+      storeAI.dataBoxStatus = true
+      storeLibrary.libraryStatus = true
+      storeLibrary.uploadStatus = false
+      storeBesearch.setNexusContext({ source: 'besearch' })
+    } else if (action === 'context:space') {
+      storeAI.bentospaceState = true
+      storeBesearch.setNexusContext({ source: 'besearch', spaceId: storeAI.liveBspace?.spaceid || null })
+    } else if (action === 'data:devices') {
+      storeAI.dataBoxStatus = true
+      storeLibrary.uploadStatus = true
+      storeLibrary.libraryStatus = false
+      storeBesearch.setNexusContext({ source: 'besearch' })
+    } else if (action === 'peers:add' || action === 'peers:share') {
+      storeAccount.accountStatus = true
+      storeBesearch.setNexusContext({ source: 'besearch' })
+    }
   }
 
   // Intervention toolbar handlers

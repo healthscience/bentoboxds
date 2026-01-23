@@ -116,6 +116,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     boxModelUpdate: {},
     computeModuleLast: {},
     bentobesearchState: false,
+    nexusAutoOpen: false,
     cueAction: 'cues',
     agentStatus: false,
     modelLoading: false,

@@ -1,23 +1,24 @@
-<template>
-  <div v-if="show" class="besearch-create-form-overlay" @click="closeForm">
-    <div class="besearch-create-form" @click.stop>
-      <div class="form-header">
-        <h3>Create New Besearch Cycle</h3>
-        <button class="close-btn" @click="closeForm">✕</button>
-      </div>
-
-      <form @submit.prevent="handleSubmit" class="create-form">
-        <div class="form-group">
-          <label for="cycleName">Besearch Cycle Name</label>
-          <input
-            id="cycleName"
-            v-model="formData.name"
-            type="text"
-            placeholder="Enter cycle name"
-            required
-            class="form-input"
-          />
+ca<template>
+  <Teleport to="body">
+    <div v-if="show" class="besearch-create-form-overlay" @click="closeForm">
+      <div class="besearch-create-form" @click.stop>
+        <div class="form-header">
+          <h3>Create New Besearch Cycle</h3>
+          <button class="close-btn" @click="closeForm">✕</button>
         </div>
+
+        <form @submit.prevent="handleSubmit" class="create-form">
+          <div class="form-group">
+            <label for="cycleName">Besearch Cycle Name</label>
+            <input
+              id="cycleName"
+              v-model="formData.name"
+              type="text"
+              placeholder="Enter cycle name"
+              required
+              class="form-input"
+            />
+          </div>
         <div class="form-group">
           <label for="cycleDescription">Description</label>
           <textarea
@@ -114,17 +115,18 @@
           </select>
         </div>
 
-        <div class="form-actions">
-          <button type="button" class="cancel-btn" @click="closeForm">Cancel</button>
-          <button type="submit" class="save-btn" :disabled="!isFormValid">Create</button>
-        </div>
-      </form>
+          <div class="form-actions">
+            <button type="button" class="cancel-btn" @click="closeForm">Cancel</button>
+            <button type="submit" class="save-btn" :disabled="!isFormValid">Create</button>
+          </div>
+        </form>
+      </div>
     </div>
-  </div>
+  </Teleport>
 </template>
 
 <script setup>
-import { ref, computed, defineEmits, defineProps } from 'vue'
+import { ref, computed, defineEmits, defineProps, watch } from 'vue'
 import { besearchStore } from '@/stores/besearchStore.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 import { cuesStore } from '@/stores/cuesStore.js'
@@ -133,6 +135,10 @@ import { cuesStore } from '@/stores/cuesStore.js'
     show: {
       type: Boolean,
       default: false
+    },
+    initialData: {
+      type: Object,
+      default: () => ({})
     }
   })
 
@@ -169,6 +175,16 @@ import { cuesStore } from '@/stores/cuesStore.js'
     frequency: ''
   })
 
+  const applyInitialData = () => {
+    if (!props.initialData || Object.keys(props.initialData).length === 0) {
+      return
+    }
+    formData.value = {
+      ...formData.value,
+      ...props.initialData
+    }
+  }
+
   const isFormValid = computed(() => {
     return formData.value.name.trim() &&
           formData.value.description.trim() &&
@@ -203,6 +219,14 @@ import { cuesStore } from '@/stores/cuesStore.js'
       frequency: ''
     }
   }
+
+  watch(
+    () => props.initialData,
+    () => {
+      applyInitialData()
+    },
+    { deep: true, immediate: true }
+  )
 </script>
 
 <style scoped>
@@ -218,10 +242,12 @@ import { cuesStore } from '@/stores/cuesStore.js'
   display: grid;
   align-items: center;
   justify-content: center;
-  z-index: 20000;
+  z-index: 30000;
 }
 
 .besearch-create-form {
+  position: relative;
+  z-index: 30001;
   background: white;
   border-radius: 8px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);

@@ -14,6 +14,15 @@ export const besearchStore = defineStore('besearchstore', {
     // UI state for component communication
     selectedIntervention: null,
     selectedCategory: null,
+    showCreateForm: false,
+    // bbNexus shared context payload
+    nexusContext: {
+      world: 'cues',
+      cueId: null,
+      spaceId: null,
+      bentoboxId: null,
+      source: 'besearch'
+    },
     // Canvas state persistence
     canvasState: {
       peerPositions: {
@@ -66,6 +75,12 @@ export const besearchStore = defineStore('besearchstore', {
     }
   },
   actions: {
+    openCreateForm() {
+      this.showCreateForm = true
+    },
+    closeCreateForm() {
+      this.showCreateForm = false
+    },
     // Save besearch data to HOP with specific action
     saveToHOP(besearchData) {
       try {
@@ -220,6 +235,25 @@ export const besearchStore = defineStore('besearchstore', {
     clearSelection() {
       this.selectedIntervention = null
       this.selectedCategory = null
+    },
+    setNexusContext(context) {
+      this.nexusContext = { ...this.nexusContext, ...context }
+    },
+    setNexusWorld(world) {
+      this.nexusContext.world = world
+      this.canvasState.currentMode = world
+    },
+    setNexusSource(source) {
+      this.nexusContext.source = source
+    },
+    setNexusCue(cueId) {
+      this.nexusContext.cueId = cueId
+    },
+    setNexusSpace(spaceId) {
+      this.nexusContext.spaceId = spaceId
+    },
+    setNexusBentobox(bentoboxId) {
+      this.nexusContext.bentoboxId = bentoboxId
     }
   }
 })

@@ -46,7 +46,12 @@
       </div>
     </div>
     <bento-cues></bento-cues>
-    <bento-besearch v-if="agentActive === 'besearch'"></bento-besearch>
+    <bento-besearch v-if="agentActive === 'besearch' || bentoBesearchStatus === true"></bento-besearch>
+    <besearch-create-form
+      :show="storeBesearch.showCreateForm"
+      @close="closeBesearchCreate"
+      @save="handleCreateBesearchCycle"
+    />
     <bento-flake></bento-flake>
     <bento-space></bento-space>
     <bento-graph v-if="bentoGraphStatus === true"></bento-graph>
@@ -60,6 +65,7 @@ import BodyDiagram from '@/components/beebeeView/diagrams/bodyDiagram.vue'
 import ChatMenu from '@/components/beebeeView/navigation/chatMenu.vue'
 import BentoCues from '@/components/bentocues/healthCues.vue'
 import BentoBesearch from '@/components/besearch/besearchCycle.vue'
+import BesearchCreateForm from '@/components/besearch/lifetools/besearchCreateForm.vue'
 import BentoFlake from '@/components/bentocues/flakeCues.vue'
 import BentoGraph from '@/components/bentocues/graphCues.vue'
 import SpaceMenu from '@/components/beebeeView/navigation/spaceMenu.vue'
@@ -71,10 +77,12 @@ import { cuesStore } from '@/stores/cuesStore.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { libraryStore } from '@/stores/libraryStore.js'
+import { besearchStore } from '@/stores/besearchStore.js'
 import { computed } from 'vue'
 
   const storeAccount = accountStore()
   const storeCues = cuesStore()
+  const storeBesearch = besearchStore()
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
   const storeLibrary = libraryStore()
@@ -109,6 +117,10 @@ import { computed } from 'vue'
 
   const bentoGraphStatus = computed(() => {
     return storeAI.bentographState
+  })
+
+  const bentoBesearchStatus = computed(() => {
+    return storeAI.bentobesearchState
   })
 
   const historyList = computed(() => {
@@ -200,6 +212,30 @@ import { computed } from 'vue'
     storeAI.dataBoxStatus = true
     storeAI.uploadStatus = false
     storeLibrary.libraryStatus = true
+  }
+
+  const closeBesearchCreate = () => {
+    storeBesearch.closeCreateForm()
+  }
+
+  const handleCreateBesearchCycle = (formData) => {
+    const newCycle = {
+      id: `cycle-${Date.now()}`,
+      name: formData.name,
+      description: formData.description,
+      category: formData.category,
+      status: formData.status,
+      networkExperimentId: formData.networkExperiment,
+      markerIds: formData.marker ? [formData.marker] : [],
+      frequency: formData.frequency,
+      cueId: formData.cueId || storeAI.liveBspace?.cueid || null,
+      bboxid: formData.bboxid || null,
+      nxpContractId: formData.nxpContractId || null,
+      computeContract: formData.computeContract || null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    }
+    storeBesearch.saveToHOP(newCycle)
   }
 
 </script>

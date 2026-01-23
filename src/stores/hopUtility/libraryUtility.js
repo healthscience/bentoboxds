@@ -172,6 +172,33 @@ class LibraryUtility { //  extends EventEmitter {
   }
 
   /**
+  * Resolve a summary data blob into a contract key and NXP contract
+  * @method resolveNXPFromSummary
+  */
+  resolveNXPFromSummary = function (summaryData, nxpList) {
+    if (!summaryData) {
+      return { contractKey: null, contract: {} }
+    }
+    const contractKey = Object.keys(summaryData)[0] || null
+    if (!contractKey) {
+      return { contractKey: null, contract: {} }
+    }
+    const contract = this.matchNXPcontract(contractKey, nxpList)
+    return { contractKey, contract }
+  }
+
+  /**
+  * Extract compute module contracts from an NXP summary data blob
+  * @method extractComputeModules
+  */
+  extractComputeModules = function (summaryData, contractKey) {
+    if (!summaryData || !contractKey || !summaryData[contractKey]?.modules) {
+      return []
+    }
+    return summaryData[contractKey].modules.filter(mod => mod?.value?.style === 'compute')
+  }
+
+  /**
   * 
   * match ref contract id to full ref contract
   * @method matchRefContract
