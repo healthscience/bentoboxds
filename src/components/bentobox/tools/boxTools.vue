@@ -134,6 +134,15 @@ const selectedTimeFormat = ref('timeseries')
     const computeMods = storeLibrary.utilLibrary.extractComputeModules(summary, nxpContractId)
 
     const computeContract = computeMods[0]?.value?.info || null
+    const computeOptions = computeMods
+      .map((mod) => mod?.value?.info)
+      .filter((info) => info && info.key && info.value?.computational?.name)
+      .map((info) => ({
+        id: info.key,
+        name: info.value.computational.name,
+        contract: info
+      }))
+    const computeContractId = computeOptions[0]?.id || computeContract?.key || ''
 
     besearchPrefill.value = {
       name: nxpName ? `${nxpName} cycle` : (cueName ? `${cueName} cycle` : ''),
@@ -146,7 +155,9 @@ const selectedTimeFormat = ref('timeseries')
       cueId,
       bboxid: props.bboxid,
       nxpContractId,
-      computeContract
+      computeContract,
+      computeContractId,
+      computeOptions
     }
   }
 

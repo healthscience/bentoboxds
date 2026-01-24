@@ -42,23 +42,10 @@ ca<template>
             <option value="prevention">Prevention</option>
             <option value="repair">Repair</option>
             <option value="rejuvenation">Rejuvenation</option>
+            <option value="rejuvenation">Statistics</option>
+            <option value="rejuvenation">DML</option>
             <option value="experimental">Experimental</option>
             <option value="custom">Custom</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="status">Status</label>
-          <select
-            id="status"
-            v-model="formData.status"
-            required
-            class="form-select"
-          >
-            <option value="">Select status</option>
-            <option value="pending">Pending</option>
-            <option value="working">Working</option>
-            <option value="experimentation">Experimentation</option>
-            <option value="no effect">No effect</option>
           </select>
         </div>
         <div class="form-group">
@@ -76,6 +63,24 @@ ca<template>
               :value="experiment.id"
             >
               {{ experiment.name }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="computeContract">Computation</label>dd--{{ formData.networkExperiment }}
+          <select
+            id="computeContract"
+            v-model="formData.computeContractId"
+            :required="computeOptions.length > 0"
+            class="form-select"
+          >
+            <option value="">Select computation</option>
+            <option
+              v-for="compute in computeOptions"
+              :key="compute.id"
+              :value="compute.id"
+            >
+              {{ compute.name }}
             </option>
           </select>
         </div>
@@ -114,7 +119,6 @@ ca<template>
             <option value="custom">Custom</option>
           </select>
         </div>
-
           <div class="form-actions">
             <button type="button" class="cancel-btn" @click="closeForm">Cancel</button>
             <button type="submit" class="save-btn" :disabled="!isFormValid">Create</button>
@@ -130,6 +134,7 @@ import { ref, computed, defineEmits, defineProps, watch } from 'vue'
 import { besearchStore } from '@/stores/besearchStore.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 import { cuesStore } from '@/stores/cuesStore.js'
+import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   const props = defineProps({
     show: {
@@ -147,6 +152,7 @@ import { cuesStore } from '@/stores/cuesStore.js'
   const storeBesearch = besearchStore()
   const storeLibrary = libraryStore()
   const storeCues = cuesStore()
+  const storeAI = aiInterfaceStore()
 
   /* computed */
   const networkExperiments = computed(() => {
@@ -171,8 +177,14 @@ import { cuesStore } from '@/stores/cuesStore.js'
     category: '',
     status: '',
     networkExperiment: '',
+    computeContractId: '',
     marker: '',
     frequency: ''
+  })
+  const didSetDefaultCompute = ref(false)
+
+  const computeOptions = computed(() => {
+    
   })
 
   const applyInitialData = () => {
@@ -181,18 +193,22 @@ import { cuesStore } from '@/stores/cuesStore.js'
     }
     formData.value = {
       ...formData.value,
-      ...props.initialData
+      ...props.initialData,
+      computeContractId: props.initialData.computeContractId || props.initialData.computeContract?.key || ''
     }
+    didSetDefaultCompute.value = false
   }
 
   const isFormValid = computed(() => {
+    const hasComputeRequirement = computeOptions.value.length > 0
     return formData.value.name.trim() &&
           formData.value.description.trim() &&
           formData.value.category &&
           formData.value.status &&
           formData.value.networkExperiment &&
           formData.value.marker &&
-          formData.value.frequency
+          formData.value.frequency &&
+          (!hasComputeRequirement || formData.value.computeContractId)
   })
 
   const handleSubmit = () => {
@@ -215,9 +231,11 @@ import { cuesStore } from '@/stores/cuesStore.js'
       category: '',
       status: '',
       networkExperiment: '',
+      computeContractId: '',
       marker: '',
       frequency: ''
     }
+    didSetDefaultCompute.value = false
   }
 
   watch(
@@ -226,6 +244,26 @@ import { cuesStore } from '@/stores/cuesStore.js'
       applyInitialData()
     },
     { deep: true, immediate: true }
+  )
+
+  watch(
+    () => formData.value.networkExperiment,
+    () => {
+      formData.value.computeContractId = ''
+      didSetDefaultCompute.value = false
+    }
+  )
+
+  watch(
+    computeOptions,
+    (options) => {
+      const safeOptions = Array.isArray(options) ? options : []
+      if (!didSetDefaultCompute.value && !formData.value.computeContractId && safeOptions.length > 0) {
+        formData.value.computeContractId = safeOptions[0].id
+        didSetDefaultCompute.value = true
+      }
+    },
+    { immediate: true }
   )
 </script>
 
