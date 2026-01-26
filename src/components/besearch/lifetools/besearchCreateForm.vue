@@ -154,6 +154,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   const storeCues = cuesStore()
   const storeAI = aiInterfaceStore()
 
+  const didSetDefaultCompute = ref(false)
+
   /* computed */
   const networkExperiments = computed(() => {
     return storeLibrary.peerExperimentList?.data || []
@@ -171,6 +173,11 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     return sortedContracts
   })
 
+  const computeOptions = computed(() => {
+    let computeInfo = {} // storeLibrary.utilLibrary.getContractInfo({ type: 'network-experiment', contractid: formData.networkExperiment, asked: 'compute-reference' })
+    return computeInfo || []
+  })
+
   const formData = ref({
     name: '',
     description: '',
@@ -180,11 +187,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     computeContractId: '',
     marker: '',
     frequency: ''
-  })
-  const didSetDefaultCompute = ref(false)
-
-  const computeOptions = computed(() => {
-    
   })
 
   const applyInitialData = () => {

@@ -202,34 +202,39 @@ class LibraryUtility { //  extends EventEmitter {
   * Resolve compute reference contracts for a given NXP id
   * @method getComputeRefContracts
   */
-  getComputeRefContracts = function ({ nxpId, nxpList, refContracts }) {
-    if (!nxpId || !Array.isArray(nxpList) || !refContracts?.compute) {
-      console.warn('getComputeRefContracts: missing inputs', {
-        nxpId,
-        nxpListCount: Array.isArray(nxpList) ? nxpList.length : null,
-        hasComputeRefs: Boolean(refContracts?.compute)
-      })
-      return []
+  /**
+  * Resolve compute reference contracts for a given NXP id
+  * @method getContractInfo
+  */
+  getContractInfo =function ( context, askBack) {
+
+    let contractData = {}
+    // compute contract = askback
+    //   is a network experiemnt provided or compute module contract  or a reference contract id?
+    if (context.type === 'network-experiment') {
+      // get the full network experiment contract
+      let fullNXPcontract = this.matchNXPcontract(context.key, 'publiclibray')
+      if (askBack === 'compute-reference') {
+        // first look extract compute module and then get compute reference contract
+        // are there other compute models available? Or Could be added?
+
+      } else if (askBack === 'data-packaging') {
+
+      }
+    } else if (context.type === 'reference-contract') {
+
+    } else if (context.type === 'module-contract') {
+
     }
-    const nxpContract = this.matchNXPcontract(nxpId, nxpList)
-    if (!nxpContract || Object.keys(nxpContract).length === 0) {
-      console.warn('getComputeRefContracts: no NXP match', { nxpId })
-    }
-    const modules = nxpContract?.modules || nxpContract?.exp?.modules || []
-    if (!Array.isArray(modules)) {
-      console.warn('getComputeRefContracts: modules not array', { nxpId, modules })
-      return []
-    }
-    const computeRefs = modules
-      .filter((mod) => mod?.value?.style === 'compute' && mod?.value?.info?.key)
-      .map((mod) => this.matchRefContract(mod.value.info.key, refContracts, 'compute'))
-      .filter((ref) => ref?.key && ref?.value?.computational?.name)
-    console.log('getComputeRefContracts: resolved', {
-      nxpId,
-      moduleCount: modules.length,
-      computeRefCount: computeRefs.length
-    })
-    return computeRefs
+    /*
+        reference contract
+      ->  use funciton to parase reference contract to extract detail
+
+    if  module contract    find module info and parse out compute reference contract(s)
+
+    if nxp  network experiment   look up and get modules list and if now reference contract detail  look up the refereces given in the compute module
+    */
+    return contractData
   }
 
   /**

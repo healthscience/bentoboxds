@@ -6,7 +6,9 @@
           <slot name="header">default header</slot>
         </div>
         <div class="modal-body">
-          <div id="ecdiary">Diary Please {{ smartDiary }}</div>
+          <heli-clock></heli-clock>
+          <!--<DigitalCalendar>DSC</DigitalCalendar>-->
+          <div id="ecdiary">Old World Calendar {{ smartDiary }}</div>
           <slot name="body">
             
             default body
@@ -29,6 +31,8 @@
 
 <script setup>
 import { ref, nextTick, computed, onMounted, onUpdated } from 'vue'
+import heliClock from '@/components/bentodiary/heliStart.vue'
+import DigitalCalendar from '@/components/bentodiary/digitalSolarCalendar.vue'
 import { diaryStore } from '@/stores/diaryStore.js'
 
   const storeDiary = diaryStore()  

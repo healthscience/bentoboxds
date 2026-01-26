@@ -9,7 +9,6 @@ import ToolbarMain from '@/components/toolbars/mainTools.vue'
 import DataBox from '@/components/dataspace/dataBox.vue'
 import { RouterView } from 'vue-router'
 import { useSocketStore } from '@/stores/socket.js'
-import { besearchStore } from '@/stores/besearchStore.js'
 
   const storeWebsocket = useSocketStore()
   storeWebsocket.init_chat()
