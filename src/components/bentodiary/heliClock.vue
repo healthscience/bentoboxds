@@ -1,37 +1,33 @@
 <template>
   <div class="heli-container">
     <div class="orbital-grid">
-      <svg viewBox="0 0 100 100" class="layer progress-ring-svg">
+      <svg viewBox="0 0 100 100" class="heli-svg">
         <path 
           v-for="day in 365" 
           :key="day"
           :d="describeArc(50, 50, 42, (day-1) * 0.986, day * 0.986)"
-          :class="{
-            'cell-passed': (day * 0.986) <= currentDegree,
-            'cell-future': (day * 0.986) > currentDegree
-          }"
+          :class="day * 0.986 <= currentDegree ? 'cell-passed' : 'cell-future'"
         />
-        <path 
-          :d="describeArc(50, 50, 42, birthSignature - 1, birthSignature + 1)"
-          class="cell-birth"
+
+        <circle 
+          cx="50" cy="50" r="42" 
+          class="birth-line-fixed"
+          :transform="`rotate(${birthSignature - 90} 50 50)`"
+          stroke-dasharray="2, 360" 
+        />
+
+        <circle 
+          cx="50" 
+          :cy="50 - 42" 
+          r="2.5" 
+          class="current-dot-fixed"
+          :transform="`rotate(${currentDegree} 50 50)`"
         />
       </svg>
 
-      <div class="layer markers-container">
-        <div class="marker birth-signature" :style="markerStyle(birthSignature)"></div>
-        <div class="marker current-position" :style="markerStyle(currentDegree)"></div>
-      </div>
-      
       <div class="center-sun">
         <span class="degree-text">{{ currentDegree.toFixed(2) }}°</span>
-        <span class="label">HELI</span>
       </div>
-    </div>
-
-    <div class="solar-stats">
-      <h3>Solar Signature: {{ birthSignature }}°</h3>
-      <p>Zenith: {{ currentZenith.toFixed(2) }}°</p>
-      <p class="status">{{ seasonalLabel }}</p>
     </div>
   </div>
 </template>
@@ -87,28 +83,41 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-/* Simplified BentoBox Grid logic */
-.heli-container {
-  display: grid;
-  justify-items: center;
-  gap: 20px;
-  background: #fdfdfd;
-  padding: 30px;
-  border-radius: 24px;
-}
 .orbital-grid {
+  position: relative; /* Anchor for anything absolute */
+  width: 100%;
+  max-width: 400px;
+  aspect-ratio: 1 / 1;
   display: grid;
-  grid-template-areas: "content";
   place-items: center;
-  width: 320px;
-  height: 320px;
 }
-.layer { grid-area: content; width: 100%; height: 100%; }
-.cell-passed { stroke: #4facfe; stroke-opacity: 0.6; fill: none; stroke-width: 4; }
-.cell-future { stroke: #e1e8ed; fill: none; stroke-width: 4; }
-.cell-birth { stroke: #ffd700; fill: none; stroke-width: 8; stroke-linecap: round; }
-.marker { position: absolute; width: 12px; height: 12px; border-radius: 50%; top: 50%; left: 50%; margin: -6px; }
-.current-position { background: #ffeb3b; box-shadow: 0 0 15px gold; }
-.birth-signature { border: 2px solid #ffd700; background: white; }
-.center-sun { grid-area: content; z-index: 3; text-align: center; }
+
+.heli-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible; /* Ensures glow effects aren't clipped */
+  filter: drop-shadow(0 0 10px rgba(0,0,0,0.05));
+}
+
+/* These are now SVG properties, not CSS box properties */
+.cell-passed { stroke: #4facfe; stroke-width: 2; fill: none; }
+.cell-future { stroke: #e1e8ed; stroke-width: 2; fill: none; }
+
+.birth-line-fixed {
+  stroke: #ffd700;
+  stroke-width: 4;
+  fill: none;
+  stroke-linecap: round;
+}
+
+.current-dot-fixed {
+  fill: #ffeb3b;
+  filter: drop-shadow(0 0 4px gold);
+}
+
+.center-sun {
+  position: absolute; /* Relative to orbital-grid center */
+  text-align: center;
+  pointer-events: none;
+}
 </style>
