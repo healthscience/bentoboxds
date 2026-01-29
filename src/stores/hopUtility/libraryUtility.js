@@ -1,7 +1,5 @@
 'use strict'
 
-import { uniq } from "@vueuse/core/metadata.cjs"
-
 /**
 *  LibraryUtility
 *
@@ -156,6 +154,24 @@ class LibraryUtility { //  extends EventEmitter {
   }
 
   /**
+  * Resolve compute reference contracts for a given NXP id
+  * @method getContractInfo
+  */
+  getContractInfo =function (contractID, contractType, libraryPart) {
+    let contractData = {}
+    // is a network experiemnt provided or compute module contract  or a reference contract id?
+    if (contractType === 'network-experiment') {
+      // get the full network experiment contract
+      contractData = this.matchNXPcontract(contractID, libraryPart)
+    } else if (contractType === 'module-contract') {
+      contractData = this.matchNXPcontractMod(contractID, libraryPart)
+    } else if (contractType === 'reference-contract') {
+      // extract from module contract provided
+    }
+    return contractData
+  }
+
+  /**
   * 
   * select the network experiment contract for HOP
   * @method matchNXPcontract
@@ -199,45 +215,6 @@ class LibraryUtility { //  extends EventEmitter {
   }
 
   /**
-  * Resolve compute reference contracts for a given NXP id
-  * @method getComputeRefContracts
-  */
-  /**
-  * Resolve compute reference contracts for a given NXP id
-  * @method getContractInfo
-  */
-  getContractInfo =function ( context, askBack) {
-
-    let contractData = {}
-    // compute contract = askback
-    //   is a network experiemnt provided or compute module contract  or a reference contract id?
-    if (context.type === 'network-experiment') {
-      // get the full network experiment contract
-      let fullNXPcontract = this.matchNXPcontract(context.key, 'publiclibray')
-      if (askBack === 'compute-reference') {
-        // first look extract compute module and then get compute reference contract
-        // are there other compute models available? Or Could be added?
-
-      } else if (askBack === 'data-packaging') {
-
-      }
-    } else if (context.type === 'reference-contract') {
-
-    } else if (context.type === 'module-contract') {
-
-    }
-    /*
-        reference contract
-      ->  use funciton to parase reference contract to extract detail
-
-    if  module contract    find module info and parse out compute reference contract(s)
-
-    if nxp  network experiment   look up and get modules list and if now reference contract detail  look up the refereces given in the compute module
-    */
-    return contractData
-  }
-
-  /**
   * 
   * match ref contract id to full ref contract
   * @method matchRefContract
@@ -253,7 +230,6 @@ class LibraryUtility { //  extends EventEmitter {
     return refContract
   }
 
-
   /* 
   * provide summary of experiment to use in bentobox
   * @method boxLibrarySummary
@@ -265,6 +241,24 @@ class LibraryUtility { //  extends EventEmitter {
       modKeys.push(mod)
     }
     return modKeys
+  }
+
+  /**
+  * 
+  * match to Module Contract from NXP module list
+  * @method matchNXPcontractMod
+  *
+  */
+  matchNXPcontractMod = function (contractID, contStyle) {
+    let modContract = {}
+    for (let mod of modulesList) {
+      if (mod !== undefined) {
+        if (mod.value.style === contStyle) {
+          modContract = mod
+        }
+      }
+    }
+    return modContract
   }
 
   /* 

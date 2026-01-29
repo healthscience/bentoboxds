@@ -66,3 +66,19 @@ flowchart TD
 5. **Save cycle payload**
    - Update [`src/stores/besearchStore.js`](src/stores/besearchStore.js:1) save action to accept the added fields.
 
+## 6. Model Evolution & Learning (The Emulation Layer)
+The HOP system uses a 'Low-Res to High-Fidelity' growth strategy.
+
+### A. Evolutionary Seed
+- Every peer starts with a 'Base Model' (e.g., a generic 4-chamber heart or a linear river path).
+- The Heli Clock tracks the **Fidelity Score**: the resonance between the Base Model's predictions and real-world sensor feedback.
+
+### B. Machine Learning Emulation (Physics-Informed)
+- Avoid 'Black Box' AI. Use Physics-Informed ML that respects the Orbital Vector.
+- Data points logged at specific θ_solar/θ_earth coordinates are used to 'carve' the model. 
+  - *Example:* HRV peaks at θ_solar=180° adjust the simulated heart's electrical conductivity parameters.
+  - *Example:* Rainfall at θ_earth=270° adjusts the river model's meander-velocity coefficients.
+
+### C. Feedback Loops
+- **Validation:** Use 'Ghost Anchors' to compare the Emulated Model's projected state against real-world captures (Satellite, PPG, Ledger Proofs).
+- **Growth:** The model 'evolves' its geometry (shape of the heart valves, curvature of the riverbed) over multiple Earth Cycles.

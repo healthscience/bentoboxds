@@ -85,15 +85,15 @@
 </template>
 
 <script setup>
-  import LifeTools from '@/components/besearch/lifetools/lifeNavtools.vue'
-  import BentoCues from '@/components/bentocues/healthCues.vue'
-  import BbNexusToolbar from '@/components/nexus/bbNexusToolbar.vue'
-import InterventionToolbar from '@/components/besearch/interventionToolbar.vue'
 import { ref, computed, onMounted, onUnmounted, onUpdated, reactive, watch, nextTick } from 'vue'
-  import BeebeeAi from '@/components/beebeehelp/spaceChat.vue'
+import LifeTools from '@/components/besearch/lifetools/lifeNavtools.vue'
+import BentoCues from '@/components/bentocues/healthCues.vue'
+import BbNexusToolbar from '@/components/nexus/bbNexusToolbar.vue'
+import InterventionToolbar from '@/components/besearch/interventionToolbar.vue'
+import BeebeeAi from '@/components/beebeehelp/spaceChat.vue'
 import ModalBesearch from '@/components/besearch/besearchModal.vue'
-  import { cuesStore } from '@/stores/cuesStore.js'
-  import { accountStore } from '@/stores/accountStore.js'
+import { cuesStore } from '@/stores/cuesStore.js'
+import { accountStore } from '@/stores/accountStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { besearchStore } from '@/stores/besearchStore.js'

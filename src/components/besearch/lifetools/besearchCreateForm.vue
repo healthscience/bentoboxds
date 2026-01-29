@@ -67,6 +67,7 @@ ca<template>
           </select>
         </div>
         <div class="form-group">
+          <button @click="getComputeContracts()">Get Contracts</button>
           <label for="computeContract">Computation</label>dd--{{ formData.networkExperiment }}
           <select
             id="computeContract"
@@ -93,6 +94,7 @@ ca<template>
             class="form-select"
           >
             <option value="">Select marker</option>
+            <option value="none">none</option>
             <option
               v-for="marker in markers"
               :key="marker.key"
@@ -111,11 +113,8 @@ ca<template>
             class="form-select"
           >
             <option value="">Select frequency</option>
-            <option value="daily">Daily</option>
-            <option value="weekly">Weekly</option>
-            <option value="monthly">Monthly</option>
-            <option value="quarterly">Quarterly</option>
-            <option value="yearly">Yearly</option>
+            <option value="solar-cycle">Solar cycle</option>
+            <option value="earth-cycle">Great orbit</option>
             <option value="custom">Custom</option>
           </select>
         </div>
@@ -154,8 +153,48 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   const storeCues = cuesStore()
   const storeAI = aiInterfaceStore()
 
+    const formData = ref({
+    name: '',
+    description: '',
+    category: '',
+    status: '',
+    networkExperiment: '',
+    computeContractId: '',
+    marker: '',
+    frequency: ''
+  })
   const didSetDefaultCompute = ref(false)
+  let computeOptions = ref([])
 
+  /* watchers */
+  /*  watch(
+    () => props.initialData,
+    () => {
+      applyInitialData()
+    },
+    { deep: true, immediate: true }
+  )
+
+  watch(
+    () => formData.value.networkExperiment,
+    () => {
+      formData.value.computeContractId = ''
+      didSetDefaultCompute.value = false
+    }
+  )
+
+  watch(
+    computeOptions,
+    (options) => {
+      const safeOptions = Array.isArray(options) ? options : []
+      if (!didSetDefaultCompute.value && !formData.value.computeContractId && safeOptions.length > 0) {
+        formData.value.computeContractId = safeOptions[0].id
+        didSetDefaultCompute.value = true
+      }
+    },
+    { immediate: true }
+  )
+*/
   /* computed */
   const networkExperiments = computed(() => {
     return storeLibrary.peerExperimentList?.data || []
@@ -173,21 +212,13 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     return sortedContracts
   })
 
-  const computeOptions = computed(() => {
-    let computeInfo = {} // storeLibrary.utilLibrary.getContractInfo({ type: 'network-experiment', contractid: formData.networkExperiment, asked: 'compute-reference' })
+/*  const computeOptions = computed(() => {
+    let computeInfo = storeLibrary.contractInfoGetAsk({ context: { type: 'network-experiment', contractid: formData.networkExperiment }, asked: { style: 'reference', type: 'compute' }})
+    console.log('compute reference contracts')
+    console.log(computeInfo)
     return computeInfo || []
   })
-
-  const formData = ref({
-    name: '',
-    description: '',
-    category: '',
-    status: '',
-    networkExperiment: '',
-    computeContractId: '',
-    marker: '',
-    frequency: ''
-  })
+*/
 
   const applyInitialData = () => {
     if (!props.initialData || Object.keys(props.initialData).length === 0) {
@@ -213,6 +244,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
           (!hasComputeRequirement || formData.value.computeContractId)
   })
 
+  /* methods */
   const handleSubmit = () => {
     if (isFormValid.value) {
       emit('save', { ...formData.value })
@@ -240,33 +272,14 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     didSetDefaultCompute.value = false
   }
 
-  watch(
-    () => props.initialData,
-    () => {
-      applyInitialData()
-    },
-    { deep: true, immediate: true }
-  )
+  const getComputeContracts = () => {
+    console.log('click get update contracts+++++++++++++')
+    let computeInfo = storeLibrary.contractInfoGetAsk({ context: { type: 'network-experiment', contractid: formData.value.networkExperiment }, asked: { style: 'reference', type: 'compute' }})
+    console.log('compute reference contracts ooooooooooooooo')
+    console.log(computeInfo)
+    return computeInfo || []
+  }
 
-  watch(
-    () => formData.value.networkExperiment,
-    () => {
-      formData.value.computeContractId = ''
-      didSetDefaultCompute.value = false
-    }
-  )
-
-  watch(
-    computeOptions,
-    (options) => {
-      const safeOptions = Array.isArray(options) ? options : []
-      if (!didSetDefaultCompute.value && !formData.value.computeContractId && safeOptions.length > 0) {
-        formData.value.computeContractId = safeOptions[0].id
-        didSetDefaultCompute.value = true
-      }
-    },
-    { immediate: true }
-  )
 </script>
 
 <style scoped>
