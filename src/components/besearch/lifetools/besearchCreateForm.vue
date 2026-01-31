@@ -7,7 +7,7 @@ ca<template>
           <button class="close-btn" @click="closeForm">✕</button>
         </div>
 
-        <form @submit.prevent="handleSubmit" class="create-form">
+        <form class="create-form">
           <div class="form-group">
             <label for="cycleName">Besearch Cycle Name</label>
             <input
@@ -67,23 +67,25 @@ ca<template>
           </select>
         </div>
         <div class="form-group">
-          <button @click="getComputeContracts()">Get Contracts</button>
-          <label for="computeContract">Computation</label>dd--{{ formData.networkExperiment }}
-          <select
-            id="computeContract"
-            v-model="formData.computeContractId"
-            :required="computeOptions.length > 0"
-            class="form-select"
-          >
-            <option value="">Select computation</option>
-            <option
-              v-for="compute in computeOptions"
-              :key="compute.id"
-              :value="compute.id"
+          <button @click="getComputeContracts()">Get compute contracts</button>
+          <div id="compute-contract-options" v-if="formData?.networkExperiment?.length > 0">
+            <label for="computeContract">Computation</label>
+            <select
+              id="computeContract"
+              v-model="formData.computeContractId"
+              :required="computeOptions.length > 0"
+              class="form-select"
             >
-              {{ compute.name }}
-            </option>
-          </select>
+              <option value="">Select computation</option>
+              <option
+                v-for="compute in computeOptions"
+                :key="compute.key"
+                :value="compute.key"
+              >
+                {{ compute.value.computational.name }}
+              </option>
+            </select>
+          </div>
         </div>
         <div class="form-group">
           <label for="marker">Marker</label>
@@ -115,12 +117,14 @@ ca<template>
             <option value="">Select frequency</option>
             <option value="solar-cycle">Solar cycle</option>
             <option value="earth-cycle">Great orbit</option>
-            <option value="custom">Custom</option>
+            <option value="solar-sector">Sector</option>
+            <option value="solar-arc">Arc</option>            
+            <option value="custom">Custom sector</option>
           </select>
         </div>
           <div class="form-actions">
-            <button type="button" class="cancel-btn" @click="closeForm">Cancel</button>
-            <button type="submit" class="save-btn" :disabled="!isFormValid">Create</button>
+            <button type="button" class="cancel-btn" @click.prevent="closeForm">Cancel</button>
+            <button type="submit" class="save-btn" @click.prevent="saveBesearch()">Create</button>
           </div>
         </form>
       </div>
@@ -129,7 +133,7 @@ ca<template>
 </template>
 
 <script setup>
-import { ref, computed, defineEmits, defineProps, watch } from 'vue'
+import { ref, computed, defineEmits, defineProps, onActivated, watch, nextTick } from 'vue'
 import { besearchStore } from '@/stores/besearchStore.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 import { cuesStore } from '@/stores/cuesStore.js'
@@ -153,7 +157,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   const storeCues = cuesStore()
   const storeAI = aiInterfaceStore()
 
-    const formData = ref({
+  const formData = ref({
     name: '',
     description: '',
     category: '',
@@ -166,35 +170,29 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   const didSetDefaultCompute = ref(false)
   let computeOptions = ref([])
 
-  /* watchers */
-  /*  watch(
-    () => props.initialData,
-    () => {
-      applyInitialData()
-    },
-    { deep: true, immediate: true }
-  )
+  onActivated(() => {
+    applyInitialData()
+  })
 
   watch(
-    () => formData.value.networkExperiment,
-    () => {
-      formData.value.computeContractId = ''
-      didSetDefaultCompute.value = false
+    () => props.show,
+    async (isOpen) => {
+      if (!isOpen) return
+      await nextTick()
+      applyInitialData()
     }
   )
 
   watch(
-    computeOptions,
-    (options) => {
-      const safeOptions = Array.isArray(options) ? options : []
-      if (!didSetDefaultCompute.value && !formData.value.computeContractId && safeOptions.length > 0) {
-        formData.value.computeContractId = safeOptions[0].id
-        didSetDefaultCompute.value = true
-      }
+    () => props.initialData,
+    async () => {
+      if (!props.show) return
+      await nextTick()
+      applyInitialData()
     },
-    { immediate: true }
+    { deep: true }
   )
-*/
+
   /* computed */
   const networkExperiments = computed(() => {
     return storeLibrary.peerExperimentList?.data || []
@@ -212,45 +210,30 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     return sortedContracts
   })
 
-/*  const computeOptions = computed(() => {
-    let computeInfo = storeLibrary.contractInfoGetAsk({ context: { type: 'network-experiment', contractid: formData.networkExperiment }, asked: { style: 'reference', type: 'compute' }})
-    console.log('compute reference contracts')
-    console.log(computeInfo)
-    return computeInfo || []
-  })
-*/
-
+  /* methods */
   const applyInitialData = () => {
-    if (!props.initialData || Object.keys(props.initialData).length === 0) {
-      return
+    console.log('apply initial data')
+    console.log(props.initialData)
+    if (props.initialData) {
+      formData.value = { ...props.initialData }
+      if (props.initialData.computeContractId) {
+        didSetDefaultCompute.value = true
+      }
     }
-    formData.value = {
-      ...formData.value,
-      ...props.initialData,
-      computeContractId: props.initialData.computeContractId || props.initialData.computeContract?.key || ''
-    }
-    didSetDefaultCompute.value = false
   }
 
-  const isFormValid = computed(() => {
-    const hasComputeRequirement = computeOptions.value.length > 0
-    return formData.value.name.trim() &&
-          formData.value.description.trim() &&
-          formData.value.category &&
-          formData.value.status &&
-          formData.value.networkExperiment &&
-          formData.value.marker &&
-          formData.value.frequency &&
-          (!hasComputeRequirement || formData.value.computeContractId)
-  })
-
-  /* methods */
-  const handleSubmit = () => {
-    if (isFormValid.value) {
-      emit('save', { ...formData.value })
-      emit('close') // Close the overlay after successful submission
-      resetForm()
-    }
+  const saveBesearch = () => {
+    console.log('save besearch')
+    emit('save', { ...formData.value })
+    emit('close') // Close the overlay after successful submission
+    resetForm()
+    // console.log(isFormVal.value)
+    /* if (isFormVal.value) {
+      console.log('form is valid')
+      // emit('save', { ...formData.value })
+      // emit('close') // Close the overlay after successful submission
+      // resetForm()
+    } */
   }
 
   const closeForm = () => {
@@ -274,15 +257,25 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   const getComputeContracts = () => {
     console.log('click get update contracts+++++++++++++')
-    let computeInfo = storeLibrary.contractInfoGetAsk({ context: { type: 'network-experiment', contractid: formData.value.networkExperiment }, asked: { style: 'reference', type: 'compute' }})
+    console.log(storeLibrary.publicLibrary.referenceContracts.compute)
+    let computeRefList = []
+    /* let computeInfo = storeLibrary.contractInfoGetAsk({ context: { type: 'network-experiment', contractid: formData.value.networkExperiment }, asked: { style: 'reference', type: 'compute' }})
     console.log('compute reference contracts ooooooooooooooo')
     console.log(computeInfo)
-    return computeInfo || []
+    computeRefList.push(computeInfo)
+    console.log('compute reference contracts')
+    console.log(computeRefList) */
+    // get all compute reference contracts in library
+    computeRefList = storeLibrary.publicLibrary.referenceContracts.compute
+    console.log('compute reference contracts')
+    console.log(computeRefList)
+    computeOptions.value = computeRefList || []
   }
 
 </script>
 
 <style scoped>
+
 .besearch-create-form-overlay {
   position: fixed;
   top: 0;

@@ -1,6 +1,8 @@
 /**
  * HOPDataBridge - Handles communication between canvas and HOP data store
  */
+import { watch } from 'vue';
+
 export class HOPDataBridge {
   constructor(besearchStore) {
     this.besearchStore = besearchStore;
@@ -12,15 +14,40 @@ export class HOPDataBridge {
    * Set up listeners for store changes
    */
   setupStoreListeners() {
-    // Only listen to specific properties to avoid excessive updates
-    // The canvas manager will poll for data when needed instead
+    if (!this.besearchStore) {
+      return;
+    }
+
+    let lastSignature = this.getCyclesSignature(this.getBesearchCycles());
+
+    watch(
+      () => this.besearchStore.besearchCyles,
+      (cycles) => {
+        const signature = this.getCyclesSignature(cycles || []);
+        if (signature !== lastSignature) {
+          lastSignature = signature;
+          this.emit('cycles-updated', this.getBesearchCycles());
+        }
+      },
+      { deep: false }
+    );
+  }
+
+  getCyclesSignature(cycles = []) {
+    if (cycles.length === 0) {
+      return '0';
+    }
+    const lastCycle = cycles[cycles.length - 1];
+    const lastKey = lastCycle?.key || lastCycle?.id || lastCycle?.value?.id || '';
+    const lastUpdated = lastCycle?.updatedAt || lastCycle?.value?.updatedAt || '';
+    return `${cycles.length}:${lastKey}:${lastUpdated}`;
   }
 
   /**
    * Get besearch cycles from store
    */
   getBesearchCycles() {
-    return this.besearchStore?.besearchCyles || [];
+    return this.besearchStore?.besearchCyclesNormalized || this.besearchStore?.besearchCyles || [];
   }
 
   /**
@@ -130,8 +157,9 @@ export class HOPDataBridge {
    * Add besearch cycle to store
    */
   addBesearchCycle(cycle) {
+    console.log('Adding besearch cycle to store:', cycle);
     if (this.besearchStore) {
-      this.besearchStore.addBesearchCycle(cycle);
+      // this.besearchStore.addBesearchCycle(cycle);
     }
   }
 
@@ -140,7 +168,7 @@ export class HOPDataBridge {
    */
   updateBesearchCycle(cycleId, updates) {
     if (this.besearchStore) {
-      this.besearchStore.updateBesearchCycle(cycleId, updates);
+      // this.besearchStore.updateBesearchCycle(cycleId, updates);
     }
   }
 

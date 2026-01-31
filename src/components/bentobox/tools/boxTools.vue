@@ -133,25 +133,18 @@ const selectedTimeFormat = ref('timeseries')
 
     const computeMods = storeLibrary.utilLibrary.extractComputeModules(summary, nxpContractId)
 
-    const computeContract = computeMods[0]?.value?.info || null
-    const computeOptions = computeMods
-      .map((mod) => mod?.value?.info)
-      .filter((info) => info && info.key && info.value?.computational?.name)
-      .map((info) => ({
-        id: info.key,
-        name: info.value.computational.name,
-        contract: info
-      }))
-    const computeContractId = computeOptions[0]?.id || computeContract?.key || ''
+    const computeContract = null
+    const computeOptions = []
+    const computeContractId = ''
 
     besearchPrefill.value = {
       name: nxpName ? `${nxpName} cycle` : (cueName ? `${cueName} cycle` : ''),
       description: cueName ? `Derived from ${cueName} cue space` : '',
-      category: 'experimental',
-      status: 'working',
+      category: '',
+      status: '',
       networkExperiment: nxpContractId || '',
       marker: '',
-      frequency: 'daily',
+      frequency: '',
       cueId,
       bboxid: props.bboxid,
       nxpContractId,
@@ -191,7 +184,8 @@ const selectedTimeFormat = ref('timeseries')
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     }
-    storeBesearch.saveToHOP(newCycle)
+    console.log('New besearch cycle fae BB:', newCycle)
+    // storeBesearch.saveToHOP(newCycle)
   }
 
   const handleNexusAction = (action) => {

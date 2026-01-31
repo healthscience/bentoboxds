@@ -1,5 +1,7 @@
 'use strict'
 
+import { ref } from "vue"
+
 /**
 *  LibraryUtility
 *
@@ -169,6 +171,15 @@ class LibraryUtility { //  extends EventEmitter {
       // extract from module contract provided
     }
     return contractData
+  }
+
+  /**
+  * extract info. from a reference contract
+  * @method extractRefContract
+  */
+  extractRefContract = function (contractID, extractType, refContract) {
+    let computeContract = refContract.value.info.computational
+    return computeContract
   }
 
   /**

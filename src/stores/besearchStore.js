@@ -5,6 +5,7 @@ import { useSocketStore } from '@/stores/socket.js'
 export const besearchStore = defineStore('besearchstore', {
   state: () => ({
     socketStore: new useSocketStore(),
+    besearchHistoryStatus: false,
     besearchCyles: [],
     spaceLocation: [
     ],
@@ -40,6 +41,30 @@ export const besearchStore = defineStore('besearchstore', {
     }
   }),
   getters: {
+    besearchCyclesNormalized: (state) => {
+      return state.besearchCyles.map((entry, index) => {
+        const value = entry?.value || entry || {}
+        return {
+          hopKey: entry?.key,
+          seq: entry?.seq ?? index,
+          id: value.id || entry?.key || `cycle-${index}`,
+          name: value.name || 'New Cycle',
+          description: value.description || '',
+          category: value.category || 'custom',
+          status: value.status || 'pending',
+          networkExperimentId: value.networkExperimentId || value.networkExperiment || '',
+          markerIds: value.markerIds || value.marker || [],
+          consilience: value.consilience || [],
+          besearchCycles: value.besearchCycles || [],
+          createdAt: value.createdAt,
+          updatedAt: value.updatedAt,
+          x: value.x ?? 200,
+          y: value.y ?? 200,
+          active: value.active !== false,
+          linkedInterventions: value.linkedInterventions || []
+        }
+      })
+    },
     interventionsByCategory: (state) => {
       const grouped = {
         prevention: [],
@@ -101,13 +126,13 @@ export const besearchStore = defineStore('besearchstore', {
         return { success: false, message: 'Failed to save: ' + error.message }
       }
     },
-    // delete besearch item
-    deleteToHOP(besearchItem) {
+    // delete besearch item 
+    deleteBesearch(besearchItem) {
       try {
         // Prepare message for HOP
         let bcContract = {
-          type: 'besearch',
-          action: 'besearch-cycle',
+          type: 'library',
+          action: 'besearch',
           reftype: 'besearch-cycle',
           task: 'DEL',
           privacy: 'private',
@@ -115,10 +140,10 @@ export const besearchStore = defineStore('besearchstore', {
         }
         // Send via socket to HOP
         this.socketStore.send_message(bcContract)
-        return { success: true, message: `${action} operation saved successfully` }
+        // remove from besearch history
+        this.besearchHistory = this.besearchCyles.filter(item => item.key !== besearchItem.id)
       } catch (error) {
         console.error('Error saving to HOP:', error)
-        return { success: false, message: 'Failed to save: ' + error.message }
       }
     },
     // Load besearch data from HOP
@@ -150,13 +175,21 @@ export const besearchStore = defineStore('besearchstore', {
         return { success: false, message: 'Failed to load: ' + error.message }
       }
     },
-    // Process reply from HOP (to be called by socket store)
+    // Process reply from HOP
     processReply(replyData) {
       // saved or start data
       if (replyData.action === 'besearch-history') {
+        this.besearchCyles = replyData.data
       } else if (replyData.action === 'besearch-contract') {
         // add besearch item to besearch world canvas
-        try {
+        console.log('besearch contract reply saved')
+        console.log(replyData)
+        const savedEntry = replyData.data?.data || replyData.data || replyData
+        const normalizedEntry = savedEntry?.key && savedEntry?.value
+          ? savedEntry
+          : { key: savedEntry?.key || savedEntry?.id, value: savedEntry?.value || savedEntry }
+        this.besearchCyles.push(normalizedEntry)
+        /* try {
           if (replyData.data && replyData.data.besearchCycles) {
             // Update besearch cycles
             this.besearchCyles = replyData.data.besearchCycles
@@ -183,7 +216,7 @@ export const besearchStore = defineStore('besearchstore', {
           this.isLoading = false
           this.loadError = 'Failed to process reply: ' + error.message
           return { success: false, message: 'Failed to process reply: ' + error.message }
-        }
+        }*/
       }
     },
     updatePeerPosition(position) {

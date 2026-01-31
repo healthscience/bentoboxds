@@ -245,6 +245,10 @@ export const libraryStore = defineStore('librarystore', {
       // if ask is reference contracts then a module contract is needed if that is not availble then look up network experiment, parse out relevant module contract and parse out reference contract(s)
       console.log('contract info start')
       console.log(contextBundle)
+      console.log('peer library')
+      console.log(this.peerLibraryNXP)
+      console.log('publick library')
+      console.log(this.publicLibrary)
       let contractData = {}
       if (contextBundle.asked.style) {
         if (contextBundle.asked.style === 'reference') {
@@ -255,17 +259,13 @@ export const libraryStore = defineStore('librarystore', {
           } else if (contextBundle.context.type === 'module-contract') {
             contractData = this.utilLibrary.getContractInfo(contextBundle.context.contractid, 'module-contract', this.publicLibrary.networkExpModules)
           } else if (contextBundle.context.type === 'network-experiment') {
-            console.log('ntwork exper found')
             let contractNXP = this.utilLibrary.getContractInfo(contextBundle.context.contractid, 'network-experiment', this.peerLibraryNXP)
-            console.log(contractNXP)
             // next need to extract out compute module and then get compute reference contract
             for (let mod of contractNXP.modules) {
-              console.log(mod)
-              console.log(contextBundle.asked)
               if (mod.value.style === contextBundle.asked.type) {
                 console.log('found compute module')
                 console.log(mod)
-                contractData = {} // direct to extract from module contract?? // this.utilLibrary.getContractInfo(mod.key, 'reference', this.publicLibrary.referenceContracts)
+                contractData = this.utilLibrary.extractRefContract(mod.key, contextBundle.asked.type, mod)
               }
             }
           }
