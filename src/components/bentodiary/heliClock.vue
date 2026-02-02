@@ -5,8 +5,8 @@
         <path 
           v-for="day in 365" 
           :key="day"
-          :d="describeArc(50, 50, 42, (day-1) * 0.986, day * 0.986)"
-          :class="day * 0.986 <= currentDegree ? 'cell-passed' : 'cell-future'"
+          :d="describeArc(50, 50, 42, (day-1) * 0.9863, day * 0.9863)"
+          :class="day * 0.9863 <= currentDegree ? 'cell-passed' : 'cell-future'"
         />
 
         <circle 
@@ -33,16 +33,17 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import init, { HeliCore } from '../.././wasm/heli_engine.js';
+import { computed } from 'vue';
+import { diaryStore } from '@/stores/diaryStore.js';
+
+const store = diaryStore();
 
 const props = defineProps({
   birthSignature: { type: Number, default: 85.3 } // June 16th Signature
 });
 
-const currentDegree = ref(0);
-const currentZenith = ref(0);
-const isLoaded = ref(false);
+const currentDegree = computed(() => store.currentVector);
+const currentZenith = computed(() => store.currentZenith);
 
 const markerStyle = (deg) => ({
   transform: `rotate(${deg}deg) translateY(-140px)`
@@ -56,7 +57,7 @@ const seasonalLabel = computed(() => {
   return '↑ Hibernal Rest';
 });
 
-// WASM Helpers
+// SVG Helpers
 const describeArc = (x, y, radius, start, end) => {
   const polarToCart = (r, deg) => ({
     x: x + r * Math.cos((deg - 90) * Math.PI / 180),
@@ -66,20 +67,6 @@ const describeArc = (x, y, radius, start, end) => {
   const e = polarToCart(radius, start);
   return `M ${s.x} ${s.y} A ${radius} ${radius} 0 0 0 ${e.x} ${e.y}`;
 };
-
-onMounted(async () => {
-  await init();
-  isLoaded.value = true;
-  
-  const tick = () => {
-    const ts = BigInt(Date.now());
-    currentDegree.value = HeliCore.get_orbital_degree(ts);
-    // Lat/Lon for your local Zenith (example: 56.46, -2.97)
-    currentZenith.value = HeliCore.get_zenith_angle(56.46, -2.97, ts);
-    requestAnimationFrame(tick);
-  };
-  tick();
-});
 </script>
 
 <style scoped>

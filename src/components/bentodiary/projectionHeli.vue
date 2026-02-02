@@ -72,6 +72,12 @@
             <circle cx="50" cy="50" r="36" class="track-line track-inner" />
             
             <path :d="describeArc(50, 50, 46, 0, currentYearlyDegree)" class="arc-yearly" />
+            <path 
+              v-for="day in 365" 
+              :key="day"
+              :d="describeArc(50, 50, 46, (day-1) * 0.9863, day * 0.9863)"
+              :class="day * 0.9863 <= currentYearlyDegree ? 'cell-passed' : 'cell-future'"
+            />
 
             <g :transform="`rotate(${storedSignature}, 50, 50)`">
               <line x1="50" y1="4" x2="50" y2="14" class="tether-birth" />
@@ -105,6 +111,10 @@
             <g :transform="`rotate(${projectionTargetYearly}, 50, 50)`">
               <line x1="50" y1="2" x2="50" y2="6" class="sun-whisper-line" />
               <circle cx="50" cy="4" r="3.5" class="sun-outer-marker" />
+            </g>
+            <g :transform="`rotate(${currentYearlyDegree}, 50, 50)`">
+              <circle cx="50" cy="4" r="4" class="sun-glow" />
+              <circle cx="50" cy="4" r="2.2" class="sun-core" />
             </g>
             <g :transform="`rotate(${activeDailyDegree}, 50, 50)`">
               <circle cx="50" cy="14" r="5" :class="['sun-glow', { colliding: hasCollision }]" />
@@ -145,22 +155,28 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import init, { HeliCore } from '../.././wasm/heli_engine.js';
+import { diaryStore } from '@/stores/diaryStore.js';
+
+const store = diaryStore();
 
 const isCalibrated = ref(false);
 const isProjecting = ref(false);
 const daySeeker = ref(0);
 const birthDate = ref('');
 const birthTime = ref('12:00');
-const tempSignature = ref(null);
+const tempSignature = computed(() => store.tempSignature);
 const storedSignature = ref(0);
 const birthTimestamp = ref(0);
-const currentYearlyDegree = ref(0);
-const currentDailyDegree = ref(0);
+
+const currentYearlyDegree = computed(() => store.currentVector);
+const currentDailyDegree = computed(() => (store.currentVector * 365.24) % 360);
+
 const nowTs = ref(Date.now());
 const projectedTs = ref(Date.now());
-const projectionTargetDaily = ref(0);
-const projectionTargetYearly = ref(0);
+
+const projectionTargetYearly = computed(() => store.projectionData.yearly);
+const projectionTargetDaily = computed(() => store.projectionData.daily);
+
 const committedEvents = ref([]);
 const newEventLabel = ref('');
 const selectedPeerId = ref("");
@@ -179,9 +195,11 @@ const hasCollision = computed(() => {
 const syncFromDays = () => {
   isProjecting.value = daySeeker.value !== 0;
   projectedTs.value = Date.now() + (daySeeker.value * 86400000);
-  const yearly = HeliCore.get_orbital_degree(BigInt(projectedTs.value));
-  projectionTargetYearly.value = yearly;
-  projectionTargetDaily.value = (yearly * 365.24) % 360;
+  
+  store.sendMessageHOP({
+    type: 'heli-project',
+    timestamp: projectedTs.value
+  });
 };
 
 const handleManualInput = (val) => {
@@ -209,8 +227,7 @@ const resetToNow = () => { isProjecting.value = false; daySeeker.value = 0; newE
 const jumpToEvent = (e) => {
   isProjecting.value = true;
   projectedTs.value = e.ts;
-  projectionTargetDaily.value = e.dailyDegree;
-  projectionTargetYearly.value = e.yearlyDegree;
+  store.setProjectionData({ yearly: e.yearlyDegree, daily: e.dailyDegree });
   daySeeker.value = Math.round((e.ts - Date.now()) / 86400000);
 };
 
@@ -228,55 +245,41 @@ const activeCycles = computed(() => {
 
 const projectedDateString = computed(() => new Date(projectedTs.value).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }));
 
-const startClock = () => {
-  const tick = () => {
-    nowTs.value = Date.now();
-    const yearly = HeliCore.get_orbital_degree(BigInt(nowTs.value));
-    currentYearlyDegree.value = yearly;
-    currentDailyDegree.value = (yearly * 365.24) % 360;
-    if (!isProjecting.value) {
-      projectionTargetYearly.value = currentYearlyDegree.value;
-      projectionTargetDaily.value = currentDailyDegree.value;
-      projectedTs.value = nowTs.value;
-    }
-    requestAnimationFrame(tick);
-  };
-  tick();
-};
-
-onMounted(async () => {
-  await init();
+onMounted(() => {
   const sig = localStorage.getItem('heli_sig_v9');
   const ts = localStorage.getItem('heli_ts_v9');
   if (sig && ts) {
     storedSignature.value = parseFloat(sig);
     birthTimestamp.value = parseInt(ts);
     isCalibrated.value = true;
-    startClock();
   }
 });
 
 const updatePreview = () => {
   if (!birthDate.value) return;
   const ts = new Date(`${birthDate.value}T${birthTime.value}:00Z`).getTime();
-  tempSignature.value = HeliCore.get_orbital_degree(BigInt(ts));
+  store.sendMessageHOP({
+    type: 'heli-calculate',
+    timestamp: ts,
+    action: 'get-signature'
+  });
 };
 
 const lockSignature = () => {
   const ts = new Date(`${birthDate.value}T${birthTime.value}:00Z`).getTime();
-  storedSignature.value = tempSignature.value;
+  storedSignature.value = tempSignature.value || 0;
   birthTimestamp.value = ts;
   localStorage.setItem('heli_sig_v9', storedSignature.value.toString());
   localStorage.setItem('heli_ts_v9', ts.toString());
   isCalibrated.value = true;
-  startClock();
 };
 
 const describeArc = (x, y, r, start, end) => {
   const rad = (deg) => (deg - 90) * Math.PI / 180.0;
   const s = { x: x + r * Math.cos(rad(end)), y: y + r * Math.sin(rad(end)) };
   const e = { x: x + r * Math.cos(rad(start)), y: y + r * Math.sin(rad(start)) };
-  return `M ${s.x} ${s.y} A ${r} ${r} 0 ${end - start <= 180 ? "0" : "1"} 0 ${e.x} ${e.y}`;
+  const largeArc = (end - start + 360) % 360 <= 180 ? "0" : "1";
+  return `M ${s.x} ${s.y} A ${r} ${r} 0 ${largeArc} 0 ${e.x} ${e.y}`;
 };
 </script>
 
@@ -292,6 +295,8 @@ const describeArc = (x, y, r, start, end) => {
 .track-line { fill: none; stroke: #f1f5f9; }
 .track-outer { stroke-width: 1; }
 .track-inner { stroke-width: 4; }
+.cell-passed { stroke: #4facfe; stroke-width: 2; fill: none; }
+.cell-future { stroke: #e1e8ed; stroke-width: 2; fill: none; }
 .arc-yearly { fill: none; stroke: #3b82f6; stroke-width: 2.5; opacity: 0.4; }
 .atmosphere-glow { fill: #fbbf24; filter: blur(20px); transition: 0.5s; }
 

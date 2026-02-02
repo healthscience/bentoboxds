@@ -7,6 +7,7 @@ import { bentoboxStore } from "@/stores/bentoboxStore.js"
 import { useChatStore } from '@/stores/chatStore.js'
 import { cuesStore } from "@/stores/cuesStore.js"
 import { besearchStore } from "@/stores/besearchStore.js"
+import { diaryStore } from "@/stores/diaryStore.js"
 
 export const useSocketStore = defineStore({
   id: "socket",
@@ -18,6 +19,7 @@ export const useSocketStore = defineStore({
     libStore: libraryStore(),
     accStore: accountStore(),
     besearchStore: besearchStore(),
+    diaryStore: diaryStore(),
     jwt: '',
     count: 0,
     websocket: {},
@@ -94,6 +96,12 @@ export const useSocketStore = defineStore({
         this.accStore.processReply(received)
       } else if (received.type === 'besearch') {
         this.besearchStore.processReply(received)
+      } else if (received.type === 'heli-tick') {
+        this.diaryStore.updateClock(received.vector, received.zenith)
+      } else if (received.type === 'heli-calculate-reply') {
+        this.diaryStore.setTempSignature(received.signature)
+      } else if (received.type === 'heli-project-reply') {
+        this.diaryStore.setProjectionData(received.data)
       } else if (received.type == '') {
         console.log('error')
       }

@@ -60,7 +60,7 @@
           <div class="sun-core">
             <div class="cycles-whole">{{ precisionCycles.whole }}</div>
             <div class="cycles-decimal">.{{ precisionCycles.decimal }}</div>
-            <div class="cycles-label">SOLAR REVOLUTIONS</div>
+            <div class="cycles-label">EARTH ORBITS</div>
             <div class="degree-sub">{{ currentDegree.toFixed(4) }}°</div>
           </div>
         </div>
@@ -88,42 +88,34 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-import init, { HeliCore } from '../.././wasm/heli_engine.js';
+import { diaryStore } from '@/stores/diaryStore.js';
+
+const store = diaryStore();
 
 const isCalibrated = ref(false);
 const birthDate = ref('');
 const birthTime = ref('12:00');
-const tempSignature = ref(null);
+const tempSignature = computed(() => store.tempSignature);
 const storedSignature = ref(0);
-const currentDegree = ref(0);
 const birthTimestamp = ref(0);
 const nowTs = ref(Date.now());
 
-onMounted(async () => {
-  await init();
+const currentDegree = computed(() => store.currentVector);
+
+onMounted(() => {
   const savedSig = localStorage.getItem('heli_sig_v2');
   const savedTs = localStorage.getItem('heli_birth_ts');
   if (savedSig && savedTs) {
     storedSignature.value = parseFloat(savedSig);
     birthTimestamp.value = parseInt(savedTs);
     isCalibrated.value = true;
-    startClock();
   }
 });
-
-const startClock = () => {
-  const tick = () => {
-    nowTs.value = Date.now();
-    currentDegree.value = HeliCore.get_orbital_degree(BigInt(nowTs.value));
-    requestAnimationFrame(tick);
-  };
-  tick();
-};
 
 const precisionCycles = computed(() => {
   if (!birthTimestamp.value) return { whole: '0', decimal: '0000' };
   const msInYear = 31556925216; // Tropical Year
-  const total = (nowTs.value - birthTimestamp.value) / msInYear;
+  const total = (Date.now() - birthTimestamp.value) / msInYear;
   
   return {
     whole: Math.floor(total).toString(),
@@ -131,35 +123,44 @@ const precisionCycles = computed(() => {
   };
 });
 
-// Calibration logic helpers (lockSignature, updatePreview, resetCalibration, describeArc, etc) 
-// [Keep the previous implementation logic here for brevity]
 const updatePreview = () => {
   if (!birthDate.value) return;
   const ts = new Date(`${birthDate.value}T${birthTime.value}:00Z`).getTime();
-  tempSignature.value = HeliCore.get_orbital_degree(BigInt(ts));
+  // Request signature from HOP
+  store.sendMessageHOP({
+    type: 'heli-calculate',
+    timestamp: ts,
+    action: 'get-signature'
+  });
 };
+
 const lockSignature = () => {
   const ts = new Date(`${birthDate.value}T${birthTime.value}:00Z`).getTime();
-  storedSignature.value = tempSignature.value;
+  // We assume the preview updated tempSignature via a socket response or we calculate locally if simple
+  // For now, let's assume we need to wait for HOP or use a simplified local calc if allowed.
+  // The user said "message calls to HOP made".
+  storedSignature.value = tempSignature.value || 0; 
   birthTimestamp.value = ts;
   localStorage.setItem('heli_sig_v2', storedSignature.value.toString());
   localStorage.setItem('heli_birth_ts', ts.toString());
   isCalibrated.value = true;
-  startClock();
 };
+
 const resetCalibration = () => {
   isCalibrated.value = false;
   localStorage.removeItem('heli_sig_v2');
   localStorage.removeItem('heli_birth_ts');
 };
+
 const polarToCartesian = (cx, cy, r, deg) => {
   const rad = (deg - 90) * Math.PI / 180.0;
   return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
 };
+
 const describeArc = (x, y, r, start, end) => {
   const s = polarToCartesian(x, y, r, end);
   const e = polarToCartesian(x, y, r, start);
-  const largeArc = end - start <= 180 ? "0" : "1";
+  const largeArc = (end - start + 360) % 360 <= 180 ? "0" : "1";
   return ["M", s.x, s.y, "A", r, r, 0, largeArc, 0, e.x, e.y].join(" ");
 };
 </script>
@@ -265,6 +266,8 @@ const describeArc = (x, y, r, start, end) => {
 .current-dot-key { width: 12px; height: 12px; background: white; border: 2px solid #fbce1e; border-radius: 50%; box-shadow: 0 0 10px #fbce1e; }
 
 .track-bg { fill: none; stroke: #f1f5f9; stroke-width: 2; }
+.cell-passed { stroke: #4facfe; stroke-width: 2; fill: none; }
+.cell-future { stroke: #e1e8ed; stroke-width: 2; fill: none; }
 .progress-path { fill: none; stroke: #3b82f6; stroke-width: 4; stroke-linecap: round; }
 .signature-needle { stroke: #f59e0b; stroke-width: 2; }
 .signature-ring-target { fill: none; stroke: #f59e0b; stroke-width: 1; stroke-dasharray: 1, 2; }

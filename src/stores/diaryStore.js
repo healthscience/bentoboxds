@@ -9,6 +9,11 @@ export const diaryStore = defineStore('diarystore', {
     storeAI: aiInterfaceStore(),
     storeLibrary: libraryStore(),
     diarySmart: true,
+    currentVector: 315.5,
+    currentZenith: 0,
+    tempSignature: null,
+    projectionData: { yearly: 0, daily: 0 },
+    heliCalculations: {},
     eventList: 
     {
       view: 'timeGridWeek',
@@ -57,6 +62,16 @@ export const diaryStore = defineStore('diarystore', {
 
   }),
   actions: {
+    setTempSignature (sig) {
+      this.tempSignature = sig
+    },
+    setProjectionData (data) {
+      this.projectionData = data
+    },
+    updateClock (vector, zenith) {
+      this.currentVector = vector
+      this.currentZenith = zenith
+    },
       createEvents () {
       let days = [];
       for (let i = 0; i < 7; ++i) {
