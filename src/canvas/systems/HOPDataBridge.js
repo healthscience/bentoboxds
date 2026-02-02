@@ -21,9 +21,10 @@ export class HOPDataBridge {
     let lastSignature = this.getCyclesSignature(this.getBesearchCycles());
 
     watch(
-      () => this.besearchStore.besearchCyles,
-      (cycles) => {
-        const signature = this.getCyclesSignature(cycles || []);
+      () => this.besearchStore.besearchCyles?.length || 0,
+      () => {
+        const cycles = this.besearchStore.besearchCyles || [];
+        const signature = this.getCyclesSignature(cycles);
         if (signature !== lastSignature) {
           lastSignature = signature;
           this.emit('cycles-updated', this.getBesearchCycles());
@@ -168,7 +169,7 @@ export class HOPDataBridge {
    */
   updateBesearchCycle(cycleId, updates) {
     if (this.besearchStore) {
-      // this.besearchStore.updateBesearchCycle(cycleId, updates);
+      this.besearchStore.updateBesearchCycle(cycleId, updates);
     }
   }
 

@@ -467,6 +467,7 @@ import { useBesearchCanvas } from '@/composables/useBesearchCanvas.js'
         y: stateManager.viewport.y
       }
     }
+    storeBesearch.saveCyclePositionsToHOP()
     storeAI.bentobesearchState = false
   }
 

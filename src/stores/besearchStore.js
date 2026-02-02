@@ -141,7 +141,7 @@ export const besearchStore = defineStore('besearchstore', {
         // Send via socket to HOP
         this.socketStore.send_message(bcContract)
         // remove from besearch history
-        this.besearchHistory = this.besearchCyles.filter(item => item.key !== besearchItem.id)
+        this.besearchCyles = this.besearchCyles.filter(item => item.key !== besearchItem.id)
       } catch (error) {
         console.error('Error saving to HOP:', error)
       }
@@ -245,6 +245,35 @@ export const besearchStore = defineStore('besearchstore', {
     },
     updatePanOffset(panOffset) {
       this.canvasState.panOffset = { ...panOffset }
+    },
+    updateBesearchCycle(cycleId, updates) {
+      const index = this.besearchCyles.findIndex((entry) => {
+        const value = entry?.value || entry || {}
+        return value.id === cycleId || entry?.key === cycleId
+      })
+      if (index === -1) return
+
+      const entry = this.besearchCyles[index]
+      const value = entry?.value || entry || {}
+      const updatedValue = { ...value, ...updates, updatedAt: new Date().toISOString() }
+      const updatedEntry = entry?.value
+        ? { ...entry, value: updatedValue }
+        : { ...updatedValue, key: entry?.key || updatedValue.id }
+
+      this.besearchCyles.splice(index, 1, updatedEntry)
+    },
+    saveCyclePositionsToHOP() {
+      const payload = this.besearchCyclesNormalized.map((cycle) => ({
+        id: cycle.id,
+        x: cycle.x,
+        y: cycle.y,
+        linkedInterventions: cycle.linkedInterventions || [],
+        updatedAt: new Date().toISOString()
+      }))
+      this.saveToHOP({
+        type: 'besearch-cycle-positions',
+        cycles: payload
+      })
     },
     addIntervention(intervention) {
       this.canvasState.interventions.push(intervention)
