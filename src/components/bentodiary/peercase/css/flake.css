@@ -1,0 +1,16 @@
+:root {
+  --bg-deep: #0b0d10;      /* Midnight Navy base */
+  --surface-glass: rgba(21, 26, 33, 0.7); /* Translucent surface */
+  --border-subtle: rgba(255, 255, 255, 0.1);
+  --glow-metabolic: #ff4d4d;
+  --glow-ecological: #40e0ff; /* Electric Cyan instead of flat green */
+  --glow-economic: #b6ff3b;   /* Neon Lime for energy */
+}
+
+.holistic-wheel-container {
+  background: radial-gradient(circle at center, #151a21 0%, var(--bg-deep) 100%);
+  border: 1px solid var(--border-subtle);
+  backdrop-filter: blur(12px); /* Glass effect */
+  border-radius: 50%;
+  box-shadow: inset 0 0 40px rgba(0, 242, 255, 0.05);
+}

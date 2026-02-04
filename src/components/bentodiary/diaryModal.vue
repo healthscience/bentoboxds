@@ -13,6 +13,7 @@
           </div>
           <heli-clock v-if="clockLive === 'heli'"></heli-clock>
           <heli-test v-if="clockLive === 'heli'"></heli-test>
+          <swim-case></swim-case>
           <div id="old-world-calendar">
             <div id="ecdiary">Old World Calendar {{ smartDiary }}</div>
             <slot name="body">
@@ -41,6 +42,7 @@ import { ref, nextTick, computed, onMounted, onUpdated } from 'vue'
 import heliClock from '@/components/bentodiary/heliStart.vue'
 import heliTest from '@/components/bentodiary/projectionHeli.vue'
 // import DigitalCalendar from '@/components/bentodiary/digitalSolarCalendar.vue'
+import SwimCase from '@/components/bentodiary/peercase/SwimEmulator.vue'
 import { diaryStore } from '@/stores/diaryStore.js'
 
   const storeDiary = diaryStore()  
