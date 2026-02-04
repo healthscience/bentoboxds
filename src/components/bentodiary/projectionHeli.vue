@@ -79,6 +79,15 @@
               :class="day * 0.9863 <= currentYearlyDegree ? 'cell-passed' : 'cell-future'"
             />
 
+            <path 
+              v-if="projectionActive"
+              d="M 12 -33 A 35 35 0 0 1 25 -24" 
+              fill="none" 
+              stroke="rgba(255, 255, 255, 0.05)" 
+              stroke-width="4" 
+              stroke-dasharray="2 2"
+            />
+
             <g :transform="`rotate(${storedSignature}, 50, 50)`">
               <line x1="50" y1="4" x2="50" y2="14" class="tether-birth" />
               <circle cx="50" cy="4" r="3" class="birth-outer-orb" />
@@ -108,6 +117,27 @@
               :y2="getRadialY(50, 36, activeDailyDegree)" 
               class="tether-bridge" 
             />
+
+            <g v-if="projectionActive" class="projection-layer">
+              <path 
+                :d="projectionArcPath" 
+                fill="none" 
+                stroke="rgba(64, 224, 255, 0.4)" 
+                stroke-width="3" 
+                stroke-dasharray="2 2"
+                filter="blur(1px)"
+              />
+              
+              <text 
+                v-bind="polarToCartesian(projectionStartAngle - 5)"
+                font-size="2" 
+                fill="rgba(255,255,255,0.3)"
+                text-anchor="end"
+              >
+                PROJECTION: MORNING FLOW
+              </text>
+            </g>
+
             <g :transform="`rotate(${projectionTargetYearly}, 50, 50)`">
               <line x1="50" y1="2" x2="50" y2="6" class="sun-whisper-line" />
               <circle cx="50" cy="4" r="3.5" class="sun-outer-marker" />
@@ -167,6 +197,35 @@ const birthTime = ref('12:00');
 const tempSignature = computed(() => store.tempSignature);
 const storedSignature = ref(0);
 const birthTimestamp = ref(0);
+  // This toggle controls whether the "Future Ghost Arcs" are visible
+const projectionActive = ref(true);
+
+
+// Define the window for tomorrow's swim (e.g., 08:00 to 09:30)
+const projectionStartAngle = 120; // Degrees
+const projectionEndAngle = 150;   // Degrees
+const radius = 36;                // Outer Ring
+
+const polarToCartesian = (angle) => {
+  const rad = (angle - 90) * (Math.PI / 180);
+  return {
+    x: radius * Math.cos(rad),
+    y: radius * Math.sin(rad)
+  };
+};
+
+const projectionArcPath = computed(() => {
+  const start = polarToCartesian(projectionStartAngle);
+  const end = polarToCartesian(projectionEndAngle);
+  
+  // SVG Arc command: Move to start, then draw arc to end
+  // A rx ry x-axis-rotation large-arc-flag sweep-flag x y
+  return `M ${start.x} ${start.y} A ${radius} ${radius} 0 0 1 ${end.x} ${end.y}`;
+});
+
+
+
+
 
 const currentYearlyDegree = computed(() => store.currentVector);
 const currentDailyDegree = computed(() => (store.currentVector * 365.24) % 360);

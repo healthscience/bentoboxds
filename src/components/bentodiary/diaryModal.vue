@@ -14,13 +14,13 @@
           <heli-clock v-if="clockLive === 'heli'"></heli-clock>
           <heli-test v-if="clockLive === 'heli'"></heli-test>
           <swim-case></swim-case>
-          <div id="old-world-calendar">
+          <!--<div id="old-world-calendar">
             <div id="ecdiary">Old World Calendar {{ smartDiary }}</div>
             <slot name="body">
               
               default body
             </slot>
-          </div>
+          </div>-->
         </div>
 
         <div class="modal-footer">
@@ -59,8 +59,8 @@ import { diaryStore } from '@/stores/diaryStore.js'
   })
 
   onUpdated(() => {
-      let smartCal = document.getElementById('ecdiary')
-      ec = new EventCalendar(smartCal, eventDiary.value)
+      let smartCal = {} // document.getElementById('ecdiary')
+      // ec = new EventCalendar(smartCal, eventDiary.value)
   })
 
   /* computed */
