@@ -19,7 +19,10 @@
       <template #body>
         <div id="connect-hop">
           <div id="self-verify" v-if="storeAccount.peerauth !== true">
-            <form id="self-signin-form" >
+            <div v-if="needsHandshake">
+              <genesis-gate @handshake-complete="onHandshakeComplete" />
+            </div>
+            <form id="self-signin-form" v-else>
               <div class="self-inputs">
                 <!--<label class="form-couple-type" for="password-account">password </label>
                 <input class="form-couple" type="password" id="password" name="password" v-model="selfpwInput">-->
@@ -58,7 +61,7 @@
       </template>
       <template #footer>
         <div id="footer-self">
-          BentoBoxDS - v0.4.1 HOP v0.4.7
+          BentoBoxDS - v0.4.3 HOP v0.4.9
         </div>
       </template>
     </modal-auth>
@@ -69,6 +72,7 @@
 import { ref, computed } from 'vue'
 import ModalAuth from '@/components/toolbars/account/authModal.vue'
 import AccountTabs from '@/components/toolbars/account/accountTabs.vue'
+import GenesisGate from '@/components/toolbars/account/genesisGate.vue'
 
 import { useSocketStore } from '@/stores/socket.js'
 import { accountStore } from '@/stores/accountStore.js'
@@ -80,6 +84,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   let selfpwInput = ref('')
   let verifyFeedback = ref('')
+  let needsHandshake = ref(false)
 
   /* computed */
   const connectNetworkstatus = computed(() => {
@@ -100,6 +105,12 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   const selfVerify = () => {
     verifyFeedback.value = ''
+    // If we don't have a sovereign ID, we need a handshake
+    if (!storeAccount.sovereignId) {
+      needsHandshake.value = true
+      return
+    }
+
     // need to setup pub/private key schnorr sign utilities
     let pwCheck = selfpwInput.value
     // take local info and auth HOP with that
@@ -116,6 +127,12 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     } else {
       verifyFeedback.value = 'password incorrect, try again please.'
     }
+  }
+
+  const onHandshakeComplete = (data) => {
+    console.log("Handshake completed in selfAuth:", data)
+    storeAccount.completeHandshake(data)
+    needsHandshake.value = false
   }
 
   const reconnectSocket = () => {

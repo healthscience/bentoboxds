@@ -18,7 +18,7 @@
               <input type="time" v-model="birthTime" @input="updatePreview" />
             </div>
           </div>
-          <button class="init-button" :disabled="tempSignature === null" @click="lockSignature">
+          <button class="init-button" :disabled="tempSignature === false" @click="lockSignature">
             ENTER THE ORBIT
           </button>
         </div>
@@ -135,6 +135,7 @@ const updatePreview = () => {
 };
 
 const lockSignature = () => {
+  console.log('locking signature');
   const ts = new Date(`${birthDate.value}T${birthTime.value}:00Z`).getTime();
   // We assume the preview updated tempSignature via a socket response or we calculate locally if simple
   // For now, let's assume we need to wait for HOP or use a simplified local calc if allowed.

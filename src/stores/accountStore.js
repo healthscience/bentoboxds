@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import init, { SovereignKeypair } from '@/stores/hopUtility/hop_crypto.js'
 import { useSocketStore } from '@/stores/socket.js'
 import { cuesStore } from "@/stores/cuesStore.js"
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
@@ -19,6 +20,7 @@ export const accountStore = defineStore('account', {
     viewMode: false,
     accountMenu: 'Sign-in',
     accountStatus: false,
+    orbitLive: false,
     peerauth: false,
     socketLive: false,
     HOPFlow: false,
@@ -32,18 +34,45 @@ export const accountStore = defineStore('account', {
     publickeyDrive: [],
     publicKeysList: [],
     sharePubkey: { key: '' },
-    shareBoardNXP: {}
+    shareBoardNXP: {},
+    sovereignId: null,
+    genesisSignature: null,
+    genesisIntent: null,
+    incomingWasmBuffer: null
   }),
   actions: {
-    processReply (received) {
-      // console.log('received HOP')
-      // console.log(received)
+    sendMessageHOP (message) {
+      this.sendSocket.init_chat()
+      this.sendSocket.sendMessage(message)
+    },
+    completeHandshake (data) {
+      // If we have the WASM tools loaded, we sign here
+      // For now, we'll emit the intent back to HOP to handle the heavy lifting
+      // or wait for the WASM module to be initialized in the browser context
+      let authMessage = {
+        type: 'hop-auth',
+        reftype: 'genesis-handshake',
+        action: 'sign-and-verify',
+        data: {
+          intent: data.intent
+        }
+      }
+      this.sendMessageHOP(authMessage)
+    },
+    async processReply (received) {
       if (received.action === 'hop-verify') {
         // set token for subsequent HOP messages
         this.sendSocket.jwt = received.data.jwt
         // reply is verified
         this.HOPFlow = true
         this.peerauth = true
+        
+        // Store sovereign identity if returned
+        if (received.data.pubKey) {
+          this.sovereignId = received.data.pubKey
+          this.genesisSignature = received.data.signature
+        }
+
         this.storeAI.startChat = false
         this.accountStatus = false
         this.accountMenu = 'account'
@@ -58,6 +87,27 @@ export const accountStore = defineStore('account', {
         saveBentoBoxsetting.data = ''
         saveBentoBoxsetting.bbid = ''
         this.storeAI.sendMessageHOP(saveBentoBoxsetting) 
+      } else if (received.action === 'crypto-wasm-binary') {
+        // 1. Decode Base64 to a binary string
+        const binaryString = window.atob(received.data);
+        const len = binaryString.length;
+        const bytes = new Uint8Array(len);
+        
+        // 2. Map characters to bytes
+        for (let i = 0; i < len; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+
+        try {
+            // 3. Feed the raw bytes to the WASM engine
+            await init({ module_or_path: bytes.buffer });
+            // 4. Now generate the identity
+            this.persistSovereign(); 
+        } catch (err) {
+            console.error('❌ WASM Initialization failed:', err);
+        }
+      } else if (received.action === 'sign-verify-complete') {
+        console.log('sign in verify complete HOP received')
       } else if (received.action === 'hyperbee-pubkeys') {
         this.publicKeysList = received.data
       } else if (received.action === 'drive-pubkey') {
@@ -85,6 +135,29 @@ export const accountStore = defineStore('account', {
       } else if (received.action === 'network-peer-live') {
         this.updateWarmPeerLive(received.data)
       }
+    },
+    persistSovereign () {
+      console.log('Anchoring Sovereign Identity...');
+      // Generate the pair from the initialized WASM
+      const pair = new SovereignKeypair();
+      const pubKey = pair.get_public_key(); 
+      // Convert Uint8Array to Hex string for LocalStorage
+      const pubKeyHex = Array.from(pubKey)
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+
+      // ANCHOR: Now your Sovereign Tab will find this on refresh!
+      localStorage.setItem('hop_sovereign_pubkey', pubKeyHex);
+      // NOTE: We will handle private key encryption in the next 'Stitch'
+      localStorage.setItem('hop_sovereign_privkey', 'REGEN_REQUIRED_FOR_SESSIONS'); 
+      // Notify the UI to refresh the Sovereign status
+      this.keyExists = true;
+      // set to main experience interface
+      this.accountMenu = 'account'
+      this.accountStatus = false  // !this.accountStatus
+      this.storeAI.startChat = false
+      this.peerauth = true
+      this.orbitLive = true
     },
     addPeertoNetwork (peer) {
       // try to see if other peer is live on network
@@ -425,8 +498,6 @@ export const accountStore = defineStore('account', {
       shareInfo.reftype = 'null'
       shareInfo.privacy = 'public'
       shareInfo.data = shareContext
-      console.log('n1share')
-      console.log(shareInfo)
       this.sendMessageHOP(shareInfo)
       this.sharePubkey = ''
     },

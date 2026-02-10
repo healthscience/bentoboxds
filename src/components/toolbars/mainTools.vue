@@ -52,23 +52,23 @@
         </header>
       </div>
     </div>
-    <account-box v-if="storeAccount.accountStatus === true"></account-box>
+    <account-box v-if="accountBoxStatus === true"></account-box>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import NetworkNotify from '@/components/toolbars/notification/networkNotify.vue'
 import mobileMenu from '@/components/toolbars/mobileNav.vue'
 import DropDown from '@/components/toolbars/dropDown.vue'
 import AccountBox from '@/components/toolbars/account/selfAuth.vue'
 import { useSocketStore } from '@/stores/socket.js'
 import { accountStore } from '@/stores/accountStore.js'
-
-import { ref, onMounted } from 'vue'
+import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
   const storeWebsocket = useSocketStore()
   const storeAccount = accountStore()
+  const storeAI = aiInterfaceStore()
 
   let mobileSize = ref(true)
   let accountState = ref('Sign-in')
@@ -91,6 +91,10 @@ import { ref, onMounted } from 'vue'
   }
 
   /* computed */
+  const accountBoxStatus = computed(() => {
+    return storeAccount.accountStatus
+  })
+
   const viewMinimal = computed(() => {
     return storeAccount.viewMode
   })
@@ -104,6 +108,7 @@ import { ref, onMounted } from 'vue'
     storeAccount.viewMode= !storeAccount.viewMode
   }
 
+        
 </script>
 
 <style scoped>

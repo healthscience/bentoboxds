@@ -196,6 +196,7 @@ import { ref, computed, watch } from 'vue'
   }
 
   const handleNexusAction = (action) => {
+    console.log('Nexus action:', action)
     if (action === 'besearch:create') {
       storeAI.bentobesearchState = false
       storeBesearch.setNexusContext({ source: 'beebee' })
@@ -234,6 +235,10 @@ import { ref, computed, watch } from 'vue'
     }
     if (action === 'context:space') {
       storeAI.bentospaceState = true
+      return
+    }
+    if (action === 'data:diary') {
+      storeAI.bentodiaryState = true
       return
     }
     if (action === 'peers:add' || action === 'peers:share') {

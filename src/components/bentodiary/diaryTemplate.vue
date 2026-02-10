@@ -42,6 +42,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 
 
   const bentoDiaryStatus = computed(() => {
+    console.log('bentoDiaryStatus', storeAI.bentodiaryState)
     return storeAI.bentodiaryState
   })
 

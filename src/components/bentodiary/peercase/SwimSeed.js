@@ -13,7 +13,23 @@ export const swimSeed = {
   initial_entities: [
     { id: 'm1', orbit: 'metabolic', type: 'hrv', angle: 120, value: 70 },
     { id: 'e1', orbit: 'ecological', type: 'stroke', angle: 130, value: 30 },
-    { id: 'x1', orbit: 'economic', type: 'drag', angle: 140, value: 0.55 }
+    { id: 'x1', orbit: 'economic', type: 'drag', angle: 140, value: 0.55 },
+    {
+      id: 'chlorine-debt',
+      name: 'Chlorine Supply',
+      orbit: 'economic', // Outer Ring
+      angle: 210,        // Positioned in the "Systems" sector
+      active: true,
+      value: 0
+    },
+    {
+      id: 'thermal-grid-draw',
+      name: 'Thermal Energy',
+      orbit: 'economic', 
+      angle: 300, // Positioned near the top-left "Ecological" boundary
+      active: true,
+      value: 0
+    }
   ]
 };
 

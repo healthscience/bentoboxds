@@ -78,9 +78,9 @@
             <span class="bbnexus-btn-icon">🕸️</span>
             Network
           </button>
-          <button class="bbnexus-btn" @click="emitAction('data:tables')">
+          <button class="bbnexus-btn" @click="emitAction('data:diary')">
             <span class="bbnexus-btn-icon">📊</span>
-            Tables
+            Diary
           </button>
         </div>
       </div>
