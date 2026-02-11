@@ -1,0 +1,68 @@
+<template>
+  <div class="heli-clock-wrapper" :class="{ 'is-mini': mini }">
+    <svg viewBox="0 0 100 100" class="heli-svg" preserveAspectRatio="xMidYMid meet">
+      <circle class="base-ring" cx="50" cy="50" r="45" />
+      
+      <line class="clock-hand" x1="50" y1="50" x2="50" y2="15" />
+
+      <transition name="fade-detail">
+        <g v-if="!mini" class="event-layers">
+          <circle class="inner-ring" cx="50" cy="50" r="35" />
+          <text x="50" y="45" class="label">ORBIT</text>
+          <text x="50" y="58" class="value">08:42</text>
+          
+          <slot name="projections"></slot>
+        </g>
+      </transition>
+    </svg>
+  </div>
+</template>
+
+<script setup>
+defineProps({
+  mini: { type: Boolean, default: false }
+});
+</script>
+
+<style scoped>
+.heli-clock-wrapper {
+  width: 100%;
+  height: 100%;
+  transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.base-ring {
+  fill: none;
+  stroke: var(--resonance-color, #00ffc8);
+  stroke-width: 1.5;
+  transition: stroke-width 0.8s ease;
+}
+
+.clock-hand {
+  stroke: var(--resonance-color, #00ffc8);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.inner-ring {
+  fill: none;
+  stroke: rgba(255,255,255,0.1);
+  stroke-width: 0.5;
+  stroke-dasharray: 2 2;
+}
+
+/* Mini Mode overrides */
+.is-mini .base-ring { stroke-width: 4; opacity: 0.5; }
+.is-mini .clock-hand { stroke-width: 4; }
+
+.label { fill: white; font-size: 5px; text-anchor: middle; opacity: 0.6; }
+.value { fill: white; font-size: 8px; text-anchor: middle; font-weight: bold; }
+
+/* Transition for the legends/details */
+.fade-detail-enter-active, .fade-detail-leave-active {
+  transition: opacity 0.5s ease;
+}
+.fade-detail-enter-from, .fade-detail-leave-to {
+  opacity: 0;
+}
+</style>
