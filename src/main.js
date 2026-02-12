@@ -13,6 +13,7 @@ import 'vue-plyr/dist/vue-plyr.css'
 import VueDatePicker from '@vuepic/vue-datepicker'
 import '@vuepic/vue-datepicker/dist/main.css'
 import './assets/main.css'
+import '@/assets/styles/sovereign.css';
 
 import Vue3ColorPicker from "vue3-colorpicker"
 import "vue3-colorpicker/style.css"

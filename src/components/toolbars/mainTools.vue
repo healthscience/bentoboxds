@@ -40,6 +40,12 @@
           </nav>
         </div>
         <div class="bentobox-top">
+          <button @click="toggleTheme" class="theme-btn" :title="`Switch to ${isDark ? 'Light' : 'Dark'} Mode` ">
+            <span v-if="isDark">☀️</span>
+            <span v-else>🌙</span>
+          </button>  
+        </div>
+        <div class="bentobox-top">
           <div id="self-auth-connect" class="bb-align" @click="selfAuth">{{ storeAccount.accountMenu }}</div>
         </div>
       </header>
@@ -71,11 +77,18 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   const storeAI = aiInterfaceStore()
 
   let mobileSize = ref(true)
-  let accountState = ref('Sign-in')
+  const isDark = ref(false);
 
   onMounted(() => {
     let mql = window.matchMedia("(min-width: 1024px)")
     mobileSize.value = mql.matches
+
+    // Check for saved preference or system default
+    const savedTheme = localStorage.getItem('sov-theme');
+    if (savedTheme === 'dark') {
+      isDark.value = true;
+      document.documentElement.setAttribute('data-theme', 'dark');
+    }
   })
 
   const languages = ref([
@@ -107,6 +120,13 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   const viewMode = () => {
     storeAccount.viewMode= !storeAccount.viewMode
   }
+
+  const toggleTheme = () => {
+    isDark.value = !isDark.value;
+    const theme = isDark.value ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('sov-theme', theme); // Persist for next visit
+  };
 
         
 </script>
@@ -218,7 +238,7 @@ nav a:first-of-type {
 
   header {
     display: grid;
-    grid-template-columns: 4fr 1fr 2fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 4fr 1fr 2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
     border: 0px solid blue;
     width: 98vw;
     /*max-height: 10vh;*/
@@ -268,5 +288,20 @@ nav a:first-of-type {
     padding: 0.2rem 0;
     color: white;
   }
+
+  .theme-btn {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: var(--sov-transition-med);
+  }
+
+  .theme-btn:hover {
+    background: var(--sov-accent-glow);
+  }
+
 }
 </style>

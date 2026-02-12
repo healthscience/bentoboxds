@@ -33,7 +33,7 @@ defineProps({
 
 .base-ring {
   fill: none;
-  stroke: var(--resonance-color, #00ffc8);
+  stroke: var(--sov-accent);
   stroke-width: 1.5;
   transition: stroke-width 0.8s ease;
 }
@@ -55,7 +55,7 @@ defineProps({
 .is-mini .base-ring { stroke-width: 4; opacity: 0.5; }
 .is-mini .clock-hand { stroke-width: 4; }
 
-.label { fill: white; font-size: 5px; text-anchor: middle; opacity: 0.6; }
+.label { fill: var(--sov-text); font-size: 5px; text-anchor: middle; opacity: 0.6; }
 .value { fill: white; font-size: 8px; text-anchor: middle; font-weight: bold; }
 
 /* Transition for the legends/details */

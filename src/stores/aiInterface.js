@@ -149,8 +149,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.chatAttention = cueId
       this.historyList = true
     },
-
-    previousLLM: {}
+    previousLLM: {},
+    digestInput: {}
   }),
   actions: {
     sendMessageHOP (message) {
@@ -1115,6 +1115,45 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       learnMessage.data = { agent: modelInfo.agent, model: modelInfo.model}
       learnMessage.bbid = ''
       this.sendMessageHOP(learnMessage)
+    },
+    beebeeDigest (text) {
+      // isInitialState.value = false;
+      // isProcessing.value = true;
+      let extractedData = {}
+      extractedData.capacity = []
+      extractedData.coherence = []
+      extractedData.context = []
+      let beebeeMessage = {}
+      // The "Decomposition" Simulation
+      // In production, this JSON is returned by BeeBee 1bn via HOP
+      setTimeout(() => {
+        const rawInput = text.toLowerCase();
+        
+        // 1. Extract Capacity (Performance/Sport/Goals)
+        if (rawInput.includes('400') || rawInput.includes('swim')) {
+          extractedData.capacity.push('400m Performance', 'Stroke Efficiency');
+        }
+
+        // 2. Extract Coherence (Biological Friction/Recovery)
+        if (rawInput.includes('itchy') || rawInput.includes('skin') || rawInput.includes('chlorine')) {
+          extractedData.coherence.push('Dermal Friction', 'Chlorine Sensitivity');
+        }
+
+        // 3. Extract Context (Environment/Orbits/Tools)
+        if (rawInput.includes('orbit')) {
+          extractedData.context.push('10 Earth Orbits');
+        }
+        extractedData.context.push('Aquatic Environment');
+
+        beebeeMessage = "Extraction complete. I've mapped your 400m ambition and the dermal friction. Shall we bridge these into a Research Cycle?";
+        // isProcessing.value = false;
+        console.log('end of wait')
+        let digestInfo = {}
+        digestInfo.extract = extractedData
+        digestInfo.message = beebeeMessage
+        console.log(digestInfo)
+        this.digestInput = digestInfo
+      }, 1500);
     }
   }
 })

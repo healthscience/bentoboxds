@@ -1,109 +1,126 @@
 <template>
-  <div class="orbit-stage" :class="{ 'immersive-mode': isEmulationActive }">
-    <div :class="['heli-container', isInitialState ? 'mini-anchor' : 'center-anchor']">
-      <HeliClock :mini="isInitialState" />
+  <div class="orbit-stage">
+    <div class="clock-buffer">
+      <HeliClock :mini="true" />
     </div>
-    <div class="sovereign-launchpad" v-if="isInitialState">
-      <button class="demo-trigger" @click="launchDemo">
-        <span class="icon">🏊</span> Experience the 400IM Demo
-      </button>
-    </div>
-    <WorldSwitcher v-else />
-    <bbNexus v-if="storeAccount.handshakeComplete" class="nexus-position" />
-    <BeeBeeAvatar @goal-set="handleGoalSet" class="beebee-position" />
+    <transition name="sov-fade">
+      <div v-if="isInitialState" class="launchpad-stack">
+        <div class="avatar-cell"><BeeBeeAvatar /></div>
+        <div class="text-cell"><p>What resonance shall we track today?</p></div>
+        <div class="input-cell"><inputBox @submit="handleInitialIntent" /></div>
+        <div class="demo-cell">
+          <button class="sov-demo-btn" @click="launchDemo">🏊 Experience 400IM</button>
+        </div>
+      </div>
+      <div v-else class="besearch-stack">
+        <BesearchLens :lenses="extractedData.extract" />
+        <div class="beebee-dialogue">
+          <p class="beebee-text">{{ beebeeMessage.message }}</p>
+        </div>
+      </div>
+    </transition>
   </div>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
-import { accountStore } from '@/stores/accountStore.js'
-
-import WorldSwitcher from '@/components/orbit/WorldSwitcher.vue';
-import bbNexus from '@/components/nexus/bbNexusToolbar.vue';
+import { ref, computed } from 'vue';
+import HeliClock from '@/components/orbit/clock/HeliClock.vue';
+import BesearchLens from '@/components/orbit/BesearchLens.vue';
 import BeeBeeAvatar from '@/components/agents/BeeBeeAvatar.vue';
-import HeliClock from '@/components/orbit/clock/HeliClock.vue'; // Imported here for persistence
+import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
-const storeAccount = accountStore();
-const isInitialState = ref(true); 
-const isEmulationActive = computed(() => storeAccount.currentPhase === 'flow');
+const storeAI = aiInterfaceStore();
 
-const handleGoalSet = () => {
+let isProcessing = ref(false);
+
+// TOOLBARS & INPUTS
+// Assuming inputBox is in your orbit or common folder - update path if needed:
+import inputBox from '@/components/beebeehelp/inputBox.vue';
+
+const isInitialState = ref(true);
+
+  /* computed */
+  const extractedData = computed(() => {
+    return storeAI.digestInput
+  })
+
+  const beebeeMessage = computed(() => {
+    return storeAI.digestInput
+  })
+
+
+/* methods */
+const handleInitialIntent = async (text) => {
   isInitialState.value = false;
+  isProcessing.value = true;
+  await storeAI.beebeeDigest(text);
+  isProcessing.value = false;
 };
 
 const launchDemo = () => {
-  isInitialState.value = false;
-  storeAccount.currentPhase = 'flow';
+  const demoText = "I want to swim 400m in 10 orbits, but my skin gets dry and itchy with the chlorine.";
+  // We simulate typing or just pass it directly
+  handleInitialIntent(demoText);
 };
+
 </script>
 
 <style scoped>
-  /* The Magic Layout Switcher */
-  .heli-anchor {
-    position: absolute;
-    top: 2rem;
-    right: 2rem;
-    width: 150px; /* Mini size */
-    height: 150px;
-    transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 20;
-  }
+.orbit-stage {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-template-rows: repeat(12, 1fr);
+  height: 90vh;
+  width: 100vw;
+  background: var(--sov-bg);
+}
 
-  .heli-anchor.full-stage {
-    top: 50%;
-    right: 50%;
-    transform: translate(50%, -50%);
-    width: 90vmin;
-    height: 90vmin;
-  }
+/* 1. The Constant Clock (Top Right) */
+.clock-buffer {
+  grid-column: 11 / 13;
+  grid-row: 1 / 3;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  z-index: 100;
+}
 
-  .nexus-position {
-    position: absolute;
-    bottom: 2rem;
-    right: 2rem;
-  }
+/* 2. The Launchpad Stack (Centered Rows) */
+.launchpad-stack {
+  grid-column: 4 / 10;
+  grid-row: 3 / 10;
+  display: grid;
+  grid-template-rows: subgrid; /* Aligns to the parent 12-row grid */
+  align-items: center;
+}
 
-  .orbit-stage {
-    display: flex; /* Changed from grid for simpler centering */
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: calc(100vh - 120px);
-    position: relative;
-    background: #000; /* Force dark background for visibility */
-  }
+.avatar-cell { grid-row: 2; display: grid; place-items: center; }
+.text-cell   { grid-row: 3; text-align: center; font-weight: 300; }
+.input-cell  { grid-row: 4; display: grid; place-items: center; }
+.demo-cell   { grid-row: 6; display: grid; place-items: center; }
 
-  .heli-container {
-    position: absolute;
-    transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-    /* Remove overflow: hidden if it was clipping */
-    z-index: 100; 
-  }
+/* 3. The Besearch Stack */
+.besearch-stack {
+  grid-column: 2 / 12;
+  grid-row: 3 / 11;
+  display: grid;
+  gap: 2rem;
+}
 
-  .mini-anchor {
-    top: 40px; /* Lowered slightly to ensure it's below any headers */
-    right: 40px;
-    width: 100px; /* Slightly larger for easier spotting */
-    height: 100px;
-  }
+/* 4. Nexus Toolbar */
+.nexus-zone {
+  grid-column: 11 / 13;
+  grid-row: 11 / 13;
+  display: grid;
+  place-items: center;
+}
 
-  .center-anchor {
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 80vmin;
-    height: 80vmin;
-  }
-
-  .sovereign-launchpad {
-    z-index: 10;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
+/* Transitions */
+.sov-fade-enter-active, .sov-fade-leave-active {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.sov-fade-enter-from, .sov-fade-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
+}
 </style>
-
-
-
-
