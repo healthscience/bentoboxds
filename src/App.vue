@@ -16,4 +16,12 @@ import { useSocketStore } from '@/stores/socket.js'
 </script>
 
 <style scoped>
+  /* Ensure the root doesn't allow scrolling */
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden; 
+  }
 </style>

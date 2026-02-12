@@ -7,21 +7,75 @@
       </header>
       <div class="variable-list">
         <div v-for="tag in data" :key="tag" class="variable-tag">
-          {{ tag }}
+          <button @click="handleCueSpace(tag)">{{ tag }}</button>
         </div>
         <div v-if="!data.length" class="empty-state">Initialize...</div>
       </div>
     </div>
+    <!-- modals for tools -->
+     <BentoSpace></BentoSpace>
   </div>
 </template>
 
 <script setup>
+import { ref, computed, onMounted } from 'vue'
+import BentoSpace from '@/components/bentospace/spaceTemplate.vue'
+
+import { cuesStore } from '@/stores/cuesStore.js'
+import { bentoboxStore } from '@/stores/bentoboxStore.js'
+import { aiInterfaceStore } from '@/stores/aiInterface.js'
+import { libraryStore } from '@/stores/libraryStore.js'
+
+
+const storeLibrary = libraryStore()
+const storeCues = cuesStore()
+const storeAI = aiInterfaceStore()
+const storeBentobox = bentoboxStore()
+
 defineProps({
   lenses: {
     type: Object,
     default: () => ({ capacity: [], coherence: [], context: [] })
   }
 });
+
+/* methods */
+const handleCueSpace = (spaceID) => {
+  // does this cue exist in library?
+  let lookupLibrarCue = {} // storeCues.queryLibrary(spaceID)
+  let context = 'new' //  temp fix
+  if (lookupLibrarCue) {
+    // prepare chat for space
+    let newChatItem = {}
+    newChatItem.name = spaceID.name
+    newChatItem.chatid = spaceID.cueid
+    newChatItem.active = true
+    //setup chat history holder
+    storeAI.setupChatHistory(newChatItem)
+    storeAI.chatAttention = spaceID.cueid
+    // temp  if history cue the make stucture for space
+    if (context === 'history') {
+      storeAI.liveBspace = {
+        name: spaceID.value.concept.name,
+        spaceid: spaceID.key,
+        cueid: spaceID.key,
+        gluedown: 'down',
+        active: true,
+        expand: true
+      }
+      spaceID.name = spaceID.value.concept.name
+      spaceID.cueid = spaceID.key
+    } else {
+      storeAI.liveBspace = spaceID
+    }
+  } else {
+    // new space
+  }
+  storeCues.cueContext = 'space'
+  storeAI.beebeeContext = 'chatspace'
+  storeAI.bentospaceState = !storeAI.bentospaceState
+}
+
 </script>
 
 <style scoped>

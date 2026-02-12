@@ -5,7 +5,7 @@
   <div v-if="storeAI.startChat === true">
     <welcome-view></welcome-view>
   </div>
-  <div v-else-if="storeAccount.orbitLive === true">ddd
+  <div v-else-if="storeAccount.orbitLive === true">
     <orbit-view></orbit-view>
   </div>
   <div v-else-if="storeAccount.orbitLive === false">
