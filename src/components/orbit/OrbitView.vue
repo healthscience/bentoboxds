@@ -38,7 +38,9 @@
           </div>
 
           <div class="demo-zone">
-            <button class="sov-demo-btn" @click="launchDemo">🏊 Experience 400IM</button>
+            <button class="sov-demo-btn" @click="launchDemo('sport')">🏊 Experience 400IM</button>
+            <button class="sov-demo-btn" @click="launchDemo('water')">Water</button>
+            <button class="sov-demo-btn" @click="launchDemo('earth')">Earth</button>
           </div>
         </div>
         
@@ -63,12 +65,13 @@
     <aside class="side-panel right-panel overlay-blur">
       <div class="chat-drag-handle" @mousedown.stop="startChatDrag"></div>
 
-      <div class="clock-zone">
+      <!--<div class="clock-zone">
         <HeliClock 
           :mini="rightPanelMode === 'chat'" 
           @click="toggleClockExpansion" 
         />
-      </div>
+      </div>-->
+      <div id="dialogue-zone">beebee dialogue</div>
 
       <div class="panel-content-area">
         <transition name="fade-slide" mode="out-in">
@@ -138,10 +141,10 @@ const startDragging = (e) => {
 
 /* right panel drag logic */
 // --- DIALOGUE PANEL DRAG LOGIC ---
-const chatWidth = ref(380); // Default width
+const chatWidth = ref(60); // Default width
 const isChatDragging = ref(false);
 const startChatX = ref(0);
-const startChatWidth = ref(380);
+const startChatWidth = ref(60);
 
 const startChatDrag = (e) => {
   isChatDragging.value = true;
@@ -166,7 +169,7 @@ const handleGlobalDrag = (e) => {
     let newWidth = startChatWidth.value + delta;
     
     // Clamp: Min 300px, Max 70% of screen (for deep reading)
-    chatWidth.value = Math.max(300, Math.min(newWidth, window.innerWidth * 0.9));
+    chatWidth.value = Math.max(60, Math.min(newWidth, window.innerWidth * 0.9));
   }
 };
 
@@ -212,8 +215,10 @@ const toggleClockExpansion = () => {
 };
 
 /*  demo mode */
-const launchDemo = () => {
-  storeAI.beebeeDigest("I want to swim 400m in 10 orbits, but chlorine makes my skin itchy.", true);
+const launchDemo = (demo) => {
+  if (demo === 'sport') {
+    storeAI.beebeeDigest("I want to swim 400m in 10 orbits, but chlorine makes my skin itchy.", true);
+  }
 };
 
 const exitDemo = () => {

@@ -26,7 +26,7 @@ const storeAccount = accountStore();
 .world-stage, .stage-layer {
   width: 100%;
   height: 100%;
-  display: flex;
+  display: grid;
   justify-content: center;
   align-items: center;
 }
