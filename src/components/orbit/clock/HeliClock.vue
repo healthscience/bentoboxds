@@ -26,8 +26,8 @@ defineProps({
 
 <style scoped>
 .heli-clock-wrapper {
-  width: 100%;
-  height: 100%;
+  width: 240px;
+  height: 240px;
   transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 

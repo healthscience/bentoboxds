@@ -3,7 +3,7 @@
     <div class="aura-layer" :class="{ 'pulsing': isThinking }"></div>
     
     <div class="icon-layer">
-      <span class="avatar-emoji">🐝🐝</span>
+      <span class="avatar-emoji"></span>
     </div>
 
     <div v-if="isThinking" class="status-layer">

@@ -1,51 +1,26 @@
 <template>
-  <div class="resonance-pulse-container">
-    <svg viewBox="-50 -50 100 100" class="resonance-svg">
+  <div class="pulse-container" :style="{ left: x + '%', top: y + '%' }">
+    <svg viewBox="0 0 200 200" class="ghost-svg">
       <defs>
-        <filter id="glow">
-          <feGaussianBlur stdDeviation="1.2" result="coloredBlur"/>
-          <feMerge>
-            <feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/>
-          </feMerge>
+        <filter id="ghost-blur">
+          <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="3" result="noise" />
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="10" />
         </filter>
       </defs>
-
-      <circle class="orbit-ring economic-ring" r="42" />
-      <circle class="orbit-ring ecological-ring" r="32" />
-      <circle class="orbit-ring environment-ring" :class="activeEnvType" r="22" />
-      <circle class="orbit-ring metabolic-ring" r="12" />
-
-      <line 
-        v-if="hasResonance"
-        x1="0" y1="0" 
-        :x2="resonanceLine.x" :y2="resonanceLine.y"
-        class="resonance-spoke"
-      />
-
       <circle 
-        v-for="cue in activeCues" 
-        :key="cue.id"
-        :class="['cue-point', cue.orbit, { 'pulse': cue.active }]" 
-        :cx="cue.x" 
-        :cy="cue.y" 
-        r="1.5"
+        cx="100" cy="100" r="70" 
+        fill="none" 
+        stroke="url(#pulse-grad)" 
+        stroke-width="2"
+        filter="url(#ghost-blur)"
+        class="pulse-ring"
       />
-      
-      <line x1="0" y1="0" :x2="solarHand.x" :y2="solarHand.y" class="solar-hand" />
+      <linearGradient id="pulse-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="rgba(59, 130, 246, 0.2)" />
+        <stop offset="50%" stop-color="rgba(59, 130, 246, 0.8)" />
+        <stop offset="100%" stop-color="rgba(59, 130, 246, 0.2)" />
+      </linearGradient>
     </svg>
-
-    <div class="resonance-pulse-container">
-      <div class="pulse-legend" :class="{ 'is-visible': showLegend }">
-        <div v-for="ring in ringInfo" :key="ring.label" class="legend-item">
-          <span class="dot" :style="{ backgroundColor: ring.color }"></span>
-          <span class="label">{{ ring.label }}</span>
-        </div>
-        <button @click="showLegend = !showLegend" class="toggle-legend-btn">?</button>
-      </div>
-
-      <svg viewBox="-50 -50 100 100" class="resonance-svg">
-        </svg>
-    </div>
   </div>
 </template>
 
@@ -105,6 +80,25 @@ const activeEnvType = computed(() => props.currentEnv || 'indoor');
 </script>
 
 <style scoped>
+
+.pulse-container {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  transform: translate(-50%, -50%); /* Center on its coordinates */
+  pointer-events: none;
+}
+.pulse-ring {
+  transform-origin: center;
+  animation: breathe 4s infinite ease-in-out;
+}
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 0.3; }
+  50% { transform: scale(1.1); opacity: 0.6; }
+}
+
+
+
 .resonance-pulse-container {
   width: 100%;
   max-width: 400px;

@@ -25,35 +25,63 @@
       </button>
     </aside>
 
-    <main class="orbit-center">
-      <transition name="sov-fade" mode="out-in">
-        <div v-if="isInitialState" class="launchpad-stack">
-          <div class="avatar-zone"><BeeBeeAvatar /></div>
-          
-          <div class="input-zone">
-            <p class="invite-text">What resonance shall we track today?</p>
-            <div class="input-constraint">
-              <inputBox/>
+    <main class="orbit-stage" @mousemove="handleGlobalDrag" @mouseup="stopDragging">
+      <div class="hud-top">
+        <div class="metric"><span>BESEARCH</span><strong>3</strong></div>
+        <div class="metric"><span>DIALOGUE</span><strong>234</strong></div>
+        <div class="metric"><span>CUES</span><strong>345</strong></div>
+      </div>
+
+      <div class="interface-layer">
+        <transition name="sov-fade" mode="out-in">
+          <div v-if="isInitialState" class="launchpad-stack">
+            <div class="avatar-zone"><BeeBeeAvatar /></div>
+            <div class="input-zone">
+              <div class="input-constraint"><inputBox/></div>
+            </div>
+            <div class="demo-zone">
+              <button class="sov-demo-btn" @click="launchDemo('sport')">🏊 Experience 400IM</button>
+              <button class="sov-demo-btn" @click="launchDemo('water')">Water</button>
+              <button class="sov-demo-btn" @click="launchDemo('earth')">Earth</button>
             </div>
           </div>
+          
+          <div v-else class="active-resonance">
+            <BesearchLens :lenses="extractedData" />
+            <div class="meta-actions-zone">
+              <button class="sov-btn exit" @click="exitDemo">Exit Demo</button>
+              <button class="sov-btn clone" @click="cloneExperience">📁 Clone & Personalize</button>
+            </div>
+          </div>
+        </transition>
+      </div>
 
-          <div class="demo-zone">
-            <button class="sov-demo-btn" @click="launchDemo('sport')">🏊 Experience 400IM</button>
-            <button class="sov-demo-btn" @click="launchDemo('water')">Water</button>
-            <button class="sov-demo-btn" @click="launchDemo('earth')">Earth</button>
-          </div>
+      <div class="fuse-container">
+        <BesearchFuse />
+      </div>
+
+      <div 
+        class="world-canvas" 
+        :class="{ 'dragging-active': draggingToolId }"
+      >
+        <div 
+          v-if="tools.pulse"
+          class="tool-grab-wrapper"
+          :style="{ left: tools.pulse.x + '%', top: tools.pulse.y + '%', zIndex: draggingToolId === 'pulse' ? 300 : 100 }"
+          @mousedown.stop="startToolDrag('pulse')"
+        >
+          <ResonancePulse />
         </div>
-        
-        <div v-else class="active-resonance">
-          <BesearchLens :lenses="extractedData" />
-          <div v-if="!isInitialState" class="meta-actions-zone">
-            <button class="sov-btn exit" @click="exitDemo">Exit Demo</button>
-            <button class="sov-btn clone" @click="cloneExperience">
-              <span class="icon">📁</span> Clone & Personalize
-            </button>
-          </div>
+
+        <div 
+          v-if="tools.heli"
+          class="tool-grab-wrapper"
+          :style="{ left: tools.heli.x + '%', top: tools.heli.y + '%', zIndex: draggingToolId === 'heli' ? 300 : 100 }"
+          @mousedown.stop="startToolDrag('heli')"
+        >
+          <HeliClock />
         </div>
-      </transition>
+      </div>
 
       <transition name="slide-up">
         <footer v-if="!isInitialState && showBesearchDrawer" class="besearch-drawer">
@@ -61,34 +89,22 @@
         </footer>
       </transition>
     </main>
-    <!-- right panel beebee dialogue & heli clock -->
+
     <aside class="side-panel right-panel overlay-blur">
       <div class="chat-drag-handle" @mousedown.stop="startChatDrag"></div>
-
-      <!--<div class="clock-zone">
-        <HeliClock 
-          :mini="rightPanelMode === 'chat'" 
-          @click="toggleClockExpansion" 
-        />
-      </div>-->
       <div id="dialogue-zone">beebee dialogue</div>
-
       <div class="panel-content-area">
         <transition name="fade-slide" mode="out-in">
-          
           <div v-if="rightPanelMode === 'chat' && !isInitialState" class="chat-zone" key="chat">
             <LifeDialogue :context="extractedData" />
           </div>
-
           <div v-else-if="rightPanelMode === 'heli'" class="heli-projection-zone" key="heli">
             <ProjectionHeli :resonanceData="extractedData" />
-            
             <div class="heli-actions">
               <button class="sov-btn mini">Invite Peer</button>
               <button class="sov-btn mini">Send Orbit</button>
             </div>
           </div>
-
         </transition>
       </div>
     </aside>
@@ -102,34 +118,48 @@ import BesearchLens from '@/components/orbit/BesearchLens.vue';
 import BeeBeeAvatar from '@/components/agents/BeeBeeAvatar.vue';
 import LifeTools from '@/components/orbit/lifetools/LifeTools.vue'
 import LifeDialogue from '@/components/orbit/dialogue/lifeDialogue.vue'
+import BesearchFuse from '@/components/orbit/besearch/BesearchFuse.vue'
 import BesearchPanel from '@/components/orbit/besearch/besearchPanel.vue'
 import inputBox from '@/components/beebeehelp/inputBox.vue';
 import ProjectionHeli from '@/components/orbit/clock/projectionHeli.vue'
+import ResonancePulse from '@/components/orbit/resonance/ResonancePulse.vue' // Fixed Import
 
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
 const storeAI = aiInterfaceStore();
-
-const clockExpanded = ref(false);
 const showBesearchDrawer = ref(true);
 
-/* computed */
-const isInitialState = computed(() => {
-  return storeAI.isInitialState;
-});
+/* Computed Logic */
+const isInitialState = computed(() => storeAI.isInitialState);
+const extractedData = computed(() => storeAI.digestInput);
 
-const extractedData = computed(() => {
-  return storeAI.digestInput;
+/* ORBIT TOOL POSITIONS */
+const tools = ref({
+  pulse: { x: 50, y: 50 },
+  heli: { x: 80, y: 20 }
 });
+let draggingToolId = ref(null);
 
-// DRAG LOGIC
-const panelWidth = ref(20);
+/* LEFT PANEL (LIFE TOOLS) DRAG */
+const panelWidth = ref(80);
 const isLifeToolsOpen = ref(false);
 const isDragging = ref(false);
 const dragMoved = ref(false); 
 const startX = ref(0);
-const startWidth = ref(20);
-const rightPanelMode = ref('chat'); // 'chat' or 'heli'
+const startWidth = ref(80);
+
+/* RIGHT PANEL (DIALOGUE) DRAG */
+const chatWidth = ref(380);
+const isChatDragging = ref(false);
+const startChatX = ref(0);
+const startChatWidth = ref(380);
+const rightPanelMode = ref('chat');
+
+/* CORE DRAG ENGINE */
+const startToolDrag = (id) => {
+  draggingToolId.value = id;
+  document.body.style.cursor = 'move';
+};
 
 const startDragging = (e) => {
   isDragging.value = true;
@@ -139,13 +169,6 @@ const startDragging = (e) => {
   document.body.style.cursor = 'ew-resize';
 };
 
-/* right panel drag logic */
-// --- DIALOGUE PANEL DRAG LOGIC ---
-const chatWidth = ref(60); // Default width
-const isChatDragging = ref(false);
-const startChatX = ref(0);
-const startChatWidth = ref(60);
-
 const startChatDrag = (e) => {
   isChatDragging.value = true;
   startChatX.value = e.clientX;
@@ -154,67 +177,58 @@ const startChatDrag = (e) => {
 };
 
 const handleGlobalDrag = (e) => {
-  // Handle Left Rail Drag (existing logic)
+  // 1. Sidebar Left
   if (isDragging.value) {
     dragMoved.value = true;
     let newWidth = startWidth.value + (e.clientX - startX.value);
     panelWidth.value = Math.max(80, Math.min(newWidth, window.innerWidth * 0.5));
     isLifeToolsOpen.value = panelWidth.value > 120;
+    return;
   }
 
-  // Handle Right Chat Drag
+  // 2. Sidebar Right
   if (isChatDragging.value) {
-    // Note: Moving mouse LEFT (negative delta) increases the width of a right-pinned panel
     const delta = startChatX.value - e.clientX; 
-    let newWidth = startChatWidth.value + delta;
-    
-    // Clamp: Min 300px, Max 70% of screen (for deep reading)
-    chatWidth.value = Math.max(60, Math.min(newWidth, window.innerWidth * 0.9));
+    chatWidth.value = Math.max(280, Math.min(startChatWidth.value + delta, window.innerWidth * 0.9));
+    return;
+  }
+
+  // 3. Tool Movement (Relative to Orbit Stage)
+  if (draggingToolId.value) {
+    const stage = document.querySelector('.orbit-stage');
+    if (!stage) return;
+    const bounds = stage.getBoundingClientRect();
+    let xPerc = ((e.clientX - bounds.left) / bounds.width) * 100;
+    let yPerc = ((e.clientY - bounds.top) / bounds.height) * 100;
+    tools.value[draggingToolId.value].x = Math.max(2, Math.min(xPerc, 98));
+    tools.value[draggingToolId.value].y = Math.max(2, Math.min(yPerc, 98));
   }
 };
 
 const stopDragging = () => {
   isDragging.value = false;
   isChatDragging.value = false;
+  draggingToolId.value = null;
   document.body.style.cursor = 'default';
 };
 
-// Updated Grid computed
+/* LAYOUT HELPERS */
 const dynamicGridStyle = computed(() => ({
   display: 'grid',
   gridTemplateColumns: `${panelWidth.value}px 1fr ${chatWidth.value}px`,
   gridTemplateRows: '100vh',
-  height: '100vh',
   width: '100vw',
-  overflow: 'hidden'
+  height: '100vh',
+  overflow: 'hidden',
+  gridTemplateAreas: '"tools stage chat"'
 }));
 
-
 const handleButtonClick = () => {
-  if (dragMoved.value) return; // Don't toggle if we were dragging
-  if (isLifeToolsOpen.value) {
-    panelWidth.value = 80;
-    isLifeToolsOpen.value = false;
-  } else {
-    panelWidth.value = window.innerWidth * 0.3;
-    isLifeToolsOpen.value = true;
-  }
+  if (dragMoved.value) return;
+  isLifeToolsOpen.value = !isLifeToolsOpen.value;
+  panelWidth.value = isLifeToolsOpen.value ? window.innerWidth * 0.3 : 80;
 };
 
-/* switch betwen beebee chat and heli clock */
-const toggleClockExpansion = () => {
-  if (rightPanelMode.value === 'heli') {
-    rightPanelMode.value = 'chat';
-    chatWidth.value = 380; // Snap back to standard chat width
-  } else {
-    rightPanelMode.value = 'heli';
-    // MATH: Screen width minus the left rail width (panelWidth)
-    // This makes the clock panel "kiss" the life tools button
-    chatWidth.value = window.innerWidth - panelWidth.value;
-  }
-};
-
-/*  demo mode */
 const launchDemo = (demo) => {
   if (demo === 'sport') {
     storeAI.beebeeDigest("I want to swim 400m in 10 orbits, but chlorine makes my skin itchy.", true);
@@ -222,319 +236,160 @@ const launchDemo = (demo) => {
 };
 
 const exitDemo = () => {
-  // Clear the extraction and return to launchpad
   storeAI.isInitialState = true;
-  extractedData.value = { capacity: [], coherence: [], context: [] };
   showBesearchDrawer.value = false;
 };
 
 const cloneExperience = () => {
-  // 1. Commit extractedData to the Peer's permanent store
-  // 2. Set "isInitialState" to false but keep the data
-  // 3. Perhaps trigger a "BeeBee" message: "This protocol is now yours. Adjust the targets as needed."
-  alert("Protocol Cloned! This 400IM setup is now saved to your Sovereign Profile.");
+  alert("Protocol Cloned!");
 };
-
 </script>
 
 <style scoped>
-/* 1. THE MAIN CONTAINER: The Sovereign Cockpit */
+/* 1. CONTAINER: GRID LOCK */
 .prime-interface {
-  position: relative; /* Relative works better if header is in flow; use Fixed if it's an overlay */
+  position: relative;
   width: 100vw;
-  height: 100vh; /* LOCK VIEWPORT: Use calc(100vh - 60px) if header exists */
-  overflow: hidden; /* KILL SCROLLBARS */
-  display: grid;
-  /* Col 1: Tools, Col 2: Liquid Space, Col 3: Dialogue */
-  grid-template-columns: v-bind('panelWidth + "px"') 1fr 380px;
-  grid-template-rows: 100%; /* Ensure row takes full height */
-  grid-template-areas: "tools stage chat";
-  background: var(--sov-white-bg, #f9f9f9);
+  height: 100vh;
+  overflow: hidden;
+  background: #f9f9f9;
 }
 
-/* 2. THE ORBIT STAGE (CENTER): Behind the side panels */
-.orbit-center {
+/* 2. CENTER STAGE: 3-Row Vertical Logic */
+.orbit-stage {
   grid-area: stage;
-  grid-column: 1 / 4; /* SPAN ENTIRE GRID to show resonance under transparency */
-  grid-row: 1;
   position: relative;
   display: grid;
-  grid-template-rows: repeat(12, 1fr); /* 12-Row Vertical Logic */
-  grid-template-columns: repeat(12, 1fr); /* 12-Col Horizontal Logic */
-  z-index: 1;
+  grid-template-rows: 80px 1fr 60px; /* HUD | CONTENT | FUSE */
+  height: 100vh;
+  z-index: 10;
 }
 
-/* 3. THE LAUNCHPAD: Spaced-out vertical alignment */
+/* WORLD CANVAS: Overlay for draggable tools */
+.world-canvas {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%;
+  height: calc(100% - 60px); /* Leave room for the Fuse footer */
+  z-index: 100;
+  pointer-events: none; /* Let clicks hit the launchpad buttons */
+}
+
+.tool-grab-wrapper {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: auto; /* Tools themselves ARE clickable */
+  cursor: grab;
+  min-width: 50px;
+  min-height: 50px;
+  display: grid;
+  place-items: center;
+}
+
+.world-canvas.dragging-active {
+  pointer-events: auto; /* Catch mousemoves during active drag */
+}
+
+/* FUSE: The bottom interactive row */
+.fuse-container {
+  grid-row: 3;
+  z-index: 150; /* Ensure Fuse is above the canvas plane */
+  height: 60px;
+  position: relative;
+  background: rgba(255,255,255,0.05);
+}
+
+.hud-top {
+  position: absolute;
+  top: 0; width: 100%; height: 80px;
+  z-index: 110;
+  display: flex;
+  justify-content: space-around;
+  pointer-events: none;
+}
+.hud-top .metric { pointer-events: auto; }
+
+/* INTERFACE: Launchpad and Lenses */
+.interface-layer {
+  grid-row: 2;
+  position: relative;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+}
+
 .launchpad-stack {
-  grid-row: 1 / 13;
-  grid-column: 1 / 13;
   display: grid;
-  grid-template-rows: subgrid;
-  grid-template-columns: subgrid;
-}
-
-.avatar-zone {
-  grid-row: 2 / 5; /* Avatar takes top third */
-  grid-column: 1 / 13;
-  display: grid;
-  place-items: center;
-}
-
-.input-zone {
-  grid-row: 6 / 9; /* Input takes middle third - NO BUNCHING */
-  grid-column: 4 / 10; /* THE 60% CONSTRAINT */
-  display: grid;
-  align-items: center;
-  text-align: center;
-}
-
-.invite-text {
-  margin-bottom: 2.5rem; /* Space between text and bar */
-  font-size: 1.1rem;
-  font-weight: 300;
-  color: var(--sov-text-muted);
-}
-
-.active-resonance {
-  grid-row: 2 / 11; /* Occupies the middle of the screen vertical */
-  grid-column: 2 / 12; /* Stays within the 100vw but respects margins */
-  display: grid;
-  place-items: center;
-}
-
-.demo-zone {
-  grid-row: 10;
-  grid-column: 1 / 13;
-  display: grid;
-  place-items: center; /* This forces the button to the horizontal and vertical center of Row 10 */
+  grid-template-rows: repeat(12, 1fr);
+  height: 100%;
   width: 100%;
 }
 
-/* demo besearch */
-.meta-actions-zone {
-  grid-row: 11; /* Just above the drawer */
-  grid-column: 4 / 10; /* Centered 60% */
-  display: grid;
-  grid-template-columns: 1fr 2fr; /* Exit is small, Clone is the main action */
-  gap: 1rem;
-  place-items: center;
-  z-index: 120;
-}
+.avatar-zone { grid-row: 2 / 5; display: grid; place-items: center; }
+.input-zone { grid-row: 6 / 9; display: grid; place-items: center; }
+.demo-zone { grid-row: 10; display: flex; justify-content: center; gap: 20px; }
 
-.sov-btn {
-  padding: 0.8rem 1.5rem;
-  border-radius: 8px;
-  border: 1px solid rgba(0,0,0,0.1);
-  cursor: pointer;
-  font-weight: 500;
-  transition: all 0.2s ease;
-}
-
-.sov-btn.exit {
-  background: rgba(255, 255, 255, 0.8);
-  color: #666;
-}
-
-.sov-btn.clone {
-  background: #3b82f6;
-  color: white;
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-}
-
-.sov-btn:hover {
-  transform: translateY(-2px);
-}
-
-.sov-demo-btn {
-  /* Optional: give it a fixed or min-width so it looks like a solid game button */
-  min-width: 240px;
-  padding: 1rem 2rem;
-  cursor: pointer;
-  /* Add your game-style branding here */
-}
-
-/* 4. OVERLAYS (Side Panels) */
-.overlay-blur {
-  background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  pointer-events: auto;
-}
-
+/* LEFT PANEL */
 .left-rail {
   grid-area: tools;
-  grid-row: 1;
-  z-index: 100;
+  z-index: 200;
   border-right: 1px solid rgba(0,0,0,0.05);
-  transition: opacity 0.3s ease, width 0.1s linear;
 }
 
-.rail-faded {
-  opacity: 0.35; /* Ghostly tools until expanded */
-}
+.rail-faded { opacity: 0.4; }
 
-.rail-faded:hover {
-  opacity: 0.8;
-}
-
-/* RIGHT PANEL: Chat + Clock */
+/* RIGHT PANEL */
 .right-panel {
   grid-area: chat;
-  grid-row: 1;
-  z-index: 150;
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(25px);
+  z-index: 200;
+  border-left: 1px solid rgba(185, 173, 207, 0.15);
   position: relative;
-  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  
-  /* THE INVERSE BEVEL EFFECT */
-  box-shadow: 
-    -15px 0 35px rgba(0,0,0,0.12), /* Deep outer drop shadow for layering */
-    inset 8px 0 15px -10px rgba(0,0,0,0.3); /* Inner shadow: Light to Dark on the left edge */
-  
-  border-left: 1px solid rgba(0, 0, 0, 0.08); /* A sharp, dark "cut" line */
 }
 
-/* THE LEADING EDGE GRADIENT: Light (Stage side) to Dark (Panel side) */
-.right-panel::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 6px;
-  /* Light to Dark transition on the bevel */
-  background: linear-gradient(
-    to right, 
-    rgba(0,0,0,0.02) 0%, 
-    rgba(0,0,0,0.1) 100%
-  );
-  z-index: 151;
-}
-
-/* THE GRIP: Darkening the visual indicator */
-.chat-drag-handle::after {
-  content: ":::"; 
-  color: rgba(0,0,0,0.4); /* Stronger contrast for the handle */
-  font-weight: 900;
-  letter-spacing: 2px;
-  transform: rotate(90deg);
-  text-shadow: 0 1px 0 rgba(255,255,255,0.5); /* Bevel effect on the dots themselves */
-}
-/* Optional: Add a "grip" texture to the drag handle area */
 .chat-drag-handle {
   position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 12px;
+  left: 0; top: 0; bottom: 0; width: 10px;
   cursor: ew-resize;
-  z-index: 160;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  z-index: 210;
 }
 
-.chat-drag-handle:hover {
-  background: rgba(59, 130, 246, 0.1); /* Subtle hint */
-}
-
-/* HELICLOCK: Top-Right Anchor */
-.clock-zone {
-  display: grid;
-  place-items: start end;
-  padding: 1rem;
-  height: 80px; /* Consistent height for the top anchor */
-}
-
-.chat-zone {
-  grid-row: 2;
-  overflow-y: auto; /* Let the chat scroll internally */
-  padding: 10px;
-}
-
-/* 6. BESEARCH DRAWER: Overlaying the bottom stage */
+/* DRAWER */
 .besearch-drawer {
   position: absolute;
   bottom: 0;
-  left: 80px; /* Offset for rail */
-  right: 380px; /* Offset for chat */
+  left: 0; right: 0;
   height: 40vh;
   background: white;
-  z-index: 110;
+  z-index: 160;
   border-top: 1px solid rgba(0,0,0,0.1);
   box-shadow: 0 -10px 40px rgba(0,0,0,0.05);
 }
 
-/* 7. DRAG HANDLE BUTTON */
+.overlay-blur {
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(15px);
+}
+
 .toggle-life-tools-button {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  width: 50px;
-  height: 50px;
-  background-color: transparent;
-  border: none;
-  z-index: 200;
+  width: 50px; height: 50px;
+  background: none; border: none;
+  z-index: 250;
   cursor: ew-resize;
-  display: grid;
-  place-items: center;
 }
 
 .tear {
-  width: 38px;
-  height: 38px;
+  width: 38px; height: 38px;
   border-radius: 0 50% 50% 50%;
-  border: 3px solid #3b82f6;
+  background: #3b82f6;
   transform: rotate(45deg);
-  background-color: #3b82f6;
-  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
 }
 
-/* TRANSITIONS */
 .sov-fade-enter-active, .sov-fade-leave-active { transition: opacity 0.5s ease; }
 .sov-fade-enter-from, .sov-fade-leave-to { opacity: 0; }
 
 .slide-up-enter-active, .slide-up-leave-active { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
 .slide-up-enter-from, .slide-up-leave-to { transform: translateY(100%); }
-
-/* right side panel, heli clock / beebee chat */
-.panel-content-area {
-  grid-row: 2;
-  height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
-  padding: 1rem;
-}
-
-.heli-projection-zone {
-  display: grid;
-  grid-template-columns: 1fr;
-  height: 100%;
-}
-
-.heli-actions {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  padding-top: 2rem;
-  border-top: 1px solid rgba(0,0,0,0.05);
-}
-
-/* Transitions for a "slick" OS feel */
-.fade-slide-enter-active, .fade-slide-leave-active {
-  transition: all 0.3s ease;
-}
-.fade-slide-enter-from {
-  opacity: 0;
-  transform: translateX(20px);
-}
-.fade-slide-leave-to {
-  opacity: 0;
-  transform: translateX(-20px);
-}
-
-
-
-
 </style>
