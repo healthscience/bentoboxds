@@ -39,7 +39,9 @@ const ringInfo = [
 const props = defineProps({
   cues: { type: Array, default: () => [] },
   solarAngle: { type: Number, default: 0 },
-  currentEnv: { type: String, default: 'indoor' }
+  currentEnv: { type: String, default: 'indoor' },
+  x: { type: Number, default: 0 },
+  y: { type: Number, default: 0 }
 });
 
 // 1. Math: Map angles to X/Y coordinates

@@ -19,8 +19,11 @@
 </template>
 
 <script setup>
+
 defineProps({
-  mini: { type: Boolean, default: false }
+  mini: { type: Boolean, default: false },
+  x: { type: Number, default: 0 },
+  y: { type: Number, default: 0 }
 });
 </script>
 

@@ -6,7 +6,7 @@
     <welcome-view></welcome-view>
   </div>
   <div v-else-if="storeAccount.orbitLive === true">
-    <orbit-view></orbit-view>
+    <prime-interface></prime-interface>
   </div>
   <div v-else-if="storeAccount.orbitLive === false">
     <beebee-view></beebee-view>
@@ -20,13 +20,13 @@
 
 <script setup>
 import WelcomeView from '@/components/welcome/WelcomeView.vue'
-import OrbitView from '@/components/orbit/OrbitView.vue'
 import BeebeeView from '@/components/beebeeView/beebeeView.vue'
 import ConnectionStatus from '@/components/welcome/connectionStatus.vue'
 
 import { useSocketStore } from '@/stores/socket.js'
 import { accountStore } from '../stores/accountStore'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
+import PrimeInterface from '../components/orbit/PrimeInterface.vue'
 
 const sendSocket = useSocketStore()
 const storeAccount = accountStore()

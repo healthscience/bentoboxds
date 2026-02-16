@@ -24,6 +24,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     liveDataParse: new DataPraser(),
     liveChatUtil: new ChatUtilty(),
     liveChatspaceUtil: new ChatspaceUtilty(),
+    activeWorld: 'orbit',
     cuesFeedback: '',
     cuesRelationshipFeedback: {},
     startChat: true,
