@@ -1126,8 +1126,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         extractedData.context = ['swimming', 'Aquatic Environment', '10 Orbits'],
         extractedData.coherence = ['Biological Barrier Model']
         this.digestInput = extractedData
-        console.log('true and')
-        console.log(this.digestInput)
       } else {     
         console.log('chat input')
         console.log(this.askQuestion)

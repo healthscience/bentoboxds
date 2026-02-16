@@ -1,24 +1,21 @@
 <template>
-<div id="life-tools-nav" v-bind:class="{ border: props.isLTOpen === true }">
+<div id="life-tools-nav" v-bind:class="{ border: props.isExpanded === true }">
   <div class="spiral-container">
     <div class="spiral"></div>
   </div>
   <div id="mode-selector">
-    <h3>Modes</h3>
-    <div class="mode-buttons">
-      <button class="mode-button" @click="selectMode('cues')">
-        <span class="mode-icon"></span>
-        <span v-bind:class="{ active: selectedMode === 'cues' }">Cues</span>
-      </button>
-      <button class="mode-button" @click="selectMode('body')">
-        <span class="mode-icon">🧠</span>
-        <span v-bind:class="{ active: selectedMode === 'body' }">Body</span>
-      </button>
-      <button class="mode-button" @click="selectMode('earth')">
-        <span class="mode-icon">🌍</span>
-        <span v-bind:class="{ active: selectedMode === 'earth' }">Earth</span>
-      </button>
-    </div>
+    <h3>Worlds</h3>
+      <div class="world-switcher">
+        <div 
+          v-for="world in worlds" 
+          :key="world.id"
+          class="world-icon"
+          :class="{ active: modelValue === world.id }"
+          @click="$emit('update:modelValue', world.id)"
+        >
+          {{ world.icon }}
+        </div>
+      </div>
   </div>
   <!-- Besearch Navigation Controls -->
   <div id="peer-navigation">
@@ -63,14 +60,30 @@ import InterventionType from '@/components/besearch/interventions/interventionTy
 
 /* props */
 const props = defineProps({
-  isLTOpen: Boolean
-})
+  modelValue: String,  // Active World
+  isExpanded: Boolean,
+  currentWidth: Number
+});
 
-// Only need mode-selected and peer-moved emits now
-const emit = defineEmits(['mode-selected', 'peer-moved'])
+// EMITS: Notify PrimeInterface
+const emit = defineEmits([
+  'mode-selected',
+  'peer-moved',
+  'update:modelValue', 
+  'update:width', 
+  'update:isOpen', 
+  'startDrag'
+]);
+
 
 let btoolsTime = ref(false)
 let selectedMode = ref('cues')
+
+const worlds = [
+  { id: 'orbit', label: 'Standard Orbit', icon: '🌌' },
+  { id: 'body', label: 'Human Body', icon: '👤' },
+  { id: 'earth', label: 'Earth Context', icon: '🌍' }
+];
 
   /** methods */
   const besearchTime = () => {
@@ -205,6 +218,9 @@ let selectedMode = ref('cues')
     }
 
   #mode-selector {
+    display: grid;
+    grid-template-rows: auto auto auto;
+    margin-top: 0px;
     margin-bottom: 1rem;
   }
 
@@ -215,8 +231,8 @@ let selectedMode = ref('cues')
   }
 
   .mode-button {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-rows: auto auto;
     align-items: center;
     justify-content: center;
     background-color: #b8cde2;
@@ -351,5 +367,15 @@ let selectedMode = ref('cues')
   #interventions {
     margin-bottom: 1rem;
   }
+
+.context-switcher {
+  display: grid;
+  grid-template-columns: auto;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 12px;
+  margin: 1rem 0;
+}
+
 }
 </style>

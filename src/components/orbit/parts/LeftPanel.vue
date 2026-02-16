@@ -5,7 +5,7 @@
       :class="{ 'rail-faded': !isOpen }"
       :style="{ width: width + 'px' }"
     >
-      <LifeTools :is-expanded="isOpen" :current-width="width" />
+      <LifeTools :is-expanded="isOpen" :current-width="width" :modelValue="modelValue" @update:modelValue="$emit('update:modelValue', $event)"/>
       
       <button
         @mousedown.stop="$emit('startDrag')"
@@ -19,18 +19,6 @@
         </div>
       </button>
     </aside>
-
-    <div class="context-switcher">
-      <button 
-        v-for="world in worlds" 
-        :key="world.id"
-        :class="['switch-btn', { active: modelValue === world.id }]"
-        @click="$emit('update:modelValue', world.id)"
-        :title="world.label"
-      >
-        <span class="icon">{{ world.icon }}</span>
-      </button>
-    </div>
   </div>
 </template>
 
@@ -45,19 +33,7 @@ const props = defineProps({
   isOpen: Boolean      // Toggle State
 });
 
-// EMITS: Notify PrimeInterface
-const emit = defineEmits([
-  'update:modelValue', 
-  'update:width', 
-  'update:isOpen', 
-  'startDrag'
-]);
-
-const worlds = [
-  { id: 'orbit', label: 'Standard Orbit', icon: '🌌' },
-  { id: 'body', label: 'Human Body', icon: '👤' },
-  { id: 'earth', label: 'Earth Context', icon: '🌍' }
-];
+const emit = defineEmits(['update:width', 'update:isOpen', 'startDrag', 'update:modelValue'])
 
 const handleButtonClick = () => {
   // Toggle logic: notify parent to change values
@@ -97,16 +73,6 @@ const handleButtonClick = () => {
   border-radius: 0 50% 50% 50%;
   background: #3b82f6;
   transform: rotate(45deg);
-}
-
-
-.context-switcher {
-  display: flex;
-  gap: 8px;
-  padding: 10px;
-  background: rgba(0, 0, 0, 0.03);
-  border-radius: 12px;
-  margin: 1rem 0;
 }
 
 .switch-btn {

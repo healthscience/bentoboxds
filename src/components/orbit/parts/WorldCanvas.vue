@@ -1,8 +1,8 @@
 <template>
-  <div class="world-canvas-container" :class="activeWorld">
+  <div class="world-canvas-container" :class="activeWorld">world canvas {{ activeWorld }}
     <section class="world-layer-stack">
       <div v-show="activeWorld === 'body'" class="world-view body-grid">
-        <div class="anatomy-silhouette"></div>
+        <div class="anatomy-silhouette">body</div>
         <div class="bio-zones">
           <div class="zone heart"></div>
           <div class="zone lungs"></div>
@@ -10,7 +10,7 @@
       </div>
 
       <div v-show="activeWorld === 'earth'" class="world-view earth-grid">
-        <div class="map-projection"></div>
+        <div class="map-projection">earth</div>
         <div class="geo-cues">
           <div class="meridian"></div>
           <div class="equator"></div>
@@ -18,7 +18,7 @@
       </div>
 
       <div v-show="activeWorld === 'orbit'" class="world-view orbit-grid">
-        <div class="celestial-plane"></div>
+        <div class="celestial-plane">orit</div>
       </div>
     </section>
 

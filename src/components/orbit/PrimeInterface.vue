@@ -1,53 +1,64 @@
 <template>
   <div 
     class="prime-interface" 
+    :class="[activeWorld, { 'is-zen': isInitialState }]" 
     :style="dynamicGridStyle"
     @mousemove="handleGlobalDrag"
     @mouseup="stopDragging"
     @mouseleave="stopDragging"
   >
-
-  <LeftPanel
-    v-model="activeWorld"
-    :width="panelWidth"
-    :isOpen="isLifeToolsOpen"
-    @update:width="val => panelWidth = val"
-    @update:isOpen="val => isLifeToolsOpen = val"
-    @startDrag="startDraggingLeft"
-  />
-
-  <WorldCanvas 
-    :tools="tools" 
-    :draggingId="draggingToolId"
-    :activeWorld="activeWorld"
-    @startToolDrag="startToolDrag"
-  />
+    <LeftPanel
+      v-model="activeWorld"
+      class="left-rail-area"
+      :width="panelWidth"
+      :isOpen="isLifeToolsOpen"
+      @update:width="val => panelWidth = val"
+      @update:isOpen="val => isLifeToolsOpen = val"
+      @startDrag="startDraggingLeft"
+    />
 
     <main class="orbit-stage">
-      <OrbitHUD />
+      <OrbitHUD v-if="!isInitialState" />
 
       <div class="interface-layer">
-        <transition name="sov-fade" mode="out-in">
+        <transition name="sov-fade">
           <LaunchpadStack v-if="isInitialState" @launch="launchDemo" />
-          <ActiveResonance v-else :data="extractedData" @exit="exitDemo" />
+        </transition>
+
+        <transition name="sov-fade">
+          <div v-if="isDemoMode" class="demo-controls">
+            <div class="swim-experience-label">Swim Peer Experience</div>
+            <div class="button-group">
+                <button @click="exitToZen" class="exit-btn">Exit</button>
+                <button @click="handleClone" class="clone-btn">Clone</button>
+            </div>
+          </div>
         </transition>
       </div>
 
-      <div class="fuse-container">
-        <BesearchFuse />
-      </div>
+      <WorldCanvas 
+        :tools="tools" 
+        :activeWorld="isInitialState ? 'void' : activeWorld"
+        :showTools="!isInitialState"
+        @startToolDrag="startToolDrag"
+      />
 
-      <BesearchDrawer v-if="!isInitialState" :data="extractedData" />
+      <div class="fuse-container">
+        <BesearchFuse @submit="handleUserInput" />
+      </div>
     </main>
 
-<RightPanel 
-  v-model:mode="rightPanelMode"
-  :width="chatWidth"
-  :isOpen="isChatOpen"         @update:isOpen="val => isChatOpen = val" @update:width="val => chatWidth = val"   :isInitialState="isInitialState"
-  :data="extractedData"
-  @startDrag="startChatDrag"
-  style="position: fixed; right: 0; top: 0; bottom: 0; z-index: 99999;"
-/>
+    <RightPanel 
+      v-model:mode="rightPanelMode"
+      class="right-panel-area"
+      :width="chatWidth"
+      :isOpen="isChatOpen"
+      :isInitialState="isInitialState"
+      :data="extractedData"
+      @update:isOpen="val => isChatOpen = val" 
+      @update:width="val => chatWidth = val"
+      @startDrag="startChatDrag"
+    />
   </div>
 </template>
 
@@ -61,63 +72,69 @@ import RightPanel from '@/components/orbit/parts/RightPanel.vue';
 import WorldCanvas from '@/components/orbit/parts/WorldCanvas.vue';
 import OrbitHUD from '@/components/orbit/parts/OrbitHUD.vue';
 import LaunchpadStack from '@/components/orbit/parts/LaunchpadStack.vue';
-import ActiveResonance from '@/components/orbit/resonance/ResonancePulse.vue';
 import BesearchFuse from '@/components/orbit/besearch/BesearchFuse.vue';
-import BesearchDrawer from '@/components/orbit/besearch/BesearchPanel.vue';
 
 const storeAI = aiInterfaceStore();
-const isInitialState = computed(() => storeAI.isInitialState);
+
 const extractedData = computed(() => storeAI.digestInput);
-const isChatOpen = ref(true);
+const activeWorld = computed({
+  get: () => storeAI.activeWorld,
+  set: (val) => storeAI.activeWorld = val
+});
+
+const isChatOpen = ref(false);
+const isLifeToolsOpen = ref(false);
 const rightPanelMode = ref('chat');
 
-/** WORLD STATE **/
-  const activeWorld = computed(() => {
-    return storeAI.activeWorld
-  })
-
-/** DRAG ENGINE STATE **/
-const panelWidth = ref(20);
-const chatWidth = ref(20);
-const isLifeToolsOpen = ref(false);
-const draggingMode = ref(null); // 'left', 'right', or 'tool'
+const panelWidth = ref(80);
+const chatWidth = ref(0); // Start at 0 to see if bubble shows
+const draggingMode = ref(null);
+let draggingToolId = ref(null);
 
 const tools = ref({
   pulse: { x: 50, y: 50 },
   heli: { x: 80, y: 20 }
 });
 
-let draggingToolId = ref(null);
+const currentMode = ref('zen'); 
+const isInitialState = computed(() => currentMode.value === 'zen');
+const isDemoMode = computed(() => currentMode.value === 'demo');
 
-/** DRAG ENGINE HANDLERS **/
-const startDraggingLeft = () => {
-  draggingMode.value = 'left';
-  document.body.style.cursor = 'ew-resize';
-  // Prevent text selection during drag
-  document.body.style.userSelect = 'none';
+const launchDemo = () => {
+  currentMode.value = 'demo';
+  activeWorld.value = 'earth';
+  chatWidth.value = 380; 
+  isChatOpen.value = true;
 };
 
-const startChatDrag = () => { draggingMode.value = 'right'; document.body.style.cursor = 'ew-resize'; };
+const handleUserInput = (input) => {
+  currentMode.value = 'active';
+  activeWorld.value = 'body';
+};
 
+const exitToZen = () => {
+  currentMode.value = 'zen';
+  activeWorld.value = 'orbit';
+  chatWidth.value = 0;
+  isChatOpen.value = false;
+  panelWidth.value = 80;
+};
+
+const startDraggingLeft = () => { draggingMode.value = 'left'; document.body.style.cursor = 'ew-resize'; };
+const startChatDrag = () => { draggingMode.value = 'right'; document.body.style.cursor = 'ew-resize'; };
 const startToolDrag = (id) => { draggingMode.value = 'tool'; draggingToolId.value = id; };
 
 const handleGlobalDrag = (e) => {
   if (!draggingMode.value) return;
-
   if (draggingMode.value === 'left') {
-
-    const newWidth = e.clientX; 
-    // Constraints: Min 80px, Max 50% of screen
-    if (newWidth >= 80 && newWidth <= window.innerWidth / 2) {
-      panelWidth.value = newWidth;
-      // Auto-toggle the "Open" state based on a threshold
-      isLifeToolsOpen.value = panelWidth.value > 150;
-    }
+    panelWidth.value = Math.max(80, Math.min(e.clientX, window.innerWidth * 0.4));
+    isLifeToolsOpen.value = panelWidth.value > 150;
   } 
   else if (draggingMode.value === 'right') {
-    const delta = window.innerWidth - e.clientX;
-    chatWidth.value = Math.max(280, Math.min(delta, window.innerWidth * 0.6));
-  } 
+    const newWidth = window.innerWidth - e.clientX;
+    chatWidth.value = Math.max(0, Math.min(newWidth, window.innerWidth * 0.5));
+    isChatOpen.value = chatWidth.value > 150;
+  }
   else if (draggingMode.value === 'tool') {
     const stage = document.querySelector('.orbit-stage');
     const bounds = stage.getBoundingClientRect();
@@ -126,50 +143,52 @@ const handleGlobalDrag = (e) => {
   }
 };
 
-const stopDragging = () => {
-  draggingMode.value = null;
-  draggingToolId.value = null;
-  document.body.style.cursor = 'default';
-  document.body.style.userSelect = 'auto';
-};
+const stopDragging = () => { draggingMode.value = null; document.body.style.cursor = 'default'; };
 
 const dynamicGridStyle = computed(() => ({
-  display: 'grid',
   gridTemplateColumns: `${panelWidth.value}px 1fr ${chatWidth.value}px`,
-  gridTemplateRows: '100vh',
-  width: '100vw',
-  height: '100vh',
-  overflow: 'hidden'
+  gridTemplateAreas: '"tools stage chat"'
 }));
-
-const launchDemo = (type) => storeAI.beebeeDigest(`Demo ${type} active`, true);
-const exitDemo = () => storeAI.isInitialState = true;
 </script>
 
 <style scoped>
-
 .prime-interface {
   display: grid;
-  /* Columns: LeftRail | Stage | RightPanel */
-  grid-template-columns: v-bind('panelWidth + "px"') 1fr v-bind('chatWidth + "px"');
   grid-template-rows: 100vh;
   width: 100vw;
   height: 100vh;
-  overflow: hidden;
+  /* CRITICAL: Changed from hidden to clip or visible so bubble can leak out */
+  overflow: visible; 
   position: relative;
+  background-color: #f8f9fa;
 }
 
-/* Contextual color shifts using the activeWorld class */
-.prime-interface.body { background-color: #fff9f9; }
-.prime-interface.earth { background-color: #f9fbff; }
-.prime-interface.orbit { background-color: #fafafa; }
+.left-rail-area { grid-area: tools; z-index: 500; }
+.right-panel-area { grid-area: chat; z-index: 500; }
 
 .orbit-stage {
-  grid-column: 2; /* Center column */
+  grid-area: stage;
   display: grid;
-  /* Row 1: HUD (80px), Row 2: World Content (Auto), Row 3: Fuse (60px) */
   grid-template-rows: 80px 1fr 60px;
   height: 100%;
-  min-width: 0; /* Prevent grid blowout */
+  position: relative;
+  z-index: 100;
+}
+
+.interface-layer {
+  grid-row: 2;
+  z-index: 400;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.interface-layer > * { pointer-events: auto; }
+
+.demo-controls {
+  background: white;
+  padding: 30px;
+  border-radius: 20px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+  pointer-events: auto;
 }
 </style>
