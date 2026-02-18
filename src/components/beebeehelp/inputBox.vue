@@ -21,7 +21,7 @@
         <textarea 
           id="askinput" 
           v-model="storeAI.askQuestion.text" 
-          placeholder="What resonance shall we track today?"
+          placeholder="What resonance shall we shape today?"
           @keyup.enter.exact.prevent="storeAI.beebeeDigest()"
         ></textarea>
       </form>

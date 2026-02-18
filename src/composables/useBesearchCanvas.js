@@ -2,7 +2,7 @@ import { ref, reactive, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { BesearchCanvasManager } from '../canvas/managers/BesearchCanvasManager.js'
 import { besearchStore } from '../stores/besearchStore.js'
 
-export function useBesearchCanvas(canvasRef, onZoomChange = null) {
+export function useBesearchCanvas(canvasRef, onZoomChange = null, autoInit = true) {
   // Reactive state
   const canvasState = reactive({
     isInitialized: false,
@@ -28,7 +28,7 @@ export function useBesearchCanvas(canvasRef, onZoomChange = null) {
       // Wait for canvas to have valid dimensions
       const dimensions = await waitForValidDimensions(canvasRef.value)
       if (!dimensions) {
-        console.error('Canvas failed to get valid dimensions after timeout')
+        // console.error('Canvas failed to get valid dimensions after timeout')
         return
       }
       const storeBesearch = besearchStore()
@@ -62,6 +62,13 @@ export function useBesearchCanvas(canvasRef, onZoomChange = null) {
     }
   }
 
+  onMounted(() => {
+    // console.log('useBesearchCanvas onMounted, autoInit:', autoInit)
+    if (autoInit) {
+      initializeCanvas()
+    }
+  })
+
   /**
    * Wait for canvas to have valid dimensions
    * Returns dimensions once canvas has non-zero width and height
@@ -70,6 +77,10 @@ export function useBesearchCanvas(canvasRef, onZoomChange = null) {
     return new Promise((resolve) => {
       let attempts = 0
       const checkDimensions = () => {
+        if (!canvas) {
+          resolve(null)
+          return
+        }
         const rect = canvas.getBoundingClientRect()
         if (rect.width > 0 && rect.height > 0) {
           resolve({ width: rect.width, height: rect.height })
@@ -77,7 +88,7 @@ export function useBesearchCanvas(canvasRef, onZoomChange = null) {
         }
         attempts++
         if (attempts >= maxAttempts) {
-          console.warn('Canvas dimensions check timed out after', attempts, 'attempts')
+          // console.warn('Canvas dimensions check timed out after', attempts, 'attempts')
           resolve(null)
           return
         }

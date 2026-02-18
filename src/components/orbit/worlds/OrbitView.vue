@@ -1,70 +1,21 @@
 <template>
-  <div 
-    class="prime-interface" 
+  <div class="orbit-view"
     :style="dynamicGridStyle"
     @mousemove="handleGlobalDrag"
     @mouseup="stopDragging"
     @mouseleave="stopDragging"
   >
-    <aside 
-      class="side-rail left-rail overlay-blur"
-      :class="{ 'rail-faded': !isLifeToolsOpen }"
-    >
-      <LifeTools :is-expanded="isLifeToolsOpen" :current-width="panelWidth" />
-      
-      <button
-        @mousedown.stop="startDragging"
-        @click="handleButtonClick"
-        :class="['toggle-life-tools-button', { 'panel-open': isLifeToolsOpen }]"
-        :style="{ left: (panelWidth - 20) + 'px' }"
-      >
-        <div class="key-to-life">
-          <div class="tear"></div>
-          <div class="key-head"></div>
-        </div>
-      </button>
-    </aside>
-
-    <main class="orbit-stage" @mousemove="handleGlobalDrag" @mouseup="stopDragging">
+    <div class="orbit-stage" @mousemove="handleGlobalDrag" @mouseup="stopDragging">
       <div class="hud-top">
         <div class="metric"><span>BESEARCH</span><strong>3</strong></div>
         <div class="metric"><span>DIALOGUE</span><strong>234</strong></div>
         <div class="metric"><span>CUES</span><strong>345</strong></div>
       </div>
 
-      <div class="interface-layer">
-        <transition name="sov-fade" mode="out-in">
-          <div v-if="isInitialState" class="launchpad-stack">
-            <div class="avatar-zone"><BeeBeeAvatar /></div>
-            <div class="input-zone">
-              <div class="input-constraint"><inputBox/></div>
-            </div>
-            <div class="demo-zone">
-              <button class="sov-demo-btn" @click="launchDemo('sport')">🏊 Experience 400IM</button>
-              <button class="sov-demo-btn" @click="launchDemo('water')">Water</button>
-              <button class="sov-demo-btn" @click="launchDemo('earth')">Earth</button>
-            </div>
-          </div>
-          
-          <div v-else class="active-resonance">
-            <BesearchLens :lenses="extractedData" />
-            <div class="meta-actions-zone">
-              <button class="sov-btn exit" @click="exitDemo">Exit Demo</button>
-              <button class="sov-btn clone" @click="cloneExperience">📁 Clone & Personalize</button>
-            </div>
-          </div>
-        </transition>
-      </div>
-
-      <div class="fuse-container">
-        <BesearchFuse />
-      </div>
-
-      <div 
-        class="world-canvas" 
+      <div class="world-canvas" 
         :class="{ 'dragging-active': draggingToolId }"
       >
-        <div 
+       <div 
           v-if="tools.pulse"
           class="tool-grab-wrapper"
           :style="{ left: tools.pulse.x + '%', top: tools.pulse.y + '%', zIndex: draggingToolId === 'pulse' ? 300 : 100 }"
@@ -82,39 +33,15 @@
           <HeliClock />
         </div>
       </div>
-
-      <transition name="slide-up">
-        <footer v-if="!isInitialState && showBesearchDrawer" class="besearch-drawer">
-          <BesearchPanel :activeData="extractedData" />
-        </footer>
-      </transition>
-    </main>
-
-    <aside class="side-panel right-panel overlay-blur">
-      <div class="chat-drag-handle" @mousedown.stop="startChatDrag"></div>
-      <div class="panel-content-area">
-        <transition name="fade-slide" mode="out-in">
-          <div v-if="rightPanelMode === 'chat' && !isInitialState" class="chat-zone" key="chat">
-            <LifeDialogue :context="extractedData" />
-          </div>
-        </transition>
-      </div>
-    </aside>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
 import HeliClock from '@/components/orbit/clock/HeliClock.vue';
-import BesearchLens from '@/components/orbit/BesearchLens.vue';
-import BeeBeeAvatar from '@/components/agents/BeeBeeAvatar.vue';
-import LifeTools from '@/components/orbit/lifetools/LifeTools.vue'
-import LifeDialogue from '@/components/orbit/dialogue/lifeDialogue.vue'
-import BesearchFuse from '@/components/orbit/besearch/BesearchFuse.vue'
-import BesearchPanel from '@/components/orbit/besearch/besearchPanel.vue'
-import inputBox from '@/components/beebeehelp/inputBox.vue';
 import ProjectionHeli from '@/components/orbit/clock/projectionHeli.vue'
-import ResonancePulse from '@/components/orbit/resonance/ResonancePulse.vue' // Fixed Import
+import ResonancePulse from '@/components/orbit/resonance/ResonancePulse.vue'
 
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
@@ -122,8 +49,7 @@ const storeAI = aiInterfaceStore();
 const showBesearchDrawer = ref(true);
 
 /* Computed Logic */
-const isInitialState = computed(() => storeAI.isInitialState);
-const extractedData = computed(() => storeAI.digestInput);
+const extractedData = computed(() => storeAI.extractedData);
 
 /* ORBIT TOOL POSITIONS */
 const tools = ref({
@@ -151,21 +77,6 @@ const rightPanelMode = ref('chat');
 const startToolDrag = (id) => {
   draggingToolId.value = id;
   document.body.style.cursor = 'move';
-};
-
-const startDragging = (e) => {
-  isDragging.value = true;
-  dragMoved.value = false;
-  startX.value = e.clientX;
-  startWidth.value = panelWidth.value;
-  document.body.style.cursor = 'ew-resize';
-};
-
-const startChatDrag = (e) => {
-  isChatDragging.value = true;
-  startChatX.value = e.clientX;
-  startChatWidth.value = chatWidth.value;
-  document.body.style.cursor = 'ew-resize';
 };
 
 const handleGlobalDrag = (e) => {

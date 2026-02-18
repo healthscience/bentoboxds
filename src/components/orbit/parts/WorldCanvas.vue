@@ -1,43 +1,27 @@
 <template>
   <div class="world-canvas-container" :class="activeWorld">world canvas {{ activeWorld }}
     <section class="world-layer-stack">
-      <div v-show="activeWorld === 'body'" class="world-view body-grid">
-        <div class="anatomy-silhouette">body</div>
-        <div class="bio-zones">
-          <div class="zone heart"></div>
-          <div class="zone lungs"></div>
-        </div>
-      </div>
-
-      <div v-show="activeWorld === 'earth'" class="world-view earth-grid">
-        <div class="map-projection">earth</div>
-        <div class="geo-cues">
-          <div class="meridian"></div>
-          <div class="equator"></div>
-        </div>
-      </div>
-
+      <!-- orbit of cues and besearch -->
       <div v-show="activeWorld === 'orbit'" class="world-view orbit-grid">
-        <div class="celestial-plane">orit</div>
+        <OrbitView />
+      </div>
+      <!-- human body -->
+      <div v-show="activeWorld === 'body'" class="world-view body-grid">
+         <HumanWorld />
+      </div>
+      <!-- earth nature & environment -->
+      <div v-show="activeWorld === 'earth'" class="world-view earth-grid">
+        <EarthEnvironment />
       </div>
     </section>
-
-    <div class="tool-interaction-layer" :class="{ 'is-dragging': draggingId }">
-      <div 
-        v-if="tools.pulse"
-        class="tool-wrapper"
-        :style="{ gridArea: '1 / 1', transform: `translate(${tools.pulse.x}vw, ${tools.pulse.y}vh)` }"
-        @mousedown.stop="$emit('startToolDrag', 'pulse')"
-      >
-        <ResonancePulse />
-      </div>
-      </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
-import ResonancePulse from '@/components/orbit/resonance/ResonancePulse.vue';
+import OrbitView from '@/components/orbit/worlds/OrbitView.vue';
+import HumanWorld from '@/components/orbit/worlds/Cues-BodyWorld.vue';
+import EarthEnvironment from '@/components/orbit/worlds/EarthEnvironment.vue';
 
 import { aiInterfaceStore } from '@/stores/aiInterface.js';
 
@@ -65,6 +49,10 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js';
   height: 100%;
   width: 100%;
   overflow: hidden;
+  min-height: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 /* Force everything into the first cell to overlap */
@@ -72,6 +60,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js';
 .tool-interaction-layer {
   grid-area: 1 / 1; 
   display: grid;
+  height: 100%;
+  width: 100%;
 }
 
 /* WORLD VIEWS: Shared Layout */
@@ -80,6 +70,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js';
   display: grid;
   place-items: center;
   transition: opacity 0.5s ease, transform 0.5s ease;
+  width: 100%;
+  height: 100%;
 }
 
 /* BODY WORLD: Specific Anatomy Grid */
@@ -97,10 +89,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js';
 /* EARTH WORLD: Specific Geographic Grid */
 .earth-grid {
   background: radial-gradient(circle, rgba(200, 220, 255, 0.1) 0%, transparent 70%);
-  /* 12-column grid for mapping coordinates */
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  grid-template-rows: repeat(12, 1fr);
+  width: 100%;
+  height: 100%;
 }
 
 /* TOOL LAYER */
