@@ -5,16 +5,7 @@
       <template #header>
         <!-- The code below goes into the header slot -->
         <div id="chatspace-modal-header">
-          <button
-            type="button"
-            class="btn-green"
-            @click="closeBentoChat"
-            aria-label="Close modal"
-          >
-            Close
-          </button>
-          <div id="spacechat">CueChat # {{ storeAI.liveBspace.name }}</div>
-          <div id="return-modal-close" @click="closeBentoChat">return</div>
+           <div id="spacechat">CueChat # {{ storeAI.liveBspace.name }}</div>
         </div>
       </template>
       <template #body>
@@ -54,7 +45,11 @@ onMounted(() => {
   // Ensure the space chat is present in the chat menu with timestamps
   const cueId = storeAI.liveBspace?.cueid || storeAI.liveBspace?.spaceid
   const name = storeAI.liveBspace?.name
+  const contractKey = storeAI.liveBspace?.contract_key
+  const lifeStrapID = storeAI.liveBspace?.lifeStrapID || cueId
+
   if (cueId) {
+    storeAI.setActiveLifeStrap(lifeStrapID, contractKey)
     storeAI.ensureSpaceChatInMenu(cueId, name)
   }
 })

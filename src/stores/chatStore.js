@@ -11,7 +11,9 @@ export const useChatStore = defineStore('chat', {
     chatHistory: {}, // { [conversationId]: Message[] }
     bbidToConv: {},
     currentStreamingMessage: null,
-    beginChat: false
+    beginChat: false,
+    chatWidth: 0,
+    isChatOpen: false,
   }),
 
   getters: {
@@ -61,25 +63,66 @@ export const useChatStore = defineStore('chat', {
     },
     addMessage(message) {
       if (!message) return
-      // Determine conversation id
+      console.log('addMessage', message)
+      // 1. Identify Sovereign Anchors
+      // We prioritize the contract_key (The Hash) over the internal lifeStrapID
+      const activeContractKey = this.storeAI.activeContractKey
+      const activeStrapID = this.storeAI.activeLifeStrapID
+
+      // 2. Determine Conversation ID (The Route)
       let convId = message.conversationId
+      
       if (!convId) {
+        // Check if the message is coming from a specific Cue Space (Capacity/Context/Coherence)
         const ctx = message.context || message.metadata?.context
-        if (ctx && typeof ctx === 'object' && ctx.type === 'chatspace') {
-          convId = ctx.id || ctx.cueid
+        if (ctx && typeof ctx === 'object' && (ctx.type === 'chatspace' || ctx.type === 'cue')) {
+          convId = ctx.id || ctx.cueid || ctx.contract_key
         }
       }
-      if (!convId) convId = this.storeAI.chatAttention || 'chat'
+
+      // 3. Fallback Hierarchy: Contract Key > Life-Strap ID > Current Attention > 'chat'
+      // This ensures the "Zero-Draft" always finds its way into the Sovereign Ledger
+      if (!convId) {
+        convId = message.contract_key || message.lifeStrapID || activeContractKey || activeStrapID || this.storeAI.chatAttention || 'chat'
+      }
+
+      // 4. Inject Metadata for Hyperbee Indexing & Peer Education
+      // We tag the message with both the route and the master contract hash
       message.conversationId = convId
-      // Track bbid mapping for streaming updates
+      
+      if (activeContractKey) {
+        message.contract_key = activeContractKey
+      }
+      
+      if (activeStrapID) {
+        message.lifeStrapID = activeStrapID
+      }
+
+      // 5. Track bbid/bboxid mapping for streaming updates from BeeBee
       if (message.bbid || message.bboxid) {
         const bb = message.bbid || message.bboxid
         this.bbidToConv[bb] = convId
       }
-      // Ensure bucket
-      if (!this.chatHistory[convId]) this.chatHistory[convId] = []
-      this.chatHistory[convId].push(message)
-      this.notifySubscribers({ type: 'newMessage', payload: message }, this.$state)
+
+      // 6. Ensure the Ledger Bucket exists and Push the Message
+      if (!this.chatHistory[convId]) {
+        this.chatHistory[convId] = []
+      }
+      
+      // Natural Language First: Ensure we aren't pushing duplicates
+      // (Helpful if the UI and the Store both try to log the initial Peer input)
+      const isDuplicate = this.chatHistory[convId].some(m => m.id === message.id && m.id !== undefined)
+      if (!isDuplicate) {
+        this.chatHistory[convId].push(message)
+      }
+
+      // 7. Notify Subscribers 
+      // Hyperbee listens here to commit the "Strap" to the local database
+      this.notifySubscribers({ 
+        type: 'newMessage', 
+        payload: message,
+        contract: activeContractKey // Pass contract context to subscribers
+      }, this.$state)
     },
     addUploadMessag(uploadInfo) {
       const peerMessage = {
@@ -124,12 +167,15 @@ export const useChatStore = defineStore('chat', {
         // Construct peer message structure
         const peerMessage = {
           type: 'peer',
-          content: message.data || message.text,
+          role: 'peer',
+          content: message.content || message.data || message.text,
           timestamp: new Date(),
           bboxid: message.bbid,
           tools: message.tools || [],
           context: message.context,
-          conversationId: this.storeAI.chatAttention
+          conversationId: message.conversationId || this.storeAI.chatAttention,
+          contract_key: message.contract_key,
+          lifeStrapID: message.lifeStrapID
         }
 
         // Add peer message to chat history
@@ -138,6 +184,7 @@ export const useChatStore = defineStore('chat', {
         // Add placeholder for AI response
         const aiPlaceholder = {
           type: 'agent',
+          role: 'beebee',
           content: '',
           timestamp: new Date(),
           bboxid: message.bbid,
@@ -145,7 +192,9 @@ export const useChatStore = defineStore('chat', {
           messageType: 'response',
           metadata: {},
           context: message.context,
-          conversationId: this.storeAI.chatAttention
+          conversationId: peerMessage.conversationId,
+          contract_key: message.contract_key,
+          lifeStrapID: message.lifeStrapID
         }
         this.addMessage(aiPlaceholder)
         
@@ -471,12 +520,15 @@ export const useChatStore = defineStore('chat', {
                     // peer message
                     chatStore.addMessage({
                       type: 'peer',
+                      role: 'peer',
                       content: peerText,
                       timestamp: new Date(),
                       bboxid: qBbid || null,
                       tools: q?.tools || [],
                       context: ctx,
-                      conversationId: convId
+                      conversationId: convId,
+                      contract_key: q?.contract_key || chatMeta.contract_key,
+                      lifeStrapID: q?.lifeStrapID || chatMeta.lifeStrapID
                     })
                     // agent message
                     const rData = r?.data || r
@@ -484,6 +536,7 @@ export const useChatStore = defineStore('chat', {
                     const replyText = (rData && (rData.text || rData.content)) || r?.text || r?.content || ''
                     chatStore.addMessage({
                       type: 'agent',
+                      role: 'beebee',
                       content: isBBox ? rData : replyText,
                       timestamp: new Date(),
                       bboxid: r?.bbid || r?.bboxid || qBbid || null,
@@ -491,7 +544,9 @@ export const useChatStore = defineStore('chat', {
                       messageType: isBBox ? 'bentobox' : 'response',
                       metadata: r?.metadata || {},
                       context: ctx,
-                      conversationId: convId
+                      conversationId: convId,
+                      contract_key: r?.contract_key || chatMeta.contract_key,
+                      lifeStrapID: r?.lifeStrapID || chatMeta.lifeStrapID
                     })
                   }
                   if (pairs.length > 0) chatStore.beginChat = true

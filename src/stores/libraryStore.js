@@ -26,6 +26,16 @@ export const libraryStore = defineStore('librarystore', {
     storeBesearch: new besearchStore(),
     storeTeach: teachingStore(),
     startPubLibrary: false,
+    straps: [
+      {
+        id: "ls_swim_2026",
+        name: "400IM Swim Protocol",
+        origin_input: "I want to swim 400m...",
+        contract_key: "HOP_777_888",
+        active_cues: ["capacity-orbits", "context-chlorine"],
+        bioregion_anchor: "Local-Pool-01"
+      }
+    ],
     replicateFeedback: {},
     libraryMessage: '',
     uploadStatus: false,
@@ -243,12 +253,6 @@ export const libraryStore = defineStore('librarystore', {
     },
     contractInfoGetAsk (contextBundle) {
       // if ask is reference contracts then a module contract is needed if that is not availble then look up network experiment, parse out relevant module contract and parse out reference contract(s)
-      console.log('contract info start')
-      console.log(contextBundle)
-      console.log('peer library')
-      console.log(this.peerLibraryNXP)
-      console.log('publick library')
-      console.log(this.publicLibrary)
       let contractData = {}
       if (contextBundle.asked.style) {
         if (contextBundle.asked.style === 'reference') {
@@ -437,6 +441,10 @@ export const libraryStore = defineStore('librarystore', {
       } else if (message.action === 'besearch-contract') {
         // pass on to besearch store
         this.storeBesearch.processReply(message)
+        // set MOCK  lifestrap TEMP
+        this.storeAI.initializeSovereignSession()
+      } else if (message.action === 'lifestrap-contract') {
+        console.log('lifestrap-contract') //  TODO
       } else if (message.action === 'model-contract') {
         // first time save for update?
         if (message.task === 'save-complete') {

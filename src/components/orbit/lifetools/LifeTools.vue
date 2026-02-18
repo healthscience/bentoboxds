@@ -17,6 +17,14 @@
         </div>
       </div>
   </div>
+  <!-- Life-Strap -->
+   <LifeStrapNode 
+    v-for="strap in storeLibrary.straps" 
+    :key="strap.id" 
+    :strap="strap"
+    :expanded="props.isExpanded"
+    @select="handleWorldPivot"
+  />
   <!-- Besearch Navigation Controls -->
   <div id="peer-navigation">
     <h3>Navigation</h3>
@@ -55,8 +63,13 @@
   
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import LifeStrapNode from '@/components/orbit/lifetools/LifeStrapNode.vue'
 import BesearchControls from './besearchControls.vue'
 import InterventionType from '@/components/besearch/interventions/interventionType.vue'
+
+import { libraryStore } from '@/stores/libraryStore.js'
+
+const storeLibrary = libraryStore()
 
 /* props */
 const props = defineProps({
@@ -94,6 +107,10 @@ const worlds = [
     selectedMode.value = mode
     // Emit event to parent component to update canvas
     emit('mode-selected', mode)
+  }
+
+  const handleWorldPivot = () => {
+    console.log('World pivot')
   }
 
   // Peer navigation methods
@@ -368,9 +385,9 @@ const worlds = [
     margin-bottom: 1rem;
   }
 
-.context-switcher {
+.world-switcher {
   display: grid;
-  grid-template-columns: auto;
+  grid-template-columns: auto auto auto;
   padding: 10px;
   background: rgba(0, 0, 0, 0.03);
   border-radius: 12px;

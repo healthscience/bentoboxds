@@ -92,18 +92,10 @@
 
     <aside class="side-panel right-panel overlay-blur">
       <div class="chat-drag-handle" @mousedown.stop="startChatDrag"></div>
-      <div id="dialogue-zone">beebee dialogue</div>
       <div class="panel-content-area">
         <transition name="fade-slide" mode="out-in">
           <div v-if="rightPanelMode === 'chat' && !isInitialState" class="chat-zone" key="chat">
             <LifeDialogue :context="extractedData" />
-          </div>
-          <div v-else-if="rightPanelMode === 'heli'" class="heli-projection-zone" key="heli">
-            <ProjectionHeli :resonanceData="extractedData" />
-            <div class="heli-actions">
-              <button class="sov-btn mini">Invite Peer</button>
-              <button class="sov-btn mini">Send Orbit</button>
-            </div>
           </div>
         </transition>
       </div>

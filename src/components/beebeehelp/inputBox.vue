@@ -18,9 +18,12 @@
     </div>
     <div id="input-tools">
       <form id="ask-ai-form" @submit.prevent="storeAI.beebeeDigest()">
-        <label for="askname"></label><!--  v-on:keyup="storeAI.actionNatlangIn($event)" -->
-        <textarea rows="14" cols="10" wrap="soft" id="askinput" name="ainame" placeholder="What resonance shall we track today?" v-model="storeAI.askQuestion.text" autofocus>
-        </textarea>
+        <textarea 
+          id="askinput" 
+          v-model="storeAI.askQuestion.text" 
+          placeholder="What resonance shall we track today?"
+          @keyup.enter.exact.prevent="storeAI.beebeeDigest()"
+        ></textarea>
       </form>
       <button id="natlang-ask" type="submit" v-if="beebeeAIStatus.active === true" @click="storeAI.beebeeDigest()">
         BeeBee

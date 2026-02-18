@@ -212,6 +212,17 @@ import { mapminiStore } from '@/stores/mapStore.js'
 
   /* methods */
   const setShowBeeBee = () => {
+    // Ensure the space chat is present in the chat menu with timestamps
+    const cueId = storeAI.liveBspace?.cueid || storeAI.liveBspace?.spaceid
+    const name = storeAI.liveBspace?.name
+    const contractKey = storeAI.liveBspace?.contract_key
+    const lifeStrapID = storeAI.liveBspace?.lifeStrapID || cueId
+
+    if (cueId) {
+      storeAI.setActiveLifeStrap(lifeStrapID, contractKey)
+      storeAI.ensureSpaceChatInMenu(cueId, name)
+    }
+    
     storeAI.bentochatState = !storeAI.bentochatState
   }
 

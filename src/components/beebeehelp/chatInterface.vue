@@ -95,7 +95,42 @@ const chatPairs = computed(() => {
 
 const chatHistory = computed(() => {
   // Keyed-by-conversation: read array for active conversation
-  return chatStore.chatHistory?.[storeAI.chatAttention] || []
+  const activeId = storeAI.chatAttention || 'chat'
+  const history = chatStore.chatHistory?.[activeId] || []
+  
+  // If we have a context filter, apply it
+  if (props.contextFilter) {
+    // If we are in extraction mode, we want to see extraction messages
+    if (storeAI.beebeeContext === 'extraction') {
+       const filtered = history.filter(m => m.context === 'extraction')
+       if (filtered.length > 0) return filtered
+    }
+
+    if (typeof props.contextFilter === 'string') {
+      return history.filter(m => m.context === props.contextFilter)
+    } else if (typeof props.contextFilter === 'object') {
+      const { type, id } = props.contextFilter
+      
+      // If id is undefined, it might be a global filter for that type
+      const filtered = history.filter(m => {
+        const mCtx = m.context
+        if (typeof mCtx === 'string') {
+          // If message context is a string (like 'extraction'), match it against the filter type
+          return mCtx === type
+        }
+        if (typeof mCtx === 'object') {
+          // If the filter has an ID, it must match. 
+          // If the filter ID is undefined (like in the logs), we match by type.
+          return mCtx.type === type && (!id || mCtx.id === id)
+        }
+        return false
+      })
+      if (filtered.length > 0) return filtered
+    }
+  }
+  
+  // If no filter or filter returned nothing, return the full history for this activeId
+  return history
 })
 
 const chatAsk = computed(() => {

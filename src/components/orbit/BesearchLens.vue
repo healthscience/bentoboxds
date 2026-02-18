@@ -32,7 +32,7 @@ const storeCues = cuesStore()
 const storeAI = aiInterfaceStore()
 const storeBentobox = bentoboxStore()
 
-defineProps({
+const props = defineProps({
   lenses: {
     type: Object,
     default: () => ({ capacity: [], coherence: [], context: [] })
@@ -126,6 +126,20 @@ const handleCueSpace = (spaceID) => {
   0% { opacity: 1; }
   50% { opacity: 0.4; }
   100% { opacity: 1; }
+}
+
+/* Inside BesearchLens.vue */
+.variable-tag button {
+  cursor: pointer;
+  border: 1px solid var(--sov-context);
+  background: transparent;
+  transition: all 0.2s;
+}
+
+.variable-tag button:hover {
+  background: var(--sov-context);
+  color: white;
+  box-shadow: 0 0 15px var(--sov-context);
 }
 </style>
 
