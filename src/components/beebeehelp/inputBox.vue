@@ -257,6 +257,7 @@ import { ref, computed, watch } from 'vue'
 #ai-interaction {
   display: grid;
   grid-template-columns: 1fr;
+  padding-bottom: 10px;
 }
 
 .teaching-mode-banner {
@@ -293,7 +294,7 @@ import { ref, computed, watch } from 'vue'
 
 #askinput {
   font-size: 1.2em;
-  height:4em;
+  height: 3em;
   width: 100%;
   background-color: v-bind(teachingModeBackground);
 }
@@ -403,7 +404,7 @@ import { ref, computed, watch } from 'vue'
   #askinput {
     font-size: 1.2em;
     padding-left: 1em;
-    height:4em;
+    height: 3em;
     width: 100%;
     opacity: 100%;
     background-color: v-bind(teachingModeBackground);

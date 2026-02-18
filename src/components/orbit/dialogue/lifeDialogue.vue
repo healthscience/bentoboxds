@@ -17,16 +17,30 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import ChatInterface from '@/components/beebeehelp/chatInterface.vue'
 import inputBox from '@/components/beebeehelp/inputBox.vue'
 import ChatMenu from '@/components/beebeeView/navigation/chatMenu.vue'
 
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
+import { useChatStore } from '@/stores/chatStore.js'
 
 const storeAI = aiInterfaceStore()
+const storeChat = useChatStore()
 let previousContext = null
 let chatHistoryStatus = ref(false)
+
+// Watch for history status changes to expand the right panel
+watch(chatHistoryStatus, (isOpen) => {
+  if (isOpen) {
+    // Expand panel to accommodate 250px menu + existing chat area
+    // Assuming base chat area is around 380px, we add 250px
+    storeChat.chatWidth = storeChat.chatWidth + 250
+  } else {
+    // Shrink back
+    storeChat.chatWidth = Math.max(380, storeChat.chatWidth - 250)
+  }
+})
 
 /* computed */
 const bentochatStatus = computed(() => {
@@ -63,6 +77,18 @@ const chatHistoryMenu = () => {
 
 
 <style scoped>
+
+#life-dialogue {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.chat-input {
+  margin-top: -60px;
+}
 
 .space-chat {
   display: grid;

@@ -1,7 +1,4 @@
 <template>
-    <div>test
-    {{ storeAI.startChat }} -- {{ storeAccount.orbitLive }}
-  </div>
   <div v-if="storeAI.startChat === true">
     <welcome-view></welcome-view>
   </div>

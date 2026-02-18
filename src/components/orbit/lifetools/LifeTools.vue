@@ -175,8 +175,8 @@ const worlds = [
 <style scoped>
 
 #life-tools-nav {
-  max-height: 100%;
-  overflow-y: auto;
+  height: auto;
+  min-height: 100%;
 }
 
 .active {
@@ -193,8 +193,8 @@ const worlds = [
         padding: 1rem;
         background-color: #f0f4f8;
         position: relative;
-        max-height: 100%;
-        overflow-y: auto;
+        height: auto;
+        min-height: 100%;
     }
 
     .border {

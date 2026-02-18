@@ -2,10 +2,11 @@
   <div id="life-tools-panel">
     <aside 
       class="side-rail left-rail overlay-blur"
-      :class="{ 'rail-faded': !isOpen }"
       :style="{ width: width + 'px' }"
     >
-      <LifeTools :is-expanded="isOpen" :current-width="width" :modelValue="modelValue" @update:modelValue="$emit('update:modelValue', $event)"/>
+      <div class="rail-content" :class="{ 'rail-faded': !isOpen }">
+        <LifeTools :is-expanded="isOpen" :current-width="width" :modelValue="modelValue" @update:modelValue="$emit('update:modelValue', $event)"/>
+      </div>
       
       <button
         @mousedown.stop="$emit('startDrag')"
@@ -41,7 +42,7 @@ const handleButtonClick = () => {
   emit('update:isOpen', nextState);
   
   // Snap to specific widths on click
-  const nextWidth = nextState ? 300 : 80; 
+  const nextWidth = nextState ? 300 : 30; 
   emit('update:width', nextWidth);
 }
 
@@ -54,9 +55,21 @@ const handleButtonClick = () => {
   grid-area: tools;
   z-index: 200;
   border-right: 1px solid rgba(0,0,0,0.05);
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - var(--header-height, 60px));
+  position: relative;
 }
 
-.rail-faded { opacity: 0.4; }
+.rail-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100%;
+  padding-bottom: 100px;
+}
+
+.rail-faded { opacity: 0.1; }
 
 .toggle-life-tools-button {
   position: absolute;

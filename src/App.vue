@@ -1,7 +1,11 @@
 <template>
-  <toolbar-main></toolbar-main>
-  <data-box></data-box>
-  <router-view/>
+  <div class="app-container">
+    <toolbar-main class="app-header"></toolbar-main>
+    <div class="app-content">
+      <data-box></data-box>
+      <router-view/>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -15,13 +19,38 @@ import { useSocketStore } from '@/stores/socket.js'
 
 </script>
 
-<style scoped>
-  /* Ensure the root doesn't allow scrolling */
+<style>
+  /* Global reset for full screen */
   html, body {
     margin: 0;
     padding: 0;
     height: 100vh;
     width: 100vw;
-    overflow: hidden; 
+    overflow: hidden;
+  }
+
+  #app {
+    height: 100vh;
+    width: 100vw;
+  }
+</style>
+
+<style scoped>
+  .app-container {
+    display: grid;
+    grid-template-rows: var(--header-height, 60px) 1fr;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+  }
+
+  .app-header {
+    grid-row: 1;
+  }
+
+  .app-content {
+    grid-row: 2;
+    overflow: hidden;
+    position: relative;
   }
 </style>

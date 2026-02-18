@@ -1,9 +1,9 @@
 <template>
   <!-- Besearch Cycle Toolbar -->
-  <div v-if="showCycleToolbar" class="cycle-toolbar">
+  <div class="cycle-toolbar">
     <div class="toolbar-header">
       <h3>{{ selectedCycle?.name || 'Besearch Cycle' }}</h3>
-      <button class="close-btn" @click="closeCycleToolbar">✕</button>
+      <button class="close-btn" @click="closeCycleToolbar()">✕</button>
     </div>  
     <div class="toolbar-content">
       <div class="cycle-info">
@@ -48,6 +48,32 @@
 </template>
 
 <script setup>
+import { ref, computed } from 'vue'
+import { besearchStore } from '@/stores/besearchStore.js'
+
+const storeBesearch = besearchStore()
+
+let cycleEditData = ref({
+  name: '',
+  description: '',
+  active: true
+})
+
+/* computed */
+const selectedCycle = computed(() => {
+  return false
+})
+
+/* methods */
+const getLinkedInterventions = () => {
+  return []
+}
+
+const closeCycleToolbar = () => {
+  console.log('closeCycleToolbar')
+  storeBesearch.showBesearchDetail = false
+  storeBesearch.bottomHeight = 20
+}
 
 </script>
 

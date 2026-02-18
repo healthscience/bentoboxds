@@ -4,14 +4,14 @@
     :style="{ width: width + 'px' }"
   >
     <button
-      @mousedown.stop="$emit('startDrag')"
+      @mousedown.stop="handleMouseDown"
       @click="handleToggle"
       class="thought-bubble-button"
     >
       <div class="bubble-core">
         <div class="bubble-lines">
           <span class="line short"></span>
-          <span class="line long"></span>
+          <span class="line long">--</span>
           <span class="line medium"></span>
         </div>
         <div class="bubble-tail"></div>
@@ -32,6 +32,7 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import LifeDialogue from '@/components/orbit/dialogue/lifeDialogue.vue'
 
 const props = defineProps({
@@ -44,8 +45,24 @@ const props = defineProps({
 
 const emit = defineEmits(['startDrag', 'update:mode', 'update:width', 'update:isOpen']);
 
+const dragStartTime = ref(0)
+
+const handleMouseDown = (e) => {
+  dragStartTime.value = Date.now()
+  // We don't emit startDrag immediately to allow the click event to have a chance
+  // But we need to start dragging if the mouse moves.
+  // Let's try emitting it but ensuring handleToggle still works.
+  emit('startDrag')
+}
+
 const handleToggle = () => {
-  const nextState = !props.isOpen;
+  // Only toggle if it wasn't a long drag (e.g., less than 250ms)
+  const duration = Date.now() - dragStartTime.value
+  console.log('Toggle duration:', duration)
+  
+  // If the panel is closed (width <= 50), always open it on click
+  // If it's open, toggle it.
+  const nextState = props.width <= 50;
   emit('update:isOpen', nextState);
   emit('update:width', nextState ? 380 : 0); 
 };
@@ -53,7 +70,7 @@ const handleToggle = () => {
 
 <style scoped>
 .right-panel-container {
-  height: 100vh;
+  height: calc(100vh - var(--header-height, 60px));
   position: relative;
   /* Allow bubble to sit outside the aside */
   overflow: visible !important; 
@@ -80,7 +97,7 @@ const handleToggle = () => {
   padding: 8px;
   width: 42px;
   height: 34px;
-  background: #38205f;
+  background: #9e71e7;
   border-radius: 14px 14px 2px 14px;
   position: relative;
 }
@@ -108,6 +125,6 @@ const handleToggle = () => {
   overflow: hidden;
 }
 
-.header-text { padding: 20px; opacity: 0.6; font-size: 0.7rem; font-weight: bold; }
-.panel-content-area { flex: 1; overflow-y: auto; padding: 0 20px; }
+.header-text { padding: 10px 20px; opacity: 0.6; font-size: 0.7rem; font-weight: bold; }
+.panel-content-area { flex: 1; overflow: hidden; padding: 0 20px; }
 </style>

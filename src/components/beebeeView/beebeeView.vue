@@ -244,8 +244,9 @@ import { computed } from 'vue'
 #beebee-shaper {
   display: grid;
   grid-template-columns: 1fr;
-  height: 100%;
+  height: calc(100vh - var(--header-height, 60px));
   width: 100%;
+  overflow: hidden;
 }
 
 #bento-menu-items {
@@ -259,8 +260,8 @@ import { computed } from 'vue'
 #beebee-agent {
   display: grid;
   grid-template-columns: 1fr .1fr 6fr; /* Initial layout: main chat takes remaining space, history menu is 300px wide */
-  grid-template-rows: 100vh; /* Full height */
-  height: 100vh; /* Adjust as needed */
+  grid-template-rows: 1fr; /* Fill available space */
+  height: 100%; /* Fill beebee-shaper */
 }
 
 #bento-history {

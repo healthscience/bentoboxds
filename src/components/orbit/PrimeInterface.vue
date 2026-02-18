@@ -55,6 +55,15 @@
       @update:width="val => chatWidth = val"
       @startDrag="startChatDrag"
     />
+
+    <BottomPanel 
+      :height="bottomHeight"
+      :isOpen="isBottomOpen"
+      :isDragging="draggingMode === 'bottom'"
+      @update:height="val => bottomHeight = val"
+      @update:isOpen="val => isBottomOpen = val"
+      @startDrag="startBottomDrag"
+    />
   </div>
 </template>
 
@@ -62,18 +71,20 @@
 import { ref, computed, watch } from 'vue';
 import { aiInterfaceStore } from '@/stores/aiInterface.js';
 import { useChatStore } from '@/stores/chatStore.js';
+import { besearchStore } from '@/stores/besearchStore.js';
 
 // Sub-components
 import LeftPanel from '@/components/orbit/parts/LeftPanel.vue';
 import RightPanel from '@/components/orbit/parts/RightPanel.vue';
+import BottomPanel from '@/components/orbit/parts/BottomPanel.vue'
 import WorldCanvas from '@/components/orbit/parts/WorldCanvas.vue';
 import OrbitHUD from '@/components/orbit/parts/OrbitHUD.vue';
 import LaunchpadStack from '@/components/orbit/parts/LaunchpadStack.vue';
-import BesearchLens from '@/components/orbit/BesearchLens.vue';
 import BesearchFuse from '@/components/orbit/besearch/BesearchFuse.vue';
 
 const storeAI = aiInterfaceStore();
 const storeChat = useChatStore();
+const storeBesearch = besearchStore();
 
 /* computed */
 const extractedData = computed(() => storeAI.digestInput);
@@ -81,6 +92,16 @@ const activeWorld = computed({
   get: () => storeAI.activeWorld,
   set: (val) => storeAI.activeWorld = val
 });
+
+const isBottomOpen = computed(() => {
+  return storeBesearch.showBottomPanel
+})
+
+const bottomHeight = computed(() => {
+  return storeBesearch.bottomHeight
+})
+
+
 
 // Watch for store changes to trigger the "Extracting" state automatically
 watch(() => storeAI.digestInput, (newData) => {
@@ -94,8 +115,10 @@ watch(() => storeAI.digestInput, (newData) => {
 const isLifeToolsOpen = ref(false);
 const rightPanelMode = ref('chat');
 
-const panelWidth = ref(20);
+const panelWidth = ref(30);
 // const chatWidth = ref(10); // Start at 0 to see if bubble shows
+// const bottomHeight = ref(60);
+// const isBottomOpen = ref(false);
 const draggingMode = ref(null);
 let draggingToolId = ref(null);
 
@@ -113,8 +136,15 @@ const isDemoMode = computed(() => storeAI.currentMode === 'demo');
 const isExtracting = computed(() => storeAI.currentMode === 'extracting');
 const currentMode = computed(() => storeAI.currentMode);
 
-const chatWidth = computed(() => storeChat.chatWidth)
-const isChatOpen = computed(() => storeChat.isChatOpen)
+const isChatOpen = computed({
+  get: () => storeChat.isChatOpen,
+  set: (val) => storeChat.isChatOpen = val
+})
+
+const chatWidth = computed({
+  get: () => storeChat.chatWidth,
+  set: (val) => storeChat.chatWidth = val
+})
 
 /* methods */
 const launchDemo = (type) => {
@@ -133,7 +163,7 @@ const exitToZen = () => {
   activeWorld.value = 'orbit';
   storeChat.chatWidth = 10;
   storeChat.isChatOpen = false;
-  panelWidth.value = 20;
+  panelWidth.value = 30;
   // Clear the store input if needed
   storeAI.digestInput = null; 
 };
@@ -157,18 +187,24 @@ const mappedLenses = computed(() => ({
 /* drag handlers */
 const startDraggingLeft = () => { draggingMode.value = 'left'; document.body.style.cursor = 'ew-resize'; };
 const startChatDrag = () => { draggingMode.value = 'right'; document.body.style.cursor = 'ew-resize'; };
+const startBottomDrag = () => { draggingMode.value = 'bottom'; document.body.style.cursor = 'ns-resize'; };
 const startToolDrag = (id) => { draggingMode.value = 'tool'; draggingToolId.value = id; };
 
 const handleGlobalDrag = (e) => {
   if (!draggingMode.value) return;
   if (draggingMode.value === 'left') {
-    panelWidth.value = Math.max(80, Math.min(e.clientX, window.innerWidth * 0.4));
+    panelWidth.value = Math.max(30, Math.min(e.clientX, window.innerWidth * 0.4));
     isLifeToolsOpen.value = panelWidth.value > 150;
   } 
   else if (draggingMode.value === 'right') {
     const newWidth = window.innerWidth - e.clientX;
     storeChat.chatWidth = Math.max(0, Math.min(newWidth, window.innerWidth * 0.5));
     storeChat.isChatOpen = storeChat.chatWidth > 150;
+  }
+  else if (draggingMode.value === 'bottom') {
+    const newHeight = window.innerHeight - e.clientY;
+    storeBesearch.bottomHeight = Math.max(12, Math.min(newHeight, window.innerHeight * 0.6));
+    storeBesearch.showBottomPanel = storeBesearch.bottomHeight > 100;
   }
   else if (draggingMode.value === 'tool') {
     const stage = document.querySelector('.orbit-stage');
@@ -182,6 +218,7 @@ const stopDragging = () => { draggingMode.value = null; document.body.style.curs
 
 const dynamicGridStyle = computed(() => ({
   gridTemplateColumns: `${panelWidth.value}px 1fr ${storeChat.chatWidth}px`,
+  gridTemplateRows: `1fr ${storeBesearch.showBottomPanel ? storeBesearch.bottomHeight : 0}px`,
   gridTemplateAreas: '"tools stage chat"'
 }));
 </script>
@@ -190,9 +227,9 @@ const dynamicGridStyle = computed(() => ({
 
 .prime-interface {
   display: grid;
-  grid-template-rows: 100vh;
+  /* grid-template-rows: 1fr; */
   width: 100vw;
-  height: 100vh;
+  height: calc(100vh - var(--header-height, 60px));
   /* CRITICAL: Changed from hidden to clip or visible so bubble can leak out */
   overflow: visible; 
   position: relative;
@@ -207,8 +244,17 @@ const dynamicGridStyle = computed(() => ({
   display: grid;
   grid-template-rows: 80px 1fr 60px;
   height: 100%;
+  max-height: calc(100vh - var(--header-height, 60px));
   position: relative;
   z-index: 100;
+  overflow: hidden;
+}
+
+.fuse-container {
+  grid-row: 3;
+  height: 60px;
+  width: 100%;
+  z-index: 500;
 }
 
 .interface-layer {

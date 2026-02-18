@@ -227,13 +227,14 @@ nav a:first-of-type {
 
 @media (min-width: 1024px) {
   .bentobox-browser {
-    position: fixed;
+    position: relative;
     top: 0;
     display: grid;
     grid-template-columns: 1fr;
     border: 0px solid rgb(189, 30, 210);
     background-color: rgb(250, 246, 246);
     z-index: 25;
+    height: var(--header-height, 60px);
   }
 
   header {
@@ -241,7 +242,7 @@ nav a:first-of-type {
     grid-template-columns: 4fr 1fr 2fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
     border: 0px solid blue;
     width: 98vw;
-    /*max-height: 10vh;*/
+    height: 100%;
   }
 
   .bentobox-top {

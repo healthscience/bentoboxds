@@ -226,12 +226,12 @@ defineExpose({
 <style scoped>
 #chat-interface {
   display: grid;
-  height: 75vh;
+  grid-template-rows: 1fr auto;
+  height: 100%;
   width: 100%;
-  overflow-y: scroll;
-  overflow-x: hidden;
-    font-size: .8em;
-	background-color: #e7eaf5;
+  overflow: hidden;
+  font-size: .8em;
+  background-color: #e7eaf5;
 	background-image:
 		linear-gradient(
 		    25deg,
@@ -293,17 +293,19 @@ defineExpose({
 }
 
 #natlang-ai {
-  display: block;
+  display: grid;
+  grid-template-rows: 1fr auto;
   border: 1px solid grey;
   padding: 1em;
   border-radius: 1em;
-  height: 60vh;
-  overflow-y: scroll;
+  height: 100%;
+  overflow: hidden;
 }
 
 #conversation {
   display: block;
-  min-height: 400px;
+  overflow-y: auto;
+  height: 100%;
 }
 
 .message-container {

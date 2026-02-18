@@ -16,6 +16,7 @@ export const besearchStore = defineStore('besearchstore', {
     selectedIntervention: null,
     selectedCategory: null,
     showCreateForm: false,
+    showBesearchDetail: false,
     // bbNexus shared context payload
     nexusContext: {
       world: 'cues',
@@ -37,6 +38,8 @@ export const besearchStore = defineStore('besearchstore', {
       viewport: { x: 0, y: 0 }, // For game-world scrolling
       zoom: 1.0,
       panOffset: { x: 0, y: 0 },
+      showBottomPanel: false,
+      bottomHeight: 60,
       worldBounds: { width: 5000, height: 5000 } // Large game world
     }
   }),
@@ -288,8 +291,11 @@ export const besearchStore = defineStore('besearchstore', {
       this.canvasState.interventions = this.canvasState.interventions.filter(i => i.id !== id)
     },
     // UI state management for component communication
-    setSelectedIntervention(intervention) {
+    setSelectedIntervention (intervention) {
       this.selectedIntervention = intervention
+      // show in bottom panel
+      this.showBesearchDetail = true
+      this.bottomHeight = 600
     },
     setSelectedCategory(category) {
       this.selectedCategory = category
