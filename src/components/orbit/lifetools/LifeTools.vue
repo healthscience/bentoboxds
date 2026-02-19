@@ -26,6 +26,9 @@
     @select="handleWorldPivot"
   />
   <!-- Besearch Navigation Controls -->
+  <!-- besearch create start stop delete -->
+  <besearch-controls />
+  <intervention-type></intervention-type>
   <div id="peer-navigation">
     <h3>Navigation</h3>
     <div class="directional-buttons">
@@ -48,16 +51,13 @@
   <div id="time-cycles">
     <button id="besearch-cycles-time" @click="besearchTime()">time</button>
     <div id="cycle-periods" v-if="btoolsTime === true">
-      <div class="cycle-period">1 day</div>
-      <div class="cycle-period">1 week</div>
-      <div class="cycle-period">1 month</div>
-      <div class="cycle-period">3 months</div>
-      <div class="cycle-period">1 year</div>
+      <div class="cycle-period">1 cycles</div>
+      <div class="cycle-period">10 cycles</div>
+      <div class="cycle-period">20 cycles</div>
+      <div class="cycle-period">30 cycles</div>
+      <div class="cycle-period">1 orbit year</div>
     </div>
   </div>
-  <!-- besearch create start stop delete -->
-  <besearch-controls />
-  <intervention-type></intervention-type>
 </div>
 </template>
   

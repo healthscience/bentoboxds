@@ -16,7 +16,7 @@
         <button class="sov-demo-btn" @click="$emit('launch', 'sport')">
           🏊 Experience 400IM
         </button>
-        <button class="sov-demo-btn" @click="$emit('launch', 'water')">
+        <button class="sov-demo-btn" @click="$emit('launch', 'earth')">
           Water
         </button>
         <button class="sov-demo-btn" @click="$emit('launch', 'earth')">

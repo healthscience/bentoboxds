@@ -16,7 +16,7 @@
           <textarea v-model="cycleEditData.description" class="textarea-field" rows="3"></textarea>
         </div>
         <div class="info-field">
-          <label>Status:</label>
+          <label>ResonAgent Status:</label>
           <select v-model="cycleEditData.active" class="select-field">
             <option :value="true">Active</option>
             <option :value="false">Inactive</option>
@@ -24,9 +24,9 @@
         </div>
       </div>
       <div class="linked-interventions">
-        <h4>Linked Interventions ({{ getLinkedInterventions().length }})</h4>
-        <div v-if="getLinkedInterventions().length" class="interventions-list">
-          <div v-for="intervention in getLinkedInterventions()" :key="intervention.id" class="linked-item">
+        <h4>Linked Interventions ({{ cycleResonance.length }})</h4>
+        <div v-if="cycleResonance.length" class="interventions-list">
+          <div v-for="intervention in cycleResonance" :key="intervention.id" class="linked-item">
             <span>{{ intervention.name }}</span>
             <span class="status-badge" :class="getStatusClass(intervention.status)">
               {{ intervention.status }}
@@ -39,9 +39,9 @@
       </div>
     </div>
     <div class="toolbar-actions">
-      <button class="action-btn primary" @click="saveCycleChanges">Save Changes</button>
-      <button class="action-btn" @click="duplicateCycle">Duplicate</button>
-      <button class="action-btn danger" @click="deleteCycle">Delete</button>
+      <button class="action-btn primary" @click="saveCycleChanges()">Save Changes</button>
+      <button class="action-btn" @click="duplicateCycle()">Duplicate</button>
+      <button class="action-btn danger" @click="deleteCycle()">Delete</button>
     </div>
   </div>
 
@@ -61,12 +61,32 @@ let cycleEditData = ref({
 
 /* computed */
 const selectedCycle = computed(() => {
-  return false
+  console.log('selectedIntervention', storeBesearch.selectedIntervention)
+  cycleEditData.value.name = storeBesearch.selectedIntervention?.name || ''
+  cycleEditData.value.description = storeBesearch.selectedIntervention?.description || ''
+  cycleEditData.value.active = storeBesearch.selectedIntervention?.active || true
+  return storeBesearch.selectedIntervention || []
+})
+
+const cycleResonance = computed(() => {
+   return []
 })
 
 /* methods */
-const getLinkedInterventions = () => {
-  return []
+const saveCycleChanges = () => {
+  // save update
+}
+
+const duplicateCycle = () => {
+  // duplicate cycle
+}
+
+  const deleteCycle = () => {
+  // delete cycle
+}
+
+const getStatusClass = (status) => {
+  return status === 'active' ? 'status-active' : 'status-inactive'
 }
 
 const closeCycleToolbar = () => {

@@ -20,8 +20,8 @@
       <form id="ask-ai-form" @submit.prevent="storeAI.beebeeDigest()">
         <textarea 
           id="askinput" 
-          v-model="storeAI.askQuestion.text" 
-          placeholder="What resonance shall we shape today?"
+          v-model="storeAI.askQuestion.text"
+          placeholder="What resonance shall we shape?"
           @keyup.enter.exact.prevent="storeAI.beebeeDigest()"
         ></textarea>
       </form>
