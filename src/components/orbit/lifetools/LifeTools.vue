@@ -5,17 +5,28 @@
   </div>
   <div id="mode-selector">
     <h3>Worlds</h3>
-      <div class="world-switcher">
-        <div 
-          v-for="world in worlds" 
-          :key="world.id"
-          class="world-icon"
-          :class="{ active: modelValue === world.id }"
-          @click="$emit('update:modelValue', world.id)"
-        >
-          {{ world.icon }}
-        </div>
+    <div class="world-switcher">
+      <div 
+        v-for="world in worlds" 
+        :key="world.id"
+        class="world-icon"
+        :class="{ active: modelValue === world.id }"
+        @click="$emit('update:modelValue', world.id)"
+      >
+        {{ world.icon }}
       </div>
+    </div>
+    <div id="world-tools">
+      <div class="orbit-tools" v-if="activeWorld === 'orbit'">
+        Orbit tools please
+      </div>
+      <div class="orbit-tools" v-if="activeWorld === 'body'">
+        Body tools please
+      </div>
+      <div class="orbit-tools" v-if="activeWorld === 'earth'">
+        Earth tools please
+      </div>
+    </div>
   </div>
   <!-- Life-Strap -->
    <LifeStrapNode 
@@ -68,8 +79,10 @@ import BesearchControls from './besearchControls.vue'
 import InterventionType from '@/components/besearch/interventions/interventionType.vue'
 
 import { libraryStore } from '@/stores/libraryStore.js'
+import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
 const storeLibrary = libraryStore()
+const storeAI = aiInterfaceStore()
 
 /* props */
 const props = defineProps({
@@ -97,6 +110,11 @@ const worlds = [
   { id: 'body', label: 'Human Body', icon: '👤' },
   { id: 'earth', label: 'Earth Context', icon: '🌍' }
 ];
+
+  /* computed */
+  const activeWorld =  computed(() => {
+    return storeAI.activeWorld
+  });
 
   /** methods */
   const besearchTime = () => {
