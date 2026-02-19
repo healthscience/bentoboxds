@@ -1,11 +1,9 @@
 <template>
-  <div class="orbit-view"
-    :style="dynamicGridStyle"
-    @mousemove="handleGlobalDrag"
-    @mouseup="stopDragging"
-    @mouseleave="stopDragging"
-  >
-    <div class="orbit-stage" @mousemove="handleGlobalDrag" @mouseup="stopDragging">
+  <div class="orbit-view">
+    <Teleport to="body">
+      <ProjectionHeli v-if="isExpanded" :contract-key="storeAI.contract_key" @close="handleExpand" />
+    </Teleport>
+    <div class="orbit-stage">
       <div class="hud-top">
         <div class="metric"><span>BESEARCH</span><strong>3</strong></div>
         <div class="metric"><span>DIALOGUE</span><strong>234</strong></div>
@@ -13,24 +11,26 @@
       </div>
 
       <div class="world-canvas" 
-        :class="{ 'dragging-active': draggingToolId }"
+        :class="{ 'dragging-active': orbitStore.draggingToolId }"
       >
        <div 
-          v-if="tools.pulse"
+          v-if="orbitStore.tools.pulse"
           class="tool-grab-wrapper"
-          :style="{ left: tools.pulse.x + '%', top: tools.pulse.y + '%', zIndex: draggingToolId === 'pulse' ? 300 : 100 }"
-          @mousedown.stop="startToolDrag('pulse')"
+          :style="{ left: orbitStore.tools.pulse.x + '%', top: orbitStore.tools.pulse.y + '%', zIndex: orbitStore.draggingToolId === 'pulse' ? 300 : 100 }"
+          @mousedown.stop="startDragging('pulse')"
         >
           <ResonancePulse />
         </div>
 
         <div 
-          v-if="tools.heli"
+          v-if="orbitStore.tools.heli"
           class="tool-grab-wrapper"
-          :style="{ left: tools.heli.x + '%', top: tools.heli.y + '%', zIndex: draggingToolId === 'heli' ? 300 : 100 }"
-          @mousedown.stop="startToolDrag('heli')"
+          :style="{ left: orbitStore.tools.heli.x + '%', top: orbitStore.tools.heli.y + '%', zIndex: orbitStore.draggingToolId === 'heli' ? 300 : 100 }"
+          @mousedown.stop="startDragging('heli')"
+          @mouseup.stop
+          @click.stop
         >
-          <HeliClock />
+        <HeliClock :mini="isMini" @expand="handleExpand()" />
         </div>
       </div>
     </div>
@@ -38,85 +38,76 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onUnmounted } from 'vue';
 import HeliClock from '@/components/orbit/clock/HeliClock.vue';
 import ProjectionHeli from '@/components/orbit/clock/projectionHeli.vue'
 import ResonancePulse from '@/components/orbit/resonance/ResonancePulse.vue'
 
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
+import { useOrbitStore } from '@/stores/orbitStore.js'
 
 const storeAI = aiInterfaceStore();
-const showBesearchDrawer = ref(true);
+const orbitStore = useOrbitStore();
+
+const props = defineProps({
+  mini: { type: Boolean, default: false }
+});
+
+const expanded = ref(false);
+const isMini = computed(() => props.mini || !expanded.value);
+const isExpanded = ref(false)
 
 /* Computed Logic */
 const extractedData = computed(() => storeAI.extractedData);
 
-/* ORBIT TOOL POSITIONS */
-const tools = ref({
-  pulse: { x: 50, y: 50 },
-  heli: { x: 80, y: 20 }
-});
-let draggingToolId = ref(null);
-
-/* LEFT PANEL (LIFE TOOLS) DRAG */
-const panelWidth = ref(80);
-const isLifeToolsOpen = ref(false);
-const isDragging = ref(false);
-const dragMoved = ref(false); 
-const startX = ref(0);
-const startWidth = ref(80);
-
-/* RIGHT PANEL (DIALOGUE) DRAG */
-const chatWidth = ref(380);
-const isChatDragging = ref(false);
-const startChatX = ref(0);
-const startChatWidth = ref(380);
-const rightPanelMode = ref('chat');
-
-/* CORE DRAG ENGINE */
-const startToolDrag = (id) => {
-  draggingToolId.value = id;
-  document.body.style.cursor = 'move';
+/* methods*/
+const handleExpand = () => {
+  // expanded.value = !expanded.value;
+  isExpanded.value = !isExpanded.value;
+  
+  // Update the store so the Bottom Panel or Left Panel can react
+  if (isExpanded.value) {
+    storeAI.currentMode = 'projecting'; // This could trigger the Bottom Panel
+    storeAI.chatAttention = 'future-timeline';
+  } else {
+    storeAI.currentMode = 'zen';
+  }
 };
 
+/* CORE DRAG ENGINE */
 const handleGlobalDrag = (e) => {
-  // 1. Sidebar Left
-  if (isDragging.value) {
-    dragMoved.value = true;
-    let newWidth = startWidth.value + (e.clientX - startX.value);
-    panelWidth.value = Math.max(80, Math.min(newWidth, window.innerWidth * 0.5));
-    isLifeToolsOpen.value = panelWidth.value > 120;
-    return;
-  }
-
-  // 2. Sidebar Right
-  if (isChatDragging.value) {
-    const delta = startChatX.value - e.clientX; 
-    chatWidth.value = Math.max(280, Math.min(startChatWidth.value + delta, window.innerWidth * 0.9));
-    return;
-  }
-
-  // 3. Tool Movement (Relative to Orbit Stage)
-  if (draggingToolId.value) {
+  if (orbitStore.draggingToolId) {
     const stage = document.querySelector('.orbit-stage');
     if (!stage) return;
     const bounds = stage.getBoundingClientRect();
     let xPerc = ((e.clientX - bounds.left) / bounds.width) * 100;
     let yPerc = ((e.clientY - bounds.top) / bounds.height) * 100;
-    tools.value[draggingToolId.value].x = Math.max(2, Math.min(xPerc, 98));
-    tools.value[draggingToolId.value].y = Math.max(2, Math.min(yPerc, 98));
+    orbitStore.updatePosition(orbitStore.draggingToolId, xPerc, yPerc);
   }
 };
 
 const stopDragging = () => {
-  isDragging.value = false;
-  isChatDragging.value = false;
-  draggingToolId.value = null;
-  document.body.style.cursor = 'default';
+  if (orbitStore.draggingToolId) {
+    orbitStore.stopDragging();
+    window.removeEventListener('mousemove', handleGlobalDrag);
+    window.removeEventListener('mouseup', stopDragging);
+  }
 };
 
+const startDragging = (id) => {
+  console.log('OrbitView: startDragging', id)
+  orbitStore.startDragging(id);
+  window.addEventListener('mousemove', handleGlobalDrag);
+  window.addEventListener('mouseup', stopDragging);
+};
+
+onUnmounted(() => {
+  window.removeEventListener('mousemove', handleGlobalDrag);
+  window.removeEventListener('mouseup', stopDragging);
+});
+
 /* LAYOUT HELPERS */
-const dynamicGridStyle = computed(() => ({
+/*const dynamicGridStyle = computed(() => ({
   display: 'grid',
   gridTemplateColumns: `${panelWidth.value}px 1fr ${chatWidth.value}px`,
   gridTemplateRows: '100vh',
@@ -125,174 +116,78 @@ const dynamicGridStyle = computed(() => ({
   overflow: 'hidden',
   gridTemplateAreas: '"tools stage chat"'
 }));
-
-const handleButtonClick = () => {
-  if (dragMoved.value) return;
-  isLifeToolsOpen.value = !isLifeToolsOpen.value;
-  panelWidth.value = isLifeToolsOpen.value ? window.innerWidth * 0.3 : 80;
-};
-
-const launchDemo = (demo) => {
-  if (demo === 'sport') {
-    storeAI.beebeeDigest("I want to swim 400m in 10 orbits, but chlorine makes my skin itchy.", true);
-  }
-};
-
-const exitDemo = () => {
-  storeAI.isInitialState = true;
-  showBesearchDrawer.value = false;
-};
-
-const cloneExperience = () => {
-  alert("Protocol Cloned!");
-};
+*/
 </script>
 
 <style scoped>
-/* 1. CONTAINER: GRID LOCK */
-.prime-interface {
+.orbit-view {
   position: relative;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
-  background: #f9f9f9;
 }
 
 /* 2. CENTER STAGE: 3-Row Vertical Logic */
 .orbit-stage {
-  grid-area: stage;
   position: relative;
-  display: grid;
-  grid-template-rows: 80px 1fr 60px; /* HUD | CONTENT | FUSE */
-  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  background: white;
+}
+
+.hud-top {
+  display: flex;
+  justify-content: center;
+  gap: 4rem;
+  padding: 2rem;
   z-index: 10;
 }
 
-/* WORLD CANVAS: Overlay for draggable tools */
+.metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.metric span {
+  font-size: 0.6rem;
+  font-weight: 800;
+  color: var(--sov-accent);
+  letter-spacing: 0.1em;
+  margin-bottom: 0.25rem;
+}
+
+.metric strong {
+  font-size: 1.5rem;
+  color: white;
+  font-family: 'Space Mono', monospace;
+}
+
 .world-canvas {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%;
-  height: calc(100% - 60px); /* Leave room for the Fuse footer */
-  z-index: 100;
-  pointer-events: none; /* Let clicks hit the launchpad buttons */
+  flex: 1;
+  position: relative;
+  overflow: hidden;
 }
 
 .tool-grab-wrapper {
   position: absolute;
   transform: translate(-50%, -50%);
-  pointer-events: auto; /* Tools themselves ARE clickable */
   cursor: grab;
-  min-width: 50px;
-  min-height: 50px;
-  display: grid;
-  place-items: center;
+  transition: transform 0.2s ease;
 }
 
-.world-canvas.dragging-active {
-  pointer-events: auto; /* Catch mousemoves during active drag */
+.tool-grab-wrapper:active {
+  cursor: grabbing;
+  transform: translate(-50%, -50%) scale(1.05);
 }
 
-/* FUSE: The bottom interactive row */
-.fuse-container {
-  grid-row: 3;
-  z-index: 150; /* Ensure Fuse is above the canvas plane */
-  height: 60px;
-  position: relative;
-  background: rgba(255,255,255,0.05);
-}
-
-.hud-top {
-  position: absolute;
-  top: 0; width: 100%; height: 80px;
-  z-index: 110;
-  display: flex;
-  justify-content: space-around;
+.dragging-active .tool-grab-wrapper {
   pointer-events: none;
 }
-.hud-top .metric { pointer-events: auto; }
 
-/* INTERFACE: Launchpad and Lenses */
-.interface-layer {
-  grid-row: 2;
-  position: relative;
-  z-index: 20;
-  display: grid;
-  place-items: center;
+.dragging-active .tool-grab-wrapper[style*="zIndex: 300"] {
+  pointer-events: all;
 }
-
-.launchpad-stack {
-  display: grid;
-  grid-template-rows: repeat(12, 1fr);
-  height: 100%;
-  width: 100%;
-}
-
-.avatar-zone { grid-row: 2 / 5; display: grid; place-items: center; }
-.input-zone { grid-row: 6 / 9; display: grid; place-items: center; }
-.demo-zone { grid-row: 10; display: flex; justify-content: center; gap: 20px; }
-
-/* LEFT PANEL */
-.left-rail {
-  grid-area: tools;
-  z-index: 200;
-  border-right: 1px solid rgba(0,0,0,0.05);
-}
-
-.rail-faded { opacity: 0.4; }
-
-/* RIGHT PANEL */
-.right-panel {
-  grid-area: chat;
-  z-index: 200;
-  border-left: 1px solid rgba(185, 173, 207, 0.15);
-  position: relative;
-}
-
-.chat-drag-handle {
-  position: absolute;
-  left: 0; top: 0; bottom: 0; width: 10px;
-  cursor: ew-resize;
-  z-index: 210;
-}
-
-/* DRAWER */
-.besearch-drawer {
-  position: absolute;
-  bottom: 0;
-  left: 0; right: 0;
-  height: 40vh;
-  background: white;
-  z-index: 160;
-  border-top: 1px solid rgba(0,0,0,0.1);
-  box-shadow: 0 -10px 40px rgba(0,0,0,0.05);
-}
-
-.overlay-blur {
-  background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(15px);
-}
-
-.toggle-life-tools-button {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 50px; height: 50px;
-  background: none; border: none;
-  z-index: 250;
-  cursor: ew-resize;
-}
-
-.tear {
-  width: 38px; height: 38px;
-  border-radius: 0 50% 50% 50%;
-  background: #3b82f6;
-  transform: rotate(45deg);
-}
-
-.sov-fade-enter-active, .sov-fade-leave-active { transition: opacity 0.5s ease; }
-.sov-fade-enter-from, .sov-fade-leave-to { opacity: 0; }
-
-.slide-up-enter-active, .slide-up-leave-active { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-.slide-up-enter-from, .slide-up-leave-to { transform: translateY(100%); }
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="heli-clock-wrapper" :class="{ 'is-mini': mini }">
+  <div class="heli-clock-wrapper" :class="{ 'is-mini': mini }" @mousedown.stop @mouseup.stop @click.stop="handleClockClick()">
     <svg viewBox="0 0 100 100" class="heli-svg" preserveAspectRatio="xMidYMid meet">
       <circle class="base-ring" cx="50" cy="50" r="45" />
       
@@ -10,8 +10,6 @@
           <circle class="inner-ring" cx="50" cy="50" r="35" />
           <text x="50" y="45" class="label">ORBIT</text>
           <text x="50" y="58" class="value">08:42</text>
-          
-          <slot name="projections"></slot>
         </g>
       </transition>
     </svg>
@@ -19,12 +17,44 @@
 </template>
 
 <script setup>
+import { ref, computed } from 'vue';
+
+const emit = defineEmits(['expand', 'select']);
+let clickCount = 0;
+let clickTimer = null;
 
 defineProps({
   mini: { type: Boolean, default: false },
   x: { type: Number, default: 0 },
   y: { type: Number, default: 0 }
 });
+
+
+/* computed */
+
+
+/* methods */
+
+const handleClockClick = () => {
+  console.log('click');
+  clickCount++;
+  
+  if (clickCount === 1) {
+    clickTimer = setTimeout(() => {
+      if (clickCount === 1) {
+        // --- SINGLE CLICK ACTION ---
+        emit('select'); 
+      }
+      clickCount = 0;
+    }, 250); // The "window" for the second click
+  } else if (clickCount === 2) {
+    // --- DOUBLE CLICK ACTION ---
+    clearTimeout(clickTimer);
+    console.log('double click');
+    clickCount = 0;
+    emit('expand');
+  }
+};
 </script>
 
 <style scoped>

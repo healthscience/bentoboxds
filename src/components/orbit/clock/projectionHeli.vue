@@ -1,5 +1,5 @@
 <template>
-  <div class="heli-wrapper">
+  <div class="heli-wrapper" @click.self="emit('close')" @dblclick.stop="emit('close')">
     <transition name="heli-zoom">
       <div v-if="!isCalibrated" class="heli-modal-overlay">
         <div class="calibration-card">
@@ -25,9 +25,9 @@
       </div>
     </transition>
 
-    <div v-if="isCalibrated" class="heli-main-layout">
-      
-      <aside class="heli-sidebar">
+      <div v-if="isCalibrated" class="heli-main-layout">
+        
+        <aside class="heli-sidebar">
         <div class="bento-card">
           <header class="card-header">Navigator</header>
           <div class="nav-group">
@@ -189,6 +189,8 @@ import { diaryStore } from '@/stores/diaryStore.js';
 
 const store = diaryStore();
 
+const emit = defineEmits(['close']);
+
 const isCalibrated = ref(false);
 const isProjecting = ref(false);
 const daySeeker = ref(0);
@@ -344,8 +346,8 @@ const describeArc = (x, y, r, start, end) => {
 </script>
 
 <style scoped>
-.heli-wrapper { display: grid; place-items: center; min-height: 100vh; background: #fafafa; font-family: 'Inter', sans-serif; color: #1e293b; }
-.heli-main-layout { display: grid; grid-template-columns: 320px 1fr 320px; gap: 2rem; width: 100%; max-width: 1400px; padding: 2rem; align-items: center; }
+.heli-wrapper { display: grid; place-items: center; min-height: 100vh; background: rgba(0, 0, 0, 0.4); font-family: 'Inter', sans-serif; color: #1e293b; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; backdrop-filter: blur(10px); pointer-events: auto; }
+.heli-main-layout { display: grid; grid-template-columns: 320px 1fr 320px; gap: 2rem; width: 80vw; height: 80vh; padding: 2rem; align-items: center; background: #fafafa; border-radius: 32px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); overflow: hidden; }
 .bento-card { background: white; padding: 1.5rem; border-radius: 24px; border: 1px solid #f1f5f9; box-shadow: 0 4px 20px rgba(0,0,0,0.02); }
 .card-header { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #94a3b8; margin-bottom: 1rem; }
 
@@ -390,5 +392,5 @@ const describeArc = (x, y, r, start, end) => {
 .status-tag { font-size: 0.65rem; font-weight: 800; padding: 4px 8px; border-radius: 6px; background: #f1f5f9; color: #94a3b8; }
 .status-tag.active { background: #dcfce7; color: #15803d; }
 .heli-modal-overlay { position: fixed; inset: 0; background: white; z-index: 1000; display: grid; place-items: center; }
-.calibration-card { width: 360px; text-align: center; display: grid; gap: 1.5rem; }
+.calibration-card { width: 360px; text-align: center; display: grid; gap: 1.5rem; background: white; padding: 3rem; border-radius: 32px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
 </style>

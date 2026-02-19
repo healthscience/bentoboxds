@@ -33,14 +33,12 @@
       </div>
 
       <WorldCanvas 
-        :tools="tools" 
         :activeWorld="isInitialState ? 'void' : activeWorld"
         :showTools="!isInitialState"
-        @startToolDrag="startToolDrag"
       />
 
       <div class="fuse-container">
-        <BesearchFuse v-if="!isInitialState" />
+        <BesearchFuse v-if="!isInitialState && storeAI.currentMode !== 'projecting'" />
       </div>
     </main>
 
@@ -120,12 +118,6 @@ const panelWidth = ref(30);
 // const bottomHeight = ref(60);
 // const isBottomOpen = ref(false);
 const draggingMode = ref(null);
-let draggingToolId = ref(null);
-
-const tools = ref({
-  pulse: { x: 50, y: 50 },
-  heli: { x: 80, y: 20 }
-});
 
 // 1. Add 'extracting' to the modes
 // const currentMode = ref('zen'); // 'zen', 'demo', 'extracting', or 'active'
@@ -188,7 +180,6 @@ const mappedLenses = computed(() => ({
 const startDraggingLeft = () => { draggingMode.value = 'left'; document.body.style.cursor = 'ew-resize'; };
 const startChatDrag = () => { draggingMode.value = 'right'; document.body.style.cursor = 'ew-resize'; };
 const startBottomDrag = () => { draggingMode.value = 'bottom'; document.body.style.cursor = 'ns-resize'; };
-const startToolDrag = (id) => { draggingMode.value = 'tool'; draggingToolId.value = id; };
 
 const handleGlobalDrag = (e) => {
   if (!draggingMode.value) return;
@@ -206,15 +197,12 @@ const handleGlobalDrag = (e) => {
     storeBesearch.bottomHeight = Math.max(12, Math.min(newHeight, window.innerHeight * 0.6));
     storeBesearch.showBottomPanel = storeBesearch.bottomHeight > 100;
   }
-  else if (draggingMode.value === 'tool') {
-    const stage = document.querySelector('.orbit-stage');
-    const bounds = stage.getBoundingClientRect();
-    tools.value[draggingToolId.value].x = ((e.clientX - bounds.left) / bounds.width) * 100;
-    tools.value[draggingToolId.value].y = ((e.clientY - bounds.top) / bounds.height) * 100;
-  }
 };
 
-const stopDragging = () => { draggingMode.value = null; document.body.style.cursor = 'default'; };
+const stopDragging = () => { 
+  draggingMode.value = null; 
+  document.body.style.cursor = 'default'; 
+};
 
 const dynamicGridStyle = computed(() => ({
   gridTemplateColumns: `${panelWidth.value}px 1fr ${storeChat.chatWidth}px`,

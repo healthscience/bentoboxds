@@ -9,7 +9,7 @@
       </defs>
       <circle 
         cx="100" cy="100" r="70" 
-        fill="none" 
+        fill="rgba(59, 130, 246, 0.01)" 
         stroke="url(#pulse-grad)" 
         stroke-width="2"
         filter="url(#ghost-blur)"
@@ -89,6 +89,8 @@ const activeEnvType = computed(() => props.currentEnv || 'indoor');
   height: 300px;
   transform: translate(-50%, -50%); /* Center on its coordinates */
   pointer-events: none;
+  display: grid;
+  place-items: center;
 }
 .pulse-ring {
   transform-origin: center;
