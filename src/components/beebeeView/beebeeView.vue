@@ -308,7 +308,7 @@ import { computed } from 'vue'
 #active-space-history{
   display: grid;
   grid-template-columns: 1fr;
-  border: 1px solid red;
+  border: 0px solid red;
 }
 
 .active {

@@ -27,9 +27,9 @@
 
     <main class="orbit-stage" @mousemove="handleGlobalDrag" @mouseup="stopDragging">
       <div class="hud-top">
-        <div class="metric"><span>BESEARCH</span><strong>3</strong></div>
-        <div class="metric"><span>DIALOGUE</span><strong>234</strong></div>
-        <div class="metric"><span>CUES</span><strong>345</strong></div>
+        <div class="metric"><span>BESEARCH</span><strong class="res-level">3</strong></div>
+        <div class="metric"><span>DIALOGUE</span><strong class="res-level">234</strong></div>
+        <div class="metric"><span>CUES</span><strong class="res-level">345</strong></div>
       </div>
 
       <div class="interface-layer">
@@ -300,6 +300,7 @@ const cloneExperience = () => {
   pointer-events: none;
 }
 .hud-top .metric { pointer-events: auto; }
+.res-levels { color:rgba(71, 15, 173, 0.15)}
 
 /* INTERFACE: Launchpad and Lenses */
 .interface-layer {

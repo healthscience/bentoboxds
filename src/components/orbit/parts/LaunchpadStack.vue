@@ -38,9 +38,6 @@
           <button class="sov-btn reset" @click="$emit('reset')">
             ⟲ Reset Prompt
           </button>
-          <div class="manifest-nudge">
-            Check BeeBee to Manifest ⮕
-          </div>
         </template>
 
         <template v-else-if="mode === 'demo'">

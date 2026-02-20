@@ -161,7 +161,7 @@ onUnmounted(() => {
 
 .metric strong {
   font-size: 1.5rem;
-  color: white;
+  color: rgb(34, 13, 228);
   font-family: 'Space Mono', monospace;
 }
 

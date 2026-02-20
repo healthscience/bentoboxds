@@ -539,7 +539,7 @@ import { useBesearchCanvas } from '@/composables/useBesearchCanvas.js'
     #besearch-world {
       display: grid;
       grid-template-columns: 1fr;
-      border: 1px solid rgb(245, 73, 4); /* Make border more visible for debugging */
+      border: 1px solid rgb(205, 218, 243); /* Make border more visible for debugging */
       border-radius: 2%;
       width: 100%;
       height: 100%;

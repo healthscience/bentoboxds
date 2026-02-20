@@ -17,7 +17,7 @@
       <div class="message-bb">
         <header>Emulations</header>
         <div class="message-learn">
-          Build worlds that emulate life or a bioregion
+          Build worlds that emulate life, cell to a bioregion
         </div>
       </div>
     </div>

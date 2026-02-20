@@ -3,8 +3,8 @@ import { ref } from 'vue';
 
 export const useOrbitStore = defineStore('orbit', () => {
   const tools = ref({
-    pulse: { x: 50, y: 34 },
-    heli: { x: 80, y: 20 }
+    pulse: { x: 50, y: 24 },
+    heli: { x: 90, y: 16 }
   });
 
   const draggingToolId = ref(null);

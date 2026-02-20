@@ -11,7 +11,7 @@
         :key="world.id"
         class="world-icon"
         :class="{ active: modelValue === world.id }"
-        @click="$emit('update:modelValue', world.id)"
+        @click="selectWorld(world.id)"
       >
         {{ world.icon }}
       </div>
@@ -80,9 +80,11 @@ import InterventionType from '@/components/besearch/interventions/interventionTy
 
 import { libraryStore } from '@/stores/libraryStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
+import { besearchStore } from '@/stores/besearchStore.js'
 
 const storeLibrary = libraryStore()
 const storeAI = aiInterfaceStore()
+const storeBesearch = besearchStore()
 
 /* props */
 const props = defineProps({
@@ -129,6 +131,17 @@ const worlds = [
 
   const handleWorldPivot = () => {
     console.log('World pivot')
+  }
+
+  const selectWorld = (worldId) => {
+    emit('update:modelValue', worldId)
+    storeAI.currentMode = false
+    if (worldId === 'body') {
+      storeBesearch.setNexusWorld('body')
+    } else if (worldId === 'orbit') {
+      console.log('orbit')
+      storeAI.currentMode = 'zen'
+    }
   }
 
   // Peer navigation methods
