@@ -6,8 +6,8 @@
     <div class="orbit-stage">
       <div class="hud-top">
         <div class="metric"><span>BESEARCH</span><strong>3</strong></div>
-        <div class="metric"><span>DIALOGUE</span><strong>234</strong></div>
-        <div class="metric"><span>CUES</span><strong>345</strong></div>
+        <div class="metric"><span>DIALOGUE</span><strong>3</strong></div>
+        <div class="metric"><span>CUES</span><strong>1234</strong></div>
       </div>
 
       <div class="world-canvas" 
