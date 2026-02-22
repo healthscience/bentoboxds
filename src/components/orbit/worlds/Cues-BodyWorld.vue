@@ -1,5 +1,5 @@
 <template>
-  <div id="world-holder">
+  <div id="world-holder" @mousemove="handleMouseMove">
     <div id="canvas-container" ref="canvasContainer">
     <div id="mode-display">{{ storeBesearch.canvasState.currentMode }}</div>
       <div id="zoom-controls">
@@ -8,7 +8,29 @@
         <button @click="zoomOut" class="zoom-btn">-</button>
       </div>
       <!-- canvas for besearch worlds -->
-      <canvas id="besearch-world" ref="canvasbe"></canvas>
+      <div class="emulation-mask" :style="maskStyle">
+        <canvas id="besearch-world" ref="canvasbe"></canvas>
+      </div>
+    </div>
+
+    <!-- Lens HUD -->
+    <div 
+      class="lens-hud" 
+      :style="hudStyle"
+      :class="{ 'is-locked': isLocked }"
+    >
+      <div class="depth-control">
+        <input type="range" min="0" max="2" v-model.number="zoomDepth" orient="vertical">
+        <span class="depth-label">{{ depthName }}</span>
+      </div>
+
+      <button class="lock-btn" @click="toggleLock">
+        {{ isLocked ? '🔓 UNLOCK' : '🔒 LOCK' }}
+      </button>
+
+      <div class="strap-status" v-if="linkedCue">
+        Linked to: {{ linkedCue.name }} | Coherence: {{ linkedCue.coherence }}%
+      </div>
     </div>
   </div>
 </template>
@@ -22,6 +44,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { besearchStore } from '@/stores/besearchStore.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 import { useBesearchCanvas } from '@/composables/useBesearchCanvas.js'
+import { useLensStability } from '@/composables/useLensStability.js'
 
   const storeCues = cuesStore()
   const storeAI = aiInterfaceStore()
@@ -29,6 +52,21 @@ import { useBesearchCanvas } from '@/composables/useBesearchCanvas.js'
   const storeBentobox = bentoboxStore()
   const storeBesearch = besearchStore()
   const storeLibrary = libraryStore()
+
+  const { lensPos, isLocked, zoomDepth, linkedCue, handleMouseMove, toggleLock } = useLensStability();
+
+  const depthName = computed(() => ['SURFACE', 'BIOMARKER', 'CELLULAR'][zoomDepth.value]);
+
+  const maskStyle = computed(() => ({
+    'mask-image': `radial-gradient(circle 250px at ${lensPos.value.x}px ${lensPos.value.y}px, black 100%, transparent 100%)`,
+    '-webkit-mask-image': `radial-gradient(circle 250px at ${lensPos.value.x}px ${lensPos.value.y}px, black 100%, transparent 100%)`,
+    'width': '100%',
+    'height': '100%'
+  }));
+
+  const hudStyle = computed(() => ({
+    transform: `translate(${lensPos.value.x}px, ${lensPos.value.y}px)`
+  }));
 
 
   // Canvas references
@@ -236,6 +274,13 @@ import { useBesearchCanvas } from '@/composables/useBesearchCanvas.js'
     }
   })
 
+  watch(zoomDepth, (newDepth) => {
+    const manager = getCanvasManager()
+    if (manager && manager.stateManager) {
+      manager.stateManager.setEmulationDepth(newDepth)
+    }
+  })
+
   // Canvas initialization is now handled by useBesearchCanvas composable
   /* methods */
   const setShowBeeBee = () => {
@@ -288,6 +333,99 @@ import { useBesearchCanvas } from '@/composables/useBesearchCanvas.js'
   height: 100%;
   display: flex;
   flex-direction: column;
+  position: relative;
+}
+
+.emulation-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.emulation-mask canvas {
+  pointer-events: auto;
+}
+
+/* Lens HUD Styles */
+.lens-hud {
+  position: absolute;
+  top: -125px; /* Offset to sit above the lens circle */
+  left: -125px;
+  width: 250px;
+  height: 250px;
+  pointer-events: none;
+  z-index: 100;
+  border: 2px solid rgba(0, 255, 200, 0.3);
+  border-radius: 50%;
+  transition: border-color 0.3s;
+}
+
+.lens-hud.is-locked { 
+  border-color: #ff4400; 
+  pointer-events: auto; 
+}
+
+.depth-control {
+  position: absolute;
+  right: -60px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 10px;
+  border-radius: 8px;
+  color: white;
+}
+
+.depth-control input[type=range][orient=vertical] {
+  writing-mode: bt-lr; /* IE */
+  -webkit-appearance: slider-vertical; /* WebKit */
+  width: 8px;
+  height: 100px;
+  padding: 0 5px;
+}
+
+.depth-label {
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.lock-btn {
+  position: absolute;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: auto;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 5px 15px;
+  border-radius: 15px;
+  cursor: pointer;
+}
+
+.lock-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.strap-status {
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: #00ffc8;
+  padding: 5px 15px;
+  border-radius: 15px;
+  font-size: 12px;
+  white-space: nowrap;
 }
 
 #besearch-holder {

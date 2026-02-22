@@ -33,6 +33,7 @@ export const besearchStore = defineStore('besearchstore', {
         earth: { x: 400, y: 300 }
       },
       currentMode: 'cues',
+      emulationDepth: 0,
       peerDirection: 'down',
       interventions: [],
       viewport: { x: 0, y: 0 }, // For game-world scrolling
