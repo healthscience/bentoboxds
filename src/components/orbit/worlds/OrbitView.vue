@@ -19,7 +19,14 @@
           :style="{ left: orbitStore.tools.pulse.x + '%', top: orbitStore.tools.pulse.y + '%', zIndex: orbitStore.draggingToolId === 'pulse' ? 300 : 100 }"
           @mousedown.stop="startDragging('pulse')"
         >
-          <ResonancePulse />
+          <!-- ghost of live resPulse -->
+           <div id="pulse-state" v-if="pulseState === 'ghost'">
+            <ResonancePulseghost />
+           </div>
+           <div v-else>
+              <ResonancePulse />
+           </div>
+
         </div>
 
         <div 
@@ -42,6 +49,7 @@ import { ref, computed, onUnmounted } from 'vue';
 import HeliClock from '@/components/orbit/clock/HeliClock.vue';
 import ProjectionHeli from '@/components/orbit/clock/projectionHeli.vue'
 import ResonancePulse from '@/components/orbit/resonance/ResonancePulse.vue'
+import ResonancePulseghost from '@/components/orbit/resonance/ResonancePulseghost.vue'
 
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { useOrbitStore } from '@/stores/orbitStore.js'
@@ -58,6 +66,14 @@ const isMini = computed(() => props.mini || !expanded.value);
 const isExpanded = ref(false)
 
 /* Computed Logic */
+const pulseState = computed(() => {
+    if (storeAI.currentMode === 'zen') {
+      return 'ghost'
+    } else  {
+      return 'alive'
+    }
+});
+
 const extractedData = computed(() => storeAI.extractedData);
 
 /* methods*/

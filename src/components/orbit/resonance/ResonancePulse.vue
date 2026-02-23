@@ -1,26 +1,48 @@
 <template>
-  <div class="pulse-container" :style="{ left: x + '%', top: y + '%' }">
-    <svg viewBox="0 0 200 200" class="ghost-svg">
+  <div class="resonance-pulse-container">
+    <svg viewBox="-50 -50 100 100" class="resonance-svg">
       <defs>
-        <filter id="ghost-blur">
-          <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="3" result="noise" />
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="10" />
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="1.2" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/>
+          </feMerge>
         </filter>
       </defs>
-      <circle 
-        cx="100" cy="100" r="70" 
-        fill="rgba(59, 130, 246, 0.01)" 
-        stroke="url(#pulse-grad)" 
-        stroke-width="2"
-        filter="url(#ghost-blur)"
-        class="pulse-ring"
+
+      <circle class="orbit-ring economic-ring" r="42" />
+      <circle class="orbit-ring ecological-ring" r="32" />
+      <circle class="orbit-ring environment-ring" :class="activeEnvType" r="22" />
+      <circle class="orbit-ring metabolic-ring" r="12" />
+
+      <line 
+        v-if="hasResonance"
+        x1="0" y1="0" 
+        :x2="resonanceLine.x" :y2="resonanceLine.y"
+        class="resonance-spoke"
       />
-      <linearGradient id="pulse-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-        <stop offset="0%" stop-color="rgba(59, 130, 246, 0.2)" />
-        <stop offset="50%" stop-color="rgba(59, 130, 246, 0.8)" />
-        <stop offset="100%" stop-color="rgba(59, 130, 246, 0.2)" />
-      </linearGradient>
+
+      <circle 
+        v-for="cue in activeCues" 
+        :key="cue.id"
+        :class="['cue-point', cue.orbit, { 'pulse': cue.active }]" 
+        :cx="cue.x" 
+        :cy="cue.y" 
+        r="1.5"
+      />
+      
+      <line x1="0" y1="0" :x2="solarHand.x" :y2="solarHand.y" class="solar-hand" />
     </svg>
+
+    <div class="pulse-legend" :class="{ 'is-visible': showLegend }">
+      <div v-if="showLegend" class="legend-content">
+        <div v-for="ring in ringInfo" :key="ring.label" class="legend-item">
+          <span class="dot" :style="{ backgroundColor: ring.color }"></span>
+          <span class="label">{{ ring.label }}</span>
+        </div>
+      </div>
+      <button @click="showLegend = !showLegend" class="toggle-legend-btn">?</button>
+    </div>
   </div>
 </template>
 
@@ -39,9 +61,7 @@ const ringInfo = [
 const props = defineProps({
   cues: { type: Array, default: () => [] },
   solarAngle: { type: Number, default: 0 },
-  currentEnv: { type: String, default: 'indoor' },
-  x: { type: Number, default: 0 },
-  y: { type: Number, default: 0 }
+  currentEnv: { type: String, default: 'indoor' }
 });
 
 // 1. Math: Map angles to X/Y coordinates
@@ -82,53 +102,90 @@ const activeEnvType = computed(() => props.currentEnv || 'indoor');
 </script>
 
 <style scoped>
-
-.pulse-container {
-  position: absolute;
-  width: 300px;
-  height: 300px;
-  transform: translate(-50%, -50%); /* Center on its coordinates */
-  pointer-events: none;
+.resonance-pulse-container {
+  width: 200px;
+  height: 200px;
   display: grid;
   place-items: center;
-}
-.pulse-ring {
-  transform-origin: center;
-  animation: breathe 4s infinite ease-in-out;
-}
-@keyframes breathe {
-  0%, 100% { transform: scale(1); opacity: 0.3; }
-  50% { transform: scale(1.1); opacity: 0.6; }
-}
-
-
-
-.resonance-pulse-container {
-  width: 100%;
-  max-width: 400px;
-  aspect-ratio: 1 / 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  position: relative;
+  background: #000;
+  border-radius: 50%;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
 }
 
 .resonance-svg {
+  grid-area: 1 / 1;
   width: 100%;
   height: 100%;
   overflow: visible; /* Ensure glows aren't clipped */
+  z-index: 1;
+}
+
+.pulse-legend {
+  grid-area: 1 / 1;
+  z-index: 10;
+  justify-self: end;
+  align-self: end;
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  pointer-events: none;
+}
+
+.legend-content, .toggle-legend-btn {
+  pointer-events: auto;
+}
+
+.legend-content {
+  display: grid;
+  gap: 4px;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 8px;
+  border-radius: 4px;
+  backdrop-filter: blur(4px);
+}
+
+.legend-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.7rem;
+  color: #fff;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.toggle-legend-btn {
+  justify-self: end;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.8rem;
+  display: grid;
+  place-items: center;
 }
 
 .orbit-ring {
   fill: none;
-  stroke: rgba(255, 255, 255, 0.2); /* Increased opacity */
-  stroke-width: 0.8; /* Doubled thickness for visibility */
+  stroke: #ffffff; /* Solid white for maximum visibility */
+  stroke-width: 1.5;
+  opacity: 0.5; /* Use opacity for softness instead of rgba in stroke */
   transition: stroke 0.5s ease;
 }
 
 /* Specific ring accents to make them distinct */
-.metabolic-ring { stroke: rgba(255, 77, 77, 0.3); }
-.ecological-ring { stroke: rgba(64, 224, 255, 0.3); }
-.economic-ring { stroke: rgba(182, 255, 59, 0.3); }
+.metabolic-ring { stroke: #ff4d4d; opacity: 0.8; }
+.ecological-ring { stroke: #40e0ff; opacity: 0.8; }
+.economic-ring { stroke: #b6ff3b; opacity: 0.8; }
 
 
 /* Ensure these class names match the 'orbit' property in your data exactly */
@@ -136,11 +193,6 @@ const activeEnvType = computed(() => props.currentEnv || 'indoor');
 .cue-point.environment { fill: #ffffff !important; }
 .cue-point.ecological { fill: #40e0ff !important; }
 .cue-point.economic   { fill: #b6ff3b !important; }
-
-/* If they are still black, it might be because the 'orbit' property 
-   in your JS is capitalized or slightly different (e.g., 'Economic' vs 'economic') */
-
-
 
 /* The NEW Environment Layer accents */
 .environment-ring.indoor { stroke: #00f2ff; stroke-width: 1.2; opacity: 0.8; stroke-dasharray: 2 2; }
