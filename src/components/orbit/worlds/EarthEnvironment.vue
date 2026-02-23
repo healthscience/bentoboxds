@@ -1,5 +1,5 @@
 <template>
-  <div class="earth-grid-container" @mousemove="handleMouseMove">
+  <div class="earth-grid-container" @mousemove="handleMouseMove" @click="toggleFixed">
     <section class="grid-main-viewport base-map">
       <OpenStreetMap 
         :center="[genesisLocation.lat, genesisLocation.lon]" 
@@ -34,7 +34,8 @@
     <div 
       class="lens-hud" 
       :style="hudStyle"
-      :class="{ 'is-locked': isLocked }"
+      :class="{ 'is-locked': isLocked, 'is-fixed': isFixed }"
+      @click.stop
     >
       <div class="depth-control">
         <input type="range" min="0" max="2" v-model.number="zoomDepth" orient="vertical">
@@ -44,6 +45,10 @@
       <button class="lock-btn" @click="toggleLock">
         {{ isLocked ? '🔓 UNLOCK' : '🔒 LOCK' }}
       </button>
+
+      <div class="fixed-indicator" v-if="isFixed && !isLocked">
+        📍 FIXED (Click world to release)
+      </div>
 
       <div class="strap-status" v-if="linkedCue">
         Linked to: {{ linkedCue.name }} | Coherence: {{ linkedCue.coherence }}%
@@ -83,7 +88,7 @@ const isTaggingActive = ref(false);
 const savedRivers = ref([]);
 const savedTags = ref([]);
 
-const { lensPos, isLocked, zoomDepth, linkedCue, handleMouseMove, toggleLock } = useLensStability();
+  const { lensPos, isLocked, isFixed, zoomDepth, linkedCue, handleMouseMove, toggleLock, toggleFixed } = useLensStability();
 
 const depthName = computed(() => ['SURFACE', 'BIOMARKER', 'CELLULAR'][zoomDepth.value]);
 
@@ -147,8 +152,7 @@ const handleNewRiverStrapDraw = (points) => {
 };
 
 const lensStyle = computed(() => ({
-  'mask-image': `radial-gradient(circle 250px at ${lensPos.value.x}px ${lensPos.value.y}px, black 100%, transparent 100%)`,
-  '-webkit-mask-image': `radial-gradient(circle 250px at ${lensPos.value.x}px ${lensPos.value.y}px, black 100%, transparent 100%)`
+  'background': `radial-gradient(circle 250px at ${lensPos.value.x}px ${lensPos.value.y}px, transparent 0%, rgba(0,0,0,0.4) 100%)`
 }));
 
 const hudStyle = computed(() => ({
@@ -161,8 +165,8 @@ const hudStyle = computed(() => ({
   display: grid;
   grid-template-columns: 1fr 300px; /* Main view | Sidebar */
   grid-template-rows: 1fr;
-  height: 100vh;
-  width: 100vw;
+  height: 100%;
+  width: 100%;
   overflow: hidden;
   background: #000;
   position: relative;
@@ -240,7 +244,26 @@ const hudStyle = computed(() => ({
 
 .lens-hud.is-locked { 
   border-color: #ff4400; 
-  pointer-events: auto; 
+  box-shadow: 0 0 20px rgba(255, 68, 0, 0.4);
+}
+
+.lens-hud.is-fixed {
+  border-color: #00ffc8;
+  box-shadow: 0 0 20px rgba(0, 255, 200, 0.4);
+}
+
+.fixed-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #00ffc8;
+  font-size: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+  pointer-events: none;
+  text-shadow: 0 0 5px black;
+  white-space: nowrap;
 }
 
 .depth-control {
@@ -256,6 +279,7 @@ const hudStyle = computed(() => ({
   padding: 10px;
   border-radius: 8px;
   color: white;
+  z-index: 101;
 }
 
 .depth-control input[type=range][orient=vertical] {

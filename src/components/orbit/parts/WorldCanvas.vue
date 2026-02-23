@@ -77,7 +77,9 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js';
 /* BODY WORLD: Specific Anatomy Grid */
 .body-grid {
   background: radial-gradient(circle, rgba(255, 200, 200, 0.1) 0%, transparent 70%);
-  grid-template-areas: "head" "torso" "base";
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
 }
 
 .anatomy-silhouette {

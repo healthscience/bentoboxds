@@ -1,5 +1,5 @@
 <template>
-  <div id="world-holder" @mousemove="handleMouseMove">
+  <div id="world-holder" @mousemove="handleMouseMove" @click="toggleFixed">
     <div id="canvas-container" ref="canvasContainer">
     <div id="mode-display">{{ storeBesearch.canvasState.currentMode }}</div>
       <div id="zoom-controls">
@@ -7,9 +7,24 @@
         <span class="zoom-display">{{ zoomPercentage }}%</span>
         <button @click="zoomOut" class="zoom-btn">-</button>
       </div>
+      <!-- Layer 1: Biomarker (Organ Emulation) -->
+      <div v-if="zoomDepth === 1" class="depth-layer biomarker-layer">
+        <div class="organ-placeholder" :style="{ backgroundColor: organColor }">
+          {{ linkedCue ? linkedCue.name : 'Select an organ' }} Emulation
+        </div>
+      </div>
+
+      <!-- Layer 2: Cellular (Microscopic) -->
+      <div v-if="zoomDepth === 2" class="depth-layer cellular-layer">
+        <div class="cell-placeholder">
+          Cellular Structure: {{ linkedCue ? linkedCue.name : 'General' }}
+        </div>
+      </div>
+
       <!-- canvas for besearch worlds -->
       <div class="emulation-mask" :style="maskStyle">
-        <canvas id="besearch-world" ref="canvasbe"></canvas>
+        <!-- Layer 0: Surface (Body Diagram) -->
+        <canvas v-show="zoomDepth === 0" id="besearch-world" ref="canvasbe"></canvas>
       </div>
     </div>
 
@@ -17,7 +32,8 @@
     <div 
       class="lens-hud" 
       :style="hudStyle"
-      :class="{ 'is-locked': isLocked }"
+      :class="{ 'is-locked': isLocked, 'is-fixed': isFixed }"
+      @click.stop
     >
       <div class="depth-control">
         <input type="range" min="0" max="2" v-model.number="zoomDepth" orient="vertical">
@@ -27,6 +43,10 @@
       <button class="lock-btn" @click="toggleLock">
         {{ isLocked ? '🔓 UNLOCK' : '🔒 LOCK' }}
       </button>
+
+      <div class="fixed-indicator" v-if="isFixed && !isLocked">
+        📍 FIXED (Click world to release)
+      </div>
 
       <div class="strap-status" v-if="linkedCue">
         Linked to: {{ linkedCue.name }} | Coherence: {{ linkedCue.coherence }}%
@@ -53,15 +73,28 @@ import { useLensStability } from '@/composables/useLensStability.js'
   const storeBesearch = besearchStore()
   const storeLibrary = libraryStore()
 
-  const { lensPos, isLocked, zoomDepth, linkedCue, handleMouseMove, toggleLock } = useLensStability();
+  const { lensPos, isLocked, isFixed, zoomDepth, linkedCue, handleMouseMove, toggleLock, toggleFixed } = useLensStability();
 
   const depthName = computed(() => ['SURFACE', 'BIOMARKER', 'CELLULAR'][zoomDepth.value]);
 
+  const organColor = computed(() => {
+    if (!linkedCue.value) return 'rgba(100, 100, 100, 0.5)';
+    const colors = {
+      'Heart': 'rgba(255, 50, 50, 0.6)',
+      'Liver': 'rgba(150, 75, 0, 0.6)',
+      'Pancreas': 'rgba(255, 200, 0, 0.6)',
+      'Lungs': 'rgba(200, 200, 255, 0.6)'
+    };
+    return colors[linkedCue.value.name] || 'rgba(0, 255, 200, 0.4)';
+  });
+
   const maskStyle = computed(() => ({
-    'mask-image': `radial-gradient(circle 250px at ${lensPos.value.x}px ${lensPos.value.y}px, black 100%, transparent 100%)`,
-    '-webkit-mask-image': `radial-gradient(circle 250px at ${lensPos.value.x}px ${lensPos.value.y}px, black 100%, transparent 100%)`,
+    'background': zoomDepth.value === 0 
+      ? `radial-gradient(circle 250px at ${lensPos.value.x}px ${lensPos.value.y}px, transparent 0%, rgba(0,0,0,0.4) 100%)`
+      : 'transparent',
     'width': '100%',
-    'height': '100%'
+    'height': '100%',
+    'pointer-events': 'none'
   }));
 
   const hudStyle = computed(() => ({
@@ -279,6 +312,15 @@ import { useLensStability } from '@/composables/useLensStability.js'
     if (manager && manager.stateManager) {
       manager.stateManager.setEmulationDepth(newDepth)
     }
+    
+    if (newDepth > 0 && linkedCue.value) {
+      console.log(`Activating emulation for: ${linkedCue.value.name} at depth ${newDepth}`);
+      // Mock message to HOP
+      /* storeAI.addSystemMessage({
+        role: 'system',
+        content: `Depth transition: Activating ${newDepth === 1 ? 'Biomarker' : 'Cellular'} emulation for ${linkedCue.value.name}.`
+      }); */
+    }
   })
 
   // Canvas initialization is now handled by useBesearchCanvas composable
@@ -331,26 +373,61 @@ import { useLensStability } from '@/composables/useLensStability.js'
 #world-holder {
   width: 100%;
   height: 100%;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
   position: relative;
 }
 
 .emulation-mask {
-  position: absolute;
-  top: 0;
-  left: 0;
+  grid-area: 1 / 1;
+  position: relative;
   width: 100%;
   height: 100%;
   pointer-events: none;
+  z-index: 5;
 }
 
 .emulation-mask canvas {
   pointer-events: auto;
 }
 
+.depth-layer {
+  grid-area: 1 / 1;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  z-index: 20;
+  background: rgba(0, 0, 0, 0.8);
+}
+
+.organ-placeholder, .cell-placeholder {
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(5px);
+  animation: pulse-glow 2s infinite alternate;
+}
+
+@keyframes pulse-glow {
+  from { box-shadow: 0 0 10px rgba(0, 255, 200, 0.2); }
+  to { box-shadow: 0 0 30px rgba(0, 255, 200, 0.5); }
+}
+
 /* Lens HUD Styles */
 .lens-hud {
+  grid-area: 1 / 1;
   position: absolute;
   top: -125px; /* Offset to sit above the lens circle */
   left: -125px;
@@ -365,7 +442,26 @@ import { useLensStability } from '@/composables/useLensStability.js'
 
 .lens-hud.is-locked { 
   border-color: #ff4400; 
-  pointer-events: auto; 
+  box-shadow: 0 0 20px rgba(255, 68, 0, 0.4);
+}
+
+.lens-hud.is-fixed {
+  border-color: #00ffc8;
+  box-shadow: 0 0 20px rgba(0, 255, 200, 0.4);
+}
+
+.fixed-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #00ffc8;
+  font-size: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+  pointer-events: none;
+  text-shadow: 0 0 5px black;
+  white-space: nowrap;
 }
 
 .depth-control {
@@ -381,6 +477,7 @@ import { useLensStability } from '@/composables/useLensStability.js'
   padding: 10px;
   border-radius: 8px;
   color: white;
+  z-index: 101;
 }
 
 .depth-control input[type=range][orient=vertical] {
@@ -448,6 +545,7 @@ import { useLensStability } from '@/composables/useLensStability.js'
 }
 
 #canvas-container {
+  grid-area: 1 / 1;
   position: relative;
   width: 100% !important;
   height: 100% !important;
@@ -516,7 +614,9 @@ import { useLensStability } from '@/composables/useLensStability.js'
   display: block !important; /* Force block display, override any global grid styles */
   border: 1px solid rgb(163, 155, 201);
   border-radius: 2%;
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
   z-index: 10;
   background-color: white;
   width: 100% !important;

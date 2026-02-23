@@ -6,6 +6,7 @@ export function useLensStability(options = { dampening: 0.1, snapRadius: 50 }) {
   const lensPos = ref({ x: 0, y: 0 });    // The smoothed, dampened position
   
   const isLocked = ref(false);
+  const isFixed = ref(false); // New: Fixed in place by click
   const isFineTuning = ref(false); // Triggered by [Space]
   const zoomScale = ref(1);        // Visual zoom
   const zoomDepth = ref(0);        // Emulation depth (0: Wiki, 1: Bio, 2: Cell)
@@ -35,7 +36,7 @@ export function useLensStability(options = { dampening: 0.1, snapRadius: 50 }) {
   // Dampened Animation Loop
   let rafHandle = null;
   const update = () => {
-    if (!isLocked.value) {
+    if (!isLocked.value && !isFixed.value) {
       const factor = isFineTuning.value ? 0.02 : options.dampening;
       
       // Check for magnetic snapping
@@ -59,7 +60,7 @@ export function useLensStability(options = { dampening: 0.1, snapRadius: 50 }) {
   };
 
   const handleMouseMove = (e) => {
-    if (isLocked.value) return;
+    if (isLocked.value || isFixed.value) return;
     
     // Get coordinates relative to the container
     const rect = e.currentTarget.getBoundingClientRect();
@@ -71,6 +72,12 @@ export function useLensStability(options = { dampening: 0.1, snapRadius: 50 }) {
 
   const toggleLock = () => {
     isLocked.value = !isLocked.value;
+    if (isLocked.value) isFixed.value = false; // Unlock also unfixes
+  };
+
+  const toggleFixed = () => {
+    if (isLocked.value) return;
+    isFixed.value = !isFixed.value;
   };
 
   const handleKeyDown = (e) => {
@@ -101,10 +108,12 @@ export function useLensStability(options = { dampening: 0.1, snapRadius: 50 }) {
     lensPos, 
     target, 
     isLocked, 
+    isFixed,
     zoomScale, 
     zoomDepth, 
     linkedCue,
     handleMouseMove, 
-    toggleLock 
+    toggleLock,
+    toggleFixed
   };
 }
