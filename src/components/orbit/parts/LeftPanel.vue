@@ -5,7 +5,15 @@
       :style="{ width: width + 'px' }"
     >
       <div class="rail-content" :class="{ 'rail-faded': !isOpen }">
-        <LifeTools :is-expanded="isOpen" :current-width="width" :modelValue="modelValue" @update:modelValue="$emit('update:modelValue', $event)"/>
+        <LifeTools 
+          :is-expanded="isOpen" 
+          :current-width="width" 
+          :modelValue="modelValue" 
+          @update:modelValue="$emit('update:modelValue', $event)"
+          @start-drawing="$emit('start-drawing')"
+          @start-tagging="$emit('start-tagging')"
+          @save-cue="$emit('save-cue', $event)"
+        />
       </div>
       
       <button
@@ -34,7 +42,7 @@ const props = defineProps({
   isOpen: Boolean      // Toggle State
 });
 
-const emit = defineEmits(['update:width', 'update:isOpen', 'startDrag', 'update:modelValue'])
+const emit = defineEmits(['update:width', 'update:isOpen', 'startDrag', 'update:modelValue', 'start-drawing', 'start-tagging', 'save-cue'])
 
 const handleButtonClick = () => {
   // Toggle logic: notify parent to change values

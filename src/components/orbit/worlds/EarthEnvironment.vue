@@ -54,23 +54,6 @@
         Linked to: {{ linkedCue.name }} | Coherence: {{ linkedCue.coherence }}%
       </div>
     </div>
-
-    <aside class="grid-sidebar">
-      <div class="glass-panel">
-        <h3>Earth Tools</h3>
-        <button @click="isDrawingActive = !isDrawingActive" :class="{ active: isDrawingActive }">
-          {{ isDrawingActive ? '💾 Save Trace' : '📏 Trace River' }}
-        </button>
-        <button @click="isTaggingActive = !isTaggingActive" :class="{ active: isTaggingActive }">
-          {{ isTaggingActive ? '❌ Cancel Tagging' : '🎯 Tag Location' }}
-        </button>
-        <hr />
-        <div class="reson-list">
-          <p v-for="r in savedRivers" :key="r.id">📍 River Strap #{{ r.id }}</p>
-          <p v-for="t in savedTags" :key="t.id">🎯 Tag: {{ t.cue }}</p>
-        </div>
-      </div>
-    </aside>
   </div>
 </template>
 
@@ -151,6 +134,18 @@ const handleNewRiverStrapDraw = (points) => {
   isDrawingActive.value = false;
 };
 
+const startDrawing = () => {
+  isDrawingActive.value = !isDrawingActive.value;
+  if (isDrawingActive.value) isTaggingActive.value = false;
+};
+
+const startTagging = () => {
+  isTaggingActive.value = !isTaggingActive.value;
+  if (isTaggingActive.value) isDrawingActive.value = false;
+};
+
+defineExpose({ startDrawing, startTagging });
+
 const lensStyle = computed(() => ({
   'background': `radial-gradient(circle 250px at ${lensPos.value.x}px ${lensPos.value.y}px, transparent 0%, rgba(0,0,0,0.4) 100%)`
 }));
@@ -163,7 +158,7 @@ const hudStyle = computed(() => ({
 <style scoped>
 .earth-grid-container {
   display: grid;
-  grid-template-columns: 1fr 300px; /* Main view | Sidebar */
+  grid-template-columns: 1fr; /* Main view only */
   grid-template-rows: 1fr;
   height: 100%;
   width: 100%;

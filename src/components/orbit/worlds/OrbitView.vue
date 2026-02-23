@@ -27,10 +27,8 @@
           class="tool-grab-wrapper"
           :style="{ left: orbitStore.tools.heli.x + '%', top: orbitStore.tools.heli.y + '%', zIndex: orbitStore.draggingToolId === 'heli' ? 300 : 100 }"
           @mousedown.stop="startDragging('heli')"
-          @mouseup.stop
-          @click.stop
         >
-        <HeliClock :mini="isMini" @expand="handleExpand()" />
+          <StartClock :mini="isMini" @expand="handleExpand()" />
         </div>
       </div>
     </div>
@@ -39,6 +37,7 @@
 
 <script setup>
 import { ref, computed, onUnmounted } from 'vue';
+import StartClock from '@/components/orbit/clock/HeliStart.vue'
 import HeliClock from '@/components/orbit/clock/HeliClock.vue';
 import ProjectionHeli from '@/components/orbit/clock/projectionHeli.vue'
 import ResonancePulse from '@/components/orbit/resonance/ResonancePulse.vue'
@@ -53,9 +52,8 @@ const props = defineProps({
   mini: { type: Boolean, default: false }
 });
 
-const expanded = ref(false);
-const isMini = computed(() => props.mini || !expanded.value);
-const isExpanded = ref(false)
+const isExpanded = ref(false);
+const isMini = computed(() => props.mini || !isExpanded.value);
 
 /* Computed Logic */
 const extractedData = computed(() => storeAI.extractedData);

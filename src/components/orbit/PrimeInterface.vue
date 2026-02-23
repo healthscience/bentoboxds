@@ -15,6 +15,9 @@
       @update:width="val => panelWidth = val"
       @update:isOpen="val => isLifeToolsOpen = val"
       @startDrag="startDraggingLeft"
+      @start-drawing="handleStartDrawing"
+      @start-tagging="handleStartTagging"
+      @save-cue="handleSaveCue"
     />
 
     <main class="orbit-stage">
@@ -33,6 +36,7 @@
       </div>
 
       <WorldCanvas 
+        ref="worldCanvasRef"
         :activeWorld="isInitialState ? 'void' : activeWorld"
         :showTools="!isInitialState"
       />
@@ -83,6 +87,7 @@ import BesearchFuse from '@/components/orbit/besearch/BesearchFuse.vue';
 const storeAI = aiInterfaceStore();
 const storeChat = useChatStore();
 const storeBesearch = besearchStore();
+const worldCanvasRef = ref(null);
 
 /* computed */
 const extractedData = computed(() => storeAI.digestInput);
@@ -139,6 +144,24 @@ const chatWidth = computed({
 })
 
 /* methods */
+const handleSaveCue = (cueId) => {
+  if (worldCanvasRef.value) {
+    worldCanvasRef.value.saveCue(cueId);
+  }
+};
+
+const handleStartDrawing = () => {
+  if (worldCanvasRef.value) {
+    worldCanvasRef.value.startDrawing();
+  }
+};
+
+const handleStartTagging = () => {
+  if (worldCanvasRef.value) {
+    worldCanvasRef.value.startTagging();
+  }
+};
+
 const launchDemo = (type) => {
   storeAI.currentMode = 'demo'; // This triggers the "Three Cs" in Launchpad
   activeWorld.value = type;

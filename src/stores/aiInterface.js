@@ -98,6 +98,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     visData: {},
     tempNumberData: {},
     tempLabelData: {},
+    interactionMode: 'lens', // 'lens' or 'tools'
     activeFuture: {},
     futureLabelData: {},
     futureNumberData: {},

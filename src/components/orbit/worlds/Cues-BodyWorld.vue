@@ -24,7 +24,17 @@
       <!-- canvas for besearch worlds -->
       <div class="emulation-mask" :style="maskStyle">
         <!-- Layer 0: Surface (Body Diagram) -->
-        <canvas v-show="zoomDepth === 0" id="besearch-world" ref="canvasbe"></canvas>
+        <canvas v-show="zoomDepth === 0 || storeAI.interactionMode === 'tools'" id="besearch-world" ref="canvasbe"></canvas>
+        
+        <!-- Drawing Layer (Overlay on Body) -->
+        <canvas 
+          v-if="storeAI.interactionMode === 'tools'" 
+          id="drawing-canvas" 
+          ref="drawingCanvas" 
+          @mousedown="startDraw" 
+          @mousemove="draw" 
+          @mouseup="endDraw"
+        ></canvas>
       </div>
     </div>
 
@@ -75,6 +85,46 @@ import { useLensStability } from '@/composables/useLensStability.js'
 
   const { lensPos, isLocked, isFixed, zoomDepth, linkedCue, handleMouseMove, toggleLock, toggleFixed } = useLensStability();
 
+  const drawingCanvas = ref(null);
+  const isDrawing = ref(false);
+  const drawPoints = ref([]);
+
+  const startDraw = (e) => {
+    isDrawing.value = true;
+    const rect = drawingCanvas.value.getBoundingClientRect();
+    drawPoints.value = [{ x: e.clientX - rect.left, y: e.clientY - rect.top }];
+  };
+
+  const draw = (e) => {
+    if (!isDrawing.value) return;
+    const rect = drawingCanvas.value.getBoundingClientRect();
+    const ctx = drawingCanvas.value.getContext('2d');
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    drawPoints.value.push({ x, y });
+    
+    ctx.clearRect(0, 0, drawingCanvas.value.width, drawingCanvas.value.height);
+    ctx.beginPath();
+    ctx.strokeStyle = '#00ffc8';
+    ctx.lineWidth = 3;
+    ctx.moveTo(drawPoints.value[0].x, drawPoints.value[0].y);
+    for (let i = 1; i < drawPoints.value.length; i++) {
+      ctx.lineTo(drawPoints.value[i].x, drawPoints.value[i].y);
+    }
+    ctx.stroke();
+  };
+
+  const endDraw = () => {
+    isDrawing.value = false;
+    if (drawPoints.value.length > 0) {
+      hasDrawing.value = true;
+    }
+    console.log('Drawing complete', drawPoints.value);
+  };
+
+  const hasDrawing = ref(false);
+
   const depthName = computed(() => ['SURFACE', 'BIOMARKER', 'CELLULAR'][zoomDepth.value]);
 
   const organColor = computed(() => {
@@ -89,7 +139,7 @@ import { useLensStability } from '@/composables/useLensStability.js'
   });
 
   const maskStyle = computed(() => ({
-    'background': zoomDepth.value === 0 
+    'background': (zoomDepth.value === 0 && storeAI.interactionMode === 'lens')
       ? `radial-gradient(circle 250px at ${lensPos.value.x}px ${lensPos.value.y}px, transparent 0%, rgba(0,0,0,0.4) 100%)`
       : 'transparent',
     'width': '100%',
@@ -140,7 +190,16 @@ import { useLensStability } from '@/composables/useLensStability.js'
     zoomPercentage.value = Math.round(zoom * 100)
   }, false)
 
-  defineExpose({ canvasbe })
+  const saveCueLocation = (cueId) => {
+    console.log('Save cue location', cueId, drawPoints.value);
+    // Logic to save the cue
+    hasDrawing.value = false;
+    const ctx = drawingCanvas.value.getContext('2d');
+    ctx.clearRect(0, 0, drawingCanvas.value.width, drawingCanvas.value.height);
+    drawPoints.value = [];
+  };
+
+  defineExpose({ canvasbe, saveCueLocation })
 
   /* on mount */
   onMounted(async () => {
@@ -223,6 +282,17 @@ import { useLensStability } from '@/composables/useLensStability.js'
     return null
   })
 
+
+  watch(() => storeAI.interactionMode, (newMode) => {
+    if (newMode === 'tools') {
+      nextTick(() => {
+        if (drawingCanvas.value) {
+          drawingCanvas.value.width = drawingCanvas.value.offsetWidth;
+          drawingCanvas.value.height = drawingCanvas.value.offsetHeight;
+        }
+      });
+    }
+  });
 
   // Watch for activeWorld changes to initialize canvas
   watch(() => storeAI.activeWorld, async (newWorld) => {
@@ -403,6 +473,29 @@ import { useLensStability } from '@/composables/useLensStability.js'
   pointer-events: auto;
   z-index: 20;
   background: rgba(0, 0, 0, 0.8);
+}
+
+#drawing-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+  z-index: 15;
+}
+
+.drawing-hint {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: #00ffc8;
+  padding: 5px 15px;
+  border-radius: 15px;
+  font-size: 12px;
+  pointer-events: none;
 }
 
 .organ-placeholder, .cell-placeholder {

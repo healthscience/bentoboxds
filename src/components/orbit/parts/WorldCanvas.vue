@@ -7,11 +7,11 @@
       </div>
       <!-- human body -->
       <div v-show="activeWorld === 'body'" class="world-view body-grid">
-         <HumanWorld />
+         <HumanWorld ref="humanWorldRef" />
       </div>
       <!-- earth nature & environment -->
       <div v-show="activeWorld === 'earth'" class="world-view earth-grid">
-        <EarthEnvironment />
+        <EarthEnvironment ref="earthEnvironmentRef" />
       </div>
     </section>
   </div>
@@ -26,6 +26,8 @@ import EarthEnvironment from '@/components/orbit/worlds/EarthEnvironment.vue';
 import { aiInterfaceStore } from '@/stores/aiInterface.js';
 
   const storeAI = aiInterfaceStore();
+  const humanWorldRef = ref(null);
+  const earthEnvironmentRef = ref(null);
 
   const props = defineProps({
     tools: Object,
@@ -37,6 +39,26 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js';
   const activeWorld = computed(() => {
     return storeAI.activeWorld
   })
+
+  const saveCue = (cueId) => {
+    if (humanWorldRef.value) {
+      humanWorldRef.value.saveCueLocation(cueId);
+    }
+  };
+
+  const startDrawing = () => {
+    if (storeAI.activeWorld === 'earth' && earthEnvironmentRef.value) {
+      earthEnvironmentRef.value.startDrawing();
+    }
+  };
+
+  const startTagging = () => {
+    if (storeAI.activeWorld === 'earth' && earthEnvironmentRef.value) {
+      earthEnvironmentRef.value.startTagging();
+    }
+  };
+
+  defineExpose({ saveCue, startDrawing, startTagging });
 
 </script>
 
