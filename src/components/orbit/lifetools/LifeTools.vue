@@ -20,11 +20,39 @@
       <div class="orbit-tools" v-if="activeWorld === 'orbit'">
         Orbit tools please
       </div>
-      <div class="orbit-tools" v-if="activeWorld === 'body'">
-        Body tools please
-      </div>
-      <div class="orbit-tools" v-if="activeWorld === 'earth'">
-        Earth tools please
+      <div class="orbit-tools" v-if="activeWorld === 'body' || activeWorld === 'earth'">
+        <div class="mode-toggle">
+          <button 
+            :class="{ active: storeAI.interactionMode === 'lens' }" 
+            @click="storeAI.interactionMode = 'lens'"
+          >🔍 Lens</button>
+          <button 
+            :class="{ active: storeAI.interactionMode === 'tools' }" 
+            @click="storeAI.interactionMode = 'tools'"
+          >✏️ Tools</button>
+        </div>
+        
+        <div v-if="storeAI.interactionMode === 'tools'" class="drawing-tools">
+          <button @click="startDrawing">
+            {{ activeWorld === 'earth' ? '📏 Trace River / building' : 'Draw Cue Area' }}
+          </button>
+          
+          <button v-if="activeWorld === 'earth'" @click="startTagging">
+            🎯 Tag Location
+          </button>
+          
+          <div class="cue-selection" v-if="hasDrawing && activeWorld === 'body'">
+            <label for="cue-select">Select Cue:</label>
+            <select id="cue-select" v-model="selectedCueId">
+              <option value="" disabled>-- Choose a Cue --</option>
+              <option v-for="cue in storeCues.cuesList" :key="cue.key" :value="cue.key">
+                {{ cue.value.concept.name }}
+              </option>
+            </select>
+          </div>
+
+          <button v-if="activeWorld === 'body'" @click="saveCueLocation" :disabled="!hasDrawing || !selectedCueId">Save Location</button>
+        </div>
       </div>
     </div>
   </div>
@@ -81,10 +109,12 @@ import InterventionType from '@/components/besearch/interventions/interventionTy
 import { libraryStore } from '@/stores/libraryStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { besearchStore } from '@/stores/besearchStore.js'
+import { cuesStore } from '@/stores/cuesStore.js'
 
 const storeLibrary = libraryStore()
 const storeAI = aiInterfaceStore()
 const storeBesearch = besearchStore()
+const storeCues = cuesStore()
 
 /* props */
 const props = defineProps({
@@ -100,7 +130,10 @@ const emit = defineEmits([
   'update:modelValue', 
   'update:width', 
   'update:isOpen', 
-  'startDrag'
+  'startDrag',
+  'start-drawing',
+  'start-tagging',
+  'save-cue'
 ]);
 
 
@@ -136,6 +169,7 @@ const worlds = [
   const selectWorld = (worldId) => {
     emit('update:modelValue', worldId)
     storeAI.currentMode = false
+    storeAI.interactionMode = 'lens' // Reset to lens on world change
     if (worldId === 'body') {
       storeBesearch.setNexusWorld('body')
     } else if (worldId === 'orbit') {
@@ -199,6 +233,27 @@ const worlds = [
     console.log('Peer intervention initiated')
     // You can add more specific intervention logic as needed
     emit('peer-intervention')
+  }
+
+  const hasDrawing = ref(false)
+  const selectedCueId = ref('')
+
+  const startDrawing = () => {
+    console.log('Start drawing mode')
+    hasDrawing.value = true // Mocking completion for now
+    emit('start-drawing')
+  }
+
+  const startTagging = () => {
+    console.log('Start tagging mode')
+    emit('start-tagging')
+  }
+
+  const saveCueLocation = () => {
+    console.log('Save cue location', selectedCueId.value)
+    emit('save-cue', selectedCueId.value)
+    hasDrawing.value = false
+    selectedCueId.value = ''
   }
 
 </script>
@@ -423,6 +478,61 @@ const worlds = [
   background: rgba(0, 0, 0, 0.03);
   border-radius: 12px;
   margin: 1rem 0;
+}
+
+.mode-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.mode-toggle button {
+  padding: 8px;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.mode-toggle button.active {
+  background: #3b82f6;
+  color: white;
+  border-color: #3b82f6;
+}
+
+.drawing-tools {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.drawing-tools button {
+  padding: 10px;
+  background: #b8cde2;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.drawing-tools button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cue-selection {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: white;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.cue-selection select {
+  padding: 5px;
+  border-radius: 4px;
 }
 
 }

@@ -1,6 +1,6 @@
 <template>
   <!--<div class="heli-wrapper">-->
-  <div class="heli-wrapper">
+  <div class="heli-clock-wrapper" :class="{ 'is-mini': mini }" @mousedown.stop @mouseup.stop @click.stop="handleClockClick()">
     <transition name="heli-zoom">
       <div v-if="!isCalibrated" class="heli-modal-overlay">
         <div class="calibration-card">
@@ -65,7 +65,7 @@
             <div class="degree-sub">{{ currentDegree.toFixed(4) }}°</div>
           </div>
         </div>
-        <button class="recalibrate-trigger" @click="resetCalibration">Adjust Origin</button>
+        <button class="recalibrate-trigger" @click="resetCalibration()">Adjust Origin</button>
       </section>
 
       <aside class="heli-legend-right">
@@ -92,6 +92,10 @@ import { ref, computed, onMounted } from 'vue';
 import { diaryStore } from '@/stores/diaryStore.js';
 
 const store = diaryStore();
+
+const emit = defineEmits(['expand', 'select']);
+let clickCount = 0;
+let clickTimer = null;
 
 defineProps({
   mini: { type: Boolean, default: false },
@@ -197,6 +201,58 @@ const describeArc = (x, y, r, start, end) => {
 </script>
 
 <style scoped>
+.heli-clock-wrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.heli-clock-wrapper.is-mini {
+  width: 160px;
+  height: 160px;
+}
+
+.is-mini .heli-main-layout {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  grid-template-columns: 1fr;
+  grid-template-areas: "center";
+  gap: 0;
+}
+
+.is-mini .heli-legend-left,
+.is-mini .heli-legend-right,
+.is-mini .recalibrate-trigger {
+  display: none;
+}
+
+.is-mini .orbital-grid {
+  width: 140px;
+  height: 140px;
+}
+
+.is-mini .sun-core {
+  transform: scale(0.35);
+}
+
+.is-mini .heli-main-layout,
+.is-mini .orbital-grid,
+.is-mini .heli-svg,
+.is-mini .sun-core,
+.is-mini .sun-readout,
+.is-mini .cycles-whole,
+.is-mini .cycles-decimal,
+.is-mini .cycles-label,
+.is-mini .degree-sub {
+  pointer-events: none;
+}
+
 /* GRID WRAPPER */
 .heli-wrapper {
   display: grid;

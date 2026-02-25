@@ -34,7 +34,6 @@ defineProps({
 
 
 /* methods */
-
 const handleClockClick = () => {
   console.log('click');
   clickCount++;

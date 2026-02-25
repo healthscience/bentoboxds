@@ -69,7 +69,8 @@ export class HOPDataBridge {
       viewport: { x: 0, y: 0 },
       currentMode: 'cues',
       zoom: 1.0,
-      panOffset: { x: 0, y: 0 }
+      panOffset: { x: 0, y: 0 },
+      emulationDepth: 0
     }
     const canvasState = {
       peerPosition: store.getPeerPosition(),
@@ -77,7 +78,8 @@ export class HOPDataBridge {
       viewport: store.canvasState.viewport,
       currentMode: store.canvasState.currentMode,
       zoom: store.canvasState.zoom,
-      panOffset: store.canvasState.panOffset
+      panOffset: store.canvasState.panOffset,
+      emulationDepth: store.canvasState.emulationDepth || 0
     };
     return canvasState;
   }

@@ -34,11 +34,21 @@ export class CanvasStateManager {
     this.panOffset = { x: 0, y: 0 };
     // Current mode
     this.currentMode = 'cues';
+    // Emulation depth (0: Surface, 1: Biomarker, 2: Cellular)
+    this.emulationDepth = 0;
     // Animation state
     this.animationAngle = 0;
     // Event callbacks
     this.onStateChange = null;
 
+  }
+
+  /**
+   * Set emulation depth
+   */
+  setEmulationDepth(depth) {
+    this.emulationDepth = Math.max(0, Math.min(2, depth));
+    this.emitStateChange('emulationDepth', this.emulationDepth);
   }
 
   /**

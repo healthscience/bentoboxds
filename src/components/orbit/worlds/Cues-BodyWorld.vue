@@ -1,5 +1,5 @@
 <template>
-  <div id="world-holder">
+  <div id="world-holder" @mousemove="handleMouseMove" @click="toggleFixed">
     <div id="canvas-container" ref="canvasContainer">
     <div id="mode-display">{{ storeBesearch.canvasState.currentMode }}</div>
       <div id="zoom-controls">
@@ -7,8 +7,60 @@
         <span class="zoom-display">{{ zoomPercentage }}%</span>
         <button @click="zoomOut" class="zoom-btn">-</button>
       </div>
+      <!-- Layer 1: Biomarker (Organ Emulation) -->
+      <div v-if="zoomDepth === 1" class="depth-layer biomarker-layer">
+        <div class="organ-placeholder" :style="{ backgroundColor: organColor }">
+          {{ linkedCue ? linkedCue.name : 'Select an organ' }} Emulation
+        </div>
+      </div>
+
+      <!-- Layer 2: Cellular (Microscopic) -->
+      <div v-if="zoomDepth === 2" class="depth-layer cellular-layer">
+        <div class="cell-placeholder">
+          Cellular Structure: {{ linkedCue ? linkedCue.name : 'General' }}
+        </div>
+      </div>
+
       <!-- canvas for besearch worlds -->
-      <canvas id="besearch-world" ref="canvasbe"></canvas>
+      <div class="emulation-mask" :style="maskStyle">
+        <!-- Layer 0: Surface (Body Diagram) -->
+        <canvas v-show="zoomDepth === 0 || storeAI.interactionMode === 'tools'" id="besearch-world" ref="canvasbe"></canvas>
+        
+        <!-- Drawing Layer (Overlay on Body) -->
+        <canvas 
+          v-if="storeAI.interactionMode === 'tools'" 
+          id="drawing-canvas" 
+          ref="drawingCanvas" 
+          @mousedown="startDraw" 
+          @mousemove="draw" 
+          @mouseup="endDraw"
+        ></canvas>
+      </div>
+    </div>
+
+    <!-- Lens HUD -->
+    <div 
+      class="lens-hud" 
+      :style="hudStyle"
+      :class="{ 'is-locked': isLocked, 'is-fixed': isFixed }"
+      @click.stop
+    >
+      <div class="depth-control">
+        <input type="range" min="0" max="2" v-model.number="zoomDepth" orient="vertical">
+        <span class="depth-label">{{ depthName }}</span>
+      </div>
+
+      <button class="lock-btn" @click="toggleLock">
+        {{ isLocked ? '🔓 UNLOCK' : '🔒 LOCK' }}
+      </button>
+
+      <div class="fixed-indicator" v-if="isFixed && !isLocked">
+        📍 FIXED (Click world to release)
+      </div>
+
+      <div class="strap-status" v-if="linkedCue">
+        Linked to: {{ linkedCue.name }} | Coherence: {{ linkedCue.coherence }}%
+      </div>
     </div>
   </div>
 </template>
@@ -22,6 +74,7 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { besearchStore } from '@/stores/besearchStore.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 import { useBesearchCanvas } from '@/composables/useBesearchCanvas.js'
+import { useLensStability } from '@/composables/useLensStability.js'
 
   const storeCues = cuesStore()
   const storeAI = aiInterfaceStore()
@@ -29,6 +82,74 @@ import { useBesearchCanvas } from '@/composables/useBesearchCanvas.js'
   const storeBentobox = bentoboxStore()
   const storeBesearch = besearchStore()
   const storeLibrary = libraryStore()
+
+  const { lensPos, isLocked, isFixed, zoomDepth, linkedCue, handleMouseMove, toggleLock, toggleFixed } = useLensStability();
+
+  const drawingCanvas = ref(null);
+  const isDrawing = ref(false);
+  const drawPoints = ref([]);
+
+  const startDraw = (e) => {
+    isDrawing.value = true;
+    const rect = drawingCanvas.value.getBoundingClientRect();
+    drawPoints.value = [{ x: e.clientX - rect.left, y: e.clientY - rect.top }];
+  };
+
+  const draw = (e) => {
+    if (!isDrawing.value) return;
+    const rect = drawingCanvas.value.getBoundingClientRect();
+    const ctx = drawingCanvas.value.getContext('2d');
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    drawPoints.value.push({ x, y });
+    
+    ctx.clearRect(0, 0, drawingCanvas.value.width, drawingCanvas.value.height);
+    ctx.beginPath();
+    ctx.strokeStyle = '#00ffc8';
+    ctx.lineWidth = 3;
+    ctx.moveTo(drawPoints.value[0].x, drawPoints.value[0].y);
+    for (let i = 1; i < drawPoints.value.length; i++) {
+      ctx.lineTo(drawPoints.value[i].x, drawPoints.value[i].y);
+    }
+    ctx.stroke();
+  };
+
+  const endDraw = () => {
+    isDrawing.value = false;
+    if (drawPoints.value.length > 0) {
+      hasDrawing.value = true;
+    }
+    console.log('Drawing complete', drawPoints.value);
+  };
+
+  const hasDrawing = ref(false);
+
+  const depthName = computed(() => ['SURFACE', 'BIOMARKER', 'CELLULAR'][zoomDepth.value]);
+
+  const organColor = computed(() => {
+    if (!linkedCue.value) return 'rgba(100, 100, 100, 0.5)';
+    const colors = {
+      'Heart': 'rgba(255, 50, 50, 0.6)',
+      'Liver': 'rgba(150, 75, 0, 0.6)',
+      'Pancreas': 'rgba(255, 200, 0, 0.6)',
+      'Lungs': 'rgba(200, 200, 255, 0.6)'
+    };
+    return colors[linkedCue.value.name] || 'rgba(0, 255, 200, 0.4)';
+  });
+
+  const maskStyle = computed(() => ({
+    'background': (zoomDepth.value === 0 && storeAI.interactionMode === 'lens')
+      ? `radial-gradient(circle 250px at ${lensPos.value.x}px ${lensPos.value.y}px, transparent 0%, rgba(0,0,0,0.4) 100%)`
+      : 'transparent',
+    'width': '100%',
+    'height': '100%',
+    'pointer-events': 'none'
+  }));
+
+  const hudStyle = computed(() => ({
+    transform: `translate(${lensPos.value.x}px, ${lensPos.value.y}px)`
+  }));
 
 
   // Canvas references
@@ -69,7 +190,16 @@ import { useBesearchCanvas } from '@/composables/useBesearchCanvas.js'
     zoomPercentage.value = Math.round(zoom * 100)
   }, false)
 
-  defineExpose({ canvasbe })
+  const saveCueLocation = (cueId) => {
+    console.log('Save cue location', cueId, drawPoints.value);
+    // Logic to save the cue
+    hasDrawing.value = false;
+    const ctx = drawingCanvas.value.getContext('2d');
+    ctx.clearRect(0, 0, drawingCanvas.value.width, drawingCanvas.value.height);
+    drawPoints.value = [];
+  };
+
+  defineExpose({ canvasbe, saveCueLocation })
 
   /* on mount */
   onMounted(async () => {
@@ -152,6 +282,17 @@ import { useBesearchCanvas } from '@/composables/useBesearchCanvas.js'
     return null
   })
 
+
+  watch(() => storeAI.interactionMode, (newMode) => {
+    if (newMode === 'tools') {
+      nextTick(() => {
+        if (drawingCanvas.value) {
+          drawingCanvas.value.width = drawingCanvas.value.offsetWidth;
+          drawingCanvas.value.height = drawingCanvas.value.offsetHeight;
+        }
+      });
+    }
+  });
 
   // Watch for activeWorld changes to initialize canvas
   watch(() => storeAI.activeWorld, async (newWorld) => {
@@ -236,6 +377,22 @@ import { useBesearchCanvas } from '@/composables/useBesearchCanvas.js'
     }
   })
 
+  watch(zoomDepth, (newDepth) => {
+    const manager = getCanvasManager()
+    if (manager && manager.stateManager) {
+      manager.stateManager.setEmulationDepth(newDepth)
+    }
+    
+    if (newDepth > 0 && linkedCue.value) {
+      console.log(`Activating emulation for: ${linkedCue.value.name} at depth ${newDepth}`);
+      // Mock message to HOP
+      /* storeAI.addSystemMessage({
+        role: 'system',
+        content: `Depth transition: Activating ${newDepth === 1 ? 'Biomarker' : 'Cellular'} emulation for ${linkedCue.value.name}.`
+      }); */
+    }
+  })
+
   // Canvas initialization is now handled by useBesearchCanvas composable
   /* methods */
   const setShowBeeBee = () => {
@@ -286,8 +443,179 @@ import { useBesearchCanvas } from '@/composables/useBesearchCanvas.js'
 #world-holder {
   width: 100%;
   height: 100%;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  position: relative;
+}
+
+.emulation-mask {
+  grid-area: 1 / 1;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.emulation-mask canvas {
+  pointer-events: auto;
+}
+
+.depth-layer {
+  grid-area: 1 / 1;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  z-index: 20;
+  background: rgba(0, 0, 0, 0.8);
+}
+
+#drawing-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+  z-index: 15;
+}
+
+.drawing-hint {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: #00ffc8;
+  padding: 5px 15px;
+  border-radius: 15px;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+.organ-placeholder, .cell-placeholder {
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(5px);
+  animation: pulse-glow 2s infinite alternate;
+}
+
+@keyframes pulse-glow {
+  from { box-shadow: 0 0 10px rgba(0, 255, 200, 0.2); }
+  to { box-shadow: 0 0 30px rgba(0, 255, 200, 0.5); }
+}
+
+/* Lens HUD Styles */
+.lens-hud {
+  grid-area: 1 / 1;
+  position: absolute;
+  top: -125px; /* Offset to sit above the lens circle */
+  left: -125px;
+  width: 250px;
+  height: 250px;
+  pointer-events: none;
+  z-index: 100;
+  border: 2px solid rgba(0, 255, 200, 0.3);
+  border-radius: 50%;
+  transition: border-color 0.3s;
+}
+
+.lens-hud.is-locked { 
+  border-color: #ff4400; 
+  box-shadow: 0 0 20px rgba(255, 68, 0, 0.4);
+}
+
+.lens-hud.is-fixed {
+  border-color: #00ffc8;
+  box-shadow: 0 0 20px rgba(0, 255, 200, 0.4);
+}
+
+.fixed-indicator {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #00ffc8;
+  font-size: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+  pointer-events: none;
+  text-shadow: 0 0 5px black;
+  white-space: nowrap;
+}
+
+.depth-control {
+  position: absolute;
+  right: -60px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: auto;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 10px;
+  border-radius: 8px;
+  color: white;
+  z-index: 101;
+}
+
+.depth-control input[type=range][orient=vertical] {
+  writing-mode: bt-lr; /* IE */
+  -webkit-appearance: slider-vertical; /* WebKit */
+  width: 8px;
+  height: 100px;
+  padding: 0 5px;
+}
+
+.depth-label {
+  margin-top: 10px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.lock-btn {
+  position: absolute;
+  bottom: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: auto;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 5px 15px;
+  border-radius: 15px;
+  cursor: pointer;
+}
+
+.lock-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.strap-status {
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: #00ffc8;
+  padding: 5px 15px;
+  border-radius: 15px;
+  font-size: 12px;
+  white-space: nowrap;
 }
 
 #besearch-holder {
@@ -310,6 +638,7 @@ import { useBesearchCanvas } from '@/composables/useBesearchCanvas.js'
 }
 
 #canvas-container {
+  grid-area: 1 / 1;
   position: relative;
   width: 100% !important;
   height: 100% !important;
@@ -378,7 +707,9 @@ import { useBesearchCanvas } from '@/composables/useBesearchCanvas.js'
   display: block !important; /* Force block display, override any global grid styles */
   border: 1px solid rgb(163, 155, 201);
   border-radius: 2%;
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
   z-index: 10;
   background-color: white;
   width: 100% !important;
