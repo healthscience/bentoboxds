@@ -169,6 +169,8 @@ const launchDemo = (type) => {
   // Also push the demo text into the store so the Lenses have data
   if (type === 'sport') {
     storeAI.beebeeDigest("I want to swim 400m in 10 orbits...", true);
+  } else if (type === 'body') {
+    storeBesearch.setNexusWorld('body')
   }
 };
 

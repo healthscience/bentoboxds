@@ -231,12 +231,17 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         const displayContext = (baseContext === 'chatspace' && cueId)
           ? { type: 'chatspace', id: cueId }
           : baseContext
+        console.log('dispaly contexts')
+        console.log(displayContext)
         // 2. Check for tools in the question text 
         let toolsUsed = []
         toolsUsed = this.inputTools
         // 3. Validate the question
         const validationResult = this.liveChatUtil.validateQuestion(this.askQuestion.text, toolsUsed)
+        console.log('validation result')
+        console.log(validationResult)
         if (!validationResult.isValid) {
+          console.log('validation failed')
           // Provide feedback to the peer
           const feedbackMessage = this.liveChatUtil.createFeedbackMessage(validationResult.message)
           this.storeChat.addMessage(feedbackMessage)
@@ -249,17 +254,37 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           uploadAttached = true
         }
         // 4. Prepare the question object
-        const question = {
-          role: 'peer',
-          type: 'peer',
-          content: this.askQuestion.text,
-          conversationId: keyContext,
-          contract_key: this.activeContractKey || '',
-          lifeStrapID: this.activeLifeStrapID || '',
-          context: baseContext === 'chatspace' ? 'space' : (baseContext === 'extraction' ? 'extraction' : 'emulation'),
-          tools: toolsUsed,
-          timestamp: new Date()
+        let question = {}
+        // if extraction, message will be set
+        if (displayContext !== 'extraction') {
+          question = {
+            role: 'peer',
+            type: 'peer',
+            content: this.askQuestion.text,
+            conversationId: keyContext,
+            contract_key: this.activeContractKey || '',
+            lifeStrapID: this.activeLifeStrapID || '',
+            context: baseContext === 'chatspace' ? 'space' : (baseContext === 'extraction' ? 'extraction' : 'emulation'),
+            tools: toolsUsed,
+            timestamp: new Date()
+          }
+
+        } else {
+          // extraction message
+          question = {
+            role: 'peer',
+            type: 'peer',
+            content: this.askQuestion.text,
+            conversationId: this.chatAttention,
+            contract_key: this.activeContractKey || (this.storeLibrary.straps && this.storeLibrary.straps[0]?.contract_key) || '',
+            lifeStrapID: this.chatAttention,
+            context: baseContext,
+            tools: toolsUsed,
+            timestamp: new Date()
+          }
         }
+        console.log('question')
+        console.log(question)
         // 5. Check if this is a new chat or adding to existing
         let chat
         if (this.isNewChat(keyContext)) {
@@ -446,7 +471,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     actionHelpAskInput () {
       // Get the question text
       const questionText = this.askQuestion.text.trim()
-      
       if (questionText.length > 0) {
         // Extract tools from the question
         const tools = this.extractToolsFromQuestion(questionText)
@@ -1135,42 +1159,18 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       learnMessage.bbid = ''
       this.sendMessageHOP(learnMessage)
     },
-    // Inside aiInterface.js actions
-    async hopDigest(input, isDemo = false) {
-  
-      // 1. Log the Peer Input to the dialogue stream
-      this.storeChat.addMessage({
-        role: 'peer',
-        content: input
-      });
-
-      // 2. Perform the HOP Extraction (Mocking the Oracle for now)
-      // This updates storeAI.digestInput (Capacity, Context, Coherence)
-      this.digestInput = {
-        capacity: isDemo ? ['10 Orbits', 'Internal Load'] : ['Analyzing...'],
-        context: isDemo ? ['Chlorine Environment'] : ['Analyzing...'],
-        coherence: isDemo ? ['Skin Sensitivity'] : ['Analyzing...']
-      };
-
-      // 3. Formulate BeeBee's Response
-      // This is the "formatting and forming" part
-      const beebeeResponse = "The Health Oracle Protocol has analyzed your intent. Have we extracted the intent of your input correctly across Capacity, Context, and Coherence? Please click on any word to create a space, chat more, or upload data.";
-
-      // 4. Push BeeBee's response to the dialogue stream
-      this.storeChat.addMessage({
-        role: 'beebee',
-        content: beebeeResponse
-      });
-    },
-    async beebeeDigest(demo) {
+    async beebeeDigest(call, demo) {
       console.log('beebeeDigest', demo)
       // 1. Pivot out of Zen Mode
       this.currentMode = 'extracting'; 
       this.beebeeContext = 'extraction';
       
-      // 2. Capture and reset input
+      // 2. Capture (reset after message sent to HOP later)
+      if (demo !== undefined && demo === true) {
+        this.askQuestion.text = call
+      }
       const peerInput = this.askQuestion.text;
-      this.askQuestion.text = '';
+      // this.askQuestion.text = '';
 
       // 3. Open BeeBee Chat Panel
       this.storeChat.chatWidth = 380;
@@ -1186,13 +1186,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         this.historyPair[sovereignID] = []
       }
       
-      // Ensure the chat bucket exists in chatStore for UI reactivity
-      if (!this.storeChat.chatHistory[sovereignID]) {
-        this.storeChat.chatHistory[sovereignID] = []
-      }
-
-      // 5. Log the Peer Input to the Ledger (Before extraction starts)
-      this.storeChat.addMessage({
+      // 5. Log the Peer Input (Before extraction starts)
+      /* this.storeChat.addMessage({
         role: 'peer',
         type: 'peer',
         content: peerInput,
@@ -1200,10 +1195,27 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         conversationId: sovereignID,
         contract_key: this.activeContractKey || (this.storeLibrary.straps && this.storeLibrary.straps[0]?.contract_key) || '',
         lifeStrapID: sovereignID
-      });
+      }); */
+
+      // Ensure the chat bucket exists in chatStore for UI reactivity
+      if (!this.storeChat.chatHistory[sovereignID]) {
+        this.storeChat.chatHistory[sovereignID] = []
+      }
 
       if (demo !== undefined && demo === true) {
-        console.log('dempath digetst')
+        console.log('dem0--path digetst')
+        this.askQuestion.text = ''
+        // 5. Log the Peer Input (Before extraction starts)
+        this.storeChat.addMessage({
+          role: 'peer',
+          type: 'peer',
+          content: peerInput,
+          context: 'extraction',
+          conversationId: sovereignID,
+          contract_key: this.activeContractKey || (this.storeLibrary.straps && this.storeLibrary.straps[0]?.contract_key) || '',
+          lifeStrapID: sovereignID
+        });
+
         // --- DEMO PATH (400m Swim) ---
         this.digestInput = {
           capacity: ['400IM Performance'],
@@ -1228,7 +1240,9 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           status: 'complete'
         });
 
-      } else {     
+      } else {
+        // call on beebee
+        console.log('callon beebee digetst')
         // --- PRODUCTION PATH (River, Body, etc.) ---
         // BeeBee Confirmation Message
         /* this.storeChat.addMessage({
@@ -1242,9 +1256,12 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
           status: 'complete'
         }); */
 
-        let toolsUsed = this.inputTools;
-        let validText = this.liveChatUtil.validateQuestion(peerInput, toolsUsed);
 
+        // pass to submit to prepare chat 
+        this.submitAsk({}) 
+
+
+        /*  DEMO EXPERIENCE CODE 
         if (validText.isValid) {
           // The "Decomposition" Simulation (HOP Processing)
           setTimeout(() => {
@@ -1302,8 +1319,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
               status: 'complete'
             });
           }, 1500);
-        }
-      }
+        } */
+      } 
     },
     // Inside aiInterface.js
     initializeSovereignSession() {
@@ -1324,6 +1341,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         // No straps found? Stay in Zen mode for First Peer Experience
         this.currentMode = 'zen';
       }
-    }
+    } 
   }
 })

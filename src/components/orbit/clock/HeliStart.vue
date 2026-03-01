@@ -56,7 +56,17 @@
               <circle cx="50" cy="8" r="4" class="current-glow" />
               <circle cx="50" cy="8" r="2.2" class="current-dot-core" />
             </g>
+            <!-- solar cycle in arcs -->
+            <circle cx="50" cy="50" r="32" class="track-bg" style="opacity: 0.3;" />
+            <path :d="describeArc(50, 50, 32, 0, dailyDegree)" class="daily-progress-path" />
+
+            <g v-if="solarMarkers.noon !== null">
+              <line :transform="`rotate(${solarMarkers.sunrise} 50 50)`" x1="50" y1="16" x2="50" y2="20" class="marker-line sunrise" />
+              <line :transform="`rotate(${solarMarkers.sunset} 50 50)`" x1="50" y1="16" x2="50" y2="20" class="marker-line sunset" />
+              <circle :transform="`rotate(${solarMarkers.noon} 50 50)`" cx="50" cy="18" r="1.5" class="marker-dot noon" />
+            </g>
           </svg>
+
 
           <div class="sun-core">
             <div class="cycles-whole">{{ precisionCycles.whole }}</div>
@@ -132,6 +142,49 @@ const precisionCycles = computed(() => {
   return {
     whole: Math.floor(total).toString(),
     decimal: (total % 1).toFixed(6).split('.')[1] // 6 decimals for smooth visual "ticking"
+  };
+});
+
+// --- Daily Cycle Logic ---
+const dailyDegree = computed(() => {
+  const now = new Date();
+  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const msPassed = Date.now() - startOfDay;
+  const dayMs = 86400000;
+  // Progress in degrees (0 to 360)
+  return (msPassed / dayMs) * 360;
+});
+
+// --- Solar Mathematics (Simplified for PEER Experience) ---
+const solarMarkers = computed(() => {
+  // We need Latitude/Longitude for precision. 
+  // Defaulting to 0 (Equator) if not provided, but you can pass these from HOP.
+  const lat = 51.5074; // Example: London
+  const now = new Date();
+  const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+  
+  // Declination
+  const declination = 23.45 * Math.sin((Math.PI / 180) * (360 / 365) * (dayOfYear - 81));
+  
+  // Hour Angle for Sunrise/Sunset
+  const latRad = lat * (Math.PI / 180);
+  const decRad = declination * (Math.PI / 180);
+  
+  // cos(omega) = -tan(lat) * tan(dec)
+  const cosOmega = -Math.tan(latRad) * Math.tan(decRad);
+  
+  // Boundary check for Polar regions
+  if (cosOmega > 1) return { noon: 180, sunrise: null, sunset: null }; // Polar Night
+  if (cosOmega < -1) return { noon: 180, sunrise: null, sunset: null }; // Midnight Sun
+
+  const omega = Math.acos(cosOmega) * (180 / Math.PI);
+  
+  // Degrees relative to 0 (Midnight = 0°)
+  // Noon is 180° in this 24-hour visual map
+  return {
+    noon: 180, 
+    sunrise: 180 - omega,
+    sunset: 180 + omega
   };
 });
 
@@ -367,4 +420,24 @@ const describeArc = (x, y, r, start, end) => {
 @media (max-width: 1000px) {
   .heli-main-layout { grid-template-columns: 1fr; grid-template-areas: "center" "left" "right"; }
 }
+
+
+.daily-progress-path {
+  fill: none;
+  stroke: #10b981; /* Emerald for daily vitality */
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 2px rgba(16, 185, 129, 0.4));
+}
+
+.marker-line {
+  stroke: #2c63b1;
+  stroke-width: 1;
+}
+
+.marker-line.sunrise { stroke: #fb923c; stroke-width: 2; } /* Orange */
+.marker-line.sunset { stroke: #6366f1; stroke-width: 2; }  /* Indigo */
+.marker-dot.noon { fill: #facc15; } /* Bright Yellow Zenith */
+
+
 </style>

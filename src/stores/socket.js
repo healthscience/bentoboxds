@@ -8,6 +8,7 @@ import { useChatStore } from '@/stores/chatStore.js'
 import { cuesStore } from "@/stores/cuesStore.js"
 import { besearchStore } from "@/stores/besearchStore.js"
 import { diaryStore } from "@/stores/diaryStore.js"
+import TileSource from "ol/source/Tile";
 
 export const useSocketStore = defineStore({
   id: "socket",
@@ -56,16 +57,19 @@ export const useSocketStore = defineStore({
         this.connection_error = false
         this.connection_loss = false
       }
+      console.log('socket connected')
     },
     onSocketMessage (evt) {
-      // console.log('ui socket')
+      console.log('ui socket')
       // we parse the json that we receive
       var received = JSON.parse(evt.data)
-      // console.log(received)
+      console.log(received)
       // keep in message log for session?
       this.messages.push(received)
       // parse and route to logic processing
-      if (received.type === 'bentobox') {
+      if (received.type === 'account') {
+        this.accStore.processReply(received)
+      } else if (received.type === 'bentobox') {
         this.bentoboxStore.processReply(received)
       } else if (received.type === 'chat') {
         this.chatStore.processReply(received)
@@ -92,8 +96,6 @@ export const useSocketStore = defineStore({
       } else if (received.type == 'sf-displayEntityRange') {
       } else if (received.type == 'sf-newEntityRange') {
         this.aiStore.processHOPdata(received)
-      } else if (received.type === 'account') {
-        this.accStore.processReply(received)
       } else if (received.type === 'besearch') {
         this.besearchStore.processReply(received)
       } else if (received.type === 'heli-tick') {

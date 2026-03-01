@@ -17,6 +17,8 @@ export const accountStore = defineStore('account', {
     storeBentoBox: bentoboxStore(),
     utilPeers: new PeersUtility(),
     utilSpacecontent: new SpaceUtility(),
+    anchorStatus: false,
+    HOPlock: false,
     viewMode: false,
     accountMenu: 'Sign-in',
     accountStatus: false,
@@ -59,8 +61,59 @@ export const accountStore = defineStore('account', {
       }
       this.sendMessageHOP(authMessage)
     },
+    async restoreIdentity() {
+      const savedSeed = await storage.get('user_seed'); // From LocalStorage
+      
+      // Don't ask HOP for a NEW key. 
+      // Send the seed so HOP recreates the OLD key.
+      const brainIdentity = await hop.loadIdentity(savedSeed); 
+
+      if (brainIdentity.publicKey === this.savedPublicKey) {
+        // SUCCESS: The brain is now wearing the correct "Identity Suit"
+        this.activateNetwork(); 
+      } else {
+        // FAIL: Tamper detected or corrupted seed
+        this.triggerNuclearReset();
+      }
+    },
+    async activateNetwork(pubKeyHEX) {
+      // 1. Ensure we have keys from Genesis/SelfAuth
+      // if (!this.identity.publicKey) return throw new Error("Genesis required");
+
+      // 2. Signal the 'Brain' (HOP) to verify and start
+      // This is where we tell HOP: "The keys are ready, go punch a hole"
+      let verifyMessage = {
+        type: 'hop-auth',
+        reftype: 'peer-handshake',
+        action: 'check-verify',
+        data: {
+          publicKey: pubKeyHEX,
+          wasmHash: this.sovereignWasmHash,
+          autoStart: true 
+        }
+      }
+      this.sendMessageHOP(verifyMessage)
+      /*
+      const isReady = await hop.initialize({
+        publicKey: this.identity.publicKey,
+        wasmHash: this.wasmHash,
+        // We pass the 'Start' signal specifically here
+        autoStart: true 
+      });
+
+      if (isReady) {
+        this.status = 'CONNECTING';
+        // HOP now manages the 'Life-Strap' data flow back to us
+      } */
+    },
     async processReply (received) {
-      if (received.action === 'hop-verify') {
+      if (received.action === 'hop-anchor') {
+        this.anchorStatus = true
+      } else if (received.action === 'hop-locked') {
+        this.anchorStatus = false
+        this.HOPlock = true
+        this.verifyFeedback = 'HOP is locked'
+      } else if (received.action === 'hop-verify') {
         // set token for subsequent HOP messages
         this.sendSocket.jwt = received.data.jwt
         // reply is verified
@@ -77,6 +130,7 @@ export const accountStore = defineStore('account', {
         this.accountStatus = false
         this.accountMenu = 'account'
         // get start public library
+        console.log('start library ACC---')
         this.storeLibrary.startLibrary()
         // get starting account info.
         let saveBentoBoxsetting = {}
@@ -158,6 +212,8 @@ export const accountStore = defineStore('account', {
       this.storeAI.startChat = false
       this.peerauth = true
       this.orbitLive = true
+      // inform HOP
+      this.activateNetwork(pubKeyHex)
     },
     addPeertoNetwork (peer) {
       // try to see if other peer is live on network

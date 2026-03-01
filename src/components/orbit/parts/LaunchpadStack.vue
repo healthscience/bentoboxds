@@ -16,11 +16,14 @@
         <button class="sov-demo-btn" @click="$emit('launch', 'sport')">
           🏊 Experience 400IM
         </button>
+        <button class="sov-demo-btn" @click="$emit('launch', 'body')">
+          Heart
+        </button>
         <button class="sov-demo-btn" @click="$emit('launch', 'earth')">
           Water
         </button>
         <button class="sov-demo-btn" @click="$emit('launch', 'earth')">
-          Earth
+          Daisy world
         </button>
       </div>
     </div>
@@ -110,6 +113,7 @@ const cloneExperience = () => {
   width: 90%;
   max-width: 1000px;
   height: auto;
+  margin-top: 200px;
 }
 
 .resonance-header h2 {
@@ -121,7 +125,7 @@ const cloneExperience = () => {
 /* BUTTON GRIDS */
 .demo-zone {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
 }
 

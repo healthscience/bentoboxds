@@ -18,8 +18,8 @@
       </template>
       <template #body>
         <div id="connect-hop">
-          <div id="self-verify" v-if="storeAccount.peerauth !== true">
-            <div v-if="needsHandshake">
+          <div id="self-verify">
+            <div v-if="anchorStatus === true || HOPlock === true">
               <genesis-gate @handshake-complete="onHandshakeComplete" />
             </div>
             <form id="self-signin-form" v-else>
@@ -61,7 +61,7 @@
       </template>
       <template #footer>
         <div id="footer-self">
-          BentoBoxDS - v0.4.3 HOP v0.4.9
+          BentoBoxDS - v0.5.1 HOP v0.5.0
         </div>
       </template>
     </modal-auth>
@@ -87,6 +87,14 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   let needsHandshake = ref(false)
 
   /* computed */
+  const anchorStatus = computed(() => {
+    return storeAccount.anchorStatus
+  })
+
+  const HOPlock = computed(() => {
+    return storeAccount.HOPlock
+  })
+
   const connectNetworkstatus = computed(() => {
     return storeSocket.connection_ready
   })

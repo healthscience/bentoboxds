@@ -1,5 +1,5 @@
 <template>
-  <div class="genesis-gate">
+  <div class="genesis-gate" @mousemove="collectEntropy" @click="collectEntropy">
     <div class="gate-content">
       <header class="gate-header">
         <div class="gate-icon"></div>
@@ -7,21 +7,46 @@
         <p>{{ status }}</p>
       </header>
 
-      <div v-if="loading === true && isReady === false" class="loading-spinner">
+      <div v-if="anchorStatus === false" class="loading-spinner">
         <div class="spinner"></div>
+        <!-- returning peer ask them to enter password please -->
+                 <div class="action-group">
+        <div class="password-input" v-if="HOPlock === true">
+            <form id="self-verify">
+              <input 
+                type="password" 
+                v-model="pwd"
+                placeholder="Please enter master password" 
+              />
+            </form>
+          </div>
+          <button @click="verifyHOP()" class="sign-button">
+            Self verify identity
+          </button>
+        </div>
       </div>
 
-      <div v-else-if="!verified" class="error-state">
+      <!--<div v-else-if="!verified" class="error-state">
         <div class="error-icon">!</div>
         <p>Integrity Check Failed. Genesis Hash Mismatch.</p>
         <button @click="fetchWasmFromHop" class="retry-button">Retry Verification</button>
-      </div>
+      </div> -->
 
       <div v-else class="ready-state">
         <p class="welcome-text">Welcome, Peer. Ready to sign the first entry of your Coherence Ledger?</p>
         <div class="action-group">
-          <button @click="handleSignClick()" class="sign-button">
-            Sign Handshake & Load Experience
+          <div class="password-input">
+            <form id="self-verify">
+              <input 
+                type="password" 
+                v-model="pwd"
+                @keydown.enter.prevent="collectTypingEntropy()" 
+                placeholder="Set Master Password" 
+              />
+            </form>
+          </div>
+          <button @click="finalizeGenesis()" class="sign-button">
+            Sign Handshake & set password
           </button>
         </div>
       </div>
@@ -43,9 +68,16 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js';
   const verified = ref(false);
   const GENESIS_WASM_HASH = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'; // Hardcoded hash of hop_crypto.wasm
   let isReady = ref(false)
+  let pwd = ref('')
+  let entropyBuffer = new Uint8Array(64); // 512 bits of potential noise
+  let bytePointer = 0;
+  let lastKeyPress = ref(null)
+  let timingBuffer = ref([]) // Store the deltas between keystrokes
+  let mouseEntropy = ref({})
+  let typingEntropy = ref({})
 
   onMounted(async () => {
-    const existingKey = localStorage.getItem('hop_sovereign_pubkey');
+    /* const existingKey = localStorage.getItem('hop_sovereign_pubkey');
     console.log('existingKey', existingKey, '')
     if (existingKey) {
       // 1. WE HAVE AN IDENTITY
@@ -67,12 +99,20 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js';
       // 2. FRESH START
       status.value = "New Peer Detected. Initializing Genesis...";
       fetchWasmFromHop(); // This keeps the spinner active until WASM arrives
-    }
+    } */
   });
 
   /* computed */
+  const anchorStatus = computed(() => {
+    return storeAccount.anchorStatus
+  })
+
   const accountBoxStatus = computed(() => {
     return storeAccount.accountStatus
+  })
+
+  const HOPlock = computed(() => {
+    return storeAccount.HOPlock
   })
 
   const computeHash = async (buffer) => {
@@ -114,11 +154,12 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js';
   // For this component, we'll watch the store for the incoming WASM data
   watch(() => storeAccount.incomingWasmBuffer, async (buffer) => {
 
-    if (buffer) {
+    /* if (buffer) {
       console.log("Received WASM buffer type:", typeof buffer, buffer.constructor.name);
       status.value = 'Verifying WASM Integrity...';
       try {
         const actualHash = await computeHash(buffer);
+        storeAccount.sovereignWasmHash = actualHash
         console.log("Actual WASM Hash:", actualHash);
         console.log("Expected WASM Hash:", GENESIS_WASM_HASH);
         if (actualHash === GENESIS_WASM_HASH) {
@@ -134,43 +175,91 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js';
         status.value = "Error during integrity check.";
       }
       loading.value = false;
-    }
+    } */
   });
 
-  const handleSignClick = async () => {
-    // persistSovereign()
+  /* methods */
+  const collectTypingEntropy = (e) => {
+    const now = performance.now();
+    if (lastKeyPress.value) {
+      // Calculate the delta in microseconds
+      const delta = now - this.lastKeyPress;
+      timingBuffer.push(delta);
+    }
+    lastKeyPress.value = now;
   };
 
-  const persistSovereign = () => {
-    console.log('Anchoring Sovereign Identity...');
-    
-    // Generate the pair from the initialized WASM
-    const pair = new SovereignKeypair();
-    const pubKey = pair.get_public_key(); 
+  // Mouse entropy
+  const collectEntropy = (e) => {
+    if (bytePointer >= entropyBuffer.length) return; // Buffer full
 
-    // Convert Uint8Array to Hex string for LocalStorage
-    const pubKeyHex = Array.from(pubKey)
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('');
+    // We mix X, Y coordinates and the high-resolution timestamp (microseconds)
+    const time = performance.now();
+    const x = e.clientX || (e.touches ? e.touches[0].clientX : 0);
+    const y = e.clientY || (e.touches ? e.touches[0].clientY : 0);
 
-    // ANCHOR: Now your Sovereign Tab will find this on refresh!
-    localStorage.setItem('hop_sovereign_pubkey', pubKeyHex);
-    
-    // NOTE: We will handle private key encryption in the next 'Stitch'
-    localStorage.setItem('hop_sovereign_privkey', 'REGEN_REQUIRED_FOR_SESSIONS'); 
+    // XOR the values into the buffer to "smear" the entropy
+    entropyBuffer[bytePointer] ^= (x & 0xFF);
+    entropyBuffer[bytePointer + 1] ^= (y & 0xFF);
+    entropyBuffer[bytePointer + 2] ^= (Math.floor(time * 1000) & 0xFF);
 
-    console.log("✅ Identity Anchored:", pubKeyHex);
+    bytePointer = (bytePointer + 3) % entropyBuffer.length;
+    mouseEntropy.value = bytePointer / entropyBuffer.length * 100;
+  };
+
+  const finalizeGenesis = async (password) => {
+    // 1. Flatten the timing deltas into a byte array
+    const timingData = new Float64Array(timingBuffer);
+    const timingBytes = new Uint8Array(timingData.buffer);
+
+    // 2. The "Serious Intent" Salt Stack: 
+    // System Random + Mouse/Touch Jitter + Typing Rhythm
+    const entropyStack = new Uint8Array([
+      ...window.crypto.getRandomValues(new Uint8Array(32)), // System
+      ...entropyBuffer, // Mouse/Touch (from previous step)
+      ...timingBytes    // Keystroke Rhythm
+    ]);
+
+    // 3. Hash the stack to create a fixed-length 32-byte Final Salt
+    const finalSaltBuffer = await crypto.subtle.digest('SHA-256', entropyStack);
+    const finalSalt = new Uint8Array(finalSaltBuffer);
+    console.log('finalSalt', finalSalt)
+    handleSignClick(finalSalt)
+
+    // 4. Proceed to WASM for Argon2id Key Stretching
+    // ...
     
-    // Notify the UI to refresh the Sovereign status
-    this.keyExists = true;
+    // 5. CRITICAL: Wipe the buffers immediately
+    timingBuffer = [];
+    entropyBuffer.fill(0);
   }
+
+  const handleSignClick = (finalSalt) => {
+    storeAccount.sendMessageHOP({
+      type: 'hop-auth',
+      action: 'request-crypto-wasm',
+      reftype: 'genesis-handshake',
+      task: 'genesis-handshake',
+      data: { entropy: finalSalt, pwd: pwd.value }
+    });
+  };
+
+  const verifyHOP = () => {
+    storeAccount.sendMessageHOP({
+      type: 'hop-auth',
+      action: 'verify-crypto-wasm',
+      reftype: 'verify-return',
+      task: 'verify-peer',
+      data: { pwd: pwd.value }
+    });
+  };
 
 </script>
 
 <style scoped>
 .genesis-gate {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
   align-items: center;
   justify-content: center;
   padding: 2rem;
@@ -230,6 +319,20 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js';
   color: #334155;
   margin-bottom: 1.5rem;
   line-height: 1.5;
+}
+
+.password-input {
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  margin: 30px auto;
+}
+
+#self-verify input {
+  width: 360px;
+  line-height: 1.2em;
+  height: 50px;
+  letter-spacing: 6px;
 }
 
 .sign-button {
