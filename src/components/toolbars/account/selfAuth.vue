@@ -22,13 +22,15 @@
             <div v-if="anchorStatus === true || HOPlock === true">
               <genesis-gate @handshake-complete="onHandshakeComplete" />
             </div>
-            <form id="self-signin-form" v-else>
-              <div class="self-inputs">
-                <!--<label class="form-couple-type" for="password-account">password </label>
-                <input class="form-couple" type="password" id="password" name="password" v-model="selfpwInput">-->
-                <button id="self-auth" @click.prevent="selfVerify()">Connect to HOP</button>
-              </div>
-            </form>
+            <div v-if="peerAuth === false && HOPlock !== true">
+              <form id="self-signin-form">
+                <div class="self-inputs">
+                  <!--<label class="form-couple-type" for="password-account">password </label>
+                  <input class="form-couple" type="password" id="password" name="password" v-model="selfpwInput">-->
+                  <button id="self-auth" @click.prevent="selfVerify()">Connect to HOP</button>
+                </div>
+              </form>
+            </div>
             <div id="verify-feedback">
               {{ verifyFeedback }}
             </div>
@@ -87,6 +89,14 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   let needsHandshake = ref(false)
 
   /* computed */
+  const accountBoxStatus = computed(() => {
+    return storeAccount.accountStatus
+  })
+
+  const peerAuth = computed(() => {
+    return storeAccount.peerauth
+  })
+
   const anchorStatus = computed(() => {
     return storeAccount.anchorStatus
   })
@@ -161,10 +171,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
     storeAccount.accountMenu = 'Sign-in'
     storeAI.clearData()
   }
-
-  const accountBoxStatus = computed(() => {
-    return storeAccount.accountStatus
-  })
 
 </script>
 

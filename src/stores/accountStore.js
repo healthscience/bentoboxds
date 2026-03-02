@@ -113,6 +113,16 @@ export const accountStore = defineStore('account', {
         this.anchorStatus = false
         this.HOPlock = true
         this.verifyFeedback = 'HOP is locked'
+      } else if (received.action === 'unlocked-verify-complete') {
+        // pull BentoBoxDS experience 'on the fly'
+        this.storeAI.startChat = false
+        this.orbitLive = true
+        // set to account tools
+        this.accountStatus = false
+        this.accountMenu = 'account'
+        this.peerauth = true
+        this.anchorStatus = false
+        this.HOPlock = false
       } else if (received.action === 'hop-verify') {
         // set token for subsequent HOP messages
         this.sendSocket.jwt = received.data.jwt

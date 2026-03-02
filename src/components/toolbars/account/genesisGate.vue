@@ -1,11 +1,17 @@
 <template>
   <div class="genesis-gate" @mousemove="collectEntropy" @click="collectEntropy">
     <div class="gate-content">
-      <header class="gate-header">
+      <header class="gate-header" v-if="HOPlock === false">
         <div class="gate-icon"></div>
         <h2>Genesis Handshake</h2>
         <p>{{ status }}</p>
       </header>
+      <header class="gate-header" v-else>
+        <div class="gate-icon"></div>
+        <h2>Returning Handshake</h2>
+        <p>Please enter master password</p>
+      </header>
+      
 
       <div v-if="anchorStatus === false" class="loading-spinner">
         <div class="spinner"></div>
