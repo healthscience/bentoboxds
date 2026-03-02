@@ -113,6 +113,10 @@ export const accountStore = defineStore('account', {
         this.anchorStatus = false
         this.HOPlock = true
         this.verifyFeedback = 'HOP is locked'
+      } else if (received.action === 'crypto-wasm-pubkey') {
+        // set the UI to re enter password again before entry to BentoBoxDS
+        this.anchorStatus = false
+        this.HOPlock = true
       } else if (received.action === 'unlocked-verify-complete') {
         // pull BentoBoxDS experience 'on the fly'
         this.storeAI.startChat = false

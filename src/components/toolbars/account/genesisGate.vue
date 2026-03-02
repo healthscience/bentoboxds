@@ -18,7 +18,7 @@
         <!-- returning peer ask them to enter password please -->
                  <div class="action-group">
         <div class="password-input" v-if="HOPlock === true">
-            <form id="self-verify">
+            <form id="self-verify" @submit.prevent="verifyHOP()">
               <input 
                 type="password" 
                 v-model="pwd"
@@ -26,7 +26,7 @@
               />
             </form>
           </div>
-          <button @click="verifyHOP()" class="sign-button">
+          <button type="submit" form="self-verify" class="sign-button" @click.prevent="verifyHOP()">
             Self verify identity
           </button>
         </div>
@@ -42,7 +42,7 @@
         <p class="welcome-text">Welcome, Peer. Ready to sign the first entry of your Coherence Ledger?</p>
         <div class="action-group">
           <div class="password-input">
-            <form id="self-verify">
+            <form id="self-verify-genesis">
               <input 
                 type="password" 
                 v-model="pwd"
@@ -82,32 +82,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js';
   let mouseEntropy = ref({})
   let typingEntropy = ref({})
 
-  onMounted(async () => {
-    /* const existingKey = localStorage.getItem('hop_sovereign_pubkey');
-    console.log('existingKey', existingKey, '')
-    if (existingKey) {
-      // 1. WE HAVE AN IDENTITY
-      console.log("Welcome back, Peer:", existingKey);
-      isReady.value = true;   // Clear the spinner immediately
-      loading.value = false;
-      status.value = "Identity Restored.";
-      
-      // We still request WASM in the background so we can SIGN later
-      fetchWasmFromHop();
-      // close the self ver. start
-      storeAccount.accountMenu = 'account'
-      storeAccount.accountStatus = !storeAccount.accountStatus
-      storeAccount.peerauth = true
-      storeAccount.orbitLive = true
-      // main chat interface  or new (TODO)
-      storeAI.startChat = false
-    } else {
-      // 2. FRESH START
-      status.value = "New Peer Detected. Initializing Genesis...";
-      fetchWasmFromHop(); // This keeps the spinner active until WASM arrives
-    } */
-  });
-
   /* computed */
   const anchorStatus = computed(() => {
     return storeAccount.anchorStatus
@@ -120,69 +94,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js';
   const HOPlock = computed(() => {
     return storeAccount.HOPlock
   })
-
-  const computeHash = async (buffer) => {
-    // Ensure buffer is an ArrayBuffer or ArrayBufferView
-    let dataToHash = buffer;
-    if (buffer instanceof Uint8Array) {
-      dataToHash = buffer.buffer;
-    } else if (!(buffer instanceof ArrayBuffer)) {
-      // If it's a regular array or something else, try to convert it
-      try {
-        dataToHash = new Uint8Array(buffer).buffer;
-      } catch (e) {
-        console.error("Failed to convert buffer for hashing:", e);
-        throw new Error("Invalid buffer format for hashing");
-      }
-    }
-    
-    const hashBuffer = await crypto.subtle.digest('SHA-256', dataToHash);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  };
-
-  const fetchWasmFromHop = async () => {
-    loading.value = true;
-    status.value = 'Requesting Crypto WASM from HOP...';
-    
-    // In the HOP architecture, we request the WASM via the message bus
-    storeAccount.sendMessageHOP({
-      type: 'hop-auth',
-      action: 'request-crypto-wasm',
-      reftype: 'genesis-handshake',
-      task: 'genesis-handshake',
-      data: {}
-    });
-
-  };
-
-  // We need to listen for the WASM buffer response in the store
-  // For this component, we'll watch the store for the incoming WASM data
-  watch(() => storeAccount.incomingWasmBuffer, async (buffer) => {
-
-    /* if (buffer) {
-      console.log("Received WASM buffer type:", typeof buffer, buffer.constructor.name);
-      status.value = 'Verifying WASM Integrity...';
-      try {
-        const actualHash = await computeHash(buffer);
-        storeAccount.sovereignWasmHash = actualHash
-        console.log("Actual WASM Hash:", actualHash);
-        console.log("Expected WASM Hash:", GENESIS_WASM_HASH);
-        if (actualHash === GENESIS_WASM_HASH) {
-          console.log('match cry')
-          verified.value = true;
-          status.value = "Sovereign Crypto Verified.";
-        } else {
-          verified.value = false;
-          status.value = "Integrity Failure: WASM Tampered.";
-        }
-      } catch (err) {
-        console.error("Hashing error:", err);
-        status.value = "Error during integrity check.";
-      }
-      loading.value = false;
-    } */
-  });
 
   /* methods */
   const collectTypingEntropy = (e) => {
@@ -229,7 +140,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js';
     // 3. Hash the stack to create a fixed-length 32-byte Final Salt
     const finalSaltBuffer = await crypto.subtle.digest('SHA-256', entropyStack);
     const finalSalt = new Uint8Array(finalSaltBuffer);
-    console.log('finalSalt', finalSalt)
     handleSignClick(finalSalt)
 
     // 4. Proceed to WASM for Argon2id Key Stretching
@@ -238,6 +148,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js';
     // 5. CRITICAL: Wipe the buffers immediately
     timingBuffer = [];
     entropyBuffer.fill(0);
+    pwd.value = '';
   }
 
   const handleSignClick = (finalSalt) => {

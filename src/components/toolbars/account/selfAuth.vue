@@ -25,9 +25,7 @@
             <div v-if="peerAuth === false && HOPlock !== true">
               <form id="self-signin-form">
                 <div class="self-inputs">
-                  <!--<label class="form-couple-type" for="password-account">password </label>
-                  <input class="form-couple" type="password" id="password" name="password" v-model="selfpwInput">-->
-                  <button id="self-auth" @click.prevent="selfVerify()">Connect to HOP</button>
+                  <button id="self-auth" @click.prevent="selfVerify()" @submit.prevent="selfVerify()">Connect to HOP</button>
                 </div>
               </form>
             </div>
@@ -148,7 +146,6 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   }
 
   const onHandshakeComplete = (data) => {
-    console.log("Handshake completed in selfAuth:", data)
     storeAccount.completeHandshake(data)
     needsHandshake.value = false
   }
