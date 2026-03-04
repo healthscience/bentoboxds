@@ -1,7 +1,7 @@
 <template>
   <div class="orbit-view">
     <Teleport to="body">
-      <ProjectionHeli v-if="isExpanded" :contract-key="storeAI.contract_key" @close="handleExpand" />
+      <ProjectionHeli v-if="heliClockExpand" :contract-key="storeAI.contract_key" @close="handleExpand" />
     </Teleport>
     <div class="orbit-stage">
       <div class="hud-top">
@@ -60,8 +60,7 @@ const props = defineProps({
   mini: { type: Boolean, default: false }
 });
 
-const isExpanded = ref(false);
-const isMini = computed(() => props.mini || !isExpanded.value);
+const isMini = computed(() => props.mini || !heliClockExpand);
 
 /* Computed Logic */
 const pulseState = computed(() => {
@@ -72,15 +71,16 @@ const pulseState = computed(() => {
     }
 });
 
+const heliClockExpand = computed(() => orbitStore.expandedHeliClock);
 const extractedData = computed(() => storeAI.extractedData);
 
 /* methods*/
 const handleExpand = () => {
   // expanded.value = !expanded.value;
-  isExpanded.value = !isExpanded.value;
+  orbitStore.expandedHeliClock= !orbitStore.expandedHeliClock;
   
   // Update the store so the Bottom Panel or Left Panel can react
-  if (isExpanded.value) {
+  if (heliClockExpand) {
     storeAI.currentMode = 'projecting'; // This could trigger the Bottom Panel
     storeAI.chatAttention = 'future-timeline';
   } else {

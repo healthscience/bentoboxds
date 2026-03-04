@@ -60,10 +60,10 @@ export const useSocketStore = defineStore({
       console.log('socket connected')
     },
     onSocketMessage (evt) {
-      // console.log('ui socket')
+      console.log('ui socket')
       // we parse the json that we receive
       var received = JSON.parse(evt.data)
-      // console.log(received)
+      console.log(received)
       // keep in message log for session?
       this.messages.push(received)
       // parse and route to logic processing
@@ -98,16 +98,9 @@ export const useSocketStore = defineStore({
         this.aiStore.processHOPdata(received)
       } else if (received.type === 'besearch') {
         this.besearchStore.processReply(received)
-      } else if (received.type === 'heli-tick') {
-        this.diaryStore.updateClock(received.vector, received.zenith)
-      } else if (received.type === 'heli-calculate-reply') {
-        this.diaryStore.setTempSignature(received.signature)
-      } else if (received.type === 'heli-project-reply') {
-        this.diaryStore.setProjectionData(received.data)
-      } else if (received.type == '') {
-        console.log('error')
+      } else if (received.type === 'heliclock') {
+        this.diaryStore.processHeliReply(received)
       }
-    
     },
     send_message (data) {
       data.jwt = this.jwt

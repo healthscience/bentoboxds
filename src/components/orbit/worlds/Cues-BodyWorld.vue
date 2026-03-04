@@ -120,7 +120,6 @@ import { useLensStability } from '@/composables/useLensStability.js'
     if (drawPoints.value.length > 0) {
       hasDrawing.value = true;
     }
-    console.log('Drawing complete', drawPoints.value);
   };
 
   const hasDrawing = ref(false);
@@ -191,7 +190,6 @@ import { useLensStability } from '@/composables/useLensStability.js'
   }, false)
 
   const saveCueLocation = (cueId) => {
-    console.log('Save cue location', cueId, drawPoints.value);
     // Logic to save the cue
     hasDrawing.value = false;
     const ctx = drawingCanvas.value.getContext('2d');
@@ -242,7 +240,6 @@ import { useLensStability } from '@/composables/useLensStability.js'
 
     // Initialize canvas if activeWorld is body
     if (storeAI.activeWorld === 'body') {
-      console.log('Initializing body world canvas on mount');
       await nextTick();
       await initializeCanvas();
     }
@@ -296,14 +293,11 @@ import { useLensStability } from '@/composables/useLensStability.js'
 
   // Watch for activeWorld changes to initialize canvas
   watch(() => storeAI.activeWorld, async (newWorld) => {
-    console.log('activeWorld changed to:', newWorld);
     if (newWorld === 'body') {
-      console.log('Active world changed to body, initializing canvas');
       await nextTick();
       await nextTick();
       await initializeCanvas();
     } else {
-      console.log('Active world is not body, destroying canvas');
       destroy();
     }
   }, { immediate: true })

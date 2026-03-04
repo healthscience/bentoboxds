@@ -8,6 +8,9 @@ export const diaryStore = defineStore('diarystore', {
     sendSocket: useSocketStore(),
     storeAI: aiInterfaceStore(),
     storeLibrary: libraryStore(),
+    heliClockSet: false,
+    heliSignature: {},
+    orbitSignature: {},
     diarySmart: true,
     currentVector: 315.5,
     currentZenith: 0,
@@ -101,6 +104,28 @@ export const diaryStore = defineStore('diarystore', {
     pad (num) {
       let norm = Math.floor(Math.abs(num));
       return (norm < 10 ? '0' : '') + norm;
+    },
+    processHeliReply (received) {
+      if (received.action === 'heliclock-location-birth') {
+        this.birthLocation = received.data[0]
+      } else if (received.action === 'heliclock-convert-oldworld') {
+        console.log('heliclock-convert-oldworld')
+        console.log(received.data)
+        let oldDataRaw = received.data.timestamp
+        console.log('Raw timestamp:', oldDataRaw, 'Type:', typeof oldDataRaw)
+        const dateOldW = new Date(Number(oldDataRaw));
+        console.log('Date object:', dateOldW.toString())
+        this.calibrationPreviewDate = dateOldW
+        this.calibrationZenith = received.data.zenith
+        this.calibrationOrbit = received.data.orbital
+      } else if (received.action === 'next-tick') {
+        // this.updateClock(received.vector, received.zenith)
+      } else if (received.action === 'heli-orbit-signature') {
+        this.heliSignature = received.data
+      } else if (received.action === 'heli-project-reply') {
+        // this.diaryStore.setProjectionData(received.data)
+      }
+
     },
     processReply (received) {
       if (received.action === 'diary-agent') {

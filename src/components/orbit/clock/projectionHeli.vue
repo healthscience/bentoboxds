@@ -1,33 +1,120 @@
 <template>
-  <div class="heli-wrapper" @click.self="emit('close')" @dblclick.stop="emit('close')">
+  <div class="heli-wrapper" @click.self="emit('close')" @dblclick.stop>
     <transition name="heli-zoom">
       <div v-if="!isCalibrated" class="heli-modal-overlay">
         <div class="calibration-card">
           <header class="modal-header">
             <div class="orb-icon"></div>
-            <h2>Heli Initialization</h2>
-            <p>Sync your origin with the solar orbit.</p>
+            <h2>Solar Alignment</h2>
           </header>
-          <div class="form-grid">
-            <div class="input-group">
-              <label>Arrival Date</label>
-              <input type="date" v-model="birthDate" @input="updatePreview" />
+
+          <!-- ask for orbit gensis ingredients -->
+          <div class="orbit-counter">
+            <label>Earth Orbits Completed</label>
+            <div class="counter-controls">
+              <button @click="orbits--" :disabled="orbits <= 0">−</button>
+              <span class="orbit-value">{{ orbits }}</span>
+              <button @click="orbits++">+</button>
             </div>
-            <div class="input-group">
-              <label>Arrival Time (UTC)</label>
-              <input type="time" v-model="birthTime" @input="updatePreview" />
+            <p class="help-text">How many times have you circled the Sun?</p>
+          </div>
+
+          <div class="location-toggle">
+            <button :class="{ active: useCurrentLocation }" @click="requestLocation">
+              📍 Current GPS
+            </button>
+            <button :class="{ active: !useCurrentLocation }" @click="useCurrentLocation = false">
+              🗺️ Pick Birthplace
+            </button>
+          </div>
+
+          <div v-if="currentLocation" class="location-info">
+            <p>Current: {{ currentLocation.lat.toFixed(4) }}, {{ currentLocation.lng.toFixed(4) }}</p>
+            <div class="mini-map">
+              <ol-map style="width: 100%; height: 150px;">
+                <ol-view :center="[currentLocation.lng, currentLocation.lat]" :zoom="12" projection="EPSG:4326" />
+                <ol-tile-layer>
+                  <ol-source-osm />
+                </ol-tile-layer>
+              </ol-map>
+            </div>
+            
+            <div class="comparison-zone">
+              <p>Is this different from your birth location?</p>
+              <div class="choice-btns">
+                <button @click="isDifferentFromBirth = true">Yes, Different</button>
+                <button @click="isDifferentFromBirth = false">No, Same</button>
+              </div>
             </div>
           </div>
-          <button class="init-button" :disabled="tempSignature === null" @click="lockSignature">
-            ENTER THE ORBIT
+
+          <div v-if="isDifferentFromBirth" class="birth-location-form">
+            <h3>Describe Birth Location</h3>
+            <div class="input-group">
+              <input type="text" v-model="birthPlaceName" placeholder="Place Name (e.g. London)" />
+              <!--<input type="text" v-model="birthCountry" placeholder="Country" />-->
+            </div>
+            <div class="mini-map" v-if="birthPlaceName">
+               <!-- In a real local-first app, we'd need a local geocoder or manual lat/lng -->
+               <p class="help-text">Confirming location: {{ birthPlaceName }}, {{ birthCountry }} @ Long: {{ birthLocationData?.longitude }}, Lat: {{ birthLocationData?.latitude }}</p>
+            </div>
+            <button @click="convertGPS()">Find location</button>
+          </div>
+          <header>
+            <h2>Rotate the Earth to your Genesis Position.</h2>
+          </header>
+          <!-- peer can set angle -->
+          <div class="dual-dial-zone">
+            <svg viewBox="0 0 100 100" class="preview-mini-svg">
+              <circle cx="50" cy="50" r="45" class="track-bg-preview" />
+              <g :transform="`rotate(${sliderOrbital} 50 50)`">
+                <line x1="50" y1="5" x2="50" y2="12" class="needle-year" />
+                <circle cx="50" cy="5" r="2" class="dot-year" />
+              </g>
+
+              <circle cx="50" cy="50" r="30" class="track-bg-preview" style="opacity: 0.5" />
+              <g :transform="`rotate(${sliderDaily} 50 50)`">
+                <line x1="50" y1="20" x2="50" y2="30" class="needle-day" />
+                <circle cx="50" cy="20" r="1.5" class="dot-day" />
+              </g>
+
+              <circle cx="50" cy="50" r="15" :style="{ fill: lightColor, filter: 'blur(4px)' }" />
+            </svg>
+
+            <div class="control-stack">
+              <div class="input-group">
+                <label>Rotate the Year (Season)</label>
+                <input type="range" min="0" max="360" step="0.1" v-model="sliderOrbital" />
+              </div>
+              
+              <div class="input-group">
+                <label>Rotate the Day (Moment)</label>
+                <input type="range" min="0" max="360" step="0.1" v-model="sliderDaily" />
+              </div>
+            </div>
+
+            <div class="readout-bento">
+              <div class="old-world-time">{{ translatedOldWorldDate }}</div>
+              <div class="solar-stats">
+                <span>Elevation: {{ heliOrbit }}°</span>
+                <span>Intensity: {{ heliZenith }}%</span>
+              </div>
+            </div>
+          </div>
+
+
+          <button class="init-button" @click="lockHeliGenesis()">
+            LOCK HELI-GENESIS
           </button>
+          <div id="explain-genesis-birth">
+            "By locking these angles, you tether your digital identity to the physical sun. This is your Solar Signature—the exact tilt and rotation of the Earth when you began. From this moment, the Heli Clock will always know where you are in relation to where you started."
+          </div>
         </div>
       </div>
     </transition>
 
-      <div v-if="isCalibrated" class="heli-main-layout">
-        
-        <aside class="heli-sidebar">
+    <div v-if="isCalibrated" class="heli-main-layout">
+      <aside class="heli-sidebar">
         <div class="bento-card">
           <header class="card-header">Navigator</header>
           <div class="nav-group">
@@ -72,20 +159,12 @@
             <circle cx="50" cy="50" r="36" class="track-line track-inner" />
             
             <path :d="describeArc(50, 50, 46, 0, currentYearlyDegree)" class="arc-yearly" />
+            
             <path 
               v-for="day in 365" 
               :key="day"
               :d="describeArc(50, 50, 46, (day-1) * 0.9863, day * 0.9863)"
               :class="day * 0.9863 <= currentYearlyDegree ? 'cell-passed' : 'cell-future'"
-            />
-
-            <path 
-              v-if="projectionActive"
-              d="M 12 -33 A 35 35 0 0 1 25 -24" 
-              fill="none" 
-              stroke="rgba(255, 255, 255, 0.05)" 
-              stroke-width="4" 
-              stroke-dasharray="2 2"
             />
 
             <g :transform="`rotate(${storedSignature}, 50, 50)`">
@@ -111,6 +190,7 @@
             </g>
 
             <line 
+              v-if="isProjecting"
               :x1="getRadialX(50, 46, projectionTargetYearly)" 
               :y1="getRadialY(50, 46, projectionTargetYearly)"
               :x2="getRadialX(50, 36, activeDailyDegree)" 
@@ -118,34 +198,11 @@
               class="tether-bridge" 
             />
 
-            <g v-if="projectionActive" class="projection-layer">
-              <path 
-                :d="projectionArcPath" 
-                fill="none" 
-                stroke="rgba(64, 224, 255, 0.4)" 
-                stroke-width="3" 
-                stroke-dasharray="2 2"
-                filter="blur(1px)"
-              />
-              
-              <text 
-                v-bind="polarToCartesian(projectionStartAngle - 5)"
-                font-size="2" 
-                fill="rgba(255,255,255,0.3)"
-                text-anchor="end"
-              >
-                PROJECTION: MORNING FLOW
-              </text>
-            </g>
-
-            <g :transform="`rotate(${projectionTargetYearly}, 50, 50)`">
-              <line x1="50" y1="2" x2="50" y2="6" class="sun-whisper-line" />
-              <circle cx="50" cy="4" r="3.5" class="sun-outer-marker" />
-            </g>
             <g :transform="`rotate(${currentYearlyDegree}, 50, 50)`">
               <circle cx="50" cy="4" r="4" class="sun-glow" />
               <circle cx="50" cy="4" r="2.2" class="sun-core" />
             </g>
+
             <g :transform="`rotate(${activeDailyDegree}, 50, 50)`">
               <circle cx="50" cy="14" r="5" :class="['sun-glow', { colliding: hasCollision }]" />
               <circle cx="50" cy="14" r="2.2" class="sun-core" />
@@ -167,13 +224,6 @@
             <label>Event Name</label>
             <input type="text" v-model="newEventLabel" placeholder="Solar Sync..." />
           </div>
-          <div class="input-group">
-            <label>Peer Sync</label>
-            <select @change="e => selectedPeerId = e.target.value" :value="selectedPeerId">
-              <option value="">Private Orbit</option>
-              <option v-for="p in knownPeers" :key="p.id" :value="p.id">{{ p.name }}</option>
-            </select>
-          </div>
           <div v-if="hasCollision" class="collision-alert">RESONANCE COLLISION</div>
           <button class="primary-btn" :disabled="hasCollision" @click="confirmEvent">LOCK ANCHOR</button>
           <button class="secondary-btn" @click="resetToNow">COLLAPSE TO PRESENT</button>
@@ -184,95 +234,197 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { diaryStore } from '@/stores/diaryStore.js';
 
-const store = diaryStore();
-
+const storeDiary = diaryStore();
 const emit = defineEmits(['close']);
 
-const isCalibrated = ref(false);
-const isProjecting = ref(false);
-const daySeeker = ref(0);
-const birthDate = ref('');
-const birthTime = ref('12:00');
-const tempSignature = computed(() => store.tempSignature);
-const storedSignature = ref(0);
-const birthTimestamp = ref(0);
-  // This toggle controls whether the "Future Ghost Arcs" are visible
-const projectionActive = ref(true);
+/* --- 1. INITIALIZATION STATE (HOP-driven) --- */
+const sliderDegree = ref(0);
+const orbits = ref(30);
+const sliderOrbital = ref(90)
+const sliderDaily = ref(180)
+const lightColor = ref('white')
+const useCurrentLocation = ref(false);
+const currentLocation = ref(null);
+const isDifferentFromBirth = ref(null);
+const birthPlaceName = ref('');
+const birthCountry = ref('');
 
+const isCalibrated = computed(() => storeDiary.heliClockSet);
+const storedSignature = computed(() => storeDiary.orbitSignature);
+const birthLocationData = computed(() => storeDiary.birthLocation)
+const heliZenith = computed(() => storeDiary.calibrationZenith)
+const heliOrbit = computed(() => storeDiary.calibrationOrbit)
 
-// Define the window for tomorrow's swim (e.g., 08:00 to 09:30)
-const projectionStartAngle = 120; // Degrees
-const projectionEndAngle = 150;   // Degrees
-const radius = 36;                // Outer Ring
-
-const polarToCartesian = (angle) => {
-  const rad = (angle - 90) * (Math.PI / 180);
-  return {
-    x: radius * Math.cos(rad),
-    y: radius * Math.sin(rad)
-  };
+/* methods */
+const requestLocation = () => {
+  useCurrentLocation.value = true;
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition((position) => {
+      currentLocation.value = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+      };
+    }, (error) => {
+      console.error("Error getting location:", error);
+      alert("Could not get location. Please check permissions.");
+    });
+  } else {
+    alert("Geolocation is not supported by this browser.");
+  }
 };
 
-const projectionArcPath = computed(() => {
-  const start = polarToCartesian(projectionStartAngle);
-  const end = polarToCartesian(projectionEndAngle);
-  
-  // SVG Arc command: Move to start, then draw arc to end
-  // A rx ry x-axis-rotation large-arc-flag sweep-flag x y
-  return `M ${start.x} ${start.y} A ${radius} ${radius} 0 0 1 ${end.x} ${end.y}`;
+const convertGPS = () => {
+  // ask beebee via hop
+    storeDiary.sendMessageHOP({
+    type: 'heliclock',
+    action: 'birth-location-search',
+    data: {
+      town: birthPlaceName.value,
+      country: birthCountry.value
+    }
+  });
+}
+
+  const lockHeliGenesis = () =>{
+    // 1. Send the final "Committal" to HOP
+    storeDiary.sendMessageHOP({
+      type: 'heliclock',
+      action: 'HELI_GENESIS_SAVE',
+      data: {
+        orbital: heliOrbit.value, // The 85.58°
+        daily: heliZenith.value,  // The 18:00 hrs / 270°
+        location: { place: birthLocationData.value.name, lat: birthLocationData.value.latitude, long: birthLocationData.value.longitude }, // Torphins Lat/Lon
+        orbits: orbits.value // The 52 Earth Laps
+      }
+    });
+
+    // 2. Transition the UI from "Setup" to "Active Life-Strap"
+    storeDiary.heliClockSet = true;
+    // back to orbit or full heli clock
+    // this.currentView = 'SolarDashboard';
+  }
+
+const setCurrentLocation = () => {
+  useCurrentLocation.value = !useCurrentLocation.value;
+}
+
+/*  calibrate slider angle to old world time keeping */
+// 1. When the slider moves, tell the Brain (HOP)
+watch(sliderOrbital, (newVal) => {
+// 1. Access the .value of the computed/ref
+  const loc = birthLocationData.value;
+
+  // 2. Guard: Don't calibrate if we don't have a place yet
+  if (!loc || !loc.longitude || !loc.latitude) {
+    console.warn("Heli: Waiting for location data before calibrating...");
+    return;
+  }
+
+  let convertData = {
+      angle: sliderOrbital.value,
+      lon: loc.longitude,
+      lat: loc.latitude,
+      orbits: orbits.value,
+      dayAngle: sliderDaily.value,
+    }
+
+  // 3. Send the calibration request to the HOP
+  storeDiary.sendMessageHOP({
+    type: 'heliclock',
+    action: 'HELI_CALIBRATE_PREVIEW',
+    data: convertData
+  });
 });
 
+// 1.b  daily solar cycle
+watch(sliderDaily, (newVal) => {
+// 1. Access the .value of the computed/ref
+  const loc = birthLocationData.value;
 
+  // 2. Guard: Don't calibrate if we don't have a place yet
+  if (!loc || !loc.longitude || !loc.latitude) {
+    console.warn("Heli: Waiting for location data before calibrating...");
+    return;
+  }
 
+  let convertData = {
+      angle: sliderOrbital.value,
+      lon: loc.longitude,
+      lat: loc.latitude,
+      orbits: orbits.value,
+      dayAngle: sliderDaily.value,
+    }
+  // 3. Send the calibration request to the HOP
+  storeDiary.sendMessageHOP({
+    type: 'heliclock',
+    action: 'HELI_CALIBRATE_PREVIEW',
+    data: convertData
+  });
+});
 
+// 2. The UI just displays what the Brain says
+const translatedOldWorldDate = computed(() => storeDiary.calibrationPreviewDate);
 
-const currentYearlyDegree = computed(() => store.currentVector);
-const currentDailyDegree = computed(() => (store.currentVector * 365.24) % 360);
+const lockSignature = () => {
+  // Master Command: HOP writes to Hyperbee
+  storeDiary.sendMessageHOP({
+    type: 'heliclock',
+    action: 'HELI_GENESIS_INIT',
+    data: {
+      orbital: 0,
+      daily: 0,
+      origin: { lat: 0, lon: 0 }
+    }
+  });
+  // NOTE: isCalibrated will trigger automatically via the Store's HOP listener
+};
 
-const nowTs = ref(Date.now());
+/* --- 2. LIVE CLOCK & PROJECTION STATE --- */
+const isProjecting = ref(false);
+const daySeeker = ref(0);
 const projectedTs = ref(Date.now());
-
-const projectionTargetYearly = computed(() => store.projectionData.yearly);
-const projectionTargetDaily = computed(() => store.projectionData.daily);
-
-const committedEvents = ref([]);
 const newEventLabel = ref('');
-const selectedPeerId = ref("");
-const knownPeers = [{ id: 'dc_peer', name: 'Aris (DC)' }];
+const committedEvents = ref([]);
 
+const currentYearlyDegree = computed(() => storeDiary.currentVector || 0);
+const currentDailyDegree = computed(() => (storeDiary.currentVector * 365.24) % 360);
+
+const projectionTargetYearly = computed(() => storeDiary.projectionData?.yearly || 0);
+const projectionTargetDaily = computed(() => storeDiary.projectionData?.daily || 0);
+const activeDailyDegree = computed(() => isProjecting.value ? projectionTargetDaily.value : currentDailyDegree.value);
+
+/* --- 3. MATHEMATICAL HELPERS --- */
 const getRadialX = (cx, r, deg) => cx + r * Math.sin(deg * Math.PI / 180);
 const getRadialY = (cy, r, deg) => cy - r * Math.cos(deg * Math.PI / 180);
 
-const activeDailyDegree = computed(() => isProjecting.value ? projectionTargetDaily.value : currentDailyDegree.value);
+const polarToCartesian = (angle, r = 36) => {
+  const rad = (angle - 90) * (Math.PI / 180);
+  return { x: r * Math.cos(rad), y: r * Math.sin(rad) };
+};
 
-const hasCollision = computed(() => {
-  if (!isProjecting.value) return false;
-  return committedEvents.value.some(e => Math.abs(e.dailyDegree - projectionTargetDaily.value) < 2.5);
-});
+const describeArc = (x, y, r, start, end) => {
+  const rad = (deg) => (deg - 90) * Math.PI / 180.0;
+  const s = { x: x + r * Math.cos(rad(end)), y: y + r * Math.sin(rad(end)) };
+  const e = { x: x + r * Math.cos(rad(start)), y: y + r * Math.sin(rad(start)) };
+  const largeArc = (end - start + 360) % 360 <= 180 ? "0" : "1";
+  return `M ${s.x} ${s.y} A ${r} ${r} 0 ${largeArc} 0 ${e.x} ${e.y}`;
+};
 
+/* --- 4. NAVIGATION METHODS --- */
 const syncFromDays = () => {
   isProjecting.value = daySeeker.value !== 0;
   projectedTs.value = Date.now() + (daySeeker.value * 86400000);
-  
-  store.sendMessageHOP({
-    type: 'heli-project',
-    timestamp: projectedTs.value
-  });
-};
-
-const handleManualInput = (val) => {
-  daySeeker.value = parseInt(val) || 0;
-  syncFromDays();
+  storeDiary.sendMessageHOP({ type: 'heli-project', timestamp: projectedTs.value });
 };
 
 const adjustProjection = (days) => { daySeeker.value += days; syncFromDays(); };
+const handleManualInput = (val) => { daySeeker.value = parseInt(val) || 0; syncFromDays(); };
+const resetToNow = () => { isProjecting.value = false; daySeeker.value = 0; newEventLabel.value = ''; };
 
 const confirmEvent = () => {
-  if (hasCollision.value) return;
-  // Capture BOTH yearly and daily positions for the archive
   committedEvents.value.push({ 
     id: Date.now(), 
     dailyDegree: projectionTargetDaily.value, 
@@ -283,15 +435,14 @@ const confirmEvent = () => {
   resetToNow();
 };
 
-const resetToNow = () => { isProjecting.value = false; daySeeker.value = 0; newEventLabel.value = ''; selectedPeerId.value = ''; };
-
 const jumpToEvent = (e) => {
   isProjecting.value = true;
   projectedTs.value = e.ts;
-  store.setProjectionData({ yearly: e.yearlyDegree, daily: e.dailyDegree });
   daySeeker.value = Math.round((e.ts - Date.now()) / 86400000);
+  storeDiary.setProjectionData({ yearly: e.yearlyDegree, daily: e.dailyDegree });
 };
 
+/* --- 5. VISUAL COMPUTEDS --- */
 const lightIntensity = computed(() => {
   const diff = Math.abs(180 - activeDailyDegree.value);
   return Math.max(0, 100 - (diff * 0.75));
@@ -299,98 +450,117 @@ const lightIntensity = computed(() => {
 
 const activeCycles = computed(() => {
   const msInYear = 31556925216;
-  const target = isProjecting.value ? projectedTs.value : nowTs.value;
-  const total = (target - birthTimestamp.value) / msInYear;
+  const birthTs = Date.now() - (storedSignature.value / 360 + orbits.value) * msInYear;
+  const target = isProjecting.value ? projectedTs.value : Date.now();
+  const total = (target - birthTs) / msInYear;
   return { whole: Math.floor(total), decimal: (total % 1).toFixed(6).split('.')[1] || '000000' };
 });
 
 const projectedDateString = computed(() => new Date(projectedTs.value).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }));
 
-onMounted(() => {
-  const sig = localStorage.getItem('heli_sig_v9');
-  const ts = localStorage.getItem('heli_ts_v9');
-  if (sig && ts) {
-    storedSignature.value = parseFloat(sig);
-    birthTimestamp.value = parseInt(ts);
-    isCalibrated.value = true;
-  }
+const hasCollision = computed(() => {
+  if (!isProjecting.value) return false;
+  return committedEvents.value.some(e => Math.abs(e.dailyDegree - projectionTargetDaily.value) < 2.5);
 });
-
-const updatePreview = () => {
-  if (!birthDate.value) return;
-  const ts = new Date(`${birthDate.value}T${birthTime.value}:00Z`).getTime();
-  store.sendMessageHOP({
-    type: 'heli-calculate',
-    timestamp: ts,
-    action: 'get-signature'
-  });
-};
-
-const lockSignature = () => {
-  console.log('locking signature2')
-  const ts = new Date(`${birthDate.value}T${birthTime.value}:00Z`).getTime();
-  storedSignature.value = tempSignature.value || 0;
-  birthTimestamp.value = ts;
-  localStorage.setItem('heli_sig_v9', storedSignature.value.toString());
-  localStorage.setItem('heli_ts_v9', ts.toString());
-  isCalibrated.value = true;
-};
-
-const describeArc = (x, y, r, start, end) => {
-  const rad = (deg) => (deg - 90) * Math.PI / 180.0;
-  const s = { x: x + r * Math.cos(rad(end)), y: y + r * Math.sin(rad(end)) };
-  const e = { x: x + r * Math.cos(rad(start)), y: y + r * Math.sin(rad(start)) };
-  const largeArc = (end - start + 360) % 360 <= 180 ? "0" : "1";
-  return `M ${s.x} ${s.y} A ${r} ${r} 0 ${largeArc} 0 ${e.x} ${e.y}`;
-};
 </script>
 
 <style scoped>
-.heli-wrapper { display: grid; place-items: center; min-height: 100vh; background: rgba(0, 0, 0, 0.4); font-family: 'Inter', sans-serif; color: #1e293b; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; backdrop-filter: blur(10px); pointer-events: auto; }
-.heli-main-layout { display: grid; grid-template-columns: 320px 1fr 320px; gap: 2rem; width: 80vw; height: 80vh; padding: 2rem; align-items: center; background: #fafafa; border-radius: 32px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); overflow: hidden; }
+/* BASE WRAPPER */
+.heli-wrapper { display: grid; place-items: center; min-height: 100vh; background: rgba(0,0,0,0.6); position: fixed; inset: 0; z-index: 9999; backdrop-filter: blur(12px); font-family: 'Inter', sans-serif; }
+
+/* MODAL / CALIBRATION */
+.heli-modal-overlay { background: #fff; padding: 2rem; border-radius: 40px; width: 450px; box-shadow: 0 30px 60px rgba(0,0,0,0.3); text-align: center; max-height: 90vh; overflow-y: auto; }
+.location-toggle { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
+.location-toggle button { flex: 1; padding: 0.8rem; border-radius: 12px; border: 1px solid #e2e8f0; background: white; cursor: pointer; font-weight: 600; }
+.location-toggle button.active { background: #0f172a; color: white; border-color: #0f172a; }
+
+.location-info { background: #f8fafc; padding: 1rem; border-radius: 20px; margin-bottom: 1.5rem; }
+.mini-map { border-radius: 12px; overflow: hidden; margin: 1rem 0; border: 1px solid #e2e8f0; }
+.comparison-zone { margin-top: 1rem; }
+.choice-btns { display: flex; gap: 0.5rem; justify-content: center; margin-top: 0.5rem; }
+.choice-btns button { padding: 0.5rem 1rem; border-radius: 8px; border: 1px solid #cbd5e1; background: white; cursor: pointer; }
+
+.birth-location-form { background: #f1f5f9; padding: 1.5rem; border-radius: 20px; margin-bottom: 1.5rem; text-align: left; }
+.birth-location-form h3 { font-size: 1rem; margin-bottom: 1rem; color: #1e293b; }
+.birth-location-form .input-group { display: flex; flex-direction: column; gap: 0.75rem; }
+.birth-location-form input { padding: 0.8rem; border-radius: 10px; border: 1px solid #cbd5e1; }
+
+.slider-zone { margin: 2rem 0; display: grid; gap: 1rem; place-items: center; }
+.preview-mini-svg { width: 180px; height: 180px; }
+.track-bg-preview { fill: none; stroke: #f1f5f9; stroke-width: 2; }
+.preview-needle { stroke: #3b82f6; stroke-width: 3; stroke-linecap: round; }
+.preview-dot { fill: #3b82f6; }
+.readout-container { margin: 1rem 0; }
+.old-world-preview { font-weight: 800; font-size: 1.1rem; color: #1e293b; }
+.degree-readout { font-family: 'Space Mono'; color: #64748b; font-size: 0.9rem; }
+.solar-range { width: 100%; cursor: pointer; }
+
+/* ORBIT COUNTER */
+.orbit-counter { background: #f8fafc; padding: 1.5rem; border-radius: 20px; margin-bottom: 2rem; }
+.counter-controls { display: flex; justify-content: center; align-items: center; gap: 1.5rem; margin: 1rem 0; }
+.counter-controls button { width: 40px; height: 40px; border-radius: 50%; border: 1px solid #cbd5e1; background: white; font-size: 1.2rem; cursor: pointer; }
+.orbit-value { font-size: 2.5rem; font-weight: 900; color: #0f172a; }
+.help-text { font-size: 0.75rem; color: #94a3b8; }
+.init-button { background: #0f172a; color: white; width: 100%; padding: 1.2rem; border-radius: 16px; font-weight: 800; border: none; cursor: pointer; transition: transform 0.2s; }
+.init-button:active { transform: scale(0.98); }
+
+/* MAIN LAYOUT */
+.heli-main-layout { display: grid; grid-template-columns: 320px 1fr 320px; gap: 2rem; width: 90vw; max-width: 1400px; height: 85vh; padding: 2rem; background: #fafafa; border-radius: 40px; align-items: center; overflow: hidden; }
+.heli-sidebar { display: flex; flex-direction: column; gap: 1.5rem; height: 100%; overflow-y: auto; }
 .bento-card { background: white; padding: 1.5rem; border-radius: 24px; border: 1px solid #f1f5f9; box-shadow: 0 4px 20px rgba(0,0,0,0.02); }
-.card-header { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: #94a3b8; margin-bottom: 1rem; }
 
-.orbital-grid { display: grid; grid-template-areas: "stack"; place-items: center; width: 480px; height: 480px; }
+/* SVG CLOCK ELEMENTS */
+.orbital-grid { display: grid; grid-template-areas: "stack"; place-items: center; width: 520px; height: 520px; }
 .heli-svg { grid-area: stack; width: 100%; height: 100%; overflow: visible; }
+.atmosphere-glow { fill: #fbbf24; filter: blur(25px); transition: opacity 0.8s; }
+.track-line { fill: none; stroke: #e2e8f0; }
+.track-inner { stroke-width: 4; stroke-opacity: 0.5; }
+.arc-yearly { fill: none; stroke: #3b82f6; stroke-width: 3; stroke-linecap: round; }
+.cell-passed { stroke: #3b82f6; stroke-width: 2.5; opacity: 0.2; }
+.cell-future { stroke: #e2e8f0; stroke-width: 1; }
 
-.track-line { fill: none; stroke: #f1f5f9; }
-.track-outer { stroke-width: 1; }
-.track-inner { stroke-width: 4; }
-.cell-passed { stroke: #4facfe; stroke-width: 2; fill: none; }
-.cell-future { stroke: #e1e8ed; stroke-width: 2; fill: none; }
-.arc-yearly { fill: none; stroke: #3b82f6; stroke-width: 2.5; opacity: 0.4; }
-.atmosphere-glow { fill: #fbbf24; filter: blur(20px); transition: 0.5s; }
-
-/* BIRTH MARKER */
+/* TETHERS & SUNS */
+.tether-birth { stroke: #f59e0b; stroke-width: 1; stroke-dasharray: 2 2; }
 .birth-needle { fill: #f59e0b; }
-.birth-outer-orb { fill: none; stroke: #f59e0b; stroke-width: 1; }
-.tether-birth { stroke: #f59e0b; stroke-width: 0.5; stroke-dasharray: 1 1; }
-
-/* DUAL SUN ELEMENTS */
-.sun-whisper-line { stroke: #3b82f6; stroke-width: 1.5; stroke-linecap: round; }
-.sun-outer-marker { fill: white; stroke: #3b82f6; stroke-width: 1.5; }
-.tether-bridge { stroke: #fbce1e; stroke-width: 0.75; stroke-dasharray: 2 2; opacity: 0.6; }
 .sun-glow { fill: #fbce1e; fill-opacity: 0.4; }
+.sun-glow.colliding { fill: #ef4444; }
 .sun-core { fill: white; stroke: #fbce1e; stroke-width: 2; }
+.tether-bridge { stroke: #fbce1e; stroke-width: 1; stroke-dasharray: 3 3; }
 
-/* EVENT ELEMENTS */
-.event-ghost { fill: white; stroke: #8b5cf6; stroke-width: 1.5; stroke-dasharray: 2 1; }
-.event-yearly-ghost { fill: #8b5cf6; opacity: 0.4; stroke: white; stroke-width: 0.5; }
-.tether-event-bridge { stroke: #8b5cf6; stroke-width: 0.5; stroke-dasharray: 1 1; opacity: 0.25; }
+/* READOUT */
+.sun-readout { grid-area: stack; pointer-events: none; text-align: center; }
+.cycles-whole { font-size: 7rem; font-weight: 900; color: #0f172a; line-height: 1; }
+.cycles-decimal { font-family: 'Space Mono'; font-size: 1.4rem; color: #3b82f6; }
+.date-label { font-weight: 800; text-transform: uppercase; color: #94a3b8; letter-spacing: 2px; margin-top: 1rem; }
 
-.sun-readout { grid-area: stack; text-align: center; pointer-events: none; }
-.cycles-whole { font-size: 6rem; font-weight: 900; line-height: 0.8; }
-.cycles-decimal { color: #3b82f6; font-family: 'Space Mono'; font-weight: 700; font-size: 1.2rem; }
-.date-label { margin-top: 1rem; font-size: 0.8rem; font-weight: 800; color: #94a3b8; }
-
-.stepper { display: grid; grid-template-columns: 40px 1fr 40px; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
-.stepper button { background: #f8fafc; border: none; font-weight: bold; cursor: pointer; }
-.stepper input { border: none; text-align: center; width: 100%; }
-.primary-btn { background: #0f172a; color: white; border: none; padding: 1rem; border-radius: 12px; font-weight: 800; width: 100%; cursor: pointer; margin-top: 1rem; }
-.secondary-btn { background: transparent; color: #94a3b8; border: none; padding: 0.5rem; font-size: 0.7rem; font-weight: 700; width: 100%; cursor: pointer; }
-.status-tag { font-size: 0.65rem; font-weight: 800; padding: 4px 8px; border-radius: 6px; background: #f1f5f9; color: #94a3b8; }
+/* UTILS */
+.status-tag { font-size: 0.7rem; font-weight: 800; padding: 4px 10px; border-radius: 99px; background: #f1f5f9; }
 .status-tag.active { background: #dcfce7; color: #15803d; }
-.heli-modal-overlay { position: fixed; inset: 0; background: white; z-index: 1000; display: grid; place-items: center; }
-.calibration-card { width: 360px; text-align: center; display: grid; gap: 1.5rem; background: white; padding: 3rem; border-radius: 32px; box-shadow: 0 20px 50px rgba(0,0,0,0.2); }
+.collision-alert { color: #ef4444; font-weight: 800; font-size: 0.75rem; margin: 1rem 0; }
+.primary-btn { background: #0f172a; color: white; padding: 1rem; border-radius: 12px; width: 100%; border: none; font-weight: 700; cursor: pointer; }
+
+
+
+
+.needle-year { stroke: #3b82f6; stroke-width: 2; stroke-linecap: round; }
+.dot-year { fill: #3b82f6; }
+
+.needle-day { stroke: #fbbf24; stroke-width: 2.5; stroke-linecap: round; }
+.dot-day { fill: #fbbf24; }
+
+.readout-bento {
+  background: #f8fafc;
+  padding: 1.5rem;
+  border-radius: 20px;
+  margin-top: 1rem;
+  border: 1px solid #e2e8f0;
+}
+
+.old-world-time {
+  font-family: 'Space Mono', monospace;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
 </style>

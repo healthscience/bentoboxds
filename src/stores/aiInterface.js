@@ -231,15 +231,11 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         const displayContext = (baseContext === 'chatspace' && cueId)
           ? { type: 'chatspace', id: cueId }
           : baseContext
-        console.log('dispaly contexts')
-        console.log(displayContext)
         // 2. Check for tools in the question text 
         let toolsUsed = []
         toolsUsed = this.inputTools
         // 3. Validate the question
         const validationResult = this.liveChatUtil.validateQuestion(this.askQuestion.text, toolsUsed)
-        console.log('validation result')
-        console.log(validationResult)
         if (!validationResult.isValid) {
           console.log('validation failed')
           // Provide feedback to the peer
@@ -283,8 +279,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
             timestamp: new Date()
           }
         }
-        console.log('question')
-        console.log(question)
         // 5. Check if this is a new chat or adding to existing
         let chat
         if (this.isNewChat(keyContext)) {
@@ -443,8 +437,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       aiMessageout.data = hopQuestion
       aiMessageout.bbid = hashQuestion
       this.trackAgentProgress(hashQuestion)
-      console.log('send message to HOP')
-      console.log(aiMessageout)
+      // console.log('send message to HOP')
+      // console.log(aiMessageout)
       this.storeChat.beginChat = true
       // Call handleIncomingMessage to update chat history with the peer question
       // Use original question if provided, otherwise extract from hopQuestion

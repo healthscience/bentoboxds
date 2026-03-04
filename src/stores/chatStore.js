@@ -63,7 +63,7 @@ export const useChatStore = defineStore('chat', {
     },
     addMessage(message) {
       if (!message) return
-      console.log('addMessage', message)
+      // console.log('addMessage', message)
       // 1. Identify Sovereign Anchors
       // We prioritize the contract_key (The Hash) over the internal lifeStrapID
       const activeContractKey = this.storeAI.activeContractKey

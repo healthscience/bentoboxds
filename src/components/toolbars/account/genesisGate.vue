@@ -250,6 +250,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js';
   line-height: 1.2em;
   height: 50px;
   letter-spacing: 6px;
+  padding-left: 12px;
 }
 
 .sign-button {

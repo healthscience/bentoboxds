@@ -6,7 +6,7 @@
         <div class="calibration-card">
           <header class="modal-header">
             <div class="orb-icon"></div>
-            <h2>Heli Initialization</h2>
+            <h2>Heli Initialization1</h2>
             <p>Sync your physical origin with the solar orbit.</p>
           </header>
           <div class="form-grid">

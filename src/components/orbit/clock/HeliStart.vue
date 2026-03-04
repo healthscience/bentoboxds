@@ -2,11 +2,11 @@
   <!--<div class="heli-wrapper">-->
   <div class="heli-clock-wrapper" :class="{ 'is-mini': mini }" @mousedown.stop @mouseup.stop @click.stop="handleClockClick()">
     <transition name="heli-zoom">
-      <div v-if="!isCalibrated" class="heli-modal-overlay">
+      <div v-if="!isCalibrated" class="heli-main-layout">
         <div class="calibration-card">
-          <header class="modal-header">
+          <!--<header class="modal-header">
             <div class="orb-icon"></div>
-            <h2>Heli Initialization</h2>
+            <h2>Heli Initialization3</h2>
             <p>Sync your physical origin with the solar orbit.</p>
           </header>
           <div class="form-grid">
@@ -18,9 +18,9 @@
               <label>Arrival Time (UTC)</label>
               <input type="time" v-model="birthTime" @input="updatePreview" />
             </div>
-          </div>
-          <button class="init-button" :disabled="tempSignature === false" @click="lockSignature">
-            ENTER THE ORBIT
+          </div>-->
+          <button class="init-button" :disabled="tempSignature === false" @click="setClock()">
+            SET CLOCK
           </button>
         </div>
       </div>
@@ -100,8 +100,10 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { diaryStore } from '@/stores/diaryStore.js';
+import { useOrbitStore } from '@/stores/orbitStore.js'
 
-const store = diaryStore();
+const storeDiary = diaryStore();
+const storeOrbit = useOrbitStore();
 
 const emit = defineEmits(['expand', 'select']);
 let clickCount = 0;
@@ -113,7 +115,6 @@ defineProps({
   y: { type: Number, default: 0 }
 });
 
-const isCalibrated = ref(false);
 const birthDate = ref('');
 const birthTime = ref('12:00');
 const storedSignature = ref(0);
@@ -126,13 +127,14 @@ onMounted(() => {
   if (savedSig && savedTs) {
     storedSignature.value = parseFloat(savedSig);
     birthTimestamp.value = parseInt(savedTs);
-    isCalibrated.value = true;
+    // isCalibrated.value = true;
   }
 });
 
 /* computed */
-const currentDegree = computed(() => store.currentVector);
-const tempSignature = computed(() => store.tempSignature);
+const isCalibrated = computed(() => storeDiary.isCalibrated);
+const currentDegree = computed(() => storeDiary.currentVector);
+const tempSignature = computed(() => storeDiary.tempSignature);
 
 const precisionCycles = computed(() => {
   if (!birthTimestamp.value) return { whole: '0', decimal: '0000' };
@@ -189,10 +191,13 @@ const solarMarkers = computed(() => {
 });
 
 /* methods */
+const setClock = () => {
+  storeOrbit.heliClockExpand = true
+};
 const handleClockClick = () => {
+  if (storeOrbit.expandedHeliClock) return;
   console.log('click');
   clickCount++;
-  
   if (clickCount === 1) {
     clickTimer = setTimeout(() => {
       if (clickCount === 1) {
@@ -214,7 +219,7 @@ const updatePreview = () => {
   if (!birthDate.value) return;
   const ts = new Date(`${birthDate.value}T${birthTime.value}:00Z`).getTime();
   // Request signature from HOP
-  store.sendMessageHOP({
+  storeDiary.sendMessageHOP({
     type: 'heli-calculate',
     timestamp: ts,
     action: 'get-signature'
@@ -318,7 +323,7 @@ const describeArc = (x, y, r, start, end) => {
 /* MODAL & DASHBOARD LAYOUT (Grid Only) */
 .heli-modal-overlay {
   position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-  display: grid; place-items: center; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); z-index: 999;
+  display: grid; place-items: center; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); z-index: 9999;
 }
 .calibration-card { display: grid; gap: 1.5rem; padding: 3rem; background: white; border-radius: 40px; box-shadow: 0 40px 100px rgba(0,0,0,0.1); width: 400px; text-align: center; }
 
