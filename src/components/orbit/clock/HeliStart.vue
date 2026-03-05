@@ -2,23 +2,8 @@
   <!--<div class="heli-wrapper">-->
   <div class="heli-clock-wrapper" :class="{ 'is-mini': mini }" @mousedown.stop @mouseup.stop @click.stop="handleClockClick()">
     <transition name="heli-zoom">
-      <div v-if="!isCalibrated" class="heli-main-layout">
+      <div v-if="isCalibrated === false" class="heli-main-layout">
         <div class="calibration-card">
-          <!--<header class="modal-header">
-            <div class="orb-icon"></div>
-            <h2>Heli Initialization3</h2>
-            <p>Sync your physical origin with the solar orbit.</p>
-          </header>
-          <div class="form-grid">
-            <div class="input-group">
-              <label>Old World Birth Date</label>
-              <input type="date" v-model="birthDate" @input="updatePreview" />
-            </div>
-            <div class="input-group">
-              <label>Arrival Time (UTC)</label>
-              <input type="time" v-model="birthTime" @input="updatePreview" />
-            </div>
-          </div>-->
           <button class="init-button" :disabled="tempSignature === false" @click="setClock()">
             SET CLOCK
           </button>
@@ -26,74 +11,72 @@
       </div>
     </transition>
 
-    <div v-if="isCalibrated" class="heli-main-layout">
-      
-      <aside class="heli-legend-left">
-        <div class="legend-item">
-          <span class="degree-mark">0°</span>
-          <div class="legend-text"><strong>Vernal Origin</strong><p>Spring Equinox reset.</p></div>
-        </div>
-        <div class="legend-item">
-          <span class="degree-mark">90°</span>
-          <div class="legend-text"><strong>Estival Peak</strong><p>Summer Solstice.</p></div>
-        </div>
-        <div class="legend-item">
-          <div class="icon-container"><div class="signature-needle-key"></div><div class="signature-ring-key"></div></div>
-          <div class="legend-text"><strong>Your Signature</strong><p>Arrival: {{ storedSignature.toFixed(4) }}°</p></div>
-        </div>
-      </aside>
-
-      <section class="clock-display">
-        <div class="orbital-grid">
-          <svg viewBox="0 0 100 100" class="heli-svg">
-            <circle cx="50" cy="50" r="42" class="track-bg" />
-            <path :d="describeArc(50, 50, 42, 0, currentDegree)" class="progress-path" />
-            <g :transform="`rotate(${storedSignature} 50 50)`">
-              <line x1="50" y1="4" x2="50" y2="14" class="signature-needle" />
-              <circle cx="50" cy="8" r="3.5" class="signature-ring-target" />
-            </g>
-            <g :transform="`rotate(${currentDegree} 50 50)`">
-              <circle cx="50" cy="8" r="4" class="current-glow" />
-              <circle cx="50" cy="8" r="2.2" class="current-dot-core" />
-            </g>
-            <!-- solar cycle in arcs -->
-            <circle cx="50" cy="50" r="32" class="track-bg" style="opacity: 0.3;" />
-            <path :d="describeArc(50, 50, 32, 0, dailyDegree)" class="daily-progress-path" />
-
-            <g v-if="solarMarkers.noon !== null">
-              <line :transform="`rotate(${solarMarkers.sunrise} 50 50)`" x1="50" y1="16" x2="50" y2="20" class="marker-line sunrise" />
-              <line :transform="`rotate(${solarMarkers.sunset} 50 50)`" x1="50" y1="16" x2="50" y2="20" class="marker-line sunset" />
-              <circle :transform="`rotate(${solarMarkers.noon} 50 50)`" cx="50" cy="18" r="1.5" class="marker-dot noon" />
-            </g>
-          </svg>
-
-
-          <div class="sun-core">
-            <div class="cycles-whole">{{ precisionCycles.whole }}</div>
-            <div class="cycles-decimal">.{{ precisionCycles.decimal }}</div>
-            <div class="cycles-label">EARTH ORBITS</div>
-            <div class="degree-sub">{{ currentDegree.toFixed(4) }}°</div>
+    <transition>
+      <div id="mini-heli" v-if="isCalibrated === true"  class="heli-main-layout">
+        <!--<aside class="heli-legend-left">
+          <div class="legend-item">
+            <span class="degree-mark">0°</span>
+            <div class="legend-text"><strong>Vernal Origin</strong><p>Spring Equinox reset.</p></div>
           </div>
-        </div>
-        <button class="recalibrate-trigger" @click="resetCalibration()">Adjust Origin</button>
-      </section>
+          <div class="legend-item">
+            <span class="degree-mark">90°</span>
+            <div class="legend-text"><strong>Estival Peak</strong><p>Summer Solstice.</p></div>
+          </div>
+          <div class="legend-item">
+            <div class="icon-container"><div class="signature-needle-key"></div><div class="signature-ring-key"></div></div>
+            <div class="legend-text"><strong>Your Signature</strong><p>Arrival: {{ storedSignature.toFixed(4) }}°</p></div>
+          </div>
+        </aside>-->
 
-      <aside class="heli-legend-right">
-        <div class="legend-item">
-          <span class="degree-mark">180°</span>
-          <div class="legend-text"><strong>Autumnal Pivot</strong><p>Fall Equinox.</p></div>
-        </div>
-        <div class="legend-item">
-          <span class="degree-mark">270°</span>
-          <div class="legend-text"><strong>Hibernal Rest</strong><p>Winter Solstice.</p></div>
-        </div>
-        <div class="legend-item">
-          <div class="icon-container"><div class="current-dot-key"></div></div>
-          <div class="legend-text"><strong>Current Orbit</strong><p>Real-time solar progress.</p></div>
-        </div>
-      </aside>
+        <section class="clock-display">
+          <div class="orbital-grid">heli clock222
+            <!--<svg viewBox="0 0 100 100" class="heli-svg">
+              <circle cx="50" cy="50" r="42" class="track-bg" />
+              <path :d="describeArc(50, 50, 42, 0, currentDegree)" class="progress-path" />
+              <g :transform="`rotate(${storedSignature} 50 50)`">
+                <line x1="50" y1="4" x2="50" y2="14" class="signature-needle" />
+                <circle cx="50" cy="8" r="3.5" class="signature-ring-target" />
+              </g>
+              <g :transform="`rotate(${currentDegree} 50 50)`">
+                <circle cx="50" cy="8" r="4" class="current-glow" />
+                <circle cx="50" cy="8" r="2.2" class="current-dot-core" />
+              </g>
+              solar cycle in arcs
+              <circle cx="50" cy="50" r="32" class="track-bg" style="opacity: 0.3;" />
+              <path :d="describeArc(50, 50, 32, 0, dailyDegree)" class="daily-progress-path" />
 
-    </div>
+              <g v-if="solarMarkers.noon !== null">
+                <line :transform="`rotate(${solarMarkers.sunrise} 50 50)`" x1="50" y1="16" x2="50" y2="20" class="marker-line sunrise" />
+                <line :transform="`rotate(${solarMarkers.sunset} 50 50)`" x1="50" y1="16" x2="50" y2="20" class="marker-line sunset" />
+                <circle :transform="`rotate(${solarMarkers.noon} 50 50)`" cx="50" cy="18" r="1.5" class="marker-dot noon" />
+              </g>
+            </svg>-->
+
+            <div class="sun-core">
+              <div class="cycles-whole">{{ precisionCycles.whole }}</div>
+              <div class="cycles-decimal">.{{ precisionCycles.decimal }}</div>
+              <div class="cycles-label">EARTH ORBITS</div>
+              <div class="degree-sub">{{ currentDegree.toFixed(4) }}°</div>
+            </div>
+          </div>
+        </section>
+
+        <!--<aside class="heli-legend-right">
+          <div class="legend-item">
+            <span class="degree-mark">180°</span>
+            <div class="legend-text"><strong>Autumnal Pivot</strong><p>Fall Equinox.</p></div>
+          </div>
+          <div class="legend-item">
+            <span class="degree-mark">270°</span>
+            <div class="legend-text"><strong>Hibernal Rest</strong><p>Winter Solstice.</p></div>
+          </div>
+          <div class="legend-item">
+            <div class="icon-container"><div class="current-dot-key"></div></div>
+            <div class="legend-text"><strong>Current Orbit</strong><p>Real-time solar progress.</p></div>
+          </div>
+        </aside>-->
+      </div>
+  </transition>
   </div>
 </template>
 
@@ -106,8 +89,6 @@ const storeDiary = diaryStore();
 const storeOrbit = useOrbitStore();
 
 const emit = defineEmits(['expand', 'select']);
-let clickCount = 0;
-let clickTimer = null;
 
 defineProps({
   mini: { type: Boolean, default: false },
@@ -115,6 +96,8 @@ defineProps({
   y: { type: Number, default: 0 }
 });
 
+let clickCount = 0;
+let clickTimer = null;
 const birthDate = ref('');
 const birthTime = ref('12:00');
 const storedSignature = ref(0);
@@ -122,73 +105,25 @@ const birthTimestamp = ref(0);
 const nowTs = ref(Date.now());
 
 onMounted(() => {
-  const savedSig = localStorage.getItem('heli_sig_v2');
-  const savedTs = localStorage.getItem('heli_birth_ts');
-  if (savedSig && savedTs) {
-    storedSignature.value = parseFloat(savedSig);
-    birthTimestamp.value = parseInt(savedTs);
-    // isCalibrated.value = true;
-  }
 });
 
 /* computed */
-const isCalibrated = computed(() => storeDiary.isCalibrated);
+const isCalibrated = computed(() => {
+  console.log(storeDiary.heliClockSet)
+  return storeDiary.heliClockSet
+});
 const currentDegree = computed(() => storeDiary.currentVector);
 const tempSignature = computed(() => storeDiary.tempSignature);
 
 const precisionCycles = computed(() => {
-  if (!birthTimestamp.value) return { whole: '0', decimal: '0000' };
-  const msInYear = 31556925216; // Tropical Year
-  const total = (Date.now() - birthTimestamp.value) / msInYear;
-  
-  return {
-    whole: Math.floor(total).toString(),
-    decimal: (total % 1).toFixed(6).split('.')[1] // 6 decimals for smooth visual "ticking"
-  };
+  return { whole: 52, decimal: '43434'}
 });
 
 // --- Daily Cycle Logic ---
-const dailyDegree = computed(() => {
-  const now = new Date();
-  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-  const msPassed = Date.now() - startOfDay;
-  const dayMs = 86400000;
-  // Progress in degrees (0 to 360)
-  return (msPassed / dayMs) * 360;
-});
+
 
 // --- Solar Mathematics (Simplified for PEER Experience) ---
-const solarMarkers = computed(() => {
-  // We need Latitude/Longitude for precision. 
-  // Defaulting to 0 (Equator) if not provided, but you can pass these from HOP.
-  const lat = 51.5074; // Example: London
-  const now = new Date();
-  const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
-  
-  // Declination
-  const declination = 23.45 * Math.sin((Math.PI / 180) * (360 / 365) * (dayOfYear - 81));
-  
-  // Hour Angle for Sunrise/Sunset
-  const latRad = lat * (Math.PI / 180);
-  const decRad = declination * (Math.PI / 180);
-  
-  // cos(omega) = -tan(lat) * tan(dec)
-  const cosOmega = -Math.tan(latRad) * Math.tan(decRad);
-  
-  // Boundary check for Polar regions
-  if (cosOmega > 1) return { noon: 180, sunrise: null, sunset: null }; // Polar Night
-  if (cosOmega < -1) return { noon: 180, sunrise: null, sunset: null }; // Midnight Sun
 
-  const omega = Math.acos(cosOmega) * (180 / Math.PI);
-  
-  // Degrees relative to 0 (Midnight = 0°)
-  // Noon is 180° in this 24-hour visual map
-  return {
-    noon: 180, 
-    sunrise: 180 - omega,
-    sunset: 180 + omega
-  };
-});
 
 /* methods */
 const setClock = () => {
@@ -215,47 +150,6 @@ const handleClockClick = () => {
   }
 };
 
-const updatePreview = () => {
-  if (!birthDate.value) return;
-  const ts = new Date(`${birthDate.value}T${birthTime.value}:00Z`).getTime();
-  // Request signature from HOP
-  storeDiary.sendMessageHOP({
-    type: 'heli-calculate',
-    timestamp: ts,
-    action: 'get-signature'
-  });
-};
-
-const lockSignature = () => {
-  console.log('locking signature');
-  const ts = new Date(`${birthDate.value}T${birthTime.value}:00Z`).getTime();
-  // We assume the preview updated tempSignature via a socket response or we calculate locally if simple
-  // For now, let's assume we need to wait for HOP or use a simplified local calc if allowed.
-  // The user said "message calls to HOP made".
-  storedSignature.value = tempSignature.value || 0; 
-  birthTimestamp.value = ts;
-  localStorage.setItem('heli_sig_v2', storedSignature.value.toString());
-  localStorage.setItem('heli_birth_ts', ts.toString());
-  isCalibrated.value = true;
-};
-
-const resetCalibration = () => {
-  isCalibrated.value = false;
-  localStorage.removeItem('heli_sig_v2');
-  localStorage.removeItem('heli_birth_ts');
-};
-
-const polarToCartesian = (cx, cy, r, deg) => {
-  const rad = (deg - 90) * Math.PI / 180.0;
-  return { x: cx + r * Math.cos(rad), y: cy + r * Math.sin(rad) };
-};
-
-const describeArc = (x, y, r, start, end) => {
-  const s = polarToCartesian(x, y, r, end);
-  const e = polarToCartesian(x, y, r, start);
-  const largeArc = (end - start + 360) % 360 <= 180 ? "0" : "1";
-  return ["M", s.x, s.y, "A", r, r, 0, largeArc, 0, e.x, e.y].join(" ");
-};
 </script>
 
 <style scoped>
@@ -274,7 +168,8 @@ const describeArc = (x, y, r, start, end) => {
 }
 
 .is-mini .heli-main-layout {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr;
   justify-content: center;
   align-items: center;
   width: 100%;
@@ -282,6 +177,7 @@ const describeArc = (x, y, r, start, end) => {
   grid-template-columns: 1fr;
   grid-template-areas: "center";
   gap: 0;
+  border: 2px solid red;
 }
 
 .is-mini .heli-legend-left,

@@ -30,11 +30,11 @@
         </div>
 
         <div 
-          v-if="orbitStore.tools.heli"
+          v-if="isCalibrated === true"
           class="tool-grab-wrapper"
           :style="{ left: orbitStore.tools.heli.x + '%', top: orbitStore.tools.heli.y + '%', zIndex: orbitStore.draggingToolId === 'heli' ? 300 : 100 }"
           @mousedown.stop="startDragging('heli')"
-        >
+        >HeliClock
           <StartClock :mini="isMini" @expand="handleExpand()" />
         </div>
       </div>
@@ -45,16 +45,17 @@
 <script setup>
 import { ref, computed, onUnmounted } from 'vue';
 import StartClock from '@/components/orbit/clock/HeliStart.vue'
-import HeliClock from '@/components/orbit/clock/HeliClock.vue';
 import ProjectionHeli from '@/components/orbit/clock/projectionHeli.vue'
 import ResonancePulse from '@/components/orbit/resonance/ResonancePulse.vue'
 import ResonancePulseghost from '@/components/orbit/resonance/ResonancePulseghost.vue'
 
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { useOrbitStore } from '@/stores/orbitStore.js'
+import { diaryStore } from '@/stores/diaryStore.js';
 
 const storeAI = aiInterfaceStore();
 const orbitStore = useOrbitStore();
+const storeDiary = diaryStore()
 
 const props = defineProps({
   mini: { type: Boolean, default: false }
@@ -63,6 +64,7 @@ const props = defineProps({
 const isMini = computed(() => props.mini || !heliClockExpand);
 
 /* Computed Logic */
+const isCalibrated = computed(() => storeDiary.heliClockSet);
 const pulseState = computed(() => {
     if (storeAI.currentMode === 'zen') {
       return 'ghost'

@@ -112,11 +112,11 @@
         </div>
       </div>
     </transition>
-
+    <!-- main heli clock -->
     <div v-if="isCalibrated" class="heli-main-layout">
       <aside class="heli-sidebar">
         <div class="bento-card">
-          <header class="card-header">Navigator</header>
+          <header class="card-header">Navigator</header>pp {{ peerSignature }}
           <div class="nav-group">
             <label>Solar Day Stepper</label>
             <div class="stepper">
@@ -152,68 +152,49 @@
 
       <section class="clock-display">
         <div class="orbital-grid">
-          <svg viewBox="0 0 100 100" class="heli-svg">
-            <circle cx="50" cy="50" r="30" class="atmosphere-glow" :style="{ opacity: lightIntensity / 100 }" />
+          <defs>
+            <clipPath id="innerRingClip">
+                <circle cx="50" cy="50" r="36" />
+              </clipPath>
+            </defs>
 
-            <circle cx="50" cy="50" r="46" class="track-line track-outer" />
-            <circle cx="50" cy="50" r="36" class="track-line track-inner" />
-            
-            <path :d="describeArc(50, 50, 46, 0, currentYearlyDegree)" class="arc-yearly" />
-            
-            <path 
-              v-for="day in 365" 
-              :key="day"
-              :d="describeArc(50, 50, 46, (day-1) * 0.9863, day * 0.9863)"
-              :class="day * 0.9863 <= currentYearlyDegree ? 'cell-passed' : 'cell-future'"
-            />
-
-            <g :transform="`rotate(${storedSignature}, 50, 50)`">
-              <line x1="50" y1="4" x2="50" y2="14" class="tether-birth" />
-              <circle cx="50" cy="4" r="3" class="birth-outer-orb" />
-              <rect x="49.2" y="2" width="1.6" height="8" class="birth-needle" rx="0.8" />
+            <g clip-path="url(#innerRingClip)">
+              <g :transform="`rotate(${activeDailyDegree + 180}, 50, 50)`">
+                <rect x="0" y="0" width="100" height="50" fill="#0f172a" fill-opacity="0.15" />
+              </g>
             </g>
 
-            <g v-for="e in committedEvents" :key="e.id">
-              <line 
-                :x1="getRadialX(50, 46, e.yearlyDegree)" 
-                :y1="getRadialY(50, 46, e.yearlyDegree)"
-                :x2="getRadialX(50, 36, e.dailyDegree)" 
-                :y2="getRadialY(50, 36, e.dailyDegree)" 
-                class="tether-event-bridge" 
+            <g class="year-segments">
+              <path 
+                v-for="deg in 360" 
+                :key="'y'+deg"
+                :d="describeArc(50, 50, 46, deg-1, deg)"
+                :class="deg <= currentYearlyDegree ? 'wedge-passed-year' : 'wedge-future'"
               />
-              <g :transform="`rotate(${e.yearlyDegree}, 50, 50)`">
-                <circle cx="50" cy="4" r="2" class="event-yearly-ghost" />
-              </g>
-              <g :transform="`rotate(${e.dailyDegree}, 50, 50)`">
-                <circle cx="50" cy="14" r="2.8" class="event-ghost" />
-              </g>
             </g>
 
-            <line 
-              v-if="isProjecting"
-              :x1="getRadialX(50, 46, projectionTargetYearly)" 
-              :y1="getRadialY(50, 46, projectionTargetYearly)"
-              :x2="getRadialX(50, 36, activeDailyDegree)" 
-              :y2="getRadialY(50, 36, activeDailyDegree)" 
-              class="tether-bridge" 
-            />
+            <g class="day-segments">
+              <path 
+                v-for="deg in 360" 
+                :key="'d'+deg"
+                :d="describeArc(50, 50, 36, deg-1, deg)"
+                :class="deg <= activeDailyDegree ? 'wedge-passed-day' : 'wedge-future'"
+              />
+            </g>
 
-            <g :transform="`rotate(${currentYearlyDegree}, 50, 50)`">
-              <circle cx="50" cy="4" r="4" class="sun-glow" />
-              <circle cx="50" cy="4" r="2.2" class="sun-core" />
+            <g class="markers">
+              <line x1="50" y1="2" x2="50" y2="6" class="pillar" />
+              <line x1="94" y1="50" x2="98" y2="50" class="pillar" />
+              <line x1="50" y1="94" x2="50" y2="98" class="pillar" />
+              <line x1="2" y1="50" x2="6" y2="50" class="pillar" />
             </g>
 
             <g :transform="`rotate(${activeDailyDegree}, 50, 50)`">
-              <circle cx="50" cy="14" r="5" :class="['sun-glow', { colliding: hasCollision }]" />
-              <circle cx="50" cy="14" r="2.2" class="sun-core" />
+              <text v-if="activeDailyDegree > 170 && activeDailyDegree < 190" 
+                    x="50" y="10" class="mini-icon">☀️</text>
+              <text v-if="activeDailyDegree < 10 || activeDailyDegree > 350" 
+                    x="50" y="10" class="mini-icon">🌙</text>
             </g>
-          </svg>
-
-          <div class="sun-readout">
-            <div class="cycles-whole">{{ activeCycles.whole }}</div>
-            <div class="cycles-decimal">.{{ activeCycles.decimal }}</div>
-            <div class="date-label">{{ projectedDateString }}</div>
-          </div>
         </div>
       </section>
 
@@ -252,11 +233,13 @@ const isDifferentFromBirth = ref(null);
 const birthPlaceName = ref('');
 const birthCountry = ref('');
 
+/* computed */
 const isCalibrated = computed(() => storeDiary.heliClockSet);
 const storedSignature = computed(() => storeDiary.orbitSignature);
 const birthLocationData = computed(() => storeDiary.birthLocation)
 const heliZenith = computed(() => storeDiary.calibrationZenith)
 const heliOrbit = computed(() => storeDiary.calibrationOrbit)
+const peerSignature = computed(() => storeDiary.heliSignature)
 
 /* methods */
 const requestLocation = () => {
@@ -561,6 +544,39 @@ const hasCollision = computed(() => {
   font-size: 1.4rem;
   font-weight: 800;
   color: #0f172a;
+}
+
+/* The Segments */
+.wedge-future {
+  stroke: #e2e8f0;
+  stroke-width: 0.5;
+  stroke-opacity: 0.2;
+}
+
+.wedge-passed-year {
+  stroke: #3b82f6;
+  stroke-width: 3;
+  stroke-linecap: butt;
+  transition: stroke-opacity 0.3s;
+}
+
+.wedge-passed-day {
+  stroke: #fbbf24;
+  stroke-width: 4;
+  stroke-linecap: butt;
+}
+
+/* Equinox Pillars */
+.pillar {
+  stroke: #94a3b8;
+  stroke-width: 1;
+  stroke-opacity: 0.6;
+}
+
+.mini-icon {
+  font-size: 4px;
+  text-anchor: middle;
+  fill-opacity: 0.8;
 }
 
 </style>
