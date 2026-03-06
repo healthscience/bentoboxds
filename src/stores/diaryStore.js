@@ -104,21 +104,21 @@ export const diaryStore = defineStore('diarystore', {
         this.calibrationOrbit = received.data.orbital
       } else if (received.action === 'next-tick') {
         // this.updateClock(received.vector, received.zenith)
+      } else if (received.action === 'heli-birth-signature') {
+        this.orbitSignature = received.data
       } else if (received.action === 'heli-orbit-signature') {
-        console.log('peer heli signature')
-        console.log(received.data)
         this.heliSignature = received.data
       } else if (received.action === 'peer-heli-signature') {
-        console.log('start sing')
-        console.log(received.data)
         // start heli clock info
-        this.heliSignature = received.data.home
+        // this.heliSignature = received.data.home.value.data
         this.heliProjections = received.data.productions
-        // set 
+        // set heli as active
         this.heliClockSet = true
       } else if (received.action === 'peer-heli-wedge') {
         console.log('wedge 1 degree update trigger')
         console.log(received.data)
+        this.heliSignature = received.data
+        this.heliClockSet = true
       }
     },
     processReply (received) {

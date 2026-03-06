@@ -29,7 +29,7 @@
         </aside>-->
 
         <section class="clock-display">
-          <div class="orbital-grid">heli clock222
+          <div class="orbital-grid">
             <!--<svg viewBox="0 0 100 100" class="heli-svg">
               <circle cx="50" cy="50" r="42" class="track-bg" />
               <path :d="describeArc(50, 50, 42, 0, currentDegree)" class="progress-path" />
@@ -53,8 +53,8 @@
             </svg>-->
 
             <div class="sun-core">
-              <div class="cycles-whole">{{ precisionCycles.whole }}</div>
-              <div class="cycles-decimal">.{{ precisionCycles.decimal }}</div>
+              <div class="cycles-whole">{{ activeCycles.orbits }}</div>
+              <div class="cycles-decimal">.{{ activeCycles.decimal }}</div>
               <div class="cycles-label">EARTH ORBITS</div>
               <div class="degree-sub">{{ currentDegree.toFixed(4) }}°</div>
             </div>
@@ -109,14 +109,17 @@ onMounted(() => {
 
 /* computed */
 const isCalibrated = computed(() => {
-  console.log(storeDiary.heliClockSet)
   return storeDiary.heliClockSet
 });
-const currentDegree = computed(() => storeDiary.currentVector);
+const currentDegree = computed(() => storeDiary.heliSignature.daily);
 const tempSignature = computed(() => storeDiary.tempSignature);
 
-const precisionCycles = computed(() => {
-  return { whole: 52, decimal: '43434'}
+const activeCycles = computed(() => {
+  const total = storeDiary.heliSignature.age
+  return {
+    orbits: Math.floor(total),
+    decimal: (total % 1).toFixed(6).split('.')[1]
+  };
 });
 
 // --- Daily Cycle Logic ---
@@ -177,7 +180,6 @@ const handleClockClick = () => {
   grid-template-columns: 1fr;
   grid-template-areas: "center";
   gap: 0;
-  border: 2px solid red;
 }
 
 .is-mini .heli-legend-left,
@@ -260,7 +262,7 @@ const handleClockClick = () => {
 
 .cycles-whole {
   grid-column: 1;
-  font-size: 6rem;
+  font-size: 2rem;
   font-weight: 900;
   line-height: 0.8;
   color: #0f172a;
@@ -268,12 +270,12 @@ const handleClockClick = () => {
 
 .cycles-decimal {
   grid-column: 2;
-  font-size: 1.5rem;
+  font-size: 1rem;
   font-family: 'Space Mono', monospace;
   font-weight: 700;
   color: #3b82f6;
-  padding-bottom: 0.8rem;
-  padding-left: 4px;
+  padding-bottom: 0.1rem;
+  padding-left: 1px;
 }
 
 .cycles-label {

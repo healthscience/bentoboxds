@@ -127,6 +127,8 @@ export const accountStore = defineStore('account', {
         this.peerauth = true
         this.anchorStatus = false
         this.HOPlock = false
+      } else if (received.action === 'hop-wrong-password') {
+        this.accountFeedback = received.data.feedback
       } else if (received.action === 'hop-verify') {
         // set token for subsequent HOP messages
         this.sendSocket.jwt = received.data.jwt

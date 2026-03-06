@@ -30,6 +30,9 @@
             Self verify identity
           </button>
         </div>
+        <div id="hop-beebee-feedback">
+          {{ accountFeedback }}
+        </div>
       </div>
 
       <!--<div v-else-if="!verified" class="error-state">
@@ -87,8 +90,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js';
     return storeAccount.anchorStatus
   })
 
-  const accountBoxStatus = computed(() => {
-    return storeAccount.accountStatus
+  const accountFeedback = computed(() => {
+    return storeAccount.accountFeedback
   })
 
   const HOPlock = computed(() => {
@@ -200,6 +203,9 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js';
 }
 
 .loading-spinner {
+  display: grid;
+  justify-items: center;
+  align-items: center;
   margin: 2rem 0;
 }
 
@@ -215,6 +221,11 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js';
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+#hop-beebee-feedback {
+  padding: 4em;
+  color: #080522;
 }
 
 .error-state {
