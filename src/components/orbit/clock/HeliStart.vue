@@ -53,7 +53,7 @@
             </svg>-->
 
             <div class="sun-core">
-              <div class="cycles-whole">{{ activeCycles.orbits }}</div>
+              <div class="cycles-whole">{{ activeCycles.whole }}</div>
               <div class="cycles-decimal">.{{ activeCycles.decimal }}</div>
               <div class="cycles-label">EARTH ORBITS</div>
               <div class="degree-sub">{{ currentDegree.toFixed(4) }}°</div>
@@ -116,10 +116,11 @@ const tempSignature = computed(() => storeDiary.tempSignature);
 
 const activeCycles = computed(() => {
   const total = storeDiary.heliSignature.age
-  return {
+  return total
+  /*return {
     orbits: Math.floor(total),
     decimal: (total % 1).toFixed(6).split('.')[1]
-  };
+  };*/
 });
 
 // --- Daily Cycle Logic ---
