@@ -1,6 +1,6 @@
 <template>
   <div class="heli-wrapper" @click.self="emit('close')">
-    <HeliGenesis v-if="!isCalibrated" @calibrated="setCloseGenesis()" />
+    <HeliGenesis v-if="!isCalibrated" @calibrated="isProjecting = false" />
 
     <div v-if="isCalibrated" class="heli-main-layout" :style="dynamicAtmosphere">
       
@@ -154,11 +154,6 @@ const projectedDateString = computed(() => {
 });
 
 /* --- METHODS --- */
-const setCloseGenesis = () => {
-  isProjecting.value = false;
-  storeDiary.heliClockSet = !storeDiary.heliClockSet
-}
-
 const describeArc = (x, y, r, start, end) => {
   const rad = (deg) => (deg - 90) * Math.PI / 180.0;
   const s = { x: x + r * Math.cos(rad(end)), y: y + r * Math.sin(rad(end)) };

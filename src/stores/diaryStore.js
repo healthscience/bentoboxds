@@ -110,7 +110,6 @@ export const diaryStore = defineStore('diarystore', {
         this.heliSignature = received.data
       } else if (received.action === 'peer-heli-signature') {
         // start heli clock info
-        // this.heliSignature = received.data.home.value.data
         this.heliProjections = received.data.productions
         // set heli as active
         this.heliClockSet = true

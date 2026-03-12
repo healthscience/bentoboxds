@@ -37,11 +37,12 @@ const stages = {
 .status-fuse {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 4px;
-  background: #000;
-  padding: 4px;
-  height: 100%; /* Parent controls the 50px-60px height */
-  border-top: 1px solid rgba(255,255,255,0.1);
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  padding: 6px;
+  height: 100%;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .fuse-segment {
@@ -51,51 +52,67 @@ const stages = {
   justify-content: center;
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  border-radius: 2px;
+  border-radius: 4px;
 }
 
 .fuse-hollow {
-  background: rgba(255, 255, 255, 0.02);
-  color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.9);
+  color: #1e293b;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.5);
 }
 
 .fuse-active {
-  background: linear-gradient(180deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.02) 100%);
-  color: #3b82f6;
+  background: #1e293b;
+  color: #ffffff;
+  border: 1px solid rgba(59, 130, 246, 0.6);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 0 8px rgba(59, 130, 246, 0.2);
 }
 
 .glow-line {
   position: absolute;
-  top: 0;
+  bottom: 0;
   left: 0;
   width: 100%;
-  height: 2px;
+  height: 3px;
   background: #3b82f6;
-  box-shadow: 0 0 10px #3b82f6;
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
+  border-radius: 0 0 4px 4px;
 }
 
 .segment-content {
   text-align: center;
   z-index: 2;
+  padding: 4px;
 }
 
 .label {
   display: block;
-  font-size: 0.65rem;
-  font-weight: 900;
-  letter-spacing: 2px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 1.2px;
   text-transform: uppercase;
 }
 
 .status-indicator {
   display: block;
-  font-size: 0.5rem;
-  margin-top: 2px;
-  opacity: 0.5;
+  font-size: 0.55rem;
+  margin-top: 1px;
+  opacity: 0.8;
   font-family: 'Inter', sans-serif;
+  font-weight: 600;
 }
 
 .fuse-segment:hover {
-  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+.fuse-hollow:hover {
+  background: #ffffff;
+}
+
+.fuse-active:hover {
+  background: #0f172a;
 }
 </style>

@@ -1,6 +1,6 @@
 <template>
   <div class="heli-modal-overlay">
-    <button v-if="!storeDiary.heliClockSet" class="close-btn-top" @click="emit('calibrated')">✕</button>
+    <button v-if="storeDiary.heliClockSet" class="close-btn-top" @click="emit('calibrated')">✕</button>
     <div class="calibration-card">
       <header class="modal-header">
         <div class="orb-icon"></div>
