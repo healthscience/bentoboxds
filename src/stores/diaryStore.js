@@ -114,8 +114,6 @@ export const diaryStore = defineStore('diarystore', {
         // set heli as active
         this.heliClockSet = true
       } else if (received.action === 'peer-heli-wedge') {
-        console.log('wedge 1 degree update trigger')
-        console.log(received.data)
         this.heliSignature = received.data
         this.heliClockSet = true
       }

@@ -33,6 +33,7 @@
     "ol-contextmenu": "^5.4.0",
     "ol-ext": "^4.0.18",
     "pinia": "^2.0.28",
+    "pmtiles": "^4.4.0",
     "sigma": "^3.0.0-beta.30",
     "vue": "^3.4.27",
     "vue-chartjs": "^5.2.0",

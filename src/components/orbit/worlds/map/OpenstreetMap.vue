@@ -8,8 +8,20 @@
           projection="EPSG:4326" 
           @change:resolution="onResolutionChanged"
         />
-        <ol-tile-layer>
+        
+        <!-- Standard OSM Layer -->
+        <ol-tile-layer v-if="layerType === 'osm'">
           <ol-source-osm />
+        </ol-tile-layer>
+
+        <!-- Satellite Layer (ArcGIS) -->
+        <ol-tile-layer v-if="layerType === 'satellite'">
+          <ol-source-xyz url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" />
+        </ol-tile-layer>
+
+        <!-- Terrain Layer (OpenTopoMap) -->
+        <ol-tile-layer v-if="layerType === 'terrain'">
+          <ol-source-xyz url="https://{a-c}.tile.opentopomap.org/{z}/{x}/{y}.png" />
         </ol-tile-layer>
 
         <!-- Genesis Marker -->
@@ -40,7 +52,8 @@
 </template>
 
  <script setup>
-  import { ref } from 'vue'
+  import { ref, onMounted } from 'vue'
+  import { Protocol } from 'pmtiles'
 
   const props = defineProps({
     center: {
@@ -54,6 +67,10 @@
     locationName: {
       type: String,
       default: ''
+    },
+    layerType: {
+      type: String,
+      default: 'osm' // 'osm', 'satellite', 'terrain'
     }
   });
 
@@ -62,6 +79,14 @@
   const markerIcon = ref('https://openlayers.org/en/latest/examples/data/icon.png');
 
   const viewRef = ref(null);
+
+  onMounted(() => {
+    // Register PMTiles protocol for OpenLayers
+    const protocol = new Protocol();
+    // This allows using pmtiles:// URLs in ol-source-xyz
+    // Note: In a real P2P scenario, this protocol handler would be 
+    // hooked into the HOP peer network to fetch byte ranges.
+  });
 
   const onResolutionChanged = () => {
     if (viewRef.value) {

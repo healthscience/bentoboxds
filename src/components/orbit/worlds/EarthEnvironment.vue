@@ -4,6 +4,7 @@ E<template>
       <OpenStreetMap 
         :center="[genesisLocation.lat, genesisLocation.lon]" 
         :zoom="currentZoom" 
+        :layer-type="currentLayer"
         :location-name="genesisLocation.name"
         ref="mapRef"
         @zoom-change="handleZoomChange"
@@ -65,6 +66,17 @@ E<template>
         {{ isLocked ? '🔓 UNLOCK' : '🔒 LOCK' }}
       </button>
 
+      <div class="layer-control">
+        <button 
+          v-for="layer in ['osm', 'satellite', 'terrain']" 
+          :key="layer"
+          :class="{ active: currentLayer === layer }"
+          @click="currentLayer = layer"
+        >
+          {{ layer.toUpperCase() }}
+        </button>
+      </div>
+
       <div class="fixed-indicator" v-if="isFixed && !isLocked">
         📍 FIXED (Click world to release)
       </div>
@@ -94,6 +106,7 @@ const isTaggingActive = ref(false);
 const savedRivers = ref([]);
 const savedTags = ref([]);
 const currentZoom = ref(13);
+const currentLayer = ref('osm');
 
 const { lensPos, isLocked, isFixed, zoomDepth, linkedCue, handleMouseMove, toggleLock, toggleFixed } = useLensStability();
 
@@ -417,6 +430,38 @@ const hudStyle = computed(() => ({
 
 .lock-btn:hover {
   background: rgba(255, 255, 255, 0.2);
+}
+
+.layer-control {
+  position: absolute;
+  left: -100px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 10px;
+  border-radius: 8px;
+  z-index: 101;
+}
+
+.layer-control button {
+  background: transparent;
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.layer-control button.active {
+  background: var(--sov-accent);
+  color: black;
+  border-color: var(--sov-accent);
 }
 
 .strap-status {
