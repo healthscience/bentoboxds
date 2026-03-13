@@ -1,7 +1,13 @@
 <template>
   <div class="earth-world">
     <ol-map style="width: 100%; height: 100%;">
-        <ol-view ref="viewRef" :center="[center[1], center[0]]" :zoom="zoom" projection="EPSG:4326" />
+        <ol-view 
+          ref="viewRef" 
+          :center="[center[1], center[0]]" 
+          :zoom="zoom" 
+          projection="EPSG:4326" 
+          @change:resolution="onResolutionChanged"
+        />
         <ol-tile-layer>
           <ol-source-osm />
         </ol-tile-layer>
@@ -33,29 +39,40 @@
   </div>
 </template>
 
-<script setup>
- import { ref } from 'vue'
+ <script setup>
+  import { ref } from 'vue'
 
- const props = defineProps({
-   center: {
-     type: Array,
-     default: () => [-160, 0]
-   },
-   zoom: {
-     type: Number,
-     default: 3
-   },
-   locationName: {
-     type: String,
-     default: ''
-   }
- });
+  const props = defineProps({
+    center: {
+      type: Array,
+      default: () => [-160, 0]
+    },
+    zoom: {
+      type: Number,
+      default: 3
+    },
+    locationName: {
+      type: String,
+      default: ''
+    }
+  });
 
- const markerIcon = ref('https://openlayers.org/en/latest/examples/data/icon.png');
+  const emit = defineEmits(['zoom-change']);
 
- const viewRef = ref(null);
+  const markerIcon = ref('https://openlayers.org/en/latest/examples/data/icon.png');
 
- const panTo = (coords) => {
+  const viewRef = ref(null);
+
+  const onResolutionChanged = () => {
+    if (viewRef.value) {
+      const newZoom = viewRef.value.getZoom();
+      if (newZoom !== undefined) {
+        emit('zoom-change', newZoom);
+      }
+    }
+  };
+
+  const panTo = (coords) => {
    if (viewRef.value) {
      // OpenLayers uses [lon, lat] for EPSG:4326
      // Input coords is [lat, lon] from EarthEnvironment.vue

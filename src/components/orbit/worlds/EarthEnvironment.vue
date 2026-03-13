@@ -3,9 +3,10 @@ E<template>
     <section class="grid-main-viewport base-map">
       <OpenStreetMap 
         :center="[genesisLocation.lat, genesisLocation.lon]" 
-        :zoom="genesisLocation.zoom" 
+        :zoom="currentZoom" 
         :location-name="genesisLocation.name"
         ref="mapRef"
+        @zoom-change="handleZoomChange"
       />
     </section>
 
@@ -92,6 +93,7 @@ const isDrawingActive = ref(false);
 const isTaggingActive = ref(false);
 const savedRivers = ref([]);
 const savedTags = ref([]);
+const currentZoom = ref(13);
 
 const { lensPos, isLocked, isFixed, zoomDepth, linkedCue, handleMouseMove, toggleLock, toggleFixed } = useLensStability();
 
@@ -111,6 +113,13 @@ const genesisLocation = computed(() => {
   }
   return { lat: 0, lon: 0, zoom: 13, name: '' };
 });
+
+// Initialize currentZoom from genesisLocation
+watch(genesisLocation, (newLoc) => {
+  if (newLoc && newLoc.zoom) {
+    currentZoom.value = newLoc.zoom;
+  }
+}, { immediate: true });
 
 // Watch for changes in genesisLocation to update the map
 watch(genesisLocation, (newLoc) => {
@@ -164,9 +173,17 @@ const handleNewRiverStrap = (pixelPoints) => {
 
 
 /* methods */
+const handleZoomChange = (newZoom) => {
+  if (typeof newZoom === 'number') {
+    currentZoom.value = newZoom;
+  }
+};
+
 const returnToGenesis = () => {
   // Directly command the map to snap home
-  mapRef.value.panTo([genesisLocation.lat, genesisLocation.lon]);
+  mapRef.value.panTo([genesisLocation.value.lat, genesisLocation.value.lon]);
+  // Reset zoom to genesis default
+  currentZoom.value = genesisLocation.value.zoom;
   // Reset the Portal Lens to center
   lensPos.value = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
 };
