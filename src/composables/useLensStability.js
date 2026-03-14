@@ -12,11 +12,11 @@ export function useLensStability(options = { dampening: 0.1, snapRadius: 50 }) {
   const zoomDepth = ref(0);        // Emulation depth (0: Wiki, 1: Bio, 2: Cell)
   const linkedCue = ref(null);     // Currently snapped cue
 
-  // Mocked cues for magnetic snapping
+  // Mocked cues for magnetic snapping (disabled for 3D raycasting)
   const mockCues = [
-    { id: 'heart', name: 'Heart', x: 400, y: 300, coherence: 82 },
-    { id: 'pancreas', name: 'Pancreas', x: 450, y: 400, coherence: 95 },
-    { id: 'liver', name: 'Liver', x: 350, y: 380, coherence: 78 }
+    // { id: 'heart', name: 'Heart', x: 400, y: 300, coherence: 82 },
+    // { id: 'pancreas', name: 'Pancreas', x: 450, y: 400, coherence: 95 },
+    // { id: 'liver', name: 'Liver', x: 350, y: 380, coherence: 78 }
   ];
 
   const findNearestCue = (x, y) => {
@@ -41,7 +41,7 @@ export function useLensStability(options = { dampening: 0.1, snapRadius: 50 }) {
       
       // Check for magnetic snapping
       const nearest = findNearestCue(target.value.x, target.value.y);
-      linkedCue.value = nearest;
+      // linkedCue.value = nearest; // Let 3D raycasting handle this now
 
       let finalTargetX = target.value.x;
       let finalTargetY = target.value.y;

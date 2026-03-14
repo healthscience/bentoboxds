@@ -23,9 +23,46 @@
 
       <!-- canvas for besearch worlds -->
       <div class="emulation-mask" :style="maskStyle">
+        <!-- 3D Body Canvas Container -->
+        <div id="three-canvas-container" ref="threeCanvasContainer"></div>
+
         <!-- Layer 0: Surface (Body Diagram) -->
         <canvas v-show="zoomDepth === 0 || storeAI.interactionMode === 'tools'" id="besearch-world" ref="canvasbe"></canvas>
         
+        <!-- Interaction Tools Overlay -->
+        <div class="interaction-tools">
+          <button @click="storeAI.interactionMode = 'lens'">Back to Lens</button>
+          <div class="tool-palette">
+            <div class="anny-controls">
+              <h3>Body Controls</h3>
+              <div class="control-tabs">
+                <button :class="{ active: activeTab === 'shape' }" @click="activeTab = 'shape'">Metabolism</button>
+                <button :class="{ active: activeTab === 'pose' }" @click="activeTab = 'pose'">Pose</button>
+              </div>
+
+              <div v-if="activeTab === 'shape'" class="tab-content">
+                <div class="control-group">
+                  <label>Heart Rate: {{ annyState.heartRate }} bpm</label>
+                  <input type="range" min="40" max="200" v-model.number="annyState.heartRate" @input="updateAnny">
+                </div>
+                <div class="control-group">
+                  <label>Age: {{ annyState.age }}</label>
+                  <input type="range" min="0" max="100" v-model.number="annyState.age" @input="updateAnny">
+                </div>
+                <div class="control-group">
+                  <label>Weight: {{ annyState.weight }}kg</label>
+                  <input type="range" min="2" max="200" v-model.number="annyState.weight" @input="updateAnny">
+                </div>
+              </div>
+
+              <div v-if="activeTab === 'pose'" class="tab-content">
+                <p style="color: #ccc; font-size: 0.8em;">Pose controls coming soon for Z-Anatomy models.</p>
+              </div>
+            </div>
+            <span style="color: white;">Tools Active</span>
+          </div>
+        </div>
+
         <!-- Drawing Layer (Overlay on Body) -->
         <canvas 
           v-if="storeAI.interactionMode === 'tools'" 
@@ -54,6 +91,10 @@
         {{ isLocked ? '🔓 UNLOCK' : '🔒 LOCK' }}
       </button>
 
+      <button class="tools-toggle-btn" @click="storeAI.interactionMode = storeAI.interactionMode === 'tools' ? 'lens' : 'tools'">
+        {{ storeAI.interactionMode === 'tools' ? '🔍 LENS MODE' : '🛠️ TOOLS MODE' }}
+      </button>
+
       <div class="fixed-indicator" v-if="isFixed && !isLocked">
         📍 FIXED (Click world to release)
       </div>
@@ -75,6 +116,7 @@ import { besearchStore } from '@/stores/besearchStore.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 import { useBesearchCanvas } from '@/composables/useBesearchCanvas.js'
 import { useLensStability } from '@/composables/useLensStability.js'
+import { useThreeBody } from '@/composables/useThreeBody.js'
 
   const storeCues = cuesStore()
   const storeAI = aiInterfaceStore()
@@ -154,6 +196,33 @@ import { useLensStability } from '@/composables/useLensStability.js'
   // Canvas references
   const canvasbe = ref(null)
   const canvasContainer = ref(null)
+  const threeCanvasContainer = ref(null)
+
+  // Initialize 3D Body
+  const { isInitialized: isThreeInitialized, updateMetabolism } = useThreeBody(threeCanvasContainer, zoomDepth, lensPos, linkedCue)
+
+  const annyState = reactive({
+    age: 30,
+    weight: 75,
+    height: 1.75,
+    sex: 'neutral',
+    pose: 'neutral',
+    armRotation: 0,
+    legRotation: 0,
+    topology: 'smplx',
+    showJoints: false,
+    heartRate: 72
+  });
+
+  const activeTab = ref('shape');
+
+  const updateAnny = () => {
+    updateMetabolism({
+      age: annyState.age,
+      weight: annyState.weight,
+      heartRate: annyState.heartRate
+    });
+  };
 
   // Panel management
   const isLifeToolsOpen = ref(false)
@@ -247,6 +316,7 @@ import { useLensStability } from '@/composables/useLensStability.js'
 
   /* on unmount */
   onUnmounted(() => {
+    console.log('[Cues-BodyWorld] onUnmounted called!');
     // Disconnect ResizeObserver
     /* if (resizeObserver) {
       resizeObserver.disconnect()
@@ -456,6 +526,108 @@ import { useLensStability } from '@/composables/useLensStability.js'
   pointer-events: auto;
 }
 
+.interaction-tools {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.9);
+  padding: 20px;
+  border-radius: 12px;
+  pointer-events: auto;
+  color: white;
+  border: 2px solid #00ffc8;
+  width: 280px;
+  box-shadow: 0 0 20px rgba(0, 255, 200, 0.3);
+}
+
+.anny-controls h3 {
+  margin-top: 0;
+  color: #00ffc8;
+  font-size: 1.1rem;
+  border-bottom: 1px solid #333;
+  padding-bottom: 8px;
+}
+
+.control-tabs {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #333;
+  padding-bottom: 10px;
+}
+
+.control-tabs button {
+  flex: 1;
+  background: #222;
+  border: 1px solid #444;
+  color: #888;
+  padding: 6px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.control-tabs button.active {
+  background: #00ffc8;
+  color: black;
+  border-color: #00ffc8;
+}
+
+.tab-content {
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.control-group {
+  margin: 12px 0;
+}
+
+.control-group label {
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.control-group input[type="range"] {
+  width: 100%;
+  accent-color: #00ffc8;
+}
+
+.control-group select {
+  width: 100%;
+  background: #222;
+  color: white;
+  border: 1px solid #444;
+  padding: 4px;
+  border-radius: 4px;
+}
+
+#three-canvas-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1; /* Behind the 2D canvas */
+  pointer-events: none; /* Let clicks pass through to 2D canvas for now, or handle raycasting later */
+}
+
+#besearch-world {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2; /* Above 3D canvas */
+  pointer-events: auto;
+  background: transparent !important;
+}
+
 .depth-layer {
   grid-area: 1 / 1;
   position: relative;
@@ -593,6 +765,22 @@ import { useLensStability } from '@/composables/useLensStability.js'
   padding: 5px 15px;
   border-radius: 15px;
   cursor: pointer;
+}
+
+.tools-toggle-btn {
+  position: absolute;
+  bottom: -80px;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: auto;
+  background: #00ffc8;
+  color: black;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-weight: bold;
+  border-radius: 4px;
+  white-space: nowrap;
 }
 
 .lock-btn:hover {

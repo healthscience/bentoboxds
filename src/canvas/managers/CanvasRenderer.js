@@ -35,9 +35,9 @@ export class CanvasRenderer {
    * Load background images
    */
   loadImages() {
-    // Body diagram
-    this.images.body = new Image();
-    this.images.body.src = '/src/assets/human-diagram.png';
+    // Body diagram removed for 3D integration
+    // this.images.body = new Image();
+    // this.images.body.src = '/src/assets/human-diagram.png';
 
     // Earth map (placeholder for now)
     // this.images.earth = new Image();
@@ -256,11 +256,7 @@ export class CanvasRenderer {
    * Draw body mode background (human diagram)
    */
   drawBodyBackground(viewport, config) {
-    if (this.images.body && this.images.body.complete) {
-      // Draw image scaled to fit the body world bounds
-      const bounds = config.modeSettings.body.worldBounds;
-      this.ctx.drawImage(this.images.body, 0, 0, bounds.width, bounds.height);
-    }
+    // Intentionally left blank to allow 3D canvas to show through
   }
 
   /**
