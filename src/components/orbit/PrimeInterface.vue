@@ -42,7 +42,7 @@
       />
 
       <div class="fuse-container">
-        <BesearchFuse v-if="!isInitialState && storeAI.currentMode !== 'projecting'" />
+        <BesearchFuse v-if="!isInitialState && storeAI.currentMode === 'besearch'" />
       </div>
     </main>
 

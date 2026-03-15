@@ -36,13 +36,13 @@
       <div class="bbnexus-section">
         <div class="bbnexus-title">Worlds</div>
         <div class="bbnexus-buttons">
+           <button class="bbnexus-btn" :class="activeClass('cues')" @click="emitAction('world:orbit')">
+            <span class="bbnexus-btn-icon">🧩</span>
+            Orbit
+          </button>
           <button class="bbnexus-btn" :class="activeClass('body')" @click="emitAction('world:body')">
             <span class="bbnexus-btn-icon">🫀</span>
             Body
-          </button>
-          <button class="bbnexus-btn" :class="activeClass('cues')" @click="emitAction('world:cue')">
-            <span class="bbnexus-btn-icon">🧩</span>
-            Cue
           </button>
           <button class="bbnexus-btn" :class="activeClass('earth')" @click="emitAction('world:earth')">
             <span class="bbnexus-btn-icon">🌍</span>

@@ -4,11 +4,7 @@
       <ProjectionHeli v-if="heliClockExpand" :contract-key="storeAI.contract_key" @close="handleExpand" />
     </Teleport>
     <div class="orbit-stage">
-      <div class="hud-top">
-        <div class="metric"><span>BESEARCH</span><strong>3</strong></div>
-        <div class="metric"><span>DIALOGUE</span><strong>3</strong></div>
-        <div class="metric"><span>CUES</span><strong>1234</strong></div>
-      </div>
+      <OrbitHUD />
 
       <div class="world-canvas" 
         :class="{ 'dragging-active': orbitStore.draggingToolId }"
@@ -48,6 +44,7 @@ import StartClock from '@/components/orbit/clock/HeliStart.vue'
 import ProjectionHeli from '@/components/orbit/clock/projectionHeli.vue'
 import ResonancePulse from '@/components/orbit/resonance/ResonancePulse.vue'
 import ResonancePulseghost from '@/components/orbit/resonance/ResonancePulseghost.vue'
+import OrbitHUD from '@/components/orbit/parts/OrbitHUD.vue'
 
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { useOrbitStore } from '@/stores/orbitStore.js'
@@ -151,34 +148,6 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   background: white;
-}
-
-.hud-top {
-  display: flex;
-  justify-content: center;
-  gap: 4rem;
-  padding: 2rem;
-  z-index: 10;
-}
-
-.metric {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.metric span {
-  font-size: 0.6rem;
-  font-weight: 800;
-  color: var(--sov-accent);
-  letter-spacing: 0.1em;
-  margin-bottom: 0.25rem;
-}
-
-.metric strong {
-  font-size: 1.5rem;
-  color: rgb(34, 13, 228);
-  font-family: 'Space Mono', monospace;
 }
 
 .world-canvas {

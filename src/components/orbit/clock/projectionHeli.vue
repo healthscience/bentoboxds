@@ -63,10 +63,14 @@
               </g>
 
               <circle cx="50" cy="50" r="36" class="track-bg" />
-              <path :d="describeArc(50, 50, 36, 270, (displayDaily + 180) % 360)" class="wedge-day" />
               
               <path 
-                :d="describeArc(50, 50, 36, (displayDaily + 180) % 360, 630)" 
+                :d="describeArc(50, 50, 36, 180, (displayDaily + 180) % 360)" 
+                class="wedge-day" 
+              />
+              
+              <path 
+                :d="describeArc(50, 50, 36, (displayDaily + 180) % 360, 540)" 
                 class="ghost-track" 
                 fill="none" 
                 stroke="#fbbf24" 
@@ -76,12 +80,30 @@
               />
             </g>
 
-            <g :transform="`rotate(${displayDaily + 180}, 50, 50)`">
-              <circle cx="50" cy="14" r="4.5" fill="#fbbf24" filter="url(#sunGlow)" />
-              <text y="15.5" x="50" font-size="5" text-anchor="middle" class="sun-icon">
-                {{ isDaylight ? '☀️' : '🌙' }}
-              </text>
+            <g class="horizon-zones" opacity="0.2">
+              
+              <path 
+                v-if="storedSignature?.sunrise"
+                :d="describeArc(50, 50, 48, storedSignature.sunrise - 15, storedSignature.sunrise + 15)" 
+                fill="url(#sunriseGradient)" 
+              />
+
+              <path 
+                v-if="storedSignature?.sunset"
+                :d="describeArc(50, 50, 48, storedSignature.sunset - 15, storedSignature.sunset + 15)" 
+                fill="url(#sunsetGradient)" 
+              />
             </g>
+
+              <linearGradient id="sunriseGradient" x1="0%" y1="100%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#6366f1" />
+                <stop offset="100%" stop-color="#fbbf24" />
+              </linearGradient>
+              <linearGradient id="sunsetGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#fbbf24" />
+                <stop offset="100%" stop-color="#6366f1" />
+              </linearGradient>
+
           </svg>
 
           <div class="sun-readout-overlay">

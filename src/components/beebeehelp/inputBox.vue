@@ -58,18 +58,22 @@
       </div>
     </div>
     <data-box v-if="dataBoxStatus === true"></data-box>
+    <bento-cues v-if="cueStatus === true"></bento-cues>
   </div>
 </template>
 
 <script setup>
-  import DataBox from '@/components/dataspace/dataBox.vue'
-  import BbNexusToolbar from '@/components/nexus/bbNexusToolbar.vue'
+import DataBox from '@/components/dataspace/dataBox.vue'
+import BentoCues from '@/components/bentocues/healthCues.vue'
+import BbNexusToolbar from '@/components/nexus/bbNexusToolbar.vue'
 import { libraryStore } from '@/stores/libraryStore.js'
 import { besearchStore } from '@/stores/besearchStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { teachingStore } from '@/stores/teachingStore.js'
+import { accountStore } from '@/stores/accountStore.js'
 import { ref, computed, watch } from 'vue'
 
+  const storeAccount = accountStore()
   const storeLibrary = libraryStore()
   const storeAI = aiInterfaceStore()
   const storeTeaching = teachingStore()
@@ -108,6 +112,10 @@ import { ref, computed, watch } from 'vue'
   /* computed */
   const beebeeAIStatus = computed(() => {
     return storeAI.helpchatAsk
+  })
+
+  const cueStatus = computed(() => {
+    return storeAI.bentocuesState
   })
 
   const uploadCurrent = computed(() => {
@@ -221,9 +229,10 @@ import { ref, computed, watch } from 'vue'
       storeBesearch.setNexusWorld('body')
       return
     }
-    if (action === 'world:cue') {
+    if (action === 'world:orbit') {
       storeAI.bentobesearchState = true
-      storeBesearch.setNexusWorld('cues')
+      storeAccount.orbitLive === true
+      // storeBesearch.setNexusWorld('orbit')
       return
     }
     if (action === 'world:earth') {

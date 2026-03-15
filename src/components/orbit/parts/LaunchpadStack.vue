@@ -34,7 +34,7 @@
         <h2 v-else>Intent Extraction</h2>
       </header>
 
-      <BesearchLens :lenses="extractedData" />
+      <LifestrapLens :lenses="extractedData" />
 
       <div class="meta-actions-grid">
         <template v-if="mode === 'extracting'">
@@ -58,8 +58,8 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import BesearchLens from '@/components/orbit/BesearchLens.vue';
+import { ref, computed } from 'vue';
+import LifestrapLens from '@/components/orbit/parts/LifestrapLens.vue';
 import BeeBeeAvatar from '@/components/agents/BeeBeeAvatar.vue';
 import inputBox from '@/components/beebeehelp/inputBox.vue';
 

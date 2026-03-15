@@ -555,7 +555,16 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       }
     },
     processReply (received) {
-      if (received.action === 'agent-task') {
+      if (received.action === 'npl-reply') {
+        if (received.task === 'lens-extraction') {
+          console.log('lens data update store')
+          console.log(received)
+          this.digestInput.capacity.push(received.data.lens.capacity)
+          this.digestInput.coherence.push(received.data.lens.coherence)
+          this.digestInput.context.push(received.data.lens.context)
+        }
+      } else if (received.action === 'agent-task') {
+
         if (received.task === 'cale-evolution') {
           this.boxModelUpdate[received.context.bbid] = {}
           this.boxModelUpdate[received.context.bbid] = received.model.model
