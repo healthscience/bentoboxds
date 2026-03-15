@@ -1,106 +1,70 @@
 <template>
   <div id="world-holder" @mousemove="handleMouseMove" @click="toggleFixed">
-    <div id="canvas-container" ref="canvasContainer">
-    <div id="mode-display">{{ storeBesearch.canvasState.currentMode }}</div>
-      <div id="zoom-controls">
-        <button @click="zoomIn" class="zoom-btn">+</button>
-        <span class="zoom-display">{{ zoomPercentage }}%</span>
-        <button @click="zoomOut" class="zoom-btn">-</button>
+    <!-- Left Pane: Static Anatomical Map -->
+    <div class="pane left-pane" @click="handleMapClick">
+      <img src="@/assets/human-diagram.png" alt="Human Anatomy Map" class="anatomy-map" />
+    </div>
+
+    <!-- Right Pane: Physics Sandbox -->
+    <div class="pane right-pane" ref="physicsContainer">
+      <div id="three-canvas-container" ref="threeCanvasContainer"></div>
+      <div class="evolution-stats" v-if="curator">
+        <div class="stats-row">Gen: {{ curator.generation }} | Best Fitness: {{ bestFitness.toFixed(2) }}</div>
+        <button class="evolve-toggle-btn" @click="toggleEvolution">
+          {{ isEvolving ? '⏹ STOP EVOLUTION' : '▶ START EVOLUTION' }}
+        </button>
       </div>
-      <!-- Layer 1: Biomarker (Organ Emulation) -->
-      <div v-if="zoomDepth === 1" class="depth-layer biomarker-layer">
-        <div class="organ-placeholder" :style="{ backgroundColor: organColor }">
-          {{ linkedCue ? linkedCue.name : 'Select an organ' }} Emulation
-        </div>
-      </div>
-
-      <!-- Layer 2: Cellular (Microscopic) -->
-      <div v-if="zoomDepth === 2" class="depth-layer cellular-layer">
-        <div class="cell-placeholder">
-          Cellular Structure: {{ linkedCue ? linkedCue.name : 'General' }}
-        </div>
-      </div>
-
-      <!-- canvas for besearch worlds -->
-      <div class="emulation-mask" :style="maskStyle">
-        <!-- 3D Body Canvas Container -->
-        <div id="three-canvas-container" ref="threeCanvasContainer"></div>
-
-        <!-- Layer 0: Surface (Body Diagram) -->
-        <canvas v-show="zoomDepth === 0 || storeAI.interactionMode === 'tools'" id="besearch-world" ref="canvasbe"></canvas>
-        
-        <!-- Interaction Tools Overlay -->
-        <div class="interaction-tools">
-          <button @click="storeAI.interactionMode = 'lens'">Back to Lens</button>
-          <div class="tool-palette">
-            <div class="anny-controls">
-              <h3>Body Controls</h3>
-              <div class="control-tabs">
-                <button :class="{ active: activeTab === 'shape' }" @click="activeTab = 'shape'">Metabolism</button>
-                <button :class="{ active: activeTab === 'pose' }" @click="activeTab = 'pose'">Pose</button>
-              </div>
-
-              <div v-if="activeTab === 'shape'" class="tab-content">
-                <div class="control-group">
-                  <label>Heart Rate: {{ annyState.heartRate }} bpm</label>
-                  <input type="range" min="40" max="200" v-model.number="annyState.heartRate" @input="updateAnny">
-                </div>
-                <div class="control-group">
-                  <label>Age: {{ annyState.age }}</label>
-                  <input type="range" min="0" max="100" v-model.number="annyState.age" @input="updateAnny">
-                </div>
-                <div class="control-group">
-                  <label>Weight: {{ annyState.weight }}kg</label>
-                  <input type="range" min="2" max="200" v-model.number="annyState.weight" @input="updateAnny">
-                </div>
-              </div>
-
-              <div v-if="activeTab === 'pose'" class="tab-content">
-                <p style="color: #ccc; font-size: 0.8em;">Pose controls coming soon for Z-Anatomy models.</p>
-              </div>
-            </div>
-            <span style="color: white;">Tools Active</span>
-          </div>
-        </div>
-
-        <!-- Drawing Layer (Overlay on Body) -->
-        <canvas 
-          v-if="storeAI.interactionMode === 'tools'" 
-          id="drawing-canvas" 
-          ref="drawingCanvas" 
-          @mousedown="startDraw" 
-          @mousemove="draw" 
-          @mouseup="endDraw"
-        ></canvas>
+      <div id="besearch-world-container" ref="canvasContainer">
+        <canvas id="besearch-world" ref="canvasbe"></canvas>
       </div>
     </div>
 
-    <!-- Lens HUD -->
+    <!-- Lens HUD (Floating) -->
     <div 
       class="lens-hud" 
       :style="hudStyle"
       :class="{ 'is-locked': isLocked, 'is-fixed': isFixed }"
       @click.stop
     >
+      <div class="strap-status" v-if="linkedCue">
+        {{ linkedCue.name }} | {{ depthName }}
+      </div>
+      
+      <div class="fixed-indicator" v-if="isFixed">
+        LENS FIXED
+      </div>
+
       <div class="depth-control">
-        <input type="range" min="0" max="2" v-model.number="zoomDepth" orient="vertical">
+        <input 
+          type="range" 
+          min="0" 
+          max="2" 
+          step="1" 
+          v-model.number="zoomDepth"
+          orient="vertical"
+        />
         <span class="depth-label">{{ depthName }}</span>
       </div>
 
-      <button class="lock-btn" @click="toggleLock">
+      <button class="lock-btn" @click.stop="toggleLock">
         {{ isLocked ? '🔓 UNLOCK' : '🔒 LOCK' }}
-      </button>
-
-      <button class="tools-toggle-btn" @click="storeAI.interactionMode = storeAI.interactionMode === 'tools' ? 'lens' : 'tools'">
-        {{ storeAI.interactionMode === 'tools' ? '🔍 LENS MODE' : '🛠️ TOOLS MODE' }}
       </button>
 
       <div class="fixed-indicator" v-if="isFixed && !isLocked">
         📍 FIXED (Click world to release)
       </div>
+    </div>
 
-      <div class="strap-status" v-if="linkedCue">
-        Linked to: {{ linkedCue.name }} | Coherence: {{ linkedCue.coherence }}%
+    <!-- Depth Layers (Biomarker/Cellular) -->
+    <div v-if="zoomDepth === 1" class="depth-layer biomarker-layer">
+      <div class="organ-placeholder" :style="{ backgroundColor: organColor }">
+        {{ linkedCue ? linkedCue.name : 'BIOMARKER' }} EMULATION
+      </div>
+    </div>
+
+    <div v-if="zoomDepth === 2" class="depth-layer cellular-layer">
+      <div class="cell-placeholder">
+        CELLULAR EMULATION
       </div>
     </div>
   </div>
@@ -118,12 +82,50 @@ import { useBesearchCanvas } from '@/composables/useBesearchCanvas.js'
 import { useLensStability } from '@/composables/useLensStability.js'
 import { useThreeBody } from '@/composables/useThreeBody.js'
 
+import { GeneticCurator } from '@/systems/body-evolution/genetic-curator.js'
+import { BodyVessel } from '@/systems/body-evolution/foundation-physics.js'
+import { useEvolutionRenderer } from '@/composables/useEvolutionRenderer.js'
+
   const storeCues = cuesStore()
   const storeAI = aiInterfaceStore()
   const storeAccount = accountStore()
   const storeBentobox = bentoboxStore()
   const storeBesearch = besearchStore()
   const storeLibrary = libraryStore()
+
+  const curator = ref(null)
+  const isEvolving = ref(false)
+  const bestFitness = ref(0)
+  const threeCanvasContainer = ref(null)
+
+  // Initialize Physics and Renderer
+  const vessel = new BodyVessel()
+  useEvolutionRenderer(threeCanvasContainer, vessel)
+
+  onMounted(async () => {
+    curator.value = new GeneticCurator(vessel)
+    
+    await nextTick()
+    if (threeCanvasContainer.value) {
+      console.log('Three canvas container ready:', threeCanvasContainer.value.clientWidth, threeCanvasContainer.value.clientHeight)
+    }
+  })
+
+  const toggleEvolution = () => {
+    if (isEvolving.value) {
+      curator.value.stopEvolution()
+    } else {
+      curator.value.startEvolution()
+    }
+    isEvolving.value = !isEvolving.value
+  }
+
+  const handleMapClick = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = (e.clientX - rect.left) / rect.width
+    const y = (e.clientY - rect.top) / rect.height
+    console.log(`Map clicked at: ${x.toFixed(2)}, ${y.toFixed(2)}`)
+  }
 
   const { lensPos, isLocked, isFixed, zoomDepth, linkedCue, handleMouseMove, toggleLock, toggleFixed } = useLensStability();
 
@@ -196,31 +198,19 @@ import { useThreeBody } from '@/composables/useThreeBody.js'
   // Canvas references
   const canvasbe = ref(null)
   const canvasContainer = ref(null)
-  const threeCanvasContainer = ref(null)
 
-  // Initialize 3D Body
-  const { isInitialized: isThreeInitialized, updateMetabolism } = useThreeBody(threeCanvasContainer, zoomDepth, lensPos, linkedCue)
+  // Initialize 3D Body (Disabled for now)
+  // const { isInitialized: isThreeInitialized, updateMetabolism } = useThreeBody(threeCanvasContainer, zoomDepth, lensPos, linkedCue)
+  const isThreeInitialized = ref(false)
+  const updateMetabolism = () => {}
 
-  const annyState = reactive({
-    age: 30,
-    weight: 75,
-    height: 1.75,
-    sex: 'neutral',
-    pose: 'neutral',
-    armRotation: 0,
-    legRotation: 0,
-    topology: 'smplx',
-    showJoints: false,
+  const bodyState = reactive({
     heartRate: 72
   });
 
-  const activeTab = ref('shape');
-
-  const updateAnny = () => {
+  const updateBody = () => {
     updateMetabolism({
-      age: annyState.age,
-      weight: annyState.weight,
-      heartRate: annyState.heartRate
+      heartRate: bodyState.heartRate
     });
   };
 
@@ -507,105 +497,129 @@ import { useThreeBody } from '@/composables/useThreeBody.js'
 #world-holder {
   width: 100%;
   height: 100%;
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: 1fr;
+  display: flex;
+  flex-direction: row;
   position: relative;
+  background: #050505;
+  overflow: hidden;
 }
 
-.emulation-mask {
-  grid-area: 1 / 1;
+.pane {
+  flex: 1;
+  height: 100%;
   position: relative;
+  border: 1px solid rgba(0, 255, 200, 0.1);
+}
+
+.left-pane {
+  background: #0a0a0a;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.anatomy-map {
+  max-height: 90%;
+  max-width: 90%;
+  object-fit: contain;
+  opacity: 0.8;
+}
+
+.map-overlay {
+  position: absolute;
+  top: 5%;
+  left: 5%;
+  width: 90%;
+  height: 90%;
+  pointer-events: none;
+}
+
+.anchor-point {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: #00ffc8;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  cursor: pointer;
+  box-shadow: 0 0 10px #00ffc8;
+  transition: transform 0.2s;
+}
+
+.anchor-point:hover {
+  transform: translate(-50%, -50%) scale(1.5);
+}
+
+.anchor-label {
+  position: absolute;
+  top: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #00ffc8;
+  font-size: 10px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.right-pane {
+  background: #000;
+  position: relative;
+  overflow: hidden;
+  flex: 1;
+  height: 100%;
+}
+
+#three-canvas-container {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
-  pointer-events: none;
-  z-index: 5;
-}
-
-.emulation-mask canvas {
+  z-index: 1;
   pointer-events: auto;
 }
 
-.interaction-tools {
+.evolution-stats {
   position: absolute;
   top: 10px;
-  right: 10px;
-  z-index: 9999;
-  background: rgba(0, 0, 0, 0.9);
-  padding: 20px;
-  border-radius: 12px;
-  pointer-events: auto;
-  color: white;
-  border: 2px solid #00ffc8;
-  width: 280px;
-  box-shadow: 0 0 20px rgba(0, 255, 200, 0.3);
-}
-
-.anny-controls h3 {
-  margin-top: 0;
+  left: 10px;
   color: #00ffc8;
-  font-size: 1.1rem;
-  border-bottom: 1px solid #333;
-  padding-bottom: 8px;
-}
-
-.control-tabs {
-  display: flex;
-  gap: 5px;
-  margin-bottom: 15px;
-  border-bottom: 1px solid #333;
-  padding-bottom: 10px;
-}
-
-.control-tabs button {
-  flex: 1;
-  background: #222;
-  border: 1px solid #444;
-  color: #888;
-  padding: 6px;
-  cursor: pointer;
+  font-family: monospace;
+  background: rgba(0, 0, 0, 0.8);
+  padding: 12px;
   border-radius: 4px;
-  font-size: 0.8rem;
+  border: 1px solid #00ffc8;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-.control-tabs button.active {
+.evolve-toggle-btn {
   background: #00ffc8;
   color: black;
-  border-color: #00ffc8;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 10px;
+  border-radius: 2px;
 }
 
-.tab-content {
-  animation: fadeIn 0.2s ease-in-out;
+.evolve-toggle-btn:hover {
+  background: #00ccaa;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+.lens-hud {
+  position: absolute;
+  pointer-events: none;
+  z-index: 100;
 }
 
-.control-group {
-  margin: 12px 0;
-}
-
-.control-group label {
-  display: block;
-  font-size: 0.9rem;
-  margin-bottom: 4px;
-}
-
-.control-group input[type="range"] {
-  width: 100%;
-  accent-color: #00ffc8;
-}
-
-.control-group select {
-  width: 100%;
-  background: #222;
-  color: white;
-  border: 1px solid #444;
-  padding: 4px;
-  border-radius: 4px;
-}
 
 #three-canvas-container {
   position: absolute;
@@ -617,15 +631,22 @@ import { useThreeBody } from '@/composables/useThreeBody.js'
   pointer-events: none; /* Let clicks pass through to 2D canvas for now, or handle raycasting later */
 }
 
-#besearch-world {
+#besearch-world-container {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 2; /* Above 3D canvas */
-  pointer-events: auto;
+  z-index: 2;
+  pointer-events: none; /* Let clicks pass to 3D canvas */
+}
+
+#besearch-world {
+  display: block;
+  width: 100%;
+  height: 100%;
   background: transparent !important;
+  pointer-events: none;
 }
 
 .depth-layer {
@@ -686,7 +707,6 @@ import { useThreeBody } from '@/composables/useThreeBody.js'
 
 /* Lens HUD Styles */
 .lens-hud {
-  grid-area: 1 / 1;
   position: absolute;
   top: -125px; /* Offset to sit above the lens circle */
   left: -125px;
@@ -765,22 +785,6 @@ import { useThreeBody } from '@/composables/useThreeBody.js'
   padding: 5px 15px;
   border-radius: 15px;
   cursor: pointer;
-}
-
-.tools-toggle-btn {
-  position: absolute;
-  bottom: -80px;
-  left: 50%;
-  transform: translateX(-50%);
-  pointer-events: auto;
-  background: #00ffc8;
-  color: black;
-  border: none;
-  padding: 8px 12px;
-  cursor: pointer;
-  font-weight: bold;
-  border-radius: 4px;
-  white-space: nowrap;
 }
 
 .lock-btn:hover {
