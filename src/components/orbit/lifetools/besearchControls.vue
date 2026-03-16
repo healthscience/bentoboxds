@@ -17,50 +17,50 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import BesearchCreateForm from './besearchCreateForm.vue'
 import { besearchStore } from '@/stores/besearchStore.js'
 
 // No emits needed - component is fully self-contained
 
 const storeBesearch = besearchStore()
-const showCreateForm = ref(false)
+// const showCreateForm = ref(false)
+
+/* computed */
+const showCreateForm = computed(() => storeBesearch.showCreateForm)
 
 /* methods */
 const handleCreate = () => {
-  showCreateForm.value = true
+  storeBesearch.showCreateForm = !storeBesearch.showCreateForm
 }
 
 const handleCloseCreateForm = () => {
-  showCreateForm.value = false
+  storeBesearch.showCreateForm = !storeBesearch.showCreateForm
 }
 
-  const handleCreateBesearchCycle = (formData) => {
-    console.log('Creating besearch cycle:', formData)
-    const diagonalOffset = storeBesearch.besearchCyles.length * 40
-    const newBesearch = {
-      id: `besearch-${Date.now()}`,
-      name: formData.name,
-      description: formData.description,
-      category: formData.category,
-      status: formData.status,
-      networkExperimentId: formData.networkExperiment,
-      markerIds: [formData.marker],
-      consilience: [],
-      besearchCycles: [],
-      x: 200 + diagonalOffset,
-      y: 200 + diagonalOffset,
-      active: true,
-      linkedInterventions: [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    }
-  console.log('New besearch:', newBesearch)
+const handleCreateBesearchCycle = (formData) => {
+  const diagonalOffset = storeBesearch.besearchCyles.length * 40
+  const newBesearch = {
+    id: `besearch-${Date.now()}`,
+    name: formData.name,
+    description: formData.description,
+    category: formData.category,
+    status: formData.status,
+    networkExperimentId: formData.networkExperiment,
+    markerIds: [formData.marker],
+    consilience: [],
+    besearchCycles: [],
+    x: 200 + diagonalOffset,
+    y: 200 + diagonalOffset,
+    active: true,
+    linkedInterventions: [],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  }
   storeBesearch.saveToHOP(newBesearch)
 }
 
 const handleStart = async () => {
-  console.log('Besearch start action')
   const result = await storeBesearch.startBesearch()
   if (result.success) {
     console.log('Besearch started successfully:', result.message)
@@ -70,7 +70,6 @@ const handleStart = async () => {
 }
 
 const handleStop = async () => {
-  console.log('Besearch stop action')
   const result = await storeBesearch.stopBesearch()
   if (result.success) {
     console.log('Besearch stopped successfully:', result.message)

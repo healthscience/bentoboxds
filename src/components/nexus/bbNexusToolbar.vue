@@ -51,7 +51,7 @@
         </div>
       </div>
       <div class="bbnexus-section">
-        <div class="bbnexus-title">Context</div>
+        <div class="bbnexus-title">Tools</div>
         <div class="bbnexus-buttons">
           <button class="bbnexus-btn" @click="emitAction('context:cues')">
             <span class="bbnexus-btn-icon">🧠</span>

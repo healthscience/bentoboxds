@@ -107,7 +107,7 @@ import { useEvolutionRenderer } from '@/composables/useEvolutionRenderer.js'
     
     await nextTick()
     if (threeCanvasContainer.value) {
-      console.log('Three canvas container ready:', threeCanvasContainer.value.clientWidth, threeCanvasContainer.value.clientHeight)
+      // console.log('Three canvas container ready:', threeCanvasContainer.value.clientWidth, threeCanvasContainer.value.clientHeight)
     }
   })
 
@@ -124,7 +124,7 @@ import { useEvolutionRenderer } from '@/composables/useEvolutionRenderer.js'
     const rect = e.currentTarget.getBoundingClientRect()
     const x = (e.clientX - rect.left) / rect.width
     const y = (e.clientY - rect.top) / rect.height
-    console.log(`Map clicked at: ${x.toFixed(2)}, ${y.toFixed(2)}`)
+    // console.log(`Map clicked at: ${x.toFixed(2)}, ${y.toFixed(2)}`)
   }
 
   const { lensPos, isLocked, isFixed, zoomDepth, linkedCue, handleMouseMove, toggleLock, toggleFixed } = useLensStability();
@@ -306,7 +306,6 @@ import { useEvolutionRenderer } from '@/composables/useEvolutionRenderer.js'
 
   /* on unmount */
   onUnmounted(() => {
-    console.log('[Cues-BodyWorld] onUnmounted called!');
     // Disconnect ResizeObserver
     /* if (resizeObserver) {
       resizeObserver.disconnect()
@@ -438,7 +437,6 @@ import { useEvolutionRenderer } from '@/composables/useEvolutionRenderer.js'
     }
     
     if (newDepth > 0 && linkedCue.value) {
-      console.log(`Activating emulation for: ${linkedCue.value.name} at depth ${newDepth}`);
       // Mock message to HOP
       /* storeAI.addSystemMessage({
         role: 'system',

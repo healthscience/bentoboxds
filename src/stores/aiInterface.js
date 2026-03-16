@@ -156,7 +156,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     },
     previousLLM: {},
     isInitialState: true,
-    digestInput: {}
+    digestInput: { capacity: [], context: [], coherence: [] }
   }),
   actions: {
     sendMessageHOP (message) {
@@ -437,8 +437,6 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       aiMessageout.data = hopQuestion
       aiMessageout.bbid = hashQuestion
       this.trackAgentProgress(hashQuestion)
-      // console.log('send message to HOP')
-      // console.log(aiMessageout)
       this.storeChat.beginChat = true
       // Call handleIncomingMessage to update chat history with the peer question
       // Use original question if provided, otherwise extract from hopQuestion
@@ -557,11 +555,12 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     processReply (received) {
       if (received.action === 'npl-reply') {
         if (received.task === 'lens-extraction') {
-          console.log('lens data update store')
-          console.log(received)
-          this.digestInput.capacity.push(received.data.lens.capacity)
-          this.digestInput.coherence.push(received.data.lens.coherence)
-          this.digestInput.context.push(received.data.lens.context)
+          if (received.data.lens.context.length > 0 ) {
+            this.digestInput.capacity.push(received.data.lens.capacity)
+            this.digestInput.coherence.push(received.data.lens.coherence)
+            let splitContext = received.data.lens.context.split(',')
+            this.digestInput.context = splitContext
+          }
         }
       } else if (received.action === 'agent-task') {
 

@@ -1,17 +1,50 @@
 <template>
   <div class="besearch-lens-grid">
-    <div v-for="(data, lens) in lenses" :key="lens" :class="['lens-box', lens]">
+    <!-- Capacity -->
+    <div class="lens-box capacity">
       <header class="lens-header">
         <span class="pulse-dot"></span>
-        <h3>{{ lens }}</h3>
+        <h3>capacity</h3>
       </header>
       <div class="variable-list">
-        <div v-for="tag in data" :key="tag" class="variable-tag">
+        <div v-for="tag in lenses.capacity" :key="tag" class="variable-tag">
           <button @click="handleCueSpace(tag)">{{ tag }}</button>
         </div>
-        <div v-if="!data.length" class="empty-state">Initialize...</div>
+        <div v-if="!lenses.capacity?.length" class="empty-state">Initialize...</div>
       </div>
     </div>
+
+    <!-- Context -->
+    <div class="lens-box context">
+      <header class="lens-header">
+        <span class="pulse-dot"></span>
+        <h3>context</h3>
+      </header>
+      <div class="variable-list">
+        <div v-for="tag in lenses.context" :key="tag" class="variable-tag">
+          <button @click="handleCueSpace(tag)">{{ tag }}</button>
+        </div>
+        <div v-if="!lenses.context?.length" class="empty-state">Initialize...</div>
+      </div>
+      <div class="lens-actions">
+        <button class="add-cue-btn" @click="addCueLifestap('context')">+ add a cue</button>
+      </div>
+    </div>
+
+    <!-- Coherence -->
+    <div class="lens-box coherence">
+      <header class="lens-header">
+        <span class="pulse-dot"></span>
+        <h3>coherence</h3>
+      </header>
+      <div class="variable-list">
+        <div v-for="tag in lenses.coherence" :key="tag" class="variable-tag">
+          <button @click="handleCueSpace(tag)">{{ tag }}</button>
+        </div>
+        <div v-if="!lenses.coherence?.length" class="empty-state">Initialize...</div>
+      </div>
+    </div>
+
     <!-- modals for tools -->
      <BentoSpace></BentoSpace>
   </div>
@@ -76,6 +109,12 @@ const handleCueSpace = (spaceID) => {
   storeAI.bentospaceState = !storeAI.bentospaceState
 }
 
+const addCueLifestap = (lensType) => {
+  // open cue modal
+  storeAI.cueAction = 'cues'
+  storeAI.bentocuesState = true
+}
+
 </script>
 
 <style scoped>
@@ -91,6 +130,16 @@ const handleCueSpace = (spaceID) => {
   border-radius: var(--sov-border-radius);
   border-top: 4px solid #ccc;
   background: var(--sov-bg-soft);
+  transition: opacity 0.3s ease;
+}
+
+.capacity, .coherence {
+  opacity: 0.6;
+}
+
+.context {
+  opacity: 1;
+  z-index: 1;
 }
 
 .capacity { border-top-color: var(--sov-capacity); }
@@ -100,7 +149,7 @@ const handleCueSpace = (spaceID) => {
 .lens-header {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   margin-bottom: 15px;
 }
 
@@ -109,38 +158,61 @@ const handleCueSpace = (spaceID) => {
   height: 8px;
   border-radius: 50%;
   background: currentColor;
-  animation: pulse 2s infinite;
 }
 
-/* Stagger the appearance of tags */
-.variable-tag:nth-child(1) { animation-delay: 0.1s; }
-.variable-tag:nth-child(2) { animation-delay: 0.2s; }
-.variable-tag:nth-child(3) { animation-delay: 0.3s; }
-
-@keyframes tag-pop {
-  0% { opacity: 0; transform: scale(0.8) translateY(10px); }
-  100% { opacity: 1; transform: scale(1) translateY(0); }
+.variable-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-@keyframes pulse {
-  0% { opacity: 1; }
-  50% { opacity: 0.4; }
-  100% { opacity: 1; }
-}
-
-/* Inside BesearchLens.vue */
 .variable-tag button {
+  width: 100%;
+  text-align: left;
+  padding: 8px 12px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--sov-text);
   cursor: pointer;
-  border: 1px solid var(--sov-context);
-  background: transparent;
   transition: all 0.2s;
 }
 
 .variable-tag button:hover {
-  background: var(--sov-context);
-  color: white;
-  box-shadow: 0 0 15px var(--sov-context);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: currentColor;
+}
+
+.capacity .variable-tag button:hover { color: var(--sov-capacity); }
+.context .variable-tag button:hover { color: var(--sov-context); }
+.coherence .variable-tag button:hover { color: var(--sov-coherence); }
+
+.empty-state {
+  font-size: 0.8rem;
+  opacity: 0.5;
+  font-style: italic;
+}
+
+.lens-actions {
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.add-cue-btn {
+  width: 100%;
+  padding: 6px;
+  background: transparent;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  color: var(--sov-text);
+  font-size: 0.8rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.add-cue-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--sov-context);
 }
 </style>
-
-

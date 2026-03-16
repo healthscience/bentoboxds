@@ -8,7 +8,6 @@ import { useChatStore } from '@/stores/chatStore.js'
 import { cuesStore } from "@/stores/cuesStore.js"
 import { besearchStore } from "@/stores/besearchStore.js"
 import { diaryStore } from "@/stores/diaryStore.js"
-import TileSource from "ol/source/Tile";
 
 export const useSocketStore = defineStore({
   id: "socket",
@@ -63,7 +62,7 @@ export const useSocketStore = defineStore({
       // console.log('ui socket')
       // we parse the json that we receive
       var received = JSON.parse(evt.data)
-      // console.log(received)
+      console.log(received)
       // keep in message log for session?
       this.messages.push(received)
       // parse and route to logic processing
@@ -84,8 +83,6 @@ export const useSocketStore = defineStore({
       } else if (received.type == 'bbai-stream-reply') {
         this.aiStore.processStreamReply(received)
       } else if (received.type == 'bbai-reply') {
-        console.log('bbai-reply')
-        console.log(received)
         this.aiStore.processReply(received)
       } else if (received.type == 'bbai-init') {
         this.aiStore.processReply(received)

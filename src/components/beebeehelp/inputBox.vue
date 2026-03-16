@@ -71,6 +71,7 @@ import { besearchStore } from '@/stores/besearchStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { teachingStore } from '@/stores/teachingStore.js'
 import { accountStore } from '@/stores/accountStore.js'
+import { useOrbitStore } from '@/stores/orbitStore.js'
 import { ref, computed, watch } from 'vue'
 
   const storeAccount = accountStore()
@@ -78,6 +79,7 @@ import { ref, computed, watch } from 'vue'
   const storeAI = aiInterfaceStore()
   const storeTeaching = teachingStore()
   const storeBesearch = besearchStore()
+  const storeOrbit = useOrbitStore()
 
   const props = defineProps({
     prompt: Object,
@@ -207,7 +209,6 @@ import { ref, computed, watch } from 'vue'
   }
 
   const handleNexusAction = (action) => {
-    console.log('Nexus action:', action)
     if (action === 'besearch:create') {
       storeAI.bentobesearchState = false
       storeBesearch.setNexusContext({ source: 'beebee' })
@@ -224,19 +225,31 @@ import { ref, computed, watch } from 'vue'
       toolAgent('upload')
       return
     }
+    if (action === 'data:network') {
+      storeAccount.accountStatus = true
+      return
+    } 
+    storeAccount.accountStatus = true
+
     if (action === 'world:body') {
       storeAI.bentobesearchState = true
+      storeAI.currentMode = 'zen'
+      storeAI.activeWorld = 'body',
       storeBesearch.setNexusWorld('body')
       return
     }
     if (action === 'world:orbit') {
       storeAI.bentobesearchState = true
+      storeAI.currentMode = 'zen'
+      storeAI.activeWorld = 'orbit',
       storeAccount.orbitLive === true
       // storeBesearch.setNexusWorld('orbit')
       return
     }
     if (action === 'world:earth') {
       storeAI.bentobesearchState = true
+      storeAI.currentMode = 'zen'
+      storeAI.activeWorld = 'earth',
       storeBesearch.setNexusWorld('earth')
       return
     }
@@ -251,6 +264,7 @@ import { ref, computed, watch } from 'vue'
     }
     if (action === 'data:diary') {
       storeAI.bentodiaryState = true
+      storeOrbit.expandedHeliClock= !storeOrbit.expandedHeliClock;
       return
     }
     if (action === 'peers:add' || action === 'peers:share') {
