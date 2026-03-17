@@ -556,8 +556,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       if (received.action === 'npl-reply') {
         if (received.task === 'lens-extraction') {
           if (received.data.lens.context.length > 0 ) {
-            this.digestInput.capacity.push(received.data.lens.capacity)
-            this.digestInput.coherence.push(received.data.lens.coherence)
+            this.digestInput.capacity.push(received.data.lens?.capacity)
+            this.digestInput.coherence.push(received.data.lens?.coherence)
             let splitContext = received.data.lens.context.split(',')
             this.digestInput.context = splitContext
           }

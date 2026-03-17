@@ -129,7 +129,7 @@ export const accountStore = defineStore('account', {
         this.HOPlock = false
       } else if (received.action === 'hop-wrong-password') {
         this.accountFeedback = received.data.feedback
-      } else if (received.action === 'hop-verify') {
+      } else if (received.action === 'hop-holepunch-live') {
         // set token for subsequent HOP messages
         this.sendSocket.jwt = received.data.jwt
         // reply is verified

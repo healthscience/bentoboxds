@@ -12,7 +12,15 @@
         </div>
       </div>
 
+      <div class="demo-zone-message">
+        Examples to explore:
+        <button class="sov-demo-btn" @click="syncPublicLibrary('library', 'sync')">
+          Sync public library
+        </button>
+      </div>
+
       <div class="demo-zone">
+
         <button class="sov-demo-btn" @click="$emit('launch', 'sport')">
           🏊 Experience 400IM
         </button>
@@ -78,9 +86,17 @@ const props = defineProps({
 // EMITS: Signal back to PrimeInterface
 defineEmits(['launch', 'reset']);
 
+/* methods */
 const cloneExperience = () => {
   alert("Protocol Cloned to your Library!");
 };
+
+const syncPublicLibrary = () => {
+  // send message to hop to create default reference contracts
+  
+};
+
+
 </script>
 
 <style scoped>
