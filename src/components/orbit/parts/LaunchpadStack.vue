@@ -71,6 +71,10 @@ import LifestrapLens from '@/components/orbit/parts/LifestrapLens.vue';
 import BeeBeeAvatar from '@/components/agents/BeeBeeAvatar.vue';
 import inputBox from '@/components/beebeehelp/inputBox.vue';
 
+import { libraryStore } from '@/stores/libraryStore.js'
+
+  const storeLibrary = libraryStore()
+
 // PROPS: Controlled by PrimeInterface
 const props = defineProps({
   mode: {
@@ -93,7 +97,7 @@ const cloneExperience = () => {
 
 const syncPublicLibrary = () => {
   // send message to hop to create default reference contracts
-  
+  storeLibrary.syncLibraryFirst()
 };
 
 

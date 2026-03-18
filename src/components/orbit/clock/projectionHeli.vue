@@ -108,7 +108,7 @@
 
           <div class="sun-readout-overlay">
             <div class="cycles-whole">{{ activeCycles?.whole || 0 }}</div>
-            <div class="cycles-decimal">.{{ activeCycles?.decimal || '000000' }}</div>
+            <div class="cycles-decimal">.{{ activeCycles?.fraction || '000000' }}</div>
             <div class="date-pill">{{ projectedDateString }}</div>
           </div>
         </div>
@@ -128,6 +128,36 @@
           <button class="secondary-btn" @click="resetToNow">COLLAPSE</button>
         </div>
       </aside>
+
+      <!--<aside class="heli-legend-left">
+        <div class="legend-item">
+          <span class="degree-mark">0°</span>
+          <div class="legend-text"><strong>Vernal Origin</strong><p>Spring Equinox reset.</p></div>
+        </div>
+        <div class="legend-item">
+          <span class="degree-mark">90°</span>
+          <div class="legend-text"><strong>Estival Peak</strong><p>Summer Solstice.</p></div>
+        </div>
+        <div class="legend-item">
+          <div class="icon-container"><div class="signature-needle-key"></div><div class="signature-ring-key"></div></div>
+          <div class="legend-text"><strong>Your Signature</strong><p>Arrival: {{ storedSignature.toFixed(4) }}°</p></div>
+        </div>
+      </aside>-->
+
+      <!--<aside class="heli-legend-right">
+        <div class="legend-item">
+          <span class="degree-mark">180°</span>
+          <div class="legend-text"><strong>Autumnal Pivot</strong><p>Fall Equinox.</p></div>
+        </div>
+        <div class="legend-item">
+          <span class="degree-mark">270°</span>
+          <div class="legend-text"><strong>Hibernal Rest</strong><p>Winter Solstice.</p></div>
+        </div>
+        <div class="legend-item">
+          <div class="icon-container"><div class="current-dot-key"></div></div>
+          <div class="legend-text"><strong>Current Orbit</strong><p>Real-time solar progress.</p></div>
+        </div>
+      </aside>-->
 
     </div>
   </div>

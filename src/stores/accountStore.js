@@ -146,7 +146,7 @@ export const accountStore = defineStore('account', {
         this.accountStatus = false
         this.accountMenu = 'account'
         // get start public library
-        this.storeLibrary.startLibrary()
+        // this.storeLibrary.startLibrary()
         // get starting account info.
         let saveBentoBoxsetting = {}
         saveBentoBoxsetting.type = 'bentobox'

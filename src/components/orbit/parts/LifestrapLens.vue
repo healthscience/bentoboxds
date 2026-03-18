@@ -20,12 +20,36 @@
         <span class="pulse-dot"></span>
         <h3>context</h3>
       </header>
-      <div class="variable-list">
-        <div v-for="tag in lenses.context" :key="tag" class="variable-tag">
-          <button @click="handleCueSpace(tag)">{{ tag }}</button>
+      
+      <div class="context-sections">
+        <!-- Knowledge Section -->
+        <div class="context-group">
+          <h4 class="group-title">Knowledge</h4>
+          <div class="variable-list">
+            <div v-for="tag in lenses.context" :key="tag" class="variable-tag">
+              <button @click="handleCueSpace(tag)">{{ tag }}</button>
+            </div>
+            <div v-if="!lenses.context?.length" class="empty-state">Initialize...</div>
+          </div>
         </div>
-        <div v-if="!lenses.context?.length" class="empty-state">Initialize...</div>
+
+        <!-- Environment Section -->
+        <div class="context-group">
+          <h4 class="group-title">Environment</h4>
+          <div class="variable-list">
+            <div class="empty-state">Initialize...</div>
+          </div>
+        </div>
+
+        <!-- Earth Section -->
+        <div class="context-group">
+          <h4 class="group-title">Earth</h4>
+          <div class="variable-list">
+            <div class="empty-state">Initialize...</div>
+          </div>
+        </div>
       </div>
+
       <div class="lens-actions">
         <button class="add-cue-btn" @click="addCueLifestap('context')">+ add a cue</button>
       </div>
@@ -164,6 +188,27 @@ const addCueLifestap = (lensType) => {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.context-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.context-group {
+  border-left: 2px solid rgba(0, 255, 200, 0.1);
+  padding-left: 0.8rem;
+}
+
+.group-title {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  color: var(--sov-accent);
+  margin-bottom: 0.8rem;
+  letter-spacing: 0.1em;
+  font-weight: 800;
+  opacity: 0.7;
 }
 
 .variable-tag button {

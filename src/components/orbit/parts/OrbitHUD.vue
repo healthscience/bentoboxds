@@ -6,6 +6,7 @@
       <div class="metric"><span>DIALOGUE</span><strong>0</strong></div>
       <div class="metric"><span>CUES</span><strong>0</strong></div>
     </div>
+    
   </div>
 </template>
 
@@ -14,12 +15,18 @@
 </script>
 
 <style scoped>
+#orbit-hud {
+  position: relative;
+  pointer-events: none;
+}
+
 .hud-top {
   display: flex;
   justify-content: center;
   gap: 4rem;
   padding: 2rem;
   z-index: 10;
+  pointer-events: auto;
 }
 
 .metric {

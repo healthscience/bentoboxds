@@ -623,7 +623,7 @@ export const libraryStore = defineStore('librarystore', {
     prepareLibraryViewFromContract (bbid, contractID) {
       if (this.peerLibraryNXP.length === 0) {
         // empty call library to get nxps
-        this.startLibrary()
+        // this.startLibrary()
         // inform beebee feedback to try now library has loaded
       } else {
         let contractQuery = this.utilLibrary.matchNXPcontract(contractID, this.peerLibraryNXP)
@@ -715,6 +715,16 @@ export const libraryStore = defineStore('librarystore', {
       refContract.privacy = 'public'
       refContract.reftype = 'start-marker'
       refContract.task = 'GET'
+      this.sendSocket.send_message(refContract)
+    },
+    syncLibraryFirst () {
+      // prepare defalut data types  or start from scratch using library tools. 
+      const refContract = {}
+      refContract.type = 'library'
+      refContract.action = 'genesis-datatypes-cues'
+      refContract.privacy = 'public'
+      refContract.reftype = 'make'
+      refContract.task = 'MAKE'
       this.sendSocket.send_message(refContract)
     },
     sendMessage (hopMessage) {

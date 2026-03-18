@@ -13,68 +13,74 @@
 
     <transition>
       <div id="mini-heli" v-if="isCalibrated === true"  class="heli-main-layout">
-        <!--<aside class="heli-legend-left">
-          <div class="legend-item">
-            <span class="degree-mark">0°</span>
-            <div class="legend-text"><strong>Vernal Origin</strong><p>Spring Equinox reset.</p></div>
-          </div>
-          <div class="legend-item">
-            <span class="degree-mark">90°</span>
-            <div class="legend-text"><strong>Estival Peak</strong><p>Summer Solstice.</p></div>
-          </div>
-          <div class="legend-item">
-            <div class="icon-container"><div class="signature-needle-key"></div><div class="signature-ring-key"></div></div>
-            <div class="legend-text"><strong>Your Signature</strong><p>Arrival: {{ storedSignature.toFixed(4) }}°</p></div>
-          </div>
-        </aside>-->
 
         <section class="clock-display">
           <div class="orbital-grid">
-            <!--<svg viewBox="0 0 100 100" class="heli-svg">
-              <circle cx="50" cy="50" r="42" class="track-bg" />
-              <path :d="describeArc(50, 50, 42, 0, currentDegree)" class="progress-path" />
-              <g :transform="`rotate(${storedSignature} 50 50)`">
-                <line x1="50" y1="4" x2="50" y2="14" class="signature-needle" />
-                <circle cx="50" cy="8" r="3.5" class="signature-ring-target" />
-              </g>
-              <g :transform="`rotate(${currentDegree} 50 50)`">
-                <circle cx="50" cy="8" r="4" class="current-glow" />
-                <circle cx="50" cy="8" r="2.2" class="current-dot-core" />
-              </g>
-              solar cycle in arcs
-              <circle cx="50" cy="50" r="32" class="track-bg" style="opacity: 0.3;" />
-              <path :d="describeArc(50, 50, 32, 0, dailyDegree)" class="daily-progress-path" />
+            <!-- heli clock svg -->
+            <svg viewBox="0 0 100 100" class="heli-svg">
+              <defs>
+                <filter id="sunGlow"><feGaussianBlur in="SourceGraphic" stdDeviation="1.5" /></filter>
+                <radialGradient id="skyGradient" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" :stop-color="isDaylight ? '#fbbf24' : '#6366f1'" stop-opacity="0.1" />
+                  <stop offset="100%" :stop-color="isDaylight ? '#fbbf24' : '#0f172a'" stop-opacity="0" />
+                </radialGradient>
+              </defs>
 
-              <g v-if="solarMarkers.noon !== null">
-                <line :transform="`rotate(${solarMarkers.sunrise} 50 50)`" x1="50" y1="16" x2="50" y2="20" class="marker-line sunrise" />
-                <line :transform="`rotate(${solarMarkers.sunset} 50 50)`" x1="50" y1="16" x2="50" y2="20" class="marker-line sunset" />
-                <circle :transform="`rotate(${solarMarkers.noon} 50 50)`" cx="50" cy="18" r="1.5" class="marker-dot noon" />
-              </g>
-            </svg>-->
+              <circle cx="50" cy="50" r="48" fill="url(#skyGradient)" />
 
-            <div class="sun-core">
-              <div class="cycles-whole">{{ activeCycles.whole }}</div>
-              <div class="cycles-decimal">.{{ activeCycles.decimal }}</div>
+              <path :d="describeArc(50, 50, 48, 90, 270)" fill="#cbd5e1" fill-opacity="0.25" />
+
+              <g class="day-ticks" stroke="#cbd5e1" stroke-width="0.3">
+                <line v-for="n in 72" :key="n"
+                  x1="50" y1="6" x2="50" y2="9"
+                  :transform="`rotate(${n * 5}, 50, 50)`"
+                  :opacity="n * 5 <= displayYearly ? 1 : 0.2"
+                />
+              </g>
+
+              <g v-if="storedSignature?.birthorbital !== undefined" 
+                :transform="`rotate(${storedSignature.birthorbital}, 50, 50)`">
+                <line x1="50" y1="6" x2="50" y2="14" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round" />
+                <circle cx="50" cy="6" r="2" fill="#f59e0b" />
+                <text y="3" x="50" font-size="2.8" font-weight="900" text-anchor="middle" fill="#f59e0b" style="text-transform: uppercase;">Genesis</text>
+              </g>
+
+              <g class="rings">
+                <circle cx="50" cy="50" r="44" class="track-bg" />
+                <path :d="describeArc(50, 50, 44, 0, displayYearly)" class="wedge-year" />
+                
+                <g :transform="`rotate(${displayYearly}, 50, 50)`">
+                  <circle cx="50" cy="6" r="2.5" fill="white" stroke="#3b82f6" stroke-width="1.2" />
+                </g>
+
+                <circle cx="50" cy="50" r="36" class="track-bg" />
+                
+                <path 
+                  :d="describeArc(50, 50, 36, 180, (displayDaily + 180) % 360)" 
+                  class="wedge-day" 
+                />
+                
+                <path 
+                  :d="describeArc(50, 50, 36, (displayDaily + 180) % 360, 540)" 
+                  class="ghost-track" 
+                  fill="none" 
+                  stroke="#fbbf24" 
+                  stroke-width="1.5" 
+                  stroke-dasharray="1, 3" 
+                  opacity="0.4"
+                />
+              </g>
+            </svg>
+
+            <!-- inner info -->
+            <div class="sun-readout-overlay">
+              <div class="cycles-whole">{{ activeCycles?.whole || 0 }}</div>
+              <div class="cycles-decimal">.{{ activeCycles?.fraction || '000000' }}</div>
               <div class="cycles-label">EARTH ORBITS</div>
-              <div class="degree-sub">{{ currentDegree.toFixed(4) }}°</div>
+              <div class="degree-sub">{{ currentDegree?.toFixed(4) }}°</div>
             </div>
           </div>
         </section>
-
-        <!--<aside class="heli-legend-right">
-          <div class="legend-item">
-            <span class="degree-mark">180°</span>
-            <div class="legend-text"><strong>Autumnal Pivot</strong><p>Fall Equinox.</p></div>
-          </div>
-          <div class="legend-item">
-            <span class="degree-mark">270°</span>
-            <div class="legend-text"><strong>Hibernal Rest</strong><p>Winter Solstice.</p></div>
-          </div>
-          <div class="legend-item">
-            <div class="icon-container"><div class="current-dot-key"></div></div>
-            <div class="legend-text"><strong>Current Orbit</strong><p>Real-time solar progress.</p></div>
-          </div>
-        </aside>-->
       </div>
   </transition>
   </div>
@@ -100,9 +106,9 @@ let clickCount = 0;
 let clickTimer = null;
 const birthDate = ref('');
 const birthTime = ref('12:00');
-const storedSignature = ref(0);
 const birthTimestamp = ref(0);
 const nowTs = ref(Date.now());
+const isProjecting = ref(false);
 
 onMounted(() => {
 });
@@ -124,15 +130,19 @@ const activeCycles = computed(() => {
 });
 
 // --- Daily Cycle Logic ---
-
-
-// --- Solar Mathematics (Simplified for PEER Experience) ---
-
+const storedSignature = computed(() => storeDiary.orbitSignature);
+const displayDaily = computed(() => (isProjecting.value ? storeDiary.projectionData?.daily : storeDiary.heliSignature.daily) || 0);
+const displayYearly = computed(() => (isProjecting.value ? storeDiary.projectionData?.yearly : storeDiary.heliSignature.yearly) || 0);
+const isDaylight = computed(() => {
+  const deg = (displayDaily.value + 180) % 360;
+  return deg > 270 || deg < 90;
+});
 
 /* methods */
 const setClock = () => {
   storeOrbit.heliClockExpand = true
 };
+
 const handleClockClick = () => {
   if (storeOrbit.expandedHeliClock) return;
   console.log('click');
@@ -152,6 +162,14 @@ const handleClockClick = () => {
     clickCount = 0;
     emit('expand');
   }
+};
+
+const describeArc = (x, y, r, start, end) => {
+  const rad = (deg) => (deg - 90) * Math.PI / 180.0;
+  const s = { x: x + r * Math.cos(rad(end)), y: y + r * Math.sin(rad(end)) };
+  const e = { x: x + r * Math.cos(rad(start)), y: y + r * Math.sin(rad(start)) };
+  const largeArc = (end - start + 360) % 360 <= 180 ? "0" : "1";
+  return `M ${s.x} ${s.y} A ${r} ${r} 0 ${largeArc} 0 ${e.x} ${e.y}`;
 };
 
 </script>
@@ -178,15 +196,8 @@ const handleClockClick = () => {
   align-items: center;
   width: 100%;
   height: 100%;
-  grid-template-columns: 1fr;
   grid-template-areas: "center";
   gap: 0;
-}
-
-.is-mini .heli-legend-left,
-.is-mini .heli-legend-right,
-.is-mini .recalibrate-trigger {
-  display: none;
 }
 
 .is-mini .orbital-grid {
@@ -194,15 +205,14 @@ const handleClockClick = () => {
   height: 140px;
 }
 
-.is-mini .sun-core {
-  transform: scale(0.35);
+.is-mini .sun-readout-overlay {
+  transform: translate(-50%, -44%) scale(0.35);
 }
 
 .is-mini .heli-main-layout,
 .is-mini .orbital-grid,
 .is-mini .heli-svg,
-.is-mini .sun-core,
-.is-mini .sun-readout,
+.is-mini .sun-readout-overlay,
 .is-mini .cycles-whole,
 .is-mini .cycles-decimal,
 .is-mini .cycles-label,
@@ -210,77 +220,33 @@ const handleClockClick = () => {
   pointer-events: none;
 }
 
-/* GRID WRAPPER */
-.heli-wrapper {
-  display: grid;
-  place-items: center;
-  min-height: 50vh;
-  background: #fdfdfd;
-  font-family: 'Inter', sans-serif;
-}
-
-/* MODAL & DASHBOARD LAYOUT (Grid Only) */
-.heli-modal-overlay {
-  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-  display: grid; place-items: center; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); z-index: 9999;
-}
-.calibration-card { display: grid; gap: 1.5rem; padding: 3rem; background: white; border-radius: 40px; box-shadow: 0 40px 100px rgba(0,0,0,0.1); width: 400px; text-align: center; }
-
+/* Layout */
 .heli-main-layout {
   display: grid;
-  grid-template-columns: 260px minmax(400px, 1fr) 260px;
-  grid-template-areas: "left center right";
+  grid-template-columns: 1fr;
   align-items: center;
-  gap: 2rem;
+  justify-content: center;
   width: 100%;
 }
 
-.heli-legend-left { grid-area: left; display: grid; gap: 2rem; padding-left: 2rem; }
-.heli-legend-right { grid-area: right; display: grid; gap: 2rem; padding-right: 2rem; }
+.clock-display { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.orbital-grid { position: relative; width: 100%; max-width: 550px; }
+.heli-svg { width: 100%; overflow: visible; }
 
-.clock-display { grid-area: center; display: grid; place-items: center; }
+/* Rings & Wedges */
+.track-bg { fill: none; stroke: #f1f5f9; stroke-width: 4; }
+.wedge-year { fill: none; stroke: #3b82f6; stroke-width: 4; stroke-linecap: round; transition: stroke-dashoffset 0.5s ease; }
+.wedge-day { fill: none; stroke: #fbbf24; stroke-width: 6; stroke-linecap: round; }
 
-.orbital-grid {
-  display: grid;
-  grid-template-areas: "stack";
-  place-items: center;
-  width: 420px;
-  height: 420px;
+/* Typography */
+.sun-readout-overlay {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -44%);
+  text-align: center; pointer-events: none;
 }
-
-.heli-svg { grid-area: stack; width: 100%; height: 100%; overflow: visible; }
-
-/* PRECISION SUN CORE GRID */
-.sun-core {
-  grid-area: stack;
-  display: grid;
-  grid-template-columns: auto auto;
-  grid-template-rows: auto auto auto;
-  align-items: end;
-  justify-content: center;
-  pointer-events: none;
-}
-
-.cycles-whole {
-  grid-column: 1;
-  font-size: 2rem;
-  font-weight: 900;
-  line-height: 0.8;
-  color: #0f172a;
-}
-
-.cycles-decimal {
-  grid-column: 2;
-  font-size: 1rem;
-  font-family: 'Space Mono', monospace;
-  font-weight: 700;
-  color: #3b82f6;
-  padding-bottom: 0.1rem;
-  padding-left: 1px;
-}
+.cycles-whole { font-size: 1.9rem; font-weight: 900; line-height: 0.7; color: #1e293b; letter-spacing: -5px; }
+.cycles-decimal { font-size: .8rem; font-weight: 700; color: #cbd5e1; font-family: 'Space Mono', monospace; margin-top: 0.5rem; }
 
 .cycles-label {
-  grid-column: 1 / span 2;
   font-size: 0.7rem;
   font-weight: 800;
   color: #94a3b8;
@@ -290,7 +256,6 @@ const handleClockClick = () => {
 }
 
 .degree-sub {
-  grid-column: 1 / span 2;
   font-size: 1.1rem;
   font-family: 'Space Mono', monospace;
   font-weight: 600;
@@ -298,50 +263,11 @@ const handleClockClick = () => {
   text-align: center;
 }
 
-/* VISUAL ELEMENTS (Icons, Marks, Markers) */
-.legend-item { display: grid; grid-template-columns: 60px 1fr; gap: 1rem; }
-.degree-mark { display: grid; place-items: center; background: #eff6ff; color: #3b82f6; font-family: 'Space Mono'; padding: 4px; border-radius: 6px; font-size: 0.8rem; }
-.legend-text strong { font-size: 0.8rem; text-transform: uppercase; }
-.legend-text p { font-size: 0.7rem; color: #64748b; }
-
-.icon-container { display: grid; place-items: center; position: relative; height: 32px; }
-.signature-needle-key { width: 3px; height: 14px; background: #f59e0b; border-radius: 2px; }
-.signature-ring-key { position: absolute; width: 20px; height: 20px; border: 1.5px dashed #f59e0b; border-radius: 50%; }
-.current-dot-key { width: 12px; height: 12px; background: white; border: 2px solid #fbce1e; border-radius: 50%; box-shadow: 0 0 10px #fbce1e; }
-
-.track-bg { fill: none; stroke: #f1f5f9; stroke-width: 2; }
-.cell-passed { stroke: #4facfe; stroke-width: 2; fill: none; }
-.cell-future { stroke: #e1e8ed; stroke-width: 2; fill: none; }
-.progress-path { fill: none; stroke: #3b82f6; stroke-width: 4; stroke-linecap: round; }
-.signature-needle { stroke: #f59e0b; stroke-width: 2; }
-.signature-ring-target { fill: none; stroke: #f59e0b; stroke-width: 1; stroke-dasharray: 1, 2; }
-.current-dot-core { fill: white; stroke: #fbce1e; stroke-width: 2; }
-.current-glow { fill: #fbce1e; fill-opacity: 0.3; filter: blur(4px); }
-
-.init-button { background: #0f172a; color: white; border: none; padding: 1rem; border-radius: 12px; font-weight: 800; }
-.recalibrate-trigger { background: none; border: none; color: #cbd5e1; text-decoration: underline; margin-top: 2rem; cursor: pointer; }
+/* Calibration */
+.calibration-card { display: grid; gap: 1.5rem; padding: 3rem; background: white; border-radius: 40px; box-shadow: 0 40px 100px rgba(0,0,0,0.1); width: 400px; text-align: center; }
+.init-button { background: #0f172a; color: white; border: none; padding: 1rem; border-radius: 12px; font-weight: 800; cursor: pointer; }
 
 @media (max-width: 1000px) {
-  .heli-main-layout { grid-template-columns: 1fr; grid-template-areas: "center" "left" "right"; }
+  .heli-main-layout { grid-template-columns: 1fr; }
 }
-
-
-.daily-progress-path {
-  fill: none;
-  stroke: #10b981; /* Emerald for daily vitality */
-  stroke-width: 2.5;
-  stroke-linecap: round;
-  filter: drop-shadow(0 0 2px rgba(16, 185, 129, 0.4));
-}
-
-.marker-line {
-  stroke: #2c63b1;
-  stroke-width: 1;
-}
-
-.marker-line.sunrise { stroke: #fb923c; stroke-width: 2; } /* Orange */
-.marker-line.sunset { stroke: #6366f1; stroke-width: 2; }  /* Indigo */
-.marker-dot.noon { fill: #facc15; } /* Bright Yellow Zenith */
-
-
 </style>

@@ -9,6 +9,16 @@
       <div class="world-canvas" 
         :class="{ 'dragging-active': orbitStore.draggingToolId }"
       >
+        <!-- Draggable Cube Navigation -->
+        <div 
+          v-if="orbitStore.tools.cube"
+          class="tool-grab-wrapper"
+          :style="{ left: orbitStore.tools.cube.x + '%', top: orbitStore.tools.cube.y + '%', zIndex: orbitStore.draggingToolId === 'cube' ? 300 : 100 }"
+          @mousedown.stop="startDragging('cube')"
+        >
+          <CubeStructure />
+        </div>
+
        <div 
           v-if="orbitStore.tools.pulse"
           class="tool-grab-wrapper"
@@ -22,7 +32,6 @@
            <div v-else>
               <ResonancePulse />
            </div>
-
         </div>
 
         <div 
@@ -30,7 +39,7 @@
           class="tool-grab-wrapper"
           :style="{ left: orbitStore.tools.heli.x + '%', top: orbitStore.tools.heli.y + '%', zIndex: orbitStore.draggingToolId === 'heli' ? 300 : 100 }"
           @mousedown.stop="startDragging('heli')"
-        >HeliClock
+        >
           <StartClock :mini="isMini" @expand="handleExpand()" />
         </div>
       </div>
@@ -44,6 +53,7 @@ import StartClock from '@/components/orbit/clock/HeliStart.vue'
 import ProjectionHeli from '@/components/orbit/clock/projectionHeli.vue'
 import ResonancePulse from '@/components/orbit/resonance/ResonancePulse.vue'
 import ResonancePulseghost from '@/components/orbit/resonance/ResonancePulseghost.vue'
+import CubeStructure from '@/components/orbit/cueCude/cubeStructure.vue'
 import OrbitHUD from '@/components/orbit/parts/OrbitHUD.vue'
 
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
@@ -93,86 +103,74 @@ const handleGlobalDrag = (e) => {
     const stage = document.querySelector('.orbit-stage');
     if (!stage) return;
     const bounds = stage.getBoundingClientRect();
-    let xPerc = ((e.clientX - bounds.left) / bounds.width) * 100;
-    let yPerc = ((e.clientY - bounds.top) / bounds.height) * 100;
-    orbitStore.updatePosition(orbitStore.draggingToolId, xPerc, yPerc);
-  }
-};
-
-const stopDragging = () => {
-  if (orbitStore.draggingToolId) {
-    orbitStore.stopDragging();
-    window.removeEventListener('mousemove', handleGlobalDrag);
-    window.removeEventListener('mouseup', stopDragging);
+    const x = ((e.clientX - bounds.left) / bounds.width) * 100;
+    const y = ((e.clientY - bounds.top) / bounds.height) * 100;
+    orbitStore.updatePosition(orbitStore.draggingToolId, x, y);
   }
 };
 
 const startDragging = (id) => {
-  console.log('OrbitView: startDragging', id)
   orbitStore.startDragging(id);
   window.addEventListener('mousemove', handleGlobalDrag);
   window.addEventListener('mouseup', stopDragging);
+};
+
+const stopDragging = () => {
+  orbitStore.stopDragging();
+  window.removeEventListener('mousemove', handleGlobalDrag);
+  window.removeEventListener('mouseup', stopDragging);
 };
 
 onUnmounted(() => {
   window.removeEventListener('mousemove', handleGlobalDrag);
   window.removeEventListener('mouseup', stopDragging);
 });
-
-/* LAYOUT HELPERS */
-/*const dynamicGridStyle = computed(() => ({
-  display: 'grid',
-  gridTemplateColumns: `${panelWidth.value}px 1fr ${chatWidth.value}px`,
-  gridTemplateRows: '100vh',
-  width: '100vw',
-  height: '100vh',
-  overflow: 'hidden',
-  gridTemplateAreas: '"tools stage chat"'
-}));
-*/
 </script>
 
 <style scoped>
 .orbit-view {
-  position: relative;
   width: 100%;
   height: 100%;
-  overflow: hidden;
+  position: relative;
 }
 
-/* 2. CENTER STAGE: 3-Row Vertical Logic */
 .orbit-stage {
-  position: relative;
-  display: flex;
-  flex-direction: column;
   width: 100%;
   height: 100%;
-  background: white;
+  position: relative;
+  overflow: hidden;
 }
 
 .world-canvas {
-  flex: 1;
+  width: 100%;
+  height: 100%;
   position: relative;
-  overflow: hidden;
+}
+
+.static-cube-nav {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 200;
 }
 
 .tool-grab-wrapper {
   position: absolute;
   transform: translate(-50%, -50%);
   cursor: grab;
-  transition: transform 0.2s ease;
+  transition: transform 0.1s ease-out;
 }
 
 .tool-grab-wrapper:active {
   cursor: grabbing;
-  transform: translate(-50%, -50%) scale(1.05);
 }
 
 .dragging-active .tool-grab-wrapper {
   pointer-events: none;
 }
 
-.dragging-active .tool-grab-wrapper[style*="zIndex: 300"] {
-  pointer-events: all;
+.dragging-active .tool-grab-wrapper:has(:active) {
+  pointer-events: auto;
 }
 </style>
