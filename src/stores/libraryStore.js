@@ -72,7 +72,7 @@ export const libraryStore = defineStore('librarystore', {
       primary: Boolean,
       name: '',
       description: '',
-      wiki: '',
+      wiki: 'https://en.wikipedia.org/wiki/',
       rdf: 'https://dbpedia.org/page/',
       measurement: '',
       datatypeType: ''
@@ -292,6 +292,8 @@ export const libraryStore = defineStore('librarystore', {
       this.sendSocket.send_message(messageHOP)
     },
     processReply (message, questionStart) {
+      console.log('process replyLIBBBBBBBBBBBBBBBBBBBBBBBBB')
+      console.log(message)
       if (message.action === 'save-file') {
         this.describeSource = message.data
         // set message
@@ -374,7 +376,9 @@ export const libraryStore = defineStore('librarystore', {
           }
         }
       } else if (message.type === 'library-open') {
-      } else if (message.type === 'publiclibrary') {
+      } else if (message.action === 'publiclibrary-ref') {
+        console.log('public library ref')
+        console.log(message)
         let typeRefcontracts = Object.keys(message.referenceContracts)
         // look over and see if the library has been setup?
         let setupContracts = []

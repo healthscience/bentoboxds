@@ -77,7 +77,6 @@
               <div class="cycles-whole">{{ activeCycles?.whole || 0 }}</div>
               <div class="cycles-decimal">.{{ activeCycles?.fraction || '000000' }}</div>
               <div class="cycles-label">EARTH ORBITS</div>
-              <div class="degree-sub">{{ currentDegree?.toFixed(4) }}°</div>
             </div>
           </div>
         </section>
@@ -104,10 +103,6 @@ defineProps({
 
 let clickCount = 0;
 let clickTimer = null;
-const birthDate = ref('');
-const birthTime = ref('12:00');
-const birthTimestamp = ref(0);
-const nowTs = ref(Date.now());
 const isProjecting = ref(false);
 
 onMounted(() => {
@@ -140,12 +135,11 @@ const isDaylight = computed(() => {
 
 /* methods */
 const setClock = () => {
-  storeOrbit.heliClockExpand = true
+  storeOrbit.expandedHeliClock = true
 };
 
 const handleClockClick = () => {
   if (storeOrbit.expandedHeliClock) return;
-  console.log('click');
   clickCount++;
   if (clickCount === 1) {
     clickTimer = setTimeout(() => {
@@ -158,7 +152,6 @@ const handleClockClick = () => {
   } else if (clickCount === 2) {
     // --- DOUBLE CLICK ACTION ---
     clearTimeout(clickTimer);
-    console.log('double click');
     clickCount = 0;
     emit('expand');
   }

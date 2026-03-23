@@ -61,33 +61,34 @@
         <span class="pulse-dot"></span>
         <h3>coherence</h3>
       </header>
-      <div class="variable-list">
+      <div class="whole-resonance">
+        <MiniWhole @click="handleWholeExpand()"></MiniWhole>
+      </div>
+      <!--<div class="variable-list">
         <div v-for="tag in lenses.coherence" :key="tag" class="variable-tag">
           <button @click="handleCueSpace(tag)">{{ tag }}</button>
         </div>
         <div v-if="!lenses.coherence?.length" class="empty-state">Initialize...</div>
-      </div>
+      </div>-->
     </div>
 
     <!-- modals for tools -->
      <BentoSpace></BentoSpace>
+     <WholeResonance v-if="wholeResStatus === true"></WholeResonance>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import BentoSpace from '@/components/bentospace/spaceTemplate.vue'
+import MiniWhole from '@/components/consilience/minWhole.vue'
+import WholeResonance from '@/components/consilience/wholeResonance.vue'
 
 import { cuesStore } from '@/stores/cuesStore.js'
-import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
-import { libraryStore } from '@/stores/libraryStore.js'
 
-
-const storeLibrary = libraryStore()
 const storeCues = cuesStore()
 const storeAI = aiInterfaceStore()
-const storeBentobox = bentoboxStore()
 
 const props = defineProps({
   lenses: {
@@ -95,6 +96,9 @@ const props = defineProps({
     default: () => ({ capacity: [], coherence: [], context: [] })
   }
 });
+
+/* computed */
+  const wholeResStatus = computed(() => storeAI.bentoflakeState)
 
 /* methods */
 const handleCueSpace = (spaceID) => {
@@ -137,6 +141,11 @@ const addCueLifestap = (lensType) => {
   // open cue modal
   storeAI.cueAction = 'cues'
   storeAI.bentocuesState = true
+}
+
+const handleWholeExpand = () => {
+  storeCues.liveCueContext = 'flake'
+  storeAI.bentoflakeState = !storeAI.bentoflakeState
 }
 
 </script>

@@ -15,7 +15,7 @@
                       {{ libType.text }}
                     </option>
                   </select>
-                </div>
+                </div>Get Library Contracts
               </div>
               <label for="replicteplibrary"></label>
               <input type="input" id="publibkey" placeholder="librarykey" v-model="pubLibrarykey" autofocus>
@@ -164,7 +164,7 @@ let selectedLibrary = ref('')
       // referenceLive.value = 'datatype'
       // ask network library for contracts via HOP
       storeLibrary.sendMessage('get-library')
-      storeLibrary.sendMessage('get-results')
+      // storeLibrary.sendMessage('get-results')
     }
 
     const repLibrary = () => {

@@ -1,6 +1,7 @@
 <template>
   <div class="heli-wrapper" @click.self="emit('close')">
-    <HeliGenesis v-if="!isCalibrated" @calibrated="isProjecting = false" />
+    <button class="close-btn" @click="emit('close')">×</button>
+    <HeliGenesis v-if="!isCalibrated" @calibrated="isProjecting === false" />
 
     <div v-if="isCalibrated" class="heli-main-layout" :style="dynamicAtmosphere">
       
@@ -20,6 +21,7 @@
         </div>
       </aside>
 
+      <!-- heli clock display -->
       <section class="clock-display">
         <div class="orbital-grid">
           
@@ -220,6 +222,14 @@ const confirmEvent = () => { resetToNow(); };
   position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center;
   background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(12px); font-family: 'Inter', sans-serif;
 }
+.close-btn {
+  position: absolute; top: 2rem; right: 2rem; width: 40px; height: 40px;
+  border-radius: 50%; border: none; background: white; color: #1e293b;
+  font-size: 1.5rem; cursor: pointer; display: flex; align-items: center;
+  justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  transition: all 0.2s ease; z-index: 10000;
+}
+.close-btn:hover { transform: scale(1.1); background: #f1f5f9; }
 .heli-main-layout {
   display: grid; grid-template-columns: 300px 1fr 300px; width: 95vw; height: 90vh; 
   padding: 2rem; border-radius: 40px; align-items: center;

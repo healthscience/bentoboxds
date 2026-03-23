@@ -17,17 +17,24 @@
       </div>
 
       <div class="location-toggle">
-        <button :class="{ active: useCurrentLocation }" @click="requestLocation">📍 Current GPS</button>
-        <button :class="{ active: !useCurrentLocation }" @click="useCurrentLocation = false">🗺️ Pick Birthplace</button>
+        <button :class="{ active: useCurrentLocation }" @click="requestLocation">📍 Ask browser for GPS location</button>
+        <!--<button :class="{ active: !useCurrentLocation }" @click="useCurrentLocation = false">🗺️ Pick Birthplace</button>-->
       </div>
 
       <div v-if="currentLocation && useCurrentLocation" class="location-info">
         <p>Current: {{ currentLocation.lat.toFixed(4) }}, {{ currentLocation.lng.toFixed(4) }}</p>
+        <div class="location-birth-differs">
+          Where you born at a different location?
+          <button @click="setBirthLocation()">Yes</button>
         </div>
+      </div>
 
-      <div v-if="!useCurrentLocation" class="birth-location-form">
+      <div v-if="birthDifferentLocation === true" class="birth-location-form">
         <input type="text" v-model="birthPlaceName" placeholder="Place Name (e.g. London)" />
         <button @click="convertGPS()">Find location</button>
+        <div class="birth-location-gps" v-if="birthLocationData">{{ birthLocationData }}
+          <p>Birth location: {{ birthLocationData?.latitude.toFixed(4) }}, {{ birthLocationData?.longitude.toFixed(4) }}</p>
+        </div>
       </div>
 
       <div class="dual-dial-zone">
@@ -70,12 +77,14 @@ const sliderDaily = ref(180);
 const useCurrentLocation = ref(false);
 const currentLocation = ref(null);
 const birthPlaceName = ref('');
+const birthDifferentLocation = ref(false);
 
 const translatedOldWorldDate = computed(() => storeDiary.calibrationPreviewDate);
 const birthLocationData = computed(() => storeDiary.birthLocation);
 const heliOrbit = computed(() => storeDiary.calibrationOrbit);
 const heliZenith = computed(() => storeDiary.calibrationZenith);
 
+/* methods */
 const requestLocation = () => {
   useCurrentLocation.value = true;
   if (navigator.geolocation) {
@@ -108,13 +117,19 @@ const lockHeliGenesis = () => {
   emit('calibrated');
 };
 
+const setBirthLocation = () => {
+  birthDifferentLocation.value = !birthDifferentLocation.value;
+}
+
 watch([sliderOrbital, sliderDaily], () => {
   const loc = birthLocationData.value || currentLocation.value;
+  console.log('loc', loc)
   if (!loc) return;
   storeDiary.sendMessageHOP({
     type: 'heliclock',
     action: 'HELI_CALIBRATE_PREVIEW',
-    data: { 
+    data: {
+      orbits: orbits.value,
       angle: sliderOrbital.value, 
       dayAngle: sliderDaily.value, 
       lon: loc.longitude || loc.lng, 

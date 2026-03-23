@@ -106,6 +106,7 @@ export const diaryStore = defineStore('diarystore', {
         // this.updateClock(received.vector, received.zenith)
       } else if (received.action === 'heli-birth-signature') {
         this.orbitSignature = received.data
+        this.heliClockSet = true
       } else if (received.action === 'heli-orbit-signature') {
         this.heliSignature = received.data
       } else if (received.action === 'peer-heli-signature') {

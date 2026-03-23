@@ -35,7 +35,6 @@
         </div>
 
         <div 
-          v-if="isCalibrated === true"
           class="tool-grab-wrapper"
           :style="{ left: orbitStore.tools.heli.x + '%', top: orbitStore.tools.heli.y + '%', zIndex: orbitStore.draggingToolId === 'heli' ? 300 : 100 }"
           @mousedown.stop="startDragging('heli')"
@@ -71,7 +70,6 @@ const props = defineProps({
 const isMini = computed(() => props.mini || !heliClockExpand);
 
 /* Computed Logic */
-const isCalibrated = computed(() => storeDiary.heliClockSet);
 const pulseState = computed(() => {
     if (storeAI.currentMode === 'zen') {
       return 'ghost'
@@ -87,9 +85,8 @@ const extractedData = computed(() => storeAI.extractedData);
 const handleExpand = () => {
   // expanded.value = !expanded.value;
   orbitStore.expandedHeliClock= !orbitStore.expandedHeliClock;
-  
   // Update the store so the Bottom Panel or Left Panel can react
-  if (heliClockExpand) {
+  if (heliClockExpand === true) {
     storeAI.currentMode = 'projecting'; // This could trigger the Bottom Panel
     storeAI.chatAttention = 'future-timeline';
   } else {
