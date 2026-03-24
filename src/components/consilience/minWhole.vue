@@ -74,8 +74,8 @@ function describeArc(x, y, radius, startAngle, endAngle) {
 
 <style scoped>
 .min-whole {
-  width: 360px;
-  height: 360px;
+  width: 220px;
+  height: 220px;
   display: flex;
   justify-content: center;
   align-items: center;

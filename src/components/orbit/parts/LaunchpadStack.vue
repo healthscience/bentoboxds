@@ -39,7 +39,7 @@
     <div v-else class="active-resonance-grid">
       <header class="resonance-header">
         <h2 v-if="mode === 'demo'">Demo Protocol</h2>
-        <h2 v-else>Intent Extraction</h2>
+        <h2 v-else>Life-Strap Lens</h2>
       </header>
 
       <LifestrapLens :lenses="extractedData" />
