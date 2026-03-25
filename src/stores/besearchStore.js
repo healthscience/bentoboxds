@@ -1,6 +1,7 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { useSocketStore } from '@/stores/socket.js'
+import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
 export const besearchStore = defineStore('besearchstore', {
   state: () => ({
@@ -101,6 +102,9 @@ export const besearchStore = defineStore('besearchstore', {
         cueId: marker.cueId,
         datatype: marker.datatype
       }))
+    },
+    hasActiveIntervention: (state) => {
+      return state.selectedIntervention !== null && state.selectedIntervention !== undefined
     }
   },
   actions: {
@@ -293,9 +297,16 @@ export const besearchStore = defineStore('besearchstore', {
     },
     // UI state management for component communication
     setSelectedIntervention (intervention) {
+      // Clear any active life-strap when selecting an intervention
+      // This ensures the bottom panel shows the besearch detail
+      const storeAI = aiInterfaceStore()
+      if (storeAI.activeLifeStrapID) {
+        storeAI.activeLifeStrapID = ''
+        storeAI.activeContractKey = ''
+      }
       this.selectedIntervention = intervention
-      // show in bottom panel
       this.showBesearchDetail = true
+      this.showBottomPanel = true
       this.bottomHeight = 600
     },
     setSelectedCategory(category) {

@@ -21,7 +21,7 @@
 
       <div class="demo-zone">
 
-        <button class="sov-demo-btn" @click="$emit('launch', 'sport')">
+        <button class="sov-demo-btn" @click="$emit('launch', 'orbit')">
           🏊 Experience 400IM
         </button>
         <button class="sov-demo-btn" @click="$emit('launch', 'body')">
@@ -30,7 +30,7 @@
         <button class="sov-demo-btn" @click="$emit('launch', 'earth')">
           Water
         </button>
-        <button class="sov-demo-btn" @click="$emit('launch', 'earth')">
+        <button class="sov-demo-btn" @click="$emit('launch', 'daisy')">
           Daisy world
         </button>
       </div>
@@ -41,8 +41,6 @@
         <h2 v-if="mode === 'demo'">Demo Protocol</h2>
         <h2 v-else>Life-Strap Lens</h2>
       </header>
-
-      <LifestrapLens :lenses="extractedData" />
 
       <div class="meta-actions-grid">
         <template v-if="mode === 'extracting'">
@@ -67,7 +65,6 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import LifestrapLens from '@/components/orbit/parts/LifestrapLens.vue';
 import BeeBeeAvatar from '@/components/agents/BeeBeeAvatar.vue';
 import inputBox from '@/components/beebeehelp/inputBox.vue';
 

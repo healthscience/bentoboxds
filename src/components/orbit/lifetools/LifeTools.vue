@@ -57,12 +57,15 @@
     </div>
   </div>
   <!-- Life-Strap -->
+   <div class="new-lifestrap-story">
+      <button new-lifestrap-story @click="newLifeStrapStory()">New LifeStrap Story</button>
+   </div>
    <LifeStrapNode 
     v-for="strap in storeLibrary.straps" 
     :key="strap.id" 
     :strap="strap"
     :expanded="props.isExpanded"
-    @select="handleWorldPivot"
+     @select="handleStrapSelect"
   />
   <!-- Besearch Navigation Controls -->
   <!-- besearch create start stop delete -->
@@ -133,9 +136,64 @@ const emit = defineEmits([
   'startDrag',
   'start-drawing',
   'start-tagging',
-  'save-cue'
+  'save-cue',
+  'lifestrap-selected'
 ]);
 
+/** Handle life-strap selection */
+const handleStrapSelect = (strapData) => {
+  console.log('Life strap selected:', strapData)
+  
+  // Update AI store with active life-strap info
+  storeAI.setActiveLifeStrap(strapData.id, strapData.contractKey)
+  
+  // Extract lens data from active_cues or derive from name
+  const lensData = { capacity: [], context: [], coherence: [] }
+  
+  if (strapData.activeCues && strapData.activeCues.length > 0) {
+    for (const cue of strapData.activeCues) {
+      // Handle "capacity-orbits" format
+      if (cue.startsWith('capacity-')) {
+        lensData.capacity.push(cue.replace('capacity-', ''))
+      } else if (cue.startsWith('context-')) {
+        lensData.context.push(cue.replace('context-', ''))
+      } else if (cue.startsWith('coherence-')) {
+        lensData.coherence.push(cue.replace('coherence-', ''))
+      } else {
+        // Handle simple cue like "posture" - add to capacity as default
+        lensData.capacity.push(cue)
+      }
+    }
+  } else if (strapData.name) {
+    // Fallback: extract keywords from name
+    const name = strapData.name.toLowerCase()
+    if (name.includes('swim') || name.includes('swimming')) {
+      lensData.capacity.push('400m Performance')
+      lensData.context.push('Aquatic Environment')
+    }
+    if (name.includes('posture')) {
+      lensData.capacity.push('Spinal Alignment')
+      lensData.context.push('Sitting Position')
+    }
+    if (name.includes('longevity')) {
+      lensData.capacity.push('Cellular Resilience')
+      lensData.coherence.push('Metabolic Balance')
+    }
+  }
+  
+  storeAI.digestInput = lensData
+  
+  // Also set the chat attention to the life-strap ID so chat switches to that
+  storeAI.chatAttention = strapData.id
+  storeAI.beebeeContext = 'lifestrap'
+  
+  // Open the bottom panel to show detail
+  storeBesearch.showBottomPanel = true
+  storeBesearch.bottomHeight = 400
+  
+  // Emit to parent components (for worlds switching)
+  emit('lifestrap-selected', strapData)
+}
 
 let btoolsTime = ref(false)
 let selectedMode = ref('cues')
@@ -156,14 +214,16 @@ const worlds = [
     btoolsTime.value = !btoolsTime.value
   }
 
+  const newLifeStrapStory = () => {
+    // open up beebee with lifestrap reply, please tell me about a life-strap story
+    storeAI.beebeeContext = 'lifestrap'
+    storeAI.chatAttention = 'new'
+  }
+
   const selectMode = (mode) => {
     selectedMode.value = mode
     // Emit event to parent component to update canvas
     emit('mode-selected', mode)
-  }
-
-  const handleWorldPivot = () => {
-    console.log('World pivot')
   }
 
   const selectWorld = (worldId) => {

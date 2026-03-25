@@ -74,6 +74,8 @@ import { ref, computed, watch } from 'vue';
 import { aiInterfaceStore } from '@/stores/aiInterface.js';
 import { useChatStore } from '@/stores/chatStore.js';
 import { besearchStore } from '@/stores/besearchStore.js';
+import { libraryStore } from '@/stores/libraryStore.js';
+import { diaryStore } from '@/stores/diaryStore.js';
 
 // Sub-components
 import LeftPanel from '@/components/orbit/parts/LeftPanel.vue';
@@ -84,6 +86,8 @@ import OrbitHUD from '@/components/orbit/parts/OrbitHUD.vue';
 import LaunchpadStack from '@/components/orbit/parts/LaunchpadStack.vue';
 import BesearchFuse from '@/components/orbit/besearch/BesearchFuse.vue';
 
+const storeDiary = diaryStore();
+const storeLibrary = libraryStore();
 const storeAI = aiInterfaceStore();
 const storeChat = useChatStore();
 const storeBesearch = besearchStore();
@@ -97,7 +101,8 @@ const activeWorld = computed({
 });
 
 const isBottomOpen = computed(() => {
-  return storeBesearch.showBottomPanel
+  // Open if besearch says so OR if a life-strap is active OR if an intervention is selected
+  return storeBesearch.showBottomPanel || !!storeAI.activeLifeStrapID || storeBesearch.hasActiveIntervention
 })
 
 const bottomHeight = computed(() => {
@@ -119,16 +124,20 @@ const isLifeToolsOpen = ref(false);
 const rightPanelMode = ref('chat');
 
 const panelWidth = ref(30);
-// const chatWidth = ref(10); // Start at 0 to see if bubble shows
-// const bottomHeight = ref(60);
-// const isBottomOpen = ref(false);
 const draggingMode = ref(null);
 
 // 1. Add 'extracting' to the modes
 // const currentMode = ref('zen'); // 'zen', 'demo', 'extracting', or 'active'
 
 /* computed */
-const isInitialState = computed(() => storeAI.currentMode === 'zen');
+const isInitialState = computed(() => {
+  if (storeLibrary.straps.length > 0) {
+    storeAI.activeLifeStrapID = storeLibrary.straps[0].id
+    storeAI.currentMode = 'orbit'
+  }
+  return storeAI.currentMode === 'zen';
+})
+
 const isDemoMode = computed(() => storeAI.currentMode === 'demo');
 const isExtracting = computed(() => storeAI.currentMode === 'extracting');
 const currentMode = computed(() => storeAI.currentMode);
@@ -164,20 +173,31 @@ const handleStartTagging = () => {
 
 const launchDemo = (type) => {
   storeAI.currentMode = 'demo'; // This triggers the "Three Cs" in Launchpad
-  activeWorld.value = type;
+  storeAI.activeWorld = type;
   
   // Also push the demo text into the store so the Lenses have data
-  if (type === 'sport') {
+  if (type === 'oribt') {
     storeAI.beebeeDigest("I want to swim 400m in 10 orbits...", true);
   } else if (type === 'body') {
+    storeDiary.zoomDepth = 1
     storeBesearch.setNexusWorld('body')
+  } else if (type === 'earth') {
+    storeBesearch.setNexusWorld('earth')
+    storeDiary.zoomDepth = 0
+    storeDiary.currentLayer = 'terrain'
+  } else if (type === 'daisy') {
+    storeAI.activeWorld = 'earth';
+    storeDiary.zoomDepth = 2
   }
+  // open the lens ie. bottom panel
+  storeBesearch.showBottomPanel = true
 };
 
 // 3. Update the Reset handler
 const exitToZen = () => {
+  storeBesearch.showBottomPanel = false
   storeAI.currentMode = 'zen';
-  activeWorld.value = 'orbit';
+  storeAI.activeWorld = 'orbit';
   storeChat.chatWidth = 10;
   storeChat.isChatOpen = false;
   panelWidth.value = 30;
@@ -219,7 +239,7 @@ const handleGlobalDrag = (e) => {
   }
   else if (draggingMode.value === 'bottom') {
     const newHeight = window.innerHeight - e.clientY;
-    storeBesearch.bottomHeight = Math.max(12, Math.min(newHeight, window.innerHeight * 0.6));
+    storeBesearch.bottomHeight = Math.max(12, Math.min(newHeight, window.innerHeight * 0.8));
     storeBesearch.showBottomPanel = storeBesearch.bottomHeight > 100;
   }
 };

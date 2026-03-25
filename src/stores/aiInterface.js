@@ -26,6 +26,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     liveChatspaceUtil: new ChatspaceUtilty(),
     currentMode: 'zen',
     activeWorld: 'orbit',
+    invitePlaceHolder: { opening: 'Ready to weave a new story into the Loom?', invite: 'Expand the knowledge-fold?', wait: 'Awaiting a story to anchor.', device: 'A new pulse is present. Witness it?' },
     cuesFeedback: '',
     cuesRelationshipFeedback: {},
     startChat: true,
@@ -67,6 +68,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       time: '',
       active: true
     }),
+    showLifestapLens: false,
     helpchatReply: '',
     helpchatHistory: shallowRef([]),
     currentQuestion: {},
@@ -1163,6 +1165,11 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     },
     async beebeeDigest(call, demo) {
       console.log('beebeeDigest', demo)
+      // is this the very first message in? If so, create a new life-strap story
+      if (this.storeLibrary.straps.length === 0 && this.currentMode !== 'demo') {
+        console.log(' first life-strap  create and save id')
+        this.storeLibrary.createLifeStrap()
+      }
       // 1. Pivot out of Zen Mode
       this.currentMode = 'extracting'; 
       this.beebeeContext = 'extraction';

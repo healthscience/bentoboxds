@@ -81,7 +81,9 @@
 <script setup>
 import { ref, computed} from 'vue'
 import { besearchStore } from '@/stores/besearchStore.js'
+import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
+const storeAI = aiInterfaceStore()
 const storeBesearch = besearchStore()
 
 let selectedIntervention = ref(null)
@@ -211,6 +213,8 @@ const rejuvenationInterventions = ref([
     selectedIntervention.value = intervention
     // Set intervention in store instead of emitting
     storeBesearch.setSelectedIntervention(intervention)
+    storeBesearch.showBesearchDetail = true
+    storeAI.showLifestapLens = true
   }
 
   const createIntervention = () => {

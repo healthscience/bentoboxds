@@ -91,6 +91,7 @@ const getStatusClass = (status) => {
 
 const closeCycleToolbar = () => {
   console.log('closeCycleToolbar')
+  storeBesearch.selectedIntervention = null
   storeBesearch.showBesearchDetail = false
   storeBesearch.bottomHeight = 20
 }

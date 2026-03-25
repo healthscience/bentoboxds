@@ -7,10 +7,10 @@
         <h3>capacity</h3>
       </header>
       <div class="variable-list">
-        <div v-for="tag in lenses.capacity" :key="tag" class="variable-tag">
+        <div v-for="tag in lenses?.capacity" :key="tag" class="variable-tag">
           <button @click="handleCueSpace(tag)">{{ tag }}</button>
         </div>
-        <div v-if="!lenses.capacity?.length" class="empty-state">Initialize...</div>
+        <div v-if="!lenses?.capacity?.length" class="empty-state">Initialize...</div>
       </div>
     </div>
 
@@ -26,10 +26,10 @@
         <div class="context-group">
           <h4 class="group-title">Knowledge</h4>
           <div class="variable-list">
-            <div v-for="tag in lenses.context" :key="tag" class="variable-tag">
+            <div v-for="tag in lenses?.context" :key="tag" class="variable-tag">
               <button @click="handleCueSpace(tag)">{{ tag }}</button>
             </div>
-            <div v-if="!lenses.context?.length" class="empty-state">Initialize...</div>
+            <div v-if="!lenses?.context?.length" class="empty-state">Initialize...</div>
           </div>
         </div>
 
@@ -155,14 +155,15 @@ const handleWholeExpand = () => {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
-  width: 100%;
+  width: 82vw;
+  margin: 0 auto;
 }
 
 .lens-box {
   padding: 20px;
   border-radius: var(--sov-border-radius);
   border-top: 4px solid #ccc;
-  background: var(--sov-bg-soft);
+  background: transparent;
   transition: opacity 0.3s ease;
 }
 
@@ -186,6 +187,12 @@ const handleWholeExpand = () => {
   margin-bottom: 15px;
 }
 
+.whole-resonance {
+  background: white;
+  padding: 10px;
+  border-radius: 8px;
+}
+
 .pulse-dot {
   width: 8px;
   height: 8px;
@@ -197,6 +204,9 @@ const handleWholeExpand = () => {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  background: white;
+  padding: 10px;
+  border-radius: 8px;
 }
 
 .context-sections {
@@ -207,7 +217,9 @@ const handleWholeExpand = () => {
 
 .context-group {
   border-left: 2px solid rgba(0, 255, 200, 0.1);
-  padding-left: 0.8rem;
+  padding: 10px;
+  background: white;
+  border-radius: 0 8px 8px 0;
 }
 
 .group-title {

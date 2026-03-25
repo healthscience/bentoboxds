@@ -68,7 +68,7 @@ E<template>
 
       <div class="layer-control">
         <button 
-          v-for="layer in ['osm', 'satellite', 'terrain']" 
+          v-for="layer in earthLayers" 
           :key="layer"
           :class="{ active: currentLayer === layer }"
           @click="currentLayer = layer"
@@ -106,7 +106,7 @@ const isTaggingActive = ref(false);
 const savedRivers = ref([]);
 const savedTags = ref([]);
 const currentZoom = ref(13);
-const currentLayer = ref('osm');
+// const currentLayer = ref('osm');
 
 const { lensPos, isLocked, isFixed, zoomDepth, linkedCue, handleMouseMove, toggleLock, toggleFixed } = useLensStability();
 
@@ -125,6 +125,14 @@ const genesisLocation = computed(() => {
     };
   }
   return { lat: 0, lon: 0, zoom: 13, name: '' };
+});
+
+const earthLayers = computed(() => {
+  return storeDiary.earthLayers || ['osm', 'satellite', 'terrain'];
+});
+
+const currentLayer = computed(() => {
+  return storeDiary.currentLayer || 'osm';
 });
 
 // Initialize currentZoom from genesisLocation

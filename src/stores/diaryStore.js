@@ -60,9 +60,11 @@ export const diaryStore = defineStore('diarystore', {
       },
       dayMaxEvents: true,
       nowIndicator: true,
-      selectable: true
-  }
-
+      selectable: true,
+    },
+    currentLayer: 'osm',
+    earthLayers: ['osm', 'satellite', 'terrain'],
+    zoomDepth: 0
   }),
   actions: {
     setTempSignature (sig) {

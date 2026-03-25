@@ -21,7 +21,7 @@
         <textarea 
           id="askinput" 
           v-model="storeAI.askQuestion.text"
-          placeholder="What resonance shall we shape?"
+          :placeholder="livePlaceHolder"
           @keyup.enter.exact.prevent="storeAI.beebeeDigest()"
         ></textarea>
       </form>
@@ -114,6 +114,15 @@ import { ref, computed, watch } from 'vue'
   /* computed */
   const beebeeAIStatus = computed(() => {
     return storeAI.helpchatAsk
+  })
+
+  const livePlaceHolder = computed(() => {
+    if (storeAI.currentMode === 'zen') {
+      return storeAI.invitePlaceHolder.opening
+    } else {
+      return storeAI.invitePlaceHolder.invite
+    }
+
   })
 
   const cueStatus = computed(() => {
@@ -404,7 +413,7 @@ import { ref, computed, watch } from 'vue'
 
   #input-tools {
     display: grid;
-    grid-template-columns: 8fr 1fr 1fr;
+    grid-template-columns: 10fr 1fr 1fr;
   }
 
   #tool-agents {
@@ -427,7 +436,7 @@ import { ref, computed, watch } from 'vue'
   #askinput {
     font-size: 1.2em;
     padding-left: 1em;
-    height: 3em;
+    height: 4em;
     width: 100%;
     opacity: 100%;
     background-color: v-bind(teachingModeBackground);

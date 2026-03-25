@@ -26,16 +26,24 @@ export const libraryStore = defineStore('librarystore', {
     storeBesearch: new besearchStore(),
     storeTeach: teachingStore(),
     startPubLibrary: false,
-    straps: [
-      {
+    straps: [],
+/*      {
         id: "ls_swim_2026",
-        name: "400IM Swim Protocol",
+        name: "swim for longevity",
         origin_input: "I want to swim 400m...",
         contract_key: "HOP_777_888",
         active_cues: ["capacity-orbits", "context-chlorine"],
         bioregion_anchor: "Local-Pool-01"
+      },
+      {
+        id: "ls_posture_2026",
+        name: "posture correct",
+        origin_input: "Correct posture from sitting comuputing and playing violin.",
+        contract_key: "HOP_777_123",
+        active_cues: ["posture", "body"],
+        bioregion_anchor: "Local-default-02"
       }
-    ],
+    ],*/
     replicateFeedback: {},
     libraryMessage: '',
     uploadStatus: false,
@@ -237,6 +245,16 @@ export const libraryStore = defineStore('librarystore', {
       // ask network library for contracts via HOP
       this.sendMessage('get-library')
       this.sendMessage('get-results')
+    },
+    createLifeStrap (message) {
+      let messageHOP = {}
+      messageHOP.type = 'library'
+      messageHOP.action = 'contracts'
+      messageHOP.reftype = 'refresh-publiclibrary'
+      messageHOP.privacy = 'public'
+      messageHOP.task = 'GET'
+      messageHOP.data = message
+      // this.sendSocket.send_message(messageHOP)
     },
     joinNXPprocess (message) {
       // need to query source table?? (just to check?) need to query devices to get list personal to peer

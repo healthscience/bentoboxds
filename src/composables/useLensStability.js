@@ -1,6 +1,10 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { diaryStore } from '@/stores/diaryStore'; 
 
 export function useLensStability(options = { dampening: 0.1, snapRadius: 50 }) {
+
+  const storeDiary = diaryStore()
+
   const mouse = ref({ x: 0, y: 0 });      // Actual mouse position
   const target = ref({ x: 0, y: 0 });     // Where the lens "wants" to be
   const lensPos = ref({ x: 0, y: 0 });    // The smoothed, dampened position
@@ -9,8 +13,12 @@ export function useLensStability(options = { dampening: 0.1, snapRadius: 50 }) {
   const isFixed = ref(false); // New: Fixed in place by click
   const isFineTuning = ref(false); // Triggered by [Space]
   const zoomScale = ref(1);        // Visual zoom
-  const zoomDepth = ref(0);        // Emulation depth (0: Wiki, 1: Bio, 2: Cell)
   const linkedCue = ref(null);     // Currently snapped cue
+
+  const zoomDepth = computed({
+    get: () => storeDiary.zoomDepth,
+    set: (val) => { storeDiary.zoomDepth = val }
+  });
 
   // Mocked cues for magnetic snapping (disabled for 3D raycasting)
   const mockCues = [
