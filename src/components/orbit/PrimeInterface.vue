@@ -21,28 +21,148 @@
     />
 
     <main class="orbit-stage">
-      <OrbitHUD v-if="!isInitialState" />
+      <div 
+        class="bento-layout-engine"
+        :style="bentoLayoutStyle"
+      >
+        <!-- TOP ROW -->
+        <div class="bento-row top-row" :style="topRowStyle">
+          <!-- NOW ME (Top Left) -->
+          <div v-if="activeQuadrants.includes('now-me')" class="bento-cell now-me-cell">
+            <OrbitHUD v-if="!isInitialState" />
 
-      <div class="interface-layer">
-        <transition name="sov-fade">
-          <LaunchpadStack
-            v-if="isInitialState || isExtracting || isDemoMode" 
-            :mode="currentMode" 
-            :extractedData="mappedLenses"
-            @launch="launchDemo" 
-            @reset="exitToZen"
-          />
-        </transition>
-      </div>
+            <div class="interface-layer">
+              <transition name="sov-fade">
+                <LaunchpadStack
+                  v-if="isInitialState || isExtracting || isDemoMode" 
+                  :mode="currentMode" 
+                  :extractedData="mappedLenses"
+                  @launch="launchDemo" 
+                  @reset="exitToZen"
+                />
+              </transition>
+            </div>
 
-      <WorldCanvas 
-        ref="worldCanvasRef"
-        :activeWorld="isInitialState ? 'void' : activeWorld"
-        :showTools="!isInitialState"
-      />
+            <WorldCanvas 
+              ref="worldCanvasRef"
+              class="world-canvas-layer"
+              :activeWorld="isInitialState ? 'void' : activeWorld"
+              :showTools="!isInitialState"
+            />
 
-      <div class="fuse-container">
-        <BesearchFuse v-if="!isInitialState && storeAI.currentMode === 'besearch'" />
+            <div class="fuse-container">
+              <BesearchFuse v-if="!isInitialState && storeAI.currentMode === 'besearch'" />
+            </div>
+          </div>
+
+          <!-- Vertical Divider for Top Row -->
+          <div 
+            v-if="activeQuadrants.includes('now-me') && activeQuadrants.includes('future-me')"
+            class="bento-divider vertical"
+            @mousedown="startBentoDividerDrag"
+          ></div>
+
+          <!-- FUTURE ME (Top Right) -->
+          <div v-if="activeQuadrants.includes('future-me')" class="bento-cell future-me-cell">
+            <div class="future-indicator">FUTURE ME</div>
+            <OrbitHUD v-if="!isInitialState" />
+
+            <div class="interface-layer">
+              <transition name="sov-fade">
+                <LaunchpadStack
+                  v-if="isInitialState || isExtracting || isDemoMode" 
+                  :mode="currentMode" 
+                  :extractedData="mappedLenses"
+                  @launch="launchDemo" 
+                  @reset="exitToZen"
+                />
+              </transition>
+            </div>
+
+            <WorldCanvas 
+              class="world-canvas-layer"
+              :activeWorld="isInitialState ? 'void' : activeWorld"
+              :showTools="!isInitialState"
+            />
+
+            <div class="fuse-container">
+              <BesearchFuse v-if="!isInitialState && storeAI.currentMode === 'besearch'" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Horizontal Divider -->
+        <div 
+          v-if="(activeQuadrants.includes('now-me') || activeQuadrants.includes('future-me')) && (activeQuadrants.includes('now-us') || activeQuadrants.includes('future-us'))"
+          class="bento-divider horizontal"
+          @mousedown="startBentoVerticalDividerDrag"
+        ></div>
+
+        <!-- BOTTOM ROW -->
+        <div class="bento-row bottom-row" :style="bottomRowStyle">
+          <!-- NOW US (Bottom Left) -->
+          <div v-if="activeQuadrants.includes('now-us')" class="bento-cell now-us-cell">
+            <div class="future-indicator us">NOW US</div>
+            <OrbitHUD v-if="!isInitialState" />
+
+            <div class="interface-layer">
+              <transition name="sov-fade">
+                <LaunchpadStack
+                  v-if="isInitialState || isExtracting || isDemoMode" 
+                  :mode="currentMode" 
+                  :extractedData="mappedLenses"
+                  @launch="launchDemo" 
+                  @reset="exitToZen"
+                />
+              </transition>
+            </div>
+
+            <WorldCanvas 
+              class="world-canvas-layer"
+              :activeWorld="isInitialState ? 'void' : activeWorld"
+              :showTools="!isInitialState"
+            />
+
+            <div class="fuse-container">
+              <BesearchFuse v-if="!isInitialState && storeAI.currentMode === 'besearch'" />
+            </div>
+          </div>
+
+          <!-- Vertical Divider for Bottom Row -->
+          <div 
+            v-if="activeQuadrants.includes('now-us') && activeQuadrants.includes('future-us')"
+            class="bento-divider vertical"
+            @mousedown="startBentoDividerDrag"
+          ></div>
+
+          <!-- FUTURE US (Bottom Right) -->
+          <div v-if="activeQuadrants.includes('future-us')" class="bento-cell future-us-cell">
+            <div class="future-indicator us">FUTURE US</div>
+            <OrbitHUD v-if="!isInitialState" />
+
+            <div class="interface-layer">
+              <transition name="sov-fade">
+                <LaunchpadStack
+                  v-if="isInitialState || isExtracting || isDemoMode" 
+                  :mode="currentMode" 
+                  :extractedData="mappedLenses"
+                  @launch="launchDemo" 
+                  @reset="exitToZen"
+                />
+              </transition>
+            </div>
+
+            <WorldCanvas 
+              class="world-canvas-layer"
+              :activeWorld="isInitialState ? 'void' : activeWorld"
+              :showTools="!isInitialState"
+            />
+
+            <div class="fuse-container">
+              <BesearchFuse v-if="!isInitialState && storeAI.currentMode === 'besearch'" />
+            </div>
+          </div>
+        </div>
       </div>
     </main>
 
@@ -66,6 +186,10 @@
       @update:isOpen="val => isBottomOpen = val"
       @startDrag="startBottomDrag"
     />
+
+    <div class="bento-box-container">
+      <BentoBox v-model:activeQuadrants="activeQuadrants" />
+    </div>
   </div>
 </template>
 
@@ -85,6 +209,7 @@ import WorldCanvas from '@/components/orbit/parts/WorldCanvas.vue';
 import OrbitHUD from '@/components/orbit/parts/OrbitHUD.vue';
 import LaunchpadStack from '@/components/orbit/parts/LaunchpadStack.vue';
 import BesearchFuse from '@/components/orbit/besearch/BesearchFuse.vue';
+import BentoBox from '@/components/orbit/parts/BentoBox.vue';
 
 const storeDiary = diaryStore();
 const storeLibrary = libraryStore();
@@ -92,6 +217,13 @@ const storeAI = aiInterfaceStore();
 const storeChat = useChatStore();
 const storeBesearch = besearchStore();
 const worldCanvasRef = ref(null);
+
+/* BentoBox State */
+const activeQuadrants = ref(['now-me']);
+const bentoSplitRatio = ref(50); // Percentage for vertical split
+const bentoVerticalSplitRatio = ref(50); // Percentage for horizontal split
+const isDraggingBentoDivider = ref(false);
+const isDraggingBentoVerticalDivider = ref(false);
 
 /* computed */
 const extractedData = computed(() => storeAI.digestInput);
@@ -226,7 +358,35 @@ const startDraggingLeft = () => { draggingMode.value = 'left'; document.body.sty
 const startChatDrag = () => { draggingMode.value = 'right'; document.body.style.cursor = 'ew-resize'; };
 const startBottomDrag = () => { draggingMode.value = 'bottom'; document.body.style.cursor = 'ns-resize'; };
 
+const startBentoDividerDrag = () => {
+  isDraggingBentoDivider.value = true;
+  document.body.style.cursor = 'ew-resize';
+};
+
+const startBentoVerticalDividerDrag = () => {
+  isDraggingBentoVerticalDivider.value = true;
+  document.body.style.cursor = 'ns-resize';
+};
+
 const handleGlobalDrag = (e) => {
+  if (isDraggingBentoDivider.value) {
+    const stage = document.querySelector('.orbit-stage');
+    if (stage) {
+      const rect = stage.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      bentoSplitRatio.value = Math.max(10, Math.min(90, (x / rect.width) * 100));
+    }
+    return;
+  }
+  if (isDraggingBentoVerticalDivider.value) {
+    const stage = document.querySelector('.orbit-stage');
+    if (stage) {
+      const rect = stage.getBoundingClientRect();
+      const y = e.clientY - rect.top;
+      bentoVerticalSplitRatio.value = Math.max(10, Math.min(90, (y / rect.height) * 100));
+    }
+    return;
+  }
   if (!draggingMode.value) return;
   if (draggingMode.value === 'left') {
     panelWidth.value = Math.max(30, Math.min(e.clientX, window.innerWidth * 0.4));
@@ -246,6 +406,8 @@ const handleGlobalDrag = (e) => {
 
 const stopDragging = () => { 
   draggingMode.value = null; 
+  isDraggingBentoDivider.value = false;
+  isDraggingBentoVerticalDivider.value = false;
   document.body.style.cursor = 'default'; 
 };
 
@@ -254,9 +416,144 @@ const dynamicGridStyle = computed(() => ({
   gridTemplateRows: `1fr ${storeBesearch.showBottomPanel ? storeBesearch.bottomHeight : 0}px`,
   gridTemplateAreas: '"tools stage chat"'
 }));
+
+const bentoLayoutStyle = computed(() => {
+  const hasTop = activeQuadrants.value.includes('now-me') || activeQuadrants.value.includes('future-me');
+  const hasBottom = activeQuadrants.value.includes('now-us') || activeQuadrants.value.includes('future-us');
+
+  if (hasTop && hasBottom) {
+    return {
+      display: 'grid',
+      gridTemplateRows: `${bentoVerticalSplitRatio.value}% 4px 1fr`,
+      height: '100%',
+      width: '100%'
+    };
+  }
+  return {
+    display: 'block',
+    height: '100%',
+    width: '100%'
+  };
+});
+
+const topRowStyle = computed(() => {
+  const hasNowMe = activeQuadrants.value.includes('now-me');
+  const hasFutureMe = activeQuadrants.value.includes('future-me');
+  if (hasNowMe && hasFutureMe) {
+    return {
+      display: 'grid',
+      gridTemplateColumns: `${bentoSplitRatio.value}% 4px 1fr`,
+      height: '100%'
+    };
+  }
+  return { height: '100%' };
+});
+
+const bottomRowStyle = computed(() => {
+  const hasNowUs = activeQuadrants.value.includes('now-us');
+  const hasFutureUs = activeQuadrants.value.includes('future-us');
+  if (hasNowUs && hasFutureUs) {
+    return {
+      display: 'grid',
+      gridTemplateColumns: `${bentoSplitRatio.value}% 4px 1fr`,
+      height: '100%'
+    };
+  }
+  return { height: '100%' };
+});
 </script>
 
 <style scoped>
+
+.bento-box-container {
+  position: absolute;
+  bottom: 80px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.bento-layout-engine {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.bento-cell {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: 80px 1fr 60px;
+}
+
+.bento-cell .interface-layer {
+  grid-row: 2;
+  z-index: 400;
+}
+
+.bento-cell .world-canvas-layer {
+  grid-row: 1 / span 3;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+}
+
+.bento-cell .fuse-container {
+  grid-row: 3;
+  z-index: 500;
+}
+
+.bento-divider {
+  background: rgba(255, 255, 255, 0.2);
+  z-index: 1000;
+  transition: background 0.2s;
+}
+
+.bento-divider:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.bento-divider.vertical {
+  width: 4px;
+  cursor: ew-resize;
+  height: 100%;
+}
+
+.bento-divider.horizontal {
+  height: 4px;
+  cursor: ns-resize;
+  width: 100%;
+}
+
+.future-indicator {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(75, 0, 130, 0.6);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.future-indicator.us {
+  background: rgba(255, 191, 0, 0.6);
+  color: #333;
+}
+
+.bento-row {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
 
 .prime-interface {
   display: grid;
@@ -274,8 +571,6 @@ const dynamicGridStyle = computed(() => ({
 
 .orbit-stage {
   grid-area: stage;
-  display: grid;
-  grid-template-rows: 80px 1fr 60px;
   height: 100%;
   max-height: calc(100vh - var(--header-height, 60px));
   position: relative;

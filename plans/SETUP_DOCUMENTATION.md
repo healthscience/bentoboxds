@@ -106,29 +106,6 @@ cd /workspace/bentoboxds
 npx cypress run --spec cypress/e2e/chat/basicChat.cy.js
 ```
 
-## Refactoring Plan (5 Stages)
-
-### Stage 1: Fix Immediate Issues ✓
-- Fixed question content display
-- Attempted streaming message consolidation fix
-
-### Stage 2: Implement Streaming Support (TODO)
-- Proper streaming message handling
-- Progressive UI updates
-
-### Stage 3: Unify Message Structure (TODO)
-- Consistent message format across all contexts
-- Standardized message properties
-
-### Stage 4: Refactor State Management (TODO)
-- Centralized chat state
-- Proper separation of concerns
-
-### Stage 5: Support All Contexts (TODO)
-- Library chat
-- Cues chat
-- Direct chat
-- Unified experience
 
 ## Known Environment Limitations
 
@@ -136,9 +113,21 @@ npx cypress run --spec cypress/e2e/chat/basicChat.cy.js
 2. **Network Configuration**: Container network settings may block certain connections
 3. **Missing Tools**: lsof, netstat, ss not available in container
 
-## Next Steps
 
-1. Resolve SSL/HTTPS issues for proper testing
-2. Fix streaming message consolidation
-3. Continue with Stage 2-5 of refactoring plan
-4. Ensure all tests pass in both local and container environments
+# HOP Stitching & Scale Architecture
+
+## 1. Heli-Clock Projections
+- **Mechanism:** Bayesian Emanation (calculating probabilities from local Bento history).
+- **Timeframes:** - Day (Circadian)
+  - Month (Synodic)
+  - Year (Equinox)
+- **Control:** UI Pinch on the Heli-Clock dial shifts the timeframe dynamically.
+
+## 2. Peer Resolution
+- **Warm List:** Cryptographically signed peers. High-fidelity sync.
+- **Ambient Network:** Anonymous mesh routing. Low-fidelity context.
+- **The Stitch:** Peer resolution is bound to the Zoom level of the Earth World.
+
+## 3. The Swimming Club Unit
+- A 'Club' is defined as a Contextual Peer Group. 
+- It aggregates individual 'Now Me' heart rates into a single 'Now Us' resonance score
