@@ -124,13 +124,16 @@ const syncPublicLibrary = () => {
 
 /* RESONANCE LAYOUT (The 3 Cs View) */
 .active-resonance-grid {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
   display: grid;
   grid-template-rows: auto 1fr auto;
   gap: 2rem;
   width: 90%;
   max-width: 1000px;
   height: auto;
-  margin-top: 200px;
 }
 
 .resonance-header h2 {

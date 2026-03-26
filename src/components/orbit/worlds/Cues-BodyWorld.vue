@@ -56,22 +56,21 @@
     </div>
 
     <!-- Depth Layers (Biomarker/Cellular) -->
-    <div v-if="zoomDepth === 1" class="depth-layer biomarker-layer">
-      <div class="organ-placeholder" :style="{ backgroundColor: organColor }">
-        {{ linkedCue ? linkedCue.name : 'BIOMARKER' }} EMULATION
-      </div>
-    </div>
+    <OrganSurface 
+      v-if="zoomDepth === 1" 
+      :linked-cue="linkedCue" 
+      :organ-color="organColor" 
+    />
 
-    <div v-if="zoomDepth === 2" class="depth-layer cellular-layer">
-      <div class="cell-placeholder">
-        CELLULAR EMULATION
-      </div>
-    </div>
+    <!-- Cellular Layer -->
+    <CellularSurface v-if="zoomDepth === 2" />
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted, onUpdated, reactive, watch, nextTick } from 'vue'
+import OrganSurface from './body/organSurface.vue'
+import CellularSurface from './body/cellularSurface.vue'
 import { cuesStore } from '@/stores/cuesStore.js'
 import { accountStore } from '@/stores/accountStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'

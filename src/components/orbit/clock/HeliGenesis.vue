@@ -32,7 +32,7 @@
       <div v-if="birthDifferentLocation === true" class="birth-location-form">
         <input type="text" v-model="birthPlaceName" placeholder="Place Name (e.g. London)" />
         <button @click="convertGPS()">Find location</button>
-        <div class="birth-location-gps" v-if="birthLocationData">{{ birthLocationData }}
+        <div class="birth-location-gps" v-if="birthLocationData">
           <p>Birth location: {{ birthLocationData?.latitude.toFixed(4) }}, {{ birthLocationData?.longitude.toFixed(4) }}</p>
         </div>
       </div>
@@ -123,7 +123,6 @@ const setBirthLocation = () => {
 
 watch([sliderOrbital, sliderDaily], () => {
   const loc = birthLocationData.value || currentLocation.value;
-  console.log('loc', loc)
   if (!loc) return;
   storeDiary.sendMessageHOP({
     type: 'heliclock',

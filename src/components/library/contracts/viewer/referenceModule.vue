@@ -227,6 +227,7 @@ let selectedLibrary = ref('')
     // a computed ref
     const libraryCheck = computed(() => {
       // any entries in the library?
+      console.log('libraryCheck', storeLibrary.publicLibrary)
       if (Object.keys(storeLibrary.publicLibrary).length > 0) {
        return true
       } else {
