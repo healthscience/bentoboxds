@@ -1,5 +1,7 @@
 <template>
   <div id="time-control">
+    <!-- heli clock controls need -->
+     <!--<heli-sectors></heli-sectors>-->
     <div id="calendar-live">
       <div v-if="selectedTimeBundle === 'single'">
         <a class="date-live-select" ref="#" @click.prevent="viewCalendarSeettings()">{{ boxDate }} v</a>
@@ -70,6 +72,7 @@
 </template>
 
 <script setup>
+import HeliSectors from '@/components/bentobox/tools/heli/selectHeli.vue'
 import { DateTime, Interval } from 'luxon'
 import { ref, computed, onMounted, onBeforeMount, shallowRef } from 'vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
