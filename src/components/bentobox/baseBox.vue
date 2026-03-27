@@ -17,7 +17,7 @@
       <div id="bento-past">
         <div id="past-box">
           <!--<button id="full-past-toolbar">tools</button>-->
-          <button id="full-future-toolbar" @click="predictFuture()">future</button>
+          <!--<button id="full-future-toolbar" @click="predictFuture()">future</button>-->
         </div>
         <div id="past-vis">
           <bar-chart v-if="storeBentobox.chartStyle[props.bboxid] === 'bar'" :chartData="chartData"></bar-chart>
