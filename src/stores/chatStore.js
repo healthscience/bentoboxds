@@ -580,7 +580,9 @@ export const useChatStore = defineStore('chat', {
           // set the chat list live
           this.storeAI.historyList = true
         }
-      } 
+      } else if (message.reftype.trim() === 'chat-history-item') {
+        console.log('chat-history-item', message)
+      }
     },
     prepareChatBentoBoxSave (message) {
       // Normalize and serialize history for the effective chat id

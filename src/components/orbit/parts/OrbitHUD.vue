@@ -1,12 +1,12 @@
 <template>
   <div id="orbit-hud">
     <div class="hud-top">
-      <div class="metric"><span>LIFE-STRAP</span><strong>{{ activeLifeStrapName }}</strong></div>
+      <div class="metric"><span>Be</span><strong>{{ activeLifeStrapName }}</strong></div>
+      <div class="metric"><span>LIFE-STRAPS</span><strong>{{ countLifeStraps }}</strong></div>
       <div class="metric"><span>BESEARCH</span><strong>0</strong></div>
       <div class="metric"><span>DIALOGUE</span><strong>0</strong></div>
       <div class="metric"><span>CUES</span><strong>0</strong></div>
     </div>
-    
   </div>
 </template>
 
@@ -14,6 +14,7 @@
 import { computed } from 'vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { libraryStore } from '@/stores/libraryStore.js'
+import { compute } from 'three/src/nodes/gpgpu/ComputeNode.js'
 
 const storeAI = aiInterfaceStore()
 const storeLibrary = libraryStore()
@@ -21,7 +22,7 @@ const storeLibrary = libraryStore()
 /* Get the active life-strap name */
 const activeLifeStrapName = computed(() => {
   const activeId = storeAI.activeLifeStrapID
-  if (!activeId) return '1'
+  if (!activeId) return '---'
   
   // Find the strap in library by matching the ID or original ID
   const strap = storeLibrary.straps.find(s => 
@@ -32,6 +33,11 @@ const activeLifeStrapName = computed(() => {
   if (strap) return strap.name
   return activeId
 })
+
+const countLifeStraps = computed(() => {
+  return storeLibrary.straps.length
+})
+
 </script>
 
 <style scoped>

@@ -246,15 +246,15 @@ export const libraryStore = defineStore('librarystore', {
       this.sendMessage('get-library')
       this.sendMessage('get-results')
     },
-    createLifeStrap (message) {
+    createLifeStrap (lsData) {
       let messageHOP = {}
       messageHOP.type = 'library'
-      messageHOP.action = 'contracts'
-      messageHOP.reftype = 'refresh-publiclibrary'
-      messageHOP.privacy = 'public'
-      messageHOP.task = 'GET'
-      messageHOP.data = message
-      // this.sendSocket.send_message(messageHOP)
+      messageHOP.action = 'lifestrap'
+      messageHOP.reftype = 'new'
+      messageHOP.privacy = 'private'
+      messageHOP.task = 'PUT'
+      messageHOP.data = lsData
+      this.sendSocket.send_message(messageHOP)
     },
     joinNXPprocess (message) {
       // need to query source table?? (just to check?) need to query devices to get list personal to peer

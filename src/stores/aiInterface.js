@@ -225,6 +225,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     async submitAsk (dataInfo) {
       console.log('submit ask')
       console.log(this.beebeeContext)
+       // peer inquiry continues
       try {
         // 1. Determine the context
         const baseContext = this.beebeeContext || 'chat'
@@ -302,7 +303,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
         if (uploadAttached === true) {
           // add reply data select mode
           question.upload = this.storeLibrary.uploadHolder[0]
-          this.actionAgentQuestion(question, question)
+          this.actionAgentQuestion(question, question, primeLifeStrap)
         } else {
           // 9. Prepare the question for HOP
           const hopQuestion = question
@@ -322,7 +323,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
             hopQuestion.session = false
           }
           // 10. Send the question to HOP for processing
-          this.actionAgentQuestion(hopQuestion, question)
+          this.actionAgentQuestion(hopQuestion, question, primeLifeStrap)
         }
         // 11. Clear the input for the next question
         this.askQuestion.text = ''
@@ -430,7 +431,8 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
       this.askQuestion.text = ''
       this.qcount++      
     },
-    actionAgentQuestion (hopQuestion, originalQuestion) {
+    actionAgentQuestion (hopQuestion, originalQuestion, lifeStrap) {
+      hopQuestion.lifestrap = lifeStrap
       let hashQuestion = hopQuestion.bboxid || hashObject(hopQuestion)
       let aiMessageout = {}
       aiMessageout.type = 'bbai'
@@ -1165,170 +1167,165 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     },
     async beebeeDigest(call, demo) {
       console.log('beebeeDigest', demo)
+      let primeLifeStrap = false
       // is this the very first message in? If so, create a new life-strap story
-      if (this.storeLibrary.straps.length === 0 && this.currentMode !== 'demo') {
+      if (this.storeLibrary.straps.length === 0 || this.storeLibrary.newLifestrap === true  && this.currentMode !== 'demo') {
         console.log(' first life-strap  create and save id')
-        this.storeLibrary.createLifeStrap()
-      }
-      // 1. Pivot out of Zen Mode
-      this.currentMode = 'extracting'; 
-      this.beebeeContext = 'extraction';
-      
-      // 2. Capture (reset after message sent to HOP later)
-      if (demo !== undefined && demo === true) {
-        this.askQuestion.text = call
-      }
-      const peerInput = this.askQuestion.text;
-      // this.askQuestion.text = '';
-
-      // 3. Open BeeBee Chat Panel
-      this.storeChat.chatWidth = 380;
-      this.storeChat.isChatOpen = true;
-
-      // 4. Determine the Sovereign ID for this session
-      // If we have a hardcoded strap or active strap, use it. Otherwise fallback to 'chat'
-      const sovereignID = this.activeLifeStrapID || (this.storeLibrary.straps && this.storeLibrary.straps[0]?.id) || 'chat'
-      this.chatAttention = sovereignID
-      
-      // Ensure the chat bucket exists in historyPair for UI reactivity
-      if (!this.historyPair[sovereignID]) {
-        this.historyPair[sovereignID] = []
-      }
-      
-      // 5. Log the Peer Input (Before extraction starts)
-      /* this.storeChat.addMessage({
-        role: 'peer',
-        type: 'peer',
-        content: peerInput,
-        context: 'extraction',
-        conversationId: sovereignID,
-        contract_key: this.activeContractKey || (this.storeLibrary.straps && this.storeLibrary.straps[0]?.contract_key) || '',
-        lifeStrapID: sovereignID
-      }); */
-
-      // Ensure the chat bucket exists in chatStore for UI reactivity
-      if (!this.storeChat.chatHistory[sovereignID]) {
-        this.storeChat.chatHistory[sovereignID] = []
-      }
-
-      if (demo !== undefined && demo === true) {
-        console.log('dem0--path digetst')
-        this.askQuestion.text = ''
-        // 5. Log the Peer Input (Before extraction starts)
-        this.storeChat.addMessage({
-          role: 'peer',
-          type: 'peer',
-          content: peerInput,
-          context: 'extraction',
-          conversationId: sovereignID,
-          contract_key: this.activeContractKey || (this.storeLibrary.straps && this.storeLibrary.straps[0]?.contract_key) || '',
-          lifeStrapID: sovereignID
-        });
-
-        // --- DEMO PATH (400m Swim) ---
-        this.digestInput = {
-          capacity: ['400IM Performance'],
-          context: ['swimming', 'Aquatic Environment', '10 Orbits'],
-          coherence: ['Biological Barrier Model']
-        };
-        
-        // Generate/Set Demo Contract Key
-        this.activeContractKey = 'ck_demo_swim_400';
-        this.activeLifeStrapID = 'ls_demo_pool';
-        this.chatAttention = 'ls_demo_pool';
-
-        // BeeBee Confirmation Message
-        this.storeChat.addMessage({
-          role: 'beebee',
-          type: 'agent',
-          content: "The Health Oracle Protocol has analyzed your swimming intent. Have we extracted the intent correctly? Please click on any word to create a space, chat more, or upload data.",
-          context: 'extraction',
-          conversationId: 'ls_demo_pool',
-          contract_key: this.activeContractKey,
-          lifeStrapID: this.activeLifeStrapID,
-          status: 'complete'
-        });
-
+        let lifeStrapData = {}
+        lifeStrapData.name = 'prime-life-strap'
+        lifeStrapData.inquiry = this.askQuestion.text
+        this.storeLibrary.createLifeStrap(lifeStrapData)
+        primeLifeStrap = true
       } else {
-        // call on beebee
-        console.log('callon beebee digetst')
-        // --- PRODUCTION PATH (River, Body, etc.) ---
-        // BeeBee Confirmation Message
-        /* this.storeChat.addMessage({
-          role: 'beebee',
-          type: 'agent',
-          content: "I have mapped your intent across Capacity, Context, and Coherence. (Contract: ck_xl05670ju). Is this accurate? Click any word to manifest a space.",
-          context: 'extraction',
-          conversationId: sovereignID,
-          contract_key: this.activeContractKey || 'ck_xl05670ju',
-          lifeStrapID: sovereignID,
-          status: 'complete'
-        }); */
+        // 1. Pivot out of Zen Mode
+        this.currentMode = 'extracting'; 
+        this.beebeeContext = 'extraction';
+        
+        // 2. Capture (reset after message sent to HOP later)
+        if (demo !== undefined && demo === true) {
+          this.askQuestion.text = call
+        }
+        const peerInput = this.askQuestion.text;
+        // this.askQuestion.text = '';
+
+        // 3. Open BeeBee Chat Panel
+        this.storeChat.chatWidth = 380;
+        this.storeChat.isChatOpen = true;
+
+        // 4. Determine the Sovereign ID for this session
+        // If we have a hardcoded strap or active strap, use it. Otherwise fallback to 'chat'
+        const sovereignID = this.activeLifeStrapID || (this.storeLibrary.straps && this.storeLibrary.straps[0]?.id) || 'chat'
+        this.chatAttention = sovereignID
+        
+        // Ensure the chat bucket exists in historyPair for UI reactivity
+        if (!this.historyPair[sovereignID]) {
+          this.historyPair[sovereignID] = []
+        }
+
+        // Ensure the chat bucket exists in chatStore for UI reactivity
+        if (!this.storeChat.chatHistory[sovereignID]) {
+          this.storeChat.chatHistory[sovereignID] = []
+        }
+
+        if (demo !== undefined && demo === true) {
+          console.log('dem0--path digetst')
+          this.askQuestion.text = ''
+          // 5. Log the Peer Input (Before extraction starts)
+          this.storeChat.addMessage({
+            role: 'peer',
+            type: 'peer',
+            content: peerInput,
+            context: 'extraction',
+            conversationId: sovereignID,
+            contract_key: this.activeContractKey || (this.storeLibrary.straps && this.storeLibrary.straps[0]?.contract_key) || '',
+            lifeStrapID: sovereignID
+          });
+
+          // --- DEMO PATH (400m Swim) ---
+          this.digestInput = {
+            capacity: ['400IM Performance'],
+            context: ['swimming', 'Aquatic Environment', '10 Orbits'],
+            coherence: ['Biological Barrier Model']
+          };
+          
+          // Generate/Set Demo Contract Key
+          this.activeContractKey = 'ck_demo_swim_400';
+          this.activeLifeStrapID = 'ls_demo_pool';
+          this.chatAttention = 'ls_demo_pool';
+
+          // BeeBee Confirmation Message
+          this.storeChat.addMessage({
+            role: 'beebee',
+            type: 'agent',
+            content: "The Health Oracle Protocol has analyzed your swimming intent. Have we extracted the intent correctly? Please click on any word to create a space, chat more, or upload data.",
+            context: 'extraction',
+            conversationId: 'ls_demo_pool',
+            contract_key: this.activeContractKey,
+            lifeStrapID: this.activeLifeStrapID,
+            status: 'complete'
+          });
+
+        } else {
+          // call on beebee
+          console.log('callon beebee digetst')
+          // --- PRODUCTION PATH (River, Body, etc.) ---
+          // BeeBee Confirmation Message
+          /* this.storeChat.addMessage({
+            role: 'beebee',
+            type: 'agent',
+            content: "I have mapped your intent across Capacity, Context, and Coherence. (Contract: ck_xl05670ju). Is this accurate? Click any word to manifest a space.",
+            context: 'extraction',
+            conversationId: sovereignID,
+            contract_key: this.activeContractKey || 'ck_xl05670ju',
+            lifeStrapID: sovereignID,
+            status: 'complete'
+          }); */
 
 
-        // pass to submit to prepare chat 
-        this.submitAsk({}) 
+          // pass to submit to prepare chat 
+          this.submitAsk({}) 
 
 
-        /*  DEMO EXPERIENCE CODE 
-        if (validText.isValid) {
-          // The "Decomposition" Simulation (HOP Processing)
-          setTimeout(() => {
-            const rawInput = peerInput.toLowerCase();
-            let extractedData = { capacity: [], context: [], coherence: [] };
+          /*  DEMO EXPERIENCE CODE 
+          if (validText.isValid) {
+            // The "Decomposition" Simulation (HOP Processing)
+            setTimeout(() => {
+              const rawInput = peerInput.toLowerCase();
+              let extractedData = { capacity: [], context: [], coherence: [] };
 
-            // Extraction Logic Mapping
-            // 1. Capacity (Performance/Flow)
-            if (rawInput.includes('river') || rawInput.includes('flow')) {
-              extractedData.capacity.push('Hydraulic Volume', 'NEAT Flow Optimization');
-            }
-            if (rawInput.includes('swim')) {
-              extractedData.capacity.push('400m Performance');
-            }
-            if (rawInput.includes('forever') || rawInput.includes('longevity')) {
-              extractedData.capacity.push('Cellular Resilience', 'Metabolic Longevity');
-            }
+              // Extraction Logic Mapping
+              // 1. Capacity (Performance/Flow)
+              if (rawInput.includes('river') || rawInput.includes('flow')) {
+                extractedData.capacity.push('Hydraulic Volume', 'NEAT Flow Optimization');
+              }
+              if (rawInput.includes('swim')) {
+                extractedData.capacity.push('400m Performance');
+              }
+              if (rawInput.includes('forever') || rawInput.includes('longevity')) {
+                extractedData.capacity.push('Cellular Resilience', 'Metabolic Longevity');
+              }
 
-            // 2. Context (Environment/Strap)
-            if (rawInput.includes('river')) {
-              extractedData.context.push('Wild Water', 'Cold Exposure');
-            }
-            if (rawInput.includes('swim')) {
-              extractedData.context.push('Aquatic Environment', '10 Orbits');
-            }
-            if (rawInput.includes('forever')) {
-              extractedData.context.push('Biological Time', 'Epigenetic Landscape');
-            }
+              // 2. Context (Environment/Strap)
+              if (rawInput.includes('river')) {
+                extractedData.context.push('Wild Water', 'Cold Exposure');
+              }
+              if (rawInput.includes('swim')) {
+                extractedData.context.push('Aquatic Environment', '10 Orbits');
+              }
+              if (rawInput.includes('forever')) {
+                extractedData.context.push('Biological Time', 'Epigenetic Landscape');
+              }
 
-            // 3. Coherence (Stability/Friction)
-            if (rawInput.includes('skin') || rawInput.includes('rain')) {
-              extractedData.coherence.push('Dermal Barrier', 'Precipitation Coherence');
-            }
-            extractedData.coherence.push('Biological Barrier Model', 'Homeostatic Balance');
+              // 3. Coherence (Stability/Friction)
+              if (rawInput.includes('skin') || rawInput.includes('rain')) {
+                extractedData.coherence.push('Dermal Barrier', 'Precipitation Coherence');
+              }
+              extractedData.coherence.push('Biological Barrier Model', 'Homeostatic Balance');
 
-            this.digestInput = extractedData;
+              this.digestInput = extractedData;
 
-            // Create the Sovereign Hash (Contract Key)
-            this.activeContractKey = `ck_${Math.random().toString(36).substr(2, 9)}`;
-            
-            // If we don't have a lifeStrapID yet, we use the sovereignID we derived
-            if (!this.activeLifeStrapID) {
-              this.activeLifeStrapID = sovereignID;
-            }
+              // Create the Sovereign Hash (Contract Key)
+              this.activeContractKey = `ck_${Math.random().toString(36).substr(2, 9)}`;
+              
+              // If we don't have a lifeStrapID yet, we use the sovereignID we derived
+              if (!this.activeLifeStrapID) {
+                this.activeLifeStrapID = sovereignID;
+              }
 
-            // BeeBee delivers the verdict
-            this.storeChat.addMessage({
-              role: 'beebee',
-              type: 'agent',
-              content: `I have mapped your intent across Capacity, Context, and Coherence. (Contract: ${this.activeContractKey}). Is this accurate? Click any word to manifest a space.`,
-              context: 'extraction',
-              conversationId: sovereignID,
-              contract_key: this.activeContractKey,
-              lifeStrapID: sovereignID,
-              status: 'complete'
-            });
-          }, 1500);
-        } */
+              // BeeBee delivers the verdict
+              this.storeChat.addMessage({
+                role: 'beebee',
+                type: 'agent',
+                content: `I have mapped your intent across Capacity, Context, and Coherence. (Contract: ${this.activeContractKey}). Is this accurate? Click any word to manifest a space.`,
+                context: 'extraction',
+                conversationId: sovereignID,
+                contract_key: this.activeContractKey,
+                lifeStrapID: sovereignID,
+                status: 'complete'
+              });
+            }, 1500);
+          } */
+        }
       } 
     },
     // Inside aiInterface.js

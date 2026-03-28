@@ -19,7 +19,8 @@
     <div id="input-tools">
       <form id="ask-ai-form" @submit.prevent="storeAI.beebeeDigest()">
         <textarea 
-          id="askinput" 
+          id="askinput"
+          ref="askInputRef" 
           v-model="storeAI.askQuestion.text"
           :placeholder="livePlaceHolder"
           @keyup.enter.exact.prevent="storeAI.beebeeDigest()"
@@ -72,7 +73,7 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { teachingStore } from '@/stores/teachingStore.js'
 import { accountStore } from '@/stores/accountStore.js'
 import { useOrbitStore } from '@/stores/orbitStore.js'
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted } from 'vue'
 
   const storeAccount = accountStore()
   const storeLibrary = libraryStore()
@@ -89,6 +90,12 @@ import { ref, computed, watch } from 'vue'
   let agentsActive = ref(false)
   const showBbNexus = ref(false)
   const nexusFocus = ref(null)
+  const askInputRef = ref(null);
+
+  onMounted(() => {
+    askInputRef.value?.focus();
+  });
+
   // For watching the entire object
   /*
   watch(
