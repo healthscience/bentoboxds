@@ -1,7 +1,7 @@
 <template>
-  <div 
-    class="prime-interface" 
-    :class="[activeWorld, { 'is-zen': isInitialState }]" 
+  <div
+    class="prime-interface"
+    :class="[activeWorld, { 'is-zen': isInitialState }]"
     :style="dynamicGridStyle"
     @mousemove="handleGlobalDrag"
     @mouseup="stopDragging"
@@ -12,8 +12,8 @@
       class="left-rail-area"
       :width="panelWidth"
       :isOpen="isLifeToolsOpen"
-      @update:width="val => panelWidth = val"
-      @update:isOpen="val => isLifeToolsOpen = val"
+      @update:width="(val) => (panelWidth = val)"
+      @update:isOpen="(val) => (isLifeToolsOpen = val)"
       @startDrag="startDraggingLeft"
       @start-drawing="handleStartDrawing"
       @start-tagging="handleStartTagging"
@@ -21,29 +21,29 @@
     />
 
     <main class="orbit-stage">
-      <div 
-        class="bento-layout-engine"
-        :style="bentoLayoutStyle"
-      >
+      <div class="bento-layout-engine" :style="bentoLayoutStyle">
         <!-- TOP ROW -->
         <div class="bento-row top-row" :style="topRowStyle">
           <!-- NOW ME (Top Left) -->
-          <div v-if="activeQuadrants.includes('now-me')" class="bento-cell now-me-cell">
+          <div
+            v-if="activeQuadrants.includes('now-me')"
+            class="bento-cell now-me-cell"
+          >
             <OrbitHUD v-if="!isInitialState" />
 
             <div class="interface-layer">
               <transition name="sov-fade">
                 <LaunchpadStack
-                  v-if="isInitialState || isExtracting || isDemoMode" 
-                  :mode="currentMode" 
+                  v-if="isInitialState || isExtracting || isDemoMode"
+                  :mode="currentMode"
                   :extractedData="mappedLenses"
-                  @launch="launchDemo" 
+                  @launch="launchDemo"
                   @reset="exitToZen"
                 />
               </transition>
             </div>
 
-            <WorldCanvas 
+            <WorldCanvas
               ref="worldCanvasRef"
               class="world-canvas-layer"
               :activeWorld="isInitialState ? 'void' : activeWorld"
@@ -51,49 +51,64 @@
             />
 
             <div class="fuse-container">
-              <BesearchFuse v-if="!isInitialState && storeAI.currentMode === 'besearch'" />
+              <BesearchFuse
+                v-if="!isInitialState && storeAI.currentMode === 'besearch'"
+              />
             </div>
           </div>
 
           <!-- Vertical Divider for Top Row -->
-          <div 
-            v-if="activeQuadrants.includes('now-me') && activeQuadrants.includes('future-me')"
+          <div
+            v-if="
+              activeQuadrants.includes('now-me') &&
+              activeQuadrants.includes('future-me')
+            "
             class="bento-divider vertical"
             @mousedown="startBentoDividerDrag"
           ></div>
 
           <!-- FUTURE ME (Top Right) -->
-          <div v-if="activeQuadrants.includes('future-me')" class="bento-cell future-me-cell">
+          <div
+            v-if="activeQuadrants.includes('future-me')"
+            class="bento-cell future-me-cell"
+          >
             <div class="future-indicator">FUTURE ME</div>
             <OrbitHUD v-if="!isInitialState" />
 
             <div class="interface-layer">
               <transition name="sov-fade">
                 <LaunchpadStack
-                  v-if="isInitialState || isExtracting || isDemoMode" 
-                  :mode="currentMode" 
+                  v-if="isInitialState || isExtracting || isDemoMode"
+                  :mode="currentMode"
                   :extractedData="mappedLenses"
-                  @launch="launchDemo" 
+                  @launch="launchDemo"
                   @reset="exitToZen"
                 />
               </transition>
             </div>
 
-            <WorldCanvas 
+            <WorldCanvas
               class="world-canvas-layer"
               :activeWorld="isInitialState ? 'void' : activeWorld"
               :showTools="!isInitialState"
             />
 
             <div class="fuse-container">
-              <BesearchFuse v-if="!isInitialState && storeAI.currentMode === 'besearch'" />
+              <BesearchFuse
+                v-if="!isInitialState && storeAI.currentMode === 'besearch'"
+              />
             </div>
           </div>
         </div>
 
         <!-- Horizontal Divider -->
-        <div 
-          v-if="(activeQuadrants.includes('now-me') || activeQuadrants.includes('future-me')) && (activeQuadrants.includes('now-us') || activeQuadrants.includes('future-us'))"
+        <div
+          v-if="
+            (activeQuadrants.includes('now-me') ||
+              activeQuadrants.includes('future-me')) &&
+            (activeQuadrants.includes('now-us') ||
+              activeQuadrants.includes('future-us'))
+          "
           class="bento-divider horizontal"
           @mousedown="startBentoVerticalDividerDrag"
         ></div>
@@ -101,89 +116,102 @@
         <!-- BOTTOM ROW -->
         <div class="bento-row bottom-row" :style="bottomRowStyle">
           <!-- NOW US (Bottom Left) -->
-          <div v-if="activeQuadrants.includes('now-us')" class="bento-cell now-us-cell">
+          <div
+            v-if="activeQuadrants.includes('now-us')"
+            class="bento-cell now-us-cell"
+          >
             <div class="future-indicator us">NOW US</div>
             <OrbitHUD v-if="!isInitialState" />
 
             <div class="interface-layer">
               <transition name="sov-fade">
                 <LaunchpadStack
-                  v-if="isInitialState || isExtracting || isDemoMode" 
-                  :mode="currentMode" 
+                  v-if="isInitialState || isExtracting || isDemoMode"
+                  :mode="currentMode"
                   :extractedData="mappedLenses"
-                  @launch="launchDemo" 
+                  @launch="launchDemo"
                   @reset="exitToZen"
                 />
               </transition>
             </div>
 
-            <WorldCanvas 
+            <WorldCanvas
               class="world-canvas-layer"
               :activeWorld="isInitialState ? 'void' : activeWorld"
               :showTools="!isInitialState"
             />
 
             <div class="fuse-container">
-              <BesearchFuse v-if="!isInitialState && storeAI.currentMode === 'besearch'" />
+              <BesearchFuse
+                v-if="!isInitialState && storeAI.currentMode === 'besearch'"
+              />
             </div>
           </div>
 
           <!-- Vertical Divider for Bottom Row -->
-          <div 
-            v-if="activeQuadrants.includes('now-us') && activeQuadrants.includes('future-us')"
+          <div
+            v-if="
+              activeQuadrants.includes('now-us') &&
+              activeQuadrants.includes('future-us')
+            "
             class="bento-divider vertical"
             @mousedown="startBentoDividerDrag"
           ></div>
 
           <!-- FUTURE US (Bottom Right) -->
-          <div v-if="activeQuadrants.includes('future-us')" class="bento-cell future-us-cell">
+          <div
+            v-if="activeQuadrants.includes('future-us')"
+            class="bento-cell future-us-cell"
+          >
             <div class="future-indicator us">FUTURE US</div>
             <OrbitHUD v-if="!isInitialState" />
 
             <div class="interface-layer">
               <transition name="sov-fade">
                 <LaunchpadStack
-                  v-if="isInitialState || isExtracting || isDemoMode" 
-                  :mode="currentMode" 
+                  v-if="isInitialState || isExtracting || isDemoMode"
+                  :mode="currentMode"
                   :extractedData="mappedLenses"
-                  @launch="launchDemo" 
+                  @launch="launchDemo"
                   @reset="exitToZen"
                 />
               </transition>
             </div>
 
-            <WorldCanvas 
+            <WorldCanvas
               class="world-canvas-layer"
               :activeWorld="isInitialState ? 'void' : activeWorld"
               :showTools="!isInitialState"
             />
 
             <div class="fuse-container">
-              <BesearchFuse v-if="!isInitialState && storeAI.currentMode === 'besearch'" />
+              <BesearchFuse
+                v-if="!isInitialState && storeAI.currentMode === 'besearch'"
+              />
             </div>
           </div>
         </div>
       </div>
     </main>
 
-    <RightPanel 
+    <RightPanel
       v-model:mode="rightPanelMode"
       class="right-panel-area"
       :width="chatWidth"
       :isOpen="isChatOpen"
       :isInitialState="isInitialState"
       :data="extractedData"
-      @update:isOpen="val => isChatOpen = val" 
-      @update:width="val => chatWidth = val"
+      @update:isOpen="(val) => (isChatOpen = val)"
+      @update:width="(val) => (chatWidth = val)"
       @startDrag="startChatDrag"
     />
 
-    <BottomPanel 
+    <BottomPanel
       :height="bottomHeight"
       :isOpen="isBottomOpen"
       :isDragging="draggingMode === 'bottom'"
-      @update:height="val => bottomHeight = val"
-      @update:isOpen="val => isBottomOpen = val"
+      @update:height="(val) => (bottomHeight = val)"
+      @update:isOpen="(val) => (isBottomOpen = val)"
       @startDrag="startBottomDrag"
     />
 
@@ -194,22 +222,22 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
-import { aiInterfaceStore } from '@/stores/aiInterface.js';
-import { useChatStore } from '@/stores/chatStore.js';
-import { besearchStore } from '@/stores/besearchStore.js';
-import { libraryStore } from '@/stores/libraryStore.js';
-import { diaryStore } from '@/stores/diaryStore.js';
+import { ref, computed, watch } from "vue";
+import { aiInterfaceStore } from "@/stores/aiInterface.js";
+import { useChatStore } from "@/stores/chatStore.js";
+import { besearchStore } from "@/stores/besearchStore.js";
+import { libraryStore } from "@/stores/libraryStore.js";
+import { diaryStore } from "@/stores/diaryStore.js";
 
 // Sub-components
-import LeftPanel from '@/components/orbit/parts/LeftPanel.vue';
-import RightPanel from '@/components/orbit/parts/RightPanel.vue';
-import BottomPanel from '@/components/orbit/parts/BottomPanel.vue'
-import WorldCanvas from '@/components/orbit/parts/WorldCanvas.vue';
-import OrbitHUD from '@/components/orbit/parts/OrbitHUD.vue';
-import LaunchpadStack from '@/components/orbit/parts/LaunchpadStack.vue';
-import BesearchFuse from '@/components/orbit/besearch/BesearchFuse.vue';
-import BentoBox from '@/components/orbit/parts/BentoBox.vue';
+import LeftPanel from "@/components/orbit/parts/LeftPanel.vue";
+import RightPanel from "@/components/orbit/parts/RightPanel.vue";
+import BottomPanel from "@/components/orbit/parts/BottomPanel.vue";
+import WorldCanvas from "@/components/orbit/parts/WorldCanvas.vue";
+import OrbitHUD from "@/components/orbit/parts/OrbitHUD.vue";
+import LaunchpadStack from "@/components/orbit/parts/LaunchpadStack.vue";
+import BesearchFuse from "@/components/orbit/besearch/BesearchFuse.vue";
+import BentoBox from "@/components/orbit/parts/BentoBox.vue";
 
 const storeDiary = diaryStore();
 const storeLibrary = libraryStore();
@@ -219,7 +247,7 @@ const storeBesearch = besearchStore();
 const worldCanvasRef = ref(null);
 
 /* BentoBox State */
-const activeQuadrants = ref(['now-me']);
+const activeQuadrants = ref(["now-me"]);
 const bentoSplitRatio = ref(50); // Percentage for vertical split
 const bentoVerticalSplitRatio = ref(50); // Percentage for horizontal split
 const isDraggingBentoDivider = ref(false);
@@ -229,31 +257,37 @@ const isDraggingBentoVerticalDivider = ref(false);
 const extractedData = computed(() => storeAI.digestInput);
 const activeWorld = computed({
   get: () => storeAI.activeWorld,
-  set: (val) => storeAI.activeWorld = val
+  set: (val) => (storeAI.activeWorld = val),
 });
 
 const isBottomOpen = computed(() => {
   // Open if besearch says so OR if a life-strap is active OR if an intervention is selected
-  return storeBesearch.showBottomPanel || !!storeAI.activeLifeStrapID || storeBesearch.hasActiveIntervention
-})
+  return (
+    storeBesearch.showBottomPanel ||
+    !!storeAI.activeLifeStrapID ||
+    storeBesearch.hasActiveIntervention
+  );
+});
 
 const bottomHeight = computed(() => {
-  return storeBesearch.bottomHeight
-})
-
-
+  return storeBesearch.bottomHeight;
+});
 
 // Watch for store changes to trigger the "Extracting" state automatically
-watch(() => storeAI.digestInput, (newData) => {
-  if (newData && currentMode.value === 'zen') {
-    // handleUserInput();
-  }
-}, { deep: true });
+watch(
+  () => storeAI.digestInput,
+  (newData) => {
+    if (newData && currentMode.value === "zen") {
+      // handleUserInput();
+    }
+  },
+  { deep: true }
+);
 
 /* panel settins */
 // const isChatOpen = ref(false);
 const isLifeToolsOpen = ref(false);
-const rightPanelMode = ref('chat');
+const rightPanelMode = ref("chat");
 
 const panelWidth = ref(30);
 const draggingMode = ref(null);
@@ -264,25 +298,25 @@ const draggingMode = ref(null);
 /* computed */
 const isInitialState = computed(() => {
   if (storeLibrary.straps.length > 0) {
-    storeAI.activeLifeStrapID = storeLibrary.straps[0].id
-    storeAI.currentMode = 'orbit'
+    storeAI.activeLifeStrapID = storeLibrary.straps[0].id;
+    storeAI.currentMode = "orbit";
   }
-  return storeAI.currentMode === 'zen';
-})
+  return storeAI.currentMode === "zen";
+});
 
-const isDemoMode = computed(() => storeAI.currentMode === 'demo');
-const isExtracting = computed(() => storeAI.currentMode === 'extracting');
+const isDemoMode = computed(() => storeAI.currentMode === "demo");
+const isExtracting = computed(() => storeAI.currentMode === "extracting");
 const currentMode = computed(() => storeAI.currentMode);
 
 const isChatOpen = computed({
   get: () => storeChat.isChatOpen,
-  set: (val) => storeChat.isChatOpen = val
-})
+  set: (val) => (storeChat.isChatOpen = val),
+});
 
 const chatWidth = computed({
   get: () => storeChat.chatWidth,
-  set: (val) => storeChat.chatWidth = val
-})
+  set: (val) => (storeChat.chatWidth = val),
+});
 
 /* methods */
 const handleSaveCue = (cueId) => {
@@ -304,167 +338,200 @@ const handleStartTagging = () => {
 };
 
 const launchDemo = (type) => {
-  storeAI.currentMode = 'demo'; // This triggers the "Three Cs" in Launchpad
+  storeAI.currentMode = "demo"; // This triggers the "Three Cs" in Launchpad
   storeAI.activeWorld = type;
-  
+
   // Also push the demo text into the store so the Lenses have data
-  if (type === 'oribt') {
+  if (type === "oribt") {
     storeAI.beebeeDigest("I want to swim 400m in 10 orbits...", true);
-  } else if (type === 'body') {
-    storeDiary.zoomDepth = 1
-    storeBesearch.setNexusWorld('body')
-  } else if (type === 'earth') {
-    storeBesearch.setNexusWorld('earth')
-    storeDiary.zoomDepth = 0
-    storeDiary.currentLayer = 'terrain'
-  } else if (type === 'daisy') {
-    storeAI.activeWorld = 'earth';
-    storeDiary.zoomDepth = 2
+  } else if (type === "body") {
+    storeDiary.zoomDepth = 1;
+    storeBesearch.setNexusWorld("body");
+  } else if (type === "earth") {
+    storeBesearch.setNexusWorld("earth");
+    storeDiary.zoomDepth = 0;
+    storeDiary.currentLayer = "terrain";
+  } else if (type === "daisy") {
+    storeAI.activeWorld = "earth";
+    storeDiary.zoomDepth = 2;
   }
   // open the lens ie. bottom panel
-  storeBesearch.showBottomPanel = true
+  storeBesearch.showBottomPanel = true;
 };
 
 // 3. Update the Reset handler
 const exitToZen = () => {
-  storeBesearch.showBottomPanel = false
-  storeAI.currentMode = 'zen';
-  storeAI.activeWorld = 'orbit';
+  storeBesearch.showBottomPanel = false;
+  storeAI.currentMode = "zen";
+  storeAI.activeWorld = "orbit";
   storeChat.chatWidth = 10;
   storeChat.isChatOpen = false;
   panelWidth.value = 30;
   // Clear the store input if needed
-  storeAI.digestInput = null; 
+  storeAI.digestInput = null;
 };
 
 // Inside PrimeInterface.vue <script setup>
 const extractionLenses = computed(() => {
   return {
-    capacity: storeAI.digestInput?.constraints ? [storeAI.digestInput.constraints] : [],
-    coherence: storeAI.digestInput?.content ? [storeAI.digestInput.content] : [],
-    context: storeAI.digestInput?.context ? [storeAI.digestInput.context] : []
+    capacity: storeAI.digestInput?.constraints
+      ? [storeAI.digestInput.constraints]
+      : [],
+    coherence: storeAI.digestInput?.content
+      ? [storeAI.digestInput.content]
+      : [],
+    context: storeAI.digestInput?.context ? [storeAI.digestInput.context] : [],
   };
 });
 
 // Map the 3 Cs to the Lenses
 const mappedLenses = computed(() => ({
   capacity: storeAI.digestInput?.capacity ? storeAI.digestInput.capacity : [],
-  coherence: storeAI.digestInput?.coherence ? storeAI.digestInput.coherence : [],
-  context: storeAI.digestInput?.context ? storeAI.digestInput.context : []
+  coherence: storeAI.digestInput?.coherence
+    ? storeAI.digestInput.coherence
+    : [],
+  context: storeAI.digestInput?.context ? storeAI.digestInput.context : [],
 }));
 
 /* drag handlers */
-const startDraggingLeft = () => { draggingMode.value = 'left'; document.body.style.cursor = 'ew-resize'; };
-const startChatDrag = () => { draggingMode.value = 'right'; document.body.style.cursor = 'ew-resize'; };
-const startBottomDrag = () => { draggingMode.value = 'bottom'; document.body.style.cursor = 'ns-resize'; };
+const startDraggingLeft = () => {
+  draggingMode.value = "left";
+  document.body.style.cursor = "ew-resize";
+};
+const startChatDrag = () => {
+  draggingMode.value = "right";
+  document.body.style.cursor = "ew-resize";
+};
+const startBottomDrag = () => {
+  draggingMode.value = "bottom";
+  document.body.style.cursor = "ns-resize";
+};
 
 const startBentoDividerDrag = () => {
   isDraggingBentoDivider.value = true;
-  document.body.style.cursor = 'ew-resize';
+  document.body.style.cursor = "ew-resize";
 };
 
 const startBentoVerticalDividerDrag = () => {
   isDraggingBentoVerticalDivider.value = true;
-  document.body.style.cursor = 'ns-resize';
+  document.body.style.cursor = "ns-resize";
 };
 
 const handleGlobalDrag = (e) => {
   if (isDraggingBentoDivider.value) {
-    const stage = document.querySelector('.orbit-stage');
+    const stage = document.querySelector(".orbit-stage");
     if (stage) {
       const rect = stage.getBoundingClientRect();
       const x = e.clientX - rect.left;
-      bentoSplitRatio.value = Math.max(10, Math.min(90, (x / rect.width) * 100));
+      bentoSplitRatio.value = Math.max(
+        10,
+        Math.min(90, (x / rect.width) * 100)
+      );
     }
     return;
   }
   if (isDraggingBentoVerticalDivider.value) {
-    const stage = document.querySelector('.orbit-stage');
+    const stage = document.querySelector(".orbit-stage");
     if (stage) {
       const rect = stage.getBoundingClientRect();
       const y = e.clientY - rect.top;
-      bentoVerticalSplitRatio.value = Math.max(10, Math.min(90, (y / rect.height) * 100));
+      bentoVerticalSplitRatio.value = Math.max(
+        10,
+        Math.min(90, (y / rect.height) * 100)
+      );
     }
     return;
   }
   if (!draggingMode.value) return;
-  if (draggingMode.value === 'left') {
-    panelWidth.value = Math.max(30, Math.min(e.clientX, window.innerWidth * 0.4));
+  if (draggingMode.value === "left") {
+    panelWidth.value = Math.max(
+      30,
+      Math.min(e.clientX, window.innerWidth * 0.4)
+    );
     isLifeToolsOpen.value = panelWidth.value > 150;
-  } 
-  else if (draggingMode.value === 'right') {
+  } else if (draggingMode.value === "right") {
     const newWidth = window.innerWidth - e.clientX;
-    storeChat.chatWidth = Math.max(0, Math.min(newWidth, window.innerWidth * 0.5));
+    storeChat.chatWidth = Math.max(
+      0,
+      Math.min(newWidth, window.innerWidth * 0.5)
+    );
     storeChat.isChatOpen = storeChat.chatWidth > 150;
-  }
-  else if (draggingMode.value === 'bottom') {
+  } else if (draggingMode.value === "bottom") {
     const newHeight = window.innerHeight - e.clientY;
-    storeBesearch.bottomHeight = Math.max(12, Math.min(newHeight, window.innerHeight * 0.8));
+    storeBesearch.bottomHeight = Math.max(
+      12,
+      Math.min(newHeight, window.innerHeight * 0.8)
+    );
     storeBesearch.showBottomPanel = storeBesearch.bottomHeight > 100;
   }
 };
 
-const stopDragging = () => { 
-  draggingMode.value = null; 
+const stopDragging = () => {
+  draggingMode.value = null;
   isDraggingBentoDivider.value = false;
   isDraggingBentoVerticalDivider.value = false;
-  document.body.style.cursor = 'default'; 
+  document.body.style.cursor = "default";
 };
 
 const dynamicGridStyle = computed(() => ({
   gridTemplateColumns: `${panelWidth.value}px 1fr ${storeChat.chatWidth}px`,
-  gridTemplateRows: `1fr ${storeBesearch.showBottomPanel ? storeBesearch.bottomHeight : 0}px`,
-  gridTemplateAreas: '"tools stage chat"'
+  gridTemplateRows: `1fr ${
+    storeBesearch.showBottomPanel ? storeBesearch.bottomHeight : 0
+  }px`,
+  gridTemplateAreas: '"tools stage chat"',
 }));
 
 const bentoLayoutStyle = computed(() => {
-  const hasTop = activeQuadrants.value.includes('now-me') || activeQuadrants.value.includes('future-me');
-  const hasBottom = activeQuadrants.value.includes('now-us') || activeQuadrants.value.includes('future-us');
+  const hasTop =
+    activeQuadrants.value.includes("now-me") ||
+    activeQuadrants.value.includes("future-me");
+  const hasBottom =
+    activeQuadrants.value.includes("now-us") ||
+    activeQuadrants.value.includes("future-us");
 
   if (hasTop && hasBottom) {
     return {
-      display: 'grid',
+      display: "grid",
       gridTemplateRows: `${bentoVerticalSplitRatio.value}% 4px 1fr`,
-      height: '100%',
-      width: '100%'
+      height: "100%",
+      width: "100%",
     };
   }
   return {
-    display: 'block',
-    height: '100%',
-    width: '100%'
+    display: "block",
+    height: "100%",
+    width: "100%",
   };
 });
 
 const topRowStyle = computed(() => {
-  const hasNowMe = activeQuadrants.value.includes('now-me');
-  const hasFutureMe = activeQuadrants.value.includes('future-me');
+  const hasNowMe = activeQuadrants.value.includes("now-me");
+  const hasFutureMe = activeQuadrants.value.includes("future-me");
   if (hasNowMe && hasFutureMe) {
     return {
-      display: 'grid',
+      display: "grid",
       gridTemplateColumns: `${bentoSplitRatio.value}% 4px 1fr`,
-      height: '100%'
+      height: "100%",
     };
   }
-  return { height: '100%' };
+  return { height: "100%" };
 });
 
 const bottomRowStyle = computed(() => {
-  const hasNowUs = activeQuadrants.value.includes('now-us');
-  const hasFutureUs = activeQuadrants.value.includes('future-us');
+  const hasNowUs = activeQuadrants.value.includes("now-us");
+  const hasFutureUs = activeQuadrants.value.includes("future-us");
   if (hasNowUs && hasFutureUs) {
     return {
-      display: 'grid',
+      display: "grid",
       gridTemplateColumns: `${bentoSplitRatio.value}% 4px 1fr`,
-      height: '100%'
+      height: "100%",
     };
   }
-  return { height: '100%' };
+  return { height: "100%" };
 });
 </script>
 
 <style scoped>
-
 .bento-box-container {
   position: absolute;
   bottom: 80px;
@@ -485,12 +552,14 @@ const bottomRowStyle = computed(() => {
   height: 100%;
   overflow: hidden;
   display: grid;
-  grid-template-rows: 80px 1fr 60px;
+  grid-template-rows: 120px 1fr 80px;
 }
 
 .bento-cell .interface-layer {
   grid-row: 2;
   z-index: 400;
+  align-self: end;
+  padding-bottom: 0px;
 }
 
 .bento-cell .world-canvas-layer {
@@ -561,13 +630,19 @@ const bottomRowStyle = computed(() => {
   width: 100vw;
   height: calc(100vh - var(--header-height, 60px));
   /* CRITICAL: Changed from hidden to clip or visible so bubble can leak out */
-  overflow: visible; 
+  overflow: visible;
   position: relative;
   background-color: #f8f9fa;
 }
 
-.left-rail-area { grid-area: tools; z-index: 500; }
-.right-panel-area { grid-area: chat; z-index: 500; }
+.left-rail-area {
+  grid-area: tools;
+  z-index: 500;
+}
+.right-panel-area {
+  grid-area: chat;
+  z-index: 500;
+}
 
 .orbit-stage {
   grid-area: stage;
@@ -590,13 +665,17 @@ const bottomRowStyle = computed(() => {
   z-index: 400;
   display: grid;
   place-items: center;
+  align-items: end;
   pointer-events: none;
+  padding-bottom: 0px;
 }
-.interface-layer > * { pointer-events: auto; }
+.interface-layer > * {
+  pointer-events: auto;
+}
 
 .extraction-lens-wrap {
   display: grid;
-  grid-template-rows: auto auto; 
+  grid-template-rows: auto auto;
   gap: 40px;
   width: 90%;
   max-width: 1000px;
@@ -621,8 +700,15 @@ const bottomRowStyle = computed(() => {
 }
 
 @keyframes pulse-right {
-  0%, 100% { transform: translateX(0); opacity: 0.7; }
-  50% { transform: translateX(15px); opacity: 1; }
+  0%,
+  100% {
+    transform: translateX(0);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateX(15px);
+    opacity: 1;
+  }
 }
 
 .reset-btn {
@@ -646,7 +732,7 @@ const bottomRowStyle = computed(() => {
   background: white;
   padding: 30px;
   border-radius: 20px;
-  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
   pointer-events: auto;
 }
 </style>

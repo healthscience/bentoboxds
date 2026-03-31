@@ -1,11 +1,10 @@
 <template>
   <div id="launchpad-experience">
-    
     <div v-if="mode === 'zen'" class="launchpad-stack">
       <div class="avatar-zone">
         <BeeBeeAvatar />
       </div>
-      
+
       <div class="input-zone">
         <div class="input-constraint">
           <inputBox />
@@ -14,13 +13,15 @@
 
       <div class="demo-zone-message">
         Examples to explore:
-        <button class="sov-demo-btn" @click="syncPublicLibrary('library', 'sync')">
+        <button
+          class="sov-demo-btn"
+          @click="syncPublicLibrary('library', 'sync')"
+        >
           Sync public library
         </button>
       </div>
 
       <div class="demo-zone">
-
         <button class="sov-demo-btn" @click="$emit('launch', 'orbit')">
           🏊 Experience 400IM
         </button>
@@ -59,33 +60,32 @@
         </template>
       </div>
     </div>
-
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
-import BeeBeeAvatar from '@/components/agents/BeeBeeAvatar.vue';
-import inputBox from '@/components/beebeehelp/inputBox.vue';
+import { ref, computed } from "vue";
+import BeeBeeAvatar from "@/components/agents/BeeBeeAvatar.vue";
+import inputBox from "@/components/beebeehelp/inputBox.vue";
 
-import { libraryStore } from '@/stores/libraryStore.js'
+import { libraryStore } from "@/stores/libraryStore.js";
 
-  const storeLibrary = libraryStore()
+const storeLibrary = libraryStore();
 
 // PROPS: Controlled by PrimeInterface
 const props = defineProps({
   mode: {
     type: String,
-    default: 'zen' // 'zen', 'extracting', 'demo'
+    default: "zen", // 'zen', 'extracting', 'demo'
   },
   extractedData: {
     type: Object,
-    default: () => ({ capacity: [], coherence: [], context: [] })
-  }
+    default: () => ({ capacity: [], coherence: [], context: [] }),
+  },
 });
 
 // EMITS: Signal back to PrimeInterface
-defineEmits(['launch', 'reset']);
+defineEmits(["launch", "reset"]);
 
 /* methods */
 const cloneExperience = () => {
@@ -94,10 +94,8 @@ const cloneExperience = () => {
 
 const syncPublicLibrary = () => {
   // send message to hop to create default reference contracts
-  storeLibrary.syncLibraryFirst()
+  storeLibrary.syncLibraryFirst();
 };
-
-
 </script>
 
 <style scoped>
@@ -117,9 +115,10 @@ const syncPublicLibrary = () => {
 .launchpad-stack {
   display: grid;
   grid-template-rows: auto auto auto;
-  gap: 2rem;
+  gap: 1.5rem;
   justify-items: center;
   text-align: center;
+  padding-bottom: 0px;
 }
 
 /* RESONANCE LAYOUT (The 3 Cs View) */
@@ -164,7 +163,7 @@ const syncPublicLibrary = () => {
 .sov-demo-btn {
   padding: 12px 20px;
   background: white;
-  border: 1px solid rgba(0,0,0,0.1);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.2s;
@@ -172,7 +171,7 @@ const syncPublicLibrary = () => {
 
 .sov-demo-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .sov-btn {
@@ -183,7 +182,8 @@ const syncPublicLibrary = () => {
   border: none;
 }
 
-.sov-btn.exit, .sov-btn.reset {
+.sov-btn.exit,
+.sov-btn.reset {
   background: white;
   border: 1px solid #ef4444;
   color: #ef4444;
@@ -201,7 +201,14 @@ const syncPublicLibrary = () => {
 }
 
 @keyframes nudge-x {
-  0%, 100% { transform: translateX(0); opacity: 0.7; }
-  50% { transform: translateX(10px); opacity: 1; }
+  0%,
+  100% {
+    transform: translateX(0);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translateX(10px);
+    opacity: 1;
+  }
 }
 </style>

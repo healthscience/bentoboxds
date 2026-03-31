@@ -3,10 +3,10 @@ import { ref } from "vue";
 
 export const useOrbitStore = defineStore("orbit", () => {
   const tools = ref({
-    pulse: { x: 50, y: 24 },
+    pulse: { x: 50, y: 40 },
     heli: { x: 90, y: 16 },
     cube: { x: 10, y: 20 },
-    filter: { x: 70, y: 24 },
+    filter: { x: 70, y: 45 },
   });
   const expandedHeliClock = ref(false);
 
