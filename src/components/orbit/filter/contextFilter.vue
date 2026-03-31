@@ -4,18 +4,19 @@
     :class="{ 'is-collapsed': isCollapsed }"
     @dblclick.stop="toggleExpand"
   >
-    <div class="filter-header" @mousedown.stop>
+    <div class="filter-header">
       <span class="header-label">CONTEXT FILTERS</span>
       <div v-if="isCollapsed" class="expand-hint">DBL CLICK</div>
     </div>
-    <div v-if="!isCollapsed" class="filter-menu" @mousedown.stop>
+    <div v-if="!isCollapsed" class="filter-menu">
       <button
         v-for="filter in filters"
         :key="filter.id"
         class="filter-button"
+        @mousedown.stop
         @click.stop="selectFilter(filter.id)"
       >
-        <span class="button-label">{{ filter.label }}</span>
+        <!--<span class="button-label">{{ filter.label }}</span> -->
         <div class="button-indicator"></div>
       </button>
     </div>

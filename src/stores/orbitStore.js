@@ -9,6 +9,7 @@ export const useOrbitStore = defineStore("orbit", () => {
     filter: { x: 70, y: 45 },
   });
   const expandedHeliClock = ref(false);
+  const expandedPulse = ref(false);
 
   const draggingToolId = ref(null);
 
@@ -32,6 +33,7 @@ export const useOrbitStore = defineStore("orbit", () => {
   return {
     tools,
     expandedHeliClock,
+    expandedPulse,
     draggingToolId,
     startDragging,
     updatePosition,

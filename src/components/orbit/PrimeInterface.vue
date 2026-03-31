@@ -7,6 +7,14 @@
     @mouseup="stopDragging"
     @mouseleave="stopDragging"
   >
+    <!-- Background Layers -->
+    <div class="world-surface"></div>
+    <div class="heli-pulse"></div>
+    <div
+      class="aura-layer"
+      :style="{ opacity: orbitStore.draggingToolId ? 1 : 0 }"
+    ></div>
+
     <LeftPanel
       v-model="activeWorld"
       class="left-rail-area"
@@ -239,11 +247,14 @@ import LaunchpadStack from "@/components/orbit/parts/LaunchpadStack.vue";
 import BesearchFuse from "@/components/orbit/besearch/BesearchFuse.vue";
 import BentoBox from "@/components/orbit/parts/BentoBox.vue";
 
+import { useOrbitStore } from "@/stores/orbitStore.js";
+
 const storeDiary = diaryStore();
 const storeLibrary = libraryStore();
 const storeAI = aiInterfaceStore();
 const storeChat = useChatStore();
 const storeBesearch = besearchStore();
+const orbitStore = useOrbitStore();
 const worldCanvasRef = ref(null);
 
 /* BentoBox State */
@@ -418,6 +429,11 @@ const startBentoVerticalDividerDrag = () => {
 };
 
 const handleGlobalDrag = (e) => {
+  if (orbitStore.draggingToolId) {
+    document.documentElement.style.setProperty("--aura-x", `${e.clientX}px`);
+    document.documentElement.style.setProperty("--aura-y", `${e.clientY}px`);
+  }
+
   if (isDraggingBentoDivider.value) {
     const stage = document.querySelector(".orbit-stage");
     if (stage) {
@@ -553,6 +569,7 @@ const bottomRowStyle = computed(() => {
   overflow: hidden;
   display: grid;
   grid-template-rows: 120px 1fr 80px;
+  background-color: #f9f9f7;
 }
 
 .bento-cell .interface-layer {
@@ -626,22 +643,87 @@ const bottomRowStyle = computed(() => {
 
 .prime-interface {
   display: grid;
-  /* grid-template-rows: 1fr; */
   width: 100vw;
   height: calc(100vh - var(--header-height, 60px));
-  /* CRITICAL: Changed from hidden to clip or visible so bubble can leak out */
   overflow: visible;
   position: relative;
-  background-color: #f8f9fa;
+  background-color: #f9f9f7;
+
+  /* THE COLOR PALETTE */
+  --bg-base: #f9f9f7;
+  --grid-minor: rgba(0, 0, 0, 0.05);
+  --grid-major: rgba(0, 0, 0, 0.06);
+  --aura-color: #0078ff;
+  --heli-pulse-speed: 4s;
+
+  --aura-x: 50%;
+  --aura-y: 50%;
+}
+
+/* THE LOOM (Background Components) */
+.world-surface,
+.heli-pulse,
+.aura-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* 1. THE WORLD SURFACE */
+.world-surface {
+  z-index: 1;
+  background-image: radial-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-position: center center;
+}
+
+/* 2. THE HELI-PULSE */
+.heli-pulse {
+  z-index: 2;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 255, 255, 0.8) 0%,
+    transparent 80%
+  );
+  animation: pulse var(--heli-pulse-speed) infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.05);
+  }
+}
+
+/* 3. THE TIGHT AURA (Awareness Layer) */
+.aura-layer {
+  z-index: 3;
+  background: radial-gradient(
+    220px circle at var(--aura-x) var(--aura-y),
+    var(--aura-color) 0%,
+    rgba(0, 120, 255, 0.05) 60%,
+    transparent 100%
+  );
+  mix-blend-mode: color-dodge;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.05s linear;
 }
 
 .left-rail-area {
   grid-area: tools;
   z-index: 500;
+  background-color: #f9f9f7;
 }
+
 .right-panel-area {
   grid-area: chat;
   z-index: 500;
+  background-color: #f9f9f7;
 }
 
 .orbit-stage {
@@ -695,7 +777,6 @@ const bottomRowStyle = computed(() => {
   font-weight: 800;
   color: #38205f;
   letter-spacing: 0.05em;
-  /* Visual cue to look right */
   animation: pulse-right 2s infinite ease-in-out;
 }
 
