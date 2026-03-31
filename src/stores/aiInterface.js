@@ -26,7 +26,7 @@ export const aiInterfaceStore = defineStore('beebeeAIstore', {
     liveChatspaceUtil: new ChatspaceUtilty(),
     currentMode: 'zen',
     activeWorld: 'orbit',
-    invitePlaceHolder: { opening: 'Ready to weave a new story into the Loom?', invite: 'Expand the knowledge-fold?', wait: 'Awaiting a story to anchor.', device: 'A new pulse is present. Witness it?' },
+    invitePlaceHolder: { opening: 'Ready to weave a new story into the World?', invite: 'Expand the knowledge-fold?', wait: 'Awaiting a story to anchor.', device: 'A new pulse is present. Witness it?' },
     cuesFeedback: '',
     cuesRelationshipFeedback: {},
     startChat: true,

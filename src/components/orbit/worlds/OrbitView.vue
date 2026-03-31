@@ -1,42 +1,73 @@
 <template>
   <div class="orbit-view">
     <Teleport to="body">
-      <ProjectionHeli v-if="heliClockExpand" :contract-key="storeAI.contract_key" @close="handleExpand" />
+      <ProjectionHeli
+        v-if="heliClockExpand"
+        :contract-key="storeAI.contract_key"
+        @close="handleExpand"
+      />
     </Teleport>
     <div class="orbit-stage">
       <OrbitHUD />
 
-      <div class="world-canvas" 
+      <div
+        class="world-canvas"
         :class="{ 'dragging-active': orbitStore.draggingToolId }"
       >
         <!-- Draggable Cube Navigation -->
-        <div 
+        <div
           v-if="orbitStore.tools.cube"
           class="tool-grab-wrapper"
-          :style="{ left: orbitStore.tools.cube.x + '%', top: orbitStore.tools.cube.y + '%', zIndex: orbitStore.draggingToolId === 'cube' ? 300 : 100 }"
+          :style="{
+            left: orbitStore.tools.cube.x + '%',
+            top: orbitStore.tools.cube.y + '%',
+            zIndex: orbitStore.draggingToolId === 'cube' ? 2500 : 1500,
+          }"
           @mousedown.stop="startDragging('cube')"
         >
           <CubeStructure />
         </div>
 
-       <div 
+        <div
           v-if="orbitStore.tools.pulse"
           class="tool-grab-wrapper"
-          :style="{ left: orbitStore.tools.pulse.x + '%', top: orbitStore.tools.pulse.y + '%', zIndex: orbitStore.draggingToolId === 'pulse' ? 300 : 100 }"
+          :style="{
+            left: orbitStore.tools.pulse.x + '%',
+            top: orbitStore.tools.pulse.y + '%',
+            zIndex: orbitStore.draggingToolId === 'pulse' ? 2500 : 1500,
+          }"
           @mousedown.stop="startDragging('pulse')"
         >
           <!-- ghost of live resPulse -->
-           <div id="pulse-state" v-if="pulseState === 'ghost'">
+          <div id="pulse-state" v-if="pulseState === 'ghost'">
             <ResonancePulseghost />
-           </div>
-           <div v-else>
-              <ResonancePulse />
-           </div>
+          </div>
+          <div v-else>
+            <ResonancePulse />
+          </div>
         </div>
 
-        <div 
+        <!-- filter context placer -->
+        <div
+          v-if="orbitStore.tools.filter"
           class="tool-grab-wrapper"
-          :style="{ left: orbitStore.tools.heli.x + '%', top: orbitStore.tools.heli.y + '%', zIndex: orbitStore.draggingToolId === 'heli' ? 300 : 100 }"
+          :style="{
+            left: orbitStore.tools.filter.x + '%',
+            top: orbitStore.tools.filter.y + '%',
+            zIndex: orbitStore.draggingToolId === 'filter' ? 2500 : 1500,
+          }"
+          @mousedown.stop="startDragging('filter')"
+        >
+          <FilterContext />
+        </div>
+
+        <div
+          class="tool-grab-wrapper"
+          :style="{
+            left: orbitStore.tools.heli.x + '%',
+            top: orbitStore.tools.heli.y + '%',
+            zIndex: orbitStore.draggingToolId === 'heli' ? 2500 : 1500,
+          }"
           @mousedown.stop="startDragging('heli')"
         >
           <StartClock :mini="isMini" @expand="handleExpand()" />
@@ -47,35 +78,36 @@
 </template>
 
 <script setup>
-import { ref, computed, onUnmounted } from 'vue';
-import StartClock from '@/components/orbit/clock/HeliStart.vue'
-import ProjectionHeli from '@/components/orbit/clock/projectionHeli.vue'
-import ResonancePulse from '@/components/orbit/resonance/ResonancePulse.vue'
-import ResonancePulseghost from '@/components/orbit/resonance/ResonancePulseghost.vue'
-import CubeStructure from '@/components/orbit/cueCude/cubeStructure.vue'
-import OrbitHUD from '@/components/orbit/parts/OrbitHUD.vue'
+import { ref, computed, onUnmounted } from "vue";
+import StartClock from "@/components/orbit/clock/HeliStart.vue";
+import ProjectionHeli from "@/components/orbit/clock/projectionHeli.vue";
+import ResonancePulse from "@/components/orbit/resonance/ResonancePulse.vue";
+import ResonancePulseghost from "@/components/orbit/resonance/ResonancePulseghost.vue";
+import CubeStructure from "@/components/orbit/cueCude/cubeStructure.vue";
+import FilterContext from "@/components/orbit/filter/contextFilter.vue";
+import OrbitHUD from "@/components/orbit/parts/OrbitHUD.vue";
 
-import { aiInterfaceStore } from '@/stores/aiInterface.js'
-import { useOrbitStore } from '@/stores/orbitStore.js'
-import { diaryStore } from '@/stores/diaryStore.js';
+import { aiInterfaceStore } from "@/stores/aiInterface.js";
+import { useOrbitStore } from "@/stores/orbitStore.js";
+import { diaryStore } from "@/stores/diaryStore.js";
 
 const storeAI = aiInterfaceStore();
 const orbitStore = useOrbitStore();
-const storeDiary = diaryStore()
+const storeDiary = diaryStore();
 
 const props = defineProps({
-  mini: { type: Boolean, default: false }
+  mini: { type: Boolean, default: false },
 });
 
 const isMini = computed(() => props.mini || !heliClockExpand);
 
 /* Computed Logic */
 const pulseState = computed(() => {
-    if (storeAI.currentMode === 'zen') {
-      return 'ghost'
-    } else  {
-      return 'alive'
-    }
+  if (storeAI.currentMode === "zen") {
+    return "ghost";
+  } else {
+    return "alive";
+  }
 });
 
 const heliClockExpand = computed(() => orbitStore.expandedHeliClock);
@@ -84,20 +116,20 @@ const extractedData = computed(() => storeAI.extractedData);
 /* methods*/
 const handleExpand = () => {
   // expanded.value = !expanded.value;
-  orbitStore.expandedHeliClock= !orbitStore.expandedHeliClock;
+  orbitStore.expandedHeliClock = !orbitStore.expandedHeliClock;
   // Update the store so the Bottom Panel or Left Panel can react
   if (heliClockExpand === true) {
-    storeAI.currentMode = 'projecting'; // This could trigger the Bottom Panel
-    storeAI.chatAttention = 'future-timeline';
+    storeAI.currentMode = "projecting"; // This could trigger the Bottom Panel
+    storeAI.chatAttention = "future-timeline";
   } else {
-    storeAI.currentMode = 'zen';
+    storeAI.currentMode = "zen";
   }
 };
 
 /* CORE DRAG ENGINE */
 const handleGlobalDrag = (e) => {
   if (orbitStore.draggingToolId) {
-    const stage = document.querySelector('.orbit-stage');
+    const stage = document.querySelector(".orbit-stage");
     if (!stage) return;
     const bounds = stage.getBoundingClientRect();
     const x = ((e.clientX - bounds.left) / bounds.width) * 100;
@@ -108,19 +140,19 @@ const handleGlobalDrag = (e) => {
 
 const startDragging = (id) => {
   orbitStore.startDragging(id);
-  window.addEventListener('mousemove', handleGlobalDrag);
-  window.addEventListener('mouseup', stopDragging);
+  window.addEventListener("mousemove", handleGlobalDrag);
+  window.addEventListener("mouseup", stopDragging);
 };
 
 const stopDragging = () => {
   orbitStore.stopDragging();
-  window.removeEventListener('mousemove', handleGlobalDrag);
-  window.removeEventListener('mouseup', stopDragging);
+  window.removeEventListener("mousemove", handleGlobalDrag);
+  window.removeEventListener("mouseup", stopDragging);
 };
 
 onUnmounted(() => {
-  window.removeEventListener('mousemove', handleGlobalDrag);
-  window.removeEventListener('mouseup', stopDragging);
+  window.removeEventListener("mousemove", handleGlobalDrag);
+  window.removeEventListener("mouseup", stopDragging);
 });
 </script>
 

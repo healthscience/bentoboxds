@@ -1,19 +1,20 @@
-import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { defineStore } from "pinia";
+import { ref } from "vue";
 
-export const useOrbitStore = defineStore('orbit', () => {
+export const useOrbitStore = defineStore("orbit", () => {
   const tools = ref({
     pulse: { x: 50, y: 24 },
     heli: { x: 90, y: 16 },
-    cube: { x: 10, y: 20 }
+    cube: { x: 10, y: 20 },
+    filter: { x: 70, y: 24 },
   });
-  const expandedHeliClock = ref(false)
+  const expandedHeliClock = ref(false);
 
   const draggingToolId = ref(null);
 
   const startDragging = (id) => {
     draggingToolId.value = id;
-    document.body.style.cursor = 'move';
+    document.body.style.cursor = "move";
   };
 
   const updatePosition = (id, x, y) => {
@@ -25,7 +26,7 @@ export const useOrbitStore = defineStore('orbit', () => {
 
   const stopDragging = () => {
     draggingToolId.value = null;
-    document.body.style.cursor = 'default';
+    document.body.style.cursor = "default";
   };
 
   return {
@@ -34,6 +35,6 @@ export const useOrbitStore = defineStore('orbit', () => {
     draggingToolId,
     startDragging,
     updatePosition,
-    stopDragging
+    stopDragging,
   };
 });

@@ -15,7 +15,7 @@
                       {{ libType.text }}
                     </option>
                   </select>
-                </div>Get Library Contracts
+                </div>
               </div>
               <label for="replicteplibrary"></label>
               <input type="input" id="publibkey" placeholder="librarykey" v-model="pubLibrarykey" autofocus>
