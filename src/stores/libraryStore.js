@@ -758,15 +758,15 @@ export const libraryStore = defineStore('librarystore', {
         refContract.privacy = 'public' // 'public library'
         refContract.reftype = 'public' // 'public library'
         refContract.task = 'GET'
-        // refContract.jwt = this.state.jwttoken
         this.sendSocket.send_message(refContract)
-        const refContract2 = {}
+        /* const refContract2 = {}
         refContract2.type = 'library'
         refContract2.action = 'contracts'
         refContract2.privacy = 'private' // 'privatelibrary'
         refContract2.reftype = 'private' // 'privatelibrary'
         refContract2.task = 'GET'
         this.sendSocket.send_message(refContract2)
+        */
       } else if (hopMessage === 'get-public-library') {
         // peer library start contracts
         const refContract = {}

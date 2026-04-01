@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import init, { SovereignKeypair } from '@/stores/hopUtility/hop_crypto.js'
+// import init, { SovereignKeypair } from '@/stores/hopUtility/hop_crypto.js'
 import { useSocketStore } from '@/stores/socket.js'
 import { cuesStore } from "@/stores/cuesStore.js"
 import { aiInterfaceStore } from '@/stores/aiInterface.js'

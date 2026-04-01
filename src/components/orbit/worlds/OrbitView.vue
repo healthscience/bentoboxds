@@ -22,13 +22,42 @@
       </div>
     </Teleport>
 
+    <!-- Tiny Device Expansion Teleport -->
+    <Teleport to="body">
+      <div
+        v-if="orbitStore.expandedTinyDevice"
+        class="device-expanded-wrapper"
+        @click.self="handleTinyExpand"
+      >
+        <ExpandDevice @close="handleTinyExpand" />
+      </div>
+    </Teleport>
+
     <div class="orbit-stage">
       <OrbitHUD />
 
       <div
         class="world-canvas"
         :class="{ 'dragging-active': orbitStore.draggingToolId }"
+        @dragover.prevent
+        @drop="handleDrop"
       >
+        <!-- TINY DEVICES -->
+        <div
+          v-if="orbitStore.tools.tiny"
+          class="tool-grab-wrapper"
+          :class="{ dragging: orbitStore.draggingToolId === 'tiny' }"
+          :style="{
+            left: orbitStore.tools.tiny.x + '%',
+            top: orbitStore.tools.tiny.y + '%',
+            zIndex: orbitStore.draggingToolId === 'tiny' ? 2500 : 1500,
+          }"
+          @mousedown="startDragging($event, 'tiny')"
+          @dblclick="handleTinyExpand"
+        >
+          <TinyDevice />
+        </div>
+
         <!-- CUE-CUBES -->
         <div
           v-if="orbitStore.tools.cube"
@@ -131,6 +160,8 @@ import ResonancePulseghost from "@/components/orbit/resonance/ResonancePulseghos
 import CubeStructure from "@/components/orbit/cueCude/cubeStructure.vue";
 import FilterContext from "@/components/orbit/filter/contextFilter.vue";
 import OrbitHUD from "@/components/orbit/parts/OrbitHUD.vue";
+import TinyDevice from "@/components/orbit/devices/tinyDevice.vue";
+import ExpandDevice from "@/components/orbit/devices/expandDevice.vue";
 
 import { aiInterfaceStore } from "@/stores/aiInterface.js";
 import { useOrbitStore } from "@/stores/orbitStore.js";
@@ -178,6 +209,15 @@ const handlePulseExpand = () => {
   }
 };
 
+const handleTinyExpand = () => {
+  orbitStore.toggleTinyExpand();
+  if (orbitStore.expandedTinyDevice) {
+    storeAI.currentMode = "projecting";
+  } else {
+    storeAI.currentMode = "zen";
+  }
+};
+
 /* CORE DRAG ENGINE */
 const handleGlobalDrag = (e) => {
   if (orbitStore.draggingToolId) {
@@ -204,6 +244,19 @@ const stopDragging = () => {
   orbitStore.stopDragging();
   window.removeEventListener("mousemove", handleGlobalDrag);
   window.removeEventListener("mouseup", stopDragging);
+};
+
+const handleDrop = (e) => {
+  const id = e.dataTransfer.getData("instrumentId");
+  if (!id) return;
+
+  const stage = document.querySelector(".orbit-stage");
+  if (!stage) return;
+  const bounds = stage.getBoundingClientRect();
+  const x = ((e.clientX - bounds.left) / bounds.width) * 100;
+  const y = ((e.clientY - bounds.top) / bounds.height) * 100;
+
+  orbitStore.addInstrument(id, x, y);
 };
 
 onUnmounted(() => {
@@ -315,7 +368,8 @@ onUnmounted(() => {
 }
 
 /* Expansion Styles */
-.resonance-expanded-wrapper {
+.resonance-expanded-wrapper,
+.device-expanded-wrapper {
   position: fixed;
   inset: 0;
   z-index: 9999;
