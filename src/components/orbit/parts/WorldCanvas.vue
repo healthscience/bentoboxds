@@ -1,19 +1,32 @@
 <template>
-  <div class="world-canvas-container" :class="activeWorld">
-    world canvas {{ activeWorld }}
+  <div class="world-canvas-container" :class="currentActiveWorld">
+    world canvas {{ currentActiveWorld }}
     <section class="world-layer-stack">
       <!-- orbit of cues and besearch -->
-      <div v-show="activeWorld === 'orbit'" class="world-view orbit-grid">
+      <div
+        v-show="currentActiveWorld === 'orbit'"
+        class="world-view orbit-grid"
+      >
         <OrbitView />
       </div>
       <!-- human body -->
-      <div v-show="activeWorld === 'body'" class="world-view body-grid">
+      <div v-show="currentActiveWorld === 'body'" class="world-view body-grid">
         <HumanWorld ref="humanWorldRef" />
       </div>
       <!-- earth nature & environment -->
-      <div v-show="activeWorld === 'earth'" class="world-view earth-grid">
+      <div
+        v-show="currentActiveWorld === 'earth'"
+        class="world-view earth-grid"
+      >
         <EarthEnvironment ref="earthEnvironmentRef" />
       </div>
+
+      <!-- Besearch Knowledge Layer -->
+      <transition name="slide-left">
+        <div v-if="showBesearch" class="world-view besearch-layer">
+          <BesearchCanvas />
+        </div>
+      </transition>
     </section>
   </div>
 </template>
@@ -23,6 +36,7 @@ import { ref, computed } from "vue";
 import OrbitView from "@/components/orbit/worlds/OrbitView.vue";
 import HumanWorld from "@/components/orbit/worlds/Cues-BodyWorld.vue";
 import EarthEnvironment from "@/components/orbit/worlds/EarthEnvironment.vue";
+import BesearchCanvas from "@/components/besearch/besearchCanvas.vue";
 
 import { aiInterfaceStore } from "@/stores/aiInterface.js";
 
@@ -37,8 +51,12 @@ const props = defineProps({
 });
 
 /* computed */
-const activeWorld = computed(() => {
-  return storeAI.activeWorld;
+const currentActiveWorld = computed(() => {
+  return props.activeWorld || storeAI.activeWorld;
+});
+
+const showBesearch = computed(() => {
+  return storeAI.currentMode === "besearch";
 });
 
 const saveCue = (cueId) => {
@@ -132,5 +150,29 @@ defineExpose({ saveCue, startDrawing, startTagging });
 
 .is-dragging {
   pointer-events: auto; /* Catch moves while dragging */
+}
+
+/* Besearch Slide-left Transition */
+.slide-left-enter-active,
+.slide-left-leave-active {
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s ease;
+}
+
+.slide-left-enter-from,
+.slide-left-leave-to {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+.besearch-layer {
+  z-index: 5000; /* Extremely high to debug */
+  background: rgba(255, 0, 0, 0.2); /* Red tint to verify presence */
+  backdrop-filter: blur(15px);
+  pointer-events: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 </style>

@@ -235,7 +235,7 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import LifeStrapNode from "@/components/orbit/lifetools/LifeStrapNode.vue";
-import BesearchControls from "./besearchControls.vue";
+import BesearchControls from "@/components/orbit/lifetools/besearchControls.vue";
 import InterventionType from "@/components/besearch/interventions/interventionType.vue";
 import BentoInstruments from "@/components/orbit/instruments/bentoInstruments.vue";
 

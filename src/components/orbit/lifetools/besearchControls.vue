@@ -2,9 +2,27 @@
   <div id="besearch-tools">
     <h3>Besearch</h3>
     <div class="besearch-control-buttons">
-      <button @click="handleCreate" class="control-button" aria-label="Create new besearch">Create</button>
-      <button @click="handleStart" class="control-button" aria-label="Start besearch">Start</button>
-      <button @click="handleStop" class="control-button" aria-label="Stop besearch">Stop</button>
+      <button
+        @click="handleCreate"
+        class="control-button"
+        aria-label="Create new besearch"
+      >
+        Create
+      </button>
+      <button
+        @click="handleStart"
+        class="control-button"
+        aria-label="Start besearch"
+      >
+        Start
+      </button>
+      <button
+        @click="handleStop"
+        class="control-button"
+        aria-label="Stop besearch"
+      >
+        Stop
+      </button>
     </div>
 
     <!-- Create Form Modal -->
@@ -17,29 +35,32 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import BesearchCreateForm from './besearchCreateForm.vue'
-import { besearchStore } from '@/stores/besearchStore.js'
+import { ref, computed } from "vue";
+import BesearchCreateForm from "./besearchCreateForm.vue";
+
+import { besearchStore } from "@/stores/besearchStore.js";
+import { aiInterfaceStore } from "@/stores/aiInterface.js";
 
 // No emits needed - component is fully self-contained
 
-const storeBesearch = besearchStore()
+const storeBesearch = besearchStore();
+const storeAI = aiInterfaceStore();
 // const showCreateForm = ref(false)
 
 /* computed */
-const showCreateForm = computed(() => storeBesearch.showCreateForm)
+const showCreateForm = computed(() => storeBesearch.showCreateForm);
 
 /* methods */
 const handleCreate = () => {
-  storeBesearch.showCreateForm = !storeBesearch.showCreateForm
-}
+  storeBesearch.showCreateForm = !storeBesearch.showCreateForm;
+};
 
 const handleCloseCreateForm = () => {
-  storeBesearch.showCreateForm = !storeBesearch.showCreateForm
-}
+  storeBesearch.showCreateForm = !storeBesearch.showCreateForm;
+};
 
 const handleCreateBesearchCycle = (formData) => {
-  const diagonalOffset = storeBesearch.besearchCyles.length * 40
+  const diagonalOffset = storeBesearch.besearchCyles.length * 40;
   const newBesearch = {
     id: `besearch-${Date.now()}`,
     name: formData.name,
@@ -55,28 +76,18 @@ const handleCreateBesearchCycle = (formData) => {
     active: true,
     linkedInterventions: [],
     createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  }
-  storeBesearch.saveToHOP(newBesearch)
-}
+    updatedAt: new Date().toISOString(),
+  };
+  storeBesearch.saveToHOP(newBesearch);
+};
 
 const handleStart = async () => {
-  const result = await storeBesearch.startBesearch()
-  if (result.success) {
-    console.log('Besearch started successfully:', result.message)
-  } else {
-    console.error('Failed to start besearch:', result.message)
-  }
-}
+  storeAI.currentMode = "besearch";
+};
 
 const handleStop = async () => {
-  const result = await storeBesearch.stopBesearch()
-  if (result.success) {
-    console.log('Besearch stopped successfully:', result.message)
-  } else {
-    console.error('Failed to stop besearch:', result.message)
-  }
-}
+  storeAI.currentMode = "orbit";
+};
 </script>
 
 <style scoped>

@@ -46,7 +46,7 @@
       </div>
     </div>
     <bento-cues></bento-cues>
-    <bento-besearch v-if="agentActive === 'besearch' || bentoBesearchStatus === true"></bento-besearch>
+    <!--<bento-besearch v-if="agentActive === 'besearch' || bentoBesearchStatus === true"></bento-besearch>-->
     <besearch-create-form
       :show="storeBesearch.showCreateForm"
       @close="closeBesearchCreate"
@@ -64,7 +64,7 @@ import { ref } from 'vue'
 import BodyDiagram from '@/components/beebeeView/diagrams/bodyDiagram.vue'
 import ChatMenu from '@/components/beebeeView/navigation/chatMenu.vue'
 import BentoCues from '@/components/bentocues/healthCues.vue'
-import BentoBesearch from '@/components/besearch/besearchCycle.vue'
+// import BentoBesearch from '@/components/besearch/besearchCycle.vue'
 import BesearchCreateForm from '@/components/besearch/lifetools/besearchCreateForm.vue'
 import BentoFlake from '@/components/bentocues/flakeCues.vue'
 import BentoGraph from '@/components/bentocues/graphCues.vue'

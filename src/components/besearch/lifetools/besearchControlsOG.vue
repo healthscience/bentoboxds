@@ -20,11 +20,20 @@
 import { ref } from 'vue'
 import BesearchCreateForm from './besearchCreateForm.vue'
 import { besearchStore } from '@/stores/besearchStore.js'
+import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
 // No emits needed - component is fully self-contained
 
 const storeBesearch = besearchStore()
+const storeAI = aiInterfaceStore()
+
 const showCreateForm = ref(false)
+let agentActive = ref('')
+
+/* computed */
+const bentoBesearchStatus = computed(() => {
+  return storeAI.bentobesearchState
+})
 
 /* methods */
 const handleCreate = () => {
@@ -61,12 +70,14 @@ const handleCloseCreateForm = () => {
 
 const handleStart = async () => {
   console.log('Besearch start action')
-  const result = await storeBesearch.startBesearch()
+  agentActive.value = 'besearch'
+  storeAI.bentobesearchState = true
+  /* const result = await storeBesearch.startBesearch()
   if (result.success) {
     console.log('Besearch started successfully:', result.message)
   } else {
     console.error('Failed to start besearch:', result.message)
-  }
+  } */
 }
 
 const handleStop = async () => {

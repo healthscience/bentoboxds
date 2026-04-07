@@ -79,7 +79,6 @@ import { besearchStore } from '@/stores/besearchStore.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 import { useBesearchCanvas } from '@/composables/useBesearchCanvas.js'
 import { useLensStability } from '@/composables/useLensStability.js'
-import { useThreeBody } from '@/composables/useThreeBody.js'
 
 import { GeneticCurator } from '@/systems/body-evolution/genetic-curator.js'
 import { BodyVessel } from '@/systems/body-evolution/foundation-physics.js'

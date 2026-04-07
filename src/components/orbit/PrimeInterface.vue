@@ -54,6 +54,7 @@
             <WorldCanvas
               ref="worldCanvasRef"
               class="world-canvas-layer"
+              :class="{ 'besearch-active': isBesearchMode }"
               :activeWorld="isInitialState ? 'void' : activeWorld"
               :showTools="!isInitialState"
             />
@@ -308,10 +309,6 @@ const draggingMode = ref(null);
 
 /* computed */
 const isInitialState = computed(() => {
-  if (storeLibrary.straps.length > 0) {
-    storeAI.activeLifeStrapID = storeLibrary.straps[0].id;
-    storeAI.currentMode = "orbit";
-  }
   return storeAI.currentMode === "zen";
 });
 
@@ -545,6 +542,7 @@ const bottomRowStyle = computed(() => {
   }
   return { height: "100%" };
 });
+const isBesearchMode = computed(() => storeAI.currentMode === "besearch");
 </script>
 
 <style scoped>
@@ -587,6 +585,10 @@ const bottomRowStyle = computed(() => {
   width: 100%;
   height: 100%;
   z-index: 10;
+}
+
+.bento-cell .world-canvas-layer.besearch-active {
+  z-index: 2000;
 }
 
 .bento-cell .fuse-container {
