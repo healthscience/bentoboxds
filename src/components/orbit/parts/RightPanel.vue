@@ -1,5 +1,5 @@
 <template>
-  <aside 
+  <aside
     class="right-panel-container overlay-blur"
     :style="{ width: width + 'px' }"
   >
@@ -22,7 +22,11 @@
       <div id="dialogue-zone" class="header-text">beebee dialogue</div>
       <div class="panel-content-area">
         <transition name="fade-slide" mode="out-in">
-          <div v-if="mode === 'chat' && !isInitialState" class="chat-zone" key="chat">
+          <div
+            v-if="mode === 'chat' && !isInitialState"
+            class="chat-zone"
+            key="chat"
+          >
             <LifeDialogue :context="data" />
           </div>
         </transition>
@@ -32,39 +36,44 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import LifeDialogue from '@/components/orbit/dialogue/lifeDialogue.vue'
+import { ref } from "vue";
+import LifeDialogue from "@/components/orbit/dialogue/lifeDialogue.vue";
 
 const props = defineProps({
   width: Number,
   mode: String,
   isInitialState: Boolean,
   isOpen: Boolean,
-  data: Object
+  data: Object,
 });
 
-const emit = defineEmits(['startDrag', 'update:mode', 'update:width', 'update:isOpen']);
+const emit = defineEmits([
+  "startDrag",
+  "update:mode",
+  "update:width",
+  "update:isOpen",
+]);
 
-const dragStartTime = ref(0)
+const dragStartTime = ref(0);
 
 const handleMouseDown = (e) => {
-  dragStartTime.value = Date.now()
+  dragStartTime.value = Date.now();
   // We don't emit startDrag immediately to allow the click event to have a chance
   // But we need to start dragging if the mouse moves.
   // Let's try emitting it but ensuring handleToggle still works.
-  emit('startDrag')
-}
+  emit("startDrag");
+};
 
 const handleToggle = () => {
   // Only toggle if it wasn't a long drag (e.g., less than 250ms)
-  const duration = Date.now() - dragStartTime.value
-  console.log('Toggle duration:', duration)
-  
+  const duration = Date.now() - dragStartTime.value;
+  console.log("Toggle duration:", duration);
+
   // If the panel is closed (width <= 50), always open it on click
   // If it's open, toggle it.
   const nextState = props.width <= 50;
-  emit('update:isOpen', nextState);
-  emit('update:width', nextState ? 380 : 0); 
+  emit("update:isOpen", nextState);
+  emit("update:width", nextState ? 380 : 0);
 };
 </script>
 
@@ -73,10 +82,8 @@ const handleToggle = () => {
   height: calc(100vh - var(--header-height, 60px));
   position: relative;
   /* Allow bubble to sit outside the aside */
-  overflow: visible !important; 
-  border-left: 1px solid rgba(185, 173, 207, 0.15);
-  background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(15px);
+  overflow: visible !important;
+  border-left: 1px solid var(--color-border);
 }
 
 .thought-bubble-button {
@@ -112,10 +119,20 @@ const handleToggle = () => {
   border-radius: 50%;
 }
 
-.line { background: rgba(255, 255, 255, 0.4); border-radius: 2px; height: 3px; }
-.line:nth-child(1) { width: 50%; }
-.line:nth-child(2) { width: 90%; }
-.line:nth-child(3) { width: 70%; }
+.line {
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 2px;
+  height: 3px;
+}
+.line:nth-child(1) {
+  width: 50%;
+}
+.line:nth-child(2) {
+  width: 90%;
+}
+.line:nth-child(3) {
+  width: 70%;
+}
 
 .panel-content-wrapper {
   display: flex;
@@ -125,6 +142,15 @@ const handleToggle = () => {
   overflow: hidden;
 }
 
-.header-text { padding: 10px 20px; opacity: 0.6; font-size: 0.7rem; font-weight: bold; }
-.panel-content-area { flex: 1; overflow: hidden; padding: 0 20px; }
+.header-text {
+  padding: 10px 20px;
+  opacity: 0.6;
+  font-size: 0.7rem;
+  font-weight: bold;
+}
+.panel-content-area {
+  flex: 1;
+  overflow: hidden;
+  padding: 0 20px;
+}
 </style>

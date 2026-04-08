@@ -55,7 +55,7 @@
               ref="worldCanvasRef"
               class="world-canvas-layer"
               :class="{ 'besearch-active': isBesearchMode }"
-              :activeWorld="isInitialState ? 'void' : activeWorld"
+              :activeWorld="activeWorld"
               :showTools="!isInitialState"
             />
 
@@ -98,7 +98,7 @@
 
             <WorldCanvas
               class="world-canvas-layer"
-              :activeWorld="isInitialState ? 'void' : activeWorld"
+              :activeWorld="activeWorld"
               :showTools="!isInitialState"
             />
 
@@ -146,7 +146,7 @@
 
             <WorldCanvas
               class="world-canvas-layer"
-              :activeWorld="isInitialState ? 'void' : activeWorld"
+              :activeWorld="activeWorld"
               :showTools="!isInitialState"
             />
 
@@ -189,7 +189,7 @@
 
             <WorldCanvas
               class="world-canvas-layer"
-              :activeWorld="isInitialState ? 'void' : activeWorld"
+              :activeWorld="activeWorld"
               :showTools="!isInitialState"
             />
 
@@ -567,12 +567,12 @@ const isBesearchMode = computed(() => storeAI.currentMode === "besearch");
   overflow: hidden;
   display: grid;
   grid-template-rows: 120px 1fr 80px;
-  background-color: #f9f9f7;
+  background-color: transparent;
 }
 
 .bento-cell .interface-layer {
   grid-row: 2;
-  z-index: 400;
+  z-index: 300;
   align-self: end;
   padding-bottom: 0px;
 }
@@ -584,7 +584,7 @@ const isBesearchMode = computed(() => storeAI.currentMode === "besearch");
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 10;
+  z-index: 1000;
 }
 
 .bento-cell .world-canvas-layer.besearch-active {
@@ -649,17 +649,19 @@ const isBesearchMode = computed(() => storeAI.currentMode === "besearch");
   height: calc(100vh - var(--header-height, 60px));
   overflow: visible;
   position: relative;
-  background-color: #f9f9f7;
+  background-color: var(--color-background-soft);
+  z-index: 0;
 
   /* THE COLOR PALETTE */
-  --bg-base: #f9f9f7;
-  --grid-minor: rgba(0, 0, 0, 0.05);
-  --grid-major: rgba(0, 0, 0, 0.06);
+  --bg-base: var(--color-background-soft);
+  --grid-minor: var(--color-border);
+  --grid-major: var(--color-border);
   --aura-color: #0078ff;
   --heli-pulse-speed: 4s;
 
   --aura-x: 50%;
   --aura-y: 50%;
+  transition: background-color 0.5s ease;
 }
 
 /* THE LOOM (Background Components) */
@@ -719,13 +721,13 @@ const isBesearchMode = computed(() => storeAI.currentMode === "besearch");
 .left-rail-area {
   grid-area: tools;
   z-index: 500;
-  background-color: #f9f9f7;
+  background-color: var(--color-background-soft);
 }
 
 .right-panel-area {
   grid-area: chat;
   z-index: 500;
-  background-color: #f9f9f7;
+  background-color: var(--color-background-soft);
 }
 
 .orbit-stage {

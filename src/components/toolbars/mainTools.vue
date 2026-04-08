@@ -6,13 +6,21 @@
     <div class="bentobox-browser" v-else>
       <header v-if="viewMinimal === false">
         <div class="bentobox-top" id="logo-bb">
-          <RouterLink to="/"><img @click="viewMode()" alt="BentoBox-DS" class="logo" src="@/assets/logo.png" width="60" height="60" /></RouterLink>
+          <RouterLink to="/"
+            ><img
+              @click="viewMode()"
+              alt="BentoBox-DS"
+              class="logo"
+              src="@/assets/logo.png"
+              width="60"
+              height="60"
+          /></RouterLink>
           <div class="logo-words">BentoBoxDS</div>
         </div>
         <div class="bentobox-top">
           <div class="bb-align"></div>
         </div>
-        <div class="bentobox-top">  
+        <div class="bentobox-top">
           <nav>
             <RouterLink to="/">{{ $t("message.home") }}</RouterLink>
             <RouterLink to="/about">{{ $t("message.about") }}</RouterLink>
@@ -31,7 +39,11 @@
         </div>
         <div class="bentobox-top">
           <div id="hop-flow-holder" v-if="HOPFlow === true">
-            <img class="hop-flow" src="../.././assets/hoplogosmall.png" alt="cues">
+            <img
+              class="hop-flow"
+              src="../.././assets/hoplogosmall.png"
+              alt="cues"
+            />
           </div>
         </div>
         <div class="bentobox-top">
@@ -40,19 +52,33 @@
           </nav>
         </div>
         <div class="bentobox-top">
-          <button @click="toggleTheme" class="theme-btn" :title="`Switch to ${isDark ? 'Light' : 'Dark'} Mode` ">
+          <button
+            @click="toggleTheme"
+            class="theme-btn"
+            :title="`Switch to ${isDark ? 'Light' : 'Dark'} Mode`"
+          >
             <span v-if="isDark">☀️</span>
             <span v-else>🌙</span>
-          </button>  
+          </button>
         </div>
         <div class="bentobox-top">
-          <div id="self-auth-connect" class="bb-align" @click="selfAuth">{{ storeAccount.accountMenu }}</div>
+          <div id="self-auth-connect" class="bb-align" @click="selfAuth">
+            {{ storeAccount.accountMenu }}
+          </div>
         </div>
       </header>
       <div id="min-view-mode" v-else>
         <header>
           <div class="bentobox-top" id="logo-bb">
-            <RouterLink to="/"><img @click="viewMode()" alt="BentoBox-DS" class="logo" src="@/assets/logo.png" width="60" height="60" /></RouterLink>
+            <RouterLink to="/"
+              ><img
+                @click="viewMode()"
+                alt="BentoBox-DS"
+                class="logo"
+                src="@/assets/logo.png"
+                width="60"
+                height="60"
+            /></RouterLink>
             <div class="logo-words">BentoBoxDS</div>
           </div>
         </header>
@@ -63,72 +89,70 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import NetworkNotify from '@/components/toolbars/notification/networkNotify.vue'
-import mobileMenu from '@/components/toolbars/mobileNav.vue'
-import DropDown from '@/components/toolbars/dropDown.vue'
-import AccountBox from '@/components/toolbars/account/selfAuth.vue'
-import { useSocketStore } from '@/stores/socket.js'
-import { accountStore } from '@/stores/accountStore.js'
-import { aiInterfaceStore } from '@/stores/aiInterface.js'
+import { ref, onMounted, computed } from "vue";
+import NetworkNotify from "@/components/toolbars/notification/networkNotify.vue";
+import mobileMenu from "@/components/toolbars/mobileNav.vue";
+import DropDown from "@/components/toolbars/dropDown.vue";
+import AccountBox from "@/components/toolbars/account/selfAuth.vue";
+import { useSocketStore } from "@/stores/socket.js";
+import { accountStore } from "@/stores/accountStore.js";
+import { aiInterfaceStore } from "@/stores/aiInterface.js";
 
-  const storeWebsocket = useSocketStore()
-  const storeAccount = accountStore()
-  const storeAI = aiInterfaceStore()
+const storeWebsocket = useSocketStore();
+const storeAccount = accountStore();
+const storeAI = aiInterfaceStore();
 
-  let mobileSize = ref(true)
-  const isDark = ref(false);
+let mobileSize = ref(true);
+const isDark = ref(false);
 
-  onMounted(() => {
-    let mql = window.matchMedia("(min-width: 1024px)")
-    mobileSize.value = mql.matches
+onMounted(() => {
+  let mql = window.matchMedia("(min-width: 1024px)");
+  mobileSize.value = mql.matches;
 
-    // Check for saved preference or system default
-    const savedTheme = localStorage.getItem('sov-theme');
-    if (savedTheme === 'dark') {
-      isDark.value = true;
-      document.documentElement.setAttribute('data-theme', 'dark');
-    }
-  })
-
-  const languages = ref([
-    { flag: 'en', language: 'en', title: 'English' },
-    { flag: 'es', language: 'es', title: 'española' },
-    { flag: 'zh', language: 'zh', title: '普通话' },
-    { flag: 'jp', language: 'jp', title: '日本語' }
-  ])
-
-  const selfAuth = () => {
-    storeAccount.accountStatus = !storeAccount.accountStatus
-    storeWebsocket.connection_error = false
+  // Check for saved preference or system default
+  const savedTheme = localStorage.getItem("sov-theme");
+  if (savedTheme === "dark") {
+    isDark.value = true;
+    document.documentElement.setAttribute("data-theme", "dark");
   }
+});
 
-  /* computed */
-  const accountBoxStatus = computed(() => {
-    return storeAccount.accountStatus
-  })
+const languages = ref([
+  { flag: "en", language: "en", title: "English" },
+  { flag: "es", language: "es", title: "española" },
+  { flag: "zh", language: "zh", title: "普通话" },
+  { flag: "jp", language: "jp", title: "日本語" },
+]);
 
-  const viewMinimal = computed(() => {
-    return storeAccount.viewMode
-  })
+const selfAuth = () => {
+  storeAccount.accountStatus = !storeAccount.accountStatus;
+  storeWebsocket.connection_error = false;
+};
 
-  const HOPFlow = computed(() => {
-    return storeAccount.HOPFlow
-  })
+/* computed */
+const accountBoxStatus = computed(() => {
+  return storeAccount.accountStatus;
+});
 
-  /* method */
-  const viewMode = () => {
-    storeAccount.viewMode= !storeAccount.viewMode
-  }
+const viewMinimal = computed(() => {
+  return storeAccount.viewMode;
+});
 
-  const toggleTheme = () => {
-    isDark.value = !isDark.value;
-    const theme = isDark.value ? 'dark' : 'light';
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('sov-theme', theme); // Persist for next visit
-  };
+const HOPFlow = computed(() => {
+  return storeAccount.HOPFlow;
+});
 
-        
+/* method */
+const viewMode = () => {
+  storeAccount.viewMode = !storeAccount.viewMode;
+};
+
+const toggleTheme = () => {
+  isDark.value = !isDark.value;
+  const theme = isDark.value ? "dark" : "light";
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem("sov-theme", theme); // Persist for next visit
+};
 </script>
 
 <style scoped>
@@ -138,7 +162,8 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
   width: 90vw;
   height: 12px;
   border: 0px solid rgb(183, 30, 210);
-  background-color: white;
+  background-color: var(--color-background);
+  transition: background-color 0.5s ease;
 }
 
 #mobile-menu-live {
@@ -179,7 +204,6 @@ header {
 .logo-words {
   justify-content: start;
 }
-
 
 nav {
   display: grid;
@@ -232,9 +256,10 @@ nav a:first-of-type {
     display: grid;
     grid-template-columns: 1fr;
     border: 0px solid rgb(189, 30, 210);
-    background-color: rgb(250, 246, 246);
+    background-color: var(--color-background-soft);
     z-index: 25;
     height: var(--header-height, 60px);
+    transition: background-color 0.5s ease;
   }
 
   header {
@@ -250,18 +275,18 @@ nav a:first-of-type {
   }
 
   #logo-bb {
-  display: grid;
-  grid-template-columns: 1fr 8fr;
-}
+    display: grid;
+    grid-template-columns: 1fr 8fr;
+  }
 
-.logo {
-  border: 0px solid red;
-}
+  .logo {
+    border: 0px solid red;
+  }
 
-.logo-words {
-  justify-content: start;
-  align-self: center;
-}
+  .logo-words {
+    justify-content: start;
+    align-self: center;
+  }
 
   nav {
     grid-template-columns: 1fr 1fr;
@@ -303,6 +328,5 @@ nav a:first-of-type {
   .theme-btn:hover {
     background: var(--sov-accent-glow);
   }
-
 }
 </style>

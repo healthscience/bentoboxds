@@ -44,12 +44,11 @@
       >
         <!-- TINY DEVICES -->
         <div
-          v-if="orbitStore.tools.tiny"
           class="tool-grab-wrapper"
           :class="{ dragging: orbitStore.draggingToolId === 'tiny' }"
           :style="{
-            left: orbitStore.tools.tiny.x + '%',
-            top: orbitStore.tools.tiny.y + '%',
+            left: (orbitStore.tools.tiny?.x || 30) + '%',
+            top: (orbitStore.tools.tiny?.y || 70) + '%',
             zIndex: orbitStore.draggingToolId === 'tiny' ? 2500 : 1500,
           }"
           @mousedown="startDragging($event, 'tiny')"
@@ -60,33 +59,26 @@
 
         <!-- CUE-CUBES -->
         <div
-          v-if="orbitStore.tools.cube"
           class="tool-grab-wrapper"
           :class="{ dragging: orbitStore.draggingToolId === 'cube' }"
           :style="{
-            left: orbitStore.tools.cube.x + '%',
-            top: orbitStore.tools.cube.y + '%',
+            left: (orbitStore.tools.cube?.x || 10) + '%',
+            top: (orbitStore.tools.cube?.y || 20) + '%',
             zIndex: orbitStore.draggingToolId === 'cube' ? 2500 : 1500,
           }"
           @mousedown="startDragging($event, 'cube')"
         >
           <span class="label">CUE-CUBES</span>
           <CubeStructure />
-          <!--<span class="status"
-            >COORD: {{ Math.round(orbitStore.tools.cube.x) }},{{
-              Math.round(orbitStore.tools.cube.y)
-            }}</span
-          >-->
         </div>
 
         <!-- RESONANCE -->
         <div
-          v-if="orbitStore.tools.pulse"
           class="tool-grab-wrapper"
           :class="{ dragging: orbitStore.draggingToolId === 'pulse' }"
           :style="{
-            left: orbitStore.tools.pulse.x + '%',
-            top: orbitStore.tools.pulse.y + '%',
+            left: (orbitStore.tools.pulse?.x || 50) + '%',
+            top: (orbitStore.tools.pulse?.y || 40) + '%',
             zIndex: orbitStore.draggingToolId === 'pulse' ? 2500 : 1500,
           }"
           @mousedown="startDragging($event, 'pulse')"
@@ -99,32 +91,21 @@
           <div v-else>
             <ResonancePulse />
           </div>
-          <!--<span class="status"
-            >COORD: {{ Math.round(orbitStore.tools.pulse.x) }},{{
-              Math.round(orbitStore.tools.pulse.y)
-            }}</span
-          >-->
         </div>
 
         <!-- FILTER -->
         <div
-          v-if="orbitStore.tools.filter"
           class="tool-grab-wrapper"
           :class="{ dragging: orbitStore.draggingToolId === 'filter' }"
           :style="{
-            left: orbitStore.tools.filter.x + '%',
-            top: orbitStore.tools.filter.y + '%',
+            left: (orbitStore.tools.filter?.x || 70) + '%',
+            top: (orbitStore.tools.filter?.y || 45) + '%',
             zIndex: orbitStore.draggingToolId === 'filter' ? 2500 : 1500,
           }"
           @mousedown="startDragging($event, 'filter')"
         >
           <span class="label">FILTER</span>
           <FilterContext />
-          <!--<span class="status"
-            >COORD: {{ Math.round(orbitStore.tools.filter.x) }},{{
-              Math.round(orbitStore.tools.filter.y)
-            }}</span
-          >-->
         </div>
 
         <!-- HELI-CLOCK -->
@@ -132,8 +113,8 @@
           class="tool-grab-wrapper"
           :class="{ dragging: orbitStore.draggingToolId === 'heli' }"
           :style="{
-            left: orbitStore.tools.heli.x + '%',
-            top: orbitStore.tools.heli.y + '%',
+            left: (orbitStore.tools.heli?.x || 90) + '%',
+            top: (orbitStore.tools.heli?.y || 16) + '%',
             zIndex: orbitStore.draggingToolId === 'heli' ? 2500 : 1500,
           }"
           @mousedown="startDragging($event, 'heli')"
@@ -283,10 +264,11 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   position: relative;
-  background-color: #f9f9f7;
-  background-image: radial-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px);
+  background-color: transparent;
+  background-image: radial-gradient(var(--color-border) 1px, transparent 1px);
   background-size: 20px 20px;
   background-position: center;
+  transition: background-color 0.5s ease;
 }
 
 .static-cube-nav {
@@ -301,7 +283,7 @@ onUnmounted(() => {
   position: absolute;
   transform: translate(-50%, -50%);
   cursor: grab;
-  transition: transform 0.1s ease-out;
+  transition: transform 0.1s ease-out, background-color 0.5s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -309,7 +291,7 @@ onUnmounted(() => {
   pointer-events: auto;
   min-width: 150px;
   min-height: 150px;
-  background-color: #f9f9f7;
+  background-color: var(--color-background-soft);
   border-radius: 50%;
 }
 
@@ -327,11 +309,12 @@ onUnmounted(() => {
   font-size: 9px;
   text-transform: uppercase;
   font-weight: 800;
-  color: #aaa;
+  color: var(--color-text);
+  opacity: 0.6;
   letter-spacing: 2px;
   margin-bottom: 8px;
   pointer-events: none;
-  background: rgba(255, 255, 255, 0.4);
+  background: var(--color-background-mute);
   padding: 2px 8px;
   border-radius: 10px;
   backdrop-filter: blur(4px);
@@ -343,7 +326,7 @@ onUnmounted(() => {
   color: var(--aura-color, #0078ff);
   font-family: monospace;
   pointer-events: none;
-  background: rgba(255, 255, 255, 0.4);
+  background: var(--color-background-mute);
   padding: 2px 8px;
   border-radius: 10px;
   backdrop-filter: blur(4px);

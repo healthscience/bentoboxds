@@ -89,13 +89,15 @@ const countLifeStraps = computed(() => {
   padding: 1rem 3rem;
   margin: 1rem auto;
   width: fit-content;
-  background: rgba(255, 255, 255, 0.16);
+  background: var(--color-background-soft);
+  opacity: 0.9;
   border-radius: 16px;
   backdrop-filter: blur(4px);
   -webkit-backdrop-filter: blur(4px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--color-border);
   z-index: 10;
   pointer-events: auto;
+  transition: background-color 0.5s ease;
 }
 
 .hud-metrics {

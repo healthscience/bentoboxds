@@ -3,21 +3,15 @@
     world canvas {{ currentActiveWorld }}
     <section class="world-layer-stack">
       <!-- orbit of cues and besearch -->
-      <div
-        v-show="currentActiveWorld === 'orbit'"
-        class="world-view orbit-grid"
-      >
+      <div v-if="currentActiveWorld === 'orbit'" class="world-view orbit-grid">
         <OrbitView />
       </div>
       <!-- human body -->
-      <div v-show="currentActiveWorld === 'body'" class="world-view body-grid">
+      <div v-if="currentActiveWorld === 'body'" class="world-view body-grid">
         <HumanWorld ref="humanWorldRef" />
       </div>
       <!-- earth nature & environment -->
-      <div
-        v-show="currentActiveWorld === 'earth'"
-        class="world-view earth-grid"
-      >
+      <div v-if="currentActiveWorld === 'earth'" class="world-view earth-grid">
         <EarthEnvironment ref="earthEnvironmentRef" />
       </div>
 
@@ -108,7 +102,6 @@ defineExpose({ saveCue, startDrawing, startTagging });
 .world-view {
   grid-area: 1 / 1;
   display: grid;
-  place-items: center;
   transition: opacity 0.5s ease, transform 0.5s ease;
   width: 100%;
   height: 100%;
