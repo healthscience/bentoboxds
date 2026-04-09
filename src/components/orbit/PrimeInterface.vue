@@ -224,8 +224,11 @@
       @startDrag="startBottomDrag"
     />
 
-    <div class="bento-box-container">
-      <BentoBox v-model:activeQuadrants="activeQuadrants" />
+    <div class="bento-box-container" :class="{ 'docked-position': isChatOpen }">
+      <BentoBox
+        v-model:activeQuadrants="activeQuadrants"
+        :docked="isChatOpen"
+      />
     </div>
   </div>
 </template>
@@ -551,6 +554,12 @@ const isBesearchMode = computed(() => storeAI.currentMode === "besearch");
   bottom: 80px;
   right: 20px;
   z-index: 1000;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bento-box-container.docked-position {
+  bottom: 10px;
+  right: v-bind('chatWidth > 50 ? "20px" : "20px"'); /* chatWidth is reactive */
 }
 
 .bento-layout-engine {
