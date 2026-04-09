@@ -67,12 +67,15 @@ const handleButtonClick = () => {
 /* LEFT PANEL */
 .left-rail {
   grid-area: tools;
-  z-index: 200;
+  z-index: 700;
   border-right: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
   height: calc(100vh - var(--header-height, 60px));
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .rail-content {

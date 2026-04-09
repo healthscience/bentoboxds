@@ -487,11 +487,11 @@ const stopDragging = () => {
 };
 
 const dynamicGridStyle = computed(() => ({
-  gridTemplateColumns: `${panelWidth.value}px 1fr ${storeChat.chatWidth}px`,
+  gridTemplateColumns: "1fr",
   gridTemplateRows: `1fr ${
     storeBesearch.showBottomPanel ? storeBesearch.bottomHeight : 0
   }px`,
-  gridTemplateAreas: '"tools stage chat"',
+  gridTemplateAreas: '"stage"',
 }));
 
 const bentoLayoutStyle = computed(() => {
@@ -719,14 +719,18 @@ const isBesearchMode = computed(() => storeAI.currentMode === "besearch");
 }
 
 .left-rail-area {
-  grid-area: tools;
-  z-index: 500;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 700;
   background-color: var(--color-background-soft);
 }
 
 .right-panel-area {
-  grid-area: chat;
-  z-index: 500;
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 700;
   background-color: var(--color-background-soft);
 }
 

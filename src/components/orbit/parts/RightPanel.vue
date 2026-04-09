@@ -80,10 +80,14 @@ const handleToggle = () => {
 <style scoped>
 .right-panel-container {
   height: calc(100vh - var(--header-height, 60px));
-  position: relative;
+  position: absolute;
+  top: 0;
+  right: 0;
   /* Allow bubble to sit outside the aside */
   overflow: visible !important;
   border-left: 1px solid var(--color-border);
+  z-index: 700;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .thought-bubble-button {
