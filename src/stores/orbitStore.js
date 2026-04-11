@@ -12,7 +12,7 @@ export const useOrbitStore = defineStore("orbit", () => {
     heli: { x: 90, y: 16 },
     cube: { x: 10, y: 20 },
     filter: { x: 70, y: 45 },
-    tiny: { x: 30, y: 70 },
+    tiny: { x: 10, y: 40 },
   });
   const expandedHeliClock = ref(false);
   const expandedPulse = ref(false);

@@ -1,6 +1,5 @@
 <template>
   <div class="world-canvas-container" :class="currentActiveWorld">
-    world canvas {{ currentActiveWorld }}
     <section class="world-layer-stack">
       <!-- orbit of cues and besearch -->
       <div v-if="currentActiveWorld === 'orbit'" class="world-view orbit-grid">

@@ -47,8 +47,8 @@
           class="tool-grab-wrapper"
           :class="{ dragging: orbitStore.draggingToolId === 'tiny' }"
           :style="{
-            left: (orbitStore.tools.tiny?.x || 30) + '%',
-            top: (orbitStore.tools.tiny?.y || 70) + '%',
+            left: (orbitStore.tools.tiny?.x || 10) + '%',
+            top: (orbitStore.tools.tiny?.y || 40) + '%',
             zIndex: orbitStore.draggingToolId === 'tiny' ? 2500 : 1500,
           }"
           @mousedown="startDragging($event, 'tiny')"

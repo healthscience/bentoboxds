@@ -84,10 +84,12 @@ const toggleQuadrant = (id) => {
 .bento-frame.is-docked {
   grid-template-columns: repeat(4, 1fr);
   grid-template-rows: 1fr;
-  width: 320px;
-  height: 48px;
-  border-width: 2px;
-  background: rgba(0, 0, 0, 0.4);
+  width: 100%;
+  height: 40px;
+  border-width: 1px;
+  background: transparent;
+  backdrop-filter: none;
+  border-radius: 0;
 }
 
 /* Dynamic Border Shifts */

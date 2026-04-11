@@ -1,60 +1,67 @@
 <template>
-  <div 
-    class="life-strap-node" 
+  <div
+    class="life-strap-node"
     :class="{ 'is-active': active }"
-    @click="handleLSelect(strap.id)"
+    @click="handleLSelect(strap.key)"
   >
     <header>LIFE-STRAP</header>
     <div class="strap-orb-wrap">
-      <div class="orb-core" :style="{ '--orb-color': strap.color }"></div>
+      <div
+        class="orb-core"
+        :style="{ '--orb-color': strap?.value?.computational?.color }"
+      ></div>
       <svg class="orb-progress" viewBox="0 0 40 40">
         <circle cx="12" cy="12" r="8" />
       </svg>
     </div>
 
     <div class="strap-info" v-if="expanded">
-      <span class="strap-label">{{ strap.name }}</span>
-      <span class="strap-meta">{{ strap.activeCues }} Cues Active</span>
+      <span class="strap-label" @click="handleLSelect(strap.key)">{{
+        strap.value.concept.story.slice(0, 12)
+      }}</span>
+      <!--<span class="strap-meta">{{ strap?.activeCues }} Cues Active</span>-->
       <button v-if="expanded" class="strap-settings">...</button>
-    </div>    
+    </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed } from "vue";
 
 const props = defineProps({
   strap: Object,
   active: Boolean,
-  expanded: Boolean
-})
+  expanded: Boolean,
+});
 
-const emit = defineEmits(['select'])
+const emit = defineEmits(["select"]);
 
 /* Compute an ID that includes name words */
 const strapIdWithName = computed(() => {
-  const s = props.strap
-  if (!s) return ''
+  const s = props.strap;
+  if (!s) return "";
   // Generate ID: ls_{first_two_words}_{year}
-  const nameWords = s.name ? s.name.split(' ').slice(0, 2).join('_').toLowerCase() : 'unnamed'
-  const year = s.id ? s.id.match(/\d{4}/)?.[0] || '2026' : '2026'
-  return `ls_${nameWords}_${year}`
-})
+  const nameWords = s.name
+    ? s.name.split(" ").slice(0, 2).join("_").toLowerCase()
+    : "unnamed";
+  const year = s.id ? s.id.match(/\d{4}/)?.[0] || "2026" : "2026";
+  return `ls_${nameWords}_${year}`;
+});
 
 /* methods */
 const handleLSelect = (strapData) => {
-  console.log('active life strap')
-  console.log(strapData)
+  console.log("active life strap");
+  console.log(strapData);
   // Emit full strap data including the name-enhanced ID
-  emit('select', {
+  emit("select", {
     id: strapIdWithName.value,
     originalId: props.strap.id,
     name: props.strap.name,
     contractKey: props.strap.contract_key,
     activeCues: props.strap.active_cues,
-    color: props.strap.color
-  })
-}
+    color: props.strap.color,
+  });
+};
 </script>
 
 <style scoped>
@@ -93,6 +100,5 @@ const handleLSelect = (strapData) => {
   .orb-progress {
     position: absolute;
   }
-
 }
 </style>

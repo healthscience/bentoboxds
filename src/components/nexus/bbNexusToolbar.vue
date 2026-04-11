@@ -2,14 +2,17 @@
   <div
     ref="toolbarRef"
     class="bbnexus-toolbar"
-    :class="{ open: isOpen, dragging: isDragging, inline: inline, 'anchor-bottom-right': !inline && isAnchored && anchor === 'bottom-right' }"
-    :style="isAnchored ? {} : { top: position.y + 'px', left: position.x + 'px' }"
+    :class="{
+      open: isOpen,
+      dragging: isDragging,
+      inline: inline,
+      'anchor-bottom-right': !inline && isAnchored && anchor === 'bottom-right',
+    }"
+    :style="
+      isAnchored ? {} : { top: position.y + 'px', left: position.x + 'px' }
+    "
   >
-    <button
-      class="bbnexus-toggle"
-      @mousedown="startDrag"
-      @click="toggle"
-    >
+    <button class="bbnexus-toggle" @mousedown="startDrag" @click="toggle">
       <img class="bbnexus-icon" :src="bbNexusIcon" alt="bbNexus" />
       <span class="bbnexus-label">bbNexus</span>
       <span class="bbnexus-grab">↔</span>
@@ -36,15 +39,27 @@
       <div class="bbnexus-section">
         <div class="bbnexus-title">Worlds</div>
         <div class="bbnexus-buttons">
-           <button class="bbnexus-btn" :class="activeClass('cues')" @click="emitAction('world:orbit')">
+          <button
+            class="bbnexus-btn"
+            :class="activeClass('cues')"
+            @click="emitAction('world:orbit')"
+          >
             <span class="bbnexus-btn-icon">🧩</span>
             Orbit
           </button>
-          <button class="bbnexus-btn" :class="activeClass('body')" @click="emitAction('world:body')">
+          <button
+            class="bbnexus-btn"
+            :class="activeClass('body')"
+            @click="emitAction('world:body')"
+          >
             <span class="bbnexus-btn-icon">🫀</span>
             Body
           </button>
-          <button class="bbnexus-btn" :class="activeClass('earth')" @click="emitAction('world:earth')">
+          <button
+            class="bbnexus-btn"
+            :class="activeClass('earth')"
+            @click="emitAction('world:earth')"
+          >
             <span class="bbnexus-btn-icon">🌍</span>
             Earth
           </button>
@@ -102,89 +117,89 @@
 </template>
 
 <script setup>
-import { ref, onBeforeUnmount } from 'vue'
-import bbNexusIcon from '@/assets/bbNexus-icon.png'
+import { ref, onBeforeUnmount } from "vue";
+import bbNexusIcon from "@/assets/bbNexus-icon.png";
 
-const emit = defineEmits(['action'])
+const emit = defineEmits(["action"]);
 
 const props = defineProps({
   activeWorld: {
     type: String,
-    default: null
+    default: null,
   },
   anchor: {
     type: String,
-    default: null
+    default: null,
   },
   initialOpen: {
     type: Boolean,
-    default: false
+    default: false,
   },
   inline: {
     type: Boolean,
-    default: false
-  }
-})
+    default: false,
+  },
+});
 
-const isOpen = ref(props.initialOpen)
-const isDragging = ref(false)
-const isAnchored = ref(!!props.anchor)
-const toolbarRef = ref(null)
-const position = ref({ x: 120, y: 12 })
-const dragOffset = ref({ x: 0, y: 0 })
+const isOpen = ref(props.initialOpen);
+const isDragging = ref(false);
+const isAnchored = ref(!!props.anchor);
+const toolbarRef = ref(null);
+const position = ref({ x: 120, y: 12 });
+const dragOffset = ref({ x: 0, y: 0 });
 
 const toggle = () => {
-  isOpen.value = !isOpen.value
-}
+  isOpen.value = !isOpen.value;
+};
 
 const emitAction = (action) => {
-  emit('action', action)
-}
+  emit("action", action);
+};
 
 const emitClose = () => {
-  emit('close')
-}
+  emit("close");
+};
 
 const activeClass = (target) => {
-  return props.activeWorld === target ? 'active' : ''
-}
+  return props.activeWorld === target ? "active" : "";
+};
 
 const startDrag = (event) => {
   if (props.inline) {
-    return
+    return;
   }
   if (isAnchored.value && toolbarRef.value) {
-    const rect = toolbarRef.value.getBoundingClientRect()
-    position.value = { x: rect.left, y: rect.top }
-    isAnchored.value = false
+    const rect = toolbarRef.value.getBoundingClientRect();
+    position.value = { x: rect.left, y: rect.top };
+    isAnchored.value = false;
   }
-  isDragging.value = true
+  isDragging.value = true;
   dragOffset.value = {
     x: event.clientX - position.value.x,
-    y: event.clientY - position.value.y
-  }
-  window.addEventListener('mousemove', handleDrag)
-  window.addEventListener('mouseup', stopDrag)
-}
+    y: event.clientY - position.value.y,
+  };
+  window.addEventListener("mousemove", handleDrag);
+  window.addEventListener("mouseup", stopDrag);
+};
 
 const handleDrag = (event) => {
-  if (!isDragging.value) return
+  if (!isDragging.value) return;
   position.value = {
     x: Math.max(0, event.clientX - dragOffset.value.x),
-    y: Math.max(0, event.clientY - dragOffset.value.y)
-  }
-}
+    y: Math.max(0, event.clientY - dragOffset.value.y),
+  };
+};
 
 const stopDrag = () => {
-  isDragging.value = false
-  window.removeEventListener('mousemove', handleDrag)
-  window.removeEventListener('mouseup', stopDrag)
-}
+  isDragging.value = false;
+  window.removeEventListener("mousemove", handleDrag);
+  window.removeEventListener("mouseup", stopDrag);
+};
 
 onBeforeUnmount(() => {
-  window.removeEventListener('mousemove', handleDrag)
-  window.removeEventListener('mouseup', stopDrag)
-})
+  window.removeEventListener("mousemove", handleDrag);
+  window.removeEventListener("mouseup", stopDrag);
+});
 </script>
 
 <style scoped>
@@ -211,8 +226,8 @@ onBeforeUnmount(() => {
 }
 
 .bbnexus-toolbar.anchor-bottom-right {
-  right: 0;
-  bottom: 0;
+  right: 16px;
+  bottom: 50px; /* Sit above the BentoBox Pulse Bar */
   top: auto;
   left: auto;
 }

@@ -224,10 +224,13 @@
       @startDrag="startBottomDrag"
     />
 
-    <div class="bento-box-container" :class="{ 'docked-position': isChatOpen }">
+    <div
+      class="bento-box-container"
+      :class="{ 'docked-position': isBentoDocked }"
+    >
       <BentoBox
         v-model:activeQuadrants="activeQuadrants"
-        :docked="isChatOpen"
+        :docked="isBentoDocked"
       />
     </div>
   </div>
@@ -322,6 +325,10 @@ const currentMode = computed(() => storeAI.currentMode);
 const isChatOpen = computed({
   get: () => storeChat.isChatOpen,
   set: (val) => (storeChat.isChatOpen = val),
+});
+
+const isBentoDocked = computed(() => {
+  return isChatOpen.value || storeAI.showBbNexus;
 });
 
 const chatWidth = computed({
@@ -553,13 +560,26 @@ const isBesearchMode = computed(() => storeAI.currentMode === "besearch");
   position: absolute;
   bottom: 80px;
   right: 20px;
-  z-index: 1000;
+  z-index: 2000;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .bento-box-container.docked-position {
-  bottom: 10px;
-  right: v-bind('chatWidth > 50 ? "20px" : "20px"'); /* chatWidth is reactive */
+  bottom: 0px;
+  right: 20px;
+  width: v-bind('isChatOpen ? chatWidth + "px" : "320px"');
+  padding: 0 10px 10px 10px;
+  background: var(--color-background-soft);
+  border-top: 1px solid var(--color-border);
+  border-radius: 8px 8px 0 0;
+}
+
+.bento-box-container.docked-position :deep(.bento-frame) {
+  width: 100%;
+  height: 40px;
+  border-radius: 0;
+  backdrop-filter: none;
+  background: transparent;
 }
 
 .bento-layout-engine {
@@ -593,7 +613,7 @@ const isBesearchMode = computed(() => storeAI.currentMode === "besearch");
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 1000;
+  z-index: 10;
 }
 
 .bento-cell .world-canvas-layer.besearch-active {

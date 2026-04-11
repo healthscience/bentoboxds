@@ -465,6 +465,15 @@ export const libraryStore = defineStore('librarystore', {
         this.storeBesearch.processReply(message)
         // set MOCK  lifestrap TEMP
         this.storeAI.initializeSovereignSession()
+      } else if (message.action === 'lifestrap-genesis') {
+        console.log('prime lifestartp')
+        console.log(message)
+        // convert key binary to hex
+        let hexConract = this.utilLibrary.convertBinaryToHex(message.data)
+        console.log('hx context overrrr')
+        console.log(hexConract)
+        // add to lifestrap list & set lsID as chatID for first message in new lifestraps
+        this.straps.push(hexConract)
       } else if (message.action === 'lifestrap-contract') {
         console.log('lifestrap-contract') //  TODO
       } else if (message.action === 'model-contract') {

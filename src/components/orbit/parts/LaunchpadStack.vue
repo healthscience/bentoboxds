@@ -104,11 +104,6 @@ const syncPublicLibrary = () => {
   height: 100%;
   display: grid;
   place-items: center;
-  pointer-events: none;
-}
-
-#launchpad-experience > * {
-  pointer-events: auto;
 }
 
 /* ZEN LAYOUT */
