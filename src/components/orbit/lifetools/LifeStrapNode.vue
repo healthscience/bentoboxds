@@ -18,9 +18,9 @@
     <div class="strap-info" v-if="expanded">
       <span class="strap-label" @click="handleLSelect(strap.key)">{{
         strap.value.concept.story.slice(0, 12)
-      }}</span>
+      }} </span>
       <!--<span class="strap-meta">{{ strap?.activeCues }} Cues Active</span>-->
-      <button v-if="expanded" class="strap-settings">...</button>
+      <button v-if="expanded" class="strap-settings"> ...</button>
     </div>
   </div>
 </template>

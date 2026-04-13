@@ -155,7 +155,7 @@ export const accountStore = defineStore('account', {
         saveBentoBoxsetting.task = 'start'
         saveBentoBoxsetting.data = ''
         saveBentoBoxsetting.bbid = ''
-        this.storeAI.sendMessageHOP(saveBentoBoxsetting) 
+        // this.storeAI.sendMessageHOP(saveBentoBoxsetting) 
       } else if (received.action === 'crypto-wasm-binary') {
         // 1. Decode Base64 to a binary string
         const binaryString = window.atob(received.data);

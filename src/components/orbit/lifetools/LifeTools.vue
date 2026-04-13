@@ -354,10 +354,14 @@ const besearchTime = () => {
 const newLifeStrapStory = () => {
   // clear worlds and go back to orbit resonancePulse ghost mode
   // open up beebee with lifestrap reply, please tell me about a life-strap story
+  storeAI.newLifestrap = true
   storeAI.beebeeContext = "lifestrap";
   storeAI.chatAttention = "new";
   // send save message to HOP
   storeLibrary.createLifeStrap()
+  storeAI.currentMode === "zen"
+  // clear input
+  storeAI.askQuestion.text = ''
 };
 
 const selectMode = (mode) => {

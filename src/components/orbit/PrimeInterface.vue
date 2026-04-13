@@ -42,7 +42,7 @@
             <div class="interface-layer">
               <transition name="sov-fade">
                 <LaunchpadStack
-                  v-if="isInitialState || isExtracting || isDemoMode"
+                  v-if="isInitialState || isDemoMode"
                   :mode="currentMode"
                   :extractedData="mappedLenses"
                   @launch="launchDemo"

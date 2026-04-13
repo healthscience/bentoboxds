@@ -32,6 +32,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       wait: "Awaiting a story to anchor.",
       device: "A new pulse is present. Witness it?",
     },
+    newLifestrap: false,
     cuesFeedback: "",
     cuesRelationshipFeedback: {},
     startChat: true,
@@ -260,7 +261,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       }
       // this.storeChat.beginChat = true
     },
-    async submitAsk(dataInfo) {
+    async submitAsk(dataInfo, primeLifeStrap) {
       console.log("submit ask");
       console.log(this.beebeeContext);
       // peer inquiry continues
@@ -1327,15 +1328,21 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       let primeLifeStrap = false;
       // is this the very first message in? If so, create a new life-strap story
       if (
-        this.storeLibrary.straps.length === 0 ||
-        (this.storeLibrary.newLifestrap === true && this.currentMode !== "demo")
-      ) {
+        this.storeLibrary.straps.length === 0 ) {
         console.log(" first life-strap  create and save id");
         let lifeStrapData = {};
         lifeStrapData.name = "prime-life-strap";
         lifeStrapData.inquiry = this.askQuestion.text;
         this.storeLibrary.createLifeStrap(lifeStrapData);
-        primeLifeStrap = true;
+        primeLifeStrap = true; 
+      } else if (this.newLifestrap === true) {
+        console.log('not first ever but new lifestrap story')
+        let lifeStrapData = {};
+        lifeStrapData.name = "new-life-strap";
+        lifeStrapData.inquiry = this.askQuestion.text;
+        this.storeLibrary.createLifeStrap(lifeStrapData);
+        // next
+        
       } else {
         // 1. Pivot out of Zen Mode
         this.currentMode = "extracting";
@@ -1346,7 +1353,6 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
           this.askQuestion.text = call;
         }
         const peerInput = this.askQuestion.text;
-        // this.askQuestion.text = '';
 
         // 3. Open BeeBee Chat Panel
         this.storeChat.chatWidth = 380;
@@ -1429,7 +1435,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
           }); */
 
           // pass to submit to prepare chat
-          this.submitAsk({});
+          this.submitAsk({}, primeLifeStrap);
 
           /*  DEMO EXPERIENCE CODE 
           if (validText.isValid) {
