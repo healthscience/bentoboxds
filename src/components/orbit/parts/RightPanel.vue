@@ -67,8 +67,7 @@ const handleMouseDown = (e) => {
 const handleToggle = () => {
   // Only toggle if it wasn't a long drag (e.g., less than 250ms)
   const duration = Date.now() - dragStartTime.value;
-  console.log("Toggle duration:", duration);
-
+ 
   // If the panel is closed (width <= 50), always open it on click
   // If it's open, toggle it.
   const nextState = props.width <= 50;

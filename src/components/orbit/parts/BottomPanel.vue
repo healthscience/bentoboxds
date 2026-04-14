@@ -41,7 +41,7 @@
 
 <script setup>
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from "vue";
-import BesearchDetail from "@/components/besearch/interventions/besearchDetail.vue";
+import BesearchDetail from "@/components/besearch/attunement/besearchDetail.vue";
 import LifestrapLens from "@/components/orbit/parts/LifestrapLens.vue";
 
 import { besearchStore } from "@/stores/besearchStore.js";
@@ -111,7 +111,6 @@ onUnmounted(() => {
 watch(
   () => storeAI.activeLifeStrapID,
   (newVal) => {
-    console.log("BottomPanel: activeLifeStrapID changed", newVal);
     if (newVal) {
       storeAI.showLifestapLens = false;
       // If we have an active life strap, ensure panel is open
@@ -127,7 +126,6 @@ watch(
 watch(
   () => storeBesearch.showBesearchDetail,
   (newVal) => {
-    console.log("BottomPanel: showBesearchDetail changed", newVal);
     if (newVal && storeAI.activeLifeStrapID) {
       storeAI.showLifestapLens = true;
     }
@@ -146,7 +144,6 @@ const handleMouseDown = (e) => {
 };
 
 const expandLens = () => {
-  console.log("BottomPanel: expanding lens");
   storeAI.showLifestapLens = false;
   storeBesearch.showBesearchDetail = false;
   updatePanelHeight();

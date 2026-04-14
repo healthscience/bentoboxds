@@ -105,6 +105,7 @@
           :strap="strap"
           :expanded="props.isExpanded"
           @select="handleStrapSelect"
+          @delete="handleStrapDelete"
         />
       </div>
     </div>
@@ -126,20 +127,20 @@
       </div>
     </div>
 
-    <!-- Interventions Section -->
+    <!-- Attunement Section -->
     <div class="accordion-section">
       <button
         class="accordion-header"
         @click="toggleSection('interventions')"
         :class="{ active: expandedSection === 'interventions' }"
       >
-        <span>Interventions</span>
+        <span>Attunement</span>
         <span class="toggle-icon">{{
           expandedSection === "interventions" ? "▼" : "▶"
         }}</span>
       </button>
       <div v-if="expandedSection === 'interventions'" class="accordion-content">
-        <intervention-type></intervention-type>
+        <attunement-type></attunement-type>
       </div>
     </div>
 
@@ -236,7 +237,7 @@
 import { ref, computed, onMounted } from "vue";
 import LifeStrapNode from "@/components/orbit/lifetools/LifeStrapNode.vue";
 import BesearchControls from "@/components/orbit/lifetools/besearchControls.vue";
-import InterventionType from "@/components/besearch/interventions/interventionType.vue";
+import AttunementType from "@/components/besearch/attunement/attunementType.vue";
 import BentoInstruments from "@/components/orbit/instruments/bentoInstruments.vue";
 
 import { libraryStore } from "@/stores/libraryStore.js";
@@ -279,15 +280,12 @@ const emit = defineEmits([
 
 /** Handle life-strap selection */
 const handleStrapSelect = (strapData) => {
-  console.log("Life strap selected:", strapData);
+  // Update AIstore with active life-strap info
+  storeAI.setActiveLifeStrap(strapData);
 
-  // Update AI store with active life-strap info
-  storeAI.setActiveLifeStrap(strapData.id, strapData.contractKey);
-
-  // Extract lens data from active_cues or derive from name
-  const lensData = { capacity: [], context: [], coherence: [] };
-
-  if (strapData.activeCues && strapData.activeCues.length > 0) {
+  /*
+    make routine within aiStore?
+   if (strapData.activeCues && strapData.activeCues.length > 0) {
     for (const cue of strapData.activeCues) {
       // Handle "capacity-orbits" format
       if (cue.startsWith("capacity-")) {
@@ -330,6 +328,14 @@ const handleStrapSelect = (strapData) => {
 
   // Emit to parent components (for worlds switching)
   emit("lifestrap-selected", strapData);
+  */
+};
+
+/** Handle life-strap deletion */
+const handleStrapDelete = (strapKey) => {
+  console.log("Life strap delete requested for key:", strapKey);
+  // Optional: Add confirmation dialog here
+  storeLibrary.removeLSContract(strapKey, "private");
 };
 
 let btoolsTime = ref(false);
@@ -352,16 +358,17 @@ const besearchTime = () => {
 };
 
 const newLifeStrapStory = () => {
+  console.log("new life strap story");
   // clear worlds and go back to orbit resonancePulse ghost mode
   // open up beebee with lifestrap reply, please tell me about a life-strap story
-  storeAI.newLifestrap = true
+  storeAI.newLifestrap = true;
   storeAI.beebeeContext = "lifestrap";
   storeAI.chatAttention = "new";
   // send save message to HOP
-  storeLibrary.createLifeStrap()
-  storeAI.currentMode === "zen"
+  // storeLibrary.createLifeStrap();
+  storeAI.currentMode = "zen";
   // clear input
-  storeAI.askQuestion.text = ''
+  storeAI.askQuestion.text = "";
 };
 
 const selectMode = (mode) => {

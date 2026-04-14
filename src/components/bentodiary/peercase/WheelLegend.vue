@@ -19,7 +19,7 @@
       <div class="legend-item">
         <span class="orbit-ring-icon outer"></span>
         <div class="item-text">
-          <span class="title">Economic (r=36)</span>
+          <span class="title">Culture (r=36)</span>
           <p class="desc">Systemic flow: Efficiency, Energy ROI.</p>
         </div>
       </div>

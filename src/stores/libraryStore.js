@@ -34,16 +34,7 @@ export const libraryStore = defineStore('librarystore', {
         contract_key: "HOP_777_888",
         active_cues: ["capacity-orbits", "context-chlorine"],
         bioregion_anchor: "Local-Pool-01"
-      },
-      {
-        id: "ls_posture_2026",
-        name: "posture correct",
-        origin_input: "Correct posture from sitting comuputing and playing violin.",
-        contract_key: "HOP_777_123",
-        active_cues: ["posture", "body"],
-        bioregion_anchor: "Local-default-02"
-      }
-    ],*/
+      }*/
     replicateFeedback: {},
     libraryMessage: '',
     uploadStatus: false,
@@ -310,8 +301,6 @@ export const libraryStore = defineStore('librarystore', {
       this.sendSocket.send_message(messageHOP)
     },
     processReply (message, questionStart) {
-      console.log('process replyLIBBBBBBBBBBBBBBBBBBBBBBBBB')
-      console.log(message)
       if (message.action === 'save-file') {
         this.describeSource = message.data
         // set message
@@ -395,8 +384,6 @@ export const libraryStore = defineStore('librarystore', {
         }
       } else if (message.type === 'library-open') {
       } else if (message.action === 'publiclibrary-ref') {
-        console.log('public library ref')
-        console.log(message)
         let typeRefcontracts = Object.keys(message.referenceContracts)
         // look over and see if the library has been setup?
         let setupContracts = []
@@ -464,25 +451,28 @@ export const libraryStore = defineStore('librarystore', {
         // pass on to besearch store
         this.storeBesearch.processReply(message)
         // set MOCK  lifestrap TEMP
-        this.storeAI.initializeSovereignSession()
+        // this.storeAI.initializeSovereignSession()
       } else if (message.action === 'life-strap') {
         if (message.task === 'save-complete') {
+          // save complete
         } else if (message.task === 'bringtobe') {
-          // conver index to hex and add to lifestrap list
-          for (let inStrap of message.data) {
-            let hexContract = this.utilLibrary.convertBinaryToHex(inStrap)
-            this.straps.push(hexContract)
+          // check if any saved if yes, top peer priority make 'to be'
+          if (message.data.length > 0) {
+            // conver index to hex and add to lifestrap list
+            let hexContract = {}
+            for (let inStrap of message.data) {
+              hexContract = this.utilLibrary.convertBinaryToHex(inStrap)
+              this.straps.push(hexContract)
+              this.storeAI.initializeSovereignSession(hexContract.key)
+            }
           }
         }
       } else if (message.action === 'lifestrap-genesis') {
-        console.log('prime lifestartp')
-        console.log(message)
         // convert key binary to hex
         let hexConract = this.utilLibrary.convertBinaryToHex(message.data)
-        console.log('hx context overrrr')
-        console.log(hexConract)
         // add to lifestrap list & set lsID as chatID for first message in new lifestraps
         this.straps.push(hexConract)
+        this.storeAI.initializeSovereignSession(hexConract.key)
       } else if (message.action === 'lifestrap-contract') {
         console.log('lifestrap-contract') //  TODO
       } else if (message.action === 'model-contract') {
@@ -728,6 +718,22 @@ export const libraryStore = defineStore('librarystore', {
       let genesisContract = this.utilLibrary.matchPublicNXPcontract(gid.id, this.publicLibrary.networkExpModules)
       return genesisContract
     },
+    removeLSContract (hexKey, privacy) {
+      // remove from component
+      for (let i = 0; i < this.straps.length; i++) {
+        if (this.straps[i].key === hexKey) {
+          this.straps.splice(i, 1)
+        }
+      }
+      const refContract = {}
+      refContract.type = 'library'
+      refContract.action = 'lifestrap'
+      refContract.privacy = 'private'
+      refContract.reftype = 'private'
+      refContract.task = 'DEL'
+      refContract.data = hexKey
+      this.sendSocket.send_message(refContract)
+    },    
     removeExpModContract (data, privacy) {
       const refContract = {}
       refContract.type = 'library'

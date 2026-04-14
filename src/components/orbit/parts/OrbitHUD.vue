@@ -42,16 +42,7 @@ const isExpanded = ref(false);
 
 /* Get the active life-strap name */
 const activeLifeStrapName = computed(() => {
-  const activeId = storeAI.activeLifeStrapID;
-  if (!activeId) return "---";
-
-  // Find the strap in library by matching the ID or original ID
-  const strap = storeLibrary.straps.find(
-    (s) => s.id === activeId || s.id === storeAI.activeLifeStrapID
-  );
-
-  if (strap) return strap.name;
-  return activeId;
+  return storeAI.lifeStrapID?.slice(-8);
 });
 
 const countLifeStraps = computed(() => {

@@ -67,7 +67,7 @@ import { ref, computed } from "vue";
 const showLegend = ref(false);
 
 const ringInfo = [
-  { label: "Economic", color: "#b6ff3b" },
+  { label: "Culture", color: "#b6ff3b" },
   { label: "Ecological", color: "#40e0ff" },
   { label: "Environment", color: "#ffffff" },
   { label: "Metabolic", color: "#ff4d4d" },

@@ -212,10 +212,6 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         (subscriber) => subscriber !== callback
       );
     },
-    setActiveLifeStrap(lifeStrapID, contractKey) {
-      this.activeLifeStrapID = lifeStrapID;
-      this.activeContractKey = contractKey;
-    },
     // Notify all subscribers of a change
     notifySubscribers(mutation, state) {
       this.subscribers.forEach((subscriber) => subscriber(mutation, state));
@@ -1327,55 +1323,24 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       console.log("beebeeDigest", demo);
       let primeLifeStrap = false;
       // is this the very first message in? If so, create a new life-strap story
-      if (
-        this.storeLibrary.straps.length === 0 ) {
+      if (this.storeLibrary.straps.length === 0) {
         console.log(" first life-strap  create and save id");
         let lifeStrapData = {};
         lifeStrapData.name = "prime-life-strap";
         lifeStrapData.inquiry = this.askQuestion.text;
         this.storeLibrary.createLifeStrap(lifeStrapData);
-        primeLifeStrap = true; 
+        this.askQuestion.text = "";
+        primeLifeStrap = true;
       } else if (this.newLifestrap === true) {
-        console.log('not first ever but new lifestrap story')
+        console.log("not first ever but new lifestrap story");
         let lifeStrapData = {};
         lifeStrapData.name = "new-life-strap";
         lifeStrapData.inquiry = this.askQuestion.text;
         this.storeLibrary.createLifeStrap(lifeStrapData);
         // next
-        
+        this.askQuestion.text = "";
       } else {
-        // 1. Pivot out of Zen Mode
-        this.currentMode = "extracting";
-        this.beebeeContext = "extraction";
-
-        // 2. Capture (reset after message sent to HOP later)
-        if (demo !== undefined && demo === true) {
-          this.askQuestion.text = call;
-        }
-        const peerInput = this.askQuestion.text;
-
-        // 3. Open BeeBee Chat Panel
-        this.storeChat.chatWidth = 380;
-        this.storeChat.isChatOpen = true;
-
-        // 4. Determine the Sovereign ID for this session
-        // If we have a hardcoded strap or active strap, use it. Otherwise fallback to 'chat'
-        const sovereignID =
-          this.activeLifeStrapID ||
-          (this.storeLibrary.straps && this.storeLibrary.straps[0]?.id) ||
-          "chat";
-        this.chatAttention = sovereignID;
-
-        // Ensure the chat bucket exists in historyPair for UI reactivity
-        if (!this.historyPair[sovereignID]) {
-          this.historyPair[sovereignID] = [];
-        }
-
-        // Ensure the chat bucket exists in chatStore for UI reactivity
-        if (!this.storeChat.chatHistory[sovereignID]) {
-          this.storeChat.chatHistory[sovereignID] = [];
-        }
-
+        // look out for demo or normal chat dialogue on going conversation
         if (demo !== undefined && demo === true) {
           console.log("dem0--path digetst");
           this.askQuestion.text = "";
@@ -1420,102 +1385,89 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
           });
         } else {
           // call on beebee
-          console.log("callon beebee digetst");
-          // --- PRODUCTION PATH (River, Body, etc.) ---
-          // BeeBee Confirmation Message
-          /* this.storeChat.addMessage({
-            role: 'beebee',
-            type: 'agent',
-            content: "I have mapped your intent across Capacity, Context, and Coherence. (Contract: ck_xl05670ju). Is this accurate? Click any word to manifest a space.",
-            context: 'extraction',
-            conversationId: sovereignID,
-            contract_key: this.activeContractKey || 'ck_xl05670ju',
-            lifeStrapID: sovereignID,
-            status: 'complete'
-          }); */
-
+          console.log("call on beebee digetst");
           // pass to submit to prepare chat
           this.submitAsk({}, primeLifeStrap);
-
-          /*  DEMO EXPERIENCE CODE 
-          if (validText.isValid) {
-            // The "Decomposition" Simulation (HOP Processing)
-            setTimeout(() => {
-              const rawInput = peerInput.toLowerCase();
-              let extractedData = { capacity: [], context: [], coherence: [] };
-
-              // Extraction Logic Mapping
-              // 1. Capacity (Performance/Flow)
-              if (rawInput.includes('river') || rawInput.includes('flow')) {
-                extractedData.capacity.push('Hydraulic Volume', 'NEAT Flow Optimization');
-              }
-              if (rawInput.includes('swim')) {
-                extractedData.capacity.push('400m Performance');
-              }
-              if (rawInput.includes('forever') || rawInput.includes('longevity')) {
-                extractedData.capacity.push('Cellular Resilience', 'Metabolic Longevity');
-              }
-
-              // 2. Context (Environment/Strap)
-              if (rawInput.includes('river')) {
-                extractedData.context.push('Wild Water', 'Cold Exposure');
-              }
-              if (rawInput.includes('swim')) {
-                extractedData.context.push('Aquatic Environment', '10 Orbits');
-              }
-              if (rawInput.includes('forever')) {
-                extractedData.context.push('Biological Time', 'Epigenetic Landscape');
-              }
-
-              // 3. Coherence (Stability/Friction)
-              if (rawInput.includes('skin') || rawInput.includes('rain')) {
-                extractedData.coherence.push('Dermal Barrier', 'Precipitation Coherence');
-              }
-              extractedData.coherence.push('Biological Barrier Model', 'Homeostatic Balance');
-
-              this.digestInput = extractedData;
-
-              // Create the Sovereign Hash (Contract Key)
-              this.activeContractKey = `ck_${Math.random().toString(36).substr(2, 9)}`;
-              
-              // If we don't have a lifeStrapID yet, we use the sovereignID we derived
-              if (!this.activeLifeStrapID) {
-                this.activeLifeStrapID = sovereignID;
-              }
-
-              // BeeBee delivers the verdict
-              this.storeChat.addMessage({
-                role: 'beebee',
-                type: 'agent',
-                content: `I have mapped your intent across Capacity, Context, and Coherence. (Contract: ${this.activeContractKey}). Is this accurate? Click any word to manifest a space.`,
-                context: 'extraction',
-                conversationId: sovereignID,
-                contract_key: this.activeContractKey,
-                lifeStrapID: sovereignID,
-                status: 'complete'
-              });
-            }, 1500);
-          } */
         }
       }
     },
-    // Inside aiInterface.js
-    initializeSovereignSession() {
-      const latestStrap = this.storeLibrary.straps[0]; // Logic for 'latest'
+    setBeeBeeDialogue(lifeStrap) {
+      // 1. Pivot out of Zen Mode
+      this.currentMode = "extracting";
+      this.beebeeContext = "extraction";
+      const peerInput = lifeStrap.value.concept.story;
+ 
+      // 3. Open BeeBee Chat Panel
+      this.storeChat.chatWidth = 380;
+      this.storeChat.isChatOpen = true;
+
+      // 4. Determine the Sovereign ID for this session
+      // If we have a hardcoded strap or active strap, use it. Otherwise fallback to 'chat'
+      const sovereignID = lifeStrap.key;
+      this.chatAttention = sovereignID;
+
+      // Ensure the chat bucket exists in historyPair for UI reactivity
+      if (!this.historyPair[sovereignID]) {
+        this.historyPair[sovereignID] = [];
+      }
+
+      // Ensure the chat bucket exists in chatStore for UI reactivity
+      if (!this.storeChat.chatHistory[sovereignID]) {
+        this.storeChat.chatHistory[sovereignID] = [];
+      }
+      // form the conversation
+      this.storeChat.addMessage({
+        role: "peer",
+        type: "peer",
+        content: peerInput,
+        context: "extraction",
+        conversationId: sovereignID,
+        contract_key: this.chatAttention,
+        lifeStrapID: sovereignID,
+      });
+
+      // beebee replay
+      this.storeChat.addMessage({
+        role: "beebee",
+        type: "agent",
+        content: "The Health Oracle Protocol is digesting the story.",
+        context: "extraction",
+        conversationId: sovereignID,
+        contract_key: sovereignID,
+        lifeStrapID: sovereignID,
+        status: "complete",
+      });
+    },
+    setActiveLifeStrap(lsContract) {
+      this.lifeStrapID = lsContract.key;
+      this.activeLifeStrapID = lsContract.key;
+      this.activeContractKey = lsContract.key;
+      this.chatAttention = lsContract.key;
+      this.beebeeContext = "lifestrap";
+
+      // Open the bottom panel to show detail
+      // this.storeBesearch.showBottomPanel = false;
+      // this.storeBesearch.bottomHeight = 400;
+    },
+    initializeSovereignSession(lsKey) {
+      let latestStrap = {};
+      // first time life-strap or another story?
+      if (this.storeLibrary.straps.length > 0) {
+        latestStrap = this.storeLibrary.straps.find((s) => s.key === lsKey);
+      } else {
+        latestStrap = this.storeLibrary.straps[0]; // Logic for 'latest'
+      }
 
       if (latestStrap) {
         // 2. Set the Master ID
-        this.lifeStrapID = latestStrap.id;
-        this.chatAttention = latestStrap.id;
+        this.lifeStrapID = latestStrap.key;
+        this.chatAttention = latestStrap.key;
 
         // 3. Set the Mode so the UI knows we aren't in 'Zen'
         // We move straight to 'active' or 'extracting'
-        this.currentMode = "active";
-        this.activeWorld = latestStrap.type;
-
-        console.log(
-          `Sovereign Session Resumed: ${latestStrap.name} (${this.lifeStrapID})`
-        );
+        this.currentMode = "extracting";
+        this.activeWorld = "orbit";
+        this.setBeeBeeDialogue(latestStrap);
       } else {
         // No straps found? Stay in Zen mode for First Peer Experience
         this.currentMode = "zen";

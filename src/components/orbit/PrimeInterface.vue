@@ -216,6 +216,7 @@
     />
 
     <BottomPanel
+      class="bottom-panel-area"
       :height="bottomHeight"
       :isOpen="isBottomOpen"
       :isDragging="draggingMode === 'bottom'"
@@ -303,7 +304,6 @@ watch(
 );
 
 /* panel settins */
-// const isChatOpen = ref(false);
 const isLifeToolsOpen = ref(false);
 const rightPanelMode = ref("chat");
 
@@ -498,9 +498,7 @@ const stopDragging = () => {
 
 const dynamicGridStyle = computed(() => ({
   gridTemplateColumns: "1fr",
-  gridTemplateRows: `1fr ${
-    storeBesearch.showBottomPanel ? storeBesearch.bottomHeight : 0
-  }px`,
+  gridTemplateRows: "1fr",
   gridTemplateAreas: '"stage"',
 }));
 
@@ -761,6 +759,14 @@ const isBesearchMode = computed(() => storeAI.currentMode === "besearch");
   right: 0;
   z-index: 700;
   background-color: var(--color-background-soft);
+}
+
+.bottom-panel-area {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 800;
 }
 
 .orbit-stage {
