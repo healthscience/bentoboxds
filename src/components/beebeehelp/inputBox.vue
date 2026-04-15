@@ -29,6 +29,8 @@
           v-model="storeAI.askQuestion.text"
           :placeholder="livePlaceHolder"
           @keyup.enter.exact.prevent="storeAI.beebeeDigest()"
+          @input="adjustHeight"
+          :class="{ 'dense-input': isDenseMode }"
           autofocus
         ></textarea>
       </form>
@@ -119,7 +121,7 @@ import { aiInterfaceStore } from "@/stores/aiInterface.js";
 import { teachingStore } from "@/stores/teachingStore.js";
 import { accountStore } from "@/stores/accountStore.js";
 import { useOrbitStore } from "@/stores/orbitStore.js";
-import { ref, computed, watch, onMounted } from "vue";
+import { ref, computed, watch, onMounted, nextTick } from "vue";
 
 const storeAccount = accountStore();
 const storeLibrary = libraryStore();
@@ -136,35 +138,32 @@ const props = defineProps({
 let agentsActive = ref(false);
 const askInputRef = ref(null);
 
+const adjustHeight = () => {
+  const textarea = askInputRef.value;
+  if (textarea) {
+    textarea.style.height = "auto";
+    textarea.style.height = `${textarea.scrollHeight}px`;
+  }
+};
+
+watch(
+  () => storeAI.askQuestion.text,
+  () => {
+    nextTick(adjustHeight);
+  }
+);
+
 onMounted(() => {
   setTimeout(() => {
     askInputRef.value?.focus();
+    adjustHeight();
   }, 100);
 });
 
-// For watching the entire object
-/*
-  watch(
-    () => storeAI.agentProgress,
-    (newValue) => {
-      console.log('agentProgress changed:', newValue)
-      // Your logic here
-    },
-    { deep: true }
-  )
-
-  // For watching a specific property
-  const specificProperty = computed(() => storeAI.agentProgress[storeAI.chatAttention])
-  watch(
-    specificProperty,
-    (newValue) => {
-      console.log('Specific property changed:', newValue)
-      // Your logic here
-    },
-    { immediate: true }
-  ) */
-
 /* computed */
+const isDenseMode = computed(() => {
+  return storeAI.beebeeContext === "chatspace";
+});
 const beebeeAIStatus = computed(() => {
   return storeAI.helpchatAsk;
 });
@@ -336,7 +335,7 @@ const handleNexusAction = (action) => {
 #ai-interaction {
   display: grid;
   grid-template-columns: 1fr;
-  padding-bottom: 50px; /* Space for the docked BentoBox Pulse Bar */
+  padding-bottom: 0px;
 }
 
 .teaching-mode-banner {
@@ -372,10 +371,20 @@ const handleNexusAction = (action) => {
 }
 
 #askinput {
-  font-size: 1.2em;
-  height: 3em;
+  font-size: 1.1em;
+  height: auto;
+  min-height: 2.2em;
+  max-height: 10em;
   width: 100%;
   background-color: v-bind(teachingModeBackground);
+  resize: none;
+  overflow-y: auto;
+  padding: 0.4em 0.8em;
+}
+
+#askinput.dense-input {
+  font-size: 0.9em;
+  padding: 0.3em 0.5em;
 }
 
 #tool-agents {
@@ -487,12 +496,21 @@ const handleNexusAction = (action) => {
   }
 
   #askinput {
-    font-size: 1.2em;
-    padding-left: 1em;
-    height: 4em;
+    font-size: 1.1em;
+    padding: 0.5em 1em;
+    height: auto;
+    min-height: 2.2em;
+    max-height: 12em;
     width: 100%;
     opacity: 100%;
     background-color: v-bind(teachingModeBackground);
+    resize: none;
+    overflow-y: auto;
+  }
+
+  #askinput.dense-input {
+    font-size: 1em;
+    padding-left: 0.8em;
   }
 
   #natlang-ask {

@@ -89,14 +89,17 @@ const chatHistoryMenu = () => {
 #life-dialogue {
   display: grid;
   grid-template-rows: auto 1fr auto;
-  height: 100%;
+  height: 88vh;
   width: 100%;
   overflow: hidden;
-  padding-bottom: 60px; /* Room for docked BentoBox */
+  margin-bottom: 60px; /* Force margin to sit above Bento quadrants */
 }
 
 .chat-input {
-  margin-top: -60px;
+  border-top: 1px solid #eee;
+  padding: 8px;
+  background: white;
+  z-index: 10;
 }
 
 .space-chat {
@@ -105,8 +108,8 @@ const chatHistoryMenu = () => {
   grid-template-rows: 1fr;
   gap: 0px 0px;
   grid-template-areas: "chat-menu context-content";
-  height: 100%;
   width: 100%;
+  height: 100%;
   overflow: hidden;
   transition: grid-template-columns 0.3s ease;
 }

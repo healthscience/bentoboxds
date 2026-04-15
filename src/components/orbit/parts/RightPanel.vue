@@ -19,7 +19,6 @@
     </button>
 
     <div v-show="width > 50" class="panel-content-wrapper">
-      <div id="dialogue-zone" class="header-text">beebee dialogue</div>
       <div class="panel-content-area">
         <transition name="fade-slide" mode="out-in">
           <div
