@@ -455,7 +455,7 @@ export const libraryStore = defineStore('librarystore', {
       } else if (message.action === 'life-strap') {
         if (message.task === 'save-complete') {
           // save complete
-        } else if (message.task === 'bringtobe') {
+        } else if (message.task === 'bringtobe-start') {
           // check if any saved if yes, top peer priority make 'to be'
           if (message.data.length > 0) {
             // conver index to hex and add to lifestrap list

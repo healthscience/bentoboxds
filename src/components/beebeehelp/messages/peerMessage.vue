@@ -69,7 +69,7 @@ const formattedTime = computed(() => {
   color: white;
   padding: 10px 15px;
   border-radius: 18px 18px 18px 0;
-  max-width: 70%;
+  max-width: 98%;
   word-wrap: break-word;
   margin-bottom: 2px;
   font-size: 14px;

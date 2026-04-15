@@ -1339,6 +1339,8 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         this.storeLibrary.createLifeStrap(lifeStrapData);
         // next
         this.askQuestion.text = "";
+        // reset new ls flag
+        this.newLifestrap = false;
       } else {
         // look out for demo or normal chat dialogue on going conversation
         if (demo !== undefined && demo === true) {
@@ -1384,7 +1386,10 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
             status: "complete",
           });
         } else {
-          // call on beebee
+          // ongoing dialogue with beebee on life-strap or space chat?
+          if (this.beebeeContext === "lifestrap") {
+            // this.liveBspace?.cueid = ''
+          }
           console.log("call on beebee digetst");
           // pass to submit to prepare chat
           this.submitAsk({}, primeLifeStrap);
