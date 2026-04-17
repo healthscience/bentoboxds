@@ -1,7 +1,13 @@
 <template>
   <div
     class="prime-interface"
-    :class="[activeWorld, { 'is-zen': isInitialState }]"
+    :class="[
+      activeWorld,
+      {
+        'is-zen': isInitialState,
+        'is-interplay': orbitStore.isInterplayActive,
+      },
+    ]"
     :style="dynamicGridStyle"
     @mousemove="handleGlobalDrag"
     @mouseup="stopDragging"
@@ -10,9 +16,17 @@
     <!-- Background Layers -->
     <div class="world-surface"></div>
     <div class="heli-pulse"></div>
+    <!-- World auras for active instruments -->
     <div
-      class="aura-layer"
-      :style="{ opacity: orbitStore.draggingToolId ? 1 : 0 }"
+      v-for="(pos, id) in orbitStore.tools"
+      :key="'aura-' + id"
+      class="aura-layer instrument-aura"
+      :style="{
+        opacity: orbitStore.isInterplayActive ? 0.6 : 0,
+        left: pos.x + '%',
+        top: pos.y + '%',
+        transform: 'translate(-50%, -50%)',
+      }"
     ></div>
 
     <LeftPanel
@@ -209,6 +223,7 @@
       :width="chatWidth"
       :isOpen="isChatOpen"
       :isInitialState="isInitialState"
+      :isInterplayActive="orbitStore.isInterplayActive"
       :data="extractedData"
       @update:isOpen="(val) => (isChatOpen = val)"
       @update:width="(val) => (chatWidth = val)"
@@ -288,6 +303,18 @@ const isBottomOpen = computed(() => {
   );
 });
 
+watch(
+  isBottomOpen,
+  (val) => {
+    orbitStore.isInterplayActive = val;
+    if (val) {
+      // Set to 82vh when interplay is active
+      storeBesearch.bottomHeight = window.innerHeight * 0.82;
+    }
+  },
+  { immediate: true },
+);
+
 const bottomHeight = computed(() => {
   return storeBesearch.bottomHeight;
 });
@@ -300,7 +327,7 @@ watch(
       // handleUserInput();
     }
   },
-  { deep: true }
+  { deep: true },
 );
 
 /* panel settins */
@@ -448,7 +475,7 @@ const handleGlobalDrag = (e) => {
       const x = e.clientX - rect.left;
       bentoSplitRatio.value = Math.max(
         10,
-        Math.min(90, (x / rect.width) * 100)
+        Math.min(90, (x / rect.width) * 100),
       );
     }
     return;
@@ -460,7 +487,7 @@ const handleGlobalDrag = (e) => {
       const y = e.clientY - rect.top;
       bentoVerticalSplitRatio.value = Math.max(
         10,
-        Math.min(90, (y / rect.height) * 100)
+        Math.min(90, (y / rect.height) * 100),
       );
     }
     return;
@@ -469,21 +496,21 @@ const handleGlobalDrag = (e) => {
   if (draggingMode.value === "left") {
     panelWidth.value = Math.max(
       30,
-      Math.min(e.clientX, window.innerWidth * 0.4)
+      Math.min(e.clientX, window.innerWidth * 0.4),
     );
     isLifeToolsOpen.value = panelWidth.value > 150;
   } else if (draggingMode.value === "right") {
     const newWidth = window.innerWidth - e.clientX;
     storeChat.chatWidth = Math.max(
       0,
-      Math.min(newWidth, window.innerWidth * 0.5)
+      Math.min(newWidth, window.innerWidth * 0.5),
     );
     storeChat.isChatOpen = storeChat.chatWidth > 150;
   } else if (draggingMode.value === "bottom") {
     const newHeight = window.innerHeight - e.clientY;
     storeBesearch.bottomHeight = Math.max(
       12,
-      Math.min(newHeight, window.innerHeight * 0.8)
+      Math.min(newHeight, window.innerHeight * 0.8),
     );
     storeBesearch.showBottomPanel = storeBesearch.bottomHeight > 100;
   }
@@ -688,7 +715,7 @@ const isBesearchMode = computed(() => storeAI.currentMode === "besearch");
 
   --aura-x: 50%;
   --aura-y: 50%;
-  transition: background-color 0.5s ease;
+  transition: all 0.25s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 /* THE LOOM (Background Components) */
@@ -703,9 +730,21 @@ const isBesearchMode = computed(() => storeAI.currentMode === "besearch");
 /* 1. THE WORLD SURFACE */
 .world-surface {
   z-index: 1;
-  background-image: radial-gradient(rgba(0, 0, 0, 0.1) 1px, transparent 1px);
-  background-size: 20px 20px;
+  background-image:
+    radial-gradient(rgba(200, 230, 255, 0.2) 2px, transparent 2px),
+    linear-gradient(rgba(200, 230, 255, 0.05) 1.5px, transparent 1.5px),
+    linear-gradient(90deg, rgba(200, 230, 255, 0.05) 1.5px, transparent 1.5px);
+  background-size:
+    30px 30px,
+    150px 150px,
+    150px 150px;
   background-position: center center;
+  transition: all 0.25s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.is-interplay .world-surface {
+  background-color: rgba(200, 230, 255, 0.05);
+  backdrop-filter: blur(25px) saturate(180%);
 }
 
 /* 2. THE HELI-PULSE */
@@ -733,16 +772,29 @@ const isBesearchMode = computed(() => storeAI.currentMode === "besearch");
 
 /* 3. THE TIGHT AURA (Awareness Layer) */
 .aura-layer {
+  position: absolute;
+  width: 400px;
+  height: 400px;
   z-index: 3;
   background: radial-gradient(
-    220px circle at var(--aura-x) var(--aura-y),
+    circle,
     var(--aura-color) 0%,
     rgba(0, 120, 255, 0.05) 60%,
     transparent 100%
   );
   mix-blend-mode: color-dodge;
   opacity: 0;
-  transition: opacity 0.3s ease, transform 0.05s linear;
+  pointer-events: none;
+  transition:
+    opacity 0.5s ease,
+    transform 0.1s linear;
+}
+
+.aura-layer.instrument-aura {
+  transition:
+    opacity 0.8s ease,
+    left 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+    top 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 .left-rail-area {

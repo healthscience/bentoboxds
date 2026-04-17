@@ -79,10 +79,17 @@ const isLensCollapsed = computed(() => {
 const updatePanelHeight = async () => {
   await nextTick();
   if (contentArea.value) {
-    // Calculate total height needed: content + toggle button area (approx 24px) + padding
-    // We use scrollHeight to get the full height of the content even if it's currently clipped
+    const isLabView = !!storeAI.activeLifeStrapID && !storeAI.showLifestapLens;
+    const maxHeight = window.innerHeight * 0.82;
+
+    if (isLabView) {
+      storeBesearch.bottomHeight = maxHeight;
+      emit("update:height", maxHeight);
+      return;
+    }
+
     const contentHeight = contentArea.value.scrollHeight;
-    const totalHeight = Math.min(contentHeight + 40, window.innerHeight * 0.8);
+    const totalHeight = Math.min(contentHeight + 40, maxHeight);
 
     if (totalHeight > 60) {
       emit("update:height", totalHeight);
@@ -120,7 +127,7 @@ watch(
       updatePanelHeight();
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 watch(
@@ -130,7 +137,7 @@ watch(
       storeAI.showLifestapLens = true;
     }
     updatePanelHeight();
-  }
+  },
 );
 
 const extractedData = computed(() => {
@@ -153,24 +160,14 @@ const handleToggle = () => {
   const duration = Date.now() - dragStartTime.value;
   // If it was a quick click, toggle
   if (duration < 200) {
-    // If lens is collapsed (default state or intervention active), expand the lens section
-    if (storeAI.showLifestapLens && storeAI.activeLifeStrapID) {
-      storeAI.showLifestapLens = false;
-      updatePanelHeight();
+    // If lens is expanded (not collapsed), collapse it and close the panel
+    if (!storeAI.showLifestapLens) {
+      storeAI.showLifestapLens = true;
+      emit("update:isOpen", false);
+      emit("update:height", 60);
       return;
     }
-    // Don't allow closing if a life-strap is active
-    if (storeAI.activeLifeStrapID) {
-      // Keep panel open, ensure height is correct
-      updatePanelHeight();
-      return;
-    }
-    // Don't allow closing if a besearch intervention is active
-    if (storeBesearch.hasActiveIntervention) {
-      // Keep panel open
-      updatePanelHeight();
-      return;
-    }
+
     const nextState = !props.isOpen;
     emit("update:isOpen", nextState);
     if (nextState) {
@@ -188,13 +185,14 @@ const handleToggle = () => {
   bottom: 0;
   left: 0;
   right: 0;
-  border-top: 1px solid var(--color-border);
-  box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.1);
+  border-top: 1px solid rgba(200, 230, 255, 0.3);
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
   z-index: 600;
   display: flex;
   flex-direction: column;
-  transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    background-color 0.5s ease;
+  background: rgba(200, 230, 255, 0.05);
+  backdrop-filter: blur(25px) saturate(180%);
+  transition: all 0.25s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   overflow: visible;
 }
 
@@ -204,28 +202,38 @@ const handleToggle = () => {
 
 .bottom-toggle-button {
   position: absolute;
-  top: -20px;
+  top: -24px;
   left: 50%;
   transform: translateX(-50%);
-  width: 40px;
-  height: 40px;
-  background: rgba(158, 113, 231, 0.3);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.4);
+  width: 48px;
+  height: 48px;
+  background: rgba(158, 113, 231, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
   border-radius: 50%;
   cursor: ns-resize;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1),
-    inset 0 0 10px rgba(255, 255, 255, 0.5);
-  z-index: 1610;
-  transition: all 0.3s ease;
+  box-shadow:
+    0 8px 25px rgba(0, 0, 0, 0.2),
+    inset 0 0 15px rgba(255, 255, 255, 0.5);
+  z-index: 10000;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.bottom-toggle-button:hover {
+  background: rgba(158, 113, 231, 0.8);
+  box-shadow:
+    0 10px 30px rgba(158, 113, 231, 0.4),
+    inset 0 0 20px rgba(255, 255, 255, 0.7);
+  transform: translateX(-50%) scale(1.1);
 }
 
 .bottom-toggle-button:hover {
   background: rgba(158, 113, 231, 0.5);
-  box-shadow: 0 6px 20px rgba(158, 113, 231, 0.3),
+  box-shadow:
+    0 6px 20px rgba(158, 113, 231, 0.3),
     inset 0 0 15px rgba(255, 255, 255, 0.6);
   transform: translateX(-50%) scale(1.05);
 }

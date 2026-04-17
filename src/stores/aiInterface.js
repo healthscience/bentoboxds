@@ -158,7 +158,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       const now = Date.now();
       const label = name || cueId;
       const idx = this.storeBentobox.chatList.findIndex(
-        (c) => c.chatid === cueId
+        (c) => c.chatid === cueId,
       );
       if (idx === -1) {
         const newItem = {
@@ -187,7 +187,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
           useCount: (existing.useCount || 0) + 1,
         };
         this.storeBentobox.chatList = this.storeBentobox.chatList.map((c, i) =>
-          i === idx ? updated : { ...c, active: false }
+          i === idx ? updated : { ...c, active: false },
         );
         this.setupChatHistory(updated);
       }
@@ -199,6 +199,68 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
     digestInput: { capacity: [], context: [], coherence: [] },
   }),
   actions: {
+    updateResonWeight(word, zone) {
+      console.log(`[Attunement] Mapping ${word} to ${zone}`);
+
+      // 1. Update local state
+      if (!this.digestInput) {
+        this.digestInput = {
+          capacity: [],
+          context: {
+            peer: [],
+            environment: [],
+            earth: [],
+            unmappedFragments: [],
+          },
+          coherence: [],
+        };
+      }
+
+      // Find and remove the word from unmappedFragments if it exists there
+      if (this.digestInput.context?.unmappedFragments) {
+        this.digestInput.context.unmappedFragments =
+          this.digestInput.context.unmappedFragments.filter((f) => f !== word);
+      }
+
+      // Add the word to the target zone in digestInput
+      if (zone === "capacity") {
+        if (!this.digestInput.capacity) this.digestInput.capacity = [];
+        this.digestInput.capacity.push(word);
+      } else if (zone === "coherence") {
+        if (!this.digestInput.coherence) this.digestInput.coherence = [];
+        this.digestInput.coherence.push(word);
+      } else {
+        // Context sub-zones (peer, environment, earth)
+        if (!this.digestInput.context) this.digestInput.context = {};
+        if (!this.digestInput.context[zone])
+          this.digestInput.context[zone] = [];
+        this.digestInput.context[zone].push(word);
+      }
+
+      // 2. Persist to backend/socket
+      const message = {
+        type: "bbai",
+        action: "attunement-mapping",
+        data: {
+          word,
+          zone,
+          lifeStrapID: this.activeLifeStrapID,
+          contract_key: this.activeContractKey,
+        },
+      };
+      this.sendMessageHOP(message);
+
+      // 3. Trigger BeeBee feedback
+      this.storeChat.handleIncomingMessage({
+        type: "agent-reply",
+        role: "agent",
+        content: `Mapping ${word} to ${zone}. Emulation updating...`,
+        data: { text: `Mapping ${word} to ${zone}. Emulation updating...` },
+        context: "extraction",
+        conversationId: this.chatAttention,
+        status: "complete",
+      });
+    },
     sendMessageHOP(message) {
       this.sendSocket.send_message(message);
     },
@@ -209,7 +271,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
     // Add an unsubscribe method to the actions
     unsubscribe(callback) {
       this.subscribers = this.subscribers.filter(
-        (subscriber) => subscriber !== callback
+        (subscriber) => subscriber !== callback,
       );
     },
     // Notify all subscribers of a change
@@ -279,13 +341,13 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         // 3. Validate the question
         const validationResult = this.liveChatUtil.validateQuestion(
           this.askQuestion.text,
-          toolsUsed
+          toolsUsed,
         );
         if (!validationResult.isValid) {
           console.log("validation failed");
           // Provide feedback to the peer
           const feedbackMessage = this.liveChatUtil.createFeedbackMessage(
-            validationResult.message
+            validationResult.message,
           );
           this.storeChat.addMessage(feedbackMessage);
           return;
@@ -311,8 +373,8 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
               baseContext === "chatspace"
                 ? "space"
                 : baseContext === "extraction"
-                ? "extraction"
-                : "emulation",
+                  ? "extraction"
+                  : "emulation",
             tools: toolsUsed,
             timestamp: new Date(),
           };
@@ -340,7 +402,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
           // Create a new chat
           chat = this.liveChatUtil.createChatTemplate(
             keyContext,
-            question.bboxid
+            question.bboxid,
           );
           this.startChat = false;
           this.historyBar = true;
@@ -397,7 +459,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         console.error("Error submitting question:", error);
         // Provide error feedback
         const errorMessage = this.liveChatUtil.createFeedbackMessage(
-          "An error occurred while processing your question. Please try again."
+          "An error occurred while processing your question. Please try again.",
         );
         this.storeChat.addMessage(errorMessage);
       }
@@ -427,7 +489,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       }
       // Update or add the chat
       const existingIndex = this.historyPair[context].findIndex(
-        (c) => c.id === chat.id
+        (c) => c.id === chat.id,
       );
       if (existingIndex >= 0) {
         this.historyPair[context][existingIndex] = chat;
@@ -469,7 +531,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
           updateProgreefb.push(updateProg);
         } else {
           updateProgreefb.push(
-            this.agentProgress[this.chatAttention][progressK]
+            this.agentProgress[this.chatAttention][progressK],
           );
         }
       }
@@ -649,6 +711,13 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
             this.digestInput.context = splitContext;
           }
         }
+      } else if (received.action === "ls-pattern") {
+        console.log("lens arrived");
+        console.log(received.data);
+        this.digestInput = received.data;
+        // Open the lens when data arrives
+        this.activeLifeStrapID = received.data.lifeStrapID || "active-strap";
+        this.showLifestapLens = true;
       } else if (received.action === "agent-task") {
         if (received.task === "cale-evolution") {
           this.boxModelUpdate[received.context.bbid] = {};
@@ -767,7 +836,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       if (received.action === "chart") {
         // match peer to name or public key
         let peerMatch = this.storeAcc.warmPeers.find(
-          (peer) => peer.key === received.data.publickey
+          (peer) => peer.key === received.data.publickey,
         );
         let pairBB = {};
         let question = {};
@@ -856,7 +925,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       let matchPeername = "";
       if (peer === "") {
         matchPeername = this.storeAcc.warmPeers.find(
-          (peer) => peer.key === item.data.publickey
+          (peer) => peer.key === item.data.publickey,
         );
       } else {
         matchPeername = peer;
@@ -887,7 +956,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       // notify peer that this cue content came from a shared peer
       // match name to publickey
       let matchPeername = this.storeAcc.warmPeers.find(
-        (peer) => peer.key === notItem.data.publickey
+        (peer) => peer.key === notItem.data.publickey,
       );
       this.sharePeer[notItem.data.data.content.cuecontract.spaceid] =
         matchPeername.value.name;
@@ -898,7 +967,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
           for (let bbn1 of notItem.data.data.content.bbn1.publicN1contracts) {
             this.preparePublicConfirm(
               { action: "network-library-n1", data: bbn1 },
-              matchPeername
+              matchPeername,
             );
           }
         }
@@ -926,19 +995,19 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         // media, research etc.
         if (spcont === "media") {
           this.storeBentobox.prepareMediaSpace(
-            notItem.data.data.content[spcont]
+            notItem.data.data.content[spcont],
           );
         } else if (spcont === "research") {
           this.storeBentobox.prepareResearchSpace(
-            notItem.data.data.content[spcont]
+            notItem.data.data.content[spcont],
           );
         } else if (spcont === "markers") {
           this.storeBentobox.prepareMarkerSpace(
-            notItem.data.data.content[spcont]
+            notItem.data.data.content[spcont],
           );
         } else if (spcont === "products") {
           this.storeBentobox.prepareProductSpace(
-            notItem.data.data.content[spcont]
+            notItem.data.data.content[spcont],
           );
         }
       }
@@ -973,13 +1042,13 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         let contKey = dataHOP.context.input.key;
         let matchSummary = this.liveChatUtil.matchSummaryPeerContract(
           contKey,
-          this.storeLibrary.peerExperimentList
+          this.storeLibrary.peerExperimentList,
         );
         this.dataBoxStatus = false;
         // stil produce a bentobox
         let boxID = this.liveChatUtil.matchHOPbbid(
           dataHOP.context.dataprint.shell,
-          this.bbidHOPid
+          this.bbidHOPid,
         );
         // update the latest compute module contract back from HOP
         this.computeModuleLast[boxID] = dataHOP.context.tempComputeMod.info;
@@ -999,7 +1068,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         this.storeBentobox.bentoboxData[boxID] = hopDataChart;
         this.storeBentobox.setChartstyle(
           boxID,
-          dataHOP.context.moduleorder.visualise.value.info.settings.visualise
+          dataHOP.context.moduleorder.visualise.value.info.settings.visualise,
         );
         // this.storeBentobox.expandBentobox[boxID] = true
         this.storeBentobox.beebeeChatLog[boxID] = true;
@@ -1009,7 +1078,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         this.dataBoxStatus = false;
         let matchBBID = this.liveChatUtil.matchHOPbbid(
           dataHOP.data.context.shell,
-          this.bbidHOPid
+          this.bbidHOPid,
         );
         this.bboxFeedback[matchBBID] = {};
         // update the latest compute module contract back from HOP (if provided)
@@ -1065,7 +1134,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
           this.storeBentobox.bentoboxData[matchBBID] = hopDataChart;
           this.storeBentobox.setChartstyle(
             matchBBID,
-            dataHOP.context.moduleorder.visualise.value.info.settings.visualise
+            dataHOP.context.moduleorder.visualise.value.info.settings.visualise,
           );
         } else {
           this.bboxFeedback[matchBBID] = { text: "No data for this HOPquery" };
@@ -1165,7 +1234,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         // let modulesContracts = NXPcontract[key[0]].modules
         let extractedOD =
           this.storeLibrary.utilLibrary.moduleExtractSettings(
-            computeLatestModules
+            computeLatestModules,
           );
         this.storeBentobox.openDataSettings[boxid] = extractedOD;
         return true;
@@ -1188,7 +1257,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       };
       // add/update in chat menu
       const existingIdx = this.storeBentobox.chatList.findIndex(
-        (c) => c.chatid === cueId
+        (c) => c.chatid === cueId,
       );
       let finalChatItem = newChatItem;
       if (existingIdx === -1) {
@@ -1206,7 +1275,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
           useCount: (existing.useCount || 0) + 1,
         };
         const list = this.storeBentobox.chatList.map((c, i) =>
-          i === existingIdx ? updated : { ...c, active: false }
+          i === existingIdx ? updated : { ...c, active: false },
         );
         this.storeBentobox.chatList = list;
         finalChatItem = updated;
@@ -1401,7 +1470,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       this.currentMode = "extracting";
       this.beebeeContext = "extraction";
       const peerInput = lifeStrap.value.concept.story;
- 
+
       // 3. Open BeeBee Chat Panel
       this.storeChat.chatWidth = 380;
       this.storeChat.isChatOpen = true;

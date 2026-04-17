@@ -19,6 +19,7 @@ export const useOrbitStore = defineStore("orbit", () => {
   const expandedTinyDevice = ref(false);
 
   const draggingToolId = ref(null);
+  const isInterplayActive = ref(false);
 
   const startDragging = (id) => {
     draggingToolId.value = id;
@@ -87,6 +88,7 @@ export const useOrbitStore = defineStore("orbit", () => {
     expandedPulse,
     expandedTinyDevice,
     draggingToolId,
+    isInterplayActive,
     startDragging,
     updatePosition,
     stopDragging,
