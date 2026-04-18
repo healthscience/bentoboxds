@@ -196,45 +196,87 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
     },
     previousLLM: {},
     isInitialState: true,
-    digestInput: { capacity: [], context: [], coherence: [] },
+    digestInput: null,
+    lifestrapTexture: {
+      pillars: {
+        capacity: [],
+        context: [],
+        heli: [],
+        coherence: { isStable: false, resonance: 0 },
+      },
+      residue: [],
+      key: "",
+    },
+    emulationHorizon: 0,
+    performanceVelocity: 0,
   }),
   actions: {
-    updateResonWeight(word, zone) {
-      console.log(`[Attunement] Mapping ${word} to ${zone}`);
+    setEmulationHorizon(delta) {
+      this.emulationHorizon = delta;
+    },
+    setPerformanceVelocity(value) {
+      this.performanceVelocity = value;
+    },
+    updateResonWeight(word, zone, label = null) {
+      console.log(
+        `[Attunement] Mapping ${word} to ${zone} ${label ? "(" + label + ")" : ""}`,
+      );
 
-      // 1. Update local state
-      if (!this.digestInput) {
-        this.digestInput = {
-          capacity: [],
-          context: {
-            peer: [],
-            environment: [],
-            earth: [],
-            unmappedFragments: [],
+      if (!this.lifestrapTexture) {
+        this.lifestrapTexture = {
+          pillars: {
+            capacity: [],
+            context: [],
+            heli: [],
+            coherence: { isStable: false, resonance: 0 },
           },
-          coherence: [],
+          residue: [],
+          key: "",
         };
       }
 
-      // Find and remove the word from unmappedFragments if it exists there
-      if (this.digestInput.context?.unmappedFragments) {
-        this.digestInput.context.unmappedFragments =
-          this.digestInput.context.unmappedFragments.filter((f) => f !== word);
-      }
+      // Remove from residue if present
+      this.lifestrapTexture.residue = this.lifestrapTexture.residue.filter(
+        (w) => w !== word,
+      );
 
-      // Add the word to the target zone in digestInput
+      const entry = { label: label || zone, value: word };
+
       if (zone === "capacity") {
-        if (!this.digestInput.capacity) this.digestInput.capacity = [];
-        this.digestInput.capacity.push(word);
+        this.lifestrapTexture.pillars.capacity.push(entry);
+      } else if (
+        zone === "context" ||
+        ["peer", "environment", "earth"].includes(zone)
+      ) {
+        // Map sub-zones to the 'context' pillar with appropriate labels if needed,
+        // but the expected structure has a 'context' array.
+        const contextLabel =
+          label ||
+          (zone === "peer"
+            ? "Activity"
+            : zone === "environment"
+              ? "Space"
+              : "Temporal");
+        this.lifestrapTexture.pillars.context.push({
+          label: contextLabel,
+          value: word,
+        });
+      } else if (["orbits", "days", "arcs", "heli"].includes(zone)) {
+        const heliLabel =
+          label ||
+          (zone === "orbits"
+            ? "Orbit Target"
+            : zone === "days"
+              ? "Rhythm"
+              : "Performance");
+        const heliEntry = { label: heliLabel, value: word };
+        if (zone === "orbits") {
+          heliEntry.math = `${word} - currentHeliAge`;
+        }
+        this.lifestrapTexture.pillars.heli.push(heliEntry);
       } else if (zone === "coherence") {
-        if (!this.digestInput.coherence) this.digestInput.coherence = [];
-        this.digestInput.coherence.push(word);
-      } else {
-        // Context sub-zones (peer, environment, earth)
-        if (!this.digestInput.context) this.digestInput.context = {};
-        if (!this.digestInput.context[zone])
-          this.digestInput.context[zone] = [];
-        this.digestInput.context[zone].push(word);
+        // Coherence is an object in the expected structure, but we might want to track resonance tags too?
+        // For now, following the specific structure provided.
       }
 
       // 2. Persist to backend/socket
@@ -244,6 +286,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         data: {
           word,
           zone,
+          label,
           lifeStrapID: this.activeLifeStrapID,
           contract_key: this.activeContractKey,
         },
@@ -705,16 +748,85 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       if (received.action === "npl-reply") {
         if (received.task === "lens-extraction") {
           if (received.data.lens.context.length > 0) {
-            this.digestInput.capacity.push(received.data.lens?.capacity);
-            this.digestInput.coherence.push(received.data.lens?.coherence);
+            this.lifestrapTexture.pillars.capacity.push({
+              label: "Initial",
+              value: received.data.lens?.capacity,
+            });
+            // this.lifestrapTexture.pillars.coherence ...
             let splitContext = received.data.lens.context.split(",");
-            this.digestInput.context = splitContext;
+            this.lifestrapTexture.pillars.context = splitContext.map((v) => ({
+              label: "Extracted",
+              value: v,
+            }));
           }
         }
       } else if (received.action === "ls-pattern") {
-        console.log("lens arrived");
-        console.log(received.data);
-        this.digestInput = received.data;
+        console.log("lens arrived", received.data);
+
+        const slots = received.data.context?.slots || [];
+        const unmappedFragments =
+          received.data.context?.unmappedFragments || [];
+
+        const newTexture = {
+          pillars: {
+            capacity: [
+              ...(received.data.capacity?.map((v) => ({
+                label: "Capacity",
+                value: v,
+              })) || []),
+              ...slots
+                .filter((s) => s.type === "capacity")
+                .map((s) => ({ label: "Capacity", value: s.value })),
+            ],
+            context: [
+              ...slots
+                .filter((s) => s.type === "heart" || s.label === "Activity")
+                .map((s) => ({ label: "Activity", value: s.value })),
+              ...slots
+                .filter((s) => s.label === "Space" || s.type === "environment")
+                .map((s) => ({ label: "Space", value: s.value })),
+              ...slots
+                .filter((s) => s.label === "Temporal" || s.type === "earth")
+                .map((s) => ({ label: "Temporal", value: s.value })),
+            ],
+            heli: [
+              ...(received.data.heli
+                ? Object.entries(received.data.heli).flatMap(([k, v]) =>
+                    v.map((val) => ({ label: k, value: val })),
+                  )
+                : []),
+              ...slots
+                .filter((s) => s.type === "heli")
+                .map((s) => ({ label: "Orbit Target", value: s.value })),
+              ...slots
+                .filter((s) => s.label === "Rhythm")
+                .map((s) => ({ label: "Rhythm", value: s.value })),
+              ...slots
+                .filter((s) => s.label === "Performance")
+                .map((s) => ({ label: "Performance", value: s.value })),
+            ],
+            coherence: {
+              isStable: received.data.context?.isStable || false,
+              resonance: 0,
+            },
+          },
+          residue: unmappedFragments,
+          key: received.data.lifeStrapID || "",
+        };
+
+        this.lifestrapTexture = newTexture;
+        console.log(
+          "[aiInterface] Updated lifestrapTexture:",
+          JSON.stringify(this.lifestrapTexture, null, 2),
+        );
+
+        // Legacy compatibility for components using digestInput
+        this.digestInput = this.lifestrapTexture;
+        console.log(
+          "[aiInterface] Updated digestInput:",
+          JSON.stringify(this.digestInput, null, 2),
+        );
+
         // Open the lens when data arrives
         this.activeLifeStrapID = received.data.lifeStrapID || "active-strap";
         this.showLifestapLens = true;

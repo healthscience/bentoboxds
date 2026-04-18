@@ -485,11 +485,12 @@ const saveCueLocation = () => {
     display: grid;
     grid-template-columns: 1fr;
     gap: 1rem;
-    padding: 1rem;
+    padding: 1rem 1.5rem;
     background-color: #f0f4f8;
     position: relative;
     height: auto;
     min-height: 100%;
+    box-sizing: border-box;
   }
 
   .border {
@@ -518,7 +519,8 @@ const saveCueLocation = () => {
     width: round(var(--s), 4 * var(--b));
     aspect-ratio: 1;
     border-radius: 50%;
-    background: repeating-radial-gradient(
+    background:
+      repeating-radial-gradient(
           calc(2 * var(--b)) at top,
           #0000 -1px,
           var(--c) 0 calc(50% - 1px),
@@ -534,7 +536,8 @@ const saveCueLocation = () => {
         50% 0;
     background-size: 150% 50%;
     background-repeat: no-repeat;
-    mask: radial-gradient(
+    mask:
+      radial-gradient(
           calc(1.5 * var(--b)) at calc(100% - var(--b) / 2) 0,
           #0000 calc(100% / 3),
           #000 calc(100% / 3 + 1px) 110%,
@@ -569,7 +572,9 @@ const saveCueLocation = () => {
     padding: 10px;
     font-size: 12px;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease;
+    transition:
+      background-color 0.3s ease,
+      transform 0.3s ease;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
 
@@ -716,7 +721,9 @@ const saveCueLocation = () => {
     padding: 10px 20px;
     font-size: 14px;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease;
+    transition:
+      background-color 0.3s ease,
+      transform 0.3s ease;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
 
@@ -737,7 +744,9 @@ const saveCueLocation = () => {
     padding: 10px 20px;
     font-size: 14px;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease;
+    transition:
+      background-color 0.3s ease,
+      transform 0.3s ease;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
   /* Interventions Styles */

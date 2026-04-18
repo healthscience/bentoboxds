@@ -1,5 +1,8 @@
 <template>
-  <div id="life-tools-panel">
+  <div
+    id="life-tools-panel"
+    :style="{ width: isOpen ? width + 2 + 'px' : '30px', overflow: 'visible' }"
+  >
     <aside
       class="side-rail left-rail overlay-blur"
       :style="{ width: width + 'px' }"
@@ -67,15 +70,16 @@ const handleButtonClick = () => {
 /* LEFT PANEL */
 .left-rail {
   grid-area: tools;
-  z-index: 700;
+  z-index: 1200;
   border-right: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
-  height: calc(100vh - var(--header-height, 60px));
+  height: 100%;
   position: absolute;
   top: 0;
   left: 0;
   transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
 }
 
 .rail-content {
@@ -84,6 +88,7 @@ const handleButtonClick = () => {
   overflow-x: hidden;
   height: 100%;
   padding-bottom: 100px;
+  box-sizing: border-box;
 }
 
 .rail-faded {

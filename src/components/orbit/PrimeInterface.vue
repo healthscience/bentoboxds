@@ -240,6 +240,8 @@
       @startDrag="startBottomDrag"
     />
 
+    <BesearchLayer />
+
     <div
       class="bento-box-container"
       :class="{ 'docked-position': isBentoDocked }"
@@ -268,6 +270,7 @@ import WorldCanvas from "@/components/orbit/parts/WorldCanvas.vue";
 import OrbitHUD from "@/components/orbit/parts/OrbitHUD.vue";
 import LaunchpadStack from "@/components/orbit/parts/LaunchpadStack.vue";
 import BesearchFuse from "@/components/orbit/besearch/BesearchFuse.vue";
+import BesearchLayer from "@/components/orbit/besearch/besearchLayer.vue";
 import BentoBox from "@/components/orbit/parts/BentoBox.vue";
 
 import { useOrbitStore } from "@/stores/orbitStore.js";
@@ -430,13 +433,28 @@ const extractionLenses = computed(() => {
 });
 
 // Map the 3 Cs to the Lenses
-const mappedLenses = computed(() => ({
-  capacity: storeAI.digestInput?.capacity ? storeAI.digestInput.capacity : [],
-  coherence: storeAI.digestInput?.coherence
-    ? storeAI.digestInput.coherence
-    : [],
-  context: storeAI.digestInput?.context ? storeAI.digestInput.context : [],
-}));
+const mappedLenses = computed(() => {
+  const input = storeAI.digestInput;
+  if (!input) return { capacity: [], coherence: [], context: [], heli: [] };
+
+  // New pillars structure
+  if (input.pillars) {
+    return {
+      capacity: input.pillars.capacity || [],
+      coherence: input.pillars.coherence ? [input.pillars.coherence] : [],
+      context: input.pillars.context || [],
+      heli: input.pillars.heli || [],
+    };
+  }
+
+  // Legacy structure
+  return {
+    capacity: input.capacity || [],
+    coherence: input.coherence || [],
+    context: input.context || [],
+    heli: [],
+  };
+});
 
 /* drag handlers */
 const startDraggingLeft = () => {
@@ -698,13 +716,16 @@ const isBesearchMode = computed(() => storeAI.currentMode === "besearch");
 }
 
 .prime-interface {
-  display: grid;
+  display: block;
   width: 100vw;
   height: calc(100vh - var(--header-height, 60px));
-  overflow: visible;
+  overflow: hidden;
   position: relative;
   background-color: var(--color-background-soft);
   z-index: 0;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 
   /* THE COLOR PALETTE */
   --bg-base: var(--color-background-soft);
@@ -722,7 +743,7 @@ const isBesearchMode = computed(() => storeAI.currentMode === "besearch");
 .world-surface,
 .heli-pulse,
 .aura-layer {
-  position: fixed;
+  position: absolute;
   inset: 0;
   pointer-events: none;
 }
@@ -801,16 +822,16 @@ const isBesearchMode = computed(() => storeAI.currentMode === "besearch");
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 700;
-  background-color: var(--color-background-soft);
+  height: 100%;
+  z-index: 1200;
 }
 
 .right-panel-area {
   position: absolute;
   top: 0;
   right: 0;
-  z-index: 700;
-  background-color: var(--color-background-soft);
+  height: 100%;
+  z-index: 1200;
 }
 
 .bottom-panel-area {
@@ -818,7 +839,7 @@ const isBesearchMode = computed(() => storeAI.currentMode === "besearch");
   bottom: 0;
   left: 0;
   width: 100%;
-  z-index: 800;
+  z-index: 1200;
 }
 
 .orbit-stage {

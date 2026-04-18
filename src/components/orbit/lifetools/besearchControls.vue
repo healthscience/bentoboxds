@@ -52,7 +52,7 @@ const showCreateForm = computed(() => storeBesearch.showCreateForm);
 
 /* methods */
 const handleCreate = () => {
-  storeBesearch.showCreateForm = !storeBesearch.showCreateForm;
+  storeBesearch.openBesearchLayer();
 };
 
 const handleCloseCreateForm = () => {

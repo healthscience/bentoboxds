@@ -185,6 +185,7 @@ const handleToggle = () => {
   bottom: 0;
   left: 0;
   right: 0;
+  width: 100vw;
   border-top: 1px solid rgba(200, 230, 255, 0.3);
   box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
   z-index: 600;
