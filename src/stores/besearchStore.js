@@ -19,6 +19,7 @@ export const besearchStore = defineStore("besearchstore", {
     showBesearchDetail: false,
     isBesearchLayerOpen: false,
     activeBesearchThread: "besearch:prime:longevity_65",
+    currentBesearchStage: "capacity", // capacity, logic, heli, emulation
     activeSeeds: {
       orgos: [],
       gelles: [],
@@ -27,7 +28,9 @@ export const besearchStore = defineStore("besearchstore", {
     activeBesearchContext: {
       capacity: null,
       context: null,
-      heliTarget: null,
+      orbits: 65,
+      days: null,
+      arcs: null,
     },
     // bbNexus shared context payload
 
@@ -56,6 +59,9 @@ export const besearchStore = defineStore("besearchstore", {
       bottomHeight: 60,
       worldBounds: { width: 5000, height: 5000 }, // Large game world
     },
+    isEmulationActive: false,
+    emulationPulse: 1.0,
+    emulationPulseInterval: null,
   }),
   getters: {
     besearchCyclesNormalized: (state) => {
@@ -407,8 +413,53 @@ export const besearchStore = defineStore("besearchstore", {
       this.activeBesearchThread = threadKey;
     },
     verifyTriPointLock() {
-      const { capacity, context, heliTarget } = this.activeBesearchContext;
-      return !!(capacity && context && heliTarget);
+      const { capacity, context, orbits, days, arcs } =
+        this.activeBesearchContext;
+      return !!(capacity && context && (orbits || days || arcs));
+    },
+    startEmulation() {
+      if (this.emulationPulseInterval) return;
+      this.isEmulationActive = true;
+
+      const bpm = 72;
+      const bps = bpm / 60;
+      const period = 1000 / bps;
+      let startTime = Date.now();
+
+      const updatePulse = () => {
+        if (!this.isEmulationActive) {
+          if (this.emulationPulseInterval) {
+            cancelAnimationFrame(this.emulationPulseInterval);
+            this.emulationPulseInterval = null;
+          }
+          return;
+        }
+
+        const time = Date.now() - startTime;
+        const t = (time % period) / period;
+        let pulseValue = 1.0;
+
+        if (t < 0.15) {
+          pulseValue = 1.0 + Math.sin((t / 0.15) * Math.PI) * 0.15;
+        } else if (t > 0.25 && t < 0.4) {
+          pulseValue = 1.0 + Math.sin(((t - 0.25) / 0.15) * Math.PI) * 0.1;
+        } else {
+          pulseValue = 1.0;
+        }
+
+        this.emulationPulse = pulseValue;
+        this.emulationPulseInterval = requestAnimationFrame(updatePulse);
+      };
+
+      this.emulationPulseInterval = requestAnimationFrame(updatePulse);
+    },
+    stopEmulation() {
+      this.isEmulationActive = false;
+      if (this.emulationPulseInterval) {
+        cancelAnimationFrame(this.emulationPulseInterval);
+        this.emulationPulseInterval = null;
+      }
+      this.emulationPulse = 1.0;
     },
   },
 });
