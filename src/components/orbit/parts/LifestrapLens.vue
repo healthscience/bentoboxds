@@ -556,7 +556,7 @@ const unmapFragment = (word) => {
   padding: 20px 20px 20px 60px;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
   box-sizing: border-box;
 }
 
@@ -566,16 +566,15 @@ const unmapFragment = (word) => {
   gap: 20px;
   width: 100%;
   flex-grow: 1;
-  overflow-y: auto;
+  overflow: visible;
   margin-bottom: 20px;
-  padding-right: 10px; /* space for scrollbar */
 }
 
 .lens-box {
   padding: 20px;
   border-radius: var(--sov-border-radius);
   border-top: 4px solid #ccc;
-  background: rgba(255, 255, 255, 0.03);
+  background: transparent;
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
@@ -677,7 +676,7 @@ const unmapFragment = (word) => {
 
 .emulation-meter {
   margin-bottom: 20px;
-  background: rgba(255, 255, 255, 0.05);
+  background: transparent;
   padding: 12px;
   border-radius: 8px;
 }
@@ -719,7 +718,7 @@ const unmapFragment = (word) => {
 }
 
 .whole-resonance {
-  background: rgba(255, 255, 255, 0.05);
+  background: transparent;
   padding: 15px;
   border-radius: 12px;
   display: flex;

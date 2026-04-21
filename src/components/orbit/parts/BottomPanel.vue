@@ -193,22 +193,69 @@ const handleToggle = (e) => {
 
 <style scoped>
 .bottom-panel {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  width: 100vw;
-  border-top: 1px solid rgba(200, 230, 255, 0.3);
-  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.2);
-  z-index: 600;
-  display: flex;
-  flex-direction: column;
-  background: rgba(200, 230, 255, 0.05);
-  backdrop-filter: blur(25px) saturate(180%);
-  /* Use fixed height from state to ensure it animates */
+  /* ... positional styles ... */
+
+  /* 1. THE TINT: Extreme transparency. 
+     0.03 is almost invisible, but provides just enough 'surface' 
+     for the eye to see the glass. */
+  background: rgba(255, 255, 255, 0.03);
+
+  /* 2. THE OPTICAL STACK:
+     - blur(35px): Strong enough to melt the clock rings into glows.
+     - saturate(300%): TRIPLE the saturation. This forces the blue and 
+       yellow to stay vivid even when blurred.
+     - contrast(1.1): Sharpens the difference between the blue ring 
+       and the dark items.
+     - brightness(1.0): Keep this at 1.0. Any higher and the light 
+       colors turn into a white void. */
+  backdrop-filter: blur(35px) saturate(300%) brightness(1.0) contrast(1.1);
+  -webkit-backdrop-filter: blur(35px) saturate(300%) brightness(1.0) contrast(1.1);
+
+  /* 3. BORDER & SHADOW:
+     This is where we get the 'light' back without washing out the colors. */
+  border-top: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 
+    0 -10px 40px rgba(0, 0, 0, 0.1),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2);
+
   transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: visible;
 }
+/*
+.bottom-panel {
+   ... positional styles ... 
+  background: transparent; /* Move background to pseudo-element 
+  backdrop-filter: blur(40px) saturate(150%);
+  -webkit-backdrop-filter: blur(40px) saturate(150%);
+}
+*/
+/* This layer specifically "lifts" the darks without affecting the whites as much */
+.bottom-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.03);
+  mix-blend-mode: plus-lighter;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* This layer adds the 'sheen' and the top border */
+.bottom-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-top: 1px solid rgba(255, 255, 255, 0.4);
+  background: linear-gradient(
+    180deg, 
+    rgba(255, 255, 255, 0.1) 0%, 
+    rgba(255, 255, 255, 0.02) 100%
+  );
+}
+
+
+
+
 
 .bottom-panel.is-dragging {
   transition: none;
