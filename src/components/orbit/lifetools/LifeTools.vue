@@ -15,6 +15,13 @@
         >
           {{ world.icon }}
         </div>
+        <div
+          class="world-icon sculpting-trigger"
+          @click="storeBesearch.openSculptingLayer()"
+          title="Sculpting Lab"
+        >
+          🎨
+        </div>
       </div>
       <div id="world-tools">
         <div class="orbit-tools" v-if="activeWorld === 'orbit'">

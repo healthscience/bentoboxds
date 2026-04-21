@@ -18,6 +18,7 @@ export const besearchStore = defineStore("besearchstore", {
     showCreateForm: false,
     showBesearchDetail: false,
     isBesearchLayerOpen: false,
+    isSculptingLayerOpen: false,
     activeBesearchThread: "besearch:prime:longevity_65",
     currentBesearchStage: "capacity", // capacity, logic, heli, emulation
     activeSeeds: {
@@ -395,6 +396,12 @@ export const besearchStore = defineStore("besearchstore", {
     },
     closeBesearchLayer() {
       this.isBesearchLayerOpen = false;
+    },
+    openSculptingLayer() {
+      this.isSculptingLayerOpen = true;
+    },
+    closeSculptingLayer() {
+      this.isSculptingLayerOpen = false;
     },
     updateBesearchThread(mutation) {
       this.besearchThread.push({

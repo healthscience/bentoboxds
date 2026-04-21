@@ -212,6 +212,13 @@
                 >
                   <header class="bay-header">
                     <h4>Orgo (Structural)</h4>
+                    <button
+                      class="sculpt-shortcut"
+                      @click="storeBesearch.openSculptingLayer()"
+                      title="Open Sculpting Lab"
+                    >
+                      🎨
+                    </button>
                   </header>
 
                   <div v-if="activeOrgos.length === 0" class="bay-placeholder">
@@ -1239,12 +1246,33 @@ const auraStyle = computed(() => {
 }
 
 .bay-header h4 {
-  margin: 0 0 20px 0;
+  margin: 0;
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: #2d3748;
   font-weight: 800;
+}
+
+.bay-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.sculpt-shortcut {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  padding: 0;
+}
+
+.sculpt-shortcut:hover {
+  opacity: 1;
 }
 
 .dark-theme .bay-header h4 {

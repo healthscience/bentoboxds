@@ -242,6 +242,8 @@
 
     <BesearchLayer />
 
+    <SculptingLayer />
+
     <div
       class="bento-box-container"
       :class="{ 'docked-position': isBentoDocked }"
@@ -271,6 +273,7 @@ import OrbitHUD from "@/components/orbit/parts/OrbitHUD.vue";
 import LaunchpadStack from "@/components/orbit/parts/LaunchpadStack.vue";
 import BesearchFuse from "@/components/orbit/besearch/BesearchFuse.vue";
 import BesearchLayer from "@/components/orbit/besearch/besearchLayer.vue";
+import SculptingLayer from "@/components/orbit/sculpting/sculptingLayer.vue";
 import BentoBox from "@/components/orbit/parts/BentoBox.vue";
 
 import { useOrbitStore } from "@/stores/orbitStore.js";
