@@ -1,48 +1,105 @@
 <template>
   <footer class="status-fuse">
-    <div 
-      v-for="(stage, key) in stages" 
-      :key="key"
-      class="fuse-segment" 
-      :class="status[key] ? 'fuse-active' : 'fuse-hollow'"
-      @click="$emit('switch-world', stage.worldTarget)"
-    >
-      <div class="segment-content">
-        <span class="label">{{ stage.label }}</span>
-        <span class="status-indicator">{{ stage.subText }}</span>
+    <div class="fuse-grid">
+      <div
+        v-for="(stage, key) in stages"
+        :key="key"
+        class="fuse-segment"
+        :class="status[key] ? 'fuse-active' : 'fuse-hollow'"
+        @click="$emit('switch-world', stage.worldTarget)"
+      >
+        <div class="segment-content">
+          <span class="label">{{ stage.label }}</span>
+          <span class="status-indicator">{{ stage.subText }}</span>
+        </div>
+        <div v-if="status[key]" class="glow-line"></div>
       </div>
-      <div v-if="status[key]" class="glow-line"></div>
+    </div>
+
+    <!-- Return to Sculpting Lab Button - Positioned Centered Overlay -->
+    <div v-if="storeBesearch.wasSculptingLayerOpen" class="fuse-return-overlay">
+      <button class="return-btn" @click="handleReturnToSculpting">
+        <span class="return-icon">🛠️</span>
+        <span class="return-text">Return to Sculpting Lab</span>
+      </button>
+    </div>
+
+    <!-- Return to Besearch Cycle Button - Positioned Centered Overlay -->
+    <div
+      v-if="storeBesearch.wasBesearchCycleOpen"
+      class="fuse-return-overlay cycle-return"
+    >
+      <button class="return-btn cycle-btn" @click="handleReturnToCycle">
+        <span class="return-icon">🔄</span>
+        <span class="return-text">Return to Besearch Cycle</span>
+      </button>
     </div>
   </footer>
 </template>
 
 <script setup>
+import { besearchStore } from "@/stores/besearchStore.js";
+import { aiInterfaceStore } from "@/stores/aiInterface.js";
+
+const storeBesearch = besearchStore();
+const storeAI = aiInterfaceStore();
+
 defineProps({
   status: {
     type: Object,
-    default: () => ({ context: false, research: false, models: false, emulation: false })
+    default: () => ({
+      context: false,
+      research: false,
+      models: false,
+      emulation: false,
+    }),
   },
-  cueCount: { type: Number, default: 0 }
+  cueCount: { type: Number, default: 0 },
 });
 
 const stages = {
-  context: { label: 'Context', subText: 'EARTH / GENESIS', worldTarget: 'earth' },
-  research: { label: 'Research', subText: 'CUE SPACE', worldTarget: 'orbit' },
-  models: { label: 'Models', subText: 'BODY / BIO-LOGIC', worldTarget: 'body' },
-  emulation: { label: 'Emulation', subText: 'RESONANCE', worldTarget: 'orbit' }
+  context: {
+    label: "Context",
+    subText: "EARTH / GENESIS",
+    worldTarget: "earth",
+  },
+  research: { label: "Research", subText: "CUE SPACE", worldTarget: "orbit" },
+  models: { label: "Models", subText: "BODY / BIO-LOGIC", worldTarget: "body" },
+  emulation: { label: "Emulation", subText: "RESONANCE", worldTarget: "orbit" },
+};
+
+const handleReturnToSculpting = () => {
+  storeAI.currentMode = "orbit"; // Return to normal orbit mode
+  storeBesearch.isSculptingLayerOpen = true;
+  storeBesearch.wasSculptingLayerOpen = false;
+};
+
+const handleReturnToCycle = () => {
+  storeAI.currentMode = "orbit"; // Return to normal orbit mode
+  storeBesearch.isBesearchLayerOpen = true;
+  storeBesearch.wasBesearchCycleOpen = false;
 };
 </script>
 
 <style scoped>
 .status-fuse {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 6px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(12px);
   padding: 6px;
   height: 100%;
   border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.fuse-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  width: 100%;
+  height: 100%;
 }
 
 .fuse-segment {
@@ -66,7 +123,9 @@ const stages = {
   background: #1e293b;
   color: #ffffff;
   border: 1px solid rgba(59, 130, 246, 0.6);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 0 8px rgba(59, 130, 246, 0.2);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    inset 0 0 8px rgba(59, 130, 246, 0.2);
 }
 
 .glow-line {
@@ -99,7 +158,7 @@ const stages = {
   font-size: 0.55rem;
   margin-top: 1px;
   opacity: 0.8;
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 600;
 }
 
@@ -114,5 +173,67 @@ const stages = {
 
 .fuse-active:hover {
   background: #0f172a;
+}
+
+.fuse-return-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 100;
+  pointer-events: auto;
+}
+
+.return-btn {
+  background: #1e293b;
+  border: 2px solid #00ffcc;
+  color: #00ffcc;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 0 20px rgba(0, 255, 204, 0.4);
+}
+
+.return-btn:hover {
+  background: #00ffcc;
+  color: #1e293b;
+  transform: translate(-50%, -60%) scale(1.05);
+  box-shadow: 0 0 30px rgba(0, 255, 204, 0.6);
+}
+
+/* Override hover transform since we have translate on the btn itself via the parent mostly, 
+   but here we adjust the button directly */
+.return-btn:hover {
+  transform: scale(1.05);
+}
+
+.cycle-return {
+  left: calc(
+    50% + 180px
+  ); /* Offset from center so they don't overlap if both are present */
+}
+
+.return-btn.cycle-btn {
+  border-color: #3b82f6;
+  color: #3b82f6;
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+}
+
+.return-btn.cycle-btn:hover {
+  background: #3b82f6;
+  color: #ffffff;
+  box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
+}
+
+.return-icon {
+  font-size: 1rem;
 }
 </style>

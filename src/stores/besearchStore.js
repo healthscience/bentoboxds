@@ -19,6 +19,8 @@ export const besearchStore = defineStore("besearchstore", {
     showBesearchDetail: false,
     isBesearchLayerOpen: false,
     isSculptingLayerOpen: false,
+    wasSculptingLayerOpen: false,
+    wasBesearchCycleOpen: false,
     activeBesearchThread: "besearch:prime:longevity_65",
     currentBesearchStage: "capacity", // capacity, logic, heli, emulation
     activeSeeds: {
@@ -392,10 +394,16 @@ export const besearchStore = defineStore("besearchstore", {
           ...context,
         };
       }
+      if (this.isSculptingLayerOpen) {
+        this.wasSculptingLayerOpen = true;
+        this.isSculptingLayerOpen = false;
+      }
       this.isBesearchLayerOpen = true;
     },
     closeBesearchLayer() {
       this.isBesearchLayerOpen = false;
+      // No longer automatically restoring here to avoid double-triggering
+      // The individual components (besearchLayer and BesearchFuse) handle restoration
     },
     openSculptingLayer() {
       this.isSculptingLayerOpen = true;

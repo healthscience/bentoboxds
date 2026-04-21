@@ -12,11 +12,7 @@
             <span class="branding-label">Sculpting Lab</span>
           </div>
         </div>
-        <div class="header-right">
-          <button class="close-layer-top" @click="closeLayer" title="Close Lab">
-            ✕
-          </button>
-        </div>
+        <div class="header-right"></div>
       </header>
 
       <div class="lab-workspace">
@@ -92,9 +88,8 @@
         <!-- 2.2 The Canvas (Center Stage: The Braid) -->
         <main class="lab-space-v2">
           <div class="canvas-stage-v2">
-            <div class="life-strap-horizon">
-              <div class="horizon-line"></div>
-              <div class="horizon-label">Life-Strap Horizon</div>
+            <div class="horizon-container">
+              <LifeStrapHorizon :strap="activeStrapData" />
             </div>
 
             <div class="logic-braid-wrapper">
@@ -233,7 +228,16 @@
         <!-- 2.3 The Lens (Right Panel: The Seer) -->
         <aside class="lab-panel seer-panel">
           <header class="panel-header">
-            <h5>The Lens</h5>
+            <div class="header-flex">
+              <h5>The Lens</h5>
+              <button
+                class="close-lab-panel"
+                @click="storeBesearch.closeBesearchLayer()"
+                title="Close Besearch"
+              >
+                ✕
+              </button>
+            </div>
           </header>
           <div class="panel-content">
             <div class="seer-section">
@@ -281,12 +285,15 @@ import { cuesStore } from "@/stores/cuesStore.js";
 import { useOrgoStore } from "@/stores/orgoStore.js";
 import { useGelleStore } from "@/stores/gelleStore.js";
 import { aiInterfaceStore } from "@/stores/aiInterface.js";
+import { libraryStore } from "@/stores/libraryStore.js";
+import LifeStrapHorizon from "@/components/orbit/sculpting/LifeStrapHorizon.vue";
 
 const storeBesearch = besearchStore();
 const storeCues = cuesStore();
 const orgoStore = useOrgoStore();
 const gelleStore = useGelleStore();
 const storeAI = aiInterfaceStore();
+const storeLibrary = libraryStore();
 
 const isDarkMode = ref(false);
 const isDrawerOpen = ref(true);
@@ -295,6 +302,13 @@ const isOpen = computed(() => storeBesearch.isSculptingLayerOpen);
 
 const activeOrgos = computed(() => orgoStore.activeOrgos);
 const activeGelles = computed(() => gelleStore.activeGelles);
+
+const activeStrapData = computed(() => {
+  return (
+    storeLibrary.straps.find((s) => s.key === storeAI.activeLifeStrapID) ||
+    storeLibrary.straps.find((s) => s.id === storeAI.activeLifeStrapID)
+  );
+});
 
 const activeInstruments = ref([
   { id: "polar-h10", name: "Polar H10", type: "HRM", online: true },
@@ -499,13 +513,24 @@ onMounted(() => {
   background: #fdfcfb;
   background-image: radial-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px);
   background-size: 32px 32px;
-  z-index: 6000;
+  z-index: 10000;
   display: flex;
   flex-direction: column;
   color: #1a202c;
   transition:
     background 0.3s,
     color 0.3s;
+}
+
+.sculpt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  margin-top: 60px;
 }
 
 .sculpting-layer.dark-theme {
@@ -522,10 +547,11 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 30px;
+  padding: 20px 30px;
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  margin-top: 10px;
 }
 
 .dark-theme .sculpt-header {
@@ -785,28 +811,83 @@ onMounted(() => {
   gap: 12px;
 }
 
-.close-layer-top {
+.header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.close-lab-panel {
   background: rgba(0, 0, 0, 0.05);
   border: none;
   color: inherit;
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   cursor: pointer;
-  font-size: 20px;
+  font-size: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
+  margin-left: 10px;
 }
 
-.close-layer-top:hover {
-  background: rgba(0, 0, 0, 0.1);
+.close-lab-panel:hover {
+  background: rgba(239, 83, 80, 0.2);
+  color: #ef5350;
   transform: scale(1.1);
 }
 
-.dark-theme .close-layer-top {
+.dark-theme .close-lab-panel {
   background: rgba(255, 255, 255, 0.1);
+}
+
+.panel-header {
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.dark-theme .panel-header {
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+.panel-content {
+  padding: 0 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.seer-section {
+  padding: 20px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.seer-section:last-of-type {
+  border-bottom: none;
+}
+
+.seer-section h6 {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 15px;
+  opacity: 0.6;
+}
+
+.dark-theme .seer-section {
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+.horizon-container {
+  width: 100%;
+  height: 600px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
 /* Life-Strap Horizon Backdrop */

@@ -145,6 +145,7 @@ const extractedData = computed(() => {
 });
 
 /* methods */
+
 const handleMouseDown = (e) => {
   dragStartTime.value = Date.now();
   emit("startDrag");
@@ -208,13 +209,13 @@ const handleToggle = (e) => {
        and the dark items.
      - brightness(1.0): Keep this at 1.0. Any higher and the light 
        colors turn into a white void. */
-  backdrop-filter: blur(35px) saturate(300%) brightness(1.0) contrast(1.1);
-  -webkit-backdrop-filter: blur(35px) saturate(300%) brightness(1.0) contrast(1.1);
+  backdrop-filter: blur(35px) saturate(300%) brightness(1) contrast(1.1);
+  -webkit-backdrop-filter: blur(35px) saturate(300%) brightness(1) contrast(1.1);
 
   /* 3. BORDER & SHADOW:
      This is where we get the 'light' back without washing out the colors. */
   border-top: 1px solid rgba(255, 255, 255, 0.4);
-  box-shadow: 
+  box-shadow:
     0 -10px 40px rgba(0, 0, 0, 0.1),
     inset 0 1px 1px rgba(255, 255, 255, 0.2);
 
@@ -247,15 +248,11 @@ const handleToggle = (e) => {
   z-index: -1;
   border-top: 1px solid rgba(255, 255, 255, 0.4);
   background: linear-gradient(
-    180deg, 
-    rgba(255, 255, 255, 0.1) 0%, 
+    180deg,
+    rgba(255, 255, 255, 0.1) 0%,
     rgba(255, 255, 255, 0.02) 100%
   );
 }
-
-
-
-
 
 .bottom-panel.is-dragging {
   transition: none;

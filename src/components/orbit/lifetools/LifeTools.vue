@@ -20,7 +20,7 @@
           @click="storeBesearch.openSculptingLayer()"
           title="Sculpting Lab"
         >
-          🎨
+          🛠️
         </div>
       </div>
       <div id="world-tools">
@@ -202,7 +202,7 @@
         <div class="control-buttons">
           <button @click="startPeer" class="control-button">Start</button>
           <button @click="stopPeer" class="control-button">Stop</button>
-          <button @click="intervene" class="control-button">Intervene</button>
+          <button @click="intervene" class="control-button">Attunement</button>
         </div>
         <div class="navigation-instructions">
           <p>Use arrow keys or buttons to navigate the peer</p>
@@ -763,7 +763,7 @@ const saveCueLocation = () => {
 
   .world-switcher {
     display: grid;
-    grid-template-columns: auto auto auto;
+    grid-template-columns: auto auto auto auto;
     padding: 10px;
     background: rgba(0, 0, 0, 0.03);
     border-radius: 12px;

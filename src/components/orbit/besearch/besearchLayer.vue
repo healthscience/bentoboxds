@@ -69,6 +69,13 @@
                 currentStage === "capacity" ? "Context Seeds" : "Logic Seeds"
               }}
             </h5>
+            <button
+              class="sculpt-shortcut"
+              @click="storeBesearch.openSculptingLayer()"
+              title="Open Sculpting Lab"
+            >
+              🛠️
+            </button>
             <span class="toggle-icon">{{ isDrawerOpen ? "←" : "→" }}</span>
           </header>
           <div class="seed-list">
@@ -212,13 +219,6 @@
                 >
                   <header class="bay-header">
                     <h4>Orgo (Structural)</h4>
-                    <button
-                      class="sculpt-shortcut"
-                      @click="storeBesearch.openSculptingLayer()"
-                      title="Open Sculpting Lab"
-                    >
-                      🎨
-                    </button>
                   </header>
 
                   <div v-if="activeOrgos.length === 0" class="bay-placeholder">
@@ -558,6 +558,11 @@ const isDarkMode = ref(false);
 const isCyclePlaying = ref(false);
 
 const toggleCycle = () => {
+  if (storeAI.currentMode !== "besearch") {
+    storeAI.currentMode = "besearch";
+    closeLayer()
+    storeBesearch.wasBesearchCycleOpen = true;
+  }
   isCyclePlaying.value = !isCyclePlaying.value;
   evidenceLogs.value.push(
     `Besearch Cycle ${isCyclePlaying.value ? "activated" : "paused"}`,
@@ -891,6 +896,10 @@ const initGellePolyhedron = (canvas, instanceId) => {
 
 const closeLayer = () => {
   storeBesearch.closeBesearchLayer();
+  if (storeBesearch.wasSculptingLayerOpen) {
+    storeBesearch.isSculptingLayerOpen = true;
+    storeBesearch.wasSculptingLayerOpen = false;
+  }
 };
 
 const waveStyle = computed(() => {
