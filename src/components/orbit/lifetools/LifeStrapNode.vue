@@ -2,7 +2,6 @@
   <div
     class="life-strap-node"
     :class="{ 'is-active': active, 'is-expanded': showOptions }"
-    @click="handleLSelect(strap)"
   >
     <div class="strap-row">
       <div class="strap-orb-wrap">
@@ -15,7 +14,7 @@
         </svg>
       </div>
 
-      <div class="strap-info">
+      <div class="strap-info" @click="handleLSelect(strap)">
         <span class="strap-label">{{
           strap?.value?.concept?.story?.slice(0, 20) || "Untitled"
         }}</span>

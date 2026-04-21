@@ -356,7 +356,7 @@
                     <div class="active-item-list">
                       <div class="heli-active-item constant">
                         <span class="item-label">Horizon:</span>
-                        <span class="item-value">Age 65</span>
+                        <span class="item-value">Age</span>
                       </div>
                       <div
                         class="heli-active-item"

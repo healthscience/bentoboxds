@@ -6,7 +6,7 @@
   >
     <button
       @mousedown.stop="handleMouseDown"
-      @click="handleToggle"
+      @click.stop="handleToggle"
       class="bottom-toggle-button"
     >
       <div class="handle-bar"></div>
@@ -156,24 +156,36 @@ const expandLens = () => {
   updatePanelHeight();
 };
 
-const handleToggle = () => {
+const handleToggle = (e) => {
+  // Prevent default if it's a click to avoid side effects
   const duration = Date.now() - dragStartTime.value;
-  // If it was a quick click, toggle
-  if (duration < 200) {
-    // If lens is expanded (not collapsed), collapse it and close the panel
-    if (!storeAI.showLifestapLens) {
-      storeAI.showLifestapLens = true;
-      emit("update:isOpen", false);
-      emit("update:height", 60);
-      return;
-    }
 
-    const nextState = !props.isOpen;
-    emit("update:isOpen", nextState);
-    if (nextState) {
-      updatePanelHeight();
-    } else {
+  // If it was a quick click (duration < 250ms), toggle the panel
+  if (duration < 250) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const isCurrentlyOpen =
+      storeBesearch.showBottomPanel ||
+      !!storeAI.activeLifeStrapID ||
+      storeBesearch.hasActiveIntervention;
+
+    if (isCurrentlyOpen) {
+      // Force close by clearing all triggering states
+      storeBesearch.showBottomPanel = false;
+      storeAI.activeLifeStrapID = "";
+      storeAI.activeContractKey = "";
+      storeBesearch.selectedIntervention = null;
+      storeBesearch.showBesearchDetail = false;
+      // Set height to collapsed state (60px)
+      storeBesearch.bottomHeight = 60;
       emit("update:height", 60);
+      emit("update:isOpen", false);
+    } else {
+      // Open the panel
+      storeBesearch.showBottomPanel = true;
+      updatePanelHeight();
+      emit("update:isOpen", true);
     }
   }
 };
@@ -193,7 +205,8 @@ const handleToggle = () => {
   flex-direction: column;
   background: rgba(200, 230, 255, 0.05);
   backdrop-filter: blur(25px) saturate(180%);
-  transition: all 0.25s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  /* Use fixed height from state to ensure it animates */
+  transition: height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: visible;
 }
 

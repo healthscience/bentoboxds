@@ -297,13 +297,17 @@ const activeWorld = computed({
   set: (val) => (storeAI.activeWorld = val),
 });
 
-const isBottomOpen = computed(() => {
-  // Open if besearch says so OR if a life-strap is active OR if an intervention is selected
-  return (
-    storeBesearch.showBottomPanel ||
-    !!storeAI.activeLifeStrapID ||
-    storeBesearch.hasActiveIntervention
-  );
+const isBottomOpen = computed({
+  get: () => {
+    return (
+      storeBesearch.showBottomPanel ||
+      !!storeAI.activeLifeStrapID ||
+      storeBesearch.hasActiveIntervention
+    );
+  },
+  set: (val) => {
+    storeBesearch.showBottomPanel = val;
+  },
 });
 
 watch(

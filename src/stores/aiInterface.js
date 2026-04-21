@@ -235,10 +235,25 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         };
       }
 
-      // Remove from residue if present
+      // 1. Remove from all existing locations (residue and all pillars)
       this.lifestrapTexture.residue = this.lifestrapTexture.residue.filter(
         (w) => w !== word,
       );
+      this.lifestrapTexture.pillars.capacity =
+        this.lifestrapTexture.pillars.capacity.filter((i) => i.value !== word);
+      this.lifestrapTexture.pillars.context =
+        this.lifestrapTexture.pillars.context.filter((i) => i.value !== word);
+      this.lifestrapTexture.pillars.heli =
+        this.lifestrapTexture.pillars.heli.filter((i) => i.value !== word);
+
+      // If zone is residue, we just put it back there and exit
+      if (zone === "residue") {
+        if (!this.lifestrapTexture.residue.includes(word)) {
+          this.lifestrapTexture.residue.push(word);
+        }
+        this.syncAttunement(word, zone, label);
+        return;
+      }
 
       const entry = { label: label || zone, value: word };
 
@@ -279,6 +294,9 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         // For now, following the specific structure provided.
       }
 
+      this.syncAttunement(word, zone, label);
+    },
+    syncAttunement(word, zone, label) {
       // 2. Persist to backend/socket
       const message = {
         type: "bbai",

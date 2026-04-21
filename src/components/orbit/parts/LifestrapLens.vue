@@ -26,12 +26,23 @@
         <div
           v-for="item in capacityItems"
           :key="item.value"
-          class="variable-tag"
+          class="variable-tag assigned-tag"
+          draggable="true"
+          @dragstart="onDragStart($event, item.value)"
+          @dblclick="unmapFragment(item.value)"
+          @click.stop="
+            storeBesearch.openBesearchLayer({
+              capacity: item.value || 'New Besearch',
+            })
+          "
         >
-          <button>
+          <div class="tag-content-wrapper">
             <span class="tag-label" v-if="item.label">{{ item.label }}:</span>
             {{ item.value }}
-          </button>
+          </div>
+          <span class="remove-icon" @click.stop="unmapFragment(item.value)"
+            >×</span
+          >
         </div>
 
         <div v-if="!capacityItems.length && !hasSelection" class="empty-state">
@@ -59,17 +70,25 @@
         <div
           class="context-group bucket"
           @click="assignSelectedTo('peer', 'Activity')"
+          @drop.stop="onDrop($event, 'peer')"
+          @dragover.prevent
         >
           <h4 class="group-title">Body/Peer</h4>
           <div class="variable-list mini">
             <div
               v-for="item in bodyPeerItems"
               :key="item.value"
-              class="variable-tag assigned"
+              class="variable-tag assigned-tag"
+              draggable="true"
+              @dragstart="onDragStart($event, item.value)"
+              @dblclick="unmapFragment(item.value)"
             >
               <button @click.stop="handleCueSpace(item.value)">
                 {{ item.value }}
               </button>
+              <span class="remove-icon" @click.stop="unmapFragment(item.value)"
+                >×</span
+              >
             </div>
           </div>
         </div>
@@ -78,17 +97,25 @@
         <div
           class="context-group bucket"
           @click="assignSelectedTo('environment', 'Space')"
+          @drop.stop="onDrop($event, 'environment')"
+          @dragover.prevent
         >
           <h4 class="group-title">Environment</h4>
           <div class="variable-list mini">
             <div
               v-for="item in environmentItems"
               :key="item.value"
-              class="variable-tag assigned"
+              class="variable-tag assigned-tag"
+              draggable="true"
+              @dragstart="onDragStart($event, item.value)"
+              @dblclick="unmapFragment(item.value)"
             >
               <button @click.stop="handleCueSpace(item.value)">
                 {{ item.value }}
               </button>
+              <span class="remove-icon" @click.stop="unmapFragment(item.value)"
+                >×</span
+              >
             </div>
           </div>
         </div>
@@ -97,17 +124,25 @@
         <div
           class="context-group bucket"
           @click="assignSelectedTo('earth', 'Temporal')"
+          @drop.stop="onDrop($event, 'earth')"
+          @dragover.prevent
         >
           <h4 class="group-title">Earth Scales</h4>
           <div class="variable-list mini">
             <div
               v-for="item in earthItems"
               :key="item.value"
-              class="variable-tag assigned"
+              class="variable-tag assigned-tag"
+              draggable="true"
+              @dragstart="onDragStart($event, item.value)"
+              @dblclick="unmapFragment(item.value)"
             >
               <button @click.stop="handleCueSpace(item.value)">
                 {{ item.value }}
               </button>
+              <span class="remove-icon" @click.stop="unmapFragment(item.value)"
+                >×</span
+              >
             </div>
           </div>
         </div>
@@ -139,7 +174,7 @@
           @dragleave="handleDragLeaveHeli"
           @drop="onDrop($event, 'orbits')"
         >
-          <h4 class="group-title">Orbits (Age 65)</h4>
+          <h4 class="group-title">Orbits (Age)</h4>
           <div class="ghost-math" v-if="orbitsMath">{{ orbitsMath }}</div>
           <div class="variable-list mini">
             <div
@@ -147,11 +182,17 @@
                 (i) => i.label === 'Orbit Target',
               )"
               :key="item.value"
-              class="variable-tag assigned"
+              class="variable-tag assigned-tag"
+              draggable="true"
+              @dragstart="onDragStart($event, item.value)"
+              @dblclick="unmapFragment(item.value)"
             >
               <button @click.stop="handleCueSpace(item.value)">
                 {{ item.value }}
               </button>
+              <span class="remove-icon" @click.stop="unmapFragment(item.value)"
+                >×</span
+              >
             </div>
           </div>
         </div>
@@ -161,17 +202,24 @@
           class="context-group bucket heli-well"
           @click="assignSelectedTo('days', 'Rhythm')"
           @drop="onDrop($event, 'days')"
+          @dragover.prevent
         >
           <h4 class="group-title">Solar Days (Rhythms)</h4>
           <div class="variable-list mini">
             <div
               v-for="item in heliItems.filter((i) => i.label === 'Rhythm')"
               :key="item.value"
-              class="variable-tag assigned"
+              class="variable-tag assigned-tag"
+              draggable="true"
+              @dragstart="onDragStart($event, item.value)"
+              @dblclick="unmapFragment(item.value)"
             >
               <button @click.stop="handleCueSpace(item.value)">
                 {{ item.value }}
               </button>
+              <span class="remove-icon" @click.stop="unmapFragment(item.value)"
+                >×</span
+              >
             </div>
           </div>
         </div>
@@ -192,11 +240,17 @@
             <div
               v-for="item in heliItems.filter((i) => i.label === 'Performance')"
               :key="item.value"
-              class="variable-tag assigned"
+              class="variable-tag assigned-tag"
+              draggable="true"
+              @dragstart="onDragStart($event, item.value)"
+              @dblclick="unmapFragment(item.value)"
             >
               <button @click.stop="handleCueSpace(item.value)">
                 {{ item.value }}
               </button>
+              <span class="remove-icon" @click.stop="unmapFragment(item.value)"
+                >×</span
+              >
             </div>
           </div>
         </div>
@@ -235,7 +289,11 @@
     </div>
 
     <!-- Residue Dock (Full Width Bottom Tray) -->
-    <div class="residue-dock">
+    <div
+      class="residue-dock"
+      @drop="onDrop($event, 'residue')"
+      @dragover.prevent
+    >
       <h4 class="dock-label">Unmapped Fragments</h4>
       <div class="bubble-stream">
         <button
@@ -478,6 +536,10 @@ const commitAlignment = (word, zone, label = null) => {
 
   storeAI.updateResonWeight(word, zone, label);
 };
+
+const unmapFragment = (word) => {
+  storeAI.updateResonWeight(word, "residue");
+};
 </script>
 
 <style scoped>
@@ -709,24 +771,69 @@ const commitAlignment = (word, zone, label = null) => {
   opacity: 0.7;
 }
 
-.variable-tag button,
-.assigned {
+.capacity .assigned-tag:hover {
+  background: rgba(var(--sov-capacity-rgb), 0.15);
+  border-color: var(--sov-capacity);
+  color: var(--sov-capacity);
+}
+
+.variable-tag.assigned-tag {
+  cursor: grab;
+  border-color: var(--sov-context);
+  background: rgba(0, 255, 200, 0.05);
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   width: 100%;
   text-align: left;
   padding: 6px 12px;
   border-radius: 6px;
-  background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: var(--sov-text);
-  cursor: pointer;
   transition: all 0.2s;
   font-size: 0.85rem;
+  pointer-events: auto;
 }
 
-.assigned {
-  cursor: default;
-  border-color: var(--sov-context);
-  background: rgba(0, 255, 200, 0.05);
+.remove-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--sov-text);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s;
+  opacity: 0;
+}
+
+.assigned-tag:hover .remove-icon {
+  opacity: 1;
+}
+
+.remove-icon:hover {
+  background: var(--sov-accent);
+  color: black;
+}
+
+.tag-content-wrapper {
+  flex-grow: 1;
+  pointer-events: none;
+}
+
+.variable-tag button {
+  flex-grow: 1;
+  text-align: left;
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font-size: inherit;
 }
 
 .variable-tag button:hover {
@@ -758,6 +865,8 @@ const commitAlignment = (word, zone, label = null) => {
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   flex-shrink: 0;
+  max-height: 180px;
+  overflow-y: auto;
 }
 
 .dock-label {
