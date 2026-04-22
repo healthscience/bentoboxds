@@ -22,130 +22,45 @@
         Physics & Vitality: How does this impact your performance/body?
       </p>
 
-      <div class="variable-list">
-        <div
-          v-for="item in capacityItems"
-          :key="item.value"
-          class="variable-tag assigned-tag"
-          draggable="true"
-          @dragstart="onDragStart($event, item.value)"
-          @dblclick="unmapFragment(item.value)"
-          @click.stop="
+      <LensColumn
+        :groups="[{ id: 'capacity', title: 'Capacity', items: capacityItems }]"
+        @dragstart="onDragStart"
+        @unmap="unmapFragment"
+        @select="
+          (val) =>
             storeBesearch.openBesearchLayer({
-              capacity: item.value || 'New Besearch',
+              capacity: val || 'New Besearch',
             })
-          "
-        >
-          <div class="tag-content-wrapper">
-            <span class="tag-label" v-if="item.label">{{ item.label }}:</span>
-            {{ item.value }}
-          </div>
-          <span class="remove-icon" @click.stop="unmapFragment(item.value)"
-            >×</span
-          >
-        </div>
-
-        <div v-if="!capacityItems.length && !hasSelection" class="empty-state">
-          Initialize...
-        </div>
-      </div>
+        "
+      />
     </div>
 
     <!-- Pillar 2: Context -->
-    <div
-      class="lens-box context zone active-lab"
-      @drop="onDrop($event, 'context')"
-      @dragover.prevent
-    >
+    <div class="lens-box context zone active-lab">
       <header class="lens-header">
         <span class="pulse-dot"></span>
         <h3>context</h3>
       </header>
       <p class="probe-text" v-if="hasSelection">
-        Geography & Environment: Where does this happen?
+        Body, Buildings, Location & Where does this happen?
       </p>
 
       <div class="context-sections">
-        <!-- Body/Peer Bucket -->
-        <div
-          class="context-group bucket"
-          @click="assignSelectedTo('peer', 'Activity')"
-          @drop.stop="onDrop($event, 'peer')"
-          @dragover.prevent
-        >
-          <h4 class="group-title">Body/Peer</h4>
-          <div class="variable-list mini">
-            <div
-              v-for="item in bodyPeerItems"
-              :key="item.value"
-              class="variable-tag assigned-tag"
-              draggable="true"
-              @dragstart="onDragStart($event, item.value)"
-              @dblclick="unmapFragment(item.value)"
-            >
-              <button @click.stop="handleCueSpace(item.value)">
-                {{ item.value }}
-              </button>
-              <span class="remove-icon" @click.stop="unmapFragment(item.value)"
-                >×</span
-              >
-            </div>
-          </div>
-        </div>
-
-        <!-- Environment Section -->
-        <div
-          class="context-group bucket"
-          @click="assignSelectedTo('environment', 'Space')"
-          @drop.stop="onDrop($event, 'environment')"
-          @dragover.prevent
-        >
-          <h4 class="group-title">Environment</h4>
-          <div class="variable-list mini">
-            <div
-              v-for="item in environmentItems"
-              :key="item.value"
-              class="variable-tag assigned-tag"
-              draggable="true"
-              @dragstart="onDragStart($event, item.value)"
-              @dblclick="unmapFragment(item.value)"
-            >
-              <button @click.stop="handleCueSpace(item.value)">
-                {{ item.value }}
-              </button>
-              <span class="remove-icon" @click.stop="unmapFragment(item.value)"
-                >×</span
-              >
-            </div>
-          </div>
-        </div>
-
-        <!-- Earth Section -->
-        <div
-          class="context-group bucket"
-          @click="assignSelectedTo('earth', 'Temporal')"
-          @drop.stop="onDrop($event, 'earth')"
-          @dragover.prevent
-        >
-          <h4 class="group-title">Earth Scales</h4>
-          <div class="variable-list mini">
-            <div
-              v-for="item in earthItems"
-              :key="item.value"
-              class="variable-tag assigned-tag"
-              draggable="true"
-              @dragstart="onDragStart($event, item.value)"
-              @dblclick="unmapFragment(item.value)"
-            >
-              <button @click.stop="handleCueSpace(item.value)">
-                {{ item.value }}
-              </button>
-              <span class="remove-icon" @click.stop="unmapFragment(item.value)"
-                >×</span
-              >
-            </div>
-          </div>
-        </div>
+        <LensColumn
+          :groups="[
+            { id: 'peer', title: 'Body/Peer', items: bodyPeerItems },
+            {
+              id: 'environment',
+              title: 'Building Environment',
+              items: environmentItems,
+            },
+            { id: 'earth', title: 'Earth Scales', items: earthItems },
+          ]"
+          @dragstart="onDragStart"
+          @unmap="unmapFragment"
+          @select="(val) => handleCueSpace(val)"
+          @drop="onDrop"
+        />
       </div>
     </div>
 
@@ -165,103 +80,60 @@
       </div>
 
       <div class="context-sections">
-        <!-- Orbits Bucket -->
-        <div
-          class="context-group bucket heli-well"
-          :class="{ 'pulse-active': heliMathGhost?.unit === 'orbits' }"
-          @click="assignSelectedTo('orbits', 'Orbit Target')"
-          @dragover.prevent="handleDragOverHeli($event, 'orbits')"
+        <LensColumn
+          :groups="[
+            {
+              id: 'orbits',
+              title: 'Orbits (Age)',
+              items: heliItems.filter((i) => i.label === 'Orbit Target'),
+              class: [
+                'heli-well',
+                { 'pulse-active': heliMathGhost?.unit === 'orbits' },
+              ],
+            },
+            {
+              id: 'days',
+              title: 'Solar Days (Rhythms)',
+              items: heliItems.filter((i) => i.label === 'Rhythm'),
+              class: 'heli-well',
+            },
+            {
+              id: 'arcs',
+              title: 'Arcs (Performance)',
+              items: heliItems.filter((i) => i.label === 'Performance'),
+              class: 'heli-well',
+            },
+          ]"
+          @dragstart="onDragStart"
+          @unmap="unmapFragment"
+          @select="(val) => handleCueSpace(val)"
+          @drop="onDrop"
+          @dragover="(e, id) => handleDragOverHeli(e, id)"
           @dragleave="handleDragLeaveHeli"
-          @drop="onDrop($event, 'orbits')"
         >
-          <h4 class="group-title">Orbits (Age)</h4>
-          <div class="ghost-math" v-if="orbitsMath">{{ orbitsMath }}</div>
-          <div class="variable-list mini">
-            <div
-              v-for="item in heliItems.filter(
-                (i) => i.label === 'Orbit Target',
-              )"
-              :key="item.value"
-              class="variable-tag assigned-tag"
-              draggable="true"
-              @dragstart="onDragStart($event, item.value)"
-              @dblclick="unmapFragment(item.value)"
-            >
-              <button @click.stop="handleCueSpace(item.value)">
-                {{ item.value }}
-              </button>
-              <span class="remove-icon" @click.stop="unmapFragment(item.value)"
-                >×</span
-              >
+          <template #group-prepend="{ group }">
+            <div class="ghost-math" v-if="group.id === 'orbits' && orbitsMath">
+              {{ orbitsMath }}
             </div>
-          </div>
-        </div>
-
-        <!-- Solar Days -->
-        <div
-          class="context-group bucket heli-well"
-          @click="assignSelectedTo('days', 'Rhythm')"
-          @drop="onDrop($event, 'days')"
-          @dragover.prevent
-        >
-          <h4 class="group-title">Solar Days (Rhythms)</h4>
-          <div class="variable-list mini">
             <div
-              v-for="item in heliItems.filter((i) => i.label === 'Rhythm')"
-              :key="item.value"
-              class="variable-tag assigned-tag"
-              draggable="true"
-              @dragstart="onDragStart($event, item.value)"
-              @dblclick="unmapFragment(item.value)"
+              class="ghost-math"
+              v-if="group.id === 'arcs' && heliMathGhost?.unit === 'arcs'"
             >
-              <button @click.stop="handleCueSpace(item.value)">
-                {{ item.value }}
-              </button>
-              <span class="remove-icon" @click.stop="unmapFragment(item.value)"
-                >×</span
-              >
+              {{ heliMathGhost.text }}
             </div>
-          </div>
-        </div>
-
-        <!-- Arcs -->
-        <div
-          class="context-group bucket heli-well"
-          @click="assignSelectedTo('arcs', 'Performance')"
-          @dragover.prevent="handleDragOverHeli($event, 'arcs')"
-          @dragleave="handleDragLeaveHeli"
-          @drop="onDrop($event, 'arcs')"
-        >
-          <h4 class="group-title">Arcs (Performance)</h4>
-          <div class="ghost-math" v-if="heliMathGhost?.unit === 'arcs'">
-            {{ heliMathGhost.text }}
-          </div>
-          <div class="variable-list mini">
-            <div
-              v-for="item in heliItems.filter((i) => i.label === 'Performance')"
-              :key="item.value"
-              class="variable-tag assigned-tag"
-              draggable="true"
-              @dragstart="onDragStart($event, item.value)"
-              @dblclick="unmapFragment(item.value)"
-            >
-              <button @click.stop="handleCueSpace(item.value)">
-                {{ item.value }}
-              </button>
-              <span class="remove-icon" @click.stop="unmapFragment(item.value)"
-                >×</span
-              >
-            </div>
-          </div>
-        </div>
+          </template>
+        </LensColumn>
       </div>
     </div>
 
-    <!-- Pillar 4: Coherence -->
-    <div class="lens-box coherence zone" @click="assignSelectedTo('coherence')">
+    <!-- Pillar 4: Attunement & Coherence -->
+    <div
+      class="lens-box coherence zone"
+      @click="assignSelectedTo('attunement')"
+    >
       <header class="lens-header">
         <span class="pulse-dot"></span>
-        <h3>coherence</h3>
+        <h3>Attunement & coherence</h3>
       </header>
 
       <div class="emulation-meter">
@@ -286,6 +158,17 @@
           }}
         </div>
       </div>
+
+      <!-- Attunement Text Bucket -->
+      <LensColumn
+        :groups="[
+          { id: 'attunement', title: 'Attunement', items: attunementItems },
+        ]"
+        @dragstart="onDragStart"
+        @unmap="unmapFragment"
+        @select="(val) => handleCueSpace(val)"
+        @drop="onDrop"
+      />
     </div>
 
     <!-- Residue Dock (Full Width Bottom Tray) -->
@@ -325,6 +208,7 @@ import BentoSpace from "@/components/bentospace/spaceTemplate.vue";
 import MiniWhole from "@/components/consilience/minWhole.vue";
 import WholeResonance from "@/components/consilience/wholeResonance.vue";
 import HeliStart from "@/components/orbit/clock/HeliStart.vue";
+import LensColumn from "@/components/orbit/parts/shared/LensColumn.vue";
 
 import { besearchStore } from "@/stores/besearchStore.js";
 import { cuesStore } from "@/stores/cuesStore.js";
@@ -389,6 +273,14 @@ const heliItems = computed(() => {
     props.lenses?.pillars?.heli,
   );
   return props.lenses?.pillars?.heli || [];
+});
+
+const attunementItems = computed(() => {
+  console.log(
+    "[LifestrapLens] Computing attunementItems:",
+    props.lenses?.pillars?.attunement,
+  );
+  return props.lenses?.pillars?.attunement || [];
 });
 
 const bodyPeerItems = computed(() =>
@@ -514,6 +406,7 @@ const onDrop = (e, zone) => {
   if (zone === "orbits") label = "Orbit Target";
   if (zone === "days") label = "Rhythm";
   if (zone === "arcs") label = "Performance";
+  if (zone === "attunement") label = "Attunement";
 
   commitAlignment(word, zone, label);
   heliMathGhost.value = null;
@@ -579,6 +472,7 @@ const unmapFragment = (word) => {
   display: flex;
   flex-direction: column;
   min-height: 400px;
+  overflow-y: auto;
 }
 
 .zone {
@@ -727,133 +621,51 @@ const unmapFragment = (word) => {
   gap: 10px;
 }
 
-.variable-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  background: rgba(0, 0, 0, 0.3);
-  padding: 12px;
-  border-radius: 12px;
-  flex-grow: 1;
-}
-
-.variable-list.mini {
-  background: transparent;
-  padding: 0;
-}
-
 .context-sections {
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
 }
 
-.context-group {
-  border-left: 2px solid rgba(0, 255, 200, 0.1);
-  padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 0 12px 12px 0;
-  transition: background 0.2s;
+.coherence :deep(.context-group) {
+  border-left-color: rgba(var(--sov-coherence-rgb), 0.1);
 }
 
-.context-group:hover {
-  background: rgba(255, 255, 255, 0.04);
+.coherence :deep(.group-title) {
+  color: var(--sov-coherence);
 }
 
-.group-title {
-  font-size: 0.65rem;
-  text-transform: uppercase;
-  color: var(--sov-accent);
-  margin-bottom: 0.5rem;
-  letter-spacing: 0.15em;
-  font-weight: 800;
-  opacity: 0.7;
+.heli-pillar :deep(.context-group) {
+  border-left-color: rgba(var(--sov-earth-rgb), 0.1);
 }
 
-.capacity .assigned-tag:hover {
+.heli-pillar :deep(.group-title) {
+  color: var(--sov-earth);
+}
+
+.capacity :deep(.variable-tag.assigned-tag:hover) {
   background: rgba(var(--sov-capacity-rgb), 0.15);
   border-color: var(--sov-capacity);
   color: var(--sov-capacity);
 }
 
-.variable-tag.assigned-tag {
-  cursor: grab;
+.context :deep(.variable-tag.assigned-tag) {
   border-color: var(--sov-context);
-  background: rgba(0, 255, 200, 0.05);
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  text-align: left;
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--sov-text);
-  transition: all 0.2s;
-  font-size: 0.85rem;
-  pointer-events: auto;
 }
 
-.remove-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  color: var(--sov-text);
-  font-size: 14px;
-  line-height: 1;
-  cursor: pointer;
-  transition: all 0.2s;
-  opacity: 0;
+.coherence :deep(.variable-tag.assigned-tag) {
+  border-color: var(--sov-coherence);
+  background: rgba(var(--sov-coherence-rgb), 0.05);
 }
 
-.assigned-tag:hover .remove-icon {
-  opacity: 1;
+.coherence :deep(.variable-tag.assigned-tag.active) {
+  background: rgba(var(--sov-coherence-rgb), 0.2);
+  border-color: var(--sov-coherence);
 }
 
-.remove-icon:hover {
-  background: var(--sov-accent);
+.coherence :deep(.remove-icon:hover) {
+  background: var(--sov-coherence);
   color: black;
-}
-
-.tag-content-wrapper {
-  flex-grow: 1;
-  pointer-events: none;
-}
-
-.variable-tag button {
-  flex-grow: 1;
-  text-align: left;
-  background: transparent;
-  border: none;
-  padding: 0;
-  color: inherit;
-  font-size: inherit;
-}
-
-.variable-tag button:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: currentColor;
-}
-
-.tag-label {
-  font-weight: 800;
-  opacity: 0.6;
-  margin-right: 4px;
-}
-
-.capacity .variable-tag button:hover {
-  color: var(--sov-capacity);
-}
-.context .variable-tag button:hover {
-  color: var(--sov-context);
-}
-.coherence .variable-tag button:hover {
-  color: var(--sov-coherence);
 }
 
 .residue-dock {

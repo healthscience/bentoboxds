@@ -15,25 +15,6 @@
         <div v-if="status[key]" class="glow-line"></div>
       </div>
     </div>
-
-    <!-- Return to Sculpting Lab Button - Positioned Centered Overlay -->
-    <div v-if="storeBesearch.wasSculptingLayerOpen" class="fuse-return-overlay">
-      <button class="return-btn" @click="handleReturnToSculpting">
-        <span class="return-icon">🛠️</span>
-        <span class="return-text">Return to Sculpting Lab</span>
-      </button>
-    </div>
-
-    <!-- Return to Besearch Cycle Button - Positioned Centered Overlay -->
-    <div
-      v-if="storeBesearch.wasBesearchCycleOpen"
-      class="fuse-return-overlay cycle-return"
-    >
-      <button class="return-btn cycle-btn" @click="handleReturnToCycle">
-        <span class="return-icon">🔄</span>
-        <span class="return-text">Return to Besearch Cycle</span>
-      </button>
-    </div>
   </footer>
 </template>
 
@@ -78,6 +59,11 @@ const handleReturnToCycle = () => {
   storeAI.currentMode = "orbit"; // Return to normal orbit mode
   storeBesearch.isBesearchLayerOpen = true;
   storeBesearch.wasBesearchCycleOpen = false;
+
+  // Restore lens and bottom panel state
+  storeAI.showLifestapLens = false;
+  storeBesearch.showBottomPanel = true;
+  storeBesearch.bottomHeight = window.innerHeight * 0.82;
 };
 </script>
 
@@ -173,67 +159,5 @@ const handleReturnToCycle = () => {
 
 .fuse-active:hover {
   background: #0f172a;
-}
-
-.fuse-return-overlay {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 100;
-  pointer-events: auto;
-}
-
-.return-btn {
-  background: #1e293b;
-  border: 2px solid #00ffcc;
-  color: #00ffcc;
-  padding: 8px 20px;
-  border-radius: 8px;
-  font-size: 0.75rem;
-  font-weight: 900;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  box-shadow: 0 0 20px rgba(0, 255, 204, 0.4);
-}
-
-.return-btn:hover {
-  background: #00ffcc;
-  color: #1e293b;
-  transform: translate(-50%, -60%) scale(1.05);
-  box-shadow: 0 0 30px rgba(0, 255, 204, 0.6);
-}
-
-/* Override hover transform since we have translate on the btn itself via the parent mostly, 
-   but here we adjust the button directly */
-.return-btn:hover {
-  transform: scale(1.05);
-}
-
-.cycle-return {
-  left: calc(
-    50% + 180px
-  ); /* Offset from center so they don't overlap if both are present */
-}
-
-.return-btn.cycle-btn {
-  border-color: #3b82f6;
-  color: #3b82f6;
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
-}
-
-.return-btn.cycle-btn:hover {
-  background: #3b82f6;
-  color: #ffffff;
-  box-shadow: 0 0 30px rgba(59, 130, 246, 0.6);
-}
-
-.return-icon {
-  font-size: 1rem;
 }
 </style>

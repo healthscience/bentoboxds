@@ -240,6 +240,33 @@
       @startDrag="startBottomDrag"
     />
 
+    <!-- Global Return to Besearch/Sculpting Buttons - Top Middle -->
+    <div
+      v-if="
+        storeBesearch.wasBesearchCycleOpen ||
+        storeBesearch.wasSculptingLayerOpen
+      "
+      class="global-return-overlay"
+    >
+      <button
+        v-if="storeBesearch.wasBesearchCycleOpen"
+        class="return-btn cycle-btn"
+        @click="storeBesearch.restoreBesearchCycle()"
+      >
+        <span class="icon">🔄</span>
+        <span class="text">Return to Besearch Cycle</span>
+      </button>
+
+      <button
+        v-if="storeBesearch.wasSculptingLayerOpen"
+        class="return-btn sculpting-btn"
+        @click="storeBesearch.restoreSculptingLab()"
+      >
+        <span class="icon">🛠️</span>
+        <span class="text">Return to Sculpting Lab</span>
+      </button>
+    </div>
+
     <BesearchLayer />
 
     <SculptingLayer />
@@ -915,28 +942,57 @@ const isBesearchMode = computed(() => storeAI.currentMode === "besearch");
   }
 }
 
-.reset-btn {
-  background: white;
-  border: 1px solid #ef4444;
-  color: #ef4444;
-  padding: 10px 24px;
-  border-radius: 30px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.reset-btn:hover {
-  background: #ef4444;
-  color: white;
-  transform: translateY(-2px);
-}
-
-.demo-controls {
-  background: white;
-  padding: 30px;
-  border-radius: 20px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+.global-return-overlay {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  gap: 20px;
   pointer-events: auto;
+}
+
+.global-return-overlay .return-btn {
+  background: rgba(30, 41, 59, 0.95);
+  border: 2px solid #00ffcc;
+  color: #00ffcc;
+  padding: 12px 28px;
+  border-radius: 40px;
+  font-size: 0.9rem;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+  white-space: nowrap;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.global-return-overlay .return-btn:hover {
+  background: #00ffcc;
+  color: #1e293b;
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 15px 50px rgba(0, 255, 204, 0.5);
+}
+
+.global-return-overlay .return-btn.cycle-btn {
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.global-return-overlay .return-btn.cycle-btn:hover {
+  background: #3b82f6;
+  color: #ffffff;
+  box-shadow: 0 15px 50px rgba(59, 130, 246, 0.5);
+}
+
+.global-return-overlay .icon {
+  font-size: 1.2rem;
 }
 </style>

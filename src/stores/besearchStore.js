@@ -21,6 +21,8 @@ export const besearchStore = defineStore("besearchstore", {
     isSculptingLayerOpen: false,
     wasSculptingLayerOpen: false,
     wasBesearchCycleOpen: false,
+    showBottomPanel: false,
+    bottomHeight: 60,
     activeBesearchThread: "besearch:prime:longevity_65",
     currentBesearchStage: "capacity", // capacity, logic, heli, emulation
     activeSeeds: {
@@ -31,10 +33,13 @@ export const besearchStore = defineStore("besearchstore", {
     activeBesearchContext: {
       capacity: null,
       context: null,
+      attunement: null,
       orbits: 65,
       days: null,
       arcs: null,
+      strategy: null,
     },
+    braidStrands: [],
     // bbNexus shared context payload
 
     nexusContext: {
@@ -65,6 +70,7 @@ export const besearchStore = defineStore("besearchstore", {
     isEmulationActive: false,
     emulationPulse: 1.0,
     emulationPulseInterval: null,
+    isBraidingMode: false,
   }),
   getters: {
     besearchCyclesNormalized: (state) => {
@@ -411,6 +417,23 @@ export const besearchStore = defineStore("besearchstore", {
     closeSculptingLayer() {
       this.isSculptingLayerOpen = false;
     },
+    restoreSculptingLab() {
+      const storeAI = aiInterfaceStore();
+      storeAI.currentMode = "orbit";
+      this.isSculptingLayerOpen = true;
+      this.wasSculptingLayerOpen = false;
+    },
+    restoreBesearchCycle() {
+      const storeAI = aiInterfaceStore();
+      storeAI.currentMode = "orbit";
+      this.isBesearchLayerOpen = true;
+      this.wasBesearchCycleOpen = false;
+
+      // Restore lens and bottom panel state
+      storeAI.showLifestapLens = false;
+      this.showBottomPanel = true;
+      this.bottomHeight = window.innerHeight * 0.82;
+    },
     updateBesearchThread(mutation) {
       this.besearchThread.push({
         thread: this.activeBesearchThread,
@@ -475,6 +498,31 @@ export const besearchStore = defineStore("besearchstore", {
         this.emulationPulseInterval = null;
       }
       this.emulationPulse = 1.0;
+    },
+    toggleBraidingMode() {
+      this.isBraidingMode = !this.isBraidingMode;
+    },
+    commitStrandToBraid() {
+      // Push current context as a completed strand
+      this.braidStrands.push({
+        ...this.activeBesearchContext,
+        timestamp: new Date().toISOString(),
+      });
+
+      // Reset context for next strand
+      this.activeBesearchContext = {
+        capacity: null,
+        context: null,
+        attunement: null,
+        orbits: 65,
+        days: null,
+        arcs: null,
+        strategy: this.activeBesearchContext.strategy,
+      };
+
+      // Reset stage to start over
+      this.currentBesearchStage = "capacity";
+      this.stopEmulation();
     },
   },
 });

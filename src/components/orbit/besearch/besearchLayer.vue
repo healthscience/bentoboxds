@@ -32,6 +32,16 @@
         </div>
 
         <div class="controls-right">
+          <div
+            class="braiding-mode-toggle"
+            @click="storeBesearch.toggleBraidingMode()"
+            :class="{ active: storeBesearch.isBraidingMode }"
+          >
+            <span class="toggle-label">Braiding</span>
+            <div class="toggle-switch">
+              <div class="toggle-knob"></div>
+            </div>
+          </div>
           <div class="besearch-branding">
             <span class="branding-label">Besearch Cycle</span>
             <div
@@ -86,6 +96,58 @@
                   v-for="word in unmappedFragments"
                   :key="word"
                   class="residue-bubble"
+                  draggable="true"
+                  @dragstart="handleResidueDragStart($event, word)"
+                >
+                  {{ word }}
+                </div>
+              </div>
+
+              <h6>Body Cues</h6>
+              <div class="bubble-stream mini">
+                <div
+                  v-for="word in ['skin', 'eyes', 'heart', 'knee', 'muscle']"
+                  :key="word"
+                  class="residue-bubble body-cue"
+                  draggable="true"
+                  @dragstart="handleResidueDragStart($event, word)"
+                >
+                  {{ word }}
+                </div>
+              </div>
+
+              <h6>Building Environment</h6>
+              <div class="bubble-stream mini">
+                <div
+                  v-for="word in [
+                    'swimming pool',
+                    'home',
+                    'flat',
+                    'office',
+                    'factory',
+                    'shopping centre',
+                  ]"
+                  :key="word"
+                  class="residue-bubble env-cue"
+                  draggable="true"
+                  @dragstart="handleResidueDragStart($event, word)"
+                >
+                  {{ word }}
+                </div>
+              </div>
+
+              <h6>Earth</h6>
+              <div class="bubble-stream mini">
+                <div
+                  v-for="word in [
+                    'trees',
+                    'grass',
+                    'river',
+                    'air quality',
+                    'farming',
+                  ]"
+                  :key="word"
+                  class="residue-bubble earth-cue"
                   draggable="true"
                   @dragstart="handleResidueDragStart($event, word)"
                 >
@@ -151,7 +213,7 @@
         </aside>
 
         <main class="lab-space">
-          <!-- Stage 1: Capacity -->
+          <!-- Stage 1: Capacity / Context / Attunement -->
           <template v-if="currentStage === 'capacity'">
             <section
               class="lab-bay capacity-bay"
@@ -159,51 +221,112 @@
               @dragover.prevent
             >
               <header class="bay-header">
-                <h4>Capacity (Cue Word)</h4>
+                <h4>1. Capacity</h4>
               </header>
-              <div class="instance-header">
-                <div class="strategy-selector mini">
-                  <button
-                    v-for="s in ['Prevention', 'Repair', 'Rejuvenation']"
-                    :key="s"
-                    :class="{ active: true }"
-                    @click="updateGelleStrategy('1234', s)"
-                  >
-                    {{ s }}
-                  </button>
-                </div>
+
+              <div class="selection-list" v-if="storeBesearch.isBraidingMode">
+                <LensColumn
+                  :groups="[
+                    {
+                      id: 'capacity',
+                      title: 'Capacity',
+                      items: availableCapacityItems,
+                    },
+                  ]"
+                  :selected-value="besearchContext.capacity"
+                  :show-remove="false"
+                  @select="selectCapacity"
+                />
               </div>
+
+              <div v-else class="capacity-focus-wrapper">
               <div class="capacity-focus" v-if="besearchContext.capacity">
-                <div class="cue-word-large">{{ besearchContext.capacity }}</div>
-                <p class="cue-description">
-                  The resonance anchor for this besearch cycle.
-                </p>
+                  <div class="cue-word-large">
+                    {{ besearchContext.capacity }}
+                  </div>
+                <p class="cue-description">Resonance Anchor</p>
               </div>
               <div v-else class="bay-placeholder">
-                Drag a residue bubble here to set the capacity anchor
+                Drag a residue bubble here
+              </div>
               </div>
             </section>
 
-            <section
-              class="lab-bay context-bay"
-              :class="{ expanded: !!besearchContext.capacity }"
-              @drop.prevent="handleContextDrop($event)"
-              @dragover.prevent
-            >
+            <section class="lab-bay context-bay">
               <header class="bay-header">
-                <h4>Context Alignment</h4>
+                <h4>2. Context</h4>
               </header>
-              <div v-if="besearchContext.context" class="context-grid">
-                <div class="context-item active">
-                  <span class="context-label">Current Alignment:</span>
-                  <span class="context-value">{{
-                    besearchContext.context
-                  }}</span>
-                </div>
-              </div>
-              <div v-else class="bay-placeholder">
-                Drag secondary fragments here to align context
-              </div>
+              <LensColumn
+                :groups="[
+                  { id: 'peer', title: 'Body/Peer', items: availablePeerItems },
+                  {
+                    id: 'environment',
+                    title: 'Building Environment',
+                    items: availableEnvironmentItems,
+                  },
+                  {
+                    id: 'earth',
+                    title: 'Earth Scales',
+                    items: availableEarthItems,
+                  },
+                ]"
+                :selected-value="besearchContext.context"
+                :show-remove="true"
+                @select="selectContext"
+                @unmap="unmapToResidue"
+                @drop="handleContextDrop"
+              />
+            </section>
+
+            <section class="lab-bay attunement-bay">
+              <header class="bay-header">
+                <h4>3. Attunement</h4>
+              </header>
+              <LensColumn
+                :groups="[
+                  {
+                    id: 'attunement',
+                    title: 'Attunement',
+                    items: availableAttunementItems,
+                  },
+                ]"
+                :selected-value="besearchContext.attunement"
+                :show-remove="true"
+                :show-set-strand="false"
+                @select="selectAttunement"
+                @unmap="unmapToResidue"
+                @drop="handleAttunementDrop"
+              >
+                <template #item-append="{ item, active }">
+                  <div
+                    v-if="
+                      active &&
+                      besearchContext.capacity &&
+                      besearchContext.context
+                    "
+                    class="item-actions-inline"
+                  >
+                    <div class="strategy-selector-inline">
+                      <button
+                        v-for="s in ['Prevention', 'Repair', 'Rejuvenation']"
+                        :key="s"
+                        :class="{ active: besearchContext.strategy === s }"
+                        @click.stop="updateBesearchStrategy(s)"
+                        :title="s"
+                      >
+                        {{ s[0] }}
+                      </button>
+                    </div>
+                    <button
+                      class="set-strand-btn-inline"
+                      :class="{ 'ready-success': besearchContext.strategy }"
+                      @click.stop="setStage('logic')"
+                    >
+                      Set Strand
+                    </button>
+                  </div>
+                </template>
+              </LensColumn>
             </section>
           </template>
 
@@ -470,8 +593,19 @@
                   <div class="orgo-wave" :style="waveStyle"></div>
                   <div class="gelle-aura" :style="auraStyle"></div>
                   <div class="emulation-overlay" v-if="isTriPointLocked">
-                    <button class="launch-btn-large" @click="launchEmulation">
+                    <button
+                      v-if="!storeBesearch.isEmulationActive"
+                      class="launch-btn-large"
+                      @click="launchEmulation"
+                    >
                       Initiate Body Emulation
+                    </button>
+                    <button
+                      v-else
+                      class="launch-btn-large set-braid-btn"
+                      @click="storeBesearch.commitStrandToBraid()"
+                    >
+                      Set Braid
                     </button>
                   </div>
                   <div
@@ -547,6 +681,7 @@ import { useOrgoStore } from "@/stores/orgoStore.js";
 import { useGelleStore } from "@/stores/gelleStore.js";
 import HeliClock from "@/components/orbit/clock/HeliClock.vue";
 import OrganSurface from "@/components/orbit/worlds/body/organSurface.vue";
+import LensColumn from "@/components/orbit/parts/shared/LensColumn.vue";
 
 const storeBesearch = besearchStore();
 const storeAI = aiInterfaceStore();
@@ -558,11 +693,26 @@ const isDarkMode = ref(false);
 const isCyclePlaying = ref(false);
 
 const toggleCycle = () => {
-  if (storeAI.currentMode !== "besearch") {
-    storeAI.currentMode = "besearch";
-    closeLayer()
-    storeBesearch.wasBesearchCycleOpen = true;
-  }
+  // close besearh cycle and lower lifestrap lens but keep track add button to besearch fuse
+  storeBesearch.isBesearchLayerOpen = false;
+  storeBesearch.wasBesearchCycleOpen = true;
+
+  // Clear active life strap and close bottom panel
+  storeAI.activeLifeStrapID = "";
+  storeAI.activeContractKey = "";
+  storeBesearch.showBottomPanel = false;
+  storeBesearch.selectedIntervention = null;
+  storeBesearch.showBesearchDetail = false;
+
+  // Collapse lifestrap lens (shows collapsed bar)
+  storeAI.showLifestapLens = true;
+
+  // Set bottom height to collapsed state (60px)
+  storeBesearch.bottomHeight = 60;
+
+  // Show besearch fuse by switching mode
+  storeAI.currentMode = "besearch";
+
   isCyclePlaying.value = !isCyclePlaying.value;
   evidenceLogs.value.push(
     `Besearch Cycle ${isCyclePlaying.value ? "activated" : "paused"}`,
@@ -617,7 +767,8 @@ const isTriPointLocked = computed(() => {
 
 const isStageCompleted = (stage) => {
   const ctx = storeBesearch.activeBesearchContext;
-  if (stage === "capacity") return !!ctx.capacity;
+  if (stage === "capacity")
+    return !!(ctx.capacity && ctx.context && ctx.attunement);
   if (stage === "logic")
     return activeOrgos.value.length > 0 || activeGelles.value.length > 0;
   if (stage === "heli") return !!(ctx.orbits || ctx.days || ctx.arcs);
@@ -644,6 +795,45 @@ const setStage = (stage) => {
 
 const besearchContext = computed(() => storeBesearch.activeBesearchContext);
 
+const availablePeerItems = computed(() =>
+  (storeAI.lifestrapTexture.pillars.context || []).filter(
+    (i) => i.label === "Activity" || i.label === "Body/Peer",
+  ),
+);
+const availableEnvironmentItems = computed(() =>
+  (storeAI.lifestrapTexture.pillars.context || []).filter(
+    (i) =>
+      i.label === "Space" ||
+      i.label === "Environment" ||
+      i.label === "Building Environment",
+  ),
+);
+const availableEarthItems = computed(() =>
+  (storeAI.lifestrapTexture.pillars.context || []).filter(
+    (i) => i.label === "Temporal" || i.label === "Earth Scales",
+  ),
+);
+
+const availableCapacityItems = computed(
+  () => storeAI.lifestrapTexture.pillars.capacity || [],
+);
+
+const availableAttunementItems = computed(
+  () => storeAI.lifestrapTexture.pillars.attunement || [],
+);
+
+const selectCapacity = (word) => {
+  storeBesearch.activeBesearchContext.capacity = word;
+};
+
+const selectContext = (word) => {
+  storeBesearch.activeBesearchContext.context = word;
+};
+
+const selectAttunement = (word) => {
+  storeBesearch.activeBesearchContext.attunement = word;
+};
+
 const handleCapacityDrop = (e) => {
   const word = e.dataTransfer.getData("text/plain");
   if (word) {
@@ -652,12 +842,29 @@ const handleCapacityDrop = (e) => {
   }
 };
 
-const handleContextDrop = (e) => {
+const handleContextDrop = (e, groupId) => {
   const word = e.dataTransfer.getData("text/plain");
   if (word) {
-    storeBesearch.activeBesearchContext.context = word;
-    evidenceLogs.value.push(`Context aligned with: ${word}`);
+    let label = "Activity";
+    if (groupId === "environment") label = "Space";
+    if (groupId === "earth") label = "Temporal";
+
+    storeAI.updateResonWeight(word, groupId, label);
+    evidenceLogs.value.push(`Context bucket added to ${groupId}: ${word}`);
   }
+};
+
+const handleAttunementDrop = (e) => {
+  const word = e.dataTransfer.getData("text/plain");
+  if (word) {
+    storeAI.updateResonWeight(word, "attunement", "Attunement");
+    evidenceLogs.value.push(`Attunement bucket added: ${word}`);
+  }
+};
+
+const unmapToResidue = (word) => {
+  storeAI.updateResonWeight(word, "residue");
+  evidenceLogs.value.push(`Moved ${word} back to library`);
 };
 
 const handleHeliSectorDrop = (e, sector) => {
@@ -742,6 +949,11 @@ const handleGraftDrop = (e, instanceId) => {
     gelleStore.addGraft(instanceId, word);
     evidenceLogs.value.push(`Grafted residue: ${word}`);
   }
+};
+
+const updateBesearchStrategy = (strategy) => {
+  storeBesearch.activeBesearchContext.strategy = strategy;
+  logMutation("context", "global", "strategy", strategy);
 };
 
 const updateGelleStrategy = (instanceId, strategy) => {
@@ -1234,8 +1446,30 @@ const auraStyle = computed(() => {
   background: #fdfcfb;
 }
 
+.stage-capacity .lab-space {
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr;
+}
+
 .dark-theme .lab-space {
   background: transparent;
+}
+
+.context-bay :deep(.variable-tag),
+.attunement-bay :deep(.variable-tag) {
+  cursor: pointer;
+}
+
+.context-bay :deep(.variable-tag.active),
+.attunement-bay :deep(.variable-tag.active) {
+  background: rgba(0, 255, 200, 0.2);
+  border-color: var(--sov-accent);
+}
+
+.dark-theme .context-bay :deep(.variable-tag.active),
+.dark-theme .attunement-bay :deep(.variable-tag.active) {
+  background: rgba(0, 255, 204, 0.1);
+  border-color: #00ffcc;
 }
 
 .lab-bay {
@@ -1378,7 +1612,7 @@ const auraStyle = computed(() => {
 
 .strategy-selector button {
   flex: 1;
-  padding: 8px;
+  padding: 12px 8px;
   font-size: 0.65rem;
   background: #ffffff;
   border: 1px solid rgba(0, 0, 0, 0.12);
@@ -1627,6 +1861,222 @@ const auraStyle = computed(() => {
   position: relative;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.selection-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+.selection-item {
+  padding: 12px;
+  background: #f7fafc;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  transition: all 0.2s;
+}
+
+.selection-item:hover {
+  background: #edf2f7;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+.selection-item.active {
+  background: #e6fffa;
+  border-color: #00796b;
+  box-shadow: 0 0 10px rgba(0, 121, 107, 0.1);
+}
+
+.dark-theme .selection-item {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.05);
+  color: #e0e0e0;
+}
+
+.dark-theme .selection-item.active {
+  background: rgba(0, 255, 204, 0.05);
+  border-color: #00ffcc;
+}
+
+.item-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  color: #718096;
+  font-weight: 700;
+}
+
+.item-value {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.item-actions-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.strategy-selector-inline {
+  display: flex;
+  gap: 2px;
+}
+
+.strategy-selector-inline button {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  font-size: 0.6rem;
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #4a5568;
+  cursor: pointer;
+  border-radius: 4px;
+  font-weight: 700;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dark-theme .strategy-selector-inline button {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #e0e0e0;
+}
+
+.strategy-selector-inline button.active {
+  background: #00796b;
+  color: #ffffff;
+  border-color: #00796b;
+}
+
+.dark-theme .strategy-selector-inline button.active {
+  background: #00ffcc;
+  color: #000;
+  border-color: #00ffcc;
+}
+
+.set-strand-btn-inline {
+  background: #00796b;
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: 800;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.dark-theme .set-strand-btn-inline {
+  background: #00ffcc;
+  color: black;
+}
+
+.set-strand-btn-inline.ready-success {
+  background: #4caf50 !important;
+  color: white !important;
+  box-shadow: 0 0 10px rgba(76, 175, 80, 0.4);
+}
+
+.braiding-mode-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 4px 12px;
+  background: #f7fafc;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 20px;
+  transition: all 0.2s;
+  margin-right: 15px;
+}
+
+.braiding-mode-toggle:hover {
+  background: #edf2f7;
+}
+
+.braiding-mode-toggle.active {
+  border-color: #ff8000;
+  background: rgba(255, 128, 0, 0.05);
+}
+
+.toggle-label {
+  font-family: "Space Mono", monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #4a5568;
+}
+
+.braiding-mode-toggle.active .toggle-label {
+  color: #ff8000;
+}
+
+.toggle-switch {
+  width: 30px;
+  height: 16px;
+  background: #cbd5e0;
+  border-radius: 10px;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.active .toggle-switch {
+  background: #ff8000;
+}
+
+.toggle-knob {
+  width: 12px;
+  height: 12px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.active .toggle-knob {
+  left: 16px;
+}
+
+.dark-theme .braiding-mode-toggle {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-theme .toggle-label {
+  color: #e0e0e0;
+}
+
+.dark-theme .braiding-mode-toggle.active {
+  background: rgba(255, 128, 0, 0.1);
+}
+
+.set-braid-btn {
+  background: #ff8000 !important;
+  box-shadow: 0 0 20px rgba(255, 128, 0, 0.3) !important;
+}
+
+.dark-theme .set-braid-btn {
+  background: #ff8000 !important;
+  color: white !important;
+}
+
+.empty-selection {
+  font-size: 0.8rem;
+  opacity: 0.5;
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
 }
 
 @keyframes pulse {

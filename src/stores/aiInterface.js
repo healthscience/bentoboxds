@@ -201,6 +201,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       pillars: {
         capacity: [],
         context: [],
+        attunement: [],
         heli: [],
         coherence: { isStable: false, resonance: 0 },
       },
@@ -243,6 +244,10 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         this.lifestrapTexture.pillars.capacity.filter((i) => i.value !== word);
       this.lifestrapTexture.pillars.context =
         this.lifestrapTexture.pillars.context.filter((i) => i.value !== word);
+      this.lifestrapTexture.pillars.attunement =
+        this.lifestrapTexture.pillars.attunement.filter(
+          (i) => i.value !== word,
+        );
       this.lifestrapTexture.pillars.heli =
         this.lifestrapTexture.pillars.heli.filter((i) => i.value !== word);
 
@@ -289,9 +294,8 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
           heliEntry.math = `${word} - currentHeliAge`;
         }
         this.lifestrapTexture.pillars.heli.push(heliEntry);
-      } else if (zone === "coherence") {
-        // Coherence is an object in the expected structure, but we might want to track resonance tags too?
-        // For now, following the specific structure provided.
+      } else if (zone === "coherence" || zone === "attunement") {
+        this.lifestrapTexture.pillars.attunement.push(entry);
       }
 
       this.syncAttunement(word, zone, label);
@@ -822,6 +826,13 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
               ...slots
                 .filter((s) => s.label === "Performance")
                 .map((s) => ({ label: "Performance", value: s.value })),
+            ],
+            attunement: [
+              ...slots
+                .filter(
+                  (s) => s.type === "attunement" || s.label === "Attunement",
+                )
+                .map((s) => ({ label: "Attunement", value: s.value })),
             ],
             coherence: {
               isStable: received.data.context?.isStable || false,

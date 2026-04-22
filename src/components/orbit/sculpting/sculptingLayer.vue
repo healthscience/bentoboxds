@@ -232,8 +232,8 @@
               <h5>The Lens</h5>
               <button
                 class="close-lab-panel"
-                @click="storeBesearch.closeBesearchLayer()"
-                title="Close Besearch"
+                @click="closeLayer"
+                title="Close Sculpting Lab"
               >
                 ✕
               </button>
