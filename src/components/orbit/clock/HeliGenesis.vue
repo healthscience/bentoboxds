@@ -16,24 +16,48 @@
         </div>
       </div>
 
-      <div class="location-toggle">
-        <button :class="{ active: useCurrentLocation }" @click="requestLocation">📍 Ask browser for GPS location</button>
-        <!--<button :class="{ active: !useCurrentLocation }" @click="useCurrentLocation = false">🗺️ Pick Birthplace</button>-->
-      </div>
+      <div class="current-location-form">
+        <label>Where are you now?</label>
+        <div class="input-row">
+          <input type="text" v-model="currentPlaceName" placeholder="City, Town or Village" />
+          <button @click="convertCurrentLocation()">📍 Find</button>
+        </div>
 
-      <div v-if="currentLocation && useCurrentLocation" class="location-info">
-        <p>Current: {{ currentLocation.lat.toFixed(4) }}, {{ currentLocation.lng.toFixed(4) }}</p>
-        <div class="location-birth-differs">
-          Where you born at a different location?
-          <button @click="setBirthLocation()">Yes</button>
+        <div v-if="storeDiary.currentLocationError" class="location-error">
+          ⚠️ Sorry, we could not find that location.
+        </div>
+        
+        <div v-if="currentLocation" class="location-preview-mini">
+          <p>📍 {{ currentPlaceName }}: {{ currentLocation.lat.toFixed(4) }}, {{ currentLocation.lng.toFixed(4) }}</p>
+        </div>
+
+        <div v-if="storeDiary.locationOptions && storeDiary.locationOptions.length > 0" class="location-selector">
+          <p class="selector-title">Please select the correct {{ storeDiary.locationContext }} location:</p>
+          <ul class="options-list">
+            <li v-for="loc in storeDiary.locationOptions" :key="loc.id" @click="handleLocationSelect(loc)">
+              <span class="option-name">{{ loc.name }}</span>
+              <span class="option-details">{{ loc.admin1_code }}, {{ loc.country_code }} (pop. {{ loc.population.toLocaleString() }})</span>
+            </li>
+          </ul>
+        </div>
+
+        <div v-if="currentLocation" class="location-birth-differs">
+          <span>Was your birth place different?</span>
+          <button :class="{ active: birthDifferentLocation }" @click="setBirthLocation()">Yes</button>
         </div>
       </div>
 
       <div v-if="birthDifferentLocation === true" class="birth-location-form">
-        <input type="text" v-model="birthPlaceName" placeholder="Place Name (e.g. London)" />
-        <button @click="convertGPS()">Find location</button>
+        <label>Birth Place</label>
+        <div class="input-row">
+          <input type="text" v-model="birthPlaceName" placeholder="Birth Place (e.g. London)" />
+          <button @click="convertGPS()">🔍 Find</button>
+        </div>
+        <div v-if="storeDiary.birthLocationError" class="location-error">
+          ⚠️ Sorry, we could not find that birth location.
+        </div>
         <div class="birth-location-gps" v-if="birthLocationData">
-          <p>Birth location: {{ birthLocationData?.latitude.toFixed(4) }}, {{ birthLocationData?.longitude.toFixed(4) }}</p>
+          <p>👶 Birth location: {{ birthLocationData?.latitude.toFixed(4) }}, {{ birthLocationData?.longitude.toFixed(4) }}</p>
         </div>
       </div>
 
@@ -74,31 +98,37 @@ const emit = defineEmits(['calibrated']);
 const orbits = ref(30);
 const sliderOrbital = ref(90);
 const sliderDaily = ref(180);
-const useCurrentLocation = ref(false);
-const currentLocation = ref(null);
+const currentPlaceName = ref('');
 const birthPlaceName = ref('');
 const birthDifferentLocation = ref(false);
 
+/* computeed */
 const translatedOldWorldDate = computed(() => storeDiary.calibrationPreviewDate);
+
+const currentLocation = computed(() => {
+  const loc = storeDiary.currentLocation;
+  console.log('currentLocation', loc);
+  if (!loc) return null;
+  return { lat: loc.latitude, lng: loc.longitude };
+});
 const birthLocationData = computed(() => storeDiary.birthLocation);
 const heliOrbit = computed(() => storeDiary.calibrationOrbit);
 const heliZenith = computed(() => storeDiary.calibrationZenith);
 
 /* methods */
-const requestLocation = () => {
-  useCurrentLocation.value = true;
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition((p) => {
-      currentLocation.value = { lat: p.coords.latitude, lng: p.coords.longitude };
-    });
-  }
+const convertCurrentLocation = () => {
+  storeDiary.sendMessageHOP({
+    type: 'heliclock',
+    action: 'default-location-search',
+    data: { town: currentPlaceName.value, context: 'current' }
+  });
 };
 
 const convertGPS = () => {
   storeDiary.sendMessageHOP({
     type: 'heliclock',
     action: 'birth-location-search',
-    data: { town: birthPlaceName.value }
+    data: { town: birthPlaceName.value, context: 'birth' }
   });
 };
 
@@ -120,6 +150,16 @@ const lockHeliGenesis = () => {
 const setBirthLocation = () => {
   birthDifferentLocation.value = !birthDifferentLocation.value;
 }
+
+const handleLocationSelect = (loc) => {
+  storeDiary.locationContext = 'current'
+  if (storeDiary.locationContext === 'current') {
+    currentPlaceName.value = loc.name;
+  } else {
+    birthPlaceName.value = loc.name;
+  }
+  storeDiary.selectLocation(loc);
+};
 
 watch([sliderOrbital, sliderDaily], () => {
   const loc = birthLocationData.value || currentLocation.value;
@@ -152,37 +192,9 @@ watch([sliderOrbital, sliderDaily], () => {
   overflow-y: auto;
 }
 
-.location-toggle {
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.location-toggle button {
-  flex: 1;
-  padding: 0.8rem;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  background: white;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.location-toggle button.active {
-  background: #0f172a;
-  color: white;
-  border-color: #0f172a;
-}
-
-.location-info {
-  background: #f8fafc;
-  padding: 1rem;
-  border-radius: 20px;
-  margin-bottom: 1.5rem;
-}
-
+.current-location-form,
 .birth-location-form {
-  background: #f1f5f9;
+  background: #f8fafc;
   padding: 1.5rem;
   border-radius: 20px;
   margin-bottom: 1.5rem;
@@ -192,10 +204,130 @@ watch([sliderOrbital, sliderDaily], () => {
   gap: 0.75rem;
 }
 
-.birth-location-form input {
+.current-location-form label,
+.birth-location-form label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.input-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.input-row input {
+  flex: 1;
   padding: 0.8rem;
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1px solid #cbd5e1;
+  font-size: 1rem;
+}
+
+.input-row button {
+  padding: 0 1.2rem;
+  border-radius: 12px;
+  border: 1px solid #cbd5e1;
+  background: white;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.location-preview-mini,
+.birth-location-gps {
+  font-size: 0.85rem;
+  color: #0f172a;
+  background: #f1f5f9;
+  padding: 0.5rem 0.8rem;
+  border-radius: 10px;
+}
+
+.location-error {
+  font-size: 0.85rem;
+  color: #b91c1c;
+  background: #fef2f2;
+  padding: 0.5rem 0.8rem;
+  border-radius: 10px;
+  border: 1px solid #fecaca;
+}
+
+.location-selector {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1rem;
+  margin-top: 0.5rem;
+}
+
+.selector-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+}
+
+.options-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.options-list li {
+  padding: 0.75rem;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  transition: background 0.2s;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.options-list li:last-child {
+  border-bottom: none;
+}
+
+.options-list li:hover {
+  background: #f1f5f9;
+}
+
+.option-name {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.option-details {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.location-birth-differs {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px dashed #cbd5e1;
+  font-size: 0.9rem;
+}
+
+.location-birth-differs button {
+  padding: 0.4rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: white;
+  cursor: pointer;
+}
+
+.location-birth-differs button.active {
+  background: #0f172a;
+  color: white;
+  border-color: #0f172a;
 }
 
 .preview-mini-svg {

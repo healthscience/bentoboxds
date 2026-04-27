@@ -117,23 +117,6 @@
       </div>
     </div>
 
-    <!-- Besearch Section -->
-    <div class="accordion-section">
-      <button
-        class="accordion-header"
-        @click="toggleSection('besearch')"
-        :class="{ active: expandedSection === 'besearch' }"
-      >
-        <span>Besearch</span>
-        <span class="toggle-icon">{{
-          expandedSection === "besearch" ? "▼" : "▶"
-        }}</span>
-      </button>
-      <div v-if="expandedSection === 'besearch'" class="accordion-content">
-        <besearch-controls />
-      </div>
-    </div>
-
     <!-- Attunement Section -->
     <div class="accordion-section">
       <button
@@ -148,6 +131,23 @@
       </button>
       <div v-if="expandedSection === 'interventions'" class="accordion-content">
         <attunement-type></attunement-type>
+      </div>
+    </div>
+
+    <!-- Besearch Section -->
+    <div class="accordion-section">
+      <button
+        class="accordion-header"
+        @click="toggleSection('besearch')"
+        :class="{ active: expandedSection === 'besearch' }"
+      >
+        <span>Besearch</span>
+        <span class="toggle-icon">{{
+          expandedSection === "besearch" ? "▼" : "▶"
+        }}</span>
+      </button>
+      <div v-if="expandedSection === 'besearch'" class="accordion-content">
+        <besearch-controls />
       </div>
     </div>
 
@@ -211,7 +211,7 @@
     </div>
 
     <!-- Time Section -->
-    <div class="accordion-section">
+    <!--<div class="accordion-section">
       <button
         class="accordion-header"
         @click="toggleSection('time')"
@@ -236,7 +236,7 @@
           <div class="cycle-period">1 orbit year</div>
         </div>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 
