@@ -114,7 +114,6 @@ const translatedOldWorldDate = computed(() => storeDiary.calibrationPreviewDate)
 
 const currentLocation = computed(() => {
   const loc = storeDiary.currentLocation;
-  console.log('currentLocation', loc);
   if (!loc) return null;
   return { lat: loc.latitude, lng: loc.longitude };
 });

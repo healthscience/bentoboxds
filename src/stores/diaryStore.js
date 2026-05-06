@@ -116,7 +116,6 @@ export const diaryStore = defineStore('diarystore', {
       return (norm < 10 ? '0' : '') + norm;
     },
     processHeliReply (received) {
-      console.log('processHeliReply', received)
       if (received.action === 'heliclock-location-default' || received.action === 'heliclock-location-birth') {
         let isCurrent = ''
         if (received.data.context === 'current') {
@@ -163,7 +162,6 @@ export const diaryStore = defineStore('diarystore', {
         this.orbitSignature = received.data
         this.heliClockSet = true
       } else if (received.action === 'heli-orbit-signature') {
-        console.log('heli-orbit-signature', received.data)
         this.heliSignature = received.data.value.data
       } else if (received.action === 'peer-heli-signature') {
         // start heli clock info
