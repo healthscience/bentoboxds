@@ -125,7 +125,7 @@ export const diaryStore = defineStore('diarystore', {
           isCurrent = 'birth' 
         }
     
-        if (received.data && received.data.length > 1) {
+        if (received.data.place && received.data.place.length > 1) {
           this.locationOptions = received.data.place
           this.locationContext = isCurrent
           return
