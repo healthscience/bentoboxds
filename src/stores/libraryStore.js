@@ -23,7 +23,7 @@ export const libraryStore = defineStore('librarystore', {
     utilLibrary: new LibraryUtility(),
     sendSocket: useSocketStore(),
     liveChatUtil: new ChatUtilty(),
-    storeBesearch: new besearchStore(),
+    storeBesearch: null,
     storeTeach: teachingStore(),
     startPubLibrary: false,
     straps: [],
@@ -205,7 +205,8 @@ export const libraryStore = defineStore('librarystore', {
     fileSaveStatus: false,
     fileFeedback: '',
     devicesJoin: [],
-    inContext: 'chat' 
+    inContext: 'chat',
+    availableMarkers: []
   }),
   actions: {
     // since we rely on `this`, we cannot use an arrow function

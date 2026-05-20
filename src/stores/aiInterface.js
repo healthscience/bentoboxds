@@ -12,6 +12,7 @@ import ChatspaceUtilty from "@/stores/hopUtility/chatspaceUtility.js";
 import { accountStore } from "@/stores/accountStore.js";
 import { cuesStore } from "@/stores/cuesStore.js";
 import { teachingStore } from "@/stores/teachingStore.js";
+import { besearchStore } from "@/stores/besearchStore.js";
 
 
 export const aiInterfaceStore = defineStore("beebeeAIstore", {
@@ -811,13 +812,10 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
               // Legacy compatibility for components using digestInput
               this.digestInput = lsSet.lens;
 
-              // besearch
-
-              // beebee dialogue
-
-              // cues (library)
-
-              // orgo gelle resonAgent(model)
+              this.showLifestapLens = false;
+              const bStore = besearchStore();
+              bStore.showBottomPanel = true;
+              bStore.bottomHeight = window.innerHeight * 0.82;
 
               // setup peer experience
               this.initializeSovereignSession(hexContract.key)
@@ -860,7 +858,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
                 .map((s) => ({ label: "Temporal", value: s.value })),
             ],
             heli: [
-              ...(lsContract.value.heli
+              ...(lsContract.value.concept.heli
                 ? Object.entries(lsContract.value.concept.heli).flatMap(([k, v]) =>
                     v.map((val) => ({ label: k, value: val })),
                   )
@@ -894,10 +892,14 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         this.lifestrapTexture = newTexture;
         // Legacy compatibility for components using digestInput
         this.digestInput = this.lifestrapTexture;
-
+        
         // Open the lens when data arrives
         this.activeLifeStrapID = lsContract.key || "active-strap";
-        this.showLifestapLens = true;
+        this.showLifestapLens = false;
+        
+        const bStore = besearchStore();
+        bStore.showBottomPanel = true;
+        bStore.bottomHeight = window.innerHeight * 0.82;
       } else if (received.action === "agent-task") {
         if (received.task === "cale-evolution") {
           this.boxModelUpdate[received.context.bbid] = {};
@@ -1693,6 +1695,11 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       this.chatAttention = lsContract.key;
       this.beebeeContext = "lifestrap";
 
+      const bStore = besearchStore();
+      bStore.showBottomPanel = true;
+      bStore.bottomHeight = window.innerHeight * 0.82;
+      this.showLifestapLens = false;
+
       // If this is a new selection
       if (this.activeLifestrapKey !== lsContract.key) {
         this.activeLifestrapKey = lsContract.key;
@@ -1761,11 +1768,18 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         // 2. Set the Master ID
         this.lifeStrapID = latestStrap.key;
         this.chatAttention = latestStrap.key;
+        this.activeLifeStrapID = latestStrap.key;
+        this.activeContractKey = latestStrap.key;
 
         // 3. Set the Mode so the UI knows we aren't in 'Zen'
         // We move straight to 'active' or 'extracting'
         this.currentMode = "extracting";
         this.activeWorld = "orbit";
+        this.showLifestapLens = false;
+        const bStore = besearchStore();
+        bStore.showBottomPanel = true;
+        bStore.bottomHeight = window.innerHeight * 0.82;
+
         this.setBeeBeeDialogue(latestStrap);
       } else {
         // No straps found? Stay in Zen mode for First Peer Experience

@@ -3,11 +3,27 @@
     <div
       v-if="isOpen"
       class="besearch-layer smelter-v2"
-      :class="{ 'dark-theme': isDarkMode }"
+      :class="{ 
+        'dark-theme': isDarkMode,
+        'besearch-active': storeBesearch.besearchMode === 'besearch'
+      }"
     >
       <div class="besearch-controls-top">
         <div class="controls-left">
-          <div class="progress-nav">
+          <div class="summary-line" v-if="storeBesearch.besearchMode === 'besearch'">
+            <div class="summary-item">
+              <span class="label">CAPACITY:</span>
+              <span class="value">{{ besearchContext.capacity || 'NONE' }}</span>
+            </div>
+            <div class="summary-item">
+              <span class="label">CONTEXT:</span>
+              <span class="value">{{ besearchContext.context || 'NONE' }}</span>
+            </div>
+            <button class="expand-sieve-btn" @click="storeBesearch.setHUUDState('lens')">
+              {{ storeBesearch.isSieveExpanded ? 'MINIMIZE' : 'EXPAND' }} STORY
+            </button>
+          </div>
+          <div v-else class="progress-nav">
             <div
               v-for="(stage, idx) in ['capacity', 'logic', 'heli', 'emulation']"
               :key="stage"
@@ -32,16 +48,6 @@
         </div>
 
         <div class="controls-right">
-          <div
-            class="braiding-mode-toggle"
-            @click="storeBesearch.toggleBraidingMode()"
-            :class="{ active: storeBesearch.isBraidingMode }"
-          >
-            <span class="toggle-label">Braiding</span>
-            <div class="toggle-switch">
-              <div class="toggle-knob"></div>
-            </div>
-          </div>
           <div class="besearch-branding">
             <span class="branding-label">Besearch Cycle</span>
             <div
@@ -63,6 +69,16 @@
           <button class="close-layer" @click="closeLayer">✕</button>
         </div>
       </div>
+
+      <!-- BeeBee Dialogue Roll-down -->
+      <transition name="roll-down">
+        <div class="beebee-dialogue-roll" v-if="storeBesearch.besearchMode === 'besearch'">
+          <div class="beebee-avatar">🐝</div>
+          <div class="dialogue-content">
+            <p class="beebee-message">{{ latestBeeBeeMessage }}</p>
+          </div>
+        </div>
+      </transition>
 
       <!-- besearch stage any order can be filled in -->
 
@@ -1108,6 +1124,8 @@ const initGellePolyhedron = (canvas, instanceId) => {
 
 const closeLayer = () => {
   storeBesearch.closeBesearchLayer();
+  storeBesearch.besearchMode = "resting";
+  storeAI.showLifestapLens = false;
   if (storeBesearch.wasSculptingLayerOpen) {
     storeBesearch.isSculptingLayerOpen = true;
     storeBesearch.wasSculptingLayerOpen = false;
@@ -1138,17 +1156,116 @@ const auraStyle = computed(() => {
   bottom: 0;
   left: 0;
   width: 100vw;
-  height: 84vh;
-  background: #fdfcfb;
-  backdrop-filter: blur(30px);
+  height: v-bind('storeBesearch.bottomHeight + "px"');
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(35px) saturate(200%) brightness(1.1);
+  -webkit-backdrop-filter: blur(35px) saturate(200%) brightness(1.1);
   z-index: 5000;
   display: flex;
   flex-direction: column;
   color: #1a202c;
-  border-top: 1px solid rgba(0, 0, 0, 0.08);
-  transition:
-    background 0.3s,
-    color 0.3s;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.1);
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.besearch-layer.besearch-active {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+
+.summary-line {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 6px 16px;
+  background: #1a202c;
+  border: 1px solid #00ffcc;
+  border-radius: 30px;
+  box-shadow: 0 0 15px rgba(0, 255, 204, 0.2);
+}
+
+.summary-item {
+  display: flex;
+  gap: 8px;
+  font-family: "Space Mono", monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+}
+
+.summary-item .label {
+  color: #718096;
+  font-weight: 800;
+}
+
+.summary-item .value {
+  color: #00ffcc;
+  font-weight: 700;
+}
+
+.expand-sieve-btn {
+  background: rgba(0, 255, 204, 0.1);
+  border: 1px solid rgba(0, 255, 204, 0.3);
+  color: #00ffcc;
+  font-size: 0.65rem;
+  padding: 4px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 800;
+  transition: all 0.2s;
+}
+
+.expand-sieve-btn:hover {
+  background: rgba(0, 255, 204, 0.2);
+  transform: scale(1.05);
+}
+
+.beebee-dialogue-roll {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 20px 40px;
+  background: linear-gradient(180deg, rgba(0, 255, 204, 0.12) 0%, transparent 100%);
+  border-bottom: 1px solid rgba(0, 255, 204, 0.2);
+  margin-bottom: 10px;
+}
+
+.beebee-avatar {
+  font-size: 2rem;
+  filter: drop-shadow(0 0 10px rgba(0, 255, 204, 0.4));
+  animation: hover-float 3s infinite ease-in-out;
+}
+
+@keyframes hover-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(5deg); }
+}
+
+.beebee-message {
+  font-family: "Space Mono", monospace;
+  font-size: 0.95rem;
+  color: #00ffcc;
+  font-style: normal;
+  margin: 0;
+  line-height: 1.4;
+  text-shadow: 0 0 5px rgba(0, 255, 204, 0.3);
+}
+
+.roll-down-enter-active, .roll-down-leave-active {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  max-height: 100px;
+  overflow: hidden;
+}
+
+.roll-down-enter-from, .roll-down-leave-to {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-20px);
 }
 
 .besearch-layer.dark-theme {
@@ -1255,12 +1372,20 @@ const auraStyle = computed(() => {
 }
 
 @keyframes slow-rotate {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Transition for the lab sliding from bottom */
+.besearch-slide-enter-active,
+.besearch-slide-leave-active {
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.besearch-slide-enter-from,
+.besearch-slide-leave-to {
+  transform: translateY(100%);
+  opacity: 0;
 }
 
 .dark-theme .besearch-branding .branding-label {

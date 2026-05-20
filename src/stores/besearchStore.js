@@ -25,6 +25,8 @@ export const besearchStore = defineStore("besearchstore", {
     bottomHeight: 60,
     activeBesearchThread: "besearch:prime:longevity_65",
     currentBesearchStage: "capacity", // capacity, logic, heli, emulation
+    besearchMode: "default", // default, lens, besearch
+    isSieveExpanded: true,
     activeSeeds: {
       orgos: [],
       gelles: [],
@@ -38,6 +40,7 @@ export const besearchStore = defineStore("besearchstore", {
       days: null,
       arcs: null,
       strategy: null,
+      story: "",
     },
     braidStrands: [],
     // bbNexus shared context payload
@@ -404,7 +407,7 @@ export const besearchStore = defineStore("besearchstore", {
         this.wasSculptingLayerOpen = true;
         this.isSculptingLayerOpen = false;
       }
-      this.isBesearchLayerOpen = true;
+      this.setHUUDState('lens');
     },
     closeBesearchLayer() {
       this.isBesearchLayerOpen = false;
@@ -499,30 +502,38 @@ export const besearchStore = defineStore("besearchstore", {
       }
       this.emulationPulse = 1.0;
     },
-    toggleBraidingMode() {
-      this.isBraidingMode = !this.isBraidingMode;
+    transitionToBench() {
+      this.besearchMode = "besearch";
+      this.isSieveExpanded = false;
+      this.currentBesearchStage = "logic";
+      this.bottomHeight = window.innerHeight * 0.85;
     },
-    commitStrandToBraid() {
-      // Push current context as a completed strand
-      this.braidStrands.push({
-        ...this.activeBesearchContext,
-        timestamp: new Date().toISOString(),
-      });
-
-      // Reset context for next strand
-      this.activeBesearchContext = {
-        capacity: null,
-        context: null,
-        attunement: null,
-        orbits: 65,
-        days: null,
-        arcs: null,
-        strategy: this.activeBesearchContext.strategy,
-      };
-
-      // Reset stage to start over
+    transitionToSieve() {
+      this.besearchMode = "lens";
+      this.isSieveExpanded = true;
       this.currentBesearchStage = "capacity";
-      this.stopEmulation();
     },
+    setHUUDState(mode) {
+      const storeAI = aiInterfaceStore();
+      this.besearchMode = mode;
+      console.log("HUUD Mode set to:", mode);
+      
+      if (mode === 'default') {
+        this.isBesearchLayerOpen = false;
+        this.bottomHeight = 60;
+        storeAI.showLifestapLens = false;
+        this.isSieveExpanded = false;
+      } else if (mode === 'lens') {
+        this.isBesearchLayerOpen = true;
+        this.isSieveExpanded = true;
+        this.bottomHeight = window.innerHeight * 0.82;
+        storeAI.showLifestapLens = true; // Show the full lens
+      } else if (mode === 'besearch') {
+        this.isBesearchLayerOpen = true;
+        this.isSieveExpanded = false;
+        this.bottomHeight = window.innerHeight * 0.85;
+        storeAI.showLifestapLens = true; // Still in lens-enabled context but lab view
+      }
+    }
   },
 });

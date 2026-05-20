@@ -1,31 +1,56 @@
 <template>
-  <div id="orbit-hud" :class="{ 'is-expanded': isExpanded }">
+  <div id="orbit-hud" :class="{ 'is-expanded': isExpanded, 'lens-active': storeBesearch.besearchMode !== 'default' }">
     <div class="hud-top">
       <div class="hud-metrics">
-        <div class="metric">
+        <!-- Be Section - Always Visible -->
+        <div class="metric be-metric" @click="toggleLensLayer">
           <span>Be</span><strong>{{ activeLifeStrapName }}</strong>
         </div>
-        <div class="metric">
-          <span>{{ isExpanded ? "LIFE-STRAPS" : "L-S" }}</span
-          ><strong>{{ countLifeStraps }}</strong>
-        </div>
-        <template v-if="isExpanded">
-          <div class="metric"><span>BESEARCH</span><strong>0</strong></div>
-          <div class="metric"><span>DIALOGUE</span><strong>0</strong></div>
-          <div class="metric"><span>CUES</span><strong>0</strong></div>
+        
+        <!-- Standard Metrics (State 1) -->
+        <template v-if="storeBesearch.besearchMode === 'default'">
+          <div class="metric" @click="setMode('lens')">
+            <span>LIFE-STRAPS</span><strong>{{ countLifeStraps }}</strong>
+          </div>
+          <div class="metric" @click="setMode('lens')">
+             <span>LENS</span>
+          </div>
+          <template v-if="isExpanded">
+            <div class="metric" @click="setMode('besearch')"><span>BESEARCH</span><strong>0</strong></div>
+            <div class="metric"><span>DIALOGUE</span><strong>0</strong></div>
+          </template>
         </template>
+
+        <!-- Operational Metrics (State 2 & 3) -->
         <template v-else>
-          <div class="metric"><span>BES</span><strong>0</strong></div>
+          <div class="metric" :class="{ active: storeBesearch.besearchMode === 'lens' }" @click="setMode('lens')">
+            <span>STORY</span><strong>{{ mappedWordsCount }}</strong>
+          </div>
+          <div class="metric" :class="{ active: storeBesearch.besearchMode === 'besearch' }" @click="setMode('besearch')">
+            <span>LAB</span><strong>{{ extractedCuesCount }}</strong>
+          </div>
+          <div class="metric agent-activity">
+            <span>AGENT</span><strong>{{ agentStatus }}</strong>
+          </div>
         </template>
       </div>
 
-      <div v-if="isExpanded" class="metric altruism-metric">
+      <div v-if="isExpanded && storeBesearch.besearchMode === 'default'" class="metric altruism-metric">
         <span>Altrusim</span><strong>help 20%</strong>
       </div>
 
-      <button class="hud-toggle" @click="isExpanded = !isExpanded">
-        {{ isExpanded ? "<" : ">" }}
-      </button>
+      <div class="hud-actions">
+        <button class="hud-toggle" @click="isExpanded = !isExpanded">
+          {{ isExpanded ? "<" : ">" }}
+        </button>
+        <button 
+          class="hud-expand-down" 
+          :class="{ active: storeBesearch.besearchMode !== 'default' }"
+          @click="toggleLensLayer"
+        >
+          {{ storeBesearch.besearchMode === 'default' ? "↓" : "↑" }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -34,20 +59,70 @@
 import { ref, computed } from "vue";
 import { aiInterfaceStore } from "@/stores/aiInterface.js";
 import { libraryStore } from "@/stores/libraryStore.js";
+import { besearchStore } from "@/stores/besearchStore.js";
 
 const storeAI = aiInterfaceStore();
 const storeLibrary = libraryStore();
+const storeBesearch = besearchStore();
 
 const isExpanded = ref(false);
 
 /* Get the active life-strap name */
 const activeLifeStrapName = computed(() => {
-  return storeAI.lifeStrapID?.slice(-8);
+  const id = storeAI.activeLifeStrapID;
+  if (!id) return "SOV-01";
+  
+  // Check if it's already a string and not an object string representation
+  if (typeof id === 'string' && id.length > 20 && !id.includes('[object')) {
+     return id.slice(-8);
+  }
+  
+  // Handle Buffer/Uint8Array or other objects
+  try {
+    // If it's a Buffer or similar, we might have it in hex in another property or need to convert it.
+    // For now, let's look at activeLifestrapKey in storeAI if available.
+    const key = storeAI.activeLifestrapKey || id;
+    const str = typeof key === 'string' ? key : String(key);
+    
+    if (str.includes('[object')) return "SOV-01";
+    return str.length > 8 ? str.slice(-8) : str;
+  } catch (e) {
+    return "SOV-01";
+  }
 });
 
 const countLifeStraps = computed(() => {
   return storeLibrary.straps.length;
 });
+
+const mappedWordsCount = computed(() => {
+  const pillars = storeAI.lifestrapTexture?.pillars || {};
+  const count = (pillars.capacity?.length || 0) + 
+         (pillars.context?.length || 0) + 
+         (pillars.attunement?.length || 0);
+  return count;
+});
+
+const extractedCuesCount = computed(() => {
+  if (!storeLibrary.availableMarkers) return 0;
+  return storeLibrary.availableMarkers.length;
+});
+
+const agentStatus = computed(() => {
+  return storeAI.beebeeStatus === 'thinking' ? 'ACTIVE' : 'IDLE';
+});
+
+const setMode = (mode) => {
+  storeBesearch.setHUUDState(mode);
+};
+
+const toggleLensLayer = () => {
+  if (storeBesearch.besearchMode === "default") {
+    storeBesearch.setHUUDState("lens");
+  } else {
+    storeBesearch.setHUUDState("default");
+  }
+};
 </script>
 
 <style scoped>
@@ -143,19 +218,51 @@ const countLifeStraps = computed(() => {
 
 .metric strong {
   font-size: 0.9rem;
-  color: rgb(34, 13, 228);
+  color: #3b82f6;
   font-family: "Space Mono", monospace;
   transition: font-size 0.3s ease;
 }
 
-#orbit-hud.is-expanded .metric strong {
-  font-size: 1.1rem;
+.metric.active strong {
+  color: #00ffcc;
+  text-shadow: 0 0 10px rgba(0, 255, 204, 0.6);
 }
 
-.hud-toggle {
+.metric.active span {
+  opacity: 1;
+}
+
+.be-metric {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.be-metric:hover {
+  background: rgba(59, 130, 246, 0.1);
+  transform: translateY(-2px);
+}
+
+.agent-activity strong {
+  animation: pulse-text 2s infinite;
+}
+
+@keyframes pulse-text {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+.hud-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 0.5rem;
+}
+
+.hud-toggle, .hud-expand-down {
   background: rgba(158, 113, 231, 0.2);
   border: 1px solid rgba(158, 113, 231, 0.3);
-  color: #6b4fb8;
+  color: #9e71e7;
   border-radius: 4px;
   width: 24px;
   height: 24px;
@@ -167,11 +274,21 @@ const countLifeStraps = computed(() => {
   font-weight: bold;
   font-size: 14px;
   transition: all 0.2s ease;
-  margin-left: 0.5rem;
 }
 
-.hud-toggle:hover {
+.hud-expand-down.active {
+  background: rgba(0, 255, 204, 0.2);
+  border-color: rgba(0, 255, 204, 0.4);
+  color: #00ffcc;
+  box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+}
+
+.hud-toggle:hover, .hud-expand-down:hover {
   background: rgba(158, 113, 231, 0.4);
   transform: scale(1.1);
+}
+
+.hud-expand-down.active:hover {
+  background: rgba(0, 255, 204, 0.4);
 }
 </style>

@@ -302,6 +302,7 @@ import BesearchFuse from "@/components/orbit/besearch/BesearchFuse.vue";
 import BesearchLayer from "@/components/orbit/besearch/besearchLayer.vue";
 import SculptingLayer from "@/components/orbit/sculpting/sculptingLayer.vue";
 import BentoBox from "@/components/orbit/parts/BentoBox.vue";
+import LifestrapLens from "@/components/orbit/parts/LifestrapLens.vue";
 
 import { useOrbitStore } from "@/stores/orbitStore.js";
 
@@ -561,8 +562,8 @@ const handleGlobalDrag = (e) => {
   } else if (draggingMode.value === "bottom") {
     const newHeight = window.innerHeight - e.clientY;
     storeBesearch.bottomHeight = Math.max(
-      12,
-      Math.min(newHeight, window.innerHeight * 0.8),
+      60,
+      Math.min(newHeight, window.innerHeight * 0.82),
     );
     storeBesearch.showBottomPanel = storeBesearch.bottomHeight > 100;
   }

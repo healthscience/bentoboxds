@@ -4,7 +4,7 @@
       v-for="group in groups"
       :key="group.id"
       class="context-group bucket"
-      :class="group.class"
+      :class="[group.class, { 'drop-active': activeDropZone === group.id }]"
       @drop.stop="$emit('drop', $event, group.id)"
       @dragover.prevent="$emit('dragover', $event, group.id)"
       @dragleave="$emit('dragleave', $event, group.id)"
@@ -56,6 +56,8 @@
 </template>
 
 <script setup>
+import { ref } from "vue";
+
 defineProps({
   groups: {
     type: Array,
@@ -89,6 +91,25 @@ defineEmits([
   "dragover",
   "dragleave",
 ]);
+
+const activeDropZone = ref(null);
+
+const onDragOver = (e, groupId) => {
+  activeDropZone.value = groupId;
+  e.dataTransfer.dropEffect = "move";
+  // emit('dragover', e, groupId); // redundant but safe
+};
+
+const onDragLeave = (e, groupId) => {
+  if (activeDropZone.value === groupId) {
+    activeDropZone.value = null;
+  }
+};
+
+const onDrop = (e, groupId) => {
+  activeDropZone.value = null;
+  emit('drop', e, groupId);
+};
 </script>
 
 <style scoped>
@@ -98,12 +119,9 @@ defineEmits([
   gap: 0.8rem;
 }
 
-.context-group {
-  border-left: 2px solid rgba(0, 255, 200, 0.1);
-  padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.02);
-  border-radius: 0 12px 12px 0;
-  transition: background 0.2s;
+.context-group.drop-active {
+  background: rgba(0, 255, 204, 0.1);
+  border-left-color: #00ffcc;
 }
 
 .group-title {
