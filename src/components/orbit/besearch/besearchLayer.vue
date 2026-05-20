@@ -8,7 +8,7 @@
         'besearch-active': storeBesearch.besearchMode === 'besearch'
       }"
     >
-      <div class="besearch-controls-top">
+      <div class="besearch-controls-top" v-if="storeBesearch.besearchMode !== 'besearch'">
         <div class="controls-left">
           <div class="summary-line" v-if="storeBesearch.besearchMode === 'besearch'">
             <div class="summary-item">
@@ -85,16 +85,12 @@
       <div class="smelter-container" :class="[`stage-${currentStage}`]">
         <!-- 1. The Orgo Drawer (Seeding Logic) -->
         <aside
-          v-if="currentStage === 'logic' || currentStage === 'capacity'"
+          v-if="currentStage === 'logic'"
           class="orgo-drawer"
           :class="{ open: isDrawerOpen }"
         >
           <header class="drawer-header" @click="isDrawerOpen = !isDrawerOpen">
-            <h5>
-              {{
-                currentStage === "capacity" ? "Context Seeds" : "Logic Seeds"
-              }}
-            </h5>
+            <h5>Logic Seeds</h5>
             <button
               class="sculpt-shortcut"
               @click="storeBesearch.openSculptingLayer()"
@@ -105,540 +101,364 @@
             <span class="toggle-icon">{{ isDrawerOpen ? "←" : "→" }}</span>
           </header>
           <div class="seed-list">
-            <div v-if="currentStage === 'capacity'" class="seed-section">
-              <h6>Residue Bubbles</h6>
-              <div class="bubble-stream mini">
-                <div
-                  v-for="word in unmappedFragments"
-                  :key="word"
-                  class="residue-bubble"
-                  draggable="true"
-                  @dragstart="handleResidueDragStart($event, word)"
-                >
-                  {{ word }}
-                </div>
-              </div>
-
-              <h6>Body Cues</h6>
-              <div class="bubble-stream mini">
-                <div
-                  v-for="word in ['skin', 'eyes', 'heart', 'knee', 'muscle']"
-                  :key="word"
-                  class="residue-bubble body-cue"
-                  draggable="true"
-                  @dragstart="handleResidueDragStart($event, word)"
-                >
-                  {{ word }}
-                </div>
-              </div>
-
-              <h6>Building Environment</h6>
-              <div class="bubble-stream mini">
-                <div
-                  v-for="word in [
-                    'swimming pool',
-                    'home',
-                    'flat',
-                    'office',
-                    'factory',
-                    'shopping centre',
-                  ]"
-                  :key="word"
-                  class="residue-bubble env-cue"
-                  draggable="true"
-                  @dragstart="handleResidueDragStart($event, word)"
-                >
-                  {{ word }}
-                </div>
-              </div>
-
-              <h6>Earth</h6>
-              <div class="bubble-stream mini">
-                <div
-                  v-for="word in [
-                    'trees',
-                    'grass',
-                    'river',
-                    'air quality',
-                    'farming',
-                  ]"
-                  :key="word"
-                  class="residue-bubble earth-cue"
-                  draggable="true"
-                  @dragstart="handleResidueDragStart($event, word)"
-                >
-                  {{ word }}
+            <div class="seed-section">
+              <h6>Orgos</h6>
+              <div
+                v-for="seed in orgoStore.availableSeeds"
+                :key="seed.id"
+                class="seed-item"
+                draggable="true"
+                @dragstart="handleSeedDragStart($event, seed, 'orgo')"
+              >
+                <div class="seed-icon">{{ seed.icon }}</div>
+                <div class="seed-info">
+                  <span class="seed-name">{{ seed.name }}</span>
                 </div>
               </div>
             </div>
-            <template v-else>
-              <div class="seed-section">
-                <h6>Orgos</h6>
-                <div
-                  v-for="seed in orgoStore.availableSeeds"
-                  :key="seed.id"
-                  class="seed-item"
-                  draggable="true"
-                  @dragstart="handleSeedDragStart($event, seed, 'orgo')"
-                >
-                  <div class="seed-icon">{{ seed.icon }}</div>
-                  <div class="seed-info">
-                    <span class="seed-name">{{ seed.name }}</span>
-                  </div>
+            <div class="seed-section">
+              <h6>Gelles</h6>
+              <div
+                v-for="texture in gelleStore.availableTextures"
+                :key="texture.id"
+                class="seed-item"
+                draggable="true"
+                @dragstart="handleSeedDragStart($event, texture, 'gelle')"
+              >
+                <div class="seed-icon">{{ texture.icon }}</div>
+                <div class="seed-info">
+                  <span class="seed-name">{{ texture.name }}</span>
                 </div>
               </div>
-              <div class="seed-section">
-                <h6>Gelles</h6>
-                <div
-                  v-for="texture in gelleStore.availableTextures"
-                  :key="texture.id"
-                  class="seed-item"
-                  draggable="true"
-                  @dragstart="handleSeedDragStart($event, texture, 'gelle')"
-                >
-                  <div class="seed-icon">{{ texture.icon }}</div>
-                  <div class="seed-info">
-                    <span class="seed-name">{{ texture.name }}</span>
-                  </div>
+            </div>
+            <div class="seed-section">
+              <h6>Instruments</h6>
+              <div
+                v-for="device in activeInstruments"
+                :key="device.id"
+                class="seed-item device"
+                draggable="true"
+                @dragstart="handleInstrumentDragStart($event, device)"
+                @click="snapOrgoToDevice(device)"
+              >
+                <div class="seed-icon">
+                  <div
+                    class="device-status-dot"
+                    :class="{ online: device.online }"
+                  ></div>
+                </div>
+                <div class="seed-info">
+                  <span class="seed-name">{{ device.name }}</span>
+                  <span class="seed-type">{{ device.type }}</span>
                 </div>
               </div>
-              <div class="seed-section">
-                <h6>Instruments</h6>
-                <div
-                  v-for="device in activeInstruments"
-                  :key="device.id"
-                  class="seed-item device"
-                  draggable="true"
-                  @dragstart="handleInstrumentDragStart($event, device)"
-                  @click="snapOrgoToDevice(device)"
-                >
-                  <div class="seed-icon">
-                    <div
-                      class="device-status-dot"
-                      :class="{ online: device.online }"
-                    ></div>
-                  </div>
-                  <div class="seed-info">
-                    <span class="seed-name">{{ device.name }}</span>
-                    <span class="seed-type">{{ device.type }}</span>
-                  </div>
-                </div>
-              </div>
-            </template>
+            </div>
           </div>
         </aside>
 
         <main class="lab-space">
-          <!-- Stage 1: Capacity / Context / Attunement -->
-          <template v-if="currentStage === 'capacity'">
-            <section
-              class="lab-bay capacity-bay"
-              @drop.prevent="handleCapacityDrop($event)"
-              @dragover.prevent
-            >
-              <header class="bay-header">
-                <h4>1. Capacity</h4>
+          <!-- Sequential Besearch Sections -->
+          <div class="besearch-sequential-wrapper">
+            <!-- Stage 2: Logic Braid (RESTRUCTURED) -->
+            <section class="besearch-step logic-step" :class="{ collapsed: currentStage !== 'logic' }">
+              <header class="step-header" @click="setStage('logic')">
+                <span class="step-num">01</span>
+                <h4>Logic: Orgo, Gelle & Tiny Devices</h4>
+                <div class="step-status" v-if="isStageCompleted('logic')">✓</div>
+                <button class="step-toggle">{{ currentStage === 'logic' ? '▼' : '▲' }}</button>
               </header>
-
-              <div class="selection-list" v-if="storeBesearch.isBraidingMode">
-                <LensColumn
-                  :groups="[
-                    {
-                      id: 'capacity',
-                      title: 'Capacity',
-                      items: availableCapacityItems,
-                    },
-                  ]"
-                  :selected-value="besearchContext.capacity"
-                  :show-remove="false"
-                  @select="selectCapacity"
-                />
-              </div>
-
-              <div v-else class="capacity-focus-wrapper">
-              <div class="capacity-focus" v-if="besearchContext.capacity">
-                  <div class="cue-word-large">
-                    {{ besearchContext.capacity }}
-                  </div>
-                <p class="cue-description">Resonance Anchor</p>
-              </div>
-              <div v-else class="bay-placeholder">
-                Drag a residue bubble here
-              </div>
-              </div>
-            </section>
-
-            <section class="lab-bay context-bay">
-              <header class="bay-header">
-                <h4>2. Context</h4>
-              </header>
-              <LensColumn
-                :groups="[
-                  { id: 'peer', title: 'Body/Peer', items: availablePeerItems },
-                  {
-                    id: 'environment',
-                    title: 'Building Environment',
-                    items: availableEnvironmentItems,
-                  },
-                  {
-                    id: 'earth',
-                    title: 'Earth Scales',
-                    items: availableEarthItems,
-                  },
-                ]"
-                :selected-value="besearchContext.context"
-                :show-remove="true"
-                @select="selectContext"
-                @unmap="unmapToResidue"
-                @drop="handleContextDrop"
-              />
-            </section>
-
-            <section class="lab-bay attunement-bay">
-              <header class="bay-header">
-                <h4>3. Attunement</h4>
-              </header>
-              <LensColumn
-                :groups="[
-                  {
-                    id: 'attunement',
-                    title: 'Attunement',
-                    items: availableAttunementItems,
-                  },
-                ]"
-                :selected-value="besearchContext.attunement"
-                :show-remove="true"
-                :show-set-strand="false"
-                @select="selectAttunement"
-                @unmap="unmapToResidue"
-                @drop="handleAttunementDrop"
-              >
-                <template #item-append="{ item, active }">
-                  <div
-                    v-if="
-                      active &&
-                      besearchContext.capacity &&
-                      besearchContext.context
-                    "
-                    class="item-actions-inline"
-                  >
-                    <div class="strategy-selector-inline">
-                      <button
-                        v-for="s in ['Prevention', 'Repair', 'Rejuvenation']"
-                        :key="s"
-                        :class="{ active: besearchContext.strategy === s }"
-                        @click.stop="updateBesearchStrategy(s)"
-                        :title="s"
-                      >
-                        {{ s[0] }}
-                      </button>
-                    </div>
-                    <button
-                      class="set-strand-btn-inline"
-                      :class="{ 'ready-success': besearchContext.strategy }"
-                      @click.stop="setStage('logic')"
+              
+              <div class="step-content" v-show="currentStage === 'logic'">
+                <div class="logic-braid-wrapper">
+                  <div class="logic-braid-top">
+                    <!-- A. The Orgo Bay -->
+                    <section
+                      class="lab-bay orgo-bay"
+                      @drop.prevent="handleSeedDrop($event, 'orgo')"
+                      @dragover.prevent
                     >
-                      Set Strand
-                    </button>
-                  </div>
-                </template>
-              </LensColumn>
-            </section>
-          </template>
-
-          <!-- Stage 2: Logic Braid -->
-          <template v-if="currentStage === 'logic'">
-            <div class="logic-braid-wrapper">
-              <div class="logic-braid-top">
-                <!-- A. The Orgo Bay -->
-                <section
-                  class="lab-bay orgo-bay"
-                  @drop.prevent="handleSeedDrop($event, 'orgo')"
-                  @dragover.prevent
-                >
-                  <header class="bay-header">
-                    <h4>Orgo (Structural)</h4>
-                  </header>
-
-                  <div v-if="activeOrgos.length === 0" class="bay-placeholder">
-                    Drag Orgo Seeds
-                  </div>
-
-                  <div
-                    v-for="orgo in activeOrgos"
-                    :key="orgo.instanceId"
-                    class="active-instance mini"
-                  >
-                    <div class="instance-header">
-                      <span class="instance-name">{{ orgo.name }}</span>
-                    </div>
-                    <div class="tuning-controls mini">
+                      <header class="bay-header">
+                        <h4>Orgo (Structural)</h4>
+                      </header>
+    
+                      <div v-if="activeOrgos.length === 0" class="bay-placeholder">
+                        Drag Orgo Seeds
+                      </div>
+    
                       <div
-                        class="slider-group"
-                        v-for="(val, key) in orgo.params"
-                        :key="key"
+                        v-for="orgo in activeOrgos"
+                        :key="orgo.instanceId"
+                        class="active-instance mini"
                       >
-                        <input
-                          type="range"
-                          v-model="orgo.params[key]"
-                          min="0"
-                          :max="key === 'damping' ? 1 : 100"
-                          :step="key === 'damping' ? 0.01 : 1"
-                          @input="
-                            logMutation('orgo', orgo.instanceId, key, val)
-                          "
+                        <div class="instance-header">
+                          <span class="instance-name">{{ orgo.name }}</span>
+                        </div>
+                        <div class="tuning-controls mini">
+                          <div
+                            class="slider-group"
+                            v-for="(val, key) in orgo.params"
+                            :key="key"
+                          >
+                            <input
+                              type="range"
+                              v-model="orgo.params[key]"
+                              min="0"
+                              :max="key === 'damping' ? 1 : 100"
+                              :step="key === 'damping' ? 0.01 : 1"
+                              @input="
+                                logMutation('orgo', orgo.instanceId, key, val)
+                              "
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+    
+                    <!-- B. The Gelle Pocket -->
+                    <section
+                      class="lab-bay gelle-pocket"
+                      @drop.prevent="handleSeedDrop($event, 'gelle')"
+                      @dragover.prevent
+                    >
+                      <header class="bay-header">
+                        <h4>Gelle (Adaptive)</h4>
+                      </header>
+    
+                      <div v-if="activeGelles.length === 0" class="bay-placeholder">
+                        Drag Gelle Textures
+                      </div>
+    
+                      <div
+                        v-for="gelle in activeGelles"
+                        :key="gelle.instanceId"
+                        class="active-instance mini"
+                      >
+                        <div
+                          class="graft-zone mini"
+                          @drop.prevent="handleGraftDrop($event, gelle.instanceId)"
+                          @dragover.prevent
+                        >
+                          <canvas
+                            v-if="gelle.id === 'platonic_solid'"
+                            :ref="(el) => setGelleCanvas(el, gelle.instanceId)"
+                            class="gelle-polyhedron-canvas"
+                          ></canvas>
+                          <div
+                            v-for="graft in gelle.grafts"
+                            :key="graft"
+                            class="graft-bubble mini"
+                          >
+                            {{ graft }}
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+    
+                  <!-- C. The Instrument Dock (Tiny Devices) -->
+                  <section
+                    class="lab-bay instrument-dock-zone"
+                    @drop.prevent="handleInstrumentDrop($event)"
+                    @dragover.prevent
+                  >
+                    <header class="bay-header">
+                      <h4>Tiny Devices (Evidence)</h4>
+                    </header>
+    
+                    <div
+                      v-if="droppedInstruments.length === 0"
+                      class="bay-placeholder"
+                    >
+                      Drag Instruments from Logic Seeds here
+                    </div>
+    
+                    <div class="dropped-instruments-list">
+                      <div
+                        v-for="device in droppedInstruments"
+                        :key="device.id"
+                        class="instrument-item dropped"
+                      >
+                        <div
+                          class="device-status"
+                          :class="{ online: device.online }"
+                        ></div>
+                        <div class="device-info">
+                          <span class="device-name">{{ device.name }}</span>
+                          <span class="device-type">{{ device.type }}</span>
+                        </div>
+                        <button class="snap-btn" @click="snapOrgoToDevice(device)">
+                          SNAP
+                        </button>
+                        <button
+                          class="remove-btn"
+                          @click="removeInstrument(device.id)"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                    <div class="step-actions" v-if="isStageCompleted('logic')">
+                      <button class="next-step-btn" @click="setStage('heli')">Set Braid & Continue</button>
+                    </div>
+                  </section>
+                </div>
+              </div>
+            </section>
+
+            <!-- Stage 3: Heli Projection -->
+            <section class="besearch-step heli-step" :class="{ collapsed: currentStage !== 'heli', locked: isStageLocked('heli') }">
+              <header class="step-header" @click="setStage('heli')">
+                <span class="step-num">02</span>
+                <h4>Heli Projection</h4>
+                <div class="step-status" v-if="isStageCompleted('heli')">✓</div>
+                <button class="step-toggle">{{ currentStage === 'heli' ? '▼' : '▲' }}</button>
+              </header>
+              <div class="step-content" v-show="currentStage === 'heli'">
+                <section class="lab-bay heli-center">
+                  <div class="heli-clock-view">
+                    <HeliClock :mini="false" />
+    
+                    <div class="heli-sectors-grid">
+                      <!-- Orbits Sector -->
+                      <div
+                        class="heli-sector orbit-sector"
+                        @drop.prevent="handleHeliSectorDrop($event, 'orbits')"
+                        @dragover.prevent
+                      >
+                        <header class="sector-header">
+                          <h5>Orbits</h5>
+                        </header>
+                        <div class="active-item-list">
+                          <div class="heli-active-item constant">
+                            <span class="item-label">Horizon:</span>
+                            <span class="item-value">Age</span>
+                          </div>
+                          <div
+                            class="heli-active-item"
+                            v-if="besearchContext.orbits"
+                          >
+                            <span class="item-label">Target:</span>
+                            <span class="item-value">{{
+                              besearchContext.orbits
+                            }}</span>
+                          </div>
+                          <div v-else class="sector-placeholder">
+                            Drop for Orbits
+                          </div>
+                        </div>
+                      </div>
+    
+                      <!-- Solar Days Sector -->
+                      <div
+                        class="heli-sector days-sector"
+                        @drop.prevent="handleHeliSectorDrop($event, 'days')"
+                        @dragover.prevent
+                      >
+                        <header class="sector-header">
+                          <h5>Solar Days (Rhythms)</h5>
+                        </header>
+                        <div class="sector-value" v-if="besearchContext.days">
+                          {{ besearchContext.days }}
+                        </div>
+                        <div v-else class="sector-placeholder">
+                          Drop for Rhythms
+                        </div>
+                      </div>
+    
+                      <!-- Arcs Sector -->
+                      <div
+                        class="heli-sector arcs-sector"
+                        @drop.prevent="handleHeliSectorDrop($event, 'arcs')"
+                        @dragover.prevent
+                      >
+                        <header class="sector-header">
+                          <h5>Arcs (Performance)</h5>
+                        </header>
+                        <div class="sector-value" v-if="besearchContext.arcs">
+                          {{ besearchContext.arcs }}
+                        </div>
+                        <div v-else class="sector-placeholder">Drop for Arcs</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="step-actions" v-if="isStageCompleted('heli')">
+                    <button class="next-step-btn" @click="setStage('emulation')">Set Projection & Continue</button>
+                  </div>
+                </section>
+              </div>
+            </section>
+
+            <!-- Stage 4: Emulation Testing -->
+            <section class="besearch-step emulation-step" :class="{ collapsed: currentStage !== 'emulation', locked: isStageLocked('emulation') }">
+              <header class="step-header" @click="setStage('emulation')">
+                <span class="step-num">03</span>
+                <h4>Body Emulation</h4>
+                <div class="step-status" v-if="isStageCompleted('emulation')">✓</div>
+                <button class="step-toggle">{{ currentStage === 'emulation' ? '▼' : '▲' }}</button>
+              </header>
+              <div class="step-content" v-show="currentStage === 'emulation'">
+                <div class="emulation-grid">
+                  <section
+                    class="lab-bay scribe-bay"
+                    v-if="!storeBesearch.isEmulationActive"
+                  >
+                    <header class="bay-header">
+                      <h4>The Scribe (Evidence)</h4>
+                    </header>
+                    <div class="evidence-log-v2">
+                      <div
+                        v-for="(log, i) in evidenceLogs"
+                        :key="i"
+                        class="log-entry"
+                      >
+                        <span class="log-time"
+                          >[{{ new Date().toLocaleTimeString() }}]</span
+                        >
+                        {{ log }}
+                      </div>
+                    </div>
+                  </section>
+    
+                  <section class="lab-bay seer-bay">
+                    <header class="bay-header">
+                      <h4>The Seer (Projection)</h4>
+                    </header>
+                    <div class="visual-projection-v2">
+                      <div class="orgo-wave" :style="waveStyle"></div>
+                      <div class="gelle-aura" :style="auraStyle"></div>
+                      <div class="emulation-overlay" v-if="isTriPointLocked">
+                        <button
+                          v-if="!storeBesearch.isEmulationActive"
+                          class="launch-btn-large"
+                          @click="launchEmulation"
+                        >
+                          Initiate Body Emulation
+                        </button>
+                        <button
+                          v-else
+                          class="launch-btn-large set-braid-btn"
+                          @click="storeBesearch.commitStrandToBraid()"
+                        >
+                          Set Braid
+                        </button>
+                      </div>
+                      <div
+                        class="emulation-live"
+                        v-if="storeBesearch.isEmulationActive"
+                      >
+                        <OrganSurface
+                          :linked-cue="{
+                            name: besearchContext.capacity || 'Heart',
+                          }"
+                          organ-color="#00ffcc"
                         />
                       </div>
                     </div>
-                  </div>
-                </section>
-
-                <!-- B. The Gelle Pocket -->
-                <section
-                  class="lab-bay gelle-pocket"
-                  @drop.prevent="handleSeedDrop($event, 'gelle')"
-                  @dragover.prevent
-                >
-                  <header class="bay-header">
-                    <h4>Gelle (Adaptive)</h4>
-                  </header>
-
-                  <div v-if="activeGelles.length === 0" class="bay-placeholder">
-                    Drag Gelle Textures
-                  </div>
-
-                  <div
-                    v-for="gelle in activeGelles"
-                    :key="gelle.instanceId"
-                    class="active-instance mini"
-                  >
-                    <div
-                      class="graft-zone mini"
-                      @drop.prevent="handleGraftDrop($event, gelle.instanceId)"
-                      @dragover.prevent
-                    >
-                      <canvas
-                        v-if="gelle.id === 'platonic_solid'"
-                        :ref="(el) => setGelleCanvas(el, gelle.instanceId)"
-                        class="gelle-polyhedron-canvas"
-                      ></canvas>
-                      <div
-                        v-for="graft in gelle.grafts"
-                        :key="graft"
-                        class="graft-bubble mini"
-                      >
-                        {{ graft }}
-                      </div>
-                    </div>
-                  </div>
-                </section>
-              </div>
-
-              <!-- C. The Instrument Dock (Dropped Devices) -->
-              <section
-                class="lab-bay instrument-dock-zone"
-                @drop.prevent="handleInstrumentDrop($event)"
-                @dragover.prevent
-              >
-                <header class="bay-header">
-                  <h4>Instrument Dock (Evidence)</h4>
-                </header>
-
-                <div
-                  v-if="droppedInstruments.length === 0"
-                  class="bay-placeholder"
-                >
-                  Drag Instruments from Logic Seeds here
-                </div>
-
-                <div class="dropped-instruments-list">
-                  <div
-                    v-for="device in droppedInstruments"
-                    :key="device.id"
-                    class="instrument-item dropped"
-                  >
-                    <div
-                      class="device-status"
-                      :class="{ online: device.online }"
-                    ></div>
-                    <div class="device-info">
-                      <span class="device-name">{{ device.name }}</span>
-                      <span class="device-type">{{ device.type }}</span>
-                    </div>
-                    <button class="snap-btn" @click="snapOrgoToDevice(device)">
-                      SNAP
-                    </button>
-                    <button
-                      class="remove-btn"
-                      @click="removeInstrument(device.id)"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </div>
-              </section>
-            </div>
-          </template>
-
-          <!-- Stage 3: Heli -->
-          <template v-if="currentStage === 'heli'">
-            <section class="lab-bay heli-center">
-              <header class="bay-header">
-                <h4>Heli Clock (Future Project)</h4>
-              </header>
-              <div class="heli-clock-view">
-                <HeliClock :mini="false" />
-
-                <div class="heli-sectors-grid">
-                  <!-- Orbits Sector -->
-                  <div
-                    class="heli-sector orbit-sector"
-                    @drop.prevent="handleHeliSectorDrop($event, 'orbits')"
-                    @dragover.prevent
-                  >
-                    <header class="sector-header">
-                      <h5>Orbits</h5>
-                    </header>
-                    <div class="active-item-list">
-                      <div class="heli-active-item constant">
-                        <span class="item-label">Horizon:</span>
-                        <span class="item-value">Age</span>
-                      </div>
-                      <div
-                        class="heli-active-item"
-                        v-if="besearchContext.orbits"
-                      >
-                        <span class="item-label">Target:</span>
-                        <span class="item-value">{{
-                          besearchContext.orbits
-                        }}</span>
-                      </div>
-                      <div v-else class="sector-placeholder">
-                        Drop for Orbits
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Solar Days Sector -->
-                  <div
-                    class="heli-sector days-sector"
-                    @drop.prevent="handleHeliSectorDrop($event, 'days')"
-                    @dragover.prevent
-                  >
-                    <header class="sector-header">
-                      <h5>Solar Days (Rhythms)</h5>
-                    </header>
-                    <div class="sector-value" v-if="besearchContext.days">
-                      {{ besearchContext.days }}
-                    </div>
-                    <div v-else class="sector-placeholder">
-                      Drop for Rhythms
-                    </div>
-                  </div>
-
-                  <!-- Arcs Sector -->
-                  <div
-                    class="heli-sector arcs-sector"
-                    @drop.prevent="handleHeliSectorDrop($event, 'arcs')"
-                    @dragover.prevent
-                  >
-                    <header class="sector-header">
-                      <h5>Arcs (Performance)</h5>
-                    </header>
-                    <div class="sector-value" v-if="besearchContext.arcs">
-                      {{ besearchContext.arcs }}
-                    </div>
-                    <div v-else class="sector-placeholder">Drop for Arcs</div>
-                  </div>
-                </div>
-
-                <div
-                  class="heli-projection-mock"
-                  v-if="
-                    besearchContext.orbits ||
-                    besearchContext.days ||
-                    besearchContext.arcs
-                  "
-                >
-                  <h5>Future Projection Mock</h5>
-                  <div class="mock-data-viz">
-                    <div
-                      class="viz-line"
-                      v-for="i in 5"
-                      :key="i"
-                      :style="{
-                        width: Math.random() * 100 + '%',
-                        opacity: 1 - i * 0.15,
-                      }"
-                    ></div>
-                  </div>
+                  </section>
                 </div>
               </div>
             </section>
-          </template>
-
-          <!-- Stage 4: Emulation Testing -->
-          <template v-if="currentStage === 'emulation'">
-            <div class="emulation-grid">
-              <section
-                class="lab-bay scribe-bay"
-                v-if="!storeBesearch.isEmulationActive"
-              >
-                <header class="bay-header">
-                  <h4>The Scribe (Evidence)</h4>
-                </header>
-                <div class="evidence-log-v2">
-                  <div
-                    v-for="(log, i) in evidenceLogs"
-                    :key="i"
-                    class="log-entry"
-                  >
-                    <span class="log-time"
-                      >[{{ new Date().toLocaleTimeString() }}]</span
-                    >
-                    {{ log }}
-                  </div>
-                </div>
-              </section>
-
-              <section class="lab-bay seer-bay">
-                <header class="bay-header">
-                  <h4>The Seer (Projection)</h4>
-                </header>
-                <div class="visual-projection-v2">
-                  <div class="orgo-wave" :style="waveStyle"></div>
-                  <div class="gelle-aura" :style="auraStyle"></div>
-                  <div class="emulation-overlay" v-if="isTriPointLocked">
-                    <button
-                      v-if="!storeBesearch.isEmulationActive"
-                      class="launch-btn-large"
-                      @click="launchEmulation"
-                    >
-                      Initiate Body Emulation
-                    </button>
-                    <button
-                      v-else
-                      class="launch-btn-large set-braid-btn"
-                      @click="storeBesearch.commitStrandToBraid()"
-                    >
-                      Set Braid
-                    </button>
-                  </div>
-                  <div
-                    class="emulation-live"
-                    v-if="storeBesearch.isEmulationActive"
-                  >
-                    <OrganSurface
-                      :linked-cue="{
-                        name: besearchContext.capacity || 'Heart',
-                      }"
-                      organ-color="#00ffcc"
-                    />
-                  </div>
-                </div>
-              </section>
-            </div>
-          </template>
+          </div>
         </main>
       </div>
 
@@ -1443,6 +1263,95 @@ const auraStyle = computed(() => {
 .dark-theme .pulse-dot {
   background: #00ffcc;
   box-shadow: 0 0 10px #00ffcc;
+}
+
+.besearch-sequential-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+}
+
+.besearch-step {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.03);
+  overflow: hidden;
+  transition: all 0.4s ease;
+}
+
+.besearch-step.collapsed {
+  opacity: 0.7;
+}
+
+.besearch-step.locked {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.step-header {
+  padding: 15px 25px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.step-num {
+  font-family: "Space Mono", monospace;
+  font-size: 0.8rem;
+  color: #00ffcc;
+  opacity: 0.5;
+}
+
+.step-header h4 {
+  margin: 0;
+  flex: 1;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #e0e0e0;
+}
+
+.step-status {
+  color: #00ffcc;
+  font-weight: bold;
+}
+
+.step-toggle {
+  background: transparent;
+  border: none;
+  color: #718096;
+  cursor: pointer;
+}
+
+.step-content {
+  padding: 20px;
+}
+
+.step-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.next-step-btn {
+  padding: 10px 20px;
+  background: #00ffcc;
+  color: #1a202c;
+  border: none;
+  border-radius: 20px;
+  font-weight: 800;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.next-step-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 255, 204, 0.3);
 }
 
 .smelter-container {

@@ -16,7 +16,8 @@
       v-show="
         height > 80 ||
         storeAI.activeLifeStrapID ||
-        storeBesearch.showBesearchDetail
+        storeBesearch.showBesearchDetail ||
+        storeBesearch.isBesearchLayerOpen
       "
       class="bottom-panel-content"
       ref="contentArea"
@@ -24,16 +25,24 @@
       <!-- Show besearch detail when intervention is selected -->
       <besearch-detail v-if="showBesearchDetail === true"></besearch-detail>
 
-      <!-- Always show LifestrapLens - collapsible when besearch intervention is active -->
-      <div ref="lensSection" class="lens-section">
-        <div
-          v-if="isLensCollapsed === true"
-          class="lens-collapsed-bar"
-          @click="expandLens"
-        >
-          <span class="lens-label">▼ Life-strap Lens</span>
+      <!-- Dual Layer: Lens Bar (Top) + Besearch (Bottom) -->
+      <div class="dual-layer-container">
+        <!-- Always show LifestrapLens - collapsible when besearch intervention is active -->
+        <div ref="lensSection" class="lens-section" :class="{ 'as-bar': storeBesearch.besearchMode === 'besearch' }">
+          <div
+            v-if="isLensCollapsed === true && storeBesearch.besearchMode !== 'besearch'"
+            class="lens-collapsed-bar"
+            @click="expandLens"
+          >
+            <span class="lens-label">▼ Life-strap Lens</span>
+          </div>
+          <LifestrapLens v-else :lenses="extractedData" />
         </div>
-        <LifestrapLens v-else :lenses="extractedData" />
+
+        <!-- Besearch Layer positioned below Lens bar -->
+        <div v-if="storeBesearch.isBesearchLayerOpen" class="besearch-layer-wrapper">
+          <BesearchLayer />
+        </div>
       </div>
     </div>
   </div>
@@ -43,6 +52,7 @@
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from "vue";
 import BesearchDetail from "@/components/besearch/attunement/besearchDetail.vue";
 import LifestrapLens from "@/components/orbit/parts/LifestrapLens.vue";
+import BesearchLayer from "@/components/orbit/besearch/besearchLayer.vue";
 
 import { besearchStore } from "@/stores/besearchStore.js";
 import { aiInterfaceStore } from "@/stores/aiInterface.js";
@@ -79,7 +89,7 @@ const isLensCollapsed = computed(() => {
 const updatePanelHeight = async () => {
   await nextTick();
   if (contentArea.value) {
-    const isLabView = !!storeAI.activeLifeStrapID && !storeAI.showLifestapLens;
+    const isLabView = (!!storeAI.activeLifeStrapID && !storeAI.showLifestapLens) || storeBesearch.isBesearchLayerOpen;
     const maxHeight = window.innerHeight * 0.82;
 
     if (isLabView) {
@@ -307,7 +317,30 @@ const handleToggle = (e) => {
 .bottom-panel-content {
   flex: 1;
   overflow-y: auto;
-  padding: 20px;
+  padding: 0; /* Changed from 20px to allow full width for bar */
+}
+
+.dual-layer-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.lens-section {
+  flex-shrink: 0;
+  transition: all 0.4s ease;
+}
+
+.lens-section.as-bar {
+  margin-bottom: 0;
+  z-index: 10;
+}
+
+.besearch-layer-wrapper {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .lens-section {

@@ -4,11 +4,24 @@
       class="besearch-lens-grid full-lab-view"
       :class="{ 
         'has-selection': hasSelection,
-        'pane-expanded': isPortalExpanded
+        'pane-expanded': isPortalExpanded,
+        'is-bar': storeBesearch.besearchMode === 'besearch' && !storeBesearch.isLensExpanded
       }"
     >
+      <div v-if="storeBesearch.besearchMode === 'besearch'" class="lens-bar-controls" @click="storeBesearch.toggleLensExpansion()">
+        <span class="bar-title">LIFE-STRAP LENS</span>
+        <div class="bar-summary">
+          <span class="summary-chip capacity">C: {{ capacityItems.length }}</span>
+          <span class="summary-chip context">X: {{ contextItems.length }}</span>
+          <span class="summary-chip attunement">A: {{ selectedAttunement || 'None' }}</span>
+        </div>
+        <button class="expansion-toggle">
+          {{ storeBesearch.isLensExpanded ? '▼' : '▲' }}
+        </button>
+      </div>
+
       <!-- Left Pane: Cues Portal -->
-      <div class="sieve-pane narrative-pane">
+      <div class="sieve-pane narrative-pane" v-show="storeBesearch.isLensExpanded || storeBesearch.besearchMode !== 'besearch'">
         <header class="pane-header">
           <div class="header-content">
             <span class="pulse-dot"></span>
@@ -53,7 +66,7 @@
       </div>
 
       <!-- Right Pane: Sieve Columns -->
-      <div class="sieve-pane columns-pane">
+      <div class="sieve-pane columns-pane" v-show="storeBesearch.isLensExpanded || storeBesearch.besearchMode !== 'besearch'">
         <div class="pane-header-actions">
           <header class="pane-header">
             <span class="pulse-dot"></span>
@@ -394,6 +407,56 @@ onMounted(() => {
   transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   border: none;
   pointer-events: auto;
+}
+
+.besearch-lens-grid.is-bar {
+  grid-template-columns: 1fr;
+  height: 40px;
+  padding: 0 20px;
+  gap: 0;
+  background: rgba(26, 32, 44, 0.9);
+  border-bottom: 1px solid rgba(0, 255, 204, 0.3);
+  display: flex;
+  align-items: center;
+}
+
+.lens-bar-controls {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  color: #00ffcc;
+  font-family: "Space Mono", monospace;
+}
+
+.bar-title {
+  font-weight: 800;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+}
+
+.bar-summary {
+  display: flex;
+  gap: 15px;
+}
+
+.summary-chip {
+  font-size: 0.65rem;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.summary-chip.capacity { color: #00c8ff; }
+.summary-chip.context { color: #00ffcc; }
+.summary-chip.attunement { color: #a685ff; }
+
+.expansion-toggle {
+  background: transparent;
+  border: none;
+  color: #00ffcc;
+  cursor: pointer;
 }
 
 .besearch-lens-grid.pane-expanded {
