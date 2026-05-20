@@ -3,49 +3,51 @@
     <div
       class="besearch-lens-grid full-lab-view"
       :class="{ 
-        'has-selection': hasSelection
+        'has-selection': hasSelection,
+        'pane-expanded': isPortalExpanded
       }"
     >
-      <!-- Left Pane: Story Canvas / Residue Dock -->
+      <!-- Left Pane: Cues Portal -->
       <div class="sieve-pane narrative-pane">
         <header class="pane-header">
-          <span class="pulse-dot"></span>
-          <h3>Narrative Story</h3>
+          <div class="header-content">
+            <span class="pulse-dot"></span>
+            <h3>Cues Portal</h3>
+          </div>
+          <button 
+            class="expand-toggle"
+            :class="{ active: isPortalExpanded }"
+            @click="isPortalExpanded = !isPortalExpanded"
+            title="Expand View"
+          >
+            <span v-if="!isPortalExpanded">⤢</span>
+            <span v-else>⤡</span>
+          </button>
         </header>
         
-        <div class="story-canvas-wrapper">
-          <textarea
-            v-model="storeBesearch.activeBesearchContext.story"
-            class="story-input"
-            placeholder="Describe your current state or the resonance you wish to explore..."
-          ></textarea>
-          
-          <div class="token-overlay" v-if="highlightedTokens.length">
-            <span 
-              v-for="token in highlightedTokens" 
-              :key="token"
-              class="story-token"
-              @click="handleTokenClick(token)"
-            >
-              {{ token }}
-            </span>
+        <div class="narrative-content-split">
+          <div class="story-canvas-wrapper portal-host">
+            <CuesPortal 
+              @dragstart="onPortalDragStart"
+              @select="handleCueSelection"
+            />
           </div>
-        </div>
 
-        <div class="residue-dock-inline">
-          <h4 class="dock-label">Unmapped Fragments</h4>
-          <div class="bubble-stream mini">
-            <button
-              v-for="word in unmappedFragments"
-              :key="word"
-              class="fragment-bubble"
-              :class="{ selected: selectedWord === word }"
-              draggable="true"
-              @dragstart="onDragStart($event, word)"
-              @click="selectedWord = word"
-            >
-              {{ word }}
-            </button>
+          <div class="residue-dock-inline">
+            <h4 class="dock-label">Unmapped Fragments</h4>
+            <div class="bubble-stream mini">
+              <button
+                v-for="word in unmappedFragments"
+                :key="word"
+                class="fragment-bubble"
+                :class="{ selected: selectedWord === word }"
+                draggable="true"
+                @dragstart="onDragStart($event, word)"
+                @click="selectedWord = word"
+              >
+                {{ word }}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -57,9 +59,21 @@
             <span class="pulse-dot"></span>
             <h3>Sieve Columns</h3>
           </header>
+          
+          <div class="strand-toggle-wrapper">
+            <span class="strand-label">Strand</span>
+            <div 
+              class="strand-slider" 
+              :class="{ active: storeBesearch.strandMode }"
+              @click="storeBesearch.strandMode = !storeBesearch.strandMode"
+            >
+              <div class="slider-knob"></div>
+            </div>
+          </div>
+
           <button 
             class="enter-bench-btn"
-            :class="{ active: canEnterBench }"
+            :class="{ active: storeBesearch.canEnterBench }"
             @click="storeBesearch.setHUUDState('besearch')"
           >
             Activate Besearch Cycle
@@ -81,6 +95,7 @@
             <LensColumn
               :groups="[{ id: 'capacity', title: 'Capacity', items: capacityItems }]"
               :show-item-labels="true"
+              :strand-mode="storeBesearch.strandMode"
               @dragstart="onDragStart"
               @unmap="unmapFragment"
               @select="selectCapacity"
@@ -108,6 +123,7 @@
                 { id: 'earth', title: 'Earth Scales', items: earthItems },
               ]"
               :show-item-labels="true"
+              :strand-mode="storeBesearch.strandMode"
               @dragstart="onDragStart"
               @unmap="unmapFragment"
               @select="handleCueSpace"
@@ -129,11 +145,13 @@
               <h3>Attunement</h3>
             </header>
             <LensColumn
-              :groups="[{ id: 'attunement', title: 'Attunement', items: attunementItems }]"
+              :groups="[{ id: 'attunement', title: 'Attunement', items: attunementItems, noDrag: true }]"
+              :selected-value="selectedAttunement"
               :show-item-labels="true"
+              :show-remove="false"
               @dragstart="onDragStart"
               @unmap="unmapFragment"
-              @select="handleCueSpace"
+              @select="selectAttunement"
               @drop="onDrop"
               @dragover="onDragOver"
               @dragleave="onDragLeave"
@@ -154,6 +172,7 @@ import { ref, computed, onMounted } from "vue";
 import BentoSpace from "@/components/bentospace/spaceTemplate.vue";
 import WholeResonance from "@/components/consilience/wholeResonance.vue";
 import LensColumn from "@/components/orbit/parts/shared/LensColumn.vue";
+import CuesPortal from "@/components/orbit/parts/shared/CuesPortal.vue";
 
 import { besearchStore } from "@/stores/besearchStore.js";
 import { cuesStore } from "@/stores/cuesStore.js";
@@ -185,6 +204,7 @@ const props = defineProps({
 const selectedWord = ref(null);
 const hasSelection = computed(() => !!selectedWord.value);
 const activeZone = ref(null);
+const isPortalExpanded = ref(false);
 
 /* computed */
 const wholeResStatus = computed(() => storeAI.bentoflakeState);
@@ -192,10 +212,6 @@ const wholeResStatus = computed(() => storeAI.bentoflakeState);
 const highlightedTokens = computed(() => {
   const story = storeBesearch.activeBesearchContext.story || "";
   return story.split(/\s+/).filter(word => word.length > 3 && word.charAt(0) === word.charAt(0).toUpperCase());
-});
-
-const canEnterBench = computed(() => {
-  return capacityItems.value.length > 0 && contextItems.value.length > 0;
 });
 
 const unmappedFragments = computed(() => {
@@ -215,9 +231,16 @@ const contextItems = computed(() => {
 });
 
 const attunementItems = computed(() => {
+  return [
+    { label: "Attunement", value: "Prevention" },
+    { label: "Attunement", value: "Repair" },
+    { label: "Attunement", value: "Rejuvenate" },
+  ];
+});
+
+const selectedAttunement = computed(() => {
   const items = storeAI.lifestrapTexture?.pillars?.attunement || [];
-  console.log('LENS DEBUG - attunementItems:', items);
-  return items;
+  return items.length > 0 ? items[0].value : null;
 });
 
 const bodyPeerItems = computed(() => {
@@ -246,7 +269,20 @@ const earthItems = computed(() => {
 });
 
 /* methods */
+const selectAttunement = (val) => {
+  storeAI.updateResonWeight(val, "attunement", "Attunement");
+};
+
 const selectCapacity = (val) => {
+  if (storeBesearch.strandMode) {
+    const items = storeAI.lifestrapTexture?.pillars?.capacity || [];
+    const item = items.find(i => i.value === val);
+    if (item) {
+      item.activeStrand = !item.activeStrand;
+      console.log(`Strand toggled for capacity ${val}: ${item.activeStrand}`);
+    }
+    return;
+  }
   storeBesearch.activeBesearchContext.capacity = val;
 };
 
@@ -254,6 +290,15 @@ const handleTokenClick = (token) => {
   selectedWord.value = token;
   // Visual feedback placeholder for floating
   console.log(`Token ${token} clicked for floating animation`);
+};
+
+const handleCueSelection = (cue) => {
+  // Logic to show "full cues" - for now just logs or can trigger modal
+  console.log('Cue selected for full view:', cue);
+};
+
+const onPortalDragStart = ({ event, word }) => {
+  onDragStart(event, word);
 };
 
 const onDragStart = (e, word) => {
@@ -281,12 +326,15 @@ const onDrop = (e, zone) => {
   if (zone === "attunement") label = "Attunement";
 
   if (zone === "capacity") {
-    // Solid Single Selection: Remove existing capacity first
-    if (capacityItems.value.length > 0) {
-      capacityItems.value.forEach(item => {
-        storeAI.updateResonWeight(item.value, "residue");
-      });
-    }
+    // Multi Selection enabled
+  }
+
+  if (zone === "attunement") {
+    // Single Selection: Remove existing attunement first
+    const existing = storeAI.lifestrapTexture?.pillars?.attunement || [];
+    existing.forEach(item => {
+      storeAI.updateResonWeight(item.value, "residue");
+    });
   }
 
   commitAlignment(word, zone, label);
@@ -303,6 +351,15 @@ const unmapFragment = (word) => {
 };
 
 const handleCueSpace = (spaceID) => {
+  if (storeBesearch.strandMode) {
+    const context = storeAI.lifestrapTexture?.pillars?.context || [];
+    const item = context.find(i => i.value === spaceID);
+    if (item) {
+      item.activeStrand = !item.activeStrand;
+      console.log(`Strand toggled for ${spaceID}: ${item.activeStrand}`);
+    }
+    return;
+  }
   storeCues.cueContext = "space";
   storeAI.beebeeContext = "chatspace";
   storeAI.bentospaceState = !storeAI.bentospaceState;
@@ -330,13 +387,55 @@ onMounted(() => {
   z-index: 10;
   padding: 10px;
   display: grid;
-  grid-template-columns: 1fr 1.2fr;
+  grid-template-columns: 0.8fr 1.5fr;
   gap: 30px;
   overflow: hidden;
   box-sizing: border-box;
   transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   border: none;
   pointer-events: auto;
+}
+
+.besearch-lens-grid.pane-expanded {
+  grid-template-columns: 1.5fr 1fr;
+}
+
+.pane-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px; /* Reduced from 25px */
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.expand-toggle {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #3b82f6;
+  border-radius: 8px;
+  width: 28px; /* Slightly smaller */
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 1rem;
+}
+
+.expand-toggle:hover {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: #3b82f6;
+}
+
+.expand-toggle.active {
+  background: #3b82f6;
+  color: white;
 }
 
 .columns-grid {
@@ -351,14 +450,14 @@ onMounted(() => {
 }
 
 .lens-box {
-  padding: 20px;
+  padding: 12px 20px; /* Reduced vertical padding from 20px */
   background: rgba(255, 255, 255, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-top: 4px solid #ccc;
   border-radius: 16px;
   transition: all 0.3s ease;
   flex-shrink: 0;
-  min-height: 100px;
+  min-height: 80px; /* Reduced from 100px */
   color: #1a202c; /* Ensure text color is visible */
 }
 
@@ -397,15 +496,39 @@ onMounted(() => {
   text-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
 }
 
-.story-canvas-wrapper {
+.narrative-content-split {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: 0;
+}
+
+.story-canvas-wrapper {
+  height: 70%;
   position: relative;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
-  margin-bottom: 20px;
   overflow: hidden;
   box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.residue-dock-inline {
+  height: 30%;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+
+.story-canvas-wrapper.portal-host {
+  padding: 0;
+  background: white;
+  display: flex;
+  flex-direction: column;
 }
 
 .story-input {
@@ -464,20 +587,70 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 25px;
+  margin-bottom: 15px; /* Reduced from 25px */
   flex-shrink: 0;
+  gap: 15px;
+}
+
+.strand-toggle-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.strand-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #718096;
+  font-weight: 700;
+}
+
+.strand-slider {
+  width: 34px;
+  height: 18px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.strand-slider.active {
+  background: #3b82f6;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+}
+
+.slider-knob {
+  width: 14px;
+  height: 14px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.strand-slider.active .slider-knob {
+  left: 17px;
 }
 
 .enter-bench-btn {
-  padding: 12px 24px;
+  padding: 8px 16px; /* Reduced from 12px 24px */
   background: rgba(0, 0, 0, 0.05);
   border: 1px solid rgba(0, 0, 0, 0.1);
   color: #718096;
-  border-radius: 30px;
+  border-radius: 20px; /* Reduced from 30px */
   font-weight: 900;
-  font-size: 0.85rem;
+  font-size: 0.75rem; /* Reduced from 0.85rem */
   text-transform: uppercase;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.1em; /* Reduced from 0.15em */
   cursor: not-allowed;
   transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
@@ -487,12 +660,19 @@ onMounted(() => {
   color: #00ffcc;
   border-color: #00ffcc;
   cursor: pointer;
-  box-shadow: 0 0 25px rgba(0, 255, 204, 0.3);
+  box-shadow: 0 0 15px rgba(0, 255, 204, 0.3), 0 0 5px rgba(0, 255, 204, 0.5);
+  animation: pulse-glow 2s infinite ease-in-out;
+}
+
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 10px rgba(0, 255, 204, 0.3), 0 0 2px rgba(0, 255, 204, 0.2); }
+  50% { box-shadow: 0 0 20px rgba(0, 255, 204, 0.5), 0 0 8px rgba(0, 255, 204, 0.4); }
+  100% { box-shadow: 0 0 10px rgba(0, 255, 204, 0.3), 0 0 2px rgba(0, 255, 204, 0.2); }
 }
 
 .enter-bench-btn.active:hover {
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 0 35px rgba(0, 255, 204, 0.5);
+  transform: translateY(-1px) scale(1.02); /* More subtle */
+  box-shadow: 0 0 25px rgba(0, 255, 204, 0.6);
   background: #2d3748;
 }
 
@@ -528,7 +708,7 @@ onMounted(() => {
   text-transform: uppercase;
   letter-spacing: 0.1em;
   font-size: 0.8rem;
-  margin-bottom: 15px;
+  margin-bottom: 8px; /* Reduced from 15px */
   color: #1a202c;
 }
 

@@ -74,8 +74,17 @@ export const besearchStore = defineStore("besearchstore", {
     emulationPulse: 1.0,
     emulationPulseInterval: null,
     isBraidingMode: false,
+    strandMode: false, // false = OFF, true = ON
   }),
   getters: {
+    canEnterBench: (state) => {
+      const storeAI = aiInterfaceStore();
+      const pillars = storeAI.lifestrapTexture?.pillars;
+      const hasCapacity = pillars?.capacity?.length > 0;
+      const hasContext = pillars?.context?.length > 0;
+      const hasAttunement = pillars?.attunement?.length > 0;
+      return hasCapacity && hasContext && hasAttunement;
+    },
     besearchCyclesNormalized: (state) => {
       return state.besearchCyles.map((entry, index) => {
         const value = entry?.value || entry || {};

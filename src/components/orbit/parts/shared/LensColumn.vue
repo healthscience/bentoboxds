@@ -4,10 +4,14 @@
       v-for="group in groups"
       :key="group.id"
       class="context-group bucket"
-      :class="[group.class, { 'drop-active': activeDropZone === group.id }]"
-      @drop.stop="$emit('drop', $event, group.id)"
-      @dragover.prevent="$emit('dragover', $event, group.id)"
-      @dragleave="$emit('dragleave', $event, group.id)"
+      :class="[
+        group.class,
+        { 'drop-active': activeDropZone === group.id },
+        { 'no-drag-group': group.noDrag }
+      ]"
+      @drop.stop="group.noDrag ? null : $emit('drop', $event, group.id)"
+      @dragover.prevent="group.noDrag ? null : $emit('dragover', $event, group.id)"
+      @dragleave="group.noDrag ? null : $emit('dragleave', $event, group.id)"
     >
       <h4 class="group-title">{{ group.title }}</h4>
       <slot name="group-prepend" :group="group"></slot>
@@ -16,10 +20,14 @@
           v-for="item in group.items"
           :key="item.value"
           class="variable-tag assigned-tag"
-          :class="{ active: selectedValue === item.value }"
-          draggable="true"
-          @dragstart="$emit('dragstart', $event, item.value)"
-          @dblclick="$emit('unmap', item.value)"
+          :class="{ 
+            active: selectedValue === item.value,
+            'attunement-active': group.id === 'attunement' && selectedValue === item.value,
+            'strand-active': strandMode && item.activeStrand
+          }"
+          :draggable="!group.noDrag"
+          @dragstart="group.noDrag ? null : $emit('dragstart', $event, item.value)"
+          @dblclick="group.noDrag ? null : $emit('unmap', item.value)"
           @click="$emit('select', item.value)"
         >
           <div class="tag-content-wrapper">
@@ -80,6 +88,10 @@ defineProps({
     type: Boolean,
     default: false,
   },
+  strandMode: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 defineEmits([
@@ -136,7 +148,8 @@ const onDrop = (e, groupId) => {
 
 .variable-list {
   display: flex;
-  flex-direction: column;
+  flex-direction: row; /* Changed from column */
+  flex-wrap: wrap; /* Added to handle overflow */
   gap: 8px;
 }
 
@@ -146,18 +159,31 @@ const onDrop = (e, groupId) => {
   display: flex;
   align-items: center;
   gap: 8px;
-  width: 100%;
+  width: auto; /* Changed from 100% */
   padding: 6px 12px;
   border-radius: 6px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: var(--sov-text);
   transition: all 0.2s;
   font-size: 0.85rem;
+  flex-shrink: 0; /* Prevent squishing */
 }
 
 .variable-tag.assigned-tag.active {
   background: rgba(0, 255, 200, 0.2);
   border-color: var(--sov-accent);
+}
+
+.variable-tag.assigned-tag.attunement-active {
+  background: rgba(0, 200, 0, 0.2);
+  border-color: #00ff00;
+  color: #00ff00;
+}
+
+.variable-tag.assigned-tag.strand-active {
+  background: rgba(0, 255, 0, 0.2);
+  border-color: #00ff00;
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
 }
 
 .tag-content-wrapper {
