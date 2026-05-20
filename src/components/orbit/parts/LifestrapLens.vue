@@ -126,14 +126,14 @@
       </div>
     </div>
 
-    <!-- Pillar 4: Attunement & Coherence -->
+    <!-- Pillar 4: Attunement  -->
     <div
       class="lens-box coherence zone"
       @click="assignSelectedTo('attunement')"
     >
       <header class="lens-header">
         <span class="pulse-dot"></span>
-        <h3>Attunement & coherence</h3>
+        <h3>Attunement</h3>
       </header>
 
       <div class="emulation-meter">
