@@ -27,19 +27,19 @@
 
       <!-- Dual Layer: Lens Bar (Top) + Besearch (Bottom) -->
       <div class="dual-layer-container">
-        <!-- Always show LifestrapLens - collapsible when besearch intervention is active -->
+        <!-- 1. The Lens Section (Always first) -->
         <div ref="lensSection" class="lens-section" :class="{ 'as-bar': storeBesearch.besearchMode === 'besearch' }">
           <div
-            v-if="isLensCollapsed === true && storeBesearch.besearchMode !== 'besearch'"
+            v-if="storeBesearch.besearchMode === 'besearch'"
             class="lens-collapsed-bar"
-            @click="expandLens"
+            @click="storeBesearch.setHUUDState('lens')"
           >
             <span class="lens-label">▼ Life-strap Lens</span>
           </div>
           <LifestrapLens v-else :lenses="extractedData" />
         </div>
 
-        <!-- Besearch Layer positioned below Lens bar -->
+        <!-- 2. The Besearch Layer (Always second) -->
         <div v-if="storeBesearch.isBesearchLayerOpen" class="besearch-layer-wrapper">
           <BesearchLayer />
         </div>
@@ -59,6 +59,8 @@ import { aiInterfaceStore } from "@/stores/aiInterface.js";
 
 const storeBesearch = besearchStore();
 const storeAI = aiInterfaceStore();
+
+const currentStage = computed(() => storeBesearch.currentBesearchStage);
 
 const props = defineProps({
   height: Number,
@@ -372,5 +374,49 @@ const handleToggle = (e) => {
   color: #6b4fb8;
   font-weight: 500;
   font-size: 14px;
+}
+
+.besearch-part-section {
+  margin-bottom: 12px;
+}
+
+.besearch-bar {
+  background: rgba(0, 255, 204, 0.1);
+  border-color: rgba(0, 255, 204, 0.3);
+}
+
+.besearch-bar .lens-label {
+  color: #00ffcc;
+}
+
+.besearch-expanded-content {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 12px;
+}
+
+.part-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.part-header h4 {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #00ffcc;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.collapse-icon {
+  color: #718096;
+  font-size: 0.8rem;
 }
 </style>

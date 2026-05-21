@@ -17,16 +17,19 @@
       <slot name="group-prepend" :group="group"></slot>
       <div class="variable-list mini">
         <div
-          v-for="item in group.items"
+          v-for="(item, index) in group.items"
           :key="item.value"
           class="variable-tag assigned-tag"
           :class="{ 
             active: selectedValue === item.value,
             'attunement-active': group.id === 'attunement' && selectedValue === item.value,
-            'strand-active': strandMode && item.activeStrand
+            'strand-active': strandMode && item.activeStrand,
+            'reorder-mode': isOrgoLogic && item.activeStrand
           }"
           :draggable="!group.noDrag"
-          @dragstart="group.noDrag ? null : $emit('dragstart', $event, item.value)"
+          @dragstart="onItemDragStart($event, item, index, group.id)"
+          @dragover.prevent="onItemDragOver($event, index, group.id)"
+          @drop.stop="onItemDrop($event, index, group.id)"
           @dblclick="group.noDrag ? null : $emit('unmap', item.value)"
           @click="$emit('select', item.value)"
         >
@@ -66,7 +69,7 @@
 <script setup>
 import { ref } from "vue";
 
-defineProps({
+const props = defineProps({
   groups: {
     type: Array,
     required: true,
@@ -92,9 +95,13 @@ defineProps({
     type: Boolean,
     default: false,
   },
+  isOrgoLogic: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-defineEmits([
+const emit = defineEmits([
   "dragstart",
   "unmap",
   "select",
@@ -102,9 +109,45 @@ defineEmits([
   "drop",
   "dragover",
   "dragleave",
+  "reorder",
 ]);
 
 const activeDropZone = ref(null);
+const draggingIndex = ref(null);
+const draggingGroup = ref(null);
+
+const onItemDragStart = (e, item, index, groupId) => {
+  if (props.isOrgoLogic && item.activeStrand) {
+    draggingIndex.value = index;
+    draggingGroup.value = groupId;
+    e.dataTransfer.setData("application/json", JSON.stringify({ index, groupId, type: 'reorder', value: item.value }));
+  }
+  emit('dragstart', e, item.value);
+};
+
+const onItemDragOver = (e, index, groupId) => {
+  if (props.isOrgoLogic) {
+    e.dataTransfer.dropEffect = "move";
+  }
+};
+
+const onItemDrop = (e, index, groupId) => {
+  const data = e.dataTransfer.getData("application/json");
+  if (data) {
+    try {
+      const { index: oldIndex, groupId: oldGroupId, type, value } = JSON.parse(data);
+      if (type === 'reorder') {
+        emit('reorder', { oldGroupId, newGroupId: groupId, oldIndex, newIndex: index, value });
+        draggingIndex.value = null;
+        draggingGroup.value = null;
+        return;
+      }
+    } catch (err) {
+      // Not a reorder event
+    }
+  }
+  onDrop(e, groupId);
+};
 
 const onDragOver = (e, groupId) => {
   activeDropZone.value = groupId;
@@ -184,6 +227,11 @@ const onDrop = (e, groupId) => {
   background: rgba(0, 255, 0, 0.2);
   border-color: #00ff00;
   box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}
+
+.variable-tag.assigned-tag.reorder-mode {
+  cursor: ns-resize;
+  border-style: dashed;
 }
 
 .tag-content-wrapper {

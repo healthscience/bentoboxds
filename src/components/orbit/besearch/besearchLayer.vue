@@ -8,39 +8,68 @@
         'besearch-active': storeBesearch.besearchMode === 'besearch'
       }"
     >
-      <div class="besearch-controls-top" v-if="storeBesearch.besearchMode !== 'besearch'">
-        <div class="controls-left">
-          <div class="summary-line" v-if="storeBesearch.besearchMode === 'besearch'">
-            <div class="summary-item">
-              <span class="label">CAPACITY:</span>
-              <span class="value">{{ besearchContext.capacity || 'NONE' }}</span>
+      <div class="besearch-header-status">
+        <div class="header-left">
+          <span class="besearch-title">Besearch cycle</span>
+        </div>
+        <div class="status-summary">
+          <div
+            class="summary-item"
+            :class="{ ok: isStageCompleted('capacity') }"
+            @click="besearchContext.capacity = true"
+          >
+            <span class="label">Capacity</span>
+            <div class="mini-progress">
+              <div
+                class="fill"
+                :style="{ width: isStageCompleted('capacity') ? '100%' : '0%' }"
+              ></div>
             </div>
-            <div class="summary-item">
-              <span class="label">CONTEXT:</span>
-              <span class="value">{{ besearchContext.context || 'NONE' }}</span>
-            </div>
-            <button class="expand-sieve-btn" @click="storeBesearch.setHUUDState('lens')">
-              {{ storeBesearch.isSieveExpanded ? 'MINIMIZE' : 'EXPAND' }} STORY
-            </button>
+            <span class="value">{{ besearchContext.capacity || "None" }}</span>
           </div>
-          <div v-else class="progress-nav">
-            <div
-              v-for="(stage, idx) in ['capacity', 'logic', 'heli', 'emulation']"
-              :key="stage"
-              class="stage-node"
-              :class="{
-                active: currentStage === stage,
-                completed: isStageCompleted(stage),
-                locked: isStageLocked(stage),
-              }"
-              @click="setStage(stage)"
-            >
-              <span class="stage-number">{{ idx + 1 }}</span>
-              <span class="stage-label">{{ stage }}</span>
-              <div v-if="idx < 3" class="stage-connector"></div>
+          <div class="summary-item" :class="{ ok: isStageCompleted('logic') }" @click="besearchContext.logic = true">
+            <span class="label">Logic</span>
+            <div class="mini-progress">
+              <div
+                class="fill"
+                :style="{ width: isStageCompleted('logic') ? '100%' : '0%' }"
+              ></div>
             </div>
+            <span class="value"
+              >{{ activeOrgos.length + activeGelles.length }} Nodes</span
+            >
+          </div>
+          <div class="summary-item" :class="{ ok: isStageCompleted('heli') }" @click="besearchContext.heli = true">
+            <span class="label">Heli</span>
+            <div class="mini-progress">
+              <div
+                class="fill"
+                :style="{ width: isStageCompleted('heli') ? '100%' : '0%' }"
+              ></div>
+            </div>
+            <span class="value">
+              {{ isStageCompleted("heli") ? "Complete" : "Pending" }}
+            </span>
           </div>
         </div>
+        <div class="header-right">
+          <button class="collapse-btn" @click="storeBesearch.isBesearchExpanded = false" title="Collapse Besearch">
+            <span class="icon">▼</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="besearch-collapsed-bar" v-if="!storeBesearch.isBesearchExpanded" @click="storeBesearch.isBesearchExpanded = true">
+        <span class="collapsed-title">Besearch cycle</span>
+        <button class="expand-btn">
+          <span class="icon">▲</span>
+          <span>Expand</span>
+        </button>
+      </div>
+
+      <div class="besearch-layer-content" v-show="storeBesearch.isBesearchExpanded">
+
+      <div class="besearch-controls-top" v-if="storeBesearch.besearchMode !== 'besearch'">
 
         <div class="thread-indicator">
           <span class="pulse-dot"></span>
@@ -70,22 +99,10 @@
         </div>
       </div>
 
-      <!-- BeeBee Dialogue Roll-down -->
-      <transition name="roll-down">
-        <div class="beebee-dialogue-roll" v-if="storeBesearch.besearchMode === 'besearch'">
-          <div class="beebee-avatar">🐝</div>
-          <div class="dialogue-content">
-            <p class="beebee-message">{{ latestBeeBeeMessage }}</p>
-          </div>
-        </div>
-      </transition>
-
-      <!-- besearch stage any order can be filled in -->
-
       <div class="smelter-container" :class="[`stage-${currentStage}`]">
         <!-- 1. The Orgo Drawer (Seeding Logic) -->
         <aside
-          v-if="currentStage === 'logic'"
+          v-if="storeBesearch.isLogicExpanded"
           class="orgo-drawer"
           :class="{ open: isDrawerOpen }"
         >
@@ -157,398 +174,93 @@
         </aside>
 
         <main class="lab-space">
-          <!-- Sequential Besearch Sections -->
           <div class="besearch-sequential-wrapper">
-            <!-- Stage 2: Logic Braid (RESTRUCTURED) -->
-            <section class="besearch-step logic-step" :class="{ collapsed: currentStage !== 'logic' }">
-              <header class="step-header" @click="setStage('logic')">
+            <!-- Stage: Logic Braid -->
+            <section class="besearch-step logic-step" :class="{ collapsed: !storeBesearch.isLogicExpanded }">
+              <header class="step-header" @click="storeBesearch.isLogicExpanded = !storeBesearch.isLogicExpanded">
                 <span class="step-num">01</span>
                 <h4>Logic: Orgo, Gelle & Tiny Devices</h4>
                 <div class="step-status" v-if="isStageCompleted('logic')">✓</div>
-                <button class="step-toggle">{{ currentStage === 'logic' ? '▼' : '▲' }}</button>
+                <button class="step-toggle">{{ storeBesearch.isLogicExpanded ? '▼' : '▲' }}</button>
               </header>
               
-              <div class="step-content" v-show="currentStage === 'logic'">
-                <div class="logic-braid-wrapper">
-                  <div class="logic-braid-top">
-                    <!-- A. The Orgo Bay -->
-                    <section
-                      class="lab-bay orgo-bay"
-                      @drop.prevent="handleSeedDrop($event, 'orgo')"
-                      @dragover.prevent
-                    >
-                      <header class="bay-header">
-                        <h4>Orgo (Structural)</h4>
-                      </header>
-    
-                      <div v-if="activeOrgos.length === 0" class="bay-placeholder">
-                        Drag Orgo Seeds
-                      </div>
-    
-                      <div
-                        v-for="orgo in activeOrgos"
-                        :key="orgo.instanceId"
-                        class="active-instance mini"
-                      >
-                        <div class="instance-header">
-                          <span class="instance-name">{{ orgo.name }}</span>
-                        </div>
-                        <div class="tuning-controls mini">
-                          <div
-                            class="slider-group"
-                            v-for="(val, key) in orgo.params"
-                            :key="key"
-                          >
-                            <input
-                              type="range"
-                              v-model="orgo.params[key]"
-                              min="0"
-                              :max="key === 'damping' ? 1 : 100"
-                              :step="key === 'damping' ? 0.01 : 1"
-                              @input="
-                                logMutation('orgo', orgo.instanceId, key, val)
-                              "
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </section>
-    
-                    <!-- B. The Gelle Pocket -->
-                    <section
-                      class="lab-bay gelle-pocket"
-                      @drop.prevent="handleSeedDrop($event, 'gelle')"
-                      @dragover.prevent
-                    >
-                      <header class="bay-header">
-                        <h4>Gelle (Adaptive)</h4>
-                      </header>
-    
-                      <div v-if="activeGelles.length === 0" class="bay-placeholder">
-                        Drag Gelle Textures
-                      </div>
-    
-                      <div
-                        v-for="gelle in activeGelles"
-                        :key="gelle.instanceId"
-                        class="active-instance mini"
-                      >
-                        <div
-                          class="graft-zone mini"
-                          @drop.prevent="handleGraftDrop($event, gelle.instanceId)"
-                          @dragover.prevent
-                        >
-                          <canvas
-                            v-if="gelle.id === 'platonic_solid'"
-                            :ref="(el) => setGelleCanvas(el, gelle.instanceId)"
-                            class="gelle-polyhedron-canvas"
-                          ></canvas>
-                          <div
-                            v-for="graft in gelle.grafts"
-                            :key="graft"
-                            class="graft-bubble mini"
-                          >
-                            {{ graft }}
-                          </div>
-                        </div>
-                      </div>
-                    </section>
-                  </div>
-    
-                  <!-- C. The Instrument Dock (Tiny Devices) -->
-                  <section
-                    class="lab-bay instrument-dock-zone"
-                    @drop.prevent="handleInstrumentDrop($event)"
-                    @dragover.prevent
-                  >
-                    <header class="bay-header">
-                      <h4>Tiny Devices (Evidence)</h4>
-                    </header>
-    
-                    <div
-                      v-if="droppedInstruments.length === 0"
-                      class="bay-placeholder"
-                    >
-                      Drag Instruments from Logic Seeds here
-                    </div>
-    
-                    <div class="dropped-instruments-list">
-                      <div
-                        v-for="device in droppedInstruments"
-                        :key="device.id"
-                        class="instrument-item dropped"
-                      >
-                        <div
-                          class="device-status"
-                          :class="{ online: device.online }"
-                        ></div>
-                        <div class="device-info">
-                          <span class="device-name">{{ device.name }}</span>
-                          <span class="device-type">{{ device.type }}</span>
-                        </div>
-                        <button class="snap-btn" @click="snapOrgoToDevice(device)">
-                          SNAP
-                        </button>
-                        <button
-                          class="remove-btn"
-                          @click="removeInstrument(device.id)"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    </div>
-                    <div class="step-actions" v-if="isStageCompleted('logic')">
-                      <button class="next-step-btn" @click="setStage('heli')">Set Braid & Continue</button>
-                    </div>
-                  </section>
+              <div class="step-content" v-show="storeBesearch.isLogicExpanded">
+                <BesearchLogic />
+                <BesearchDevices />
+                <div class="step-actions" v-if="isStageCompleted('logic')">
+                  <button class="next-step-btn" @click="setStage('heli')">Set Braid & Continue</button>
                 </div>
               </div>
             </section>
 
-            <!-- Stage 3: Heli Projection -->
-            <section class="besearch-step heli-step" :class="{ collapsed: currentStage !== 'heli', locked: isStageLocked('heli') }">
-              <header class="step-header" @click="setStage('heli')">
+            <!-- Stage: Heli Projection -->
+            <section class="besearch-step heli-step" :class="{ collapsed: !storeBesearch.isHeliExpanded, locked: isStageLocked('heli') }">
+              <header class="step-header" @click="storeBesearch.isHeliExpanded = !storeBesearch.isHeliExpanded">
                 <span class="step-num">02</span>
                 <h4>Heli Projection</h4>
                 <div class="step-status" v-if="isStageCompleted('heli')">✓</div>
-                <button class="step-toggle">{{ currentStage === 'heli' ? '▼' : '▲' }}</button>
+                <button class="step-toggle">{{ storeBesearch.isHeliExpanded ? '▼' : '▲' }}</button>
               </header>
-              <div class="step-content" v-show="currentStage === 'heli'">
-                <section class="lab-bay heli-center">
-                  <div class="heli-clock-view">
-                    <HeliClock :mini="false" />
-    
-                    <div class="heli-sectors-grid">
-                      <!-- Orbits Sector -->
-                      <div
-                        class="heli-sector orbit-sector"
-                        @drop.prevent="handleHeliSectorDrop($event, 'orbits')"
-                        @dragover.prevent
-                      >
-                        <header class="sector-header">
-                          <h5>Orbits</h5>
-                        </header>
-                        <div class="active-item-list">
-                          <div class="heli-active-item constant">
-                            <span class="item-label">Horizon:</span>
-                            <span class="item-value">Age</span>
-                          </div>
-                          <div
-                            class="heli-active-item"
-                            v-if="besearchContext.orbits"
-                          >
-                            <span class="item-label">Target:</span>
-                            <span class="item-value">{{
-                              besearchContext.orbits
-                            }}</span>
-                          </div>
-                          <div v-else class="sector-placeholder">
-                            Drop for Orbits
-                          </div>
-                        </div>
-                      </div>
-    
-                      <!-- Solar Days Sector -->
-                      <div
-                        class="heli-sector days-sector"
-                        @drop.prevent="handleHeliSectorDrop($event, 'days')"
-                        @dragover.prevent
-                      >
-                        <header class="sector-header">
-                          <h5>Solar Days (Rhythms)</h5>
-                        </header>
-                        <div class="sector-value" v-if="besearchContext.days">
-                          {{ besearchContext.days }}
-                        </div>
-                        <div v-else class="sector-placeholder">
-                          Drop for Rhythms
-                        </div>
-                      </div>
-    
-                      <!-- Arcs Sector -->
-                      <div
-                        class="heli-sector arcs-sector"
-                        @drop.prevent="handleHeliSectorDrop($event, 'arcs')"
-                        @dragover.prevent
-                      >
-                        <header class="sector-header">
-                          <h5>Arcs (Performance)</h5>
-                        </header>
-                        <div class="sector-value" v-if="besearchContext.arcs">
-                          {{ besearchContext.arcs }}
-                        </div>
-                        <div v-else class="sector-placeholder">Drop for Arcs</div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="step-actions" v-if="isStageCompleted('heli')">
-                    <button class="next-step-btn" @click="setStage('emulation')">Set Projection & Continue</button>
-                  </div>
-                </section>
+              <div class="step-content" v-show="storeBesearch.isHeliExpanded">
+                <BesearchHeli />
+                <div class="step-actions" v-if="isStageCompleted('heli')">
+                  <button class="next-step-btn" @click="setStage('emulation')">Set Projection & Continue</button>
+                </div>
               </div>
             </section>
 
-            <!-- Stage 4: Emulation Testing -->
-            <section class="besearch-step emulation-step" :class="{ collapsed: currentStage !== 'emulation', locked: isStageLocked('emulation') }">
-              <header class="step-header" @click="setStage('emulation')">
+            <!-- Stage: Emulation Testing -->
+            <section class="besearch-step emulation-step" :class="{ collapsed: !storeBesearch.isEmulationExpanded, locked: isStageLocked('emulation') }">
+              <header class="step-header" @click="storeBesearch.isEmulationExpanded = !storeBesearch.isEmulationExpanded">
                 <span class="step-num">03</span>
                 <h4>Body Emulation</h4>
                 <div class="step-status" v-if="isStageCompleted('emulation')">✓</div>
-                <button class="step-toggle">{{ currentStage === 'emulation' ? '▼' : '▲' }}</button>
+                <button class="step-toggle">{{ storeBesearch.isEmulationExpanded ? '▼' : '▲' }}</button>
               </header>
-              <div class="step-content" v-show="currentStage === 'emulation'">
-                <div class="emulation-grid">
-                  <section
-                    class="lab-bay scribe-bay"
-                    v-if="!storeBesearch.isEmulationActive"
-                  >
-                    <header class="bay-header">
-                      <h4>The Scribe (Evidence)</h4>
-                    </header>
-                    <div class="evidence-log-v2">
-                      <div
-                        v-for="(log, i) in evidenceLogs"
-                        :key="i"
-                        class="log-entry"
-                      >
-                        <span class="log-time"
-                          >[{{ new Date().toLocaleTimeString() }}]</span
-                        >
-                        {{ log }}
-                      </div>
-                    </div>
-                  </section>
-    
-                  <section class="lab-bay seer-bay">
-                    <header class="bay-header">
-                      <h4>The Seer (Projection)</h4>
-                    </header>
-                    <div class="visual-projection-v2">
-                      <div class="orgo-wave" :style="waveStyle"></div>
-                      <div class="gelle-aura" :style="auraStyle"></div>
-                      <div class="emulation-overlay" v-if="isTriPointLocked">
-                        <button
-                          v-if="!storeBesearch.isEmulationActive"
-                          class="launch-btn-large"
-                          @click="launchEmulation"
-                        >
-                          Initiate Body Emulation
-                        </button>
-                        <button
-                          v-else
-                          class="launch-btn-large set-braid-btn"
-                          @click="storeBesearch.commitStrandToBraid()"
-                        >
-                          Set Braid
-                        </button>
-                      </div>
-                      <div
-                        class="emulation-live"
-                        v-if="storeBesearch.isEmulationActive"
-                      >
-                        <OrganSurface
-                          :linked-cue="{
-                            name: besearchContext.capacity || 'Heart',
-                          }"
-                          organ-color="#00ffcc"
-                        />
-                      </div>
-                    </div>
-                  </section>
-                </div>
+              <div class="step-content" v-show="storeBesearch.isEmulationExpanded">
+                <BesearchEmulation :logs="evidenceLogs" />
               </div>
             </section>
           </div>
         </main>
       </div>
 
-      <!-- footer replaced by stage logic or kept for global actions -->
-      <footer class="besearch-footer">
-        <div class="status-summary">
-          <div
-            class="summary-item"
-            :class="{ ok: isStageCompleted('capacity') }"
-          >
-            <span class="label">Capacity</span>
-            <div class="mini-progress">
-              <div
-                class="fill"
-                :style="{ width: isStageCompleted('capacity') ? '100%' : '0%' }"
-              ></div>
-            </div>
-            <span class="value">{{ besearchContext.capacity || "None" }}</span>
-          </div>
-          <div class="summary-item" :class="{ ok: isStageCompleted('logic') }">
-            <span class="label">Logic</span>
-            <div class="mini-progress">
-              <div
-                class="fill"
-                :style="{ width: isStageCompleted('logic') ? '100%' : '0%' }"
-              ></div>
-            </div>
-            <span class="value"
-              >{{ activeOrgos.length + activeGelles.length }} Nodes</span
-            >
-          </div>
-          <div class="summary-item" :class="{ ok: isStageCompleted('heli') }">
-            <span class="label">Heli</span>
-            <div class="mini-progress">
-              <div
-                class="fill"
-                :style="{ width: isStageCompleted('heli') ? '100%' : '0%' }"
-              ></div>
-            </div>
-            <span class="value">
-              {{ isStageCompleted("heli") ? "Complete" : "Pending" }}
-            </span>
-          </div>
-        </div>
-      </footer>
+      </div>
     </div>
   </transition>
 </template>
 
 <script setup>
-import { ref, computed, reactive, watch, onMounted } from "vue";
-import { useRouter } from "vue-router";
+import { ref, computed, onMounted } from "vue";
 import { besearchStore } from "@/stores/besearchStore.js";
 import { aiInterfaceStore } from "@/stores/aiInterface.js";
 import { useOrgoStore } from "@/stores/orgoStore.js";
 import { useGelleStore } from "@/stores/gelleStore.js";
-import HeliClock from "@/components/orbit/clock/HeliClock.vue";
-import OrganSurface from "@/components/orbit/worlds/body/organSurface.vue";
-import LensColumn from "@/components/orbit/parts/shared/LensColumn.vue";
+
+import BesearchLogic from "./parts/BesearchLogic.vue";
+import BesearchDevices from "./parts/BesearchDevices.vue";
+import BesearchHeli from "./parts/BesearchHeli.vue";
+import BesearchEmulation from "./parts/BesearchEmulation.vue";
 
 const storeBesearch = besearchStore();
 const storeAI = aiInterfaceStore();
 const orgoStore = useOrgoStore();
 const gelleStore = useGelleStore();
-const router = useRouter();
 
 const isDarkMode = ref(false);
 const isCyclePlaying = ref(false);
 
 const toggleCycle = () => {
-  // close besearh cycle and lower lifestrap lens but keep track add button to besearch fuse
   storeBesearch.isBesearchLayerOpen = false;
   storeBesearch.wasBesearchCycleOpen = true;
-
-  // Clear active life strap and close bottom panel
   storeAI.activeLifeStrapID = "";
   storeAI.activeContractKey = "";
   storeBesearch.showBottomPanel = false;
   storeBesearch.selectedIntervention = null;
   storeBesearch.showBesearchDetail = false;
-
-  // Collapse lifestrap lens (shows collapsed bar)
   storeAI.showLifestapLens = true;
-
-  // Set bottom height to collapsed state (60px)
   storeBesearch.bottomHeight = 60;
-
-  // Show besearch fuse by switching mode
   storeAI.currentMode = "besearch";
-
   isCyclePlaying.value = !isCyclePlaying.value;
   evidenceLogs.value.push(
     `Besearch Cycle ${isCyclePlaying.value ? "activated" : "paused"}`,
@@ -558,8 +270,6 @@ const toggleCycle = () => {
 onMounted(() => {
   const theme = document.documentElement.getAttribute("data-theme");
   isDarkMode.value = theme === "dark";
-
-  // Watch for theme changes on the html element
   const observer = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       if (mutation.attributeName === "data-theme") {
@@ -568,7 +278,6 @@ onMounted(() => {
       }
     });
   });
-
   observer.observe(document.documentElement, {
     attributes: true,
     attributeFilter: ["data-theme"],
@@ -577,14 +286,8 @@ onMounted(() => {
 
 const isOpen = computed(() => storeBesearch.isBesearchLayerOpen);
 const currentStage = computed(() => storeBesearch.currentBesearchStage);
-
 const activeThread = computed(() => storeBesearch.activeBesearchThread);
-const unmappedFragments = computed(
-  () => storeAI.lifestrapTexture?.residue || [],
-);
-
 const isDrawerOpen = ref(true);
-const isFoldExpanded = ref(false);
 const evidenceLogs = ref([
   "Awaiting data ingestion...",
   "Scanning resonance patterns...",
@@ -604,10 +307,10 @@ const isTriPointLocked = computed(() => {
 const isStageCompleted = (stage) => {
   const ctx = storeBesearch.activeBesearchContext;
   if (stage === "capacity")
-    return !!(ctx.capacity && ctx.context && ctx.attunement);
+    return !!(ctx.capacity);
   if (stage === "logic")
-    return activeOrgos.value.length > 0 || activeGelles.value.length > 0;
-  if (stage === "heli") return !!(ctx.orbits || ctx.days || ctx.arcs);
+    return !!(ctx.logic) || activeOrgos.value.length > 0 || activeGelles.value.length > 0;
+  if (stage === "heli") return !!(ctx.heli) || !!(ctx.orbits || ctx.days || ctx.arcs);
   if (stage === "emulation") return isTriPointLocked.value;
   return false;
 };
@@ -626,133 +329,34 @@ const isStageLocked = (stage) => {
 const setStage = (stage) => {
   if (!isStageLocked(stage)) {
     storeBesearch.currentBesearchStage = stage;
+    // Automatically expand the new stage
+    if (stage === 'logic') {
+      storeBesearch.isLogicExpanded = true;
+      storeBesearch.isHeliExpanded = false;
+      storeBesearch.isEmulationExpanded = false;
+    } else if (stage === 'heli') {
+      storeBesearch.isLogicExpanded = false;
+      storeBesearch.isHeliExpanded = true;
+      storeBesearch.isEmulationExpanded = false;
+    } else if (stage === 'emulation') {
+      storeBesearch.isLogicExpanded = false;
+      storeBesearch.isHeliExpanded = false;
+      storeBesearch.isEmulationExpanded = true;
+    }
   }
 };
 
 const besearchContext = computed(() => storeBesearch.activeBesearchContext);
-
-const availablePeerItems = computed(() =>
-  (storeAI.lifestrapTexture.pillars.context || []).filter(
-    (i) => i.label === "Activity" || i.label === "Body/Peer",
-  ),
-);
-const availableEnvironmentItems = computed(() =>
-  (storeAI.lifestrapTexture.pillars.context || []).filter(
-    (i) =>
-      i.label === "Space" ||
-      i.label === "Environment" ||
-      i.label === "Building Environment",
-  ),
-);
-const availableEarthItems = computed(() =>
-  (storeAI.lifestrapTexture.pillars.context || []).filter(
-    (i) => i.label === "Temporal" || i.label === "Earth Scales",
-  ),
-);
-
-const availableCapacityItems = computed(
-  () => storeAI.lifestrapTexture.pillars.capacity || [],
-);
-
-const availableAttunementItems = computed(
-  () => storeAI.lifestrapTexture.pillars.attunement || [],
-);
-
-const selectCapacity = (word) => {
-  storeBesearch.activeBesearchContext.capacity = word;
-};
-
-const selectContext = (word) => {
-  storeBesearch.activeBesearchContext.context = word;
-};
-
-const selectAttunement = (word) => {
-  storeBesearch.activeBesearchContext.attunement = word;
-};
-
-const handleCapacityDrop = (e) => {
-  const word = e.dataTransfer.getData("text/plain");
-  if (word) {
-    storeBesearch.activeBesearchContext.capacity = word;
-    evidenceLogs.value.push(`Capacity anchor set to: ${word}`);
-  }
-};
-
-const handleContextDrop = (e, groupId) => {
-  const word = e.dataTransfer.getData("text/plain");
-  if (word) {
-    let label = "Activity";
-    if (groupId === "environment") label = "Space";
-    if (groupId === "earth") label = "Temporal";
-
-    storeAI.updateResonWeight(word, groupId, label);
-    evidenceLogs.value.push(`Context bucket added to ${groupId}: ${word}`);
-  }
-};
-
-const handleAttunementDrop = (e) => {
-  const word = e.dataTransfer.getData("text/plain");
-  if (word) {
-    storeAI.updateResonWeight(word, "attunement", "Attunement");
-    evidenceLogs.value.push(`Attunement bucket added: ${word}`);
-  }
-};
-
-const unmapToResidue = (word) => {
-  storeAI.updateResonWeight(word, "residue");
-  evidenceLogs.value.push(`Moved ${word} back to library`);
-};
-
-const handleHeliSectorDrop = (e, sector) => {
-  const word = e.dataTransfer.getData("text/plain");
-  if (word) {
-    storeBesearch.activeBesearchContext[sector] = word;
-    evidenceLogs.value.push(`Heli ${sector} sector updated: ${word}`);
-  }
-};
 
 const activeInstruments = ref([
   { id: "polar-h10", name: "Polar H10", type: "HRM", online: true },
   { id: "withings-body", name: "Withings Body+", type: "Scale", online: true },
 ]);
 
-// Cross-thread damping logic
-watch(
-  activeGelles,
-  (newGelles) => {
-    const repairActive = newGelles.some((g) => g.strategy === "Repair");
-    if (repairActive) {
-      activeOrgos.value.forEach((orgo) => {
-        orgo.params.damping = Math.min(1, orgo.params.damping + 0.1);
-        evidenceLogs.value.push(`Global Damping increased via Repair Gelle`);
-      });
-    }
-  },
-  { deep: true },
-);
-
-const droppedInstruments = ref([]);
-
-const handleInstrumentDrop = (e) => {
-  const dataRaw = e.dataTransfer.getData("application/besearch-instrument");
-  if (!dataRaw) return;
-  const device = JSON.parse(dataRaw);
-  if (!droppedInstruments.value.find((d) => d.id === device.id)) {
-    droppedInstruments.value.push(device);
-    evidenceLogs.value.push(`Instrument docked: ${device.name}`);
-  }
-};
-
 const handleInstrumentDragStart = (e, device) => {
   e.dataTransfer.setData(
     "application/besearch-instrument",
     JSON.stringify(device),
-  );
-};
-
-const removeInstrument = (id) => {
-  droppedInstruments.value = droppedInstruments.value.filter(
-    (d) => d.id !== id,
   );
 };
 
@@ -763,42 +367,8 @@ const handleSeedDragStart = (e, seed, type) => {
   );
 };
 
-const handleSeedDrop = (e, targetType) => {
-  const data = JSON.parse(e.dataTransfer.getData("application/besearch-seed"));
-  if (data.type === targetType) {
-    if (targetType === "orgo") {
-      orgoStore.instantiateOrgo(data.id);
-    } else {
-      gelleStore.graftGelle(data.id);
-    }
-    evidenceLogs.value.push(`Instantiated ${data.name}`);
-  }
-};
-
-const handleResidueDragStart = (e, word) => {
-  e.dataTransfer.setData("text/plain", word);
-};
-
-const handleGraftDrop = (e, instanceId) => {
-  const word = e.dataTransfer.getData("text/plain");
-  if (word) {
-    gelleStore.addGraft(instanceId, word);
-    evidenceLogs.value.push(`Grafted residue: ${word}`);
-  }
-};
-
-const updateBesearchStrategy = (strategy) => {
-  storeBesearch.activeBesearchContext.strategy = strategy;
-  logMutation("context", "global", "strategy", strategy);
-};
-
-const updateGelleStrategy = (instanceId, strategy) => {
-  gelleStore.updateStrategy(instanceId, strategy);
-};
-
 const snapOrgoToDevice = (device) => {
   evidenceLogs.value.push(`Snapping to ${device.name}...`);
-  // Mock snap logic
   if (activeOrgos.value.length > 0) {
     const firstOrgo = activeOrgos.value[0];
     firstOrgo.params.amplitude = 75;
@@ -807,139 +377,6 @@ const snapOrgoToDevice = (device) => {
       `${firstOrgo.name} frequency aligned to Peer rhythm.`,
     );
   }
-};
-
-const logMutation = (type, instanceId, key, value) => {
-  storeBesearch.updateBesearchThread({
-    component: type,
-    instance: instanceId,
-    property: key,
-    value: value,
-  });
-};
-
-const toggleFold = () => {
-  if (isTriPointLocked.value) {
-    isFoldExpanded.value = !isFoldExpanded.value;
-  }
-};
-
-const launchEmulation = () => {
-  storeBesearch.startEmulation();
-  evidenceLogs.value.push("Body Emulation started...");
-};
-
-const setGelleCanvas = (el, instanceId) => {
-  if (el) {
-    gelleCanvases.value[instanceId] = el;
-    initGellePolyhedron(el, instanceId);
-  } else {
-    delete gelleCanvases.value[instanceId];
-    if (gelleAnimations.value[instanceId]) {
-      cancelAnimationFrame(gelleAnimations.value[instanceId]);
-      delete gelleAnimations.value[instanceId];
-    }
-  }
-};
-
-const gelleCanvases = ref({});
-const gelleAnimations = ref({});
-
-const initGellePolyhedron = (canvas, instanceId) => {
-  const ctx = canvas.getContext("2d");
-  const phi = (1 + Math.sqrt(5)) / 2;
-  const vertices = [
-    [-1, phi, 0],
-    [1, phi, 0],
-    [-1, -phi, 0],
-    [1, -phi, 0],
-    [0, -1, phi],
-    [0, 1, phi],
-    [0, -1, -phi],
-    [0, 1, -phi],
-    [phi, 0, -1],
-    [phi, 0, 1],
-    [-phi, 0, -1],
-    [-phi, 0, 1],
-  ];
-
-  let angle = 0;
-
-  const project = (v, scale) => {
-    const x = v[0] * Math.cos(angle) - v[2] * Math.sin(angle);
-    const z = v[0] * Math.sin(angle) + v[2] * Math.cos(angle);
-    const y = v[1] * Math.cos(0.5) - z * Math.sin(0.5);
-    return { x: x * scale, y: y * scale };
-  };
-
-  const resize = () => {
-    const parent = canvas.parentElement;
-    if (!parent) return;
-    canvas.width = parent.clientWidth;
-    canvas.height = parent.clientHeight;
-  };
-
-  resize();
-
-  const render = () => {
-    if (!ctx) return;
-    const width = canvas.width;
-    const height = canvas.height;
-    // Scale to fill the dropzone (using 80% of min dimension to ensure it fits nicely)
-    const scale = (Math.min(width, height) / 2) * 0.8;
-    const centerX = width / 2;
-    const centerY = height / 2;
-
-    ctx.clearRect(0, 0, width, height);
-
-    // Glow
-    const glow = ctx.createRadialGradient(
-      centerX,
-      centerY,
-      0,
-      centerX,
-      centerY,
-      scale * 1.5,
-    );
-    glow.addColorStop(0, "rgba(0, 255, 204, 0.1)");
-    glow.addColorStop(1, "rgba(0, 255, 204, 0)");
-    ctx.fillStyle = glow;
-    ctx.fillRect(0, 0, width, height);
-
-    ctx.save();
-    ctx.translate(centerX, centerY);
-
-    angle += 0.01;
-
-    ctx.strokeStyle = isDarkMode.value ? "#00ffcc" : "#00796b";
-    ctx.lineWidth = 1.5;
-    ctx.lineJoin = "round";
-    ctx.shadowBlur = 10;
-    ctx.shadowColor = ctx.strokeStyle;
-
-    ctx.beginPath();
-    for (let i = 0; i < vertices.length; i++) {
-      for (let j = i + 1; j < vertices.length; j++) {
-        const d2 =
-          Math.pow(vertices[i][0] - vertices[j][0], 2) +
-          Math.pow(vertices[i][1] - vertices[j][1], 2) +
-          Math.pow(vertices[i][2] - vertices[j][2], 2);
-
-        if (d2 < 4.1 && d2 > 3.9) {
-          const p1 = project(vertices[i], scale);
-          const p2 = project(vertices[j], scale);
-          ctx.moveTo(p1.x, p1.y);
-          ctx.lineTo(p2.x, p2.y);
-        }
-      }
-    }
-    ctx.stroke();
-    ctx.restore();
-
-    gelleAnimations.value[instanceId] = requestAnimationFrame(render);
-  };
-
-  render();
 };
 
 const closeLayer = () => {
@@ -951,82 +388,251 @@ const closeLayer = () => {
     storeBesearch.wasSculptingLayerOpen = false;
   }
 };
-
-const waveStyle = computed(() => {
-  const orgo = activeOrgos.value[0];
-  if (!orgo) return { height: "0%" };
-  return {
-    height: `${orgo.params.amplitude || 50}%`,
-    opacity: 0.7,
-  };
-});
-
-const auraStyle = computed(() => {
-  const gelle = activeGelles.value[0];
-  if (!gelle) return { opacity: 0 };
-  return {
-    opacity: gelle.grafts.length * 0.2 + 0.2,
-  };
-});
 </script>
 
 <style scoped>
-.besearch-layer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100vw;
-  height: v-bind('storeBesearch.bottomHeight + "px"');
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(35px) saturate(200%) brightness(1.1);
-  -webkit-backdrop-filter: blur(35px) saturate(200%) brightness(1.1);
-  z-index: 5000;
-  display: flex;
-  flex-direction: column;
-  color: #1a202c;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.1);
-  transform: translateY(100%);
-  opacity: 0;
-  pointer-events: none;
+.besearch-layer-content {
+  display: contents;
 }
 
-.besearch-layer.besearch-active {
-  transform: translateY(0);
-  opacity: 1;
-  pointer-events: auto;
-}
-
-
-.summary-line {
+.besearch-header-status {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 20px;
-  padding: 6px 16px;
-  background: #1a202c;
-  border: 1px solid #00ffcc;
-  border-radius: 30px;
-  box-shadow: 0 0 15px rgba(0, 255, 204, 0.2);
+  padding: 10px 30px;
+  background: #ffffff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  z-index: 20;
+}
+
+.dark-theme .besearch-header-status {
+  background: rgba(20, 20, 25, 0.95);
+  border-bottom: 1px solid rgba(0, 255, 204, 0.2);
+}
+
+.besearch-title {
+  font-family: "Space Mono", monospace;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #2d3748;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.dark-theme .besearch-title {
+  color: #00ffcc;
+}
+
+.status-summary {
+  display: flex;
+  gap: 24px;
+  flex: 1;
+  justify-content: center;
 }
 
 .summary-item {
   display: flex;
-  gap: 8px;
-  font-family: "Space Mono", monospace;
-  font-size: 0.75rem;
-  letter-spacing: 0.05em;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
 }
 
-.summary-item .label {
-  color: #718096;
-  font-weight: 800;
+.mini-progress {
+  width: 40px;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.dark-theme .mini-progress {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.fill {
+  height: 100%;
+  background: #cbd5e0;
+  transition: width 0.3s ease;
+}
+
+.summary-item.ok .fill {
+  background: #00796b;
+}
+
+.dark-theme .summary-item.ok .fill {
+  background: #00ffcc;
 }
 
 .summary-item .value {
-  color: #00ffcc;
-  font-weight: 700;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #718096;
 }
+
+.dark-theme .summary-item .value {
+  color: #a0aec0;
+}
+
+.collapse-btn, .expand-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #718096;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.collapse-btn:hover, .expand-btn:hover {
+  color: #2d3748;
+}
+
+.dark-theme .collapse-btn, .dark-theme .expand-btn {
+  color: #a0aec0;
+}
+
+.dark-theme .collapse-btn:hover, .dark-theme .expand-btn:hover {
+  color: #00ffcc;
+}
+
+.besearch-collapsed-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 30px;
+  background: #ffffff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.besearch-collapsed-bar:hover {
+  background: #f7fafc;
+}
+
+.dark-theme .besearch-collapsed-bar {
+  background: rgba(20, 20, 25, 0.95);
+  border-bottom: 1px solid rgba(0, 255, 204, 0.2);
+}
+
+.dark-theme .besearch-collapsed-bar:hover {
+  background: rgba(30, 30, 35, 0.95);
+}
+
+.collapsed-title {
+  font-family: "Space Mono", monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #2d3748;
+  text-transform: uppercase;
+}
+
+.dark-theme .collapsed-title {
+  color: #00ffcc;
+}
+
+.besearch-layer {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(35px) saturate(200%) brightness(1.1);
+  -webkit-backdrop-filter: blur(35px) saturate(200%) brightness(1.1);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  color: #1a202c;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.besearch-layer.besearch-active {
+  /* No transform needed when embedded */
+}
+
+.besearch-slide-enter-from,
+.besearch-slide-leave-to {
+  opacity: 0;
+}
+
+.besearch-layer.dark-theme {
+  background: rgba(10, 10, 15, 0.98);
+  color: #f0f0f0;
+  border-top: 1px solid rgba(0, 255, 204, 0.3);
+}
+
+.besearch-controls-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 30px;
+  background: #ffffff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.dark-theme .besearch-controls-top {
+  background: rgba(20, 20, 25, 0.9);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.branding-label {
+  font-family: "Space Mono", monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: 700;
+  color: #2d3748;
+}
+
+.dark-theme .branding-label {
+  color: #00ffcc;
+}
+
+.lab-space {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 200px;
+  gap: 20px;
+  padding: 30px;
+  overflow-y: auto;
+  background: #f7f9fc;
+}
+
+.dark-theme .lab-space {
+  background: transparent;
+}
+
+.step-header h4 {
+  margin: 0;
+  flex: 1;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #2d3748;
+  font-weight: 800;
+}
+
+.dark-theme .step-header h4 {
+  color: #e2e8f0;
+}
+
+.summary-item .label {
+  color: #4a5568;
+  font-weight: 800;
+}
+
+.dark-theme .summary-item .label {
+  color: #a0aec0;
+}
+
 
 .expand-sieve-btn {
   background: rgba(0, 255, 204, 0.1);
@@ -1273,15 +879,21 @@ const auraStyle = computed(() => {
 }
 
 .besearch-step {
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.05);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.03);
+  background: #ffffff;
   overflow: hidden;
   transition: all 0.4s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.dark-theme .besearch-step {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .besearch-step.collapsed {
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
 .besearch-step.locked {
@@ -1295,14 +907,22 @@ const auraStyle = computed(() => {
   align-items: center;
   gap: 20px;
   cursor: pointer;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.dark-theme .step-header {
   background: rgba(255, 255, 255, 0.05);
 }
 
 .step-num {
   font-family: "Space Mono", monospace;
   font-size: 0.8rem;
-  color: #00ffcc;
+  color: #00796b;
   opacity: 0.5;
+}
+
+.dark-theme .step-num {
+  color: #00ffcc;
 }
 
 .step-header h4 {
@@ -1311,12 +931,20 @@ const auraStyle = computed(() => {
   font-size: 0.9rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
+  color: #2d3748;
+}
+
+.dark-theme .step-header h4 {
   color: #e0e0e0;
 }
 
 .step-status {
-  color: #00ffcc;
+  color: #00796b;
   font-weight: bold;
+}
+
+.dark-theme .step-status {
+  color: #00ffcc;
 }
 
 .step-toggle {
@@ -1471,18 +1099,11 @@ const auraStyle = computed(() => {
 
 .lab-space {
   flex: 1;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: 1fr 200px;
-  gap: 20px;
+  display: flex;
+  flex-direction: column;
   padding: 30px;
   overflow-y: auto;
   background: #fdfcfb;
-}
-
-.stage-capacity .lab-space {
-  grid-template-columns: 1fr 1fr 1fr;
-  grid-template-rows: 1fr;
 }
 
 .dark-theme .lab-space {

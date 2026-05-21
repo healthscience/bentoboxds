@@ -8,17 +8,6 @@
         'is-bar': storeBesearch.besearchMode === 'besearch' && !storeBesearch.isLensExpanded
       }"
     >
-      <div v-if="storeBesearch.besearchMode === 'besearch'" class="lens-bar-controls" @click="storeBesearch.toggleLensExpansion()">
-        <span class="bar-title">LIFE-STRAP LENS</span>
-        <div class="bar-summary">
-          <span class="summary-chip capacity">C: {{ capacityItems.length }}</span>
-          <span class="summary-chip context">X: {{ contextItems.length }}</span>
-          <span class="summary-chip attunement">A: {{ selectedAttunement || 'None' }}</span>
-        </div>
-        <button class="expansion-toggle">
-          {{ storeBesearch.isLensExpanded ? '▼' : '▲' }}
-        </button>
-      </div>
 
       <!-- Left Pane: Cues Portal -->
       <div class="sieve-pane narrative-pane" v-show="storeBesearch.isLensExpanded || storeBesearch.besearchMode !== 'besearch'">
@@ -84,6 +73,17 @@
             </div>
           </div>
 
+          <div class="strand-toggle-wrapper orgo-logic-wrapper">
+            <span class="strand-label">Orgo</span>
+            <div 
+              class="strand-slider orgo-slider" 
+              :class="{ active: storeBesearch.isOrgoLogic }"
+              @click="storeBesearch.isOrgoLogic = !storeBesearch.isOrgoLogic"
+            >
+              <div class="slider-knob"></div>
+            </div>
+          </div>
+
           <button 
             class="enter-bench-btn"
             :class="{ active: storeBesearch.canEnterBench }"
@@ -109,12 +109,14 @@
               :groups="[{ id: 'capacity', title: 'Capacity', items: capacityItems }]"
               :show-item-labels="true"
               :strand-mode="storeBesearch.strandMode"
+              :is-orgo-logic="storeBesearch.isOrgoLogic"
               @dragstart="onDragStart"
               @unmap="unmapFragment"
               @select="selectCapacity"
               @drop="onDrop"
               @dragover="onDragOver"
               @dragleave="onDragLeave"
+              @reorder="handleReorder"
             />
           </div>
 
@@ -137,12 +139,14 @@
               ]"
               :show-item-labels="true"
               :strand-mode="storeBesearch.strandMode"
+              :is-orgo-logic="storeBesearch.isOrgoLogic"
               @dragstart="onDragStart"
               @unmap="unmapFragment"
               @select="handleCueSpace"
               @drop="onDrop"
               @dragover="onDragOver"
               @dragleave="onDragLeave"
+              @reorder="handleReorder"
             />
           </div>
 
@@ -297,6 +301,36 @@ const selectCapacity = (val) => {
     return;
   }
   storeBesearch.activeBesearchContext.capacity = val;
+};
+
+const handleReorder = ({ oldGroupId, newGroupId, oldIndex, newIndex, value }) => {
+  const getZone = (id) => {
+    if (['peer', 'environment', 'earth', 'context'].includes(id)) return 'context';
+    if (id === 'capacity') return 'capacity';
+    return null;
+  };
+
+  const oldZone = getZone(oldGroupId);
+  const newZone = getZone(newGroupId);
+
+  if (!oldZone || !newZone) return;
+
+  if (oldZone === newZone) {
+    // Internal reorder within the same pillar
+    storeAI.reorderStrandCues(oldZone, oldIndex, newIndex);
+  } else {
+    // Cross-pillar move (e.g. Capacity to Context)
+    // 1. Remove from old pillar
+    const oldPillar = storeAI.lifestrapTexture.pillars[oldZone];
+    const item = oldPillar.splice(oldIndex, 1)[0];
+    
+    // 2. Add to new pillar at new index
+    const newPillar = storeAI.lifestrapTexture.pillars[newZone];
+    newPillar.splice(newIndex, 0, item);
+    
+    // 3. Sync
+    storeAI.syncAttunement(item.value, newZone, item.label);
+  }
 };
 
 const handleTokenClick = (token) => {
@@ -687,6 +721,11 @@ onMounted(() => {
 .strand-slider.active {
   background: #3b82f6;
   box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+}
+
+.orgo-slider.active {
+  background: #a685ff;
+  box-shadow: 0 0 10px rgba(166, 133, 255, 0.4);
 }
 
 .slider-knob {

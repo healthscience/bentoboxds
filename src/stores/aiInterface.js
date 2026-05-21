@@ -227,6 +227,18 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
     setPerformanceVelocity(value) {
       this.performanceVelocity = value;
     },
+    reorderStrandCues(zone, oldIndex, newIndex) {
+      if (!this.lifestrapTexture?.pillars?.[zone]) return;
+      
+      const pillar = this.lifestrapTexture.pillars[zone];
+      const item = pillar.splice(oldIndex, 1)[0];
+      pillar.splice(newIndex, 0, item);
+      
+      console.log(`Reordered ${zone} pillar:`, pillar);
+      
+      // Sync with backend
+      this.syncAttunement(item.value, zone, item.label);
+    },
     updateResonWeight(word, zone, label = null) {
 
       if (!this.lifestrapTexture) {

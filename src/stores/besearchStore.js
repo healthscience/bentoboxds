@@ -26,6 +26,10 @@ export const besearchStore = defineStore("besearchstore", {
     // Expansion states for the dual-layer view
     isLensExpanded: true,
     isBesearchExpanded: true,
+    isLogicExpanded: true,
+    isDevicesExpanded: true,
+    isHeliExpanded: true,
+    isEmulationExpanded: true,
     activeBesearchThread: "besearch:prime:longevity_65",
     currentBesearchStage: "capacity", // capacity, logic, heli, emulation
     besearchMode: "default", // default, lens, besearch
@@ -37,6 +41,8 @@ export const besearchStore = defineStore("besearchstore", {
     besearchThread: [],
     activeBesearchContext: {
       capacity: null,
+      logic: null,
+      heli: null,
       context: null,
       attunement: null,
       orbits: 65,
@@ -77,9 +83,35 @@ export const besearchStore = defineStore("besearchstore", {
     emulationPulse: 1.0,
     emulationPulseInterval: null,
     isBraidingMode: false,
-    strandMode: false, // false = OFF, true = ON
+    strandMode: false, // false = OFF, true = ON (isStranded)
+    isOrgoLogic: false, // false = OFF, true = ON
   }),
   getters: {
+    evaluateConduction: (state) => {
+      if (!state.strandMode) return null;
+
+      const storeAI = aiInterfaceStore();
+      const capacityStrands = (storeAI.lifestrapTexture?.pillars?.capacity || [])
+        .filter((item) => item.activeStrand);
+      const contextStrands = (storeAI.lifestrapTexture?.pillars?.context || [])
+        .filter((item) => item.activeStrand);
+
+      const allStrandedCues = [...capacityStrands, ...contextStrands];
+
+      if (!state.isOrgoLogic) {
+        // Implied Matrix: Variables are co-equal peers
+        return {
+          type: "CO_EQUAL_FIELD",
+          nodes: allStrandedCues.map((c) => c.value),
+        };
+      }
+
+      // Implied Sequence: Order matters, process linearly
+      return {
+        type: "DIRECTIONAL_PIPELINE",
+        pipeline: allStrandedCues.map((c) => c.value),
+      };
+    },
     canEnterBench: (state) => {
       const storeAI = aiInterfaceStore();
       const pillars = storeAI.lifestrapTexture?.pillars;
@@ -545,6 +577,13 @@ export const besearchStore = defineStore("besearchstore", {
         this.isSieveExpanded = false;
         this.isLensExpanded = false; // Lens starts as a bar in besearch mode
         this.isBesearchExpanded = true;
+        
+        // Ensure Stage 01 (Logic) is expanded by default in Besearch mode
+        this.isLogicExpanded = true;
+        this.isHeliExpanded = false;
+        this.isEmulationExpanded = false;
+        this.currentBesearchStage = 'logic';
+
         this.bottomHeight = window.innerHeight * 0.85;
         storeAI.showLifestapLens = true; // Still in lens-enabled context but lab view
       }
