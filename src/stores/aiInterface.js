@@ -56,7 +56,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       beebeeContext: "chat",
       askQuestion: {
         text: "",
-        compute: false,
+        compute: "observation",
       },
       decisionDoughnutCue: false,
       agentList: [
@@ -84,10 +84,6 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
           },
         ],
       },
-      askQuestion: {
-        text: "",
-        compute: "observation",
-      },
       bodyDiagramShow: false,
       agentProgress: {},
       inputAskHistory: [],
@@ -100,6 +96,9 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         time: "",
         active: true,
       }),
+      beebeeSidebarOpen: false, // New state for sidebar control
+      beebeeSidebarPrompt: "",   // New state for prompt text
+      attunementActiveIndex: null, // Track which slot is being edited
       showLifestapLens: false,
       helpchatReply: "",
       helpchatHistory: shallowRef([]),
@@ -582,6 +581,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
     },
     trackAgentProgress(bboxID) {
       // setup chat feedback object if need
+      if (!this.agentProgress) this.agentProgress = {};
       if (this.agentProgress[this.chatAttention] === undefined) {
         this.agentProgress[this.chatAttention] = {};
       }
@@ -621,6 +621,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       this.agentProgress[this.chatAttention] = updateProgreefb;
     },
     processAgentFeedback(data) {
+      if (!this.agentProgress) this.agentProgress = {};
       this.agentProgress[this.chatAttention] = {};
       this.agentProgress[this.chatAttention][data.bbid] = {
         feedback: "= TOKEN MESSAGE RECEIVED =",

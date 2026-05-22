@@ -69,7 +69,7 @@
 
       <div class="besearch-layer-content" v-show="storeBesearch.isBesearchExpanded">
 
-      <div class="besearch-controls-top" v-if="storeBesearch.besearchMode !== 'besearch'">
+        <div class="besearch-controls-top" v-if="storeBesearch.besearchMode !== 'besearch'">
 
         <div class="thread-indicator">
           <span class="pulse-dot"></span>
@@ -100,9 +100,28 @@
       </div>
 
       <div class="smelter-container" :class="[`stage-${currentStage}`]">
+        <!-- New Stage Tabs Sidebar -->
+        <nav class="stage-tabs">
+          <div 
+            v-for="(stage, idx) in ['logic', 'heli', 'emulation']" 
+            :key="stage"
+            class="stage-tab"
+            :class="{ 
+              active: reviewStage === stage,
+              completed: isStageCompleted(stage),
+              locked: isStageLocked(stage)
+            }"
+            @click="!isStageLocked(stage) && (reviewStage = stage)"
+          >
+            <div class="tab-num">0{{ idx + 1 }}</div>
+            <div class="tab-label">{{ stage }}</div>
+            <div class="tab-status" v-if="isStageCompleted(stage)">✓</div>
+          </div>
+        </nav>
+
         <!-- 1. The Orgo Drawer (Seeding Logic) -->
         <aside
-          v-if="storeBesearch.isLogicExpanded"
+          v-if="storeBesearch.isLogicExpanded && reviewStage === 'logic'"
           class="orgo-drawer"
           :class="{ open: isDrawerOpen }"
         >
@@ -175,52 +194,69 @@
 
         <main class="lab-space">
           <div class="besearch-sequential-wrapper">
-            <!-- Stage: Logic Braid -->
-            <section class="besearch-step logic-step" :class="{ collapsed: !storeBesearch.isLogicExpanded }">
-              <header class="step-header" @click="storeBesearch.isLogicExpanded = !storeBesearch.isLogicExpanded">
-                <span class="step-num">01</span>
-                <h4>Logic: Orgo, Gelle & Tiny Devices</h4>
-                <div class="step-status" v-if="isStageCompleted('logic')">✓</div>
-                <button class="step-toggle">{{ storeBesearch.isLogicExpanded ? '▼' : '▲' }}</button>
-              </header>
-              
-              <div class="step-content" v-show="storeBesearch.isLogicExpanded">
-                <BesearchLogic />
-                <BesearchDevices />
-                <div class="step-actions" v-if="isStageCompleted('logic')">
-                  <button class="next-step-btn" @click="setStage('heli')">Set Braid & Continue</button>
+            <transition name="stage-slide" mode="out-in">
+              <!-- Stage: Logic Braid -->
+              <section 
+                v-if="reviewStage === 'logic'"
+                key="logic"
+                class="besearch-step logic-step" 
+                :class="{ collapsed: !storeBesearch.isLogicExpanded }"
+              >
+                <header class="step-header" @click="storeBesearch.isLogicExpanded = !storeBesearch.isLogicExpanded">
+                  <span class="step-num">01</span>
+                  <h4>Logic: Orgo, Gelle & Tiny Devices</h4>
+                  <div class="step-status" v-if="isStageCompleted('logic')">✓</div>
+                  <button class="step-toggle">{{ storeBesearch.isLogicExpanded ? '▼' : '▲' }}</button>
+                </header>
+                
+                <div class="step-content" v-show="storeBesearch.isLogicExpanded">
+                  <BesearchLogic />
+                  <BesearchDevices />
+                  <div class="step-actions" v-if="isStageCompleted('logic')">
+                    <button class="next-step-btn" @click="setStage('heli')">Set Braid & Continue</button>
+                  </div>
                 </div>
-              </div>
-            </section>
+              </section>
 
-            <!-- Stage: Heli Projection -->
-            <section class="besearch-step heli-step" :class="{ collapsed: !storeBesearch.isHeliExpanded, locked: isStageLocked('heli') }">
-              <header class="step-header" @click="storeBesearch.isHeliExpanded = !storeBesearch.isHeliExpanded">
-                <span class="step-num">02</span>
-                <h4>Heli Projection</h4>
-                <div class="step-status" v-if="isStageCompleted('heli')">✓</div>
-                <button class="step-toggle">{{ storeBesearch.isHeliExpanded ? '▼' : '▲' }}</button>
-              </header>
-              <div class="step-content" v-show="storeBesearch.isHeliExpanded">
-                <BesearchHeli />
-                <div class="step-actions" v-if="isStageCompleted('heli')">
-                  <button class="next-step-btn" @click="setStage('emulation')">Set Projection & Continue</button>
+              <!-- Stage: Heli Projection -->
+              <section 
+                v-else-if="reviewStage === 'heli'"
+                key="heli"
+                class="besearch-step heli-step" 
+                :class="{ collapsed: !storeBesearch.isHeliExpanded, locked: isStageLocked('heli') }"
+              >
+                <header class="step-header" @click="storeBesearch.isHeliExpanded = !storeBesearch.isHeliExpanded">
+                  <span class="step-num">02</span>
+                  <h4>Heli Projection</h4>
+                  <div class="step-status" v-if="isStageCompleted('heli')">✓</div>
+                  <button class="step-toggle">{{ storeBesearch.isHeliExpanded ? '▼' : '▲' }}</button>
+                </header>
+                <div class="step-content" v-show="storeBesearch.isHeliExpanded">
+                  <BesearchHeli />
+                  <div class="step-actions" v-if="isStageCompleted('heli')">
+                    <button class="next-step-btn" @click="setStage('emulation')">Set Projection & Continue</button>
+                  </div>
                 </div>
-              </div>
-            </section>
+              </section>
 
-            <!-- Stage: Emulation Testing -->
-            <section class="besearch-step emulation-step" :class="{ collapsed: !storeBesearch.isEmulationExpanded, locked: isStageLocked('emulation') }">
-              <header class="step-header" @click="storeBesearch.isEmulationExpanded = !storeBesearch.isEmulationExpanded">
-                <span class="step-num">03</span>
-                <h4>Body Emulation</h4>
-                <div class="step-status" v-if="isStageCompleted('emulation')">✓</div>
-                <button class="step-toggle">{{ storeBesearch.isEmulationExpanded ? '▼' : '▲' }}</button>
-              </header>
-              <div class="step-content" v-show="storeBesearch.isEmulationExpanded">
-                <BesearchEmulation :logs="evidenceLogs" />
-              </div>
-            </section>
+              <!-- Stage: Emulation Testing -->
+              <section 
+                v-else-if="reviewStage === 'emulation'"
+                key="emulation"
+                class="besearch-step emulation-step" 
+                :class="{ collapsed: !storeBesearch.isEmulationExpanded, locked: isStageLocked('emulation') }"
+              >
+                <header class="step-header" @click="storeBesearch.isEmulationExpanded = !storeBesearch.isEmulationExpanded">
+                  <span class="step-num">03</span>
+                  <h4>Body Emulation</h4>
+                  <div class="step-status" v-if="isStageCompleted('emulation')">✓</div>
+                  <button class="step-toggle">{{ storeBesearch.isEmulationExpanded ? '▼' : '▲' }}</button>
+                </header>
+                <div class="step-content" v-show="storeBesearch.isEmulationExpanded">
+                  <BesearchEmulation :logs="evidenceLogs" />
+                </div>
+              </section>
+            </transition>
           </div>
         </main>
       </div>
@@ -231,7 +267,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, watch } from "vue";
 import { besearchStore } from "@/stores/besearchStore.js";
 import { aiInterfaceStore } from "@/stores/aiInterface.js";
 import { useOrgoStore } from "@/stores/orgoStore.js";
@@ -241,6 +277,7 @@ import BesearchLogic from "./parts/BesearchLogic.vue";
 import BesearchDevices from "./parts/BesearchDevices.vue";
 import BesearchHeli from "./parts/BesearchHeli.vue";
 import BesearchEmulation from "./parts/BesearchEmulation.vue";
+import AttunementLayer from "@/components/orbit/parts/attunement/AttunementLayer.vue";
 
 const storeBesearch = besearchStore();
 const storeAI = aiInterfaceStore();
@@ -286,6 +323,13 @@ onMounted(() => {
 
 const isOpen = computed(() => storeBesearch.isBesearchLayerOpen);
 const currentStage = computed(() => storeBesearch.currentBesearchStage);
+const reviewStage = ref(currentStage.value);
+
+// Watch for stage changes to auto-switch reviewStage
+watch(currentStage, (newStage) => {
+  reviewStage.value = newStage;
+});
+
 const activeThread = computed(() => storeBesearch.activeBesearchThread);
 const isDrawerOpen = ref(true);
 const evidenceLogs = ref([
@@ -988,6 +1032,102 @@ const closeLayer = () => {
   overflow: hidden;
 }
 
+/* New Stage Tabs Sidebar Styles */
+.stage-tabs {
+  width: 60px;
+  background: rgba(0, 0, 0, 0.02);
+  border-right: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  padding-top: 20px;
+  z-index: 10;
+}
+
+.dark-theme .stage-tabs {
+  background: rgba(255, 255, 255, 0.02);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.stage-tab {
+  height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  border-left: 3px solid transparent;
+}
+
+.stage-tab.active {
+  background: #ffffff;
+  border-left-color: #00796b;
+}
+
+.dark-theme .stage-tab.active {
+  background: rgba(255, 255, 255, 0.05);
+  border-left-color: #00ffcc;
+}
+
+.stage-tab.locked {
+  opacity: 0.2;
+  cursor: not-allowed;
+}
+
+.stage-tab.completed {
+  color: #00796b;
+}
+
+.dark-theme .stage-tab.completed {
+  color: #00ffcc;
+}
+
+.tab-num {
+  font-family: "Space Mono", monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  margin-bottom: 5px;
+  opacity: 0.5;
+}
+
+.active .tab-num {
+  opacity: 1;
+}
+
+.tab-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  font-weight: 800;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  letter-spacing: 0.1em;
+}
+
+.tab-status {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+/* Stage Slide Transitions */
+.stage-slide-enter-active,
+.stage-slide-leave-active {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.stage-slide-enter-from {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+.stage-slide-leave-to {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+
 .orgo-drawer {
   width: 60px;
   background: #ede9e1;
@@ -1104,6 +1244,7 @@ const closeLayer = () => {
   padding: 30px;
   overflow-y: auto;
   background: #fdfcfb;
+  position: relative;
 }
 
 .dark-theme .lab-space {

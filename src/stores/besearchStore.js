@@ -18,6 +18,8 @@ export const besearchStore = defineStore("besearchstore", {
     showCreateForm: false,
     showBesearchDetail: false,
     isBesearchLayerOpen: false,
+    isAttunementLayerOpen: false,
+    isAttunementExpanded: true,
     isSculptingLayerOpen: false,
     wasSculptingLayerOpen: false,
     wasBesearchCycleOpen: false,
@@ -117,8 +119,7 @@ export const besearchStore = defineStore("besearchstore", {
       const pillars = storeAI.lifestrapTexture?.pillars;
       const hasCapacity = pillars?.capacity?.length > 0;
       const hasContext = pillars?.context?.length > 0;
-      const hasAttunement = pillars?.attunement?.length > 0;
-      return hasCapacity && hasContext && hasAttunement;
+      return hasCapacity && hasContext;
     },
     besearchCyclesNormalized: (state) => {
       return state.besearchCyles.map((entry, index) => {
@@ -572,8 +573,17 @@ export const besearchStore = defineStore("besearchstore", {
         this.isSieveExpanded = true;
         this.bottomHeight = window.innerHeight * 0.82;
         storeAI.showLifestapLens = true; // Show the full lens
+      } else if (mode === 'attunement') {
+        this.isAttunementLayerOpen = true;
+        this.isAttunementExpanded = true;
+        this.isLensExpanded = false;
+        this.isBesearchLayerOpen = false;
+        this.bottomHeight = window.innerHeight * 0.82;
+        storeAI.showLifestapLens = true; 
       } else if (mode === 'besearch') {
         this.isBesearchLayerOpen = true;
+        this.isAttunementLayerOpen = true;
+        this.isAttunementExpanded = false;
         this.isSieveExpanded = false;
         this.isLensExpanded = false; // Lens starts as a bar in besearch mode
         this.isBesearchExpanded = true;

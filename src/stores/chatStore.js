@@ -14,6 +14,7 @@ export const useChatStore = defineStore('chat', {
     beginChat: false,
     chatWidth: 0,
     isChatOpen: false,
+    isUnrolled: false,
   }),
 
   getters: {

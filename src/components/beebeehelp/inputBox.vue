@@ -189,12 +189,13 @@ const filesUploaded = computed(() => {
 });
 
 const agentProgressUpdate = computed(() => {
-  if (storeAI.agentProgress[storeAI.chatAttention] !== undefined) {
+  if (storeAI.agentProgress && storeAI.chatAttention && storeAI.agentProgress[storeAI.chatAttention] !== undefined) {
     let chatFeedback = storeAI.agentProgress[storeAI.chatAttention];
+    if (!chatFeedback) return [];
     let feedbackKeys = Object.keys(chatFeedback);
     let agentProgressFeeback = [];
     for (let feedAgent of feedbackKeys) {
-      if (chatFeedback[feedAgent].show === true) {
+      if (chatFeedback[feedAgent] && chatFeedback[feedAgent].show === true) {
         agentProgressFeeback.push(chatFeedback[feedAgent]);
       }
     }

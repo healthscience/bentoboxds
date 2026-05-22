@@ -87,9 +87,9 @@
           <button 
             class="enter-bench-btn"
             :class="{ active: storeBesearch.canEnterBench }"
-            @click="storeBesearch.setHUUDState('besearch')"
+            @click="handleAttunementTrigger"
           >
-            Activate Besearch Cycle
+            Set Attunement
           </button>
         </div>
 
@@ -149,31 +149,6 @@
               @reorder="handleReorder"
             />
           </div>
-
-          <!-- Pillar 4: Attunement -->
-          <div 
-            class="lens-box coherence zone"
-            :class="{ 'active-zone': activeZone === 'attunement' }"
-            @drop.prevent="onDrop($event, 'attunement')"
-            @dragover.prevent="onDragOver($event, 'attunement')"
-            @dragleave="onDragLeave"
-          >
-            <header class="lens-header">
-              <h3>Attunement</h3>
-            </header>
-            <LensColumn
-              :groups="[{ id: 'attunement', title: 'Attunement', items: attunementItems, noDrag: true }]"
-              :selected-value="selectedAttunement"
-              :show-item-labels="true"
-              :show-remove="false"
-              @dragstart="onDragStart"
-              @unmap="unmapFragment"
-              @select="selectAttunement"
-              @drop="onDrop"
-              @dragover="onDragOver"
-              @dragleave="onDragLeave"
-            />
-          </div>
         </div>
       </div>
 
@@ -190,6 +165,7 @@ import BentoSpace from "@/components/bentospace/spaceTemplate.vue";
 import WholeResonance from "@/components/consilience/wholeResonance.vue";
 import LensColumn from "@/components/orbit/parts/shared/LensColumn.vue";
 import CuesPortal from "@/components/orbit/parts/shared/CuesPortal.vue";
+import AttunementLayer from "@/components/orbit/parts/attunement/AttunementLayer.vue";
 
 import { besearchStore } from "@/stores/besearchStore.js";
 import { cuesStore } from "@/stores/cuesStore.js";
@@ -200,6 +176,10 @@ const storeCues = cuesStore();
 const storeAI = aiInterfaceStore();
 const storeDiary = diaryStore();
 const storeBesearch = besearchStore();
+
+const handleAttunementTrigger = () => {
+  storeBesearch.setHUUDState('attunement');
+};
 
 const props = defineProps({
   lenses: {
@@ -850,5 +830,33 @@ onMounted(() => {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+.attunement-entry-trigger {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  background: rgba(166, 133, 255, 0.1);
+  border: 1px dashed rgba(166, 133, 255, 0.3);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.attunement-entry-trigger:hover {
+  background: rgba(166, 133, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.trigger-icon {
+  font-size: 1.5rem;
+}
+
+.trigger-text {
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.8rem;
+  color: #a685ff;
 }
 </style>

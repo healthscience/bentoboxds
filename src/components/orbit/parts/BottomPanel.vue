@@ -25,12 +25,16 @@
       <!-- Show besearch detail when intervention is selected -->
       <besearch-detail v-if="showBesearchDetail === true"></besearch-detail>
 
-      <!-- Dual Layer: Lens Bar (Top) + Besearch (Bottom) -->
+      <!-- Multi-Layer Workflow Container -->
       <div class="dual-layer-container">
-        <!-- 1. The Lens Section (Always first) -->
-        <div ref="lensSection" class="lens-section" :class="{ 'as-bar': storeBesearch.besearchMode === 'besearch' }">
+        <!-- 1. The Lens Section -->
+        <div 
+          ref="lensSection" 
+          class="lens-section" 
+          :class="{ 'as-bar': storeBesearch.besearchMode === 'besearch' || storeBesearch.besearchMode === 'attunement' }"
+        >
           <div
-            v-if="storeBesearch.besearchMode === 'besearch'"
+            v-if="storeBesearch.besearchMode === 'besearch' || storeBesearch.besearchMode === 'attunement'"
             class="lens-collapsed-bar"
             @click="storeBesearch.setHUUDState('lens')"
           >
@@ -39,7 +43,12 @@
           <LifestrapLens v-else :lenses="extractedData" />
         </div>
 
-        <!-- 2. The Besearch Layer (Always second) -->
+        <!-- 2. The Attunement Section -->
+        <div v-if="storeBesearch.isAttunementLayerOpen" class="attunement-section">
+          <AttunementLayer />
+        </div>
+
+        <!-- 3. The Besearch Layer -->
         <div v-if="storeBesearch.isBesearchLayerOpen" class="besearch-layer-wrapper">
           <BesearchLayer />
         </div>
@@ -52,6 +61,7 @@
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from "vue";
 import BesearchDetail from "@/components/besearch/attunement/besearchDetail.vue";
 import LifestrapLens from "@/components/orbit/parts/LifestrapLens.vue";
+import AttunementLayer from "@/components/orbit/parts/attunement/AttunementLayer.vue";
 import BesearchLayer from "@/components/orbit/besearch/besearchLayer.vue";
 
 import { besearchStore } from "@/stores/besearchStore.js";
@@ -207,6 +217,8 @@ const handleToggle = (e) => {
 <style scoped>
 .bottom-panel {
   /* ... positional styles ... */
+  position: relative;
+  z-index: 100;
 
   /* 1. THE TINT: Extreme transparency. 
      0.03 is almost invisible, but provides just enough 'surface' 
@@ -326,27 +338,17 @@ const handleToggle = (e) => {
   display: flex;
   flex-direction: column;
   height: 100%;
+  padding: 0 20px;
 }
 
-.lens-section {
+.lens-section, .attunement-section, .besearch-layer-wrapper {
   flex-shrink: 0;
   transition: all 0.4s ease;
+  margin-bottom: 10px;
 }
 
 .lens-section.as-bar {
-  margin-bottom: 0;
-  z-index: 10;
-}
-
-.besearch-layer-wrapper {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.lens-section {
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 .lens-section.collapsed {
