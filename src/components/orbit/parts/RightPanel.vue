@@ -125,6 +125,8 @@ defineExpose({
 });
 
 // Automatically unroll when new messages arrive in interplay mode
+// DISABLED: Only unroll on manual click or explicit orchestration
+/*
 watch(
   () => storeChat.chatHistory,
   () => {
@@ -134,6 +136,7 @@ watch(
   },
   { deep: true },
 );
+*/
 
 const handleMouseDown = (e) => {
   dragStartTime.value = Date.now();

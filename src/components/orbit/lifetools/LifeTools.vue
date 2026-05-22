@@ -288,8 +288,9 @@ const emit = defineEmits([
 
 /** Handle life-strap selection */
 const handleStrapSelect = (strapData) => {
-  // Update AIstore with active life-strap info
-  storeAI.setActiveLifeStrap(strapData);
+  // Update Experience via Orchestrator
+  storeAI.initOrchestrator();
+  storeAI.experienceOrchestrator.handleLifestrapSelection(strapData);
 
   /*
     make routine within aiStore?

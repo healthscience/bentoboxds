@@ -26,7 +26,8 @@ export const besearchStore = defineStore("besearchstore", {
     showBottomPanel: false,
     bottomHeight: 60,
     // Expansion states for the dual-layer view
-    isLensExpanded: true,
+
+    isLensExpanded: false,
     isBesearchExpanded: true,
     isLogicExpanded: true,
     isDevicesExpanded: true,
@@ -35,7 +36,7 @@ export const besearchStore = defineStore("besearchstore", {
     activeBesearchThread: "besearch:prime:longevity_65",
     currentBesearchStage: "capacity", // capacity, logic, heli, emulation
     besearchMode: "default", // default, lens, besearch
-    isSieveExpanded: true,
+    isSieveExpanded: false,
     activeSeeds: {
       orgos: [],
       gelles: [],
@@ -597,9 +598,6 @@ export const besearchStore = defineStore("besearchstore", {
         this.bottomHeight = window.innerHeight * 0.85;
         storeAI.showLifestapLens = true; // Still in lens-enabled context but lab view
       }
-    },
-    toggleLensExpansion() {
-      this.isLensExpanded = !this.isLensExpanded;
     },
     toggleBesearchExpansion() {
       this.isBesearchExpanded = !this.isBesearchExpanded;

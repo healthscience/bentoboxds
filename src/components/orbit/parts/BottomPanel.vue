@@ -15,9 +15,7 @@
     <div
       v-show="
         height > 80 ||
-        storeAI.activeLifeStrapID ||
-        storeBesearch.showBesearchDetail ||
-        storeBesearch.isBesearchLayerOpen
+        storeBesearch.isLensExpanded === true
       "
       class="bottom-panel-content"
       ref="contentArea"
@@ -34,7 +32,7 @@
           :class="{ 'as-bar': storeBesearch.besearchMode === 'besearch' || storeBesearch.besearchMode === 'attunement' }"
         >
           <div
-            v-if="storeBesearch.besearchMode === 'besearch' || storeBesearch.besearchMode === 'attunement'"
+            v-if="storeBesearch.isLensExpanded === true && storeBesearch.besearchMode === 'besearch' || storeBesearch.besearchMode === 'attunement'"
             class="lens-collapsed-bar"
             @click="storeBesearch.setHUUDState('lens')"
           >
@@ -141,12 +139,9 @@ watch(
   () => storeAI.activeLifeStrapID,
   (newVal) => {
     if (newVal) {
-      storeAI.showLifestapLens = false;
-      // If we have an active life strap, ensure panel is open
-      if (!props.isOpen) {
-        emit("update:isOpen", true);
-      }
-      updatePanelHeight();
+      // newVal check is true if we have a string ID
+      // If we are in initial load/zen, don't force collapse logic here
+      // let experienceOrchestrator handle the panel opening
     }
   },
   { immediate: true },

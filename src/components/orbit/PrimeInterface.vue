@@ -331,9 +331,7 @@ const activeWorld = computed({
 const isBottomOpen = computed({
   get: () => {
     return (
-      storeBesearch.showBottomPanel ||
-      !!storeAI.activeLifeStrapID ||
-      storeBesearch.hasActiveIntervention
+      storeBesearch.showBottomPanel
     );
   },
   set: (val) => {
@@ -345,8 +343,8 @@ watch(
   isBottomOpen,
   (val) => {
     orbitStore.isInterplayActive = val;
-    if (val) {
-      // Set to 82vh when interplay is active
+    if (val && storeBesearch.bottomHeight < 100) {
+      // Set to 82vh when interplay is active and it's currently collapsed/too small
       storeBesearch.bottomHeight = window.innerHeight * 0.82;
     }
   },
@@ -444,11 +442,13 @@ const launchDemo = (type) => {
 
 // 3. Update the Reset handler
 const exitToZen = () => {
-  storeBesearch.showBottomPanel = false;
-  storeAI.currentMode = "zen";
-  storeAI.activeWorld = "orbit";
-  storeChat.chatWidth = 10;
-  storeChat.isChatOpen = false;
+  storeAI.initOrchestrator();
+  storeAI.experienceOrchestrator.resetToZen();
+  // storeBesearch.showBottomPanel = false;
+  // storeAI.currentMode = "zen";
+  // storeAI.activeWorld = "orbit";
+  // storeChat.chatWidth = 10;
+  // storeChat.isChatOpen = false;
   panelWidth.value = 30;
   // Clear the store input if needed
   storeAI.digestInput = null;

@@ -9,6 +9,7 @@ import DataPraser from "@/stores/hopUtility/dataParse.js";
 import LifestrapUtilty from "@/stores/hopUtility/lifestrapUtility.js";
 import ChatUtilty from "@/stores/hopUtility/chatUtility.js";
 import ChatspaceUtilty from "@/stores/hopUtility/chatspaceUtility.js";
+import ExperienceOrchestrator from "@/stores/hopUtility/experienceOrchestrator.js";
 import { accountStore } from "@/stores/accountStore.js";
 import { cuesStore } from "@/stores/cuesStore.js";
 import { teachingStore } from "@/stores/teachingStore.js";
@@ -30,6 +31,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       liveLsUtil: new LifestrapUtilty(),
       liveChatUtil: new ChatUtilty(),
       liveChatspaceUtil: new ChatspaceUtilty(),
+      experienceOrchestrator: null,
       currentMode: "zen",
       activeWorld: "orbit",
       invitePlaceHolder: {
@@ -225,6 +227,16 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
     },
     setPerformanceVelocity(value) {
       this.performanceVelocity = value;
+    },
+    initOrchestrator() {
+      if (!this.experienceOrchestrator) {
+        this.experienceOrchestrator = new ExperienceOrchestrator({
+          ai: this,
+          besearch: besearchStore(),
+          library: this.storeLibrary,
+          chat: this.storeChat
+        });
+      }
     },
     reorderStrandCues(zone, oldIndex, newIndex) {
       if (!this.lifestrapTexture?.pillars?.[zone]) return;
@@ -825,10 +837,16 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
               // Legacy compatibility for components using digestInput
               this.digestInput = lsSet.lens;
 
-              this.showLifestapLens = false;
-              const bStore = besearchStore();
-              bStore.showBottomPanel = true;
-              bStore.bottomHeight = window.innerHeight * 0.82;
+              this.activeLifeStrapID = hexContract.key;
+
+              // Orchestrate the experience based on whether this is a "new" story or peer return
+              this.initOrchestrator();
+              const wasZen = this.currentMode === "zen" || this.isInitialState;
+              
+              this.experienceOrchestrator.orchestrateLifestrapReturn(lsSet, this.newLifestrap, wasZen);
+              
+              // Reset newLifestrap flag after orchestration
+              this.newLifestrap = false;
 
               // setup peer experience
               this.initializeSovereignSession(hexContract.key)
@@ -906,13 +924,14 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         // Legacy compatibility for components using digestInput
         this.digestInput = this.lifestrapTexture;
         
-        // Open the lens when data arrives
+        // Orchestrate the experience based on whether this is a "new" story or peer return
+        this.initOrchestrator();
+        const wasZenAction = this.currentMode === "zen" || this.isInitialState;
         this.activeLifeStrapID = lsContract.key || "active-strap";
-        this.showLifestapLens = false;
+        this.experienceOrchestrator.orchestrateLifestrapReturn(newTexture, this.newLifestrap, wasZenAction);
         
-        const bStore = besearchStore();
-        bStore.showBottomPanel = true;
-        bStore.bottomHeight = window.innerHeight * 0.82;
+        // Reset newLifestrap flag after orchestration
+        this.newLifestrap = false;
       } else if (received.action === "agent-task") {
         if (received.task === "cale-evolution") {
           this.boxModelUpdate[received.context.bbid] = {};
@@ -1590,6 +1609,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         lifeStrapData.inquiry = this.askQuestion.text;
         this.storeLibrary.createLifeStrap(lifeStrapData);
         this.askQuestion.text = "";
+        this.newLifestrap = true; // Mark as new so return data opens panels
         primeLifeStrap = true;
       } else if (this.newLifestrap === true) {
         let lifeStrapData = {};
@@ -1707,11 +1727,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       this.activeContractKey = lsContract.key;
       this.chatAttention = lsContract.key;
       this.beebeeContext = "lifestrap";
-
-      const bStore = besearchStore();
-      bStore.showBottomPanel = true;
-      bStore.bottomHeight = window.innerHeight * 0.82;
-      this.showLifestapLens = false;
+      this.isInitialState = false; // We are now in an active session
 
       // If this is a new selection
       if (this.activeLifestrapKey !== lsContract.key) {
@@ -1769,6 +1785,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
     },
     initializeSovereignSession(lsKey) {
       let latestStrap = {};
+      const wasZen = this.currentMode === "zen" || this.isInitialState;
       this.activeLifestrapKey = lsKey;
       // first time life-strap or another story?
       if (this.storeLibrary.straps.length > 0) {
@@ -1784,14 +1801,13 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         this.activeLifeStrapID = latestStrap.key;
         this.activeContractKey = latestStrap.key;
 
-        // 3. Set the Mode so the UI knows we aren't in 'Zen'
-        // We move straight to 'active' or 'extracting'
-        this.currentMode = "extracting";
         this.activeWorld = "orbit";
-        this.showLifestapLens = false;
-        const bStore = besearchStore();
-        bStore.showBottomPanel = true;
-        bStore.bottomHeight = window.innerHeight * 0.82;
+        
+        // Orchestrate the experience based on whether this is a "new" story or peer return
+        this.initOrchestrator();
+        
+        // Pass the original wasZen state to the orchestrator to ensure we respect initial load
+        this.experienceOrchestrator.orchestrateLifestrapReturn(latestStrap, this.newLifestrap, wasZen);
 
         this.setBeeBeeDialogue(latestStrap);
       } else {

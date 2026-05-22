@@ -217,13 +217,11 @@ const unmappedFragments = computed(() => {
 
 const capacityItems = computed(() => {
   const items = storeAI.lifestrapTexture?.pillars?.capacity || [];
-  console.log('LENS DEBUG - capacityItems:', items);
   return items;
 });
 
 const contextItems = computed(() => {
   const items = storeAI.lifestrapTexture?.pillars?.context || [];
-  console.log('LENS DEBUG - contextItems:', items);
   return items;
 });
 
@@ -245,7 +243,6 @@ const bodyPeerItems = computed(() => {
   const filtered = items.filter(
     (i) => i.label === "Activity" || i.label === "Body/Peer",
   );
-  console.log('LENS DEBUG - bodyPeerItems:', filtered);
   return filtered;
 });
 const environmentItems = computed(() => {
@@ -253,7 +250,6 @@ const environmentItems = computed(() => {
   const filtered = items.filter(
     (i) => i.label === "Space" || i.label === "Environment",
   );
-  console.log('LENS DEBUG - environmentItems:', filtered);
   return filtered;
 });
 const earthItems = computed(() => {
@@ -261,7 +257,6 @@ const earthItems = computed(() => {
   const filtered = items.filter(
     (i) => i.label === "Temporal" || i.label === "Earth Scales",
   );
-  console.log('LENS DEBUG - earthItems:', filtered);
   return filtered;
 });
 
@@ -276,7 +271,6 @@ const selectCapacity = (val) => {
     const item = items.find(i => i.value === val);
     if (item) {
       item.activeStrand = !item.activeStrand;
-      console.log(`Strand toggled for capacity ${val}: ${item.activeStrand}`);
     }
     return;
   }
@@ -316,12 +310,10 @@ const handleReorder = ({ oldGroupId, newGroupId, oldIndex, newIndex, value }) =>
 const handleTokenClick = (token) => {
   selectedWord.value = token;
   // Visual feedback placeholder for floating
-  console.log(`Token ${token} clicked for floating animation`);
 };
 
 const handleCueSelection = (cue) => {
   // Logic to show "full cues" - for now just logs or can trigger modal
-  console.log('Cue selected for full view:', cue);
 };
 
 const onPortalDragStart = ({ event, word }) => {
@@ -383,7 +375,6 @@ const handleCueSpace = (spaceID) => {
     const item = context.find(i => i.value === spaceID);
     if (item) {
       item.activeStrand = !item.activeStrand;
-      console.log(`Strand toggled for ${spaceID}: ${item.activeStrand}`);
     }
     return;
   }
