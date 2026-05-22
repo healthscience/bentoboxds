@@ -48,6 +48,7 @@
 
         <!-- 3. The Besearch Layer -->
         <div v-if="storeBesearch.isBesearchLayerOpen" class="besearch-layer-wrapper">
+          bbb {{ storeBesearch.isBesearchLayerOpen }}
           <BesearchLayer />
         </div>
       </div>

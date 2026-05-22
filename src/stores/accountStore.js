@@ -117,6 +117,10 @@ export const accountStore = defineStore('account', {
         // set the UI to re enter password again before entry to BentoBoxDS
         this.anchorStatus = false
         this.HOPlock = true
+        if (received.data) {
+          this.sovereignId = received.data
+          localStorage.setItem('hop_sovereign_pubkey', received.data)
+        }
       } else if (received.action === 'unlocked-verify-complete') {
         // pull BentoBoxDS experience 'on the fly'
         this.storeAI.startChat = false
@@ -127,6 +131,10 @@ export const accountStore = defineStore('account', {
         this.peerauth = true
         this.anchorStatus = false
         this.HOPlock = false
+        if (received.data.pubKey) {
+          this.sovereignId = received.data.pubKey
+          localStorage.setItem('hop_sovereign_pubkey', received.data.pubKey)
+        }
       } else if (received.action === 'hop-wrong-password') {
         this.accountFeedback = received.data.feedback
       } else if (received.action === 'hop-holepunch-live') {

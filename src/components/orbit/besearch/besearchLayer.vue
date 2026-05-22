@@ -10,7 +10,7 @@
     >
       <div class="besearch-header-status">
         <div class="header-left">
-          <span class="besearch-title">Besearch cycle</span>
+          <span class="besearch-title">Besearch cycle2</span>
         </div>
         <div class="status-summary">
           <div
