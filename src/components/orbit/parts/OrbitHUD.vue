@@ -1,55 +1,107 @@
 <template>
-  <div id="orbit-hud" :class="{ 'is-expanded': isExpanded, 'lens-active': storeBesearch.besearchMode !== 'default' }">
-    <div class="hud-top">
-      <div class="hud-metrics">
-        <!-- Be Section - Always Visible -->
-        <div class="metric be-metric" @click="toggleLensLayer">
-          <span>Be</span><strong>{{ activeLifeStrapName }}</strong>
+  <div
+    id="orbit-hud"
+    :class="{
+      'is-expanded': isExpanded,
+      'lens-active': storeBesearch.besearchMode !== 'default',
+      'has-strand': hasActiveStrand,
+    }"
+  >
+    <div class="hud-container">
+      <div class="hud-top">
+        <!-- 1. World / Context Icon -->
+        <div class="hud-world-icon" @click="rotateHUUD">
+          <span v-if="huudContext === 'world'">{{ worldIcon }}</span>
+          <span v-else-if="huudContext === 'lens'">🔍</span>
+          <span v-else-if="huudContext === 'lab'">🛠️</span>
+          <span v-else-if="huudContext === 'heli'">☀️</span>
         </div>
-        
-        <!-- Standard Metrics (State 1) -->
-        <template v-if="storeBesearch.besearchMode === 'default'">
-          <div class="metric" @click="setMode('lens')">
-            <span>LIFE-STRAPS</span><strong>{{ countLifeStraps }}</strong>
-          </div>
-          <div class="metric" @click="setMode('lens')">
-             <span>LENS</span>
-          </div>
-          <template v-if="isExpanded">
-            <div class="metric" @click="setMode('besearch')"><span>BESEARCH</span><strong>0</strong></div>
-            <div class="metric"><span>DIALOGUE</span><strong>0</strong></div>
+
+        <div class="hud-metrics">
+          <!-- Layer 1: World Context -->
+          <template v-if="huudContext === 'world'">
+            <div class="metric be-metric" @click="toggleLensLayer">
+              <span>Be</span><strong>{{ activeLifeStrapName }}</strong>
+            </div>
+            <div class="metric">
+              <span>WORLD</span><strong>{{ activeWorldLabel }}</strong>
+            </div>
+            <template v-if="activeWorld === 'orbit'">
+              <div class="metric">
+                <span>LIFE-STRAPS</span><strong>{{ countLifeStraps }}</strong>
+              </div>
+            </template>
+            <template v-else-if="activeWorld === 'body'">
+              <div class="metric"><span>VITALS</span><strong>NOMINAL</strong></div>
+            </template>
+            <template v-else-if="activeWorld === 'earth'">
+              <div class="metric"><span>SCALE</span><strong>TERRAIN</strong></div>
+            </template>
           </template>
-        </template>
 
-        <!-- Operational Metrics (State 2 & 3) -->
-        <template v-else>
-          <div class="metric" :class="{ active: storeBesearch.besearchMode === 'lens' }" @click="setMode('lens')">
-            <span>STORY</span><strong>{{ mappedWordsCount }}</strong>
+          <!-- Layer 2: Lens / Story Context -->
+          <template v-else-if="huudContext === 'lens'">
+            <div class="metric story-summary" :class="{ long: isStoryLong }">
+              <span>STORY</span><strong>{{ storySummary }}</strong>
+            </div>
+            <div class="metric">
+              <span>STRANDS</span><strong>{{ strandCount }}</strong>
+            </div>
+            <div class="metric">
+              <span>ATTUNE</span><strong>{{ attunementCount }}</strong>
+            </div>
+            <div class="metric">
+              <span>CYCLES</span><strong>{{ cycleCount }}</strong>
+            </div>
+          </template>
+
+          <!-- Layer 3: Sculpting Lab -->
+          <template v-else-if="huudContext === 'lab'">
+            <div class="metric"><span>LAB</span><strong>SCULPTING</strong></div>
+            <div class="metric"><span>SEEDS</span><strong>4</strong></div>
+            <div class="metric"><span>TUNING</span><strong>ACTIVE</strong></div>
+          </template>
+
+          <!-- Layer 4: Heli Projection -->
+          <template v-else-if="huudContext === 'heli'">
+            <div class="metric"><span>HELI</span><strong>PROJECTION</strong></div>
+            <div class="metric"><span>PROJECTS</span><strong>2 ACTIVE</strong></div>
+          </template>
+        </div>
+
+        <div class="hud-actions">
+          <div class="rotation-controls">
+            <button class="hud-rotate up" @click="storeBesearch.rotateHUUD('up')">
+              ▲
+            </button>
+            <button
+              class="hud-rotate down"
+              @click="storeBesearch.rotateHUUD('down')"
+            >
+              ▼
+            </button>
           </div>
-          <div class="metric" :class="{ active: storeBesearch.besearchMode === 'besearch' }" @click="setMode('besearch')">
-            <span>LAB</span><strong>{{ extractedCuesCount }}</strong>
-          </div>
-          <div class="metric agent-activity">
-            <span>AGENT</span><strong>{{ agentStatus }}</strong>
-          </div>
-        </template>
+          <button class="hud-toggle" @click="isExpanded = !isExpanded">
+            {{ isExpanded ? "<" : ">" }}
+          </button>
+          <button
+            class="hud-expand-down"
+            :class="{ active: storeBesearch.besearchMode !== 'default' }"
+            @click="toggleLensLayer"
+          >
+            {{ storeBesearch.besearchMode === "default" ? "↓" : "↑" }}
+          </button>
+        </div>
       </div>
 
-      <div v-if="isExpanded && storeBesearch.besearchMode === 'default'" class="metric altruism-metric">
-        <span>Altrusim</span><strong>help 20%</strong>
-      </div>
-
-      <div class="hud-actions">
-        <button class="hud-toggle" @click="isExpanded = !isExpanded">
-          {{ isExpanded ? "<" : ">" }}
-        </button>
-        <button 
-          class="hud-expand-down" 
-          :class="{ active: storeBesearch.besearchMode !== 'default' }"
-          @click="toggleLensLayer"
-        >
-          {{ storeBesearch.besearchMode === 'default' ? "↓" : "↑" }}
-        </button>
+      <!-- Persistent Line 2: Strand Context -->
+      <div v-if="hasActiveStrand" class="hud-strand-line">
+        <span class="strand-label">STRAND:</span>
+        <div class="strand-items">
+          <span v-for="(item, index) in activeStrandItems" :key="item + '-' + index" class="strand-item">
+            {{ item }}
+          </span>
+        </div>
       </div>
     </div>
   </div>
@@ -67,24 +119,66 @@ const storeBesearch = besearchStore();
 
 const isExpanded = ref(false);
 
+const huudContext = computed(() => storeBesearch.huudContext);
+const activeWorld = computed(() => storeAI.activeWorld);
+
+const worldIcon = computed(() => {
+  const worlds = {
+    orbit: "🌌",
+    body: "👤",
+    earth: "🌍",
+  };
+  return worlds[activeWorld.value] || "🌌";
+});
+
+const activeWorldLabel = computed(() => {
+  return activeWorld.value.toUpperCase();
+});
+
+const storySummary = computed(() => {
+  const story = storeBesearch.activeBesearchContext.story || "";
+  console.log("HUD: activeBesearchContext.story is:", story);
+  if (!story) return "NO STORY";
+  return story.split(/\s+/).slice(0, 4).join(" ");
+});
+
+const strandCount = computed(() => {
+  const pillars = storeAI.lifestrapTexture?.pillars || {};
+  return (pillars.capacity?.length || 0) + (pillars.context?.length || 0);
+});
+
+const attunementCount = computed(() => {
+  return storeAI.lifestrapTexture?.pillars?.attunement?.length || 0;
+});
+
+const cycleCount = computed(() => {
+  return storeBesearch.besearchCyles?.length || 0;
+});
+
+const hasActiveStrand = computed(() => {
+  return storeBesearch.strandMode && activeStrandItems.value.length > 0;
+});
+
+const activeStrandItems = computed(() => {
+  const conduction = storeBesearch.evaluateConduction;
+  if (!conduction) return [];
+  return conduction.nodes || conduction.pipeline || [];
+});
+
 /* Get the active life-strap name */
 const activeLifeStrapName = computed(() => {
   const id = storeAI.activeLifeStrapID;
   if (!id) return "SOV-01";
-  
-  // Check if it's already a string and not an object string representation
-  if (typeof id === 'string' && id.length > 20 && !id.includes('[object')) {
-     return id.slice(-8);
+
+  if (typeof id === "string" && id.length > 20 && !id.includes("[object")) {
+    return id.slice(-8);
   }
-  
-  // Handle Buffer/Uint8Array or other objects
+
   try {
-    // If it's a Buffer or similar, we might have it in hex in another property or need to convert it.
-    // For now, let's look at activeLifestrapKey in storeAI if available.
     const key = storeAI.activeLifestrapKey || id;
-    const str = typeof key === 'string' ? key : String(key);
-    
-    if (str.includes('[object')) return "SOV-01";
+    const str = typeof key === "string" ? key : String(key);
+
+    if (str.includes("[object")) return "SOV-01";
     return str.length > 8 ? str.slice(-8) : str;
   } catch (e) {
     return "SOV-01";
@@ -93,23 +187,6 @@ const activeLifeStrapName = computed(() => {
 
 const countLifeStraps = computed(() => {
   return storeLibrary.straps.length;
-});
-
-const mappedWordsCount = computed(() => {
-  const pillars = storeAI.lifestrapTexture?.pillars || {};
-  const count = (pillars.capacity?.length || 0) + 
-         (pillars.context?.length || 0) + 
-         (pillars.attunement?.length || 0);
-  return count;
-});
-
-const extractedCuesCount = computed(() => {
-  if (!storeLibrary.availableMarkers) return 0;
-  return storeLibrary.availableMarkers.length;
-});
-
-const agentStatus = computed(() => {
-  return storeAI.beebeeStatus === 'thinking' ? 'ACTIVE' : 'IDLE';
 });
 
 const setMode = (mode) => {
@@ -123,6 +200,13 @@ const toggleLensLayer = () => {
     storeBesearch.setHUUDState("default");
   }
 };
+
+const rotateHUUD = () => {
+  storeBesearch.rotateHUUD("down");
+};
+
+// Auto-expand story summary if it looks truncated
+const isStoryLong = computed(() => storySummary.value.length > 20);
 </script>
 
 <style scoped>
@@ -131,164 +215,198 @@ const toggleLensLayer = () => {
   top: 0;
   left: 0;
   width: 100%;
-  height: 100%;
   pointer-events: none;
   z-index: 500;
+  display: flex;
+  justify-content: center;
 }
 
-.hud-visor-overlay {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 1;
-  /* 1. THE POLARIZED TINT */
-  background: radial-gradient(
-    circle at center,
-    transparent 40%,
-    rgba(0, 80, 150, 0.03) 100%
-  );
-  /* 2. THE INNER LENS REFLECTION */
-  background-image: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.05) 0%,
-    transparent 25%,
-    transparent 50%,
-    rgba(255, 255, 255, 0.02) 100%
-  );
-  /* 3. PERIPHERAL DISTORTION (The 'Goggle' Frame) */
-  box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.1);
+.hud-container {
+  margin: 0.5rem auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  pointer-events: auto;
 }
 
 .hud-top {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 2rem;
-  padding: 0.5rem 1.5rem;
-  margin: 0.5rem auto;
-  width: fit-content;
+  gap: 1.5rem;
+  padding: 0.4rem 1.2rem;
   background: var(--color-background-soft);
-  opacity: 0.9;
+  opacity: 0.95;
   border-radius: 12px;
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1px solid var(--color-border);
-  z-index: 10;
-  pointer-events: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-#orbit-hud.is-expanded .hud-top {
-  gap: 4rem;
-  padding: 1rem 3rem;
-  margin: 1rem auto;
-  border-radius: 16px;
+.has-strand .hud-top {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom: none;
+}
+
+.hud-world-icon {
+  font-size: 1.2rem;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.hud-world-icon:hover {
+  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .hud-metrics {
   display: flex;
-  gap: 2rem;
-  transition: gap 0.3s ease;
-}
-
-#orbit-hud.is-expanded .hud-metrics {
-  gap: 4rem;
+  gap: 1.5rem;
+  align-items: center;
 }
 
 .metric {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 60px;
+  min-width: 50px;
 }
 
 .metric span {
-  font-size: 0.55rem;
+  font-size: 0.5rem;
   font-weight: 800;
   color: var(--sov-accent);
   letter-spacing: 0.1em;
-  margin-bottom: 0.15rem;
-  transition: font-size 0.3s ease;
-}
-
-#orbit-hud.is-expanded .metric span {
-  font-size: 0.6rem;
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.1rem;
+  text-transform: uppercase;
+  opacity: 0.7;
 }
 
 .metric strong {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #3b82f6;
   font-family: "Space Mono", monospace;
-  transition: font-size 0.3s ease;
+  white-space: nowrap;
 }
 
-.metric.active strong {
-  color: #00ffcc;
-  text-shadow: 0 0 10px rgba(0, 255, 204, 0.6);
+.story-summary strong {
+  font-size: 0.75rem;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: max-width 0.3s ease;
 }
 
-.metric.active span {
-  opacity: 1;
-}
-
-.be-metric {
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.be-metric:hover {
-  background: rgba(59, 130, 246, 0.1);
-  transform: translateY(-2px);
-}
-
-.agent-activity strong {
-  animation: pulse-text 2s infinite;
-}
-
-@keyframes pulse-text {
-  0% { opacity: 1; }
-  50% { opacity: 0.6; }
-  100% { opacity: 1; }
+.story-summary.long strong {
+  max-width: 250px;
 }
 
 .hud-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-left: 0.5rem;
+  gap: 10px;
+  border-left: 1px solid var(--color-border);
+  padding-left: 15px;
 }
 
-.hud-toggle, .hud-expand-down {
-  background: rgba(158, 113, 231, 0.2);
-  border: 1px solid rgba(158, 113, 231, 0.3);
+.rotation-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.hud-rotate {
+  background: none;
+  border: none;
+  color: #718096;
+  font-size: 8px;
+  cursor: pointer;
+  padding: 2px;
+  line-height: 1;
+}
+
+.hud-rotate:hover {
+  color: #3b82f6;
+}
+
+.hud-toggle,
+.hud-expand-down {
+  background: rgba(158, 113, 231, 0.1);
+  border: 1px solid rgba(158, 113, 231, 0.2);
   color: #9e71e7;
   border-radius: 4px;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-family: "Space Mono", monospace;
-  font-weight: bold;
-  font-size: 14px;
-  transition: all 0.2s ease;
+  font-size: 10px;
+  transition: all 0.2s;
 }
 
 .hud-expand-down.active {
-  background: rgba(0, 255, 204, 0.2);
-  border-color: rgba(0, 255, 204, 0.4);
+  background: rgba(0, 255, 204, 0.1);
+  border-color: rgba(0, 255, 204, 0.3);
   color: #00ffcc;
-  box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
 }
 
-.hud-toggle:hover, .hud-expand-down:hover {
-  background: rgba(158, 113, 231, 0.4);
-  transform: scale(1.1);
+.hud-strand-line {
+  background: rgba(26, 32, 44, 0.8);
+  backdrop-filter: blur(4px);
+  padding: 4px 15px;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 255, 204, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 80%;
 }
 
-.hud-expand-down.active:hover {
-  background: rgba(0, 255, 204, 0.4);
+.strand-label {
+  font-size: 0.6rem;
+  font-weight: 900;
+  color: #00ffcc;
+  letter-spacing: 0.1em;
+}
+
+.strand-items {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.strand-items::-webkit-scrollbar {
+  display: none;
+}
+
+.strand-item {
+  font-size: 0.65rem;
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  font-family: "Space Mono", monospace;
+}
+
+#orbit-hud.is-expanded .hud-top {
+  padding: 0.6rem 2rem;
+}
+
+#orbit-hud.is-expanded .metric strong {
+  font-size: 1rem;
 }
 </style>

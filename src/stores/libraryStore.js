@@ -464,6 +464,12 @@ export const libraryStore = defineStore('librarystore', {
               this.straps.push(hexContract)
               this.storeAI.initializeSovereignSession(hexContract.key)
             }
+            // Set the first lifestrap as active on load
+            if (this.straps.length > 0) {
+              this.storeAI.setActiveLifeStrap(this.straps[0])
+              // Ensure we initialize the session to trigger orchestrator
+              this.storeAI.initializeSovereignSession(this.straps[0].key)
+            }
           }
         }
       } else if (message.action === 'lifestrap-genesis') {
@@ -471,7 +477,12 @@ export const libraryStore = defineStore('librarystore', {
         let hexConract = this.utilLibrary.convertBinaryToHex(message.data)
         // add to lifestrap list & set lsID as chatID for first message in new lifestraps
         this.straps.push(hexConract)
-        this.storeAI.initializeSovereignSession(hexConract.key)
+        if (this.straps.length === 1) {
+          this.storeAI.setActiveLifeStrap(hexConract)
+          this.storeAI.initializeSovereignSession(hexConract.key)
+        } else {
+          this.storeAI.initializeSovereignSession(hexConract.key)
+        }
       } else if (message.action === 'lifestrap-contract') {
         console.log('lifestrap-contract') //  TODO
       } else if (message.action === 'model-contract') {

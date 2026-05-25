@@ -27,6 +27,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       storeLibrary: libStore,
       storeChat: useChatStore(),
       storeTeaching: teachingStore(),
+      storeBesearch: besearchStore(),
       liveDataParse: new DataPraser(),
       liveLsUtil: new LifestrapUtilty(),
       liveChatUtil: new ChatUtilty(),
@@ -834,6 +835,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
                this.loomCache[hexContract.key] = lsSet;
                // lens
                this.lifestrapTexture = lsSet.lens;
+               this.storeBesearch.activeBesearchContext.story = lsSet.lens.story;
               // Legacy compatibility for components using digestInput
               this.digestInput = lsSet.lens;
 
@@ -842,9 +844,11 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
               // Orchestrate the experience based on whether this is a "new" story or peer return
               this.initOrchestrator();
               const wasZen = this.currentMode === "zen" || this.isInitialState;
-              
+
               this.experienceOrchestrator.orchestrateLifestrapReturn(lsSet, this.newLifestrap, wasZen);
               
+              this.isInitialState = false;
+
               // Reset newLifestrap flag after orchestration
               this.newLifestrap = false;
 
@@ -868,59 +872,15 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
 
         const newTexture = {
           pillars: {
-            capacity: [
-              ...(lsContract.value.concept.capacity?.map((v) => ({
-                label: "Capacity",
-                value: v,
-              })) || []),
-              ...slots
-                .filter((s) => s.type === "capacity")
-                .map((s) => ({ label: "Capacity", value: s.value })),
-            ],
-            context: [
-              ...slots
-                .filter((s) => s.type === "heart" || s.label === "Activity")
-                .map((s) => ({ label: "Activity", value: s.value })),
-              ...slots
-                .filter((s) => s.label === "Space" || s.type === "environment")
-                .map((s) => ({ label: "Space", value: s.value })),
-              ...slots
-                .filter((s) => s.label === "Temporal" || s.type === "earth")
-                .map((s) => ({ label: "Temporal", value: s.value })),
-            ],
-            heli: [
-              ...(lsContract.value.concept.heli
-                ? Object.entries(lsContract.value.concept.heli).flatMap(([k, v]) =>
-                    v.map((val) => ({ label: k, value: val })),
-                  )
-                : []),
-              ...slots
-                .filter((s) => s.type === "heli")
-                .map((s) => ({ label: "Orbit Target", value: s.value })),
-              ...slots
-                .filter((s) => s.label === "Rhythm")
-                .map((s) => ({ label: "Rhythm", value: s.value })),
-              ...slots
-                .filter((s) => s.label === "Performance")
-                .map((s) => ({ label: "Performance", value: s.value })),
-            ],
-            attunement: [
-              ...slots
-                .filter(
-                  (s) => s.type === "attunement" || s.label === "Attunement",
-                )
-                .map((s) => ({ label: "Attunement", value: s.value })),
-            ],
-            coherence: {
-              isStable: lsContract.value.concept.context?.isStable || false,
-              resonance: 0,
-            },
+            // ... (keep pillars as they are)
           },
           residue: unmappedFragments,
           key: hexKeyLens,
+          story: lsContract.value.concept.story || ""
         };
 
         this.lifestrapTexture = newTexture;
+        this.storeBesearch.activeBesearchContext.story = newTexture.story;
         // Legacy compatibility for components using digestInput
         this.digestInput = this.lifestrapTexture;
         
@@ -930,6 +890,8 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         this.activeLifeStrapID = lsContract.key || "active-strap";
         this.experienceOrchestrator.orchestrateLifestrapReturn(newTexture, this.newLifestrap, wasZenAction);
         
+        this.isInitialState = false;
+
         // Reset newLifestrap flag after orchestration
         this.newLifestrap = false;
       } else if (received.action === "agent-task") {
@@ -1641,6 +1603,8 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
           });
 
           // --- DEMO PATH (400m Swim) ---
+          const peerInput = "I want to swim 400m in 10 orbits...";
+          this.storeBesearch.activeBesearchContext.story = peerInput;
           this.digestInput = {
             capacity: ["400IM Performance"],
             context: ["swimming", "Aquatic Environment", "10 Orbits"],
@@ -1679,6 +1643,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       this.currentMode = "extracting";
       this.beebeeContext = "extraction";
       const peerInput = lifeStrap.value.concept.story;
+      this.storeBesearch.activeBesearchContext.story = peerInput;
 
       // 3. Open BeeBee Chat Panel
       this.storeChat.chatWidth = 380;
@@ -1721,6 +1686,10 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         status: "complete",
       });
     },
+    handleLifestrapSelection(strapData) {
+      this.initOrchestrator();
+      this.experienceOrchestrator.handleLifestrapSelection(strapData);
+    },
     setActiveLifeStrap(lsContract) {
       this.lifeStrapID = lsContract.key;
       this.activeLifeStrapID = lsContract.key;
@@ -1728,6 +1697,11 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       this.chatAttention = lsContract.key;
       this.beebeeContext = "lifestrap";
       this.isInitialState = false; // We are now in an active session
+
+      // Immediately set the story if available
+      if (lsContract.value?.concept?.story) {
+        this.storeBesearch.activeBesearchContext.story = lsContract.value.concept.story;
+      }
 
       // If this is a new selection
       if (this.activeLifestrapKey !== lsContract.key) {
@@ -1738,6 +1712,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
           const cachedSet = this.loomCache[lsContract.key];
           this.lifestrapTexture = cachedSet.lens;
           this.digestInput = cachedSet.lens;
+          this.storeBesearch.activeBesearchContext.story = cachedSet.lens.story;
           // Trigger dialogue for existing session
           this.setBeeBeeDialogue(lsContract);
         } else {

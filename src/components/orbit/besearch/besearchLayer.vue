@@ -10,7 +10,7 @@
     >
       <div class="besearch-header-status">
         <div class="header-left">
-          <span class="besearch-title">Besearch cycle2</span>
+          <span class="besearch-title">Besearch cycle</span>
         </div>
         <div class="status-summary">
           <div
@@ -119,144 +119,88 @@
           </div>
         </nav>
 
-        <!-- 1. The Orgo Drawer (Seeding Logic) -->
-        <aside
-          v-if="storeBesearch.isLogicExpanded && reviewStage === 'logic'"
-          class="orgo-drawer"
-          :class="{ open: isDrawerOpen }"
-        >
-          <header class="drawer-header" @click="isDrawerOpen = !isDrawerOpen">
-            <h5>Logic Seeds</h5>
-            <button
-              class="sculpt-shortcut"
-              @click="storeBesearch.openSculptingLayer()"
-              title="Open Sculpting Lab"
-            >
-              🛠️
-            </button>
-            <span class="toggle-icon">{{ isDrawerOpen ? "←" : "→" }}</span>
-          </header>
-          <div class="seed-list">
-            <div class="seed-section">
-              <h6>Orgos</h6>
-              <div
-                v-for="seed in orgoStore.availableSeeds"
-                :key="seed.id"
-                class="seed-item"
-                draggable="true"
-                @dragstart="handleSeedDragStart($event, seed, 'orgo')"
-              >
-                <div class="seed-icon">{{ seed.icon }}</div>
-                <div class="seed-info">
-                  <span class="seed-name">{{ seed.name }}</span>
-                </div>
-              </div>
-            </div>
-            <div class="seed-section">
-              <h6>Gelles</h6>
-              <div
-                v-for="texture in gelleStore.availableTextures"
-                :key="texture.id"
-                class="seed-item"
-                draggable="true"
-                @dragstart="handleSeedDragStart($event, texture, 'gelle')"
-              >
-                <div class="seed-icon">{{ texture.icon }}</div>
-                <div class="seed-info">
-                  <span class="seed-name">{{ texture.name }}</span>
-                </div>
-              </div>
-            </div>
-            <div class="seed-section">
-              <h6>Instruments</h6>
-              <div
-                v-for="device in activeInstruments"
-                :key="device.id"
-                class="seed-item device"
-                draggable="true"
-                @dragstart="handleInstrumentDragStart($event, device)"
-                @click="snapOrgoToDevice(device)"
-              >
-                <div class="seed-icon">
-                  <div
-                    class="device-status-dot"
-                    :class="{ online: device.online }"
-                  ></div>
-                </div>
-                <div class="seed-info">
-                  <span class="seed-name">{{ device.name }}</span>
-                  <span class="seed-type">{{ device.type }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </aside>
-
         <main class="lab-space">
-          <div class="besearch-sequential-wrapper">
-            <transition name="stage-slide" mode="out-in">
-              <!-- Stage: Logic Braid -->
-              <section 
-                v-if="reviewStage === 'logic'"
-                key="logic"
-                class="besearch-step logic-step" 
-                :class="{ collapsed: !storeBesearch.isLogicExpanded }"
-              >
-                <header class="step-header" @click="storeBesearch.isLogicExpanded = !storeBesearch.isLogicExpanded">
-                  <span class="step-num">01</span>
-                  <h4>Logic: Orgo, Gelle & Tiny Devices</h4>
-                  <div class="step-status" v-if="isStageCompleted('logic')">✓</div>
-                  <button class="step-toggle">{{ storeBesearch.isLogicExpanded ? '▼' : '▲' }}</button>
-                </header>
-                
-                <div class="step-content" v-show="storeBesearch.isLogicExpanded">
-                  <BesearchLogic />
-                  <BesearchDevices />
-                  <div class="step-actions" v-if="isStageCompleted('logic')">
-                    <button class="next-step-btn" @click="setStage('heli')">Set Braid & Continue</button>
-                  </div>
+          <div class="action-grid">
+            <!-- Stage 01: Logic / Sculpting Lab -->
+            <div 
+              v-if="reviewStage === 'logic'" 
+              class="action-row"
+            >
+              <div class="action-main">
+                <div class="action-header">
+                  <span class="action-num">01</span>
+                  <h3>Logic Braid</h3>
                 </div>
-              </section>
+                <p class="action-desc">Orgo, Gelle & Tiny Devices alignment</p>
+                <button 
+                  class="action-btn" 
+                  @click="storeBesearch.openSculptingLayer()"
+                >
+                  Go to Sculpting Lab
+                </button>
+              </div>
+              <div class="action-status">
+                <span class="status-label">Status</span>
+                <span class="status-value" :class="logicStatus.class">
+                  {{ logicStatus.text }}
+                </span>
+              </div>
+            </div>
 
-              <!-- Stage: Heli Projection -->
-              <section 
-                v-else-if="reviewStage === 'heli'"
-                key="heli"
-                class="besearch-step heli-step" 
-                :class="{ collapsed: !storeBesearch.isHeliExpanded, locked: isStageLocked('heli') }"
-              >
-                <header class="step-header" @click="storeBesearch.isHeliExpanded = !storeBesearch.isHeliExpanded">
-                  <span class="step-num">02</span>
-                  <h4>Heli Projection</h4>
-                  <div class="step-status" v-if="isStageCompleted('heli')">✓</div>
-                  <button class="step-toggle">{{ storeBesearch.isHeliExpanded ? '▼' : '▲' }}</button>
-                </header>
-                <div class="step-content" v-show="storeBesearch.isHeliExpanded">
-                  <BesearchHeli />
-                  <div class="step-actions" v-if="isStageCompleted('heli')">
-                    <button class="next-step-btn" @click="setStage('emulation')">Set Projection & Continue</button>
-                  </div>
+            <!-- Stage 02: Heli Projection -->
+            <div 
+              v-else-if="reviewStage === 'heli'" 
+              class="action-row"
+            >
+              <div class="action-main">
+                <div class="action-header">
+                  <span class="action-num">02</span>
+                  <h3>Heli Projection</h3>
                 </div>
-              </section>
+                <p class="action-desc">Temporal resonance & orbital mapping</p>
+                <button 
+                  class="action-btn" 
+                  @click="goToHeliProjection"
+                >
+                  Go to Heli Projection
+                </button>
+              </div>
+              <div class="action-status">
+                <span class="status-label">Status</span>
+                <span class="status-value" :class="heliStatus.class">
+                  {{ heliStatus.text }}
+                </span>
+                <div class="status-summary-mini" v-if="isStageCompleted('heli')">
+                  {{ heliSummary }}
+                </div>
+              </div>
+            </div>
 
-              <!-- Stage: Emulation Testing -->
-              <section 
-                v-else-if="reviewStage === 'emulation'"
-                key="emulation"
-                class="besearch-step emulation-step" 
-                :class="{ collapsed: !storeBesearch.isEmulationExpanded, locked: isStageLocked('emulation') }"
-              >
-                <header class="step-header" @click="storeBesearch.isEmulationExpanded = !storeBesearch.isEmulationExpanded">
-                  <span class="step-num">03</span>
-                  <h4>Body Emulation</h4>
-                  <div class="step-status" v-if="isStageCompleted('emulation')">✓</div>
-                  <button class="step-toggle">{{ storeBesearch.isEmulationExpanded ? '▼' : '▲' }}</button>
-                </header>
-                <div class="step-content" v-show="storeBesearch.isEmulationExpanded">
-                  <BesearchEmulation :logs="evidenceLogs" />
+            <!-- Stage 03: Body Emulation -->
+            <div 
+              v-else-if="reviewStage === 'emulation'" 
+              class="action-row"
+            >
+              <div class="action-main">
+                <div class="action-header">
+                  <span class="action-num">03</span>
+                  <h3>Body Emulation</h3>
                 </div>
-              </section>
-            </transition>
+                <p class="action-desc">Full spectrum behavioral simulation</p>
+                <button 
+                  class="action-btn" 
+                  @click="goToEmulationWorld"
+                >
+                  Go to Emulation World
+                </button>
+              </div>
+              <div class="action-status">
+                <span class="status-label">Status</span>
+                <span class="status-value">
+                  {{ isStageCompleted('emulation') ? 'Ready' : 'Pending' }}
+                </span>
+              </div>
+            </div>
           </div>
         </main>
       </div>
@@ -277,7 +221,6 @@ import BesearchLogic from "./parts/BesearchLogic.vue";
 import BesearchDevices from "./parts/BesearchDevices.vue";
 import BesearchHeli from "./parts/BesearchHeli.vue";
 import BesearchEmulation from "./parts/BesearchEmulation.vue";
-import AttunementLayer from "@/components/orbit/parts/attunement/AttunementLayer.vue";
 
 const storeBesearch = besearchStore();
 const storeAI = aiInterfaceStore();
@@ -339,6 +282,40 @@ const evidenceLogs = ref([
 
 const activeOrgos = computed(() => orgoStore.activeOrgos);
 const activeGelles = computed(() => gelleStore.activeGelles);
+
+const logicStatus = computed(() => {
+  const isCompleted = isStageCompleted('logic');
+  const hasStarted = activeOrgos.value.length > 0 || activeGelles.value.length > 0;
+  
+  if (isCompleted) return { text: 'Complete', class: 'status-complete' };
+  if (hasStarted) return { text: 'Graft in Progress', class: 'status-progress' };
+  return { text: 'Not Grafted', class: 'status-pending' };
+});
+
+const heliStatus = computed(() => {
+  const isCompleted = isStageCompleted('heli');
+  if (isCompleted) return { text: 'Heli Set', class: 'status-complete' };
+  return { text: 'Pending', class: 'status-pending' };
+});
+
+const heliSummary = computed(() => {
+  const ctx = storeBesearch.activeBesearchContext;
+  const parts = [];
+  if (ctx.orbits) parts.push(`${ctx.orbits} Orbits`);
+  if (ctx.days) parts.push(`${ctx.days} Days`);
+  if (ctx.arcs) parts.push(`${ctx.arcs} Arcs`);
+  return parts.length > 0 ? parts.join(' / ') : 'Default Calibration';
+});
+
+const goToHeliProjection = () => {
+  storeBesearch.currentBesearchStage = 'heli';
+  storeBesearch.isHeliExpanded = true;
+};
+
+const goToEmulationWorld = () => {
+  storeBesearch.currentBesearchStage = 'emulation';
+  storeBesearch.isEmulationExpanded = true;
+};
 
 const isTriPointLocked = computed(() => {
   return (
@@ -435,6 +412,139 @@ const closeLayer = () => {
 </script>
 
 <style scoped>
+.action-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.action-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  transition: all 0.3s ease;
+}
+
+.dark-theme .action-row {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.action-main {
+  flex: 1;
+}
+
+.action-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.action-num {
+  font-family: "Space Mono", monospace;
+  font-size: 1rem;
+  color: #00796b;
+  opacity: 0.5;
+}
+
+.dark-theme .action-num {
+  color: #00ffcc;
+}
+
+.action-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 800;
+  color: #2d3748;
+}
+
+.dark-theme .action-header h3 {
+  color: #e2e8f0;
+}
+
+.action-desc {
+  font-size: 0.9rem;
+  color: #718096;
+  margin-bottom: 25px;
+}
+
+.dark-theme .action-desc {
+  color: #a0aec0;
+}
+
+.action-btn {
+  padding: 12px 24px;
+  background: #00ffcc;
+  color: #1a202c;
+  border: none;
+  border-radius: 30px;
+  font-weight: 800;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(0, 255, 204, 0.2);
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 255, 204, 0.3);
+}
+
+.action-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  min-width: 150px;
+}
+
+.status-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #718096;
+  opacity: 0.6;
+}
+
+.status-value {
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.status-pending { color: #718096; }
+.status-progress { color: #ff8000; }
+.status-complete { color: #00796b; }
+
+.dark-theme .status-complete { color: #00ffcc; }
+
+.status-summary-mini {
+  font-family: "Space Mono", monospace;
+  font-size: 0.7rem;
+  color: #4a5568;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 4px 8px;
+  border-radius: 4px;
+  margin-top: 5px;
+}
+
+.dark-theme .status-summary-mini {
+  color: #a0aec0;
+  background: rgba(255, 255, 255, 0.05);
+}
+
 .besearch-layer-content {
   display: contents;
 }

@@ -56,51 +56,6 @@
             <div class="interface-layer">
               <transition name="sov-fade">
                 <LaunchpadStack
-                  v-if="isInitialState || isDemoMode"
-                  :mode="currentMode"
-                  :extractedData="mappedLenses"
-                  @launch="launchDemo"
-                  @reset="exitToZen"
-                />
-              </transition>
-            </div>
-
-            <WorldCanvas
-              ref="worldCanvasRef"
-              class="world-canvas-layer"
-              :class="{ 'besearch-active': isBesearchMode }"
-              :activeWorld="activeWorld"
-              :showTools="!isInitialState"
-            />
-
-            <div class="fuse-container">
-              <BesearchFuse
-                v-if="!isInitialState && storeAI.currentMode === 'besearch'"
-              />
-            </div>
-          </div>
-
-          <!-- Vertical Divider for Top Row -->
-          <div
-            v-if="
-              activeQuadrants.includes('now-me') &&
-              activeQuadrants.includes('future-me')
-            "
-            class="bento-divider vertical"
-            @mousedown="startBentoDividerDrag"
-          ></div>
-
-          <!-- FUTURE ME (Top Right) -->
-          <div
-            v-if="activeQuadrants.includes('future-me')"
-            class="bento-cell future-me-cell"
-          >
-            <div class="future-indicator">FUTURE ME</div>
-            <OrbitHUD v-if="!isInitialState" />
-
-            <div class="interface-layer">
-              <transition name="sov-fade">
-                <LaunchpadStack
                   v-if="isInitialState || isExtracting || isDemoMode"
                   :mode="currentMode"
                   :extractedData="mappedLenses"
@@ -232,11 +187,11 @@
 
     <BottomPanel
       class="bottom-panel-area"
-      :height="bottomHeight"
+      :height="storeBesearch.bottomHeight"
       :isOpen="isBottomOpen"
       :isDragging="draggingMode === 'bottom'"
-      @update:height="(val) => (bottomHeight = val)"
-      @update:isOpen="(val) => (isBottomOpen = val)"
+      @update:height="(val) => (storeBesearch.bottomHeight = val)"
+      @update:isOpen="(val) => (storeBesearch.showBottomPanel = val)"
       @startDrag="startBottomDrag"
     />
 
@@ -272,6 +227,7 @@
     <SculptingLayer />
 
     <div
+      v-if="isBentoVisible"
       class="bento-box-container"
       :class="{ 'docked-position': isBentoDocked }"
     >
@@ -328,40 +284,21 @@ const activeWorld = computed({
   set: (val) => (storeAI.activeWorld = val),
 });
 
-const isBottomOpen = computed({
-  get: () => {
-    return (
-      storeBesearch.showBottomPanel
-    );
-  },
-  set: (val) => {
-    storeBesearch.showBottomPanel = val;
-  },
-});
+const isBottomOpen = computed(() => storeBesearch.showBottomPanel);
 
 watch(
   isBottomOpen,
   (val) => {
     orbitStore.isInterplayActive = val;
-    if (val && storeBesearch.bottomHeight < 100) {
-      // Set to 82vh when interplay is active and it's currently collapsed/too small
-      storeBesearch.bottomHeight = window.innerHeight * 0.82;
-    }
   },
   { immediate: true },
 );
-
-const bottomHeight = computed(() => {
-  return storeBesearch.bottomHeight;
-});
 
 // Watch for store changes to trigger the "Extracting" state automatically
 watch(
   () => storeAI.digestInput,
   (newData) => {
-    if (newData && currentMode.value === "zen") {
-      // handleUserInput();
-    }
+    // Legacy support - we now use ExperienceOrchestrator for this
   },
   { deep: true },
 );
@@ -419,6 +356,7 @@ const handleStartTagging = () => {
 };
 
 const launchDemo = (type) => {
+  storeAI.isInitialState = false;
   storeAI.currentMode = "demo"; // This triggers the "Three Cs" in Launchpad
   storeAI.activeWorld = type;
 
@@ -437,18 +375,16 @@ const launchDemo = (type) => {
     storeDiary.zoomDepth = 2;
   }
   // open the lens ie. bottom panel
+  storeBesearch.setHUUDState('lens');
   storeBesearch.showBottomPanel = true;
 };
 
 // 3. Update the Reset handler
 const exitToZen = () => {
-  storeAI.initOrchestrator();
+  if (!storeAI.experienceOrchestrator) {
+    storeAI.initOrchestrator();
+  }
   storeAI.experienceOrchestrator.resetToZen();
-  // storeBesearch.showBottomPanel = false;
-  // storeAI.currentMode = "zen";
-  // storeAI.activeWorld = "orbit";
-  // storeChat.chatWidth = 10;
-  // storeChat.isChatOpen = false;
   panelWidth.value = 30;
   // Clear the store input if needed
   storeAI.digestInput = null;
@@ -631,6 +567,20 @@ const bottomRowStyle = computed(() => {
   return { height: "100%" };
 });
 const isBesearchMode = computed(() => storeAI.currentMode === "besearch");
+
+const isBentoVisible = computed(() => {
+  // Hide in lens, lab, or heli contexts
+  const hiddenContexts = ["lens", "lab", "heli"];
+  if (hiddenContexts.includes(storeBesearch.huudContext)) return false;
+
+  // Hide if specific layers are open
+  if (storeBesearch.isHeliProjectOpen) return false;
+  if (storeBesearch.isSculptingLayerOpen) return false;
+  if (storeBesearch.isBesearchLayerOpen) return false;
+  if (storeBesearch.isAttunementLayerOpen) return false;
+
+  return true;
+});
 </script>
 
 <style scoped>

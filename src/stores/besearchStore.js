@@ -19,8 +19,11 @@ export const besearchStore = defineStore("besearchstore", {
     showBesearchDetail: false,
     isBesearchLayerOpen: false,
     isAttunementLayerOpen: false,
+    isGraftLayerOpen: false,
     isAttunementExpanded: true,
+    isGraftExpanded: true,
     isSculptingLayerOpen: false,
+    isHeliProjectOpen: false,
     wasSculptingLayerOpen: false,
     wasBesearchCycleOpen: false,
     showBottomPanel: false,
@@ -88,15 +91,19 @@ export const besearchStore = defineStore("besearchstore", {
     isBraidingMode: false,
     strandMode: false, // false = OFF, true = ON (isStranded)
     isOrgoLogic: false, // false = OFF, true = ON
+    huudLayerIndex: 0,
+    huudContext: "world", // world, lens, lab, heli, emulation
+    previousHUUDContext: "world",
   }),
   getters: {
+    aiStore: () => aiInterfaceStore(),
     evaluateConduction: (state) => {
       if (!state.strandMode) return null;
 
-      const storeAI = aiInterfaceStore();
-      const capacityStrands = (storeAI.lifestrapTexture?.pillars?.capacity || [])
+      const aiStore = aiInterfaceStore();
+      const capacityStrands = (aiStore.lifestrapTexture?.pillars?.capacity || [])
         .filter((item) => item.activeStrand);
-      const contextStrands = (storeAI.lifestrapTexture?.pillars?.context || [])
+      const contextStrands = (aiStore.lifestrapTexture?.pillars?.context || [])
         .filter((item) => item.activeStrand);
 
       const allStrandedCues = [...capacityStrands, ...contextStrands];
@@ -116,8 +123,8 @@ export const besearchStore = defineStore("besearchstore", {
       };
     },
     canEnterBench: (state) => {
-      const storeAI = aiInterfaceStore();
-      const pillars = storeAI.lifestrapTexture?.pillars;
+      const aiStore = aiInterfaceStore();
+      const pillars = aiStore.lifestrapTexture?.pillars;
       const hasCapacity = pillars?.capacity?.length > 0;
       const hasContext = pillars?.context?.length > 0;
       return hasCapacity && hasContext;
@@ -406,10 +413,10 @@ export const besearchStore = defineStore("besearchstore", {
     setSelectedIntervention(intervention) {
       // Clear any active life-strap when selecting an intervention
       // This ensures the bottom panel shows the besearch detail
-      const storeAI = aiInterfaceStore();
-      if (storeAI.activeLifeStrapID) {
-        storeAI.activeLifeStrapID = "";
-        storeAI.activeContractKey = "";
+      const aiStore = aiInterfaceStore();
+      if (aiStore.activeLifeStrapID) {
+        aiStore.activeLifeStrapID = "";
+        aiStore.activeContractKey = "";
       }
       this.selectedIntervention = intervention;
       this.showBesearchDetail = true;
@@ -453,6 +460,7 @@ export const besearchStore = defineStore("besearchstore", {
         this.wasSculptingLayerOpen = true;
         this.isSculptingLayerOpen = false;
       }
+      this.isBesearchLayerOpen = true;
       this.setHUUDState('lens');
     },
     closeBesearchLayer() {
@@ -466,20 +474,26 @@ export const besearchStore = defineStore("besearchstore", {
     closeSculptingLayer() {
       this.isSculptingLayerOpen = false;
     },
+    openHeliProject() {
+      this.isHeliProjectOpen = true;
+    },
+    closeHeliProject() {
+      this.isHeliProjectOpen = false;
+    },
     restoreSculptingLab() {
-      const storeAI = aiInterfaceStore();
-      storeAI.currentMode = "orbit";
+      const aiStore = aiInterfaceStore();
+      aiStore.currentMode = "orbit";
       this.isSculptingLayerOpen = true;
       this.wasSculptingLayerOpen = false;
     },
     restoreBesearchCycle() {
-      const storeAI = aiInterfaceStore();
-      storeAI.currentMode = "orbit";
+      const aiStore = aiInterfaceStore();
+      aiStore.currentMode = "orbit";
       this.isBesearchLayerOpen = true;
       this.wasBesearchCycleOpen = false;
 
       // Restore lens and bottom panel state
-      storeAI.showLifestapLens = false;
+      aiStore.showLifestapLens = false;
       this.showBottomPanel = true;
       this.bottomHeight = window.innerHeight * 0.82;
     },
@@ -549,58 +563,167 @@ export const besearchStore = defineStore("besearchstore", {
       this.emulationPulse = 1.0;
     },
     transitionToBench() {
-      this.besearchMode = "besearch";
-      this.isSieveExpanded = false;
-      this.currentBesearchStage = "logic";
-      this.bottomHeight = window.innerHeight * 0.85;
+      this.setHUUDState("besearch");
     },
     transitionToSieve() {
-      this.besearchMode = "lens";
-      this.isSieveExpanded = true;
-      this.currentBesearchStage = "capacity";
+      this.setHUUDState("lens");
     },
-    setHUUDState(mode) {
-      const storeAI = aiInterfaceStore();
+    setHUUDState(mode, forceOpen = true) {
+      const aiStore = aiInterfaceStore();
       this.besearchMode = mode;
-      console.log("HUUD Mode set to:", mode);
+      console.log("HUUD Mode transition requested:", mode, "forceOpen:", forceOpen);
       
       if (mode === 'default') {
         this.isBesearchLayerOpen = false;
-        this.bottomHeight = 60;
-        storeAI.showLifestapLens = false;
+        this.isAttunementLayerOpen = false;
+        this.isGraftLayerOpen = false;
+        this.isSculptingLayerOpen = false;
         this.isSieveExpanded = false;
-      } else if (mode === 'lens') {
-        this.isBesearchLayerOpen = true;
-        this.isSieveExpanded = true;
-        this.bottomHeight = window.innerHeight * 0.82;
-        storeAI.showLifestapLens = true; // Show the full lens
-      } else if (mode === 'attunement') {
-        this.isAttunementLayerOpen = true;
-        this.isAttunementExpanded = true;
         this.isLensExpanded = false;
+        this.showBottomPanel = false;
+        this.bottomHeight = 60;
+        aiStore.showLifestapLens = true; // "collapsed" legacy behavior
+        this.setHUUDLayer(this.previousHUUDContext || "world");
+      } else if (mode === 'lens') {
+        console.log("HUD: Switching to Lens Layer");
+        this.previousHUUDContext = this.huudContext !== 'lens' ? this.huudContext : this.previousHUUDContext;
+        if (aiStore.currentMode === 'zen') {
+          aiStore.currentMode = 'extracting';
+        }
         this.isBesearchLayerOpen = false;
-        this.bottomHeight = window.innerHeight * 0.82;
-        storeAI.showLifestapLens = true; 
+        this.isAttunementLayerOpen = false;
+        this.isGraftLayerOpen = false;
+        this.isSculptingLayerOpen = false;
+        this.isSieveExpanded = true;
+        this.isLensExpanded = true;
+        
+        if (forceOpen) {
+          this.showBottomPanel = true;
+          this.bottomHeight = window.innerHeight * 0.82;
+        }
+        
+        aiStore.showLifestapLens = false; // Show lens content
+        this.setHUUDLayer("lens");
+      } else if (mode === 'attunement') {
+        console.log("HUD: Switching to Attunement (Lens Layer)");
+        if (aiStore.currentMode === 'zen') {
+          aiStore.currentMode = 'extracting';
+        }
+        this.isBesearchLayerOpen = false; 
+        this.isAttunementLayerOpen = true;
+        this.isGraftLayerOpen = false;
+        this.isHeliProjectOpen = true;
+        this.isSculptingLayerOpen = false;
+        this.isAttunementExpanded = true;
+        this.isHeliExpanded = false;
+        this.isSieveExpanded = false;
+        this.isLensExpanded = false;
+        
+        if (forceOpen) {
+          this.showBottomPanel = true;
+          this.bottomHeight = window.innerHeight * 0.82;
+        }
+        
+        aiStore.showLifestapLens = true; 
+        this.setHUUDLayer("lens");
+      } else if (mode === 'graft') {
+        console.log("HUD: Switching to Graft (Lens Layer)");
+        if (aiStore.currentMode === 'zen') {
+          aiStore.currentMode = 'extracting';
+        }
+        this.isBesearchLayerOpen = false;
+        this.isAttunementLayerOpen = false;
+        this.isGraftLayerOpen = true;
+        this.isHeliProjectOpen = true;
+        this.isSculptingLayerOpen = false;
+        this.isGraftExpanded = true;
+        this.isAttunementExpanded = false;
+        this.isHeliExpanded = false;
+        this.isSieveExpanded = false;
+        this.isLensExpanded = false;
+
+        if (forceOpen) {
+          this.showBottomPanel = true;
+          this.bottomHeight = window.innerHeight * 0.82;
+        }
+
+        aiStore.showLifestapLens = true;
+        this.setHUUDLayer("lens");
+      } else if (mode === 'heli') {
+        console.log("HUD: Switching to Heli (Lens Layer)");
+        if (aiStore.currentMode === 'zen') {
+          aiStore.currentMode = 'extracting';
+        }
+        this.isBesearchLayerOpen = false;
+        this.isAttunementLayerOpen = true;
+        this.isGraftLayerOpen = false;
+        this.isHeliProjectOpen = true;
+        this.isSculptingLayerOpen = false;
+        this.isAttunementExpanded = false;
+        this.isHeliExpanded = true;
+        this.isSieveExpanded = false;
+        this.isLensExpanded = false;
+
+        if (forceOpen) {
+          this.showBottomPanel = true;
+          this.bottomHeight = window.innerHeight * 0.85;
+        }
+
+        aiStore.showLifestapLens = true;
+        this.setHUUDLayer("lens");
       } else if (mode === 'besearch') {
+        console.log("HUD: Switching to Besearch (Lab Layer)");
+        if (aiStore.currentMode === 'zen' || aiStore.currentMode === 'extracting') {
+          aiStore.currentMode = 'active';
+        }
         this.isBesearchLayerOpen = true;
         this.isAttunementLayerOpen = true;
+        this.isGraftLayerOpen = true;
+        this.isHeliProjectOpen = true;
+        this.isSculptingLayerOpen = false;
         this.isAttunementExpanded = false;
-        this.isSieveExpanded = false;
-        this.isLensExpanded = false; // Lens starts as a bar in besearch mode
-        this.isBesearchExpanded = true;
-        
-        // Ensure Stage 01 (Logic) is expanded by default in Besearch mode
-        this.isLogicExpanded = true;
         this.isHeliExpanded = false;
+        this.isSieveExpanded = false;
+        this.isLensExpanded = false;
+        this.isBesearchExpanded = true;
+        this.isLogicExpanded = true;
         this.isEmulationExpanded = false;
         this.currentBesearchStage = 'logic';
-
-        this.bottomHeight = window.innerHeight * 0.85;
-        storeAI.showLifestapLens = true; // Still in lens-enabled context but lab view
+        
+        if (forceOpen) {
+          this.showBottomPanel = true;
+          this.bottomHeight = window.innerHeight * 0.85;
+        }
+        
+        aiStore.showLifestapLens = true; 
+        this.setHUUDLayer("lab");
       }
     },
+
     toggleBesearchExpansion() {
       this.isBesearchExpanded = !this.isBesearchExpanded;
-    }
+    },
+    rotateHUUD(direction) {
+      const layers = ["world", "lens", "lab", "heli"];
+      const count = layers.length;
+      if (direction === "up") {
+        this.huudLayerIndex = (this.huudLayerIndex - 1 + count) % count;
+      } else {
+        this.huudLayerIndex = (this.huudLayerIndex + 1) % count;
+      }
+      this.huudContext = layers[this.huudLayerIndex];
+    },
+    setHUUDLayer(layerName) {
+      console.log("HUD: setHUUDLayer requested for:", layerName);
+      const layers = ["world", "lens", "lab", "heli"];
+      const index = layers.indexOf(layerName);
+      if (index !== -1) {
+        this.huudLayerIndex = index;
+        this.huudContext = layers[index]; // Use layers array directly to ensure it matches
+        console.log("HUD: setHUUDLayer complete. Index:", this.huudLayerIndex, "Context:", this.huudContext);
+      } else {
+        console.error("HUD: Unknown layerName:", layerName);
+      }
+    },
   },
 });

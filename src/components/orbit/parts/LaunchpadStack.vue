@@ -40,11 +40,11 @@
     <div v-else class="active-resonance-grid">
       <header class="resonance-header">
         <h2 v-if="mode === 'demo'">Demo Protocol</h2>
-        <h2 v-else>Life-Strap Lens</h2>
+        <h2 v-else></h2>
       </header>
 
       <div class="meta-actions-grid">
-        <template v-if="mode === 'extracting'">
+        <template v-if="mode === 'extracting' && !storeAI.activeLifeStrapID">
           <button class="sov-btn reset" @click="$emit('reset')">
             ⟲ Reset Prompt
           </button>
@@ -69,8 +69,10 @@ import BeeBeeAvatar from "@/components/agents/BeeBeeAvatar.vue";
 import inputBox from "@/components/beebeehelp/inputBox.vue";
 
 import { libraryStore } from "@/stores/libraryStore.js";
+import { aiInterfaceStore } from "@/stores/aiInterface.js";
 
 const storeLibrary = libraryStore();
+const storeAI = aiInterfaceStore();
 
 // PROPS: Controlled by PrimeInterface
 const props = defineProps({

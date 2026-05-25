@@ -12,7 +12,20 @@
             <span class="branding-label">Sculpting Lab</span>
           </div>
         </div>
-        <div class="header-right"></div>
+        <div class="header-center"></div>
+        <div class="header-right">
+          <div class="header-actions">
+            <button class="nav-action-btn" @click="closeLayer">
+              <span class="icon">↩</span> Return to Attunement
+            </button>
+            <button
+              class="nav-action-btn primary"
+              @click="openHeli"
+            >
+              <span class="icon">☀️</span> Set Heli Project
+            </button>
+          </div>
+        </div>
       </header>
 
       <div class="lab-workspace">
@@ -240,33 +253,6 @@
             </div>
           </header>
           <div class="panel-content">
-            <div class="seer-section">
-              <h6>Heli-Time Projection</h6>
-              <div class="mock-projection">
-                <div class="projection-grid">
-                  <div
-                    v-for="i in 12"
-                    :key="i"
-                    class="grid-bar"
-                    :style="{ height: Math.random() * 80 + '%' }"
-                  ></div>
-                </div>
-              </div>
-            </div>
-
-            <div class="seer-section">
-              <h6>Resonance Meter</h6>
-              <div class="resonance-gauge">
-                <div class="gauge-fill" style="width: 75%"></div>
-                <span class="gauge-value">75% Alignment</span>
-              </div>
-            </div>
-
-            <div class="seer-section">
-              <h6>Coherence Indicator</h6>
-              <div class="coherence-badge peer">Peer-Verified</div>
-            </div>
-
             <div class="gifting-actions">
               <button class="sculpt-btn primary">GIFT TO COMMONS</button>
               <button class="sculpt-btn secondary">CHECK COMPATIBILITY</button>
@@ -318,7 +304,11 @@ const activeInstruments = ref([
 const droppedInstruments = ref([]);
 
 const closeLayer = () => {
-  storeBesearch.closeSculptingLayer();
+  storeBesearch.setHUUDState('lens');
+};
+
+const openHeli = () => {
+  storeBesearch.setHUUDLayer("heli");
 };
 
 const handleSeedDragStart = (e, seed, type) => {
@@ -388,100 +378,7 @@ const logMutation = (type, instanceId, key, value) => {
 };
 
 const gelleCanvases = ref({});
-const gelleAnimations = ref({});
 
-const setGelleCanvas = (el, instanceId) => {
-  if (el) {
-    gelleCanvases.value[instanceId] = el;
-    initGellePolyhedron(el, instanceId);
-  } else {
-    delete gelleCanvases.value[instanceId];
-    if (gelleAnimations.value[instanceId]) {
-      cancelAnimationFrame(gelleAnimations.value[instanceId]);
-      delete gelleAnimations.value[instanceId];
-    }
-  }
-};
-
-const initGellePolyhedron = (canvas, instanceId) => {
-  const ctx = canvas.getContext("2d");
-  const phi = (1 + Math.sqrt(5)) / 2;
-  const vertices = [
-    [-1, phi, 0],
-    [1, phi, 0],
-    [-1, -phi, 0],
-    [1, -phi, 0],
-    [0, -1, phi],
-    [0, 1, phi],
-    [0, -1, -phi],
-    [0, 1, -phi],
-    [phi, 0, -1],
-    [phi, 0, 1],
-    [-phi, 0, -1],
-    [-phi, 0, 1],
-  ];
-
-  let angle = 0;
-
-  const project = (v, scale) => {
-    const x = v[0] * Math.cos(angle) - v[2] * Math.sin(angle);
-    const z = v[0] * Math.sin(angle) + v[2] * Math.cos(angle);
-    const y = v[1] * Math.cos(0.5) - z * Math.sin(0.5);
-    return { x: x * scale, y: y * scale };
-  };
-
-  const resize = () => {
-    const parent = canvas.parentElement;
-    if (!parent) return;
-    canvas.width = parent.clientWidth;
-    canvas.height = parent.clientHeight;
-  };
-
-  resize();
-
-  const render = () => {
-    if (!ctx) return;
-    const width = canvas.width;
-    const height = canvas.height;
-    const scale = (Math.min(width, height) / 2) * 0.8;
-    const centerX = width / 2;
-    const centerY = height / 2;
-
-    ctx.clearRect(0, 0, width, height);
-
-    ctx.save();
-    ctx.translate(centerX, centerY);
-
-    angle += 0.01;
-
-    ctx.strokeStyle = isDarkMode.value ? "#00ffcc" : "#00796b";
-    ctx.lineWidth = 1.5;
-    ctx.lineJoin = "round";
-
-    ctx.beginPath();
-    for (let i = 0; i < vertices.length; i++) {
-      for (let j = i + 1; j < vertices.length; j++) {
-        const d2 =
-          Math.pow(vertices[i][0] - vertices[j][0], 2) +
-          Math.pow(vertices[i][1] - vertices[j][1], 2) +
-          Math.pow(vertices[i][2] - vertices[j][2], 2);
-
-        if (d2 < 4.1 && d2 > 3.9) {
-          const p1 = project(vertices[i], scale);
-          const p2 = project(vertices[j], scale);
-          ctx.moveTo(p1.x, p1.y);
-          ctx.lineTo(p2.x, p2.y);
-        }
-      }
-    }
-    ctx.stroke();
-    ctx.restore();
-
-    gelleAnimations.value[instanceId] = requestAnimationFrame(render);
-  };
-
-  render();
-};
 
 onMounted(() => {
   const theme = document.documentElement.getAttribute("data-theme");
@@ -520,17 +417,27 @@ onMounted(() => {
   transition:
     background 0.3s,
     color 0.3s;
+  padding-top: 0;
 }
 
 .sculpt-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 30px;
-  background: rgba(255, 255, 255, 0.8);
+  padding: 10px 30px;
+  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  margin-top: 60px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  margin-top: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: 60px;
+}
+
+.dark-theme .sculpt-header {
+  background: rgba(10, 10, 15, 0.95);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .sculpting-layer.dark-theme {
@@ -554,9 +461,109 @@ onMounted(() => {
   margin-top: 10px;
 }
 
-.dark-theme .sculpt-header {
-  background: rgba(0, 0, 0, 0.4);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+.header-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.workflow-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(0, 0, 0, 0.03);
+  padding: 8px 20px;
+  border-radius: 30px;
+  font-family: "Space Mono", monospace;
+  font-size: 0.7rem;
+}
+
+.dark-theme .workflow-breadcrumb {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.crumb {
+  opacity: 0.4;
+  font-weight: 400;
+}
+
+.crumb.active {
+  opacity: 0.8;
+  color: #00796b;
+}
+
+.dark-theme .crumb.active {
+  color: #00ffcc;
+}
+
+.crumb.current {
+  opacity: 1;
+  font-weight: 700;
+  color: #00796b;
+}
+
+.dark-theme .crumb.current {
+  color: #00ffcc;
+}
+
+.crumb-separator {
+  opacity: 0.2;
+}
+
+.header-actions {
+  display: flex;
+  gap: 15px;
+}
+
+.nav-action-btn {
+  background: transparent;
+  border: 1px solid rgba(0, 121, 107, 0.3);
+  color: #00796b;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.dark-theme .nav-action-btn {
+  border-color: rgba(0, 255, 204, 0.3);
+  color: #00ffcc;
+}
+
+.nav-action-btn:hover {
+  background: rgba(0, 121, 107, 0.05);
+  border-color: #00796b;
+}
+
+.dark-theme .nav-action-btn:hover {
+  background: rgba(0, 255, 204, 0.05);
+  border-color: #00ffcc;
+}
+
+.nav-action-btn.primary {
+  background: #00796b;
+  color: white;
+  border-color: #00796b;
+}
+
+.dark-theme .nav-action-btn.primary {
+  background: #00ffcc;
+  color: #000;
+  border-color: #00ffcc;
+}
+
+.nav-action-btn.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 121, 107, 0.2);
+}
+
+.dark-theme .nav-action-btn.primary:hover {
+  box-shadow: 0 4px 12px rgba(0, 255, 204, 0.2);
 }
 
 .lab-branding {

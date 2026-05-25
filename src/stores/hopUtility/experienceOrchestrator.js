@@ -27,23 +27,60 @@ export class ExperienceOrchestrator {
     console.log('Orchestrating Lifestrap Return. isNew:', isNew, 'wasZen:', wasZen);
 
     if (isNew) {
-      // Brand new story or explicit "new" action - open the lens
-      besearch.setHUUDState('lens');
-      ai.showLifestapLens = true;
-      besearch.showBottomPanel = true;
-      besearch.bottomHeight = window.innerHeight * 0.82;
+      // Brand new story - open the lens
+      this.openLens();
       ai.currentMode = 'extracting';
     } else {
-      // Peer return / background load - load silently
-      // Ensure panels are closed if we were in Zen mode
+      // Returning story - load data but stay in Zen/Current world
+      // Ensure we don't force open the lens UI
+      console.log('Returning story loaded silently');
       if (wasZen) {
-        console.log('Zen load detected, ensuring panels closed');
-        besearch.showBottomPanel = false;
-        ai.showLifestapLens = false;
-        besearch.setHUUDState('default');
-        ai.currentMode = 'zen'; // Force back to Zen if it was changed
+        this.resetToZen();
       }
     }
+  }
+
+  /**
+   * Transition to Lens view (Sieve)
+   */
+  openLens() {
+    const { ai, besearch } = this.stores;
+    besearch.setHUUDState('lens');
+  }
+
+  /**
+   * Transition to Attunement view
+   */
+  openAttunement() {
+    const { ai, besearch } = this.stores;
+    besearch.setHUUDState('attunement');
+  }
+
+  /**
+   * Transition to Lab view (Sculpting)
+   */
+  openLab() {
+    const { besearch } = this.stores;
+    besearch.setHUUDState('besearch');
+  }
+
+  /**
+   * Transition to Heli Projection
+   */
+  openHeli() {
+    const { besearch } = this.stores;
+    besearch.setHUUDLayer('heli');
+  }
+
+  /**
+   * Orchestrate World transition
+   * @param {String} worldId - orbit, body, earth
+   */
+  orchestrateWorldChange(worldId) {
+    const { ai, besearch } = this.stores;
+    ai.activeWorld = worldId;
+    // When changing world manually, we usually want to be in world layer
+    besearch.setHUUDState('default');
   }
 
   /**
@@ -51,16 +88,26 @@ export class ExperienceOrchestrator {
    * @param {Object} strapData 
    */
   handleLifestrapSelection(strapData) {
-    const { ai, besearch } = this.stores;
+    const { ai, besearch, chat } = this.stores;
+    const strapId = strapData.id || strapData.key || 'unknown';
+    console.log('Orchestrating Lifestrap Selection:', strapId);
     
-    console.log('Orchestrating Lifestrap Selection:', strapData.id);
-    
-    // Explicit selection always opens the lens
+    // 1. Clear the world and set for new lifestrap story
+    ai.activeWorld = 'orbit';
+    ai.isInitialState = false;
     ai.setActiveLifeStrap(strapData);
     ai.currentMode = 'extracting';
-    besearch.setHUUDState('lens');
-    besearch.showBottomPanel = true;
-    besearch.bottomHeight = window.innerHeight * 0.82;
+
+    // 2. HUD should stay in World mode when selecting from lifetools
+    besearch.setHUUDState('default');
+
+    // 3. Ensure panels are closed
+    besearch.showBottomPanel = false;
+    chat.isChatOpen = false;
+    chat.chatWidth = 0;
+    
+    // We don't call openLens() here because we want the panels closed initially
+    // as per the requirement "close the panels and just present the world".
   }
 
   /**
@@ -89,8 +136,6 @@ export class ExperienceOrchestrator {
     chat.isUnrolled = false; // Collapse Beebee ribbon
     
     besearch.showBottomPanel = false;
-
-    besearch.besearchMode = 'default';
     besearch.setHUUDState('default');
     
     chat.chatWidth = 0;

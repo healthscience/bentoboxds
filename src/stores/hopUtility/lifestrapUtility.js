@@ -101,6 +101,7 @@ class LifestrapUtility {
       },
       residue: unmappedFragments,
       key: hexKeyLens,
+      story: lsContract.value.concept.story || "",
     };
 
     return newTexture

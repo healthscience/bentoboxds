@@ -1,5 +1,5 @@
 <template>
-  <div v-if="storeBesearch.isAttunementLayerOpen" class="attunement-layer-container">
+  <div v-if="storeBesearch.isAttunementLayerOpen || storeBesearch.besearchMode === 'heli' || storeBesearch.besearchMode === 'graft'" class="attunement-layer-container">
     <!-- 1. The Full Attunement View -->
     <div v-if="storeBesearch.isAttunementExpanded" class="lens-box coherence standalone-attunement">
       <header class="lens-header standalone-header">
@@ -7,6 +7,10 @@
           <div class="header-left">
             <span class="pulse-dot"></span>
             <h3>Attunement</h3>
+            <div v-if="activeStrandItems.length > 0" class="strand-context-mini">
+              <span class="label">Strand:</span>
+              <span class="value">{{ activeStrandItems.join(", ") }}</span>
+            </div>
             <button class="add-btn" @click="addAttunementSlot" title="Add Attunement Slot">+</button>
           </div>
           <div class="header-right">
@@ -41,8 +45,8 @@
                 <option v-for="opt in actions" :key="opt" :value="opt">{{ opt }}</option>
               </select>
 
-              <button class="lab-btn" @click="openSculptingLab" title="Build Besearch Cycle">
-                Build Besearch Cycle ➔
+              <button class="lab-btn" @click="openGraftingSection" title="Set Graft">
+                Set Graft ➔
               </button>
 
               <div class="slot-more-menu">
@@ -67,7 +71,7 @@
       <div class="bar-content">
         <span class="bar-label">▼ Attunement</span>
         <div class="bar-summary">
-          <span v-for="(slot, i) in activeSlots" :key="i" class="summary-tag">
+          <span v-for="(slot, i) in activeSlots" :key="slot.label + '-' + i" class="summary-tag">
             {{ slot.label }}
           </span>
         </div>
@@ -94,12 +98,16 @@ const activeMenuIndex = ref(null);
 
 // Initial slots
 const attunementSlots = ref([
-  { label: "Set Attunement", value: "", type: "" },
-  { label: "Set Attunement", value: "", type: "" },
   { label: "Set Attunement", value: "", type: "" }
 ]);
 
 const activeSlots = computed(() => attunementSlots.value.filter(s => s.label !== "Set Attunement"));
+
+const activeStrandItems = computed(() => {
+  const conduction = storeBesearch.evaluateConduction;
+  if (!conduction) return [];
+  return conduction.nodes || conduction.pipeline || [];
+});
 
 const addAttunementSlot = () => {
   attunementSlots.value.push({ label: "Set Attunement", value: "", type: "" });
@@ -123,8 +131,12 @@ const toggleSlotMenu = (index) => {
   activeMenuIndex.value = activeMenuIndex.value === index ? null : index;
 };
 
+const openGraftingSection = () => {
+  storeBesearch.setHUUDState('graft');
+};
+
 const openSculptingLab = () => {
-  storeBesearch.openSculptingLayer();
+  storeBesearch.setHUUDState('besearch');
 };
 
 const handleBeebeeInput = (event) => {
@@ -432,6 +444,30 @@ const syncWithStore = () => {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+}
+
+.strand-context-mini {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 255, 204, 0.1);
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 255, 204, 0.2);
+  margin-left: 10px;
+}
+
+.strand-context-mini .label {
+  font-size: 0.6rem;
+  font-weight: 900;
+  color: #00ffcc;
+  text-transform: uppercase;
+}
+
+.strand-context-mini .value {
+  font-size: 0.7rem;
+  color: #1a202c;
+  font-family: "Space Mono", monospace;
 }
 
 .build-besearch-btn {

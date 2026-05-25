@@ -388,8 +388,9 @@ const selectMode = (mode) => {
 
 const selectWorld = (worldId) => {
   emit("update:modelValue", worldId);
-  storeAI.currentMode = false;
-  storeAI.interactionMode = "lens"; // Reset to lens on world change
+  storeAI.initOrchestrator();
+  storeAI.experienceOrchestrator.orchestrateWorldChange(worldId);
+  
   if (worldId === "body") {
     storeBesearch.setNexusWorld("body");
   } else if (worldId === "orbit") {

@@ -39,8 +39,8 @@
             <h4 class="dock-label">Unmapped Fragments</h4>
             <div class="bubble-stream mini">
               <button
-                v-for="word in unmappedFragments"
-                :key="word"
+                v-for="(word, index) in unmappedFragments"
+                :key="word + '-' + index"
                 class="fragment-bubble"
                 :class="{ selected: selectedWord === word }"
                 draggable="true"
@@ -84,13 +84,23 @@
             </div>
           </div>
 
-          <button 
-            class="enter-bench-btn"
-            :class="{ active: storeBesearch.canEnterBench }"
-            @click="handleAttunementTrigger"
-          >
-            Set Attunement
-          </button>
+          <div class="action-group">
+            <button 
+              class="enter-bench-btn"
+              :class="{ active: storeBesearch.canEnterBench }"
+              @click="handleAttunementTrigger"
+            >
+              Set Heli
+            </button>
+
+            <button 
+              class="collapse-lens-btn"
+              @click="handleAttunementTrigger"
+              title="Collapse Lens"
+            >
+              ▼
+            </button>
+          </div>
         </div>
 
         <div class="columns-grid">
@@ -178,7 +188,8 @@ const storeDiary = diaryStore();
 const storeBesearch = besearchStore();
 
 const handleAttunementTrigger = () => {
-  storeBesearch.setHUUDState('attunement');
+  storeBesearch.setHUUDState('heli');
+  storeBesearch.setHUUDLayer("lens");
 };
 
 const props = defineProps({
@@ -712,6 +723,30 @@ onMounted(() => {
 
 .strand-slider.active .slider-knob {
   left: 17px;
+}
+
+.action-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.collapse-lens-btn {
+  background: transparent;
+  border: none;
+  color: #718096;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+}
+
+.collapse-lens-btn:hover {
+  color: #00ffcc;
+  transform: translateY(2px);
 }
 
 .enter-bench-btn {

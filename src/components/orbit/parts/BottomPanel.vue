@@ -15,7 +15,7 @@
     <div
       v-show="
         height > 80 ||
-        storeBesearch.isLensExpanded === true
+        storeBesearch.isSieveExpanded === true
       "
       class="bottom-panel-content"
       ref="contentArea"
@@ -29,24 +29,34 @@
         <div 
           ref="lensSection" 
           class="lens-section" 
-          :class="{ 'as-bar': storeBesearch.besearchMode === 'besearch' || storeBesearch.besearchMode === 'attunement' }"
+          :class="{ 'as-bar': storeBesearch.besearchMode === 'besearch' || storeBesearch.besearchMode === 'attunement' || storeBesearch.besearchMode === 'heli' || storeBesearch.besearchMode === 'graft' }"
         >
           <div
-            v-if="storeBesearch.isLensExpanded === true && storeBesearch.besearchMode === 'besearch' || storeBesearch.besearchMode === 'attunement'"
+            v-if="!storeBesearch.isSieveExpanded && (storeBesearch.besearchMode === 'besearch' || storeBesearch.besearchMode === 'attunement' || storeBesearch.besearchMode === 'heli' || storeBesearch.besearchMode === 'graft')"
             class="lens-collapsed-bar"
-            @click="storeBesearch.setHUUDState('lens')"
+            @click="openLens"
           >
             <span class="lens-label">▼ Life-strap Lens</span>
           </div>
           <LifestrapLens v-else :lenses="extractedData" />
         </div>
 
-        <!-- 2. The Attunement Section -->
-        <div v-if="storeBesearch.isAttunementLayerOpen" class="attunement-section">
+        <!-- 2. The Heli Section -->
+        <div v-if="storeBesearch.isHeliProjectOpen" class="heli-section">
+          <HeliProjectionLayer />
+        </div>
+
+        <!-- 3. The Attunement Section -->
+        <div class="attunement-section">
           <AttunementLayer />
         </div>
 
-        <!-- 3. The Besearch Layer -->
+        <!-- 4. The Graft Section -->
+        <div v-if="storeBesearch.isGraftLayerOpen" class="graft-section">
+          <GraftLayer />
+        </div>
+
+        <!-- 5. The Besearch Layer -->
         <div v-if="storeBesearch.isBesearchLayerOpen" class="besearch-layer-wrapper">
           bbb {{ storeBesearch.isBesearchLayerOpen }}
           <BesearchLayer />
@@ -61,6 +71,8 @@ import { ref, computed, watch, nextTick, onMounted, onUnmounted } from "vue";
 import BesearchDetail from "@/components/besearch/attunement/besearchDetail.vue";
 import LifestrapLens from "@/components/orbit/parts/LifestrapLens.vue";
 import AttunementLayer from "@/components/orbit/parts/attunement/AttunementLayer.vue";
+import HeliProjectionLayer from "@/components/orbit/parts/heli/HeliProjectionLayer.vue";
+import GraftLayer from "@/components/orbit/parts/graft/GraftLayer.vue";
 import BesearchLayer from "@/components/orbit/besearch/besearchLayer.vue";
 
 import { besearchStore } from "@/stores/besearchStore.js";
@@ -98,35 +110,11 @@ const isLensCollapsed = computed(() => {
 });
 
 const updatePanelHeight = async () => {
-  await nextTick();
-  if (contentArea.value) {
-    const isLabView = (!!storeAI.activeLifeStrapID && !storeAI.showLifestapLens) || storeBesearch.isBesearchLayerOpen;
-    const maxHeight = window.innerHeight * 0.82;
-
-    if (isLabView) {
-      storeBesearch.bottomHeight = maxHeight;
-      emit("update:height", maxHeight);
-      return;
-    }
-
-    const contentHeight = contentArea.value.scrollHeight;
-    const totalHeight = Math.min(contentHeight + 40, maxHeight);
-
-    if (totalHeight > 60) {
-      emit("update:height", totalHeight);
-    }
-  }
+  // We now rely on setHUUDState to manage panel heights centrally
 };
 
 onMounted(() => {
-  resizeObserver = new ResizeObserver(() => {
-    if (storeAI.activeLifeStrapID || storeBesearch.showBesearchDetail) {
-      updatePanelHeight();
-    }
-  });
-  if (contentArea.value) {
-    resizeObserver.observe(contentArea.value);
-  }
+  // Height is now managed by the store's bottomHeight
 });
 
 onUnmounted(() => {
@@ -139,11 +127,7 @@ onUnmounted(() => {
 watch(
   () => storeAI.activeLifeStrapID,
   (newVal) => {
-    if (newVal) {
-      // newVal check is true if we have a string ID
-      // If we are in initial load/zen, don't force collapse logic here
-      // let experienceOrchestrator handle the panel opening
-    }
+    // Handled by ExperienceOrchestrator
   },
   { immediate: true },
 );
@@ -151,10 +135,7 @@ watch(
 watch(
   () => storeBesearch.showBesearchDetail,
   (newVal) => {
-    if (newVal && storeAI.activeLifeStrapID) {
-      storeAI.showLifestapLens = true;
-    }
-    updatePanelHeight();
+    // Handled by ExperienceOrchestrator or setHUUDState
   },
 );
 
@@ -175,35 +156,24 @@ const expandLens = () => {
   updatePanelHeight();
 };
 
+const openLens = () => {
+  storeBesearch.setHUUDState('lens');
+};
+
 const handleToggle = (e) => {
-  // Prevent default if it's a click to avoid side effects
   const duration = Date.now() - dragStartTime.value;
 
-  // If it was a quick click (duration < 250ms), toggle the panel
   if (duration < 250) {
     e.preventDefault();
     e.stopPropagation();
 
-    const isCurrentlyOpen =
-      storeBesearch.showBottomPanel ||
-      !!storeAI.activeLifeStrapID ||
-      storeBesearch.hasActiveIntervention;
+    const isCurrentlyOpen = storeBesearch.showBottomPanel;
 
     if (isCurrentlyOpen) {
-      // Force close by clearing all triggering states
-      storeBesearch.showBottomPanel = false;
-      storeAI.activeLifeStrapID = "";
-      storeAI.activeContractKey = "";
-      storeBesearch.selectedIntervention = null;
-      storeBesearch.showBesearchDetail = false;
-      // Set height to collapsed state (60px)
-      storeBesearch.bottomHeight = 60;
-      emit("update:height", 60);
+      storeBesearch.setHUUDState('default');
       emit("update:isOpen", false);
     } else {
-      // Open the panel
-      storeBesearch.showBottomPanel = true;
-      updatePanelHeight();
+      storeBesearch.setHUUDState('lens');
       emit("update:isOpen", true);
     }
   }
@@ -337,7 +307,7 @@ const handleToggle = (e) => {
   padding: 0 20px;
 }
 
-.lens-section, .attunement-section, .besearch-layer-wrapper {
+.lens-section, .attunement-section, .heli-section, .graft-section, .besearch-layer-wrapper {
   flex-shrink: 0;
   transition: all 0.4s ease;
   margin-bottom: 10px;
