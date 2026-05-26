@@ -56,11 +56,16 @@
           <GraftLayer />
         </div>
 
-        <!-- 5. The Besearch Layer -->
-        <div v-if="storeBesearch.isBesearchLayerOpen" class="besearch-layer-wrapper">
-          bbb {{ storeBesearch.isBesearchLayerOpen }}
-          <BesearchLayer />
+        <!-- 5. Emulation  cueCubes -->
+        <div v-if="storeBesearch.isGraftLayerOpen" class="emulation-section">
+          <CuecubeLayer />
         </div>
+
+        <!-- 6. The Tinkering Section -->
+        <div v-if="storeBesearch.isGraftLayerOpen" class="tinker-section">
+          <TinkerLayer />
+        </div>
+
       </div>
     </div>
   </div>
