@@ -31,8 +31,29 @@
 </template>
 
 <script setup>
+import { watch } from "vue";
 import { besearchStore } from "@/stores/besearchStore.js";
 const storeBesearch = besearchStore();
+
+const syncDepth = (val) => {
+  storeBesearch.syncActiveCycleState('emulation', { depth: val });
+};
+
+watch(
+  () => storeBesearch.activeCycleId,
+  (newId) => {
+    const cycle = storeBesearch.activeCycle;
+    if (cycle && cycle.state.emulation) {
+      storeBesearch.canvasState.emulationDepth = cycle.state.emulation.depth || 0;
+    }
+  },
+  { immediate: true }
+);
+
+// Watch for depth changes (e.g. from sliders or other tools)
+watch(() => storeBesearch.canvasState.emulationDepth, (newVal) => {
+  syncDepth(newVal);
+});
 </script>
 
 <style scoped>

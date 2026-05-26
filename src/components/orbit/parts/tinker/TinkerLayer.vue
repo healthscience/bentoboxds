@@ -13,7 +13,7 @@
         <div class="tinker-controls">
            <div class="control-group">
              <span class="control-label">Logic Neat-Evolution</span>
-             <button class="tinker-btn">Run Optimization Loop</button>
+             <button class="tinker-btn" @click="runLoop">Run Optimization Loop</button>
            </div>
            <div class="control-group">
              <span class="control-label">Scientific Validation</span>
@@ -23,11 +23,11 @@
         <div class="tinker-status">
           <div class="status-item">
             <span class="label">System Stability</span>
-            <span class="value">98.4%</span>
+            <span class="value">{{ stability.toFixed(1) }}%</span>
           </div>
           <div class="status-item">
             <span class="label">Evolutionary Iterations</span>
-            <span class="value">42</span>
+            <span class="value">{{ iterations }}</span>
           </div>
         </div>
       </div>
@@ -36,8 +36,37 @@
 </template>
 
 <script setup>
+import { watch, ref } from "vue";
 import { besearchStore } from "@/stores/besearchStore.js";
 const storeBesearch = besearchStore();
+
+const stability = ref(98.4);
+const iterations = ref(42);
+
+const syncTinker = () => {
+  storeBesearch.syncActiveCycleState('tinkering', { 
+    stability: stability.value, 
+    iterations: iterations.value 
+  });
+};
+
+watch(
+  () => storeBesearch.activeCycleId,
+  (newId) => {
+    const cycle = storeBesearch.activeCycle;
+    if (cycle && cycle.state.tinkering) {
+      stability.value = cycle.state.tinkering.stability || 98.4;
+      iterations.value = cycle.state.tinkering.iterations || 42;
+    }
+  },
+  { immediate: true }
+);
+
+const runLoop = () => {
+  iterations.value++;
+  stability.value = Math.min(100, stability.value + 0.1);
+  syncTinker();
+};
 </script>
 
 <style scoped>

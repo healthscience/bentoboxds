@@ -343,12 +343,23 @@ const removeInstrument = (id) => {
   droppedInstruments.value = droppedInstruments.value.filter(
     (d) => d.id !== id,
   );
+  syncGraftToCycle();
+};
+
+const syncGraftToCycle = () => {
+  if (!storeBesearch.activeCycle) return;
+  storeBesearch.syncActiveCycleState('grafting', {
+    activeOrgos: JSON.parse(JSON.stringify(orgoStore.activeOrgos)),
+    activeGelles: JSON.parse(JSON.stringify(gelleStore.activeGelles)),
+    droppedInstruments: JSON.parse(JSON.stringify(droppedInstruments.value))
+  });
 };
 
 const handleGraftDrop = (e, instanceId) => {
   const word = e.dataTransfer.getData("text/plain");
   if (word) {
     gelleStore.addGraft(instanceId, word);
+    syncGraftToCycle();
   }
 };
 
@@ -357,6 +368,7 @@ const snapOrgoToDevice = (device) => {
     const firstOrgo = activeOrgos.value[0];
     firstOrgo.params.amplitude = 75;
     firstOrgo.params.wavelength = 40;
+    syncGraftToCycle();
   }
 };
 
@@ -367,10 +379,30 @@ const logMutation = (type, instanceId, key, value) => {
     property: key,
     value: value,
   });
+  syncGraftToCycle();
 };
 
 const gelleCanvases = ref({});
 
+// Watch for cycle changes
+watch(
+  () => storeBesearch.activeCycleId,
+  (newId) => {
+    const cycle = storeBesearch.activeCycle;
+    if (cycle && cycle.state.grafting) {
+      // Direct mutation of stores to restore state
+      orgoStore.activeOrgos = JSON.parse(JSON.stringify(cycle.state.grafting.activeOrgos || []));
+      gelleStore.activeGelles = JSON.parse(JSON.stringify(cycle.state.grafting.activeGelles || []));
+      droppedInstruments.value = JSON.parse(JSON.stringify(cycle.state.grafting.droppedInstruments || []));
+    }
+  },
+  { immediate: true }
+);
+
+// Watch for seed drops
+watch([() => orgoStore.activeOrgos, () => gelleStore.activeGelles], () => {
+  syncGraftToCycle();
+}, { deep: true });
 
 onMounted(() => {
   const theme = document.documentElement.getAttribute("data-theme");

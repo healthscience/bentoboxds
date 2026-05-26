@@ -259,10 +259,29 @@ const selectCapacity = (val) => {
     const item = items.find(i => i.value === val);
     if (item) {
       item.activeStrand = !item.activeStrand;
+      
+      // Sync with active cycle
+      syncLensToCycle();
     }
     return;
   }
   storeBesearch.activeBesearchContext.capacity = val;
+};
+
+const syncLensToCycle = () => {
+  if (!storeBesearch.activeCycle) return;
+  
+  const selectedCues = [];
+  const pillars = storeAI.lifestrapTexture?.pillars || {};
+  Object.values(pillars).forEach(pillar => {
+    if (Array.isArray(pillar)) {
+      pillar.forEach(item => {
+        if (item.activeStrand) selectedCues.push(item.value);
+      });
+    }
+  });
+  
+  storeBesearch.syncActiveCycleState('lens', { selectedCues });
 };
 
 const handleReorder = ({ oldGroupId, newGroupId, oldIndex, newIndex, value }) => {
@@ -363,6 +382,7 @@ const handleCueSpace = (spaceID) => {
     const item = context.find(i => i.value === spaceID);
     if (item) {
       item.activeStrand = !item.activeStrand;
+      syncLensToCycle();
     }
     return;
   }

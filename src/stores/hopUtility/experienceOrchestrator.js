@@ -26,6 +26,12 @@ export class ExperienceOrchestrator {
 
     console.log('Orchestrating Lifestrap Return. isNew:', isNew, 'wasZen:', wasZen);
 
+    // Sync cycles for this strap
+    const strapId = data.id || data.key;
+    if (strapId) {
+      besearch.loadCyclesForLifestrap(strapId);
+    }
+
     if (isNew) {
       // Brand new story - open the lens
       this.openLens();
@@ -92,16 +98,19 @@ export class ExperienceOrchestrator {
     const strapId = strapData.id || strapData.key || 'unknown';
     console.log('Orchestrating Lifestrap Selection:', strapId);
     
-    // 1. Clear the world and set for new lifestrap story
+    // 1. Load cycles for this specific lifestrap
+    besearch.loadCyclesForLifestrap(strapId);
+
+    // 2. Clear the world and set for new lifestrap story
     ai.activeWorld = 'orbit';
     ai.isInitialState = false;
     ai.setActiveLifeStrap(strapData);
     ai.currentMode = 'extracting';
 
-    // 2. HUD should stay in World mode when selecting from lifetools
+    // 3. HUD should stay in World mode when selecting from lifetools
     besearch.setHUUDState('default');
 
-    // 3. Ensure panels are closed
+    // 4. Ensure panels are closed
     besearch.showBottomPanel = false;
     chat.isChatOpen = false;
     chat.chatWidth = 0;

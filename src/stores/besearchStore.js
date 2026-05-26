@@ -94,9 +94,17 @@ export const besearchStore = defineStore("besearchstore", {
     huudLayerIndex: 0,
     huudContext: "world", // world, lens, lab, heli, emulation
     previousHUUDContext: "world",
+    // Besearch Cycles (Strands)
+    activeCycleId: null,
+    isCycleLineExpanded: false,
+    besearchCycles: [],
+    cyclesCache: {}, // lifeStrapID -> array of cycles
   }),
   getters: {
     aiStore: () => aiInterfaceStore(),
+    activeCycle: (state) => {
+      return state.besearchCycles.find(c => c.id === state.activeCycleId) || null;
+    },
     evaluateConduction: (state) => {
       if (!state.strandMode) return null;
 
@@ -135,7 +143,7 @@ export const besearchStore = defineStore("besearchstore", {
         return {
           hopKey: entry?.key,
           seq: entry?.seq ?? index,
-          id: value.id || entry?.key || `cycle-${index}`,
+          id: value.id || entry?.key || "cycle-" + index,
           name: value.name || "New Cycle",
           description: value.description || "",
           category: value.category || "custom",
@@ -215,7 +223,7 @@ export const besearchStore = defineStore("besearchstore", {
         };
         // Send via socket to HOP
         this.socketStore.send_message(bcContract);
-        return { success: true, message: `operation saved successfully` };
+        return { success: true, message: "operation saved successfully" };
       } catch (error) {
         console.error("Error saving to HOP:", error);
         return { success: false, message: "Failed to save: " + error.message };
@@ -293,34 +301,6 @@ export const besearchStore = defineStore("besearchstore", {
                 value: savedEntry?.value || savedEntry,
               };
         this.besearchCyles.push(normalizedEntry);
-        /* try {
-          if (replyData.data && replyData.data.besearchCycles) {
-            // Update besearch cycles
-            this.besearchCyles = replyData.data.besearchCycles
-          }
-          if (replyData.data && replyData.data.interventions) {
-            this.interventions = replyData.data.interventions
-          }
-          if (replyData.data && replyData.data.markers) {
-            this.markers = replyData.data.markers
-          }
-          if (replyData.data && replyData.data.networkExperiments) {
-            this.networkExperiments = replyData.data.networkExperiments
-          }
-          if (replyData.data && replyData.data.canvasState) {
-            // Update canvas state
-            this.canvasState = { ...this.canvasState, ...replyData.data.canvasState }
-          }
-          this.isLoaded = true
-          this.isLoading = false
-          this.loadError = null
-          return { success: true, message: 'Data loaded successfully' }
-        } catch (error) {
-          console.error('Error processing HOP reply:', error)
-          this.isLoading = false
-          this.loadError = 'Failed to process reply: ' + error.message
-          return { success: false, message: 'Failed to process reply: ' + error.message }
-        }*/
       }
     },
     updatePeerPosition(position) {
@@ -461,7 +441,7 @@ export const besearchStore = defineStore("besearchstore", {
         this.isSculptingLayerOpen = false;
       }
       this.isBesearchLayerOpen = true;
-      this.setHUUDState('lens');
+      this.setHUUDState("lens");
     },
     closeBesearchLayer() {
       this.isBesearchLayerOpen = false;
@@ -573,7 +553,7 @@ export const besearchStore = defineStore("besearchstore", {
       this.besearchMode = mode;
       console.log("HUUD Mode transition requested:", mode, "forceOpen:", forceOpen);
       
-      if (mode === 'default') {
+      if (mode === "default") {
         this.isBesearchLayerOpen = false;
         this.isAttunementLayerOpen = false;
         this.isGraftLayerOpen = false;
@@ -584,11 +564,11 @@ export const besearchStore = defineStore("besearchstore", {
         this.bottomHeight = 60;
         aiStore.showLifestapLens = true; // "collapsed" legacy behavior
         this.setHUUDLayer(this.previousHUUDContext || "world");
-      } else if (mode === 'lens') {
+      } else if (mode === "lens") {
         console.log("HUD: Switching to Lens Layer");
-        this.previousHUUDContext = this.huudContext !== 'lens' ? this.huudContext : this.previousHUUDContext;
-        if (aiStore.currentMode === 'zen') {
-          aiStore.currentMode = 'extracting';
+        this.previousHUUDContext = this.huudContext !== "lens" ? this.huudContext : this.previousHUUDContext;
+        if (aiStore.currentMode === "zen") {
+          aiStore.currentMode = "extracting";
         }
         this.isBesearchLayerOpen = false;
         this.isAttunementLayerOpen = false;
@@ -604,10 +584,10 @@ export const besearchStore = defineStore("besearchstore", {
         
         aiStore.showLifestapLens = false; // Show lens content
         this.setHUUDLayer("lens");
-      } else if (mode === 'attunement') {
+      } else if (mode === "attunement") {
         console.log("HUD: Switching to Attunement (Lens Layer)");
-        if (aiStore.currentMode === 'zen') {
-          aiStore.currentMode = 'extracting';
+        if (aiStore.currentMode === "zen") {
+          aiStore.currentMode = "extracting";
         }
         this.isBesearchLayerOpen = false; 
         this.isAttunementLayerOpen = true;
@@ -626,10 +606,10 @@ export const besearchStore = defineStore("besearchstore", {
         
         aiStore.showLifestapLens = true; 
         this.setHUUDLayer("lens");
-      } else if (mode === 'graft') {
+      } else if (mode === "graft") {
         console.log("HUD: Switching to Graft (Lens Layer)");
-        if (aiStore.currentMode === 'zen') {
-          aiStore.currentMode = 'extracting';
+        if (aiStore.currentMode === "zen") {
+          aiStore.currentMode = "extracting";
         }
         this.isBesearchLayerOpen = false;
         this.isAttunementLayerOpen = false;
@@ -649,10 +629,10 @@ export const besearchStore = defineStore("besearchstore", {
 
         aiStore.showLifestapLens = true;
         this.setHUUDLayer("lens");
-      } else if (mode === 'heli') {
+      } else if (mode === "heli") {
         console.log("HUD: Switching to Heli (Lens Layer)");
-        if (aiStore.currentMode === 'zen') {
-          aiStore.currentMode = 'extracting';
+        if (aiStore.currentMode === "zen") {
+          aiStore.currentMode = "extracting";
         }
         this.isBesearchLayerOpen = false;
         this.isAttunementLayerOpen = true;
@@ -671,7 +651,7 @@ export const besearchStore = defineStore("besearchstore", {
 
         aiStore.showLifestapLens = true;
         this.setHUUDLayer("lens");
-      } else if (mode === 'emulation') {
+      } else if (mode === "emulation") {
         console.log("HUD: Switching to Emulation");
         this.isBesearchLayerOpen = false;
         this.isAttunementLayerOpen = false;
@@ -686,7 +666,7 @@ export const besearchStore = defineStore("besearchstore", {
         
         aiStore.showLifestapLens = true;
         this.setHUUDLayer("lab");
-      } else if (mode === 'tinker') {
+      } else if (mode === "tinker") {
         console.log("HUD: Switching to Tinkering");
         this.isBesearchLayerOpen = false;
         this.isAttunementLayerOpen = false;
@@ -701,10 +681,10 @@ export const besearchStore = defineStore("besearchstore", {
         
         aiStore.showLifestapLens = true;
         this.setHUUDLayer("lab");
-      } else if (mode === 'besearch') {
+      } else if (mode === "besearch") {
         console.log("HUD: Switching to Besearch (Lab Layer)");
-        if (aiStore.currentMode === 'zen' || aiStore.currentMode === 'extracting') {
-          aiStore.currentMode = 'active';
+        if (aiStore.currentMode === "zen" || aiStore.currentMode === "extracting") {
+          aiStore.currentMode = "active";
         }
         this.isBesearchLayerOpen = true;
         this.isAttunementLayerOpen = true;
@@ -718,7 +698,7 @@ export const besearchStore = defineStore("besearchstore", {
         this.isBesearchExpanded = true;
         this.isLogicExpanded = true;
         this.isEmulationExpanded = false;
-        this.currentBesearchStage = 'logic';
+        this.currentBesearchStage = "logic";
         
         if (forceOpen) {
           this.showBottomPanel = true;
@@ -755,5 +735,95 @@ export const besearchStore = defineStore("besearchstore", {
         console.error("HUD: Unknown layerName:", layerName);
       }
     },
+    // Besearch Cycle Management
+    loadCyclesForLifestrap(lifeStrapId) {
+      const aiStore = aiInterfaceStore();
+      
+      // 1. Save current cycles to cache for previous ID if it exists
+      const currentID = aiStore.activeLifeStrapID;
+      if (currentID) {
+        this.cyclesCache[currentID] = [...this.besearchCycles];
+      }
+
+      // 2. Load new cycles from cache
+      if (this.cyclesCache[lifeStrapId]) {
+        this.besearchCycles = [...this.cyclesCache[lifeStrapId]];
+        if (this.besearchCycles.length > 0) {
+          this.setActiveCycle(this.besearchCycles[0].id);
+        } else {
+          this.clearActiveStrandFlags();
+        }
+      } else {
+        // No cycles for this lifestrap yet
+        this.besearchCycles = [];
+        this.clearActiveStrandFlags();
+      }
+      
+      this.isCycleLineExpanded = false;
+    },
+    clearActiveStrandFlags() {
+      const aiStore = aiInterfaceStore();
+      this.activeCycleId = null;
+      if (aiStore.lifestrapTexture?.pillars) {
+        Object.keys(aiStore.lifestrapTexture.pillars).forEach(pillarKey => {
+          if (Array.isArray(aiStore.lifestrapTexture.pillars[pillarKey])) {
+            aiStore.lifestrapTexture.pillars[pillarKey].forEach(item => {
+              item.activeStrand = false;
+            });
+          }
+        });
+      }
+    },
+    createNewCycle() {
+      const id = "strand-" + Math.random().toString(36).substr(2, 9);
+      const newCycle = {
+        id: id,
+        name: "Strand " + (this.besearchCycles.length + 1),
+        state: {
+          lens: { selectedCues: [] },
+          heli: { daySeeker: 0, isProjecting: false },
+          attunement: { slots: [{ label: "Set Attunement", value: "", type: "" }] },
+          grafting: { activeOrgos: [], activeGelles: [], droppedInstruments: [] },
+          emulation: { depth: 0 },
+          tinkering: { stability: 98.4, iterations: 42 }
+        }
+      };
+      this.besearchCycles.push(newCycle);
+      this.setActiveCycle(id);
+      return newCycle;
+    },
+    setActiveCycle(id) {
+      const aiStore = aiInterfaceStore();
+      
+      this.activeCycleId = id;
+      const cycle = this.activeCycle;
+      if (!cycle) return;
+
+      if (aiStore.lifestrapTexture?.pillars) {
+        const selectedCues = cycle.state.lens.selectedCues || [];
+        
+        Object.keys(aiStore.lifestrapTexture.pillars).forEach(pillarKey => {
+          if (Array.isArray(aiStore.lifestrapTexture.pillars[pillarKey])) {
+            aiStore.lifestrapTexture.pillars[pillarKey].forEach(item => {
+              item.activeStrand = selectedCues.includes(item.value);
+            });
+          }
+        });
+      }
+    },
+    syncActiveCycleState(section, data) {
+      const cycle = this.activeCycle;
+      if (!cycle) return;
+      
+      cycle.state[section] = {
+        ...cycle.state[section], 
+        ...data
+      };
+    },
+    initializeDefaultCycle() {
+      if (this.besearchCycles.length === 0) {
+        this.createNewCycle();
+      }
+    }
   },
 });

@@ -70,7 +70,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import { besearchStore } from "@/stores/besearchStore.js";
 import { diaryStore } from "@/stores/diaryStore.js";
 import HeliClock from "@/components/orbit/clock/HeliClock.vue";
@@ -94,10 +94,32 @@ const adjustProjection = (d) => { daySeeker.value += d; sync(); };
 const handleManualInput = (v) => { daySeeker.value = parseInt(v) || 0; sync(); };
 const sync = () => {
   isProjecting.value = daySeeker.value !== 0;
+  
+  // Sync to active cycle
+  if (storeBesearch.activeCycle) {
+    storeBesearch.syncActiveCycleState('heli', {
+      daySeeker: daySeeker.value,
+      isProjecting: isProjecting.value
+    });
+  }
+
   storeDiary.sendMessageHOP({ type: "heli-project", timestamp: Date.now() + (daySeeker.value * 86400000) });
 };
-const resetToNow = () => { daySeeker.value = 0; isProjecting.value = false; };
+const resetToNow = () => { daySeeker.value = 0; isProjecting.value = false; sync(); };
 const confirmEvent = () => { resetToNow(); };
+
+// Watch for cycle changes
+watch(
+  () => storeBesearch.activeCycleId,
+  (newId) => {
+    const cycle = storeBesearch.activeCycle;
+    if (cycle && cycle.state.heli) {
+      daySeeker.value = cycle.state.heli.daySeeker || 0;
+      isProjecting.value = cycle.state.heli.isProjecting || false;
+    }
+  },
+  { immediate: true }
+);
 </script>
 
 <style scoped>

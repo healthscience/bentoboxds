@@ -113,6 +113,14 @@
             </div>
           </div>
 
+          <button 
+            v-if="storeBesearch.strandMode"
+            class="new-strand-btn"
+            @click="storeBesearch.createNewCycle"
+          >
+            + NEW STRAND
+          </button>
+
           <div class="strand-toggle-wrapper orgo-logic-wrapper">
             <span class="strand-label">Orgo</span>
             <div 
@@ -139,12 +147,54 @@
           </div>
         </div>
       </div>
+
+      <!-- Persistent Line 3: Cycle / Strand Context -->
+      <div 
+        v-if="storeBesearch.besearchMode !== 'default' && storeBesearch.strandMode" 
+        class="hud-strand-line besearch-third-line"
+        :class="{ expanded: storeBesearch.isCycleLineExpanded }"
+      >
+        <div class="cycle-active-info" @click="storeBesearch.isCycleLineExpanded = !storeBesearch.isCycleLineExpanded">
+          <div class="cycle-badge" :class="{ 'is-active': true }">
+            <span class="cycle-id">{{ activeCycleSummary.id }}</span>
+            <span class="cycle-name">{{ activeCycleSummary.name }}</span>
+          </div>
+          
+          <div class="cycle-preview">
+            <div class="preview-group strands">
+              <span v-for="s in displayStrands" :key="s" class="preview-tag strand">{{ s }}</span>
+            </div>
+            <div class="preview-group attunes">
+              <span v-for="a in displayAttunements" :key="a" class="preview-tag attune">{{ a }}</span>
+            </div>
+          </div>
+          
+          <span class="expansion-arrow">{{ storeBesearch.isCycleLineExpanded ? '▲' : '▼' }}</span>
+        </div>
+
+        <!-- Expanded Cycle List -->
+        <transition name="cycle-list-slide">
+          <div v-if="storeBesearch.isCycleLineExpanded" class="cycle-selection-list">
+            <div 
+              v-for="cycle in inactiveCycles" 
+              :key="cycle.id"
+              class="cycle-list-item"
+              @click="storeBesearch.setActiveCycle(cycle.id)"
+            >
+              <span class="item-name">{{ cycle.name }}</span>
+              <div class="item-preview">
+                {{ cycle.state.lens.selectedCues.slice(0, 2).join(', ') }}
+              </div>
+            </div>
+          </div>
+        </transition>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { aiInterfaceStore } from "@/stores/aiInterface.js";
 import { libraryStore } from "@/stores/libraryStore.js";
 import { besearchStore } from "@/stores/besearchStore.js";
@@ -167,6 +217,31 @@ const stages = [
 const currentBesearchMode = computed(() => storeBesearch.besearchMode);
 const huudContext = computed(() => storeBesearch.huudContext);
 const activeWorld = computed(() => storeAI.activeWorld);
+
+const activeCycleSummary = computed(() => {
+  const cycle = storeBesearch.activeCycle;
+  if (!cycle) return { id: 'N/A', name: 'NO ACTIVE STRAND' };
+  return {
+    id: cycle.id.slice(-4).toUpperCase(),
+    name: cycle.name
+  };
+});
+
+const displayStrands = computed(() => {
+  return storeBesearch.activeCycle?.state.lens.selectedCues.slice(0, 3) || [];
+});
+
+const displayAttunements = computed(() => {
+  const slots = storeBesearch.activeCycle?.state.attunement.slots || [];
+  return slots
+    .filter(s => s.label !== "Set Attunement")
+    .map(s => s.label)
+    .slice(0, 2);
+});
+
+const inactiveCycles = computed(() => {
+  return storeBesearch.besearchCycles.filter(c => c.id !== storeBesearch.activeCycleId);
+});
 
 const worldIcon = computed(() => {
   const worlds = {
@@ -253,6 +328,10 @@ const rotateHUUD = () => {
 
 // Auto-expand story summary if it looks truncated
 const isStoryLong = computed(() => storySummary.value.length > 20);
+
+onMounted(() => {
+  storeBesearch.initializeDefaultCycle();
+});
 </script>
 
 <style scoped>
@@ -409,6 +488,139 @@ const isStoryLong = computed(() => storySummary.value.length > 20);
 
 .strand-slider.active .slider-knob {
   left: 15px;
+}
+
+.new-strand-btn {
+  background: rgba(0, 255, 204, 0.1);
+  border: 1px dashed rgba(0, 255, 204, 0.4);
+  color: #00ffcc;
+  font-family: "Space Mono", monospace;
+  font-size: 0.6rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.new-strand-btn:hover {
+  background: rgba(0, 255, 204, 0.2);
+  transform: scale(1.05);
+}
+
+.besearch-third-line {
+  background: rgba(26, 32, 44, 0.85);
+  backdrop-filter: blur(12px);
+  padding: 4px 15px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: auto;
+  min-width: 400px;
+  max-width: 90vw;
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.cycle-active-info {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 15px;
+  cursor: pointer;
+  min-height: 28px;
+}
+
+.cycle-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.cycle-badge.is-active {
+  background: rgba(0, 255, 204, 0.1);
+  border-color: #00ffcc;
+  color: #00ffcc;
+}
+
+.cycle-id {
+  font-family: "Space Mono", monospace;
+  font-size: 0.6rem;
+  opacity: 0.6;
+}
+
+.cycle-name {
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.cycle-preview {
+  display: flex;
+  gap: 12px;
+  overflow: hidden;
+}
+
+.preview-group {
+  display: flex;
+  gap: 4px;
+}
+
+.preview-tag {
+  font-size: 0.55rem;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  white-space: nowrap;
+}
+
+.preview-tag.strand { color: #00c8ff; }
+.preview-tag.attune { color: #a685ff; }
+
+.expansion-arrow {
+  font-size: 0.6rem;
+  opacity: 0.5;
+}
+
+.cycle-selection-list {
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: grid;
+  gap: 4px;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.cycle-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cycle-list-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.item-name {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #718096;
+}
+
+.item-preview {
+  font-size: 0.6rem;
+  opacity: 0.4;
+  font-family: "Space Mono", monospace;
 }
 
 .workflow-stages {

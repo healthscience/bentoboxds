@@ -28,7 +28,7 @@
           >
             <div class="slot-main-row">
               <button 
-                class="set-attunement-btn"
+                class="set-attunement-btn" 
                 :class="{ 'has-content': slot.label !== 'Set Attunement' }"
                 @click="handleSlotClick(index)"
               >
@@ -82,7 +82,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { aiInterfaceStore } from "@/stores/aiInterface.js";
 import { besearchStore } from "@/stores/besearchStore.js";
 import { useChatStore } from "@/stores/chatStore.js";
@@ -92,6 +92,18 @@ const storeAI = aiInterfaceStore();
 const storeBesearch = besearchStore();
 const storeChat = useChatStore();
 const orbitStore = useOrbitStore();
+
+// Watch for cycle changes to restore local state
+watch(
+  () => storeBesearch.activeCycleId,
+  (newId) => {
+    const cycle = storeBesearch.activeCycle;
+    if (cycle && cycle.state.attunement?.slots) {
+      attunementSlots.value = JSON.parse(JSON.stringify(cycle.state.attunement.slots));
+    }
+  },
+  { immediate: true }
+);
 
 const actions = ["Improve", "Prevention", "Repair", "Rejuvenation"];
 const activeMenuIndex = ref(null);
@@ -181,9 +193,17 @@ const syncWithStore = () => {
     .filter(slot => slot.label !== "Set Attunement")
     .map(slot => ({ 
       label: slot.type || "Attunement", 
-      value: slot.label 
+      value: slot.label,
+      type: slot.type
     }));
   
+  // Sync to Active Cycle (Strand)
+  if (storeBesearch.activeCycle) {
+    storeBesearch.syncActiveCycleState('attunement', { 
+      slots: JSON.parse(JSON.stringify(attunementSlots.value)) 
+    });
+  }
+
   if (activeAttunements.length > 0) {
     // Sync each active one
     activeAttunements.forEach(item => {
