@@ -15,7 +15,8 @@
     <div
       v-show="
         height > 80 ||
-        storeBesearch.isSieveExpanded === true
+        storeBesearch.isSieveExpanded === true ||
+        storeBesearch.besearchMode !== 'default'
       "
       class="bottom-panel-content"
       ref="contentArea"
@@ -25,47 +26,88 @@
 
       <!-- Multi-Layer Workflow Container -->
       <div class="dual-layer-container">
-        <!-- 1. The Lens Section -->
-        <div 
-          ref="lensSection" 
-          class="lens-section" 
-          :class="{ 'as-bar': storeBesearch.besearchMode === 'besearch' || storeBesearch.besearchMode === 'attunement' || storeBesearch.besearchMode === 'heli' || storeBesearch.besearchMode === 'graft' }"
-        >
-          <div
-            v-if="!storeBesearch.isSieveExpanded && (storeBesearch.besearchMode === 'besearch' || storeBesearch.besearchMode === 'attunement' || storeBesearch.besearchMode === 'heli' || storeBesearch.besearchMode === 'graft')"
-            class="lens-collapsed-bar"
-            @click="openLens"
+        <!-- Sidebar Navigation -->
+        <div class="bottom-sidebar">
+          <div 
+            class="vertical-tab" 
+            :class="{ active: storeBesearch.besearchMode === 'lens' || storeBesearch.besearchMode === 'default' }"
+            @click="storeBesearch.setHUUDState('lens')"
           >
-            <span class="lens-label">▼ Life-strap Lens</span>
+            <span>LENS</span>
           </div>
-          <LifestrapLens v-else :lenses="extractedData" />
+          <div 
+            class="vertical-tab" 
+            :class="{ active: storeBesearch.besearchMode === 'heli' }"
+            @click="storeBesearch.setHUUDState('heli')"
+          >
+            <span>HELI</span>
+          </div>
+          <div 
+            class="vertical-tab" 
+            :class="{ active: storeBesearch.besearchMode === 'attunement' }"
+            @click="storeBesearch.setHUUDState('attunement')"
+          >
+            <span>ATTUNE</span>
+          </div>
+          <div 
+            class="vertical-tab" 
+            :class="{ active: storeBesearch.besearchMode === 'graft' }"
+            @click="storeBesearch.setHUUDState('graft')"
+          >
+            <span>GRAFT</span>
+          </div>
+          <div 
+            class="vertical-tab" 
+            :class="{ active: storeBesearch.besearchMode === 'emulation' }"
+            @click="storeBesearch.setHUUDState('emulation')"
+          >
+            <span>EMU</span>
+          </div>
+          <div 
+            class="vertical-tab" 
+            :class="{ active: storeBesearch.besearchMode === 'tinker' }"
+            @click="storeBesearch.setHUUDState('tinker')"
+          >
+            <span>TINKER</span>
+          </div>
         </div>
 
-        <!-- 2. The Heli Section -->
-        <div v-if="storeBesearch.isHeliProjectOpen" class="heli-section">
-          <HeliProjectionLayer />
-        </div>
+        <!-- Main Content Area -->
+        <div class="active-section-content">
+          <!-- 1. The Lens Section -->
+          <div 
+            v-show="storeBesearch.besearchMode === 'lens' || storeBesearch.besearchMode === 'default'"
+            ref="lensSection" 
+            class="lens-section" 
+          >
+            <LifestrapLens :lenses="extractedData" />
+          </div>
 
-        <!-- 3. The Attunement Section -->
-        <div class="attunement-section">
-          <AttunementLayer />
-        </div>
+          <!-- 2. The Heli Section -->
+          <div v-show="storeBesearch.besearchMode === 'heli'" class="heli-section">
+            <HeliProjectionLayer />
+          </div>
 
-        <!-- 4. The Graft Section -->
-        <div v-if="storeBesearch.isGraftLayerOpen" class="graft-section">
-          <GraftLayer />
-        </div>
+          <!-- 3. The Attunement Section -->
+          <div v-show="storeBesearch.besearchMode === 'attunement'" class="attunement-section">
+            <AttunementLayer />
+          </div>
 
-        <!-- 5. Emulation  cueCubes -->
-        <div v-if="storeBesearch.isGraftLayerOpen" class="emulation-section">
-          <CuecubeLayer />
-        </div>
+          <!-- 4. The Graft Section -->
+          <div v-show="storeBesearch.besearchMode === 'graft'" class="graft-section">
+            <GraftLayer />
+          </div>
 
-        <!-- 6. The Tinkering Section -->
-        <div v-if="storeBesearch.isGraftLayerOpen" class="tinker-section">
-          <TinkerLayer />
-        </div>
+          <!-- 5. Emulation CueCubes -->
+          <div v-show="storeBesearch.besearchMode === 'emulation'" class="emulation-section">
+            <CuecubeLayer />
+          </div>
 
+          <!-- 6. The Tinkering Section -->
+          <div v-show="storeBesearch.besearchMode === 'tinker'" class="tinker-section">
+            <TinkerLayer />
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -78,6 +120,8 @@ import LifestrapLens from "@/components/orbit/parts/LifestrapLens.vue";
 import AttunementLayer from "@/components/orbit/parts/attunement/AttunementLayer.vue";
 import HeliProjectionLayer from "@/components/orbit/parts/heli/HeliProjectionLayer.vue";
 import GraftLayer from "@/components/orbit/parts/graft/GraftLayer.vue";
+import CuecubeLayer from "@/components/orbit/parts/emulation/CuecubeLayer.vue";
+import TinkerLayer from "@/components/orbit/parts/tinker/TinkerLayer.vue";
 import BesearchLayer from "@/components/orbit/besearch/besearchLayer.vue";
 
 import { besearchStore } from "@/stores/besearchStore.js";
@@ -307,46 +351,60 @@ const handleToggle = (e) => {
 
 .dual-layer-container {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   height: 100%;
-  padding: 0 20px;
+  padding: 0;
+  overflow: hidden;
 }
 
-.lens-section, .attunement-section, .heli-section, .graft-section, .besearch-layer-wrapper {
+.bottom-sidebar {
+  width: 44px;
+  display: flex;
+  flex-direction: column;
+  background: rgba(15, 23, 42, 0.95); /* Deep dark background */
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 10px;
   flex-shrink: 0;
-  transition: all 0.4s ease;
-  margin-bottom: 10px;
+  backdrop-filter: blur(20px);
 }
 
-.lens-section.as-bar {
-  margin-bottom: 10px;
-}
-
-.lens-section.collapsed {
-  margin-bottom: 8px;
-}
-
-.lens-collapsed-bar {
-  background: rgba(158, 113, 231, 0.2);
-  border: 1px solid rgba(158, 113, 231, 0.4);
-  border-radius: 8px;
-  padding: 10px 16px;
+.vertical-tab {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  padding: 20px 5px;
   cursor: pointer;
-  transition: background 0.2s ease;
-  display: block;
-  width: 80%;
-  margin: 0 auto;
-  text-align: center;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 3px solid transparent;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
-.lens-collapsed-bar:hover {
-  background: rgba(158, 113, 231, 0.3);
+.vertical-tab:hover {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.1);
 }
 
-.lens-label {
-  color: #6b4fb8;
-  font-weight: 500;
-  font-size: 14px;
+.vertical-tab.active {
+  color: #00ffcc; /* Besearch high-visibility cyan */
+  background: rgba(0, 255, 204, 0.15);
+  border-right: 3px solid #00ffcc;
+}
+
+.active-section-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 15px;
+}
+
+.lens-section, .attunement-section, .heli-section, .graft-section, .emulation-section, .tinker-section {
+  height: 100%;
 }
 
 .besearch-part-section {

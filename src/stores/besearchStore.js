@@ -671,6 +671,36 @@ export const besearchStore = defineStore("besearchstore", {
 
         aiStore.showLifestapLens = true;
         this.setHUUDLayer("lens");
+      } else if (mode === 'emulation') {
+        console.log("HUD: Switching to Emulation");
+        this.isBesearchLayerOpen = false;
+        this.isAttunementLayerOpen = false;
+        this.isGraftLayerOpen = false;
+        this.isHeliProjectOpen = false;
+        this.isSculptingLayerOpen = false;
+        
+        if (forceOpen) {
+          this.showBottomPanel = true;
+          this.bottomHeight = window.innerHeight * 0.82;
+        }
+        
+        aiStore.showLifestapLens = true;
+        this.setHUUDLayer("lab");
+      } else if (mode === 'tinker') {
+        console.log("HUD: Switching to Tinkering");
+        this.isBesearchLayerOpen = false;
+        this.isAttunementLayerOpen = false;
+        this.isGraftLayerOpen = false;
+        this.isHeliProjectOpen = false;
+        this.isSculptingLayerOpen = false;
+        
+        if (forceOpen) {
+          this.showBottomPanel = true;
+          this.bottomHeight = window.innerHeight * 0.82;
+        }
+        
+        aiStore.showLifestapLens = true;
+        this.setHUUDLayer("lab");
       } else if (mode === 'besearch') {
         console.log("HUD: Switching to Besearch (Lab Layer)");
         if (aiStore.currentMode === 'zen' || aiStore.currentMode === 'extracting') {

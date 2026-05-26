@@ -62,28 +62,6 @@
             <h3>Sieve Columns</h3>
           </header>
           
-          <div class="strand-toggle-wrapper">
-            <span class="strand-label">Strand</span>
-            <div 
-              class="strand-slider" 
-              :class="{ active: storeBesearch.strandMode }"
-              @click="storeBesearch.strandMode = !storeBesearch.strandMode"
-            >
-              <div class="slider-knob"></div>
-            </div>
-          </div>
-
-          <div class="strand-toggle-wrapper orgo-logic-wrapper">
-            <span class="strand-label">Orgo</span>
-            <div 
-              class="strand-slider orgo-slider" 
-              :class="{ active: storeBesearch.isOrgoLogic }"
-              @click="storeBesearch.isOrgoLogic = !storeBesearch.isOrgoLogic"
-            >
-              <div class="slider-knob"></div>
-            </div>
-          </div>
-
           <div class="action-group">
             <button 
               class="enter-bench-btn"

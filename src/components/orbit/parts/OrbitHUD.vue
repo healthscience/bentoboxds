@@ -4,7 +4,7 @@
     :class="{
       'is-expanded': isExpanded,
       'lens-active': storeBesearch.besearchMode !== 'default',
-      'has-strand': hasActiveStrand,
+      'has-strand': storeBesearch.strandMode,
     }"
   >
     <div class="hud-container">
@@ -94,13 +94,49 @@
         </div>
       </div>
 
-      <!-- Persistent Line 2: Strand Context -->
-      <div v-if="hasActiveStrand" class="hud-strand-line">
-        <span class="strand-label">STRAND:</span>
-        <div class="strand-items">
-          <span v-for="(item, index) in activeStrandItems" :key="item + '-' + index" class="strand-item">
-            {{ item }}
-          </span>
+      <!-- Persistent Line 2: Besearch Cycle & Workflow -->
+      <div v-if="storeBesearch.besearchMode !== 'default'" class="hud-strand-line besearch-second-line">
+        <div class="besearch-branding" @click="toggleLensLayer">
+          <img src="@/assets/besearch-cycle.png" class="besearch-icon" />
+          <span class="besearch-label">Besearch</span>
+        </div>
+
+        <div class="besearch-toggles">
+          <div class="strand-toggle-wrapper">
+            <span class="strand-label">Strand</span>
+            <div 
+              class="strand-slider" 
+              :class="{ active: storeBesearch.strandMode }"
+              @click="storeBesearch.strandMode = !storeBesearch.strandMode"
+            >
+              <div class="slider-knob"></div>
+            </div>
+          </div>
+
+          <div class="strand-toggle-wrapper orgo-logic-wrapper">
+            <span class="strand-label">Orgo</span>
+            <div 
+              class="strand-slider orgo-slider" 
+              :class="{ active: storeBesearch.isOrgoLogic }"
+              @click="storeBesearch.isOrgoLogic = !storeBesearch.isOrgoLogic"
+            >
+              <div class="slider-knob"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="workflow-stages">
+          <div 
+            v-for="stage in stages" 
+            :key="stage.id"
+            class="workflow-stage"
+            :class="{ active: currentBesearchMode === stage.mode }"
+            @click="setHUUDState(stage.mode)"
+          >
+            <span class="stage-number">{{ stage.id }}</span>
+            <span class="stage-name">{{ stage.name }}</span>
+            <span v-if="stage.id < 6" class="stage-arrow">──►</span>
+          </div>
         </div>
       </div>
     </div>
@@ -119,6 +155,16 @@ const storeBesearch = besearchStore();
 
 const isExpanded = ref(false);
 
+const stages = [
+  { id: 1, name: "Grounded", mode: "lens" },
+  { id: 2, name: "Heli", mode: "heli" },
+  { id: 3, name: "Attunement", mode: "attunement" },
+  { id: 4, name: "Grafting", mode: "graft" },
+  { id: 5, name: "Emulation", mode: "emulation" },
+  { id: 6, name: "Tinkering", mode: "tinker" }
+];
+
+const currentBesearchMode = computed(() => storeBesearch.besearchMode);
 const huudContext = computed(() => storeBesearch.huudContext);
 const activeWorld = computed(() => storeAI.activeWorld);
 
@@ -189,7 +235,7 @@ const countLifeStraps = computed(() => {
   return storeLibrary.straps.length;
 });
 
-const setMode = (mode) => {
+const setHUUDState = (mode) => {
   storeBesearch.setHUUDState(mode);
 };
 
@@ -246,10 +292,159 @@ const isStoryLong = computed(() => storySummary.value.length > 20);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.has-strand .hud-top {
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0;
-  border-bottom: none;
+.besearch-second-line {
+  background: rgba(26, 32, 44, 0.9);
+  backdrop-filter: blur(8px);
+  padding: 6px 20px;
+  border-radius: 20px;
+  border: 1px solid rgba(0, 255, 204, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  max-width: 95vw;
+  pointer-events: auto;
+}
+
+.besearch-branding {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding-right: 15px;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.besearch-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.besearch-label {
+  font-family: "Space Mono", monospace;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #00ffcc;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.besearch-toggles {
+  display: flex;
+  gap: 15px;
+  padding-right: 15px;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.strand-toggle-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.strand-label {
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #718096;
+  font-weight: 800;
+}
+
+.strand-slider {
+  width: 28px;
+  height: 14px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 10px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.strand-slider.active {
+  background: #3b82f6;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+}
+
+.orgo-slider.active {
+  background: #a685ff;
+  box-shadow: 0 0 8px rgba(166, 133, 255, 0.4);
+}
+
+.slider-knob {
+  width: 10px;
+  height: 10px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.strand-slider.active .slider-knob {
+  left: 15px;
+}
+
+.workflow-stages {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.workflow-stage {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: all 0.3s ease;
+}
+
+.workflow-stage.active {
+  opacity: 1;
+}
+
+.workflow-stage:hover {
+  opacity: 0.8;
+}
+
+.stage-number {
+  font-family: "Space Mono", monospace;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #00ffcc;
+  background: rgba(0, 255, 204, 0.1);
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.workflow-stage.active .stage-number {
+  background: #00ffcc;
+  color: #1a202c;
+  box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+}
+
+.stage-name {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: white;
+}
+
+.workflow-stage.active .stage-name {
+  color: #00ffcc;
+}
+
+.stage-arrow {
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.2);
+  margin-left: 4px;
 }
 
 .hud-world-icon {
@@ -360,46 +555,6 @@ const isStoryLong = computed(() => storySummary.value.length > 20);
   background: rgba(0, 255, 204, 0.1);
   border-color: rgba(0, 255, 204, 0.3);
   color: #00ffcc;
-}
-
-.hud-strand-line {
-  background: rgba(26, 32, 44, 0.8);
-  backdrop-filter: blur(4px);
-  padding: 4px 15px;
-  border-radius: 20px;
-  border: 1px solid rgba(0, 255, 204, 0.2);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  max-width: 80%;
-}
-
-.strand-label {
-  font-size: 0.6rem;
-  font-weight: 900;
-  color: #00ffcc;
-  letter-spacing: 0.1em;
-}
-
-.strand-items {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.strand-items::-webkit-scrollbar {
-  display: none;
-}
-
-.strand-item {
-  font-size: 0.65rem;
-  color: white;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 1px 8px;
-  border-radius: 4px;
-  white-space: nowrap;
-  font-family: "Space Mono", monospace;
 }
 
 #orbit-hud.is-expanded .hud-top {

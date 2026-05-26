@@ -3,7 +3,10 @@
     <div
       v-if="isOpen"
       class="sculpting-layer smelter-v2"
-      :class="{ 'dark-theme': isDarkMode }"
+      :class="{ 
+        'dark-theme': isDarkMode,
+        'is-embedded': storeBesearch.besearchMode === 'graft'
+      }"
     >
       <header class="sculpt-header">
         <div class="header-left">
@@ -284,7 +287,10 @@ const storeLibrary = libraryStore();
 const isDarkMode = ref(false);
 const isDrawerOpen = ref(true);
 
-const isOpen = computed(() => storeBesearch.isSculptingLayerOpen);
+const isOpen = computed(() => {
+  if (storeBesearch.besearchMode === 'graft') return true;
+  return storeBesearch.isSculptingLayerOpen;
+});
 
 const activeOrgos = computed(() => orgoStore.activeOrgos);
 const activeGelles = computed(() => gelleStore.activeGelles);
@@ -418,6 +424,21 @@ onMounted(() => {
     background 0.3s,
     color 0.3s;
   padding-top: 0;
+}
+
+/* Override fixed positioning when inside Bottom Panel */
+:deep(.sculpting-layer) {
+  /* This will be applied if the parent uses :deep or if we use global, 
+     but since this is scoped, let's use a more robust way to target the nested case */
+}
+
+.sculpting-layer.is-embedded {
+  position: relative !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 1 !important;
+  top: auto !important;
+  left: auto !important;
 }
 
 .sculpt-header {
