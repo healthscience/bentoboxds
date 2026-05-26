@@ -153,7 +153,6 @@ import BentoSpace from "@/components/bentospace/spaceTemplate.vue";
 import WholeResonance from "@/components/consilience/wholeResonance.vue";
 import LensColumn from "@/components/orbit/parts/shared/LensColumn.vue";
 import CuesPortal from "@/components/orbit/parts/shared/CuesPortal.vue";
-import AttunementLayer from "@/components/orbit/parts/attunement/AttunementLayer.vue";
 
 import { besearchStore } from "@/stores/besearchStore.js";
 import { cuesStore } from "@/stores/cuesStore.js";
@@ -394,7 +393,7 @@ onMounted(() => {
   z-index: 10;
   padding: 10px;
   display: grid;
-  grid-template-columns: 0.8fr 1.5fr;
+  grid-template-columns: 25% 75%;
   gap: 30px;
   overflow: hidden;
   box-sizing: border-box;
@@ -410,14 +409,14 @@ onMounted(() => {
   gap: 0;
   background: rgba(26, 32, 44, 0.9);
   border-bottom: 1px solid rgba(0, 255, 204, 0.3);
-  display: flex;
+  display: grid;
   align-items: center;
 }
 
 .lens-bar-controls {
   width: 100%;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
   cursor: pointer;
   color: #00ffcc;
@@ -431,7 +430,8 @@ onMounted(() => {
 }
 
 .bar-summary {
-  display: flex;
+  display: grid;
+  grid-auto-flow: column;
   gap: 15px;
 }
 
@@ -458,14 +458,15 @@ onMounted(() => {
 }
 
 .pane-header {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: center;
   margin-bottom: 15px; /* Reduced from 25px */
 }
 
 .header-content {
-  display: flex;
+  display: grid;
+  grid-auto-flow: column;
   align-items: center;
   gap: 12px;
 }
@@ -496,11 +497,10 @@ onMounted(() => {
 }
 
 .columns-grid {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: repeat(auto-fill, minmax(80px, auto));
   gap: 20px;
   overflow-y: auto;
-  flex: 1;
   padding-right: 10px;
   min-height: 200px;
   pointer-events: auto; /* Ensure clicks reach the columns */
@@ -524,8 +524,8 @@ onMounted(() => {
 }
 
 .sieve-pane {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto 1fr;
   height: 100%;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -554,15 +554,14 @@ onMounted(() => {
 }
 
 .narrative-content-split {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: 60% 40%;
   gap: 20px;
   min-height: 0;
 }
 
 .story-canvas-wrapper {
-  height: 70%;
+  height: 100%;
   position: relative;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -572,7 +571,7 @@ onMounted(() => {
 }
 
 .residue-dock-inline {
-  height: 30%;
+  height: 100%;
   padding: 20px;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -584,8 +583,8 @@ onMounted(() => {
 .story-canvas-wrapper.portal-host {
   padding: 0;
   background: white;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: 1fr;
 }
 
 .story-input {
@@ -609,8 +608,8 @@ onMounted(() => {
   right: 24px;
   bottom: 24px;
   pointer-events: none;
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(40px, auto));
   gap: 5px;
 }
 
@@ -641,11 +640,10 @@ onMounted(() => {
 }
 
 .pane-header-actions {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: center;
   margin-bottom: 15px; /* Reduced from 25px */
-  flex-shrink: 0;
   gap: 15px;
 }
 
@@ -704,7 +702,8 @@ onMounted(() => {
 }
 
 .action-group {
-  display: flex;
+  display: grid;
+  grid-auto-flow: column;
   align-items: center;
   gap: 10px;
 }
@@ -831,12 +830,13 @@ onMounted(() => {
 }
 
 .bubble-stream.mini {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
   gap: 8px;
 }
 .attunement-entry-trigger {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr;
   align-items: center;
   gap: 15px;
   padding: 15px;

@@ -15,9 +15,16 @@ export const useChatStore = defineStore('chat', {
     chatWidth: 0,
     isChatOpen: false,
     isUnrolled: false,
+    isInterplayActive: false,
   }),
 
   getters: {
+    isHeaderVisible: (state) => {
+      // Show header if:
+      // 1. We are in standard side-panel mode (isInterplayActive is false)
+      // 2. OR we are in interplay/ribbon mode AND it is unrolled
+      return !state.isInterplayActive || state.isUnrolled
+    },
     chatPairs: (state) => {
       return state.storeAI.historyPair[state.storeAI.chatAttention]
     },

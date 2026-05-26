@@ -30,7 +30,7 @@
       </div>
     </button>
 
-    <div v-show="width > 50 || isInterplayActive" class="panel-content-wrapper">
+    <div v-show="(width > 50 || isInterplayActive) && (!isInterplayActive || storeChat.isUnrolled)" class="panel-content-wrapper">
       <div class="panel-content-area">
         <transition name="fade-slide" mode="out-in">
           <div
@@ -89,6 +89,10 @@ const dragStartTime = ref(0);
 const storeChat = useChatStore();
 const ribbonHeight = ref(400);
 const isResizing = ref(false);
+
+watch(() => props.isInterplayActive, (val) => {
+  storeChat.isInterplayActive = val;
+}, { immediate: true });
 
 const toggleUnroll = () => {
   storeChat.isUnrolled = !storeChat.isUnrolled;

@@ -134,6 +134,7 @@ export class ExperienceOrchestrator {
     chat.chatWidth = 0;
     chat.isChatOpen = false;
     chat.isUnrolled = false; // Collapse Beebee ribbon
+    chat.isInterplayActive = false;
     
     besearch.showBottomPanel = false;
     besearch.setHUUDState('default');

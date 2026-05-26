@@ -17,17 +17,25 @@
         </div>
         <div class="header-center"></div>
         <div class="header-right">
-          <div class="header-actions">
-            <button class="nav-action-btn" @click="closeLayer">
-              <span class="icon">↩</span> Return to Attunement
-            </button>
-            <button
-              class="nav-action-btn primary"
-              @click="openHeli"
-            >
-              <span class="icon">☀️</span> Set Heli Project
-            </button>
+          <div class="gifting-actions">
+            <button class="sculpt-btn primary">GIFT TO COMMONS</button>
+            <button class="sculpt-btn secondary">CHECK COMPATIBILITY</button>
           </div>
+          <!-- 2.3 The Lens (Right Panel: The Seer) -->
+          <aside class="lab-panel seer-panel">
+            <header class="panel-header">
+              <div class="header-flex">
+                <h5>The Lens</h5>
+                <button
+                  class="close-lab-panel"
+                  @click="closeLayer"
+                  title="Close Sculpting Lab"
+                >
+                  ✕
+                </button>
+              </div>
+            </header>
+          </aside>
         </div>
       </header>
 
@@ -240,28 +248,6 @@
             </div>
           </div>
         </main>
-
-        <!-- 2.3 The Lens (Right Panel: The Seer) -->
-        <aside class="lab-panel seer-panel">
-          <header class="panel-header">
-            <div class="header-flex">
-              <h5>The Lens</h5>
-              <button
-                class="close-lab-panel"
-                @click="closeLayer"
-                title="Close Sculpting Lab"
-              >
-                ✕
-              </button>
-            </div>
-          </header>
-          <div class="panel-content">
-            <div class="gifting-actions">
-              <button class="sculpt-btn primary">GIFT TO COMMONS</button>
-              <button class="sculpt-btn secondary">CHECK COMPATIBILITY</button>
-            </div>
-          </div>
-        </aside>
       </div>
     </div>
   </transition>
@@ -417,19 +403,13 @@ onMounted(() => {
   background-image: radial-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px);
   background-size: 32px 32px;
   z-index: 10000;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto 1fr;
   color: #1a202c;
   transition:
     background 0.3s,
     color 0.3s;
   padding-top: 0;
-}
-
-/* Override fixed positioning when inside Bottom Panel */
-:deep(.sculpting-layer) {
-  /* This will be applied if the parent uses :deep or if we use global, 
-     but since this is scoped, let's use a more robust way to target the nested case */
 }
 
 .sculpting-layer.is-embedded {
@@ -442,8 +422,8 @@ onMounted(() => {
 }
 
 .sculpt-header {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
   padding: 10px 30px;
   background: rgba(255, 255, 255, 0.95);
@@ -471,25 +451,14 @@ onMounted(() => {
   color: #e0e0e0;
 }
 
-.sculpt-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 30px;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  margin-top: 10px;
-}
-
 .header-center {
-  flex: 1;
-  display: flex;
-  justify-content: center;
+  display: grid;
+  justify-items: center;
 }
 
 .workflow-breadcrumb {
-  display: flex;
+  display: grid;
+  grid-auto-flow: column;
   align-items: center;
   gap: 12px;
   background: rgba(0, 0, 0, 0.03);
@@ -532,8 +501,16 @@ onMounted(() => {
 }
 
 .header-actions {
-  display: flex;
+  display: grid;
+  grid-auto-flow: column;
   gap: 15px;
+}
+
+.header-right {
+  display: grid;
+  grid-auto-flow: column;
+  align-items: center;
+  gap: 20px;
 }
 
 .nav-action-btn {
@@ -545,7 +522,8 @@ onMounted(() => {
   font-size: 0.75rem;
   font-weight: 700;
   cursor: pointer;
-  display: flex;
+  display: grid;
+  grid-auto-flow: column;
   align-items: center;
   gap: 8px;
   transition: all 0.2s;
@@ -588,7 +566,8 @@ onMounted(() => {
 }
 
 .lab-branding {
-  display: flex;
+  display: grid;
+  grid-auto-flow: column;
   align-items: center;
   gap: 12px;
 }
@@ -616,8 +595,8 @@ onMounted(() => {
 }
 
 .lab-workspace {
-  flex: 1;
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr;
   overflow: hidden;
 }
 
@@ -627,8 +606,8 @@ onMounted(() => {
   backdrop-filter: blur(5px);
   border-right: 1px solid rgba(0, 0, 0, 0.08);
   transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto 1fr;
 }
 
 .dark-theme .orgo-drawer {
@@ -643,8 +622,8 @@ onMounted(() => {
 .drawer-header {
   padding: 20px 15px;
   cursor: pointer;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: center;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
@@ -661,11 +640,10 @@ onMounted(() => {
 }
 
 .seed-list {
-  flex: 1;
   overflow-y: auto;
   padding: 20px;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  align-content: start;
   gap: 25px;
 }
 
@@ -682,7 +660,8 @@ onMounted(() => {
   border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 8px;
   cursor: grab;
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr;
   align-items: center;
   gap: 12px;
   margin-bottom: 8px;
@@ -713,7 +692,6 @@ onMounted(() => {
 }
 
 .lab-space-v2 {
-  flex: 1;
   overflow-y: auto;
   padding: 40px;
 }
@@ -721,14 +699,12 @@ onMounted(() => {
 .canvas-stage-v2 {
   max-width: 1000px;
   margin: 0 auto;
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 40px;
 }
 
 .logic-braid-wrapper {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 20px;
 }
 
@@ -745,8 +721,8 @@ onMounted(() => {
   border-radius: 16px;
   padding: 25px;
   min-height: 250px;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: auto 1fr;
 }
 
 .dark-theme .lab-bay {
@@ -764,10 +740,8 @@ onMounted(() => {
 }
 
 .bay-placeholder {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
   border: 2px dashed rgba(0, 0, 0, 0.1);
   border-radius: 12px;
   font-size: 0.8rem;
@@ -777,31 +751,27 @@ onMounted(() => {
 }
 
 .lab-panel.seer-panel {
-  width: 300px;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(10px);
-  border-left: 1px solid rgba(0, 0, 0, 0.05);
-  display: flex;
-  flex-direction: column;
-}
-
-.dark-theme .seer-panel {
-  background: rgba(0, 0, 0, 0.4);
-  border-left-color: rgba(255, 255, 255, 0.05);
+  width: auto;
+  background: transparent;
+  backdrop-filter: none;
+  border-left: none;
+  display: grid;
+  grid-auto-flow: column;
+  align-items: center;
 }
 
 .sculpt-actions-bottom {
   margin-top: auto;
   padding-top: 20px;
   border-top: 1px solid rgba(0, 0, 0, 0.05);
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 10px;
 }
 
 .sculpt-btn {
-  width: 100%;
-  padding: 12px;
+  width: auto;
+  white-space: nowrap;
+  padding: 8px 16px;
   border-radius: 8px;
   border: 1px solid #00796b;
   background: transparent;
@@ -833,15 +803,14 @@ onMounted(() => {
 }
 
 .gifting-actions {
-  margin-top: auto;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-auto-flow: column;
   gap: 12px;
 }
 
 .header-flex {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto;
   align-items: center;
   width: 100%;
 }
@@ -855,9 +824,8 @@ onMounted(() => {
   border-radius: 50%;
   cursor: pointer;
   font-size: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
   transition: all 0.2s;
   margin-left: 10px;
 }
@@ -873,8 +841,8 @@ onMounted(() => {
 }
 
 .panel-header {
-  padding: 15px 20px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 0;
+  border-bottom: none;
 }
 
 .dark-theme .panel-header {
@@ -884,7 +852,8 @@ onMounted(() => {
 .panel-content {
   padding: 0 20px;
   overflow-y: auto;
-  flex: 1;
+  display: grid;
+  align-content: start;
 }
 
 .seer-section {
@@ -922,9 +891,8 @@ onMounted(() => {
 .life-strap-horizon {
   height: 40px;
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
   margin-bottom: 20px;
 }
 
@@ -945,7 +913,6 @@ onMounted(() => {
   font-weight: 700;
 }
 
-/* Slide from LEFT transition */
 .sculpt-slide-enter-active,
 .sculpt-slide-leave-active {
   transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1020,7 +987,8 @@ onMounted(() => {
   border: 1px solid rgba(0, 121, 107, 0.2);
   padding: 10px 15px;
   border-radius: 10px;
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
   align-items: center;
   gap: 12px;
 }

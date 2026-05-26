@@ -257,6 +257,9 @@ const isStoryLong = computed(() => storySummary.value.length > 20);
 
 <style scoped>
 #orbit-hud {
+  --hud-base-width: 650px;
+  --hud-expanded-width: calc(var(--hud-base-width) * 1.4);
+  
   position: absolute;
   top: 0;
   left: 0;
@@ -274,13 +277,19 @@ const isStoryLong = computed(() => storySummary.value.length > 20);
   align-items: center;
   gap: 4px;
   pointer-events: auto;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .hud-top {
-  display: flex;
-  justify-content: center;
+  display: grid;
+  /* 
+     Col 1: World Icon (Fixed)
+     Col 2: Metrics (Flexible but contained)
+     Col 3: Actions (Fixed)
+  */
+  grid-template-columns: 40px 1fr 110px;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
   padding: 0.4rem 1.2rem;
   background: var(--color-background-soft);
   opacity: 0.95;
@@ -289,7 +298,20 @@ const isStoryLong = computed(() => storySummary.value.length > 20);
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid var(--color-border);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Strict Fixed Widths for TOP BAR ONLY */
+  width: var(--hud-base-width);
+  min-width: var(--hud-base-width);
+  max-width: var(--hud-base-width);
+  
+  box-sizing: border-box;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+#orbit-hud.is-expanded .hud-top {
+  width: var(--hud-expanded-width);
+  min-width: var(--hud-expanded-width);
+  max-width: var(--hud-expanded-width);
 }
 
 .besearch-second-line {
@@ -298,10 +320,13 @@ const isStoryLong = computed(() => storySummary.value.length > 20);
   padding: 6px 20px;
   border-radius: 20px;
   border: 1px solid rgba(0, 255, 204, 0.2);
-  display: flex;
+  display: grid;
+  grid-template-columns: auto auto 1fr;
   align-items: center;
-  gap: 20px;
+  gap: 15px;
+  width: auto; /* Allow to expand to full content length */
   max-width: 95vw;
+  box-sizing: border-box;
   pointer-events: auto;
 }
 
@@ -387,18 +412,21 @@ const isStoryLong = computed(() => storySummary.value.length > 20);
 }
 
 .workflow-stages {
-  display: flex;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
   align-items: center;
-  gap: 10px;
+  gap: 5px;
 }
 
 .workflow-stage {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   cursor: pointer;
   opacity: 0.5;
   transition: all 0.3s ease;
+  white-space: nowrap;
 }
 
 .workflow-stage.active {
@@ -421,6 +449,7 @@ const isStoryLong = computed(() => storySummary.value.length > 20);
   align-items: center;
   justify-content: center;
   border-radius: 50%;
+  flex-shrink: 0;
 }
 
 .workflow-stage.active .stage-number {
@@ -435,6 +464,8 @@ const isStoryLong = computed(() => storySummary.value.length > 20);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: white;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .workflow-stage.active .stage-name {
@@ -444,7 +475,7 @@ const isStoryLong = computed(() => storySummary.value.length > 20);
 .stage-arrow {
   font-size: 0.6rem;
   color: rgba(255, 255, 255, 0.2);
-  margin-left: 4px;
+  margin-left: 2px;
 }
 
 .hud-world-icon {
@@ -458,6 +489,7 @@ const isStoryLong = computed(() => storySummary.value.length > 20);
   background: rgba(255, 255, 255, 0.05);
   border-radius: 50%;
   transition: transform 0.2s;
+  justify-self: start;
 }
 
 .hud-world-icon:hover {
@@ -466,16 +498,20 @@ const isStoryLong = computed(() => storySummary.value.length > 20);
 }
 
 .hud-metrics {
-  display: flex;
-  gap: 1.5rem;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 1rem;
   align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
 .metric {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 50px;
+  min-width: 0;
 }
 
 .metric span {
@@ -493,26 +529,23 @@ const isStoryLong = computed(() => storySummary.value.length > 20);
   color: #3b82f6;
   font-family: "Space Mono", monospace;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .story-summary strong {
   font-size: 0.75rem;
-  max-width: 150px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: max-width 0.3s ease;
-}
-
-.story-summary.long strong {
-  max-width: 250px;
 }
 
 .hud-actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto auto auto;
   align-items: center;
   gap: 10px;
   border-left: 1px solid var(--color-border);
   padding-left: 15px;
+  justify-self: end;
 }
 
 .rotation-controls {
@@ -557,11 +590,7 @@ const isStoryLong = computed(() => storySummary.value.length > 20);
   color: #00ffcc;
 }
 
-#orbit-hud.is-expanded .hud-top {
-  padding: 0.6rem 2rem;
-}
-
 #orbit-hud.is-expanded .metric strong {
-  font-size: 1rem;
+  font-size: 0.95rem;
 }
 </style>

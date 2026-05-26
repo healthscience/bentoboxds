@@ -1,6 +1,6 @@
 <template>
   <div id="life-dialogue">
-    <div id="chatspace-modal-header">
+    <div id="chatspace-modal-header" v-if="isHeaderVisible">
       <div id="spacechat">CueChat # {{ storeAI.liveBspace.name }}</div>
       <div
         id="return-modal-close"
@@ -35,26 +35,17 @@ import ChatMenu from "@/components/beebeeView/navigation/chatMenu.vue";
 
 import { aiInterfaceStore } from "@/stores/aiInterface.js";
 import { useChatStore } from "@/stores/chatStore.js";
+import { useOrbitStore } from "@/stores/orbitStore.js";
 
 const storeAI = aiInterfaceStore();
 const storeChat = useChatStore();
+const orbitStore = useOrbitStore();
 let previousContext = null;
 let chatHistoryStatus = ref(false);
 
-// Watch for history status changes to expand the right panel
-watch(chatHistoryStatus, (isOpen) => {
-  if (isOpen) {
-    // Expand panel to accommodate 250px menu + existing chat area
-    // Assuming base chat area is around 380px, we add 250px
-    storeChat.chatWidth = storeChat.chatWidth + 250;
-  } else {
-    // Shrink back
-    storeChat.chatWidth = Math.max(380, storeChat.chatWidth - 250);
-  }
-});
-
-/* computed */
+const isHeaderVisible = computed(() => storeChat.isHeaderVisible);
 const bentochatStatus = computed(() => {
+
   return storeAI.bentochatState;
 });
 
@@ -89,10 +80,9 @@ const chatHistoryMenu = () => {
 #life-dialogue {
   display: grid;
   grid-template-rows: auto 1fr auto;
-  height: 88vh;
+  height: 100%;
   width: 100%;
   overflow: hidden;
-  margin-bottom: 60px; /* Force margin to sit above Bento quadrants */
 }
 
 .chat-input {

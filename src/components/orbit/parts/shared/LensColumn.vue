@@ -171,7 +171,7 @@ const onDrop = (e, groupId) => {
 .lens-column-content {
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+  gap: 0.3rem;
 }
 
 .context-group.drop-active {
@@ -183,7 +183,7 @@ const onDrop = (e, groupId) => {
   font-size: 0.65rem;
   text-transform: uppercase;
   color: var(--sov-accent);
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.2rem;
   letter-spacing: 0.15em;
   font-weight: 800;
   opacity: 0.7;

@@ -97,13 +97,13 @@
           @upload
         </div>
         <div class="tool-type" @click="toolAgent('library')">@library</div>
-        <div
+        <!--<div
           class="tool-type"
           :class="{ 'active-tool': storeTeaching.isTeachingMode }"
           @click="toolAgent('teaching')"
         >
           {{ storeTeaching.isTeachingMode ? "@teach ✓" : "@teach" }}
-        </div>
+        </div>-->
       </div>
     </div>
     <data-box v-if="dataBoxStatus === true"></data-box>
