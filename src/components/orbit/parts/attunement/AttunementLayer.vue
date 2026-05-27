@@ -84,11 +84,13 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { aiInterfaceStore } from "@/stores/aiInterface.js";
+import { loomStore } from "@/stores/loomStore.js";
 import { besearchStore } from "@/stores/besearchStore.js";
 import { useChatStore } from "@/stores/chatStore.js";
 import { useOrbitStore } from "@/stores/orbitStore.js";
 
 const storeAI = aiInterfaceStore();
+const storeLoom = loomStore();
 const storeBesearch = besearchStore();
 const storeChat = useChatStore();
 const orbitStore = useOrbitStore();
@@ -181,7 +183,7 @@ const deleteAttunement = (index) => {
 };
 
 const selectAction = (action) => {
-  storeAI.updateResonWeight(action, "attunement", "Attunement");
+  storeLoom.updateResonWeight(action, "attunement", "Attunement");
 };
 
 const buildBesearchCycles = () => {
@@ -193,7 +195,7 @@ const syncWithStore = () => {
     .filter(slot => slot.label !== "Set Attunement")
     .map(slot => ({ 
       label: slot.type || "Attunement", 
-      value: slot.label,
+      value: slot.label, 
       type: slot.type
     }));
   
@@ -207,12 +209,12 @@ const syncWithStore = () => {
   if (activeAttunements.length > 0) {
     // Sync each active one
     activeAttunements.forEach(item => {
-      storeAI.updateResonWeight(item.value, "attunement", item.label);
+      storeLoom.updateResonWeight(item.value, "attunement", item.label);
     });
   } else {
-    const existing = storeAI.lifestrapTexture?.pillars?.attunement || [];
+    const existing = storeLoom.lifestrapTexture?.pillars?.attunement || [];
     existing.forEach(item => {
-      storeAI.updateResonWeight(item.value, "residue");
+      storeLoom.updateResonWeight(item.value, "residue");
     });
   }
 };

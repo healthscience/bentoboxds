@@ -54,14 +54,14 @@
             alt="bbNexus"
           />
         </button>
-        <div
+        <!--<div
           id="agent-status"
           v-bind:class="{ active: agentStatus }"
           @mouseover="showAgents"
           @mouseleave="hideAgents"
         >
           @a
-        </div>
+        </div>-->
         <div
           id="agent-list"
           v-if="modelLoadingStatus === false && agentsActive === true"

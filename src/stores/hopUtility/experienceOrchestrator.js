@@ -12,7 +12,7 @@
 
 export class ExperienceOrchestrator {
   constructor(stores) {
-    this.stores = stores; // Expects { ai, besearch, library, chat }
+    this.stores = stores; // Expects { ai, besearch, library, chat, loom }
   }
 
   /**
@@ -22,7 +22,7 @@ export class ExperienceOrchestrator {
    * @param {Boolean} wasZen - Whether the application was in Zen mode before orchestration
    */
   orchestrateLifestrapReturn(data, isNew = false, wasZen = false) {
-    const { ai, besearch } = this.stores;
+    const { ai, besearch, loom } = this.stores;
 
     console.log('Orchestrating Lifestrap Return. isNew:', isNew, 'wasZen:', wasZen);
 
@@ -132,12 +132,12 @@ export class ExperienceOrchestrator {
    * Reset all panels to initial state
    */
   resetToZen() {
-    const { ai, besearch, chat } = this.stores;
+    const { ai, besearch, chat, loom } = this.stores;
     
     ai.currentMode = 'zen';
     ai.activeWorld = 'orbit';
     ai.showLifestapLens = false;
-    ai.digestInput = null;
+    if (loom) loom.digestInput = null;
     ai.isInitialState = true;
     
     chat.chatWidth = 0;

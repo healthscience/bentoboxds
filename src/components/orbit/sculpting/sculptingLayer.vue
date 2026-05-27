@@ -268,6 +268,9 @@ const storeCues = cuesStore();
 const orgoStore = useOrgoStore();
 const gelleStore = useGelleStore();
 const storeAI = aiInterfaceStore();
+import { lifestrapStore } from "@/stores/lifestrapStore.js";
+
+const storeLifestrap = lifestrapStore();
 const storeLibrary = libraryStore();
 
 const isDarkMode = ref(false);
@@ -283,8 +286,8 @@ const activeGelles = computed(() => gelleStore.activeGelles);
 
 const activeStrapData = computed(() => {
   return (
-    storeLibrary.straps.find((s) => s.key === storeAI.activeLifeStrapID) ||
-    storeLibrary.straps.find((s) => s.id === storeAI.activeLifeStrapID)
+    storeLifestrap.straps.find((s) => s.key === storeAI.activeLifeStrapID) ||
+    storeLifestrap.straps.find((s) => s.id === storeAI.activeLifeStrapID)
   );
 });
 

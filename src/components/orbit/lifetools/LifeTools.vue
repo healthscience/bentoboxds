@@ -101,13 +101,17 @@
         }}</span>
       </button>
       <div v-if="expandedSection === 'lifestrap'" class="accordion-content">
+        <div class="debug-straps" style="font-size: 10px; color: #666; margin-bottom: 5px;">
+          Straps count: {{ storeLifestrap.straps?.length || 0 }} | 
+          Keys: {{ storeLifestrap.straps?.map(s => s.key).join(', ') }}
+        </div>
         <div class="new-lifestrap-story">
           <button new-lifestrap-story @click="newLifeStrapStory()">
             New LifeStrap Story
           </button>
         </div>
         <LifeStrapNode
-          v-for="strap in storeLibrary.straps"
+          v-for="strap in storeLifestrap.straps"
           :key="strap.key"
           :strap="strap"
           :expanded="props.isExpanded"
@@ -250,11 +254,16 @@ import BentoInstruments from "@/components/orbit/instruments/bentoInstruments.vu
 
 import { libraryStore } from "@/stores/libraryStore.js";
 import { aiInterfaceStore } from "@/stores/aiInterface.js";
+import { loomStore } from "@/stores/loomStore.js";
 import { besearchStore } from "@/stores/besearchStore.js";
 import { cuesStore } from "@/stores/cuesStore.js";
 
+import { lifestrapStore } from "@/stores/lifestrapStore.js";
+
+const storeLifestrap = lifestrapStore();
 const storeLibrary = libraryStore();
 const storeAI = aiInterfaceStore();
+const storeLoom = loomStore();
 const storeBesearch = besearchStore();
 const storeCues = cuesStore();
 
@@ -325,7 +334,7 @@ const handleStrapSelect = (strapData) => {
     }
   }
 
-  storeAI.digestInput = lensData;
+  storeLoom.digestInput = lensData;
 
   // Also set the chat attention to the life-strap ID so chat switches to that
   storeAI.chatAttention = strapData.id;

@@ -13,12 +13,6 @@
 
       <div class="demo-zone-message">
         Examples to explore:
-        <button
-          class="sov-demo-btn"
-          @click="syncPublicLibrary('library', 'sync')"
-        >
-          Sync public library
-        </button>
       </div>
 
       <div class="demo-zone">

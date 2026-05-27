@@ -157,10 +157,12 @@ import CuesPortal from "@/components/orbit/parts/shared/CuesPortal.vue";
 import { besearchStore } from "@/stores/besearchStore.js";
 import { cuesStore } from "@/stores/cuesStore.js";
 import { aiInterfaceStore } from "@/stores/aiInterface.js";
+import { loomStore } from "@/stores/loomStore.js";
 import { diaryStore } from "@/stores/diaryStore.js";
 
 const storeCues = cuesStore();
 const storeAI = aiInterfaceStore();
+const storeLoom = loomStore();
 const storeDiary = diaryStore();
 const storeBesearch = besearchStore();
 
@@ -177,6 +179,7 @@ const props = defineProps({
         capacity: [],
         context: [],
         heli: [],
+        attunement: [],
         coherence: { isStable: false, resonance: 0 },
       },
       residue: [],
@@ -199,19 +202,11 @@ const highlightedTokens = computed(() => {
   return story.split(/\s+/).filter(word => word.length > 3 && word.charAt(0) === word.charAt(0).toUpperCase());
 });
 
-const unmappedFragments = computed(() => {
-  return storeAI.lifestrapTexture?.residue || [];
-});
+const unmappedFragments = computed(() => storeLoom.unmappedFragments);
 
-const capacityItems = computed(() => {
-  const items = storeAI.lifestrapTexture?.pillars?.capacity || [];
-  return items;
-});
+const capacityItems = computed(() => storeLoom.capacityItems);
 
-const contextItems = computed(() => {
-  const items = storeAI.lifestrapTexture?.pillars?.context || [];
-  return items;
-});
+const contextItems = computed(() => storeLoom.contextItems);
 
 const attunementItems = computed(() => {
   return [
@@ -222,40 +217,37 @@ const attunementItems = computed(() => {
 });
 
 const selectedAttunement = computed(() => {
-  const items = storeAI.lifestrapTexture?.pillars?.attunement || [];
+  const items = storeLoom.attunementItems || [];
   return items.length > 0 ? items[0].value : null;
 });
 
 const bodyPeerItems = computed(() => {
   const items = contextItems.value || [];
-  const filtered = items.filter(
-    (i) => i.label === "Activity" || i.label === "Body/Peer",
+  return items.filter(
+    (i) => i.label === "Activity" || i.label === "Body/Peer" || i.label === "Extracted",
   );
-  return filtered;
 });
 const environmentItems = computed(() => {
   const items = contextItems.value || [];
-  const filtered = items.filter(
-    (i) => i.label === "Space" || i.label === "Environment",
+  return items.filter(
+    (i) => i.label === "Space" || i.label === "Environment" || i.label === "Extracted",
   );
-  return filtered;
 });
 const earthItems = computed(() => {
   const items = contextItems.value || [];
-  const filtered = items.filter(
-    (i) => i.label === "Temporal" || i.label === "Earth Scales",
+  return items.filter(
+    (i) => i.label === "Temporal" || i.label === "Earth Scales" || i.label === "Extracted",
   );
-  return filtered;
 });
 
 /* methods */
 const selectAttunement = (val) => {
-  storeAI.updateResonWeight(val, "attunement", "Attunement");
+  storeLoom.updateResonWeight(val, "attunement", "Attunement");
 };
 
 const selectCapacity = (val) => {
   if (storeBesearch.strandMode) {
-    const items = storeAI.lifestrapTexture?.pillars?.capacity || [];
+    const items = storeLoom.lifestrapTexture?.pillars?.capacity || [];
     const item = items.find(i => i.value === val);
     if (item) {
       item.activeStrand = !item.activeStrand;
@@ -272,7 +264,7 @@ const syncLensToCycle = () => {
   if (!storeBesearch.activeCycle) return;
   
   const selectedCues = [];
-  const pillars = storeAI.lifestrapTexture?.pillars || {};
+  const pillars = storeLoom.lifestrapTexture?.pillars || {};
   Object.values(pillars).forEach(pillar => {
     if (Array.isArray(pillar)) {
       pillar.forEach(item => {
@@ -298,19 +290,19 @@ const handleReorder = ({ oldGroupId, newGroupId, oldIndex, newIndex, value }) =>
 
   if (oldZone === newZone) {
     // Internal reorder within the same pillar
-    storeAI.reorderStrandCues(oldZone, oldIndex, newIndex);
+    storeLoom.reorderStrandCues(oldZone, oldIndex, newIndex);
   } else {
     // Cross-pillar move (e.g. Capacity to Context)
     // 1. Remove from old pillar
-    const oldPillar = storeAI.lifestrapTexture.pillars[oldZone];
+    const oldPillar = storeLoom.lifestrapTexture.pillars[oldZone];
     const item = oldPillar.splice(oldIndex, 1)[0];
     
     // 2. Add to new pillar at new index
-    const newPillar = storeAI.lifestrapTexture.pillars[newZone];
+    const newPillar = storeLoom.lifestrapTexture.pillars[newZone];
     newPillar.splice(newIndex, 0, item);
     
     // 3. Sync
-    storeAI.syncAttunement(item.value, newZone, item.label);
+    storeLoom.syncAttunement(item.value, newZone, item.label);
   }
 };
 
@@ -357,9 +349,9 @@ const onDrop = (e, zone) => {
 
   if (zone === "attunement") {
     // Single Selection: Remove existing attunement first
-    const existing = storeAI.lifestrapTexture?.pillars?.attunement || [];
+    const existing = storeLoom.lifestrapTexture?.pillars?.attunement || [];
     existing.forEach(item => {
-      storeAI.updateResonWeight(item.value, "residue");
+      storeLoom.updateResonWeight(item.value, "residue");
     });
   }
 
@@ -369,16 +361,16 @@ const onDrop = (e, zone) => {
 };
 
 const commitAlignment = (word, zone, label = null) => {
-  storeAI.updateResonWeight(word, zone, label);
+  storeLoom.updateResonWeight(word, zone, label);
 };
 
 const unmapFragment = (word) => {
-  storeAI.updateResonWeight(word, "residue");
+  storeLoom.updateResonWeight(word, "residue");
 };
 
 const handleCueSpace = (spaceID) => {
   if (storeBesearch.strandMode) {
-    const context = storeAI.lifestrapTexture?.pillars?.context || [];
+    const context = storeLoom.lifestrapTexture?.pillars?.context || [];
     const item = context.find(i => i.value === spaceID);
     if (item) {
       item.activeStrand = !item.activeStrand;

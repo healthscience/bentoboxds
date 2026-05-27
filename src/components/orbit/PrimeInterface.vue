@@ -244,6 +244,7 @@ import { ref, computed, watch } from "vue";
 import { aiInterfaceStore } from "@/stores/aiInterface.js";
 import { useChatStore } from "@/stores/chatStore.js";
 import { besearchStore } from "@/stores/besearchStore.js";
+import { loomStore } from "@/stores/loomStore.js";
 import { libraryStore } from "@/stores/libraryStore.js";
 import { diaryStore } from "@/stores/diaryStore.js";
 
@@ -265,6 +266,7 @@ import { useOrbitStore } from "@/stores/orbitStore.js";
 const storeDiary = diaryStore();
 const storeLibrary = libraryStore();
 const storeAI = aiInterfaceStore();
+const storeLoom = loomStore();
 const storeChat = useChatStore();
 const storeBesearch = besearchStore();
 const orbitStore = useOrbitStore();
@@ -278,7 +280,7 @@ const isDraggingBentoDivider = ref(false);
 const isDraggingBentoVerticalDivider = ref(false);
 
 /* computed */
-const extractedData = computed(() => storeAI.digestInput);
+const extractedData = computed(() => storeLoom.digestInput);
 const activeWorld = computed({
   get: () => storeAI.activeWorld,
   set: (val) => (storeAI.activeWorld = val),
@@ -296,7 +298,7 @@ watch(
 
 // Watch for store changes to trigger the "Extracting" state automatically
 watch(
-  () => storeAI.digestInput,
+  () => storeLoom.digestInput,
   (newData) => {
     // Legacy support - we now use ExperienceOrchestrator for this
   },
@@ -386,26 +388,24 @@ const exitToZen = () => {
   }
   storeAI.experienceOrchestrator.resetToZen();
   panelWidth.value = 30;
-  // Clear the store input if needed
-  storeAI.digestInput = null;
 };
 
 // Inside PrimeInterface.vue <script setup>
 const extractionLenses = computed(() => {
   return {
-    capacity: storeAI.digestInput?.constraints
-      ? [storeAI.digestInput.constraints]
+    capacity: storeLoom.digestInput?.constraints
+      ? [storeLoom.digestInput.constraints]
       : [],
-    coherence: storeAI.digestInput?.content
-      ? [storeAI.digestInput.content]
+    coherence: storeLoom.digestInput?.content
+      ? [storeLoom.digestInput.content]
       : [],
-    context: storeAI.digestInput?.context ? [storeAI.digestInput.context] : [],
+    context: storeLoom.digestInput?.context ? [storeLoom.digestInput.context] : [],
   };
 });
 
 // Map the 3 Cs to the Lenses
 const mappedLenses = computed(() => {
-  const input = storeAI.digestInput;
+  const input = storeLoom.digestInput;
   if (!input) return { capacity: [], coherence: [], context: [], heli: [] };
 
   // New pillars structure

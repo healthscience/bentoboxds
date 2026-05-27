@@ -14,6 +14,9 @@ import { accountStore } from "@/stores/accountStore.js";
 import { cuesStore } from "@/stores/cuesStore.js";
 import { teachingStore } from "@/stores/teachingStore.js";
 import { besearchStore } from "@/stores/besearchStore.js";
+import { orreryStore } from "@/stores/orreryStore.js";
+import { lifestrapStore } from "@/stores/lifestrapStore.js";
+import { loomStore } from "@/stores/loomStore.js";
 
 
 export const aiInterfaceStore = defineStore("beebeeAIstore", {
@@ -25,6 +28,9 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       storeCues: cuesStore(),
       storeBentobox: bentoboxStore(),
       storeLibrary: libStore,
+      storeOrrery: orreryStore(),
+      storeLifestrap: lifestrapStore(),
+      storeLoom: loomStore(),
       storeChat: useChatStore(),
       storeTeaching: teachingStore(),
       storeBesearch: besearchStore(),
@@ -152,8 +158,6 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       boxLibSummary: {},
       boxModelUpdate: {},
       computeModuleLast: {},
-      loomCache: {},
-      bentobesearchState: false,
       nexusAutoOpen: false,
       cueAction: "cues",
       showBbNexus: false,
@@ -206,18 +210,6 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       },
       previousLLM: {},
       isInitialState: true,
-      digestInput: null,
-      lifestrapTexture: {
-        pillars: {
-          capacity: [],
-          context: [],
-          attunement: [],
-          heli: [],
-          coherence: { isStable: false, resonance: 0 },
-        },
-        residue: [],
-        key: "",
-      },
       emulationHorizon: 0,
       performanceVelocity: 0,
     };
@@ -235,126 +227,10 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
           ai: this,
           besearch: besearchStore(),
           library: this.storeLibrary,
-          chat: this.storeChat
+          chat: this.storeChat,
+          loom: this.storeLoom
         });
       }
-    },
-    reorderStrandCues(zone, oldIndex, newIndex) {
-      if (!this.lifestrapTexture?.pillars?.[zone]) return;
-      
-      const pillar = this.lifestrapTexture.pillars[zone];
-      const item = pillar.splice(oldIndex, 1)[0];
-      pillar.splice(newIndex, 0, item);
-      
-      console.log(`Reordered ${zone} pillar:`, pillar);
-      
-      // Sync with backend
-      this.syncAttunement(item.value, zone, item.label);
-    },
-    updateResonWeight(word, zone, label = null) {
-
-      if (!this.lifestrapTexture) {
-        this.lifestrapTexture = {
-          pillars: {
-            capacity: [],
-            context: [],
-            heli: [],
-            coherence: { isStable: false, resonance: 0 },
-          },
-          residue: [],
-          key: "",
-        };
-      }
-
-      // 1. Remove from all existing locations (residue and all pillars)
-      this.lifestrapTexture.residue = this.lifestrapTexture.residue.filter(
-        (w) => w !== word,
-      );
-      this.lifestrapTexture.pillars.capacity =
-        this.lifestrapTexture.pillars.capacity.filter((i) => i.value !== word);
-      this.lifestrapTexture.pillars.context =
-        this.lifestrapTexture.pillars.context.filter((i) => i.value !== word);
-      this.lifestrapTexture.pillars.attunement =
-        this.lifestrapTexture.pillars.attunement.filter(
-          (i) => i.value !== word,
-        );
-      this.lifestrapTexture.pillars.heli =
-        this.lifestrapTexture.pillars.heli.filter((i) => i.value !== word);
-
-      // If zone is residue, we just put it back there and exit
-      if (zone === "residue") {
-        if (!this.lifestrapTexture.residue.includes(word)) {
-          this.lifestrapTexture.residue.push(word);
-        }
-        this.syncAttunement(word, zone, label);
-        return;
-      }
-
-      const entry = { label: label || zone, value: word };
-
-      if (zone === "capacity") {
-        this.lifestrapTexture.pillars.capacity.push(entry);
-      } else if (
-        zone === "context" ||
-        ["peer", "environment", "earth"].includes(zone)
-      ) {
-        // Map sub-zones to the 'context' pillar with appropriate labels if needed,
-        // but the expected structure has a 'context' array.
-        const contextLabel =
-          label ||
-          (zone === "peer"
-            ? "Activity"
-            : zone === "environment"
-              ? "Space"
-              : "Temporal");
-        this.lifestrapTexture.pillars.context.push({
-          label: contextLabel,
-          value: word,
-        });
-      } else if (["orbits", "days", "arcs", "heli"].includes(zone)) {
-        const heliLabel =
-          label ||
-          (zone === "orbits"
-            ? "Orbit Target"
-            : zone === "days"
-              ? "Rhythm"
-              : "Performance");
-        const heliEntry = { label: heliLabel, value: word };
-        if (zone === "orbits") {
-          heliEntry.math = `${word} - currentHeliAge`;
-        }
-        this.lifestrapTexture.pillars.heli.push(heliEntry);
-      } else if (zone === "coherence" || zone === "attunement") {
-        this.lifestrapTexture.pillars.attunement.push(entry);
-      }
-
-      this.syncAttunement(word, zone, label);
-    },
-    syncAttunement(word, zone, label) {
-      // 2. Persist to backend/socket
-      const message = {
-        type: "bbai",
-        action: "attunement-mapping",
-        data: {
-          word,
-          zone,
-          label,
-          lifeStrapID: this.activeLifeStrapID,
-          contract_key: this.activeContractKey,
-        },
-      };
-      this.sendMessageHOP(message);
-
-      // 3. Trigger BeeBee feedback
-      this.storeChat.handleIncomingMessage({
-        type: "agent-reply",
-        role: "agent",
-        content: `Mapping ${word} to ${zone}. Emulation updating...`,
-        data: { text: `Mapping ${word} to ${zone}. Emulation updating...` },
-        context: "extraction",
-        conversationId: this.chatAttention,
-        status: "complete",
-      });
     },
     sendMessageHOP(message) {
       this.sendSocket.send_message(message);
@@ -482,8 +358,8 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
             conversationId: this.chatAttention,
             contract_key:
               this.activeContractKey ||
-              (this.storeLibrary.straps &&
-                this.storeLibrary.straps[0]?.contract_key) ||
+              (this.storeLifestrap.straps &&
+                this.storeLifestrap.straps[0]?.contract_key) ||
               "",
             lifeStrapID: this.chatAttention,
             context: baseContext,
@@ -799,101 +675,16 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       }
     },
     processReply(received) {
+      console.log('aiInterface: processReply', received)
       if (received.action === "npl-reply") {
-        if (received.task === "lens-extraction") {
-          if (received.data.lens.context.length > 0) {
-            this.lifestrapTexture.pillars.capacity.push({
-              label: "Initial",
-              value: received.data.lens?.capacity,
-            });
-            // this.lifestrapTexture.pillars.coherence ...
-            let splitContext = received.data.lens.context.split(",");
-            this.lifestrapTexture.pillars.context = splitContext.map((v) => ({
-              label: "Extracted",
-              value: v,
-            }));
-          }
-        }
+        this.storeLoom.processReply(received);
       } else if (received.action === "ls-whole") {
-        let lifestrapPattern = received.data;
-        // lifestrap
-        let lsSet = {}
-        if (lifestrapPattern.lifestrap) {
-          // what full loom lifestrap is return (one only, then on demand of selction)
-          let wholeLoomKey = this.storeLibrary.utilLibrary.convertBinaryToHex({ key: lifestrapPattern.whole.lsKeytrack.lsid, value: {} })
-          // convert index to hex and add to lifestrap list
-          let hexContract = {}
-          for (let inStrap of lifestrapPattern.lifestrap) {
-            hexContract = this.storeLibrary.utilLibrary.convertBinaryToHex(inStrap)
-            this.storeLibrary.straps.push(hexContract)
-            // bring to be first lifestrap fully
-            if (hexContract.key === wholeLoomKey.key) {
-              this.activeLifestrapKey = hexContract.key;
-               // full context for a lifestrap story, lens, besearch(cycles, strands, braids), cues, ref contracts, orgo, gelle, resonAgent, tiny devices
-               lsSet = this.liveLsUtil.lifestrapTobe(hexContract.key, lifestrapPattern.whole)
-               // Cache the loom data
-               this.loomCache[hexContract.key] = lsSet;
-               // lens
-               this.lifestrapTexture = lsSet.lens;
-               this.storeBesearch.activeBesearchContext.story = lsSet.lens.story;
-              // Legacy compatibility for components using digestInput
-              this.digestInput = lsSet.lens;
-
-              this.activeLifeStrapID = hexContract.key;
-
-              // Orchestrate the experience based on whether this is a "new" story or peer return
-              this.initOrchestrator();
-              const wasZen = this.currentMode === "zen" || this.isInitialState;
-
-              this.experienceOrchestrator.orchestrateLifestrapReturn(lsSet, this.newLifestrap, wasZen);
-              
-              this.isInitialState = false;
-
-              // Reset newLifestrap flag after orchestration
-              this.newLifestrap = false;
-
-              // setup peer experience
-              this.initializeSovereignSession(hexContract.key)
-            }
-            
-          }
-        }
+        console.log('aiInterface: ls-whole received', received)
+        this.storeLoom.processReply(received);
       } else if (received.action === "ls-whole-loom") {
-        let lsSet = this.liveLsUtil.lensTobe('', received.data.whole.lens[0])
-        this.lifestrapTexture = lsSet;
-        // Legacy compatibility for components using digestInput
-        this.digestInput = lsSet
+        this.storeLoom.processReply(received);
       } else if (received.action === "ls-pattern") {
-        let lsContract = received.data.index
-        let hexKeyLens = this.storeLibrary.utilLibrary.convertBinaryToHex(lsContract.key)
-    
-        const slots = lsContract.value.concept.context?.slots || [];
-        const unmappedFragments = lsContract.value.concept.context?.unmappedFragments || [];
-
-        const newTexture = {
-          pillars: {
-            // ... (keep pillars as they are)
-          },
-          residue: unmappedFragments,
-          key: hexKeyLens,
-          story: lsContract.value.concept.story || ""
-        };
-
-        this.lifestrapTexture = newTexture;
-        this.storeBesearch.activeBesearchContext.story = newTexture.story;
-        // Legacy compatibility for components using digestInput
-        this.digestInput = this.lifestrapTexture;
-        
-        // Orchestrate the experience based on whether this is a "new" story or peer return
-        this.initOrchestrator();
-        const wasZenAction = this.currentMode === "zen" || this.isInitialState;
-        this.activeLifeStrapID = lsContract.key || "active-strap";
-        this.experienceOrchestrator.orchestrateLifestrapReturn(newTexture, this.newLifestrap, wasZenAction);
-        
-        this.isInitialState = false;
-
-        // Reset newLifestrap flag after orchestration
-        this.newLifestrap = false;
+        this.storeLoom.processReply(received);
       } else if (received.action === "agent-task") {
         if (received.task === "cale-evolution") {
           this.boxModelUpdate[received.context.bbid] = {};
@@ -966,7 +757,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
             // stop any agent feedback message
             this.trackAgentProgressUpdate(received.bbid);
           }
-          if (received.action === "library-peerlibrary" || "publiclibrary") {
+          if (received.action === "library-peerlibrary" || received.action === "publiclibrary" || received.action === "lifestrap-contract") {
             this.storeLibrary.processReply(received, questionStart);
           }
           // check if reply is upload?  If yes, present upload interface
@@ -1407,7 +1198,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         this.boxLibSummary[boxid].data.modules = computeLatestModules;
         // let modulesContracts = NXPcontract[key[0]].modules
         let extractedOD =
-          this.storeLibrary.utilLibrary.moduleExtractSettings(
+          this.storeLifestrap.utilLibrary.moduleExtractSettings(
             computeLatestModules,
           );
         this.storeBentobox.openDataSettings[boxid] = extractedOD;
@@ -1564,24 +1355,49 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
     },
     async beebeeDigest(call, demo) {
       let primeLifeStrap = false;
+      const storeLifestrap = lifestrapStore();
+      
       // is this the very first message in? If so, create a new life-strap story
-      if (this.storeLibrary.straps.length === 0) {
+      if (storeLifestrap.straps.length === 0) {
         let lifeStrapData = {};
         lifeStrapData.name = "prime-life-strap";
         lifeStrapData.inquiry = this.askQuestion.text;
+        
+        // Save the story text for UI immediate feedback
+        this.storeBesearch.activeBesearchContext.story = this.askQuestion.text;
+        
+        // Ensure lifestrapTexture is initialized immediately so it's ready for extraction
+        this.storeLoom.lifestrapTexture = this.liveLsUtil.prepareEmptyLens('prime-ls');
+        this.storeLoom.lifestrapTexture.story = this.askQuestion.text;
+        this.storeLoom.digestInput = { ...this.storeLoom.lifestrapTexture };
+
+        this.activeLifeStrapID = "prime-life-strap"; 
+        this.activeLifestrapKey = "prime-life-strap";
+        this.newLifestrap = true; // Mark as new so return data opens panels
+        
         this.storeLibrary.createLifeStrap(lifeStrapData);
         this.askQuestion.text = "";
-        this.newLifestrap = true; // Mark as new so return data opens panels
         primeLifeStrap = true;
       } else if (this.newLifestrap === true) {
         let lifeStrapData = {};
         lifeStrapData.name = "new-life-strap";
         lifeStrapData.inquiry = this.askQuestion.text;
+
+        // Save the story text for UI immediate feedback
+        this.storeBesearch.activeBesearchContext.story = this.askQuestion.text;
+        
+        // Ensure lifestrapTexture is initialized immediately
+        this.storeLoom.lifestrapTexture = this.liveLsUtil.prepareEmptyLens('new-ls');
+        this.storeLoom.lifestrapTexture.story = this.askQuestion.text;
+        this.storeLoom.digestInput = { ...this.storeLoom.lifestrapTexture };
+
+        this.activeLifeStrapID = "new-ls";
+        this.activeLifestrapKey = "new-ls";
+
         this.storeLibrary.createLifeStrap(lifeStrapData);
         // next
         this.askQuestion.text = "";
-        // reset new ls flag
-        this.newLifestrap = false;
+        // reset new ls flag is handled by the arrival of the contract or loom
       } else {
         // look out for demo or normal chat dialogue on going conversation
         if (demo !== undefined && demo === true) {
@@ -1596,8 +1412,8 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
             conversationId: sovereignID,
             contract_key:
               this.activeContractKey ||
-              (this.storeLibrary.straps &&
-                this.storeLibrary.straps[0]?.contract_key) ||
+              (this.storeLifestrap.straps &&
+                this.storeLifestrap.straps[0]?.contract_key) ||
               "",
             lifeStrapID: sovereignID,
           });
@@ -1605,7 +1421,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
           // --- DEMO PATH (400m Swim) ---
           const peerInput = "I want to swim 400m in 10 orbits...";
           this.storeBesearch.activeBesearchContext.story = peerInput;
-          this.digestInput = {
+          this.storeLoom.digestInput = {
             capacity: ["400IM Performance"],
             context: ["swimming", "Aquatic Environment", "10 Orbits"],
             coherence: ["Biological Barrier Model"],
@@ -1691,6 +1507,22 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       this.experienceOrchestrator.handleLifestrapSelection(strapData);
     },
     setActiveLifeStrap(lsContract) {
+      if (!lsContract || !lsContract.value || !lsContract.value.concept) {
+        console.warn("setActiveLifeStrap: Invalid strapData format, preparing default structure", lsContract);
+        const key = lsContract?.key || this.activeLifeStrapID;
+        const story = lsContract?.value?.concept?.story || this.storeBesearch.activeBesearchContext.story || "";
+        
+        this.storeLoom.lifestrapTexture = this.liveLsUtil.prepareEmptyLens(key);
+        this.storeLoom.lifestrapTexture.story = story;
+        this.storeLoom.digestInput = { ...this.storeLoom.lifestrapTexture };
+        this.activeLifeStrapID = key;
+        this.activeContractKey = key;
+        this.chatAttention = key;
+        this.beebeeContext = "lifestrap";
+        this.isInitialState = false;
+        return;
+      }
+
       this.lifeStrapID = lsContract.key;
       this.activeLifeStrapID = lsContract.key;
       this.activeContractKey = lsContract.key;
@@ -1708,67 +1540,58 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         this.activeLifestrapKey = lsContract.key;
 
         // Check if we already have this loom in cache
-        if (this.loomCache[lsContract.key]) {
-          const cachedSet = this.loomCache[lsContract.key];
-          this.lifestrapTexture = cachedSet.lens;
-          this.digestInput = cachedSet.lens;
-          this.storeBesearch.activeBesearchContext.story = cachedSet.lens.story;
-          // Trigger dialogue for existing session
-          this.setBeeBeeDialogue(lsContract);
-        } else {
-          // Check if it's already "glued" (has data)
-          const hasLensData =
-            lsContract.value?.concept?.context?.slots?.length > 0 ||
-            lsContract.value?.concept?.capacity?.length > 0;
-
-          if (!hasLensData) {
-            this.fetchWholeLoom(lsContract.key);
-          } else {
-            this.fetchWholeLoom(lsContract.key);
+        if (this.storeLoom.loomCache[lsContract.key]) {
+          const cachedSet = this.storeLoom.loomCache[lsContract.key];
+          this.storeLoom.lifestrapTexture = cachedSet.lens;
+          this.storeLoom.digestInput = cachedSet.lens;
+          if (cachedSet.lens.story) {
+            this.storeBesearch.activeBesearchContext.story = cachedSet.lens.story;
           }
+        } else {
+          // Send request for whole loom
+          const message = {
+            type: "library",
+            action: "lifestrap",
+            reftype: "whole-loom",
+            privacy: "private",
+            task: "GET",
+            data: { key: lsContract.key },
+          };
+          this.sendMessageHOP(message);
+          
+          // Initialize with what we have (the summary contract)
+          const lsSet = this.liveLsUtil.lifestrapTobe(lsContract.key, {
+            lens: [lsContract]
+          });
+          this.storeLoom.lifestrapTexture = lsSet.lens;
+          this.storeLoom.digestInput = lsSet.lens;
         }
       }
-
-      // Open the bottom panel to show detail
-      // this.storeBesearch.showBottomPanel = false;
-      // this.storeBesearch.bottomHeight = 400;
     },
     fetchWholeLoom(lsKey) {
-      // Clear existing lens/texture data to prepare for new data
-      this.lifestrapTexture = {
-        pillars: {
-          capacity: [],
-          context: [],
-          attunement: [],
-          heli: [],
-          coherence: { isStable: false, resonance: 0 },
-        },
-        residue: [],
-        key: "",
-      };
-      this.digestInput = null;
-
-      const message = {
-        type: "bbai",
-        action: "fetch-whole-loom",
-        data: {
-          lifeStrapID: lsKey,
-          contract_key: lsKey,
-        },
-      };
-      this.sendMessageHOP(message);
+      this.storeLoom.fetchWholeLoom(lsKey);
+    },
+    processReply(received) {
+      if (received.action === "ls-pattern") {
+        const storeLifestrap = lifestrapStore();
+        storeLifestrap.processReply(received);
+      }
     },
     initializeSovereignSession(lsKey) {
       let latestStrap = {};
       const wasZen = this.currentMode === "zen" || this.isInitialState;
       this.activeLifestrapKey = lsKey;
+      this.activeLifeStrapID = lsKey;
+      this.activeContractKey = lsKey;
+      
+      const storeLifestrap = lifestrapStore();
       // first time life-strap or another story?
-      if (this.storeLibrary.straps.length > 0) {
-        latestStrap = this.storeLibrary.straps.find((s) => s.key === lsKey);
-      } else {
-        latestStrap = this.storeLibrary.straps[0]; // Logic for 'latest'
+      if (storeLifestrap.straps && storeLifestrap.straps.length > 0) {
+        latestStrap = storeLifestrap.straps.find((s) => s.key === lsKey);
+        if (!latestStrap) {
+          latestStrap = storeLifestrap.straps[0]; // Logic for 'latest'
+        }
       }
-
       if (latestStrap) {
         // 2. Set the Master ID
         this.lifeStrapID = latestStrap.key;

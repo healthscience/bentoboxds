@@ -2,6 +2,7 @@ import { ref, computed } from "vue";
 import { defineStore } from "pinia";
 import { useSocketStore } from "@/stores/socket.js";
 import { aiInterfaceStore } from "@/stores/aiInterface.js";
+import { loomStore } from "@/stores/loomStore.js";
 
 export const besearchStore = defineStore("besearchstore", {
   state: () => ({
@@ -102,16 +103,17 @@ export const besearchStore = defineStore("besearchstore", {
   }),
   getters: {
     aiStore: () => aiInterfaceStore(),
+    loomStore: () => loomStore(),
     activeCycle: (state) => {
       return state.besearchCycles.find(c => c.id === state.activeCycleId) || null;
     },
     evaluateConduction: (state) => {
       if (!state.strandMode) return null;
 
-      const aiStore = aiInterfaceStore();
-      const capacityStrands = (aiStore.lifestrapTexture?.pillars?.capacity || [])
+      const loom = loomStore();
+      const capacityStrands = (loom.lifestrapTexture?.pillars?.capacity || [])
         .filter((item) => item.activeStrand);
-      const contextStrands = (aiStore.lifestrapTexture?.pillars?.context || [])
+      const contextStrands = (loom.lifestrapTexture?.pillars?.context || [])
         .filter((item) => item.activeStrand);
 
       const allStrandedCues = [...capacityStrands, ...contextStrands];
@@ -131,8 +133,8 @@ export const besearchStore = defineStore("besearchstore", {
       };
     },
     canEnterBench: (state) => {
-      const aiStore = aiInterfaceStore();
-      const pillars = aiStore.lifestrapTexture?.pillars;
+      const loom = loomStore();
+      const pillars = loom.lifestrapTexture?.pillars;
       const hasCapacity = pillars?.capacity?.length > 0;
       const hasContext = pillars?.context?.length > 0;
       return hasCapacity && hasContext;
@@ -762,12 +764,12 @@ export const besearchStore = defineStore("besearchstore", {
       this.isCycleLineExpanded = false;
     },
     clearActiveStrandFlags() {
-      const aiStore = aiInterfaceStore();
+      const loom = loomStore();
       this.activeCycleId = null;
-      if (aiStore.lifestrapTexture?.pillars) {
-        Object.keys(aiStore.lifestrapTexture.pillars).forEach(pillarKey => {
-          if (Array.isArray(aiStore.lifestrapTexture.pillars[pillarKey])) {
-            aiStore.lifestrapTexture.pillars[pillarKey].forEach(item => {
+      if (loom.lifestrapTexture?.pillars) {
+        Object.keys(loom.lifestrapTexture.pillars).forEach(pillarKey => {
+          if (Array.isArray(loom.lifestrapTexture.pillars[pillarKey])) {
+            loom.lifestrapTexture.pillars[pillarKey].forEach(item => {
               item.activeStrand = false;
             });
           }
@@ -793,18 +795,18 @@ export const besearchStore = defineStore("besearchstore", {
       return newCycle;
     },
     setActiveCycle(id) {
-      const aiStore = aiInterfaceStore();
+      const loom = loomStore();
       
       this.activeCycleId = id;
       const cycle = this.activeCycle;
       if (!cycle) return;
 
-      if (aiStore.lifestrapTexture?.pillars) {
+      if (loom.lifestrapTexture?.pillars) {
         const selectedCues = cycle.state.lens.selectedCues || [];
         
-        Object.keys(aiStore.lifestrapTexture.pillars).forEach(pillarKey => {
-          if (Array.isArray(aiStore.lifestrapTexture.pillars[pillarKey])) {
-            aiStore.lifestrapTexture.pillars[pillarKey].forEach(item => {
+        Object.keys(loom.lifestrapTexture.pillars).forEach(pillarKey => {
+          if (Array.isArray(loom.lifestrapTexture.pillars[pillarKey])) {
+            loom.lifestrapTexture.pillars[pillarKey].forEach(item => {
               item.activeStrand = selectedCues.includes(item.value);
             });
           }

@@ -126,9 +126,11 @@ import BesearchLayer from "@/components/orbit/besearch/besearchLayer.vue";
 
 import { besearchStore } from "@/stores/besearchStore.js";
 import { aiInterfaceStore } from "@/stores/aiInterface.js";
+import { loomStore } from "@/stores/loomStore.js";
 
 const storeBesearch = besearchStore();
 const storeAI = aiInterfaceStore();
+const storeLoom = loomStore();
 
 const currentStage = computed(() => storeBesearch.currentBesearchStage);
 
@@ -189,7 +191,7 @@ watch(
 );
 
 const extractedData = computed(() => {
-  return storeAI.digestInput;
+  return storeLoom.digestInput;
 });
 
 /* methods */

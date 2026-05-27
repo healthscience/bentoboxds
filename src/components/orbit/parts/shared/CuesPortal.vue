@@ -1,5 +1,8 @@
 <template>
   <div class="cues-portal">
+    <div v-if="storeOrrery.isSeeding" class="seeding-status pulse">
+      seeding biology knowledge... {{ storeOrrery.seedingProgress }}%
+    </div>
     <!-- Category Sections -->
     <div class="portal-sections">
       <section v-for="cat in categories" :key="cat.id" class="category-section" :class="{ expanded: expandedCategory === cat.id }">
@@ -49,8 +52,13 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { cuesStore } from '@/stores/cuesStore.js'
+import { libraryStore } from '@/stores/libraryStore.js'
 
 const storeCues = cuesStore()
+import { orreryStore } from '@/stores/orreryStore.js'
+
+const storeOrrery = orreryStore()
+const storeLibrary = libraryStore()
 
 const emit = defineEmits(['dragstart', 'select'])
 
@@ -128,6 +136,27 @@ const onDragStart = (event, word) => {
   gap: 20px;
   color: #1a202c;
   font-family: "Space Mono", monospace;
+}
+
+.seeding-status {
+  padding: 8px;
+  color: #3b82f6;
+  font-weight: bold;
+  text-align: center;
+  font-size: 0.8rem;
+  border: 1px dashed #3b82f6;
+  border-radius: 8px;
+  margin: 0 16px;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { opacity: 0.4; }
+}
+
+.pulse {
+  animation: pulse 2s infinite ease-in-out;
 }
 
 .portal-sections {
@@ -266,21 +295,5 @@ const onDragStart = (event, word) => {
   border-radius: 4px;
   border: 1px solid rgba(0, 0, 0, 0.1);
   background: #edf2f7;
-  cursor: pointer;
-}
-
-.global-results {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 12px;
-  background: rgba(0, 0, 0, 0.03);
-  border-radius: 12px;
-  min-height: 40px;
-}
-
-.cue-chip.global {
-  background: white;
-  border-color: #cbd5e0;
-}
+  cursor: pointer}
 </style>

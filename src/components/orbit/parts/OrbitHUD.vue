@@ -196,10 +196,15 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { aiInterfaceStore } from "@/stores/aiInterface.js";
+import { loomStore } from "@/stores/loomStore.js";
 import { libraryStore } from "@/stores/libraryStore.js";
 import { besearchStore } from "@/stores/besearchStore.js";
 
 const storeAI = aiInterfaceStore();
+const storeLoom = loomStore();
+import { lifestrapStore } from "@/stores/lifestrapStore.js";
+
+const storeLifestrap = lifestrapStore();
 const storeLibrary = libraryStore();
 const storeBesearch = besearchStore();
 
@@ -264,12 +269,12 @@ const storySummary = computed(() => {
 });
 
 const strandCount = computed(() => {
-  const pillars = storeAI.lifestrapTexture?.pillars || {};
+  const pillars = storeLoom.lifestrapTexture?.pillars || {};
   return (pillars.capacity?.length || 0) + (pillars.context?.length || 0);
 });
 
 const attunementCount = computed(() => {
-  return storeAI.lifestrapTexture?.pillars?.attunement?.length || 0;
+  return storeLoom.lifestrapTexture?.pillars?.attunement?.length || 0;
 });
 
 const cycleCount = computed(() => {
@@ -307,7 +312,7 @@ const activeLifeStrapName = computed(() => {
 });
 
 const countLifeStraps = computed(() => {
-  return storeLibrary.straps.length;
+  return storeLifestrap.straps.length;
 });
 
 const setHUUDState = (mode) => {
