@@ -101,10 +101,6 @@
         }}</span>
       </button>
       <div v-if="expandedSection === 'lifestrap'" class="accordion-content">
-        <div class="debug-straps" style="font-size: 10px; color: #666; margin-bottom: 5px;">
-          Straps count: {{ storeLifestrap.straps?.length || 0 }} | 
-          Keys: {{ storeLifestrap.straps?.map(s => s.key).join(', ') }}
-        </div>
         <div class="new-lifestrap-story">
           <button new-lifestrap-story @click="newLifeStrapStory()">
             New LifeStrap Story
@@ -115,6 +111,7 @@
           :key="strap.key"
           :strap="strap"
           :expanded="props.isExpanded"
+          :active="strap.key === storeAI.activeLifestrapKey"
           :isLive="strap.key === storeAI.activeLifestrapKey"
           @select="handleStrapSelect"
           @delete="handleStrapDelete"
@@ -295,60 +292,6 @@ const emit = defineEmits([
   "lifestrap-selected",
 ]);
 
-/** Handle life-strap selection */
-const handleStrapSelect = (strapData) => {
-  // Update Experience via Orchestrator
-  storeAI.initOrchestrator();
-  storeAI.experienceOrchestrator.handleLifestrapSelection(strapData);
-
-  /*
-    make routine within aiStore?
-   if (strapData.activeCues && strapData.activeCues.length > 0) {
-    for (const cue of strapData.activeCues) {
-      // Handle "capacity-orbits" format
-      if (cue.startsWith("capacity-")) {
-        lensData.capacity.push(cue.replace("capacity-", ""));
-      } else if (cue.startsWith("context-")) {
-        lensData.context.push(cue.replace("context-", ""));
-      } else if (cue.startsWith("coherence-")) {
-        lensData.coherence.push(cue.replace("coherence-", ""));
-      } else {
-        // Handle simple cue like "posture" - add to capacity as default
-        lensData.capacity.push(cue);
-      }
-    }
-  } else if (strapData.name) {
-    // Fallback: extract keywords from name
-    const name = strapData.name.toLowerCase();
-    if (name.includes("swim") || name.includes("swimming")) {
-      lensData.capacity.push("400m Performance");
-      lensData.context.push("Aquatic Environment");
-    }
-    if (name.includes("posture")) {
-      lensData.capacity.push("Spinal Alignment");
-      lensData.context.push("Sitting Position");
-    }
-    if (name.includes("longevity")) {
-      lensData.capacity.push("Cellular Resilience");
-      lensData.coherence.push("Metabolic Balance");
-    }
-  }
-
-  storeLoom.digestInput = lensData;
-
-  // Also set the chat attention to the life-strap ID so chat switches to that
-  storeAI.chatAttention = strapData.id;
-  storeAI.beebeeContext = "lifestrap";
-
-  // Open the bottom panel to show detail
-  storeBesearch.showBottomPanel = true;
-  storeBesearch.bottomHeight = 400;
-
-  // Emit to parent components (for worlds switching)
-  emit("lifestrap-selected", strapData);
-  */
-};
-
 /** Handle life-strap deletion */
 const handleStrapDelete = (strapKey) => {
   console.log("Life strap delete requested for key:", strapKey);
@@ -377,18 +320,25 @@ const besearchTime = () => {
 
 const newLifeStrapStory = () => {
   console.log("new life strap story");
-  // clear worlds and go back to orbit resonancePulse ghost mode
-  // open up beebee with lifestrap reply, please tell me about a life-strap story
+  storeAI.initOrchestrator();
+  storeAI.experienceOrchestrator.resetToZen();
+  
   storeAI.newLifestrap = true;
   storeAI.beebeeContext = "lifestrap";
   storeAI.chatAttention = "new";
-  // send save message to HOP
-  // storeLibrary.createLifeStrap();
-  storeAI.currentMode = "zen";
+  
   // clear input
   storeAI.askQuestion.text = "";
 };
 
+const handleStrapSelect = (strapData) => {
+  // Update Experience via Orchestrator
+  storeAI.initOrchestrator();
+  storeAI.experienceOrchestrator.handleLifestrapSelection(strapData);
+
+  // Emit to parent components (for worlds switching)
+  emit("lifestrap-selected", strapData);
+};
 const selectMode = (mode) => {
   selectedMode.value = mode;
   // Emit event to parent component to update canvas

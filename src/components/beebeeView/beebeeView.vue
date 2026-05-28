@@ -34,7 +34,7 @@
           </div>
           <div class="history-menu">
             <button id="body-image" @click="viewBody()" class="button-chat-menu" :class="{ active: bodyDiagramShow === true }">Body</button>
-             <Teleport to="body">
+            <Teleport to="body">
                 <div id="body-daigram-interactive">
                   <body-diagram v-if="bodyDiagramShow === true"></body-diagram>
                 </div>
@@ -76,7 +76,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed, watch } from 'vue'
 import BodyDiagram from '@/components/beebeeView/diagrams/bodyDiagram.vue'
 import ChatMenu from '@/components/beebeeView/navigation/chatMenu.vue'
 import BentoCues from '@/components/bentocues/healthCues.vue'
@@ -94,7 +94,6 @@ import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 import { besearchStore } from '@/stores/besearchStore.js'
-import { computed } from 'vue'
 
   const storeAccount = accountStore()
   const storeCues = cuesStore()

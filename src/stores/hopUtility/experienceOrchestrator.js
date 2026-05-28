@@ -2,154 +2,173 @@
 /**
  * ExperienceOrchestrator
  *
- * Handles cross-store "Experience" transitions (panels, layers, world settings)
- * triggered by incoming data or user actions.
+ * Centralized "Brain" for cross-store transitions.
+ * Manages the visibility and state of:
+ * - Left Panel (LifeTools)
+ * - Right Panel (Beebee Chat)
+ * - Bottom Panel (Lens / HUD)
  *
  * @class ExperienceOrchestrator
- * @package    BeeBeeParse
- * @copyright  Copyright (c) 2026 James Littlejohn
  */
 
 export class ExperienceOrchestrator {
   constructor(stores) {
-    this.stores = stores; // Expects { ai, besearch, library, chat, loom }
+    this.stores = stores; // Expects { ai, besearch, library, chat, loom, lifestrap }
   }
 
   /**
-   * Orchestrate state based on lifestrap data return
-   * @param {Object} data - The received lifestrap data
-   * @param {Boolean} isNew - Whether this was explicitly triggered as a "new" story
-   * @param {Boolean} wasZen - Whether the application was in Zen mode before orchestration
+   * Internal helper to sync the three main UI zones
+   * @param {Object} config - { left, right, bottom, mode, context }
    */
-  orchestrateLifestrapReturn(data, isNew = false, wasZen = false) {
-    const { ai, besearch, loom } = this.stores;
+  syncLayout({ left, right, bottom, mode, context, world = 'orbit' }) {
+    const { ai, chat, besearch, library } = this.stores;
 
-    console.log('Orchestrating Lifestrap Return. isNew:', isNew, 'wasZen:', wasZen);
+    // 1. Mode & World
+    if (mode) ai.currentMode = mode;
+    if (context) ai.beebeeContext = context;
+    ai.activeWorld = world;
 
-    // Sync cycles for this strap
-    const strapId = data.id || data.key;
-    if (strapId) {
-      besearch.loadCyclesForLifestrap(strapId);
+    // 2. Left Panel (LifeTools)
+    if (library) library.isLifeToolsOpen = !!left;
+
+    // 3. Right Panel (Chat)
+    if (right) {
+      chat.isChatOpen = true;
+      chat.chatWidth = 380;
+    } else {
+      chat.isChatOpen = false;
+      chat.chatWidth = 0;
     }
+
+    // 4. Bottom Panel (HUD/Lens)
+    if (bottom) {
+      besearch.showBottomPanel = true;
+      besearch.bottomHeight = 400;
+      besearch.setHUUDState(bottom === true ? 'lens' : bottom);
+    } else {
+      besearch.showBottomPanel = false;
+      besearch.setHUUDState('default');
+    }
+  }
+
+  /**
+   * Called when a lifestrap contract arrives (Genesis or Load)
+   */
+  onLifestrapArrived(strap) {
+    const { ai } = this.stores;
+    const isNew = ai.newLifestrap || strap.key === 'prime-life-strap' || strap.key === 'new-ls';
+    const wasZen = ai.currentMode === 'zen' || ai.isInitialState;
+
+    this.activateLifestrapState(strap.key);
 
     if (isNew) {
-      // Brand new story - open the lens
-      this.openLens();
       ai.currentMode = 'extracting';
-    } else {
-      // Returning story - load data but stay in Zen/Current world
-      // Ensure we don't force open the lens UI
-      console.log('Returning story loaded silently');
-      if (wasZen) {
-        this.resetToZen();
-      }
+      ai.isInitialState = false;
+    } else if (wasZen) {
+      this.syncLayout({ left: false, right: false, bottom: false, mode: 'active', world: 'orbit' });
     }
   }
 
   /**
-   * Transition to Lens view (Sieve)
+   * Called when the Loom has finished weaving the texture (Final trigger for Lens)
    */
-  openLens() {
+  onTextureWeaved(texture) {
     const { ai, besearch } = this.stores;
-    besearch.setHUUDState('lens');
+    const isNew = ai.newLifestrap || texture.key === 'prime-life-strap' || texture.key === 'new-ls';
+    
+    if (isNew) {
+      this.syncLayout({
+        left: false,
+        right: true,
+        bottom: 'lens',
+        mode: 'extracting',
+        context: 'extraction'
+      });
+      
+      this.orchestrateExtraction(texture.story, texture.key);
+      
+      ai.newLifestrap = false;
+      ai.isInitialState = false;
+    } else {
+      this.syncLayout({
+        left: false,
+        right: false,
+        bottom: false,
+        mode: 'active'
+      });
+      ai.isInitialState = false;
+    }
   }
 
   /**
-   * Transition to Attunement view
+   * Orchestrate the extraction dialogue messages
    */
-  openAttunement() {
-    const { ai, besearch } = this.stores;
-    besearch.setHUUDState('attunement');
+  orchestrateExtraction(peerInput, lsKey) {
+    const { chat } = this.stores;
+    
+    if (!this.stores.ai.historyPair[lsKey]) this.stores.ai.historyPair[lsKey] = [];
+    if (!chat.chatHistory[lsKey]) chat.chatHistory[lsKey] = [];
+
+    chat.addMessage({
+      role: "peer",
+      type: "peer",
+      content: peerInput || "Story extraction initiated...",
+      context: "extraction",
+      conversationId: lsKey,
+      contract_key: lsKey,
+      lifeStrapID: lsKey,
+    });
+
+    chat.addMessage({
+      role: "beebee",
+      type: "agent",
+      content: "beebee is digesting the story.",
+      context: "extraction",
+      conversationId: lsKey,
+      contract_key: lsKey,
+      lifeStrapID: lsKey,
+      status: "complete",
+    });
   }
 
   /**
-   * Transition to Lab view (Sculpting)
+   * Centralized method to set active lifestrap keys
    */
-  openLab() {
-    const { besearch } = this.stores;
-    besearch.setHUUDState('besearch');
+  activateLifestrapState(lsKey) {
+    const { ai } = this.stores;
+    ai.activeLifestrapKey = lsKey;
+    ai.activeLifeStrapID = lsKey;
+    ai.activeContractKey = lsKey;
+    ai.chatAttention = lsKey;
+    ai.lifeStrapID = lsKey;
   }
 
   /**
-   * Transition to Heli Projection
-   */
-  openHeli() {
-    const { besearch } = this.stores;
-    besearch.setHUUDLayer('heli');
-  }
-
-  /**
-   * Orchestrate World transition
-   * @param {String} worldId - orbit, body, earth
-   */
-  orchestrateWorldChange(worldId) {
-    const { ai, besearch } = this.stores;
-    ai.activeWorld = worldId;
-    // When changing world manually, we usually want to be in world layer
-    besearch.setHUUDState('default');
-  }
-
-  /**
-   * Orchestrate explicit user selection of a lifestrap
-   * @param {Object} strapData 
+   * Handle manual user selection of a story
    */
   handleLifestrapSelection(strapData) {
-    const { ai, besearch, chat } = this.stores;
-    const strapId = strapData.id || strapData.key || 'unknown';
-    console.log('Orchestrating Lifestrap Selection:', strapId);
+    const { ai, besearch, loom } = this.stores;
+    const lsKey = strapData.key || strapData.id;
     
-    // 1. Load cycles for this specific lifestrap
-    besearch.loadCyclesForLifestrap(strapId);
+    besearch.loadCyclesForLifestrap(lsKey);
+    this.activateLifestrapState(lsKey);
+    ai.setActiveLifeStrap(strapData); 
 
-    // 2. Clear the world and set for new lifestrap story
-    ai.activeWorld = 'orbit';
-    ai.isInitialState = false;
-    ai.setActiveLifeStrap(strapData);
-    ai.currentMode = 'extracting';
+    if (loom && typeof loom.applyStrapTexture === 'function') {
+      loom.applyStrapTexture(lsKey, strapData);
+    }
 
-    // 3. HUD should stay in World mode when selecting from lifetools
-    besearch.setHUUDState('default');
-
-    // 4. Ensure panels are closed
-    besearch.showBottomPanel = false;
-    chat.isChatOpen = false;
-    chat.chatWidth = 0;
-    
-    // We don't call openLens() here because we want the panels closed initially
-    // as per the requirement "close the panels and just present the world".
+    this.syncLayout({
+      left: false,
+      right: false,
+      bottom: 'lens',
+      mode: 'active'
+    });
   }
 
-  /**
-   * Orchestrate Sculpting Lab transitions
-   * @param {Object} data 
-   */
-  orchestrateSculpting(data) {
-    const { besearch } = this.stores;
-    besearch.openSculptingLayer();
-  }
-
-  /**
-   * Reset all panels to initial state
-   */
   resetToZen() {
-    const { ai, besearch, chat, loom } = this.stores;
-    
-    ai.currentMode = 'zen';
-    ai.activeWorld = 'orbit';
-    ai.showLifestapLens = false;
-    if (loom) loom.digestInput = null;
-    ai.isInitialState = true;
-    
-    chat.chatWidth = 0;
-    chat.isChatOpen = false;
-    chat.isUnrolled = false; // Collapse Beebee ribbon
-    chat.isInterplayActive = false;
-    
-    besearch.showBottomPanel = false;
-    besearch.setHUUDState('default');
-    
-    chat.chatWidth = 0;
-    chat.isChatOpen = false;
+    this.syncLayout({ left: false, right: false, bottom: false, mode: 'zen', world: 'orbit' });
+    this.stores.ai.isInitialState = true;
   }
 }
 

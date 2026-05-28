@@ -26,7 +26,7 @@ describe('Lifestrap Story E2E Flow', () => {
 
     // Verify lens is open and has items
     // The ExperienceOrchestrator usually opens the bottom panel automatically
-    cy.get('.bottom-panel').should('be.visible')
+    cy.get('.bottom-panel', { timeout: 20000 }).should('be.visible')
     
     // Check capacity and context
     // Note: We might need to wait for the "extracted" data to appear

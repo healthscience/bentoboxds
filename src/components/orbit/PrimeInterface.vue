@@ -279,6 +279,13 @@ const bentoVerticalSplitRatio = ref(50); // Percentage for horizontal split
 const isDraggingBentoDivider = ref(false);
 const isDraggingBentoVerticalDivider = ref(false);
 
+/* panel settings */
+const isLifeToolsOpen = ref(false);
+const rightPanelMode = ref("chat");
+
+const panelWidth = ref(30);
+const draggingMode = ref(null);
+
 /* computed */
 const extractedData = computed(() => storeLoom.digestInput);
 const activeWorld = computed({
@@ -288,36 +295,8 @@ const activeWorld = computed({
 
 const isBottomOpen = computed(() => storeBesearch.showBottomPanel);
 
-watch(
-  isBottomOpen,
-  (val) => {
-    orbitStore.isInterplayActive = val;
-  },
-  { immediate: true },
-);
-
-// Watch for store changes to trigger the "Extracting" state automatically
-watch(
-  () => storeLoom.digestInput,
-  (newData) => {
-    // Legacy support - we now use ExperienceOrchestrator for this
-  },
-  { deep: true },
-);
-
-/* panel settins */
-const isLifeToolsOpen = ref(false);
-const rightPanelMode = ref("chat");
-
-const panelWidth = ref(30);
-const draggingMode = ref(null);
-
-// 1. Add 'extracting' to the modes
-// const currentMode = ref('zen'); // 'zen', 'demo', 'extracting', or 'active'
-
-/* computed */
 const isInitialState = computed(() => {
-  return storeAI.currentMode === "zen";
+  return storeAI.isInitialState;
 });
 
 const isDemoMode = computed(() => storeAI.currentMode === "demo");
@@ -337,6 +316,14 @@ const chatWidth = computed({
   get: () => storeChat.chatWidth,
   set: (val) => (storeChat.chatWidth = val),
 });
+
+watch(
+  isBottomOpen,
+  (val) => {
+    orbitStore.isInterplayActive = val;
+  },
+  { immediate: true },
+);
 
 /* methods */
 const handleSaveCue = (cueId) => {
@@ -359,10 +346,9 @@ const handleStartTagging = () => {
 
 const launchDemo = (type) => {
   storeAI.isInitialState = false;
-  storeAI.currentMode = "demo"; // This triggers the "Three Cs" in Launchpad
+  storeAI.currentMode = "demo"; 
   storeAI.activeWorld = type;
 
-  // Also push the demo text into the store so the Lenses have data
   if (type === "oribt") {
     storeAI.beebeeDigest("I want to swim 400m in 10 orbits...", true);
   } else if (type === "body") {
@@ -381,7 +367,6 @@ const launchDemo = (type) => {
   storeBesearch.showBottomPanel = true;
 };
 
-// 3. Update the Reset handler
 const exitToZen = () => {
   if (!storeAI.experienceOrchestrator) {
     storeAI.initOrchestrator();
@@ -390,25 +375,11 @@ const exitToZen = () => {
   panelWidth.value = 30;
 };
 
-// Inside PrimeInterface.vue <script setup>
-const extractionLenses = computed(() => {
-  return {
-    capacity: storeLoom.digestInput?.constraints
-      ? [storeLoom.digestInput.constraints]
-      : [],
-    coherence: storeLoom.digestInput?.content
-      ? [storeLoom.digestInput.content]
-      : [],
-    context: storeLoom.digestInput?.context ? [storeLoom.digestInput.context] : [],
-  };
-});
-
 // Map the 3 Cs to the Lenses
 const mappedLenses = computed(() => {
   const input = storeLoom.digestInput;
   if (!input) return { capacity: [], coherence: [], context: [], heli: [] };
 
-  // New pillars structure
   if (input.pillars) {
     return {
       capacity: input.pillars.capacity || [],
@@ -418,7 +389,6 @@ const mappedLenses = computed(() => {
     };
   }
 
-  // Legacy structure
   return {
     capacity: input.capacity || [],
     coherence: input.coherence || [],
@@ -462,10 +432,7 @@ const handleGlobalDrag = (e) => {
     if (stage) {
       const rect = stage.getBoundingClientRect();
       const x = e.clientX - rect.left;
-      bentoSplitRatio.value = Math.max(
-        10,
-        Math.min(90, (x / rect.width) * 100),
-      );
+      bentoSplitRatio.value = Math.max(10, Math.min(90, (x / rect.width) * 100));
     }
     return;
   }
@@ -474,33 +441,21 @@ const handleGlobalDrag = (e) => {
     if (stage) {
       const rect = stage.getBoundingClientRect();
       const y = e.clientY - rect.top;
-      bentoVerticalSplitRatio.value = Math.max(
-        10,
-        Math.min(90, (y / rect.height) * 100),
-      );
+      bentoVerticalSplitRatio.value = Math.max(10, Math.min(90, (y / rect.height) * 100));
     }
     return;
   }
   if (!draggingMode.value) return;
   if (draggingMode.value === "left") {
-    panelWidth.value = Math.max(
-      30,
-      Math.min(e.clientX, window.innerWidth * 0.4),
-    );
+    panelWidth.value = Math.max(30, Math.min(e.clientX, window.innerWidth * 0.4));
     isLifeToolsOpen.value = panelWidth.value > 150;
   } else if (draggingMode.value === "right") {
     const newWidth = window.innerWidth - e.clientX;
-    storeChat.chatWidth = Math.max(
-      0,
-      Math.min(newWidth, window.innerWidth * 0.5),
-    );
+    storeChat.chatWidth = Math.max(0, Math.min(newWidth, window.innerWidth * 0.5));
     storeChat.isChatOpen = storeChat.chatWidth > 150;
   } else if (draggingMode.value === "bottom") {
     const newHeight = window.innerHeight - e.clientY;
-    storeBesearch.bottomHeight = Math.max(
-      60,
-      Math.min(newHeight, window.innerHeight * 0.82),
-    );
+    storeBesearch.bottomHeight = Math.max(60, Math.min(newHeight, window.innerHeight * 0.82));
     storeBesearch.showBottomPanel = storeBesearch.bottomHeight > 100;
   }
 };
@@ -519,12 +474,8 @@ const dynamicGridStyle = computed(() => ({
 }));
 
 const bentoLayoutStyle = computed(() => {
-  const hasTop =
-    activeQuadrants.value.includes("now-me") ||
-    activeQuadrants.value.includes("future-me");
-  const hasBottom =
-    activeQuadrants.value.includes("now-us") ||
-    activeQuadrants.value.includes("future-us");
+  const hasTop = activeQuadrants.value.includes("now-me") || activeQuadrants.value.includes("future-me");
+  const hasBottom = activeQuadrants.value.includes("now-us") || activeQuadrants.value.includes("future-us");
 
   if (hasTop && hasBottom) {
     return {
@@ -566,19 +517,11 @@ const bottomRowStyle = computed(() => {
   }
   return { height: "100%" };
 });
-const isBesearchMode = computed(() => storeAI.currentMode === "besearch");
 
 const isBentoVisible = computed(() => {
-  // Hide in lens, lab, or heli contexts
   const hiddenContexts = ["lens", "lab", "heli"];
   if (hiddenContexts.includes(storeBesearch.huudContext)) return false;
-
-  // Hide if specific layers are open
-  if (storeBesearch.isHeliProjectOpen) return false;
-  if (storeBesearch.isSculptingLayerOpen) return false;
-  if (storeBesearch.isBesearchLayerOpen) return false;
-  if (storeBesearch.isAttunementLayerOpen) return false;
-
+  if (storeBesearch.isHeliProjectOpen || storeBesearch.isSculptingLayerOpen || storeBesearch.isBesearchLayerOpen || storeBesearch.isAttunementLayerOpen) return false;
   return true;
 });
 </script>
@@ -836,13 +779,6 @@ const isBentoVisible = computed(() => {
   overflow: hidden;
 }
 
-.fuse-container {
-  grid-row: 3;
-  height: 60px;
-  width: 100%;
-  z-index: 500;
-}
-
 .interface-layer {
   grid-row: 2;
   z-index: 400;
@@ -854,43 +790,6 @@ const isBentoVisible = computed(() => {
 }
 .interface-layer > * {
   pointer-events: auto;
-}
-
-.extraction-lens-wrap {
-  display: grid;
-  grid-template-rows: auto auto;
-  gap: 40px;
-  width: 90%;
-  max-width: 1000px;
-  pointer-events: auto;
-}
-
-.extraction-footer-grid {
-  display: grid;
-  grid-template-columns: auto auto;
-  justify-content: center;
-  align-items: center;
-  gap: 80px;
-  padding-top: 20px;
-}
-
-.manifest-nudge {
-  font-weight: 800;
-  color: #38205f;
-  letter-spacing: 0.05em;
-  animation: pulse-right 2s infinite ease-in-out;
-}
-
-@keyframes pulse-right {
-  0%,
-  100% {
-    transform: translateX(0);
-    opacity: 0.7;
-  }
-  50% {
-    transform: translateX(15px);
-    opacity: 1;
-  }
 }
 
 .global-return-overlay {

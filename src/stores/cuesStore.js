@@ -420,8 +420,31 @@ export const cuesStore = defineStore('cues', {
         this.pathRefContracts.datatype = {}
       }
 
-      // Merge new contracts into cuesStore state
-      Object.assign(this.pathRefContracts.datatype, referenceContracts.datatype)
+      if (Array.isArray(referenceContracts)) {
+        for (const contract of referenceContracts) {
+          const hexContract = this.storeLibrary.utilLibrary.convertBinaryToHex(contract)
+          if (hexContract.value.refcontract === 'datatype') {
+            this.pathRefContracts.datatype[hexContract.key] = hexContract
+            
+            // For base biology seeding, these ARE the cues we want to show
+            // Check if it's already in the list
+            const exists = this.cuesList.some(c => c.key === hexContract.key)
+            if (!exists) {
+              // Add a default background color if missing for the wheel
+              if (!hexContract.value.concept.settings) {
+                hexContract.value.concept.settings = { 
+                  backgroundColor: '#3b82f6',
+                  glue: 'prime'
+                }
+              }
+              this.cuesList.push(hexContract)
+            }
+          }
+        }
+      } else if (referenceContracts.datatype) {
+        // Merge new contracts into cuesStore state
+        Object.assign(this.pathRefContracts.datatype, referenceContracts.datatype)
+      }
       
       // Trigger refresh of any waiting cues
       this.refreshExpandedCues()

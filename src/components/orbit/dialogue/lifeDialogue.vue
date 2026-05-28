@@ -1,7 +1,9 @@
 <template>
   <div id="life-dialogue">
     <div id="chatspace-modal-header" v-if="isHeaderVisible">
-      <div id="spacechat">CueChat # {{ storeAI.liveBspace.name }}</div>
+      <div id="spacechat">
+        {{ storeAI.beebeeContext === 'extraction' ? 'BeeBee Extraction' : 'CueChat # ' + (storeAI.liveBspace?.name || '...') }}
+      </div>
       <div
         id="return-modal-close"
         :class="{ 'active-history': chatHistoryStatus }"
@@ -14,7 +16,7 @@
       <chat-menu v-if="chatHistoryStatus === true"></chat-menu>
       <div class="context-content">
         <chat-interface
-          :context-filter="{
+          :context-filter="storeAI.beebeeContext === 'extraction' ? 'extraction' : {
             type: 'chatspace',
             id: storeAI.liveBspace?.cueid || storeAI.liveBspace?.spaceid,
           }"
@@ -51,14 +53,15 @@ const bentochatStatus = computed(() => {
 
 onMounted(() => {
   previousContext = storeAI.beebeeContext;
-  storeAI.beebeeContext = "chatspace";
-  // Ensure the space chat is present in the chat menu with timestamps
+  
+  // Only transition to chatspace context if we actually have a space selected
   const cueId = storeAI.liveBspace?.cueid || storeAI.liveBspace?.spaceid;
-  const name = storeAI.liveBspace?.name;
-  const contractKey = storeAI.liveBspace?.contract_key;
-  const lifeStrapID = storeAI.liveBspace?.lifeStrapID || cueId;
-
   if (cueId) {
+    storeAI.beebeeContext = "chatspace";
+    const name = storeAI.liveBspace?.name;
+    const contractKey = storeAI.liveBspace?.contract_key;
+    const lifeStrapID = storeAI.liveBspace?.lifeStrapID || cueId;
+
     storeAI.setActiveLifeStrap(lifeStrapID, contractKey);
     storeAI.ensureSpaceChatInMenu(cueId, name);
   }
@@ -119,7 +122,7 @@ const chatHistoryMenu = () => {
 }
 
 #chatspace-modal-header {
-  display: grid;
+  display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px;

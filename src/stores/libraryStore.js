@@ -467,6 +467,8 @@ export const libraryStore = defineStore('librarystore', {
       } else if (message.action === 'ledger') {
         this.peerLedger = message.data
       } else if (message.action === 'seed-base-biology') {
+        console.log('seed biology')
+        console.log(message)
         this.storeOrrery.processReply(message)
       }
     },

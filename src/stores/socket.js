@@ -83,6 +83,8 @@ export const useSocketStore = defineStore({
       } else if (received.type == 'bbai-stream-reply') {
         this.aiStore.processStreamReply(received)
       } else if (received.type == 'bbai-reply') {
+        console.log('bbai-reply---------------')
+        console.log(received)
         this.aiStore.processReply(received)
       } else if (received.type == 'bbai-init') {
         this.aiStore.processReply(received)

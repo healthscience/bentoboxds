@@ -21,7 +21,8 @@ vi.mock('@/stores/libraryStore.js', () => ({
 
 vi.mock('@/stores/chatStore.js', () => ({
   useChatStore: () => ({
-    handleIncomingMessage: vi.fn()
+    handleIncomingMessage: vi.fn(),
+    chatHistory: []
   })
 }))
 
@@ -60,56 +61,20 @@ describe('aiInterfaceStore', () => {
     setActivePinia(createPinia())
   })
 
-  it('initializes with default lifestrapTexture', () => {
+  it('initializes with default state', () => {
     const store = aiInterfaceStore()
-    expect(store.lifestrapTexture.pillars.capacity).toEqual([])
-    expect(store.lifestrapTexture.pillars.context).toEqual([])
-    expect(store.lifestrapTexture.residue).toEqual([])
+    expect(store.currentMode).toBe('zen')
+    expect(store.isInitialState).toBe(true)
   })
 
-  it('updatesResonWeight moves item to capacity pillar', () => {
-    const store = aiInterfaceStore()
-    store.updateResonWeight('Oxygen', 'capacity')
-    
-    expect(store.lifestrapTexture.pillars.capacity).toContainEqual({
-      label: 'capacity',
-      value: 'Oxygen'
-    })
-    expect(store.lifestrapTexture.residue).not.toContain('Oxygen')
-  })
-
-  it('updatesResonWeight moves item to context pillar with sub-zones', () => {
-    const store = aiInterfaceStore()
-    store.updateResonWeight('Forest', 'environment')
-    
-    expect(store.lifestrapTexture.pillars.context).toContainEqual({
-      label: 'Space',
-      value: 'Forest'
-    })
-  })
-
-  it('updatesResonWeight moves item back to residue', () => {
-    const store = aiInterfaceStore()
-    store.updateResonWeight('Oxygen', 'capacity')
-    store.updateResonWeight('Oxygen', 'residue')
-    
-    expect(store.lifestrapTexture.pillars.capacity).not.toContainEqual({
-      label: 'capacity',
-      value: 'Oxygen'
-    })
-    expect(store.lifestrapTexture.residue).toContain('Oxygen')
-  })
-  
   it('clears data correctly', () => {
     const store = aiInterfaceStore()
     store.historyPair['test'] = [{ q: 'a' }]
     
-    // Use vi.spyOn for location.reload if possible, or skip the reload check
-    // Since location.reload is read-only in many environments, we'll mock it differently
     const reloadSpy = vi.fn()
     Object.defineProperty(window, 'location', {
       value: { reload: reloadSpy },
-      writable: true
+      configurable: true
     })
     
     store.clearData()

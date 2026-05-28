@@ -553,7 +553,6 @@ export const besearchStore = defineStore("besearchstore", {
     setHUUDState(mode, forceOpen = true) {
       const aiStore = aiInterfaceStore();
       this.besearchMode = mode;
-      console.log("HUUD Mode transition requested:", mode, "forceOpen:", forceOpen);
       
       if (mode === "default") {
         this.isBesearchLayerOpen = false;
@@ -567,7 +566,6 @@ export const besearchStore = defineStore("besearchstore", {
         aiStore.showLifestapLens = true; // "collapsed" legacy behavior
         this.setHUUDLayer(this.previousHUUDContext || "world");
       } else if (mode === "lens") {
-        console.log("HUD: Switching to Lens Layer");
         this.previousHUUDContext = this.huudContext !== "lens" ? this.huudContext : this.previousHUUDContext;
         if (aiStore.currentMode === "zen") {
           aiStore.currentMode = "extracting";
@@ -587,7 +585,6 @@ export const besearchStore = defineStore("besearchstore", {
         aiStore.showLifestapLens = false; // Show lens content
         this.setHUUDLayer("lens");
       } else if (mode === "attunement") {
-        console.log("HUD: Switching to Attunement (Lens Layer)");
         if (aiStore.currentMode === "zen") {
           aiStore.currentMode = "extracting";
         }
@@ -609,7 +606,6 @@ export const besearchStore = defineStore("besearchstore", {
         aiStore.showLifestapLens = true; 
         this.setHUUDLayer("lens");
       } else if (mode === "graft") {
-        console.log("HUD: Switching to Graft (Lens Layer)");
         if (aiStore.currentMode === "zen") {
           aiStore.currentMode = "extracting";
         }
@@ -632,7 +628,6 @@ export const besearchStore = defineStore("besearchstore", {
         aiStore.showLifestapLens = true;
         this.setHUUDLayer("lens");
       } else if (mode === "heli") {
-        console.log("HUD: Switching to Heli (Lens Layer)");
         if (aiStore.currentMode === "zen") {
           aiStore.currentMode = "extracting";
         }
@@ -654,7 +649,6 @@ export const besearchStore = defineStore("besearchstore", {
         aiStore.showLifestapLens = true;
         this.setHUUDLayer("lens");
       } else if (mode === "emulation") {
-        console.log("HUD: Switching to Emulation");
         this.isBesearchLayerOpen = false;
         this.isAttunementLayerOpen = false;
         this.isGraftLayerOpen = false;
@@ -669,7 +663,6 @@ export const besearchStore = defineStore("besearchstore", {
         aiStore.showLifestapLens = true;
         this.setHUUDLayer("lab");
       } else if (mode === "tinker") {
-        console.log("HUD: Switching to Tinkering");
         this.isBesearchLayerOpen = false;
         this.isAttunementLayerOpen = false;
         this.isGraftLayerOpen = false;
@@ -684,7 +677,6 @@ export const besearchStore = defineStore("besearchstore", {
         aiStore.showLifestapLens = true;
         this.setHUUDLayer("lab");
       } else if (mode === "besearch") {
-        console.log("HUD: Switching to Besearch (Lab Layer)");
         if (aiStore.currentMode === "zen" || aiStore.currentMode === "extracting") {
           aiStore.currentMode = "active";
         }
@@ -726,13 +718,11 @@ export const besearchStore = defineStore("besearchstore", {
       this.huudContext = layers[this.huudLayerIndex];
     },
     setHUUDLayer(layerName) {
-      console.log("HUD: setHUUDLayer requested for:", layerName);
       const layers = ["world", "lens", "lab", "heli"];
       const index = layers.indexOf(layerName);
       if (index !== -1) {
         this.huudLayerIndex = index;
-        this.huudContext = layers[index]; // Use layers array directly to ensure it matches
-        console.log("HUD: setHUUDLayer complete. Index:", this.huudLayerIndex, "Context:", this.huudContext);
+        this.huudContext = layers[index]; 
       } else {
         console.error("HUD: Unknown layerName:", layerName);
       }
