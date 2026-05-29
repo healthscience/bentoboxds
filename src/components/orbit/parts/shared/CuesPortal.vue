@@ -13,16 +13,7 @@
 
         <div v-if="expandedCategory === cat.id" class="category-content">
           <div class="category-filter">
-            <button 
-              v-for="letter in alphabet" 
-              :key="letter"
-              class="filter-letter"
-              :class="{ active: categoryFilters[cat.id] === letter }"
-              @click.stop="toggleCategoryFilter(cat.id, letter)"
-            >
-              {{ letter }}
-            </button>
-            <button class="clear-btn" @click.stop="categoryFilters[cat.id] = ''">Reset</button>
+            <AlphabetFilter v-model="categoryFilters[cat.id]" showReset />
           </div>
 
           <div class="cues-grid">
@@ -51,6 +42,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import AlphabetFilter from '@/components/shared/AlphabetFilter.vue'
 import { cuesStore } from '@/stores/cuesStore.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 
@@ -63,7 +55,6 @@ const storeLibrary = libraryStore()
 const emit = defineEmits(['dragstart', 'select'])
 
 const expandedCategory = ref(null)
-const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('')
 const categories = [
   { id: 'body', label: 'Body' },
   { id: 'environment', label: 'Environment (buildings)' },
@@ -103,14 +94,6 @@ const toggleExpand = (catId) => {
     expandedCategory.value = null
   } else {
     expandedCategory.value = catId
-  }
-}
-
-const toggleCategoryFilter = (catId, letter) => {
-  if (categoryFilters.value[catId] === letter) {
-    categoryFilters.value[catId] = ''
-  } else {
-    categoryFilters.value[catId] = letter
   }
 }
 
@@ -214,28 +197,6 @@ const onDragStart = (event, word) => {
   padding: 0 16px 12px 16px;
 }
 
-.filter-letter {
-  width: 20px;
-  height: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.65rem;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  background: transparent;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-transform: uppercase;
-  color: #4a5568;
-}
-
-.filter-letter:hover, .filter-letter.active {
-  background: #3b82f6;
-  color: white;
-  border-color: #3b82f6;
-}
-
 .cues-grid {
   display: flex;
   flex-wrap: wrap;
@@ -288,12 +249,4 @@ const onDragStart = (event, word) => {
   text-transform: uppercase;
   color: #718096;
 }
-
-.clear-btn {
-  font-size: 0.65rem;
-  padding: 2px 6px;
-  border-radius: 4px;
-  border: 1px solid rgba(0, 0, 0, 0.1);
-  background: #edf2f7;
-  cursor: pointer}
 </style>

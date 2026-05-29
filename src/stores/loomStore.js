@@ -247,6 +247,7 @@ export const loomStore = defineStore('loomstore', {
         else if (zone === "context") this.lifestrapTexture.pillars.context.push(entry);
         else if (zone === "attunement") this.lifestrapTexture.pillars.attunement.push(entry);
       }
+      this.updateActiveLensFromTexture(this.lifestrapTexture);
       this.syncAttunement(word, zone, label);
     },
 

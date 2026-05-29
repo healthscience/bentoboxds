@@ -171,7 +171,13 @@ const onDrop = (e, groupId) => {
 .lens-column-content {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 1.2rem;
+}
+
+.context-group.bucket {
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
 }
 
 .context-group.drop-active {
@@ -193,7 +199,10 @@ const onDrop = (e, groupId) => {
   display: flex;
   flex-direction: row; /* Changed from column */
   flex-wrap: wrap; /* Added to handle overflow */
-  gap: 8px;
+  gap: 10px;
+  padding: 10px 0;
+  min-height: 50px;
+  flex: 1;
 }
 
 .variable-tag.assigned-tag {

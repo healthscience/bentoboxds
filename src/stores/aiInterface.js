@@ -206,10 +206,14 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
     },
 
     processReply(received) {
+      console.log("processReply", received);
       if (received.action === "ls-pattern" || received.action === "ls-whole" || received.action === "ls-whole-loom" || received.action === "npl-reply" || received.action === "bringtobe-start") {
         this.storeLoom.processReply(received);
       } else if (received.action === "lifestrap-genesis") {
         this.storeLifestrap.processReply(received);
+      } else if (received.action === "seed-library") {
+        // pass on to library store
+        this.storeOrrery.processReply(received)
       }
       if (received.bbid) {
         this.chatBottom++;

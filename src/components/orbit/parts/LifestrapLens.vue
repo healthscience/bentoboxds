@@ -338,24 +338,32 @@ const onDrop = (e, zone) => {
   const word = e.dataTransfer.getData("text/plain");
   if (!word) return;
   
-  // Determine default label for drop
+  // Map sub-group IDs to main zones
+  let targetZone = zone;
   let label = null;
-  if (zone === "context") label = "Activity";
-  if (zone === "attunement") label = "Attunement";
 
-  if (zone === "capacity") {
-    // Multi Selection enabled
+  if (['peer', 'environment', 'earth', 'context'].includes(zone)) {
+    targetZone = 'context';
+    if (zone === 'peer') label = 'Body/Peer';
+    else if (zone === 'environment') label = 'Building Environment';
+    else if (zone === 'earth') label = 'Earth Scales';
+    else label = 'Activity';
   }
 
-  if (zone === "attunement") {
+  if (targetZone === "attunement") {
     // Single Selection: Remove existing attunement first
     const existing = storeLoom.lifestrapTexture?.pillars?.attunement || [];
     existing.forEach(item => {
       storeLoom.updateResonWeight(item.value, "residue");
     });
+    label = "Attunement";
   }
 
-  commitAlignment(word, zone, label);
+  if (targetZone === "capacity") {
+    label = "Capacity";
+  }
+
+  commitAlignment(word, targetZone, label);
   activeZone.value = null;
   selectedWord.value = null;
 };
@@ -790,6 +798,17 @@ onMounted(() => {
   border-radius: 16px;
   transition: all 0.3s ease;
   flex-shrink: 0;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+}
+
+.lens-box > * {
+  flex-shrink: 0;
+}
+
+.lens-box .lens-column-content {
+  flex: 1;
 }
 
 .lens-box.active-zone {

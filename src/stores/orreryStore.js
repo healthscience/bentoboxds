@@ -10,8 +10,9 @@ export const orreryStore = defineStore('orrerystore', {
   }),
   actions: {
     processReply(message) {
+      console.log('Processing message:', message)
       if (message.action === 'seed-base-biology') {
-        const { referenceContracts, verification } = message.data
+        const { cueContracts, referenceContracts, verification } = message.data
         
         if (verification) {
           const actual = verification.actual || 0
@@ -23,14 +24,11 @@ export const orreryStore = defineStore('orrerystore', {
           }
         }
 
-        if (referenceContracts) {
-          // Pass reference contracts directly to cuesStore for integration
-          this.storeCues.integrateReferenceContracts(referenceContracts)
-          
-          // Also store in registry if needed
-          // For now mirroring existing behavior but adding to registry Map
-          // This will be expanded as we define exactly how structural primitives are stored
+        if (cueContracts) {
+         this.storeCues.cuesList = message.data.cueContracts
         }
+      } else if (message.action === 'seed-library') {
+        this.storeCues.cuesList = message.data.cueContracts
       } else if (message.action === 'reference-contract') {
         // Handle reference contracts specifically if they come in isolation
       }
