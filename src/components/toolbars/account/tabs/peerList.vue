@@ -14,7 +14,7 @@
       </div>
     </div>
     <div id="social-network-view" v-if="peerModeType === 'social'">
-      <header>Social network</header>
+      <header>Warm Peers</header>
       <div class="peer-list-set" v-for='(peer, index) in peerNetwork' :key='peer.key'>
         <div class="peer-g"  v-if="index == 0">
           <div class="longterm-peer peer-details-header">
@@ -35,10 +35,10 @@
         <div class="peer-g">
           <div class="longterm-peer peer-details">
             <div class="peer-info">
-              {{ peer?.value?.name }}
+              {{ peer?.value?.concept?.name }}
             </div>
             <div class="peer-info">
-              {{ peer?.value?.live }}
+              {{ peer?.value?.concept?.live }}
             </div>
             <div class="peer-info">
               <div class="peer-pk">{{ peer.key }}</div>

@@ -206,7 +206,6 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
     },
 
     processReply(received) {
-      console.log("processReply", received);
       if (received.action === "ls-pattern" || received.action === "ls-whole" || received.action === "ls-whole-loom" || received.action === "npl-reply" || received.action === "bringtobe-start") {
         this.storeLoom.processReply(received);
       } else if (received.action === "lifestrap-genesis") {
@@ -214,7 +213,10 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       } else if (received.action === "seed-library") {
         // pass on to library store
         this.storeOrrery.processReply(received)
+      } else if (received.action === 'warm-peers-begin') {
+        this.storeAcc.warmPeers = received.data
       }
+
       if (received.bbid) {
         this.chatBottom++;
       }

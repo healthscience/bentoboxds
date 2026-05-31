@@ -107,6 +107,8 @@ export const accountStore = defineStore('account', {
       } */
     },
     async processReply (received) {
+      console.log('accountStore processReply')
+      console.log(received)
       if (received.action === 'hop-anchor') {
         this.anchorStatus = true
       } else if (received.action === 'hop-locked') {
@@ -189,8 +191,6 @@ export const accountStore = defineStore('account', {
         this.publicKeysList = received.data
       } else if (received.action === 'drive-pubkey') {
         this.publickeyDrive = received.data
-      } else if (received.action === 'warm-peers') {
-        this.warmPeers = received.data
       } else if (received.action === 'network-keys') {
         this.networkInfo.publickey = received.data.publickey
       } else if (received.action === 'peer-new-relationship') {
