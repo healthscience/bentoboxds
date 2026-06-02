@@ -215,10 +215,8 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         this.storeOrrery.processReply(received)
       } else if (received.action === 'warm-peers-begin') {
         // convert key to hex
-        let keyWarmHex = []
         for (let wpeer of received.data) {
-          const hexContract = this.storeLibrary.utilLibrary.convertBinaryToHex(wpeer);  
-          console.log('hexContract', hexContract)
+          const hexContract = this.storeLibrary.utilLibrary.convertBinaryToHex(wpeer);
           this.storeAcc.warmPeers.push(hexContract)
         }
         // this.storeAcc.warmPeers = received.data

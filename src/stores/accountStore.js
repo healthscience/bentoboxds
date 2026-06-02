@@ -107,8 +107,6 @@ export const accountStore = defineStore('account', {
       } */
     },
     async processReply (received) {
-      console.log('accountStore processReply')
-      console.log(received)
       if (received.action === 'hop-anchor') {
         this.anchorStatus = true
       } else if (received.action === 'hop-locked') {
@@ -202,8 +200,6 @@ export const accountStore = defineStore('account', {
       } else if (received.action === 'invite-live-accepted') {
         this.updatePeerlive(received.data)
       } else if (received.action === 'network-peer-name') {
-        console.log('network peer name received')
-        console.log(received.data)
         this.updatePeerName(received.data)
       } else if (received.action === 'complete-topic-save') {
       } else if (received.action === 'peer-share-fail') {
@@ -309,13 +305,13 @@ export const accountStore = defineStore('account', {
       for (let wpeer of this.warmPeers) {
         if (wpeer.key === hexContract.key) {
           let peerOrg = wpeer
-          peerOrg.value.name = hexContract.value.concept.name
+          peerOrg.value.concept.name = hexContract.value.concept.name
           updateNameList.push(peerOrg)
         } else {
           updateNameList.push(wpeer)
         }
       }
-      this.warmPeers = updateNameList  
+      this.warmPeers = updateNameList
     },
     updatePeerlive (update) {
       let updateNameList = []
