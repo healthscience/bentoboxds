@@ -194,7 +194,7 @@ export const accountStore = defineStore('account', {
       } else if (received.action === 'network-keys') {
         this.networkInfo.publickey = received.data.publickey
       } else if (received.action === 'peer-new-relationship') {
-        this.checkPeerStatus(received.data.data)
+        this.checkPeerStatus(received.data)
       } else if (received.action === 'peer-share-topic') {
         this.updateTopicSetter(received.data)
       } else if (received.action === 'network-peer-disconnect') {
@@ -263,6 +263,8 @@ export const accountStore = defineStore('account', {
       this.sendMessageHOP(shareInfo)
     },
     updateTopicSetter (update) {
+      console.log('update topic setter', update)
+      console.log(this.warmPeers)
       let updatePeerList = []
       for (let wpeer of this.warmPeers) {
         if (wpeer.key === update.key) {
