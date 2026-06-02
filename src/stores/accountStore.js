@@ -269,10 +269,10 @@ export const accountStore = defineStore('account', {
       console.log(this.warmPeers)
       let updatePeerList = []
       for (let wpeer of this.warmPeers) {
-        if (wpeer.key === update.key) {
+        if (wpeer.key === hexContract.key) {
           updatePeerList.push(update)
           // update peer invite gen list
-          this.updateGeninviteList(update)
+          // this.updateGeninviteList(update)
         } else {
           updatePeerList.push(wpeer)
         }
