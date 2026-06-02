@@ -314,6 +314,9 @@ export const accountStore = defineStore('account', {
       this.warmPeers = updateNameList  
     },
     updatePeerlive (update) {
+      console.log('updatePeerlive')
+      console.log(update)
+      console.log(this.warmPeers)
       let updateNameList = []
       for (let wpeer of this.warmPeers) {
         if (wpeer.key === update.data.publickey) {
@@ -357,6 +360,9 @@ export const accountStore = defineStore('account', {
     },
     checkPeerStatus (peer) {
       // brand new peer first time or update save for topic
+      console.log('chehpeerStatus-------111')
+      console.log(peer)
+      console.log(this.warmPeers)
       let warmMatch = {}
       for (let wpeer of this.warmPeers) {
         if (wpeer.key === peer.key) {
