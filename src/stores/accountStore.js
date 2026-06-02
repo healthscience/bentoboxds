@@ -264,6 +264,8 @@ export const accountStore = defineStore('account', {
     },
     updateTopicSetter (update) {
       console.log('update topic setter', update)
+      const hexContract = this.storeLibrary.utilLibrary.convertBinaryToHex(update);
+      console.log('hexContract', hexContract)  
       console.log(this.warmPeers)
       let updatePeerList = []
       for (let wpeer of this.warmPeers) {

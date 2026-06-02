@@ -13,7 +13,7 @@
         </div>
       </div>
     </div>
-    <div id="social-network-view" v-if="peerModeType === 'social'">ff {{ peerNetwork }}
+    <div id="social-network-view" v-if="peerModeType === 'social'">
       <header>Warm Peers</header>
       <div class="peer-list-set" v-for='(peer, index) in peerNetwork' :key='peer.key'>
         <div class="peer-g"  v-if="index == 0">
