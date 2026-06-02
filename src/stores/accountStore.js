@@ -263,14 +263,11 @@ export const accountStore = defineStore('account', {
       this.sendMessageHOP(shareInfo)
     },
     updateTopicSetter (update) {
-      console.log('update topic setter', update)
       const hexContract = this.storeLibrary.utilLibrary.convertBinaryToHex(update);
-      console.log('hexContract', hexContract)  
-      console.log(this.warmPeers)
       let updatePeerList = []
       for (let wpeer of this.warmPeers) {
         if (wpeer.key === hexContract.key) {
-          updatePeerList.push(update)
+          updatePeerList.push(hexContract)
           // update peer invite gen list
           // this.updateGeninviteList(update)
         } else {
@@ -325,8 +322,8 @@ export const accountStore = defineStore('account', {
       for (let wpeer of this.warmPeers) {
         if (wpeer.key === update.data.publickey) {
           let peerOrg = wpeer
-          peerOrg.value.matchted = true
-          peerOrg.value.live = true
+          peerOrg.value.concept.matchted = true
+          peerOrg.value.concept.live = true
           updateNameList.push(peerOrg)
         } else {
           updateNameList.push(wpeer)
