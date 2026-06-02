@@ -468,7 +468,7 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
 }
 
 #add-warm-peer {
-  height: 80px;
+  min-height: 80px;
   margin: 1em;
 }
 
@@ -503,7 +503,7 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
 #prepare-invite {
   display: grid;
   grid-template-columns: 1fr;
-  height: 300px;
+  min-height: 300px;
 } 
 
 .message-feedback {
