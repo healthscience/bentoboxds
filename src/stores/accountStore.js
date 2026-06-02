@@ -202,6 +202,8 @@ export const accountStore = defineStore('account', {
       } else if (received.action === 'invite-live-accepted') {
         this.updatePeerlive(received.data)
       } else if (received.action === 'network-peer-name') {
+        console.log('network peer name received')
+        console.log(received.data)
         this.updatePeerName(received.data)
       } else if (received.action === 'complete-topic-save') {
       } else if (received.action === 'peer-share-fail') {
@@ -302,11 +304,12 @@ export const accountStore = defineStore('account', {
       // this.warmPeers = updateWarmPeers
     },
     updatePeerName (update) {
+      const hexContract = this.storeLibrary.utilLibrary.convertBinaryToHex(update);
       let updateNameList = []
       for (let wpeer of this.warmPeers) {
-        if (wpeer.key === update.key) {
+        if (wpeer.key === hexContract.key) {
           let peerOrg = wpeer
-          peerOrg.value.name = update.value.name
+          peerOrg.value.name = hexContract.value.concept.name
           updateNameList.push(peerOrg)
         } else {
           updateNameList.push(wpeer)
@@ -315,9 +318,6 @@ export const accountStore = defineStore('account', {
       this.warmPeers = updateNameList  
     },
     updatePeerlive (update) {
-      console.log('updatePeerlive')
-      console.log(update)
-      console.log(this.warmPeers)
       let updateNameList = []
       for (let wpeer of this.warmPeers) {
         if (wpeer.key === update.data.publickey) {
@@ -361,9 +361,6 @@ export const accountStore = defineStore('account', {
     },
     checkPeerStatus (peer) {
       // brand new peer first time or update save for topic
-      console.log('chehpeerStatus-------111')
-      console.log(peer)
-      console.log(this.warmPeers)
       let warmMatch = {}
       for (let wpeer of this.warmPeers) {
         if (wpeer.key === peer.key) {
@@ -421,8 +418,6 @@ export const accountStore = defineStore('account', {
           shareInfo.reftype = 'null'
           shareInfo.privacy = 'private'
           shareInfo.data = topicSet
-          console.log('share protocol')
-          console.log(shareInfo)
           this.sendMessageHOP(shareInfo)
         } else {
           // start normal first time warm peer direct connect
