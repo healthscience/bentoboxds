@@ -107,6 +107,7 @@ export const accountStore = defineStore('account', {
       } */
     },
     async processReply (received) {
+     console.log('processReply', received)
       if (received.action === 'hop-anchor') {
         this.anchorStatus = true
       } else if (received.action === 'hop-locked') {
@@ -315,8 +316,9 @@ export const accountStore = defineStore('account', {
     },
     updatePeerlive (update) {
       let updateNameList = []
+      const hexContract = this.storeLibrary.utilLibrary.convertBinaryToHex(update.data.peercontract);
       for (let wpeer of this.warmPeers) {
-        if (wpeer.key === update.data.publickey) {
+        if (wpeer.key === hexContract.key) {
           let peerOrg = wpeer
           peerOrg.value.concept.matchted = true
           peerOrg.value.concept.live = true
@@ -329,11 +331,12 @@ export const accountStore = defineStore('account', {
     },
     updatePeerDisconnect (update) {
       let updateNameList = []
+      const hexContract = this.storeLibrary.utilLibrary.convertBinaryToHex(update.peercontract);
       for (let wpeer of this.warmPeers) {
-        if (wpeer.key === update.publickey) {
+        if (wpeer.key === hexContract.key) {
           let peerOrg = wpeer
-          peerOrg.value.matchted = true
-          peerOrg.value.live = false
+          peerOrg.value.concept.matchted = true
+          peerOrg.value.concept.live = false
           updateNameList.push(peerOrg)
         } else {
           updateNameList.push(wpeer)
@@ -379,8 +382,9 @@ export const accountStore = defineStore('account', {
       // update warm peer set status to live connection
       let livePeerList = []
       for (let wpeer of this.warmPeers) {
-        if (wpeer.key === peerIn.publickey) {
-          wpeer.value.live = true
+        if (wpeer.key === peerIn.peercontract
+        ) {
+          wpeer.value.concept.live = true
           livePeerList.push(wpeer)
         } else {
           livePeerList.push(wpeer)

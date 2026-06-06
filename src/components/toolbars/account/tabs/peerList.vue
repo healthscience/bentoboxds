@@ -49,7 +49,7 @@
                 <button @click="copyKey(peer.key)">copy</button>            
               </div>
             <!--if longterm show button to reconnect or (TODO remove)-->
-            <div class="peer-action" v-if="peer?.value?.longterm === true">
+            <div class="peer-action" v-if="peer?.value?.concept?.longterm === true">
               <button @click="directConnectPeer(peer)">recon</button>
             </div>
             <div class="peer-action">
