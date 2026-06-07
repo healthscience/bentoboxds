@@ -107,7 +107,6 @@ export const accountStore = defineStore('account', {
       } */
     },
     async processReply (received) {
-     console.log('processReply', received)
       if (received.action === 'hop-anchor') {
         this.anchorStatus = true
       } else if (received.action === 'hop-locked') {
@@ -185,7 +184,6 @@ export const accountStore = defineStore('account', {
             console.error('❌ WASM Initialization failed:', err);
         }
       } else if (received.action === 'sign-verify-complete') {
-        console.log('sign in verify complete HOP received')
       } else if (received.action === 'hyperbee-pubkeys') {
         this.publicKeysList = received.data
       } else if (received.action === 'drive-pubkey') {
@@ -213,7 +211,6 @@ export const accountStore = defineStore('account', {
       }
     },
     persistSovereign () {
-      console.log('Anchoring Sovereign Identity...');
       // Generate the pair from the initialized WASM
       const pair = new SovereignKeypair();
       const pubKey = pair.get_public_key(); 
