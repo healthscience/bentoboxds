@@ -54,21 +54,22 @@ const bentochatStatus = computed(() => {
 onMounted(() => {
   previousContext = storeAI.beebeeContext;
   
+  if (!storeAI.experienceOrchestrator) {
+    storeAI.initOrchestrator();
+  }
+  
   // Only transition to chatspace context if we actually have a space selected
-  const cueId = storeAI.liveBspace?.cueid || storeAI.liveBspace?.spaceid;
-  if (cueId) {
-    storeAI.beebeeContext = "chatspace";
-    const name = storeAI.liveBspace?.name;
-    const contractKey = storeAI.liveBspace?.contract_key;
-    const lifeStrapID = storeAI.liveBspace?.lifeStrapID || cueId;
-
-    storeAI.setActiveLifeStrap(lifeStrapID, contractKey);
-    storeAI.ensureSpaceChatInMenu(cueId, name);
+  if (storeAI.liveBspace) {
+    storeAI.experienceOrchestrator.enterSpaceContext(storeAI.liveBspace);
   }
 });
 
 onBeforeUnmount(() => {
-  storeAI.beebeeContext = previousContext || "chat";
+  if (storeAI.experienceOrchestrator) {
+    storeAI.experienceOrchestrator.exitSpaceContext(previousContext);
+  } else {
+    storeAI.beebeeContext = previousContext || "chat";
+  }
 });
 
 /* methods */

@@ -259,7 +259,6 @@ import BesearchFuse from "@/components/orbit/besearch/BesearchFuse.vue";
 import BesearchLayer from "@/components/orbit/besearch/besearchLayer.vue";
 import SculptingLayer from "@/components/orbit/sculpting/sculptingLayer.vue";
 import BentoBox from "@/components/orbit/parts/BentoBox.vue";
-import LifestrapLens from "@/components/orbit/parts/LifestrapLens.vue";
 
 import { useOrbitStore } from "@/stores/orbitStore.js";
 
@@ -345,26 +344,37 @@ const handleStartTagging = () => {
 };
 
 const launchDemo = (type) => {
-  storeAI.isInitialState = false;
-  storeAI.currentMode = "demo"; 
-  storeAI.activeWorld = type;
+  if (!storeAI.experienceOrchestrator) {
+    storeAI.initOrchestrator();
+  }
 
-  if (type === "oribt") {
-    storeAI.beebeeDigest("I want to swim 400m in 10 orbits...", true);
+  // 1. World & Core State
+  storeAI.activeWorld = type;
+  storeAI.isInitialState = false;
+  storeAI.currentMode = "demo";
+
+  if (type === "daisy") {
+    storeAI.activeWorld = "earth";
+    storeDiary.zoomDepth = 2;
   } else if (type === "body") {
-    storeDiary.zoomDepth = 1;
     storeBesearch.setNexusWorld("body");
+    storeDiary.zoomDepth = 1;
   } else if (type === "earth") {
     storeBesearch.setNexusWorld("earth");
     storeDiary.zoomDepth = 0;
     storeDiary.currentLayer = "terrain";
-  } else if (type === "daisy") {
-    storeAI.activeWorld = "earth";
-    storeDiary.zoomDepth = 2;
+  } else if (type === "orbit") {
+    storeAI.beebeeDigest("I want to swim 400m in 10 orbits...", true);
   }
-  // open the lens ie. bottom panel
-  storeBesearch.setHUUDState('lens');
-  storeBesearch.showBottomPanel = true;
+
+  // 2. Panel Orchestration via ExperienceOrchestrator
+  storeAI.experienceOrchestrator.stitchExperience({
+    world: storeAI.activeWorld,
+    left: false,
+    right: false,
+    bottom: "lens",
+    mode: "demo"
+  });
 };
 
 const exitToZen = () => {

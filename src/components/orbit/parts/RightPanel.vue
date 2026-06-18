@@ -95,20 +95,10 @@ watch(() => props.isInterplayActive, (val) => {
 }, { immediate: true });
 
 const toggleUnroll = () => {
-  storeChat.isUnrolled = !storeChat.isUnrolled;
-  if (storeChat.isUnrolled) {
-    // Ensure we have correct context and attention when unrolling
-    if (!storeChat.storeAI.chatAttention) {
-      const fallback = storeChat.storeAI.activeLifeStrapID || storeChat.storeAI.liveBspace?.cueid || 'chat';
-      storeChat.storeAI.chatAttention = fallback;
-    }
-    
-    if (storeChat.storeAI.activeLifeStrapID && storeChat.storeAI.beebeeContext === 'chat') {
-       storeChat.storeAI.beebeeContext = 'lifestrap';
-    }
-    
-    storeChat.storeAI.bentochatState = true;
+  if (!storeChat.storeAI.experienceOrchestrator) {
+    storeChat.storeAI.initOrchestrator();
   }
+  storeChat.storeAI.experienceOrchestrator.toggleChatUnroll();
 };
 
 const startRibbonResize = (e) => {
@@ -172,18 +162,10 @@ const handleToggle = () => {
   const nextState = props.width <= 50;
   
   if (nextState) {
-    // Proactively set states to show the chat interface
-    storeChat.storeAI.bentochatState = true;
-    storeChat.isUnrolled = true;
-    
-    // Ensure we are looking at the right conversation
-    if (!storeChat.storeAI.chatAttention || storeChat.storeAI.chatAttention === 'new') {
-      storeChat.storeAI.chatAttention = storeChat.storeAI.activeLifeStrapID || 'chat';
+    if (!storeChat.storeAI.experienceOrchestrator) {
+      storeChat.storeAI.initOrchestrator();
     }
-
-    if (storeChat.storeAI.activeLifeStrapID && (storeChat.storeAI.beebeeContext === 'chat' || !storeChat.storeAI.beebeeContext)) {
-       storeChat.storeAI.beebeeContext = 'lifestrap';
-    }
+    storeChat.storeAI.experienceOrchestrator.openChatPanel(380);
 
     emit("update:width", 380);
   } else {

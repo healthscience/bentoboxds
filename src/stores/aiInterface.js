@@ -198,6 +198,8 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       const lsKey = typeof strap === 'string' ? strap : (strap.key || strap.id);
       const cKey = contractKey || (typeof strap === 'object' ? (strap.contract_key || lsKey) : lsKey);
       
+      this.initOrchestrator();
+      
       this.activeLifestrapKey = lsKey;
       this.activeLifeStrapID = lsKey;
       this.activeContractKey = cKey;

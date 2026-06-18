@@ -54,6 +54,117 @@ export class ExperienceOrchestrator {
   }
 
   /**
+   * Handle opening the chat panel with proper state orchestration
+   */
+  openChatPanel(width = 380) {
+    const { ai, chat } = this.stores;
+
+    // 1. Set Chat States
+    chat.isChatOpen = true;
+    chat.chatWidth = width;
+    chat.isUnrolled = true;
+    ai.bentochatState = true;
+
+    // 2. Ensure we are looking at the right conversation
+    if (!ai.chatAttention || ai.chatAttention === 'new') {
+      ai.chatAttention = ai.activeLifeStrapID || 'chat';
+    }
+
+    // 3. Update context if it's missing or in default 'chat' but we have a lifestrap
+    if (ai.activeLifeStrapID && (ai.beebeeContext === 'chat' || !ai.beebeeContext)) {
+      ai.beebeeContext = 'lifestrap';
+    }
+  }
+
+  /**
+   * Handle toggling the unrolled state of the ribbon/chat
+   */
+  toggleChatUnroll() {
+    const { ai, chat } = this.stores;
+    chat.isUnrolled = !chat.isUnrolled;
+
+    if (chat.isUnrolled) {
+      if (!ai.chatAttention) {
+        const fallback = ai.activeLifeStrapID || ai.liveBspace?.cueid || 'chat';
+        ai.chatAttention = fallback;
+      }
+
+      if (ai.activeLifeStrapID && ai.beebeeContext === 'chat') {
+        ai.beebeeContext = 'lifestrap';
+      }
+
+      ai.bentochatState = true;
+    }
+  }
+
+  /**
+   * Handle toggling the bottom panel with proper state orchestration
+   */
+  toggleBottomPanel() {
+    const { besearch } = this.stores;
+    const isCurrentlyOpen = besearch.showBottomPanel;
+
+    if (isCurrentlyOpen) {
+      besearch.setHUUDState('default');
+      besearch.showBottomPanel = false;
+    } else {
+      besearch.setHUUDState('lens');
+      besearch.showBottomPanel = true;
+    }
+    return !isCurrentlyOpen;
+  }
+
+  /**
+   * Centralized method to set HUD state and sync AI modes
+   */
+  setHUUDState(mode, forceOpen = true) {
+    const { besearch } = this.stores;
+    besearch.setHUUDState(mode, forceOpen);
+    // Add additional cross-store logic here if needed (e.g. library visibility)
+  }
+
+  /**
+   * Universal Orchestrator to stitch together Worlds, Panels, and Contexts
+   */
+  stitchExperience({
+    world = 'orbit',
+    left = null,
+    right = null,
+    bottom = null,
+    context = null,
+    mode = null
+  }) {
+    this.syncLayout({ left, right, bottom, mode, context, world });
+  }
+
+  /**
+   * Orchestrate space-specific chat context
+   */
+  enterSpaceContext(spaceData) {
+    const { ai } = this.stores;
+    if (!spaceData) return;
+
+    const cueId = spaceData.cueid || spaceData.spaceid;
+    if (cueId) {
+      ai.beebeeContext = "chatspace";
+      const name = spaceData.name;
+      const contractKey = spaceData.contract_key;
+      const lifeStrapID = spaceData.lifeStrapID || cueId;
+
+      ai.setActiveLifeStrap(lifeStrapID, contractKey);
+      ai.ensureSpaceChatInMenu(cueId, name);
+    }
+  }
+
+  /**
+   * Exit space context and revert to previous
+   */
+  exitSpaceContext(previousContext) {
+    const { ai } = this.stores;
+    ai.beebeeContext = previousContext || "chat";
+  }
+
+  /**
    * Called when a lifestrap contract arrives (Genesis or Load)
    */
   onLifestrapArrived(strap) {

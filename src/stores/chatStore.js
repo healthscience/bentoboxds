@@ -448,7 +448,7 @@ export const useChatStore = defineStore('chat', {
         const convId = chatMeta.chatid
         if (!convId) continue
         const isSpace = chatMeta.context === 'chatspace'
-        const ctx = isSpace ? { type: 'chatspace', id: convId } : 'chat'
+        const isLifestrap = convId === 'prime-life-strap' || convId.startsWith('ls_'); const ctx = isSpace ? { type: 'chatspace', id: convId } : (isLifestrap ? 'lifestrap' : 'chat')
         const pairs = Array.isArray(saved.pair) ? saved.pair : []
         for (const pair of pairs) {
           const p = pair || {}
@@ -520,7 +520,7 @@ export const useChatStore = defineStore('chat', {
                   const convId = chatMeta.chatid
                   if (!convId) continue
                   const isSpace = chatMeta.context === 'chatspace'
-                  const ctx = isSpace ? { type: 'chatspace', id: convId } : 'chat'
+                  const isLifestrap = convId === 'prime-life-strap' || convId.startsWith('ls_'); const ctx = isSpace ? { type: 'chatspace', id: convId } : (isLifestrap ? 'lifestrap' : 'chat')
                   const pairs = Array.isArray(saved.pair) ? saved.pair : []
                   for (const pair of pairs) {
                     const p = pair || {}
@@ -568,36 +568,42 @@ export const useChatStore = defineStore('chat', {
             }
             // what items was last uses ie time or could be favourite ie most frequent use
             this.storeAI.chatAttention = this.chatList[0].chatid
-          } else {
-            let firstChatmenu = this.storeAI.liveChatUtil.prepareChatMenu([])
-            this.chatList = firstChatmenu
-            // save latest first time only
-            let saveData = {}
-            saveData.pair = []
-            saveData.chat = this.chatList[0]
-            saveData.visData = []
-            saveData.hop = []
-            let saveBentoBoxsetting = {}
-            saveBentoBoxsetting.type = 'bentobox'
-            saveBentoBoxsetting.reftype = 'chat-history'
-            saveBentoBoxsetting.action = 'save'
-            saveBentoBoxsetting.task = 'save'
-            saveBentoBoxsetting.data = saveData
-            saveBentoBoxsetting.bbid = ''
-            this.storeAI.sendMessageHOP(saveBentoBoxsetting)
-            this.storeAI.chatAttention = this.chatList[0].chatid
+
+            // Returning Session Orchestration:
+            // If the first chat item is a lifestrap story, restore the active experience
+            if (this.storeAI.chatAttention && (this.storeAI.chatAttention === "prime-life-strap" || this.storeAI.chatAttention.startsWith("ls_"))) {
+              this.storeAI.initOrchestrator();
+              const lsKey = this.storeAI.chatAttention;
+              
+              // 1. Set the keys
+              this.storeAI.experienceOrchestrator.activateLifestrapState(lsKey);
+              
+              // 2. Force layout synchronization for returning session
+              this.storeAI.experienceOrchestrator.syncLayout({
+                left: false,
+                right: true,
+                bottom: "lens",
+                mode: "active",
+                context: "lifestrap"
+              });
+
+              // 3. Ensure the loom also reflects the strap texture if available
+              if (this.storeAI.storeLoom && typeof this.storeAI.storeLoom.applyStrapTexture === "function") {
+                this.storeAI.storeLoom.applyStrapTexture(lsKey);
+              }
+            }
             this.storeAI.setupChatHistory(this.chatList[0])
           }
           // set the chat list live
           this.storeAI.historyList = true
         }
-      } else if (message.reftype.trim() === 'chat-history-item') {
-        console.log('chat-history-item', message)
+      } else if (message.reftype.trim() === "chat-history-item") {
+        console.log("chat-history-item", message)
       }
     },
     prepareChatBentoBoxSave (message) {
       // Normalize and serialize history for the effective chat id
-      const effectiveId = message?.data?.chatid || this.storeAI.chatAttention || 'chat'
+      const effectiveId = message?.data?.chatid || this.storeAI.chatAttention || "chat"
       const uiChatId = message?.data?.uiChatId || null
 
       // Get messages from chatHistory instead of historyPair
@@ -611,28 +617,29 @@ export const useChatStore = defineStore('chat', {
       // Group messages into question-reply pairs
       let currentQuestion = null
       for (const msg of allMessages) {
-        if (msg.type === 'peer') {
+        if (msg.type === "peer") {
           // This is a question
           currentQuestion = {
-            id: msg.bboxid || msg.id || `q_${Date.now()}`,
-            text: msg.content || '',
+            id: msg.bboxid || msg.id || "q_" + Date.now(),
+            text: msg.content || "",
             tools: msg.tools || [],
             timestamp: msg.timestamp || null,
             bbid: msg.bboxid || null
           }
-        } else if (msg.type === 'agent' && currentQuestion) {
+        } else if (msg.type === "agent" && currentQuestion) {
           // This is a reply to the current question
           let normR = null
-          const isBBox = msg.messageType === 'bentobox' || (msg.content && typeof msg.content === 'object' && msg.content.type === 'bentobox')
+          const isBBox = msg.messageType === "bentobox" || (msg.content && typeof msg.content === "object" && msg.content.type === "bentobox")
 
           if (isBBox) {
             normR = {
-              type: 'bentobox',
+              type: "bentobox",
               data: msg.content,
               bbid: msg.bboxid,
               timestamp: msg.timestamp || null,
-              status: 'complete'
+              status: "complete"
             }
+
           } else {
             normR = {
               type: 'text',
@@ -643,7 +650,7 @@ export const useChatStore = defineStore('chat', {
             }
           }
 
-          const key = currentQuestion.bbid || currentQuestion.id || `${currentQuestion.timestamp}`
+          const key = currentQuestion.bbid || currentQuestion.id || "" + currentQuestion.timestamp
           pairMap.set(key, { question: currentQuestion, reply: normR })
 
           if (normR && normR.bbid && !bbidPerChat.includes(normR.bbid)) {
@@ -684,4 +691,3 @@ export const useChatStore = defineStore('chat', {
     }
   }
 })
-

@@ -31,42 +31,42 @@
           <div 
             class="vertical-tab" 
             :class="{ active: storeBesearch.besearchMode === 'lens' || storeBesearch.besearchMode === 'default' }"
-            @click="storeBesearch.setHUUDState('lens')"
+            @click="storeAI.experienceOrchestrator?.setHUUDState('lens')"
           >
             <span>LENS</span>
           </div>
           <div 
             class="vertical-tab" 
             :class="{ active: storeBesearch.besearchMode === 'heli' }"
-            @click="storeBesearch.setHUUDState('heli')"
+            @click="storeAI.experienceOrchestrator?.setHUUDState('heli')"
           >
             <span>HELI</span>
           </div>
           <div 
             class="vertical-tab" 
             :class="{ active: storeBesearch.besearchMode === 'attunement' }"
-            @click="storeBesearch.setHUUDState('attunement')"
+            @click="storeAI.experienceOrchestrator?.setHUUDState('attunement')"
           >
             <span>ATTUNE</span>
           </div>
           <div 
             class="vertical-tab" 
             :class="{ active: storeBesearch.besearchMode === 'graft' }"
-            @click="storeBesearch.setHUUDState('graft')"
+            @click="storeAI.experienceOrchestrator?.setHUUDState('graft')"
           >
             <span>GRAFT</span>
           </div>
           <div 
             class="vertical-tab" 
             :class="{ active: storeBesearch.besearchMode === 'emulation' }"
-            @click="storeBesearch.setHUUDState('emulation')"
+            @click="storeAI.experienceOrchestrator?.setHUUDState('emulation')"
           >
             <span>EMU</span>
           </div>
           <div 
             class="vertical-tab" 
             :class="{ active: storeBesearch.besearchMode === 'tinker' }"
-            @click="storeBesearch.setHUUDState('tinker')"
+            @click="storeAI.experienceOrchestrator?.setHUUDState('tinker')"
           >
             <span>TINKER</span>
           </div>
@@ -116,7 +116,7 @@
 <script setup>
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from "vue";
 import BesearchDetail from "@/components/besearch/attunement/besearchDetail.vue";
-import LifestrapLens from "@/components/orbit/parts/LifestrapLens.vue";
+import LifestrapLens from "@/components/orbit/parts/lens/LifestrapLens.vue";
 import AttunementLayer from "@/components/orbit/parts/attunement/AttunementLayer.vue";
 import HeliProjectionLayer from "@/components/orbit/parts/heli/HeliProjectionLayer.vue";
 import GraftLayer from "@/components/orbit/parts/graft/GraftLayer.vue";
@@ -208,7 +208,10 @@ const expandLens = () => {
 };
 
 const openLens = () => {
-  storeBesearch.setHUUDState('lens');
+  if (!storeAI.experienceOrchestrator) {
+    storeAI.initOrchestrator();
+  }
+  storeAI.experienceOrchestrator.setHUUDState('lens');
 };
 
 const handleToggle = (e) => {
@@ -218,15 +221,11 @@ const handleToggle = (e) => {
     e.preventDefault();
     e.stopPropagation();
 
-    const isCurrentlyOpen = storeBesearch.showBottomPanel;
-
-    if (isCurrentlyOpen) {
-      storeBesearch.setHUUDState('default');
-      emit("update:isOpen", false);
-    } else {
-      storeBesearch.setHUUDState('lens');
-      emit("update:isOpen", true);
+    if (!storeAI.experienceOrchestrator) {
+      storeAI.initOrchestrator();
     }
+    const nextState = storeAI.experienceOrchestrator.toggleBottomPanel();
+    emit("update:isOpen", nextState);
   }
 };
 </script>
