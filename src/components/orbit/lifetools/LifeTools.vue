@@ -327,6 +327,13 @@ const newLifeStrapStory = () => {
   storeAI.beebeeContext = "lifestrap";
   storeAI.chatAttention = "new";
   
+  // Ensure BeeBee opens for the story input
+  storeAI.experienceOrchestrator.syncLayout({ 
+    right: true,
+    mode: 'active',
+    context: 'lifestrap'
+  });
+  
   // clear input
   storeAI.askQuestion.text = "";
 };

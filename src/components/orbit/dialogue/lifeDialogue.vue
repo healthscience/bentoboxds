@@ -16,10 +16,10 @@
       <chat-menu v-if="chatHistoryStatus === true"></chat-menu>
       <div class="context-content">
         <chat-interface
-          :context-filter="storeAI.beebeeContext === 'extraction' ? 'extraction' : {
+          :context-filter="storeAI.beebeeContext === 'extraction' ? 'extraction' : (storeAI.beebeeContext === 'lifestrap' ? 'lifestrap' : {
             type: 'chatspace',
             id: storeAI.liveBspace?.cueid || storeAI.liveBspace?.spaceid,
-          }"
+          })"
         ></chat-interface>
       </div>
     </div>

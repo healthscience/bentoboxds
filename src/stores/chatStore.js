@@ -114,7 +114,9 @@ export const useChatStore = defineStore('chat', {
 
       // 6. Ensure the Ledger Bucket exists and Push the Message
       if (!this.chatHistory[convId]) {
-        this.chatHistory[convId] = []
+        this.chatHistory[convId] = [];
+        // Force reactivity for new keys
+        this.chatHistory = { ...this.chatHistory };
       }
       
       // Natural Language First: Ensure we aren't pushing duplicates
@@ -169,6 +171,7 @@ export const useChatStore = defineStore('chat', {
     handleIncomingMessage(message) {
       // console.log('incoming message======chatStore')
       // console.log(message)
+      
       // Handle incoming messages and update the chat state
       // Check if this is a peer question
       if (message.type === 'peer-question') {

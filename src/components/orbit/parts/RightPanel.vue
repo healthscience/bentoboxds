@@ -34,7 +34,7 @@
       <div class="panel-content-area">
         <transition name="fade-slide" mode="out-in">
           <div
-            v-if="mode === 'chat' && (!isInitialState || isInterplayActive)"
+            v-if="mode === 'chat' && (isOpen || !isInitialState || isInterplayActive)"
             class="chat-zone"
             key="chat"
           >
@@ -96,6 +96,19 @@ watch(() => props.isInterplayActive, (val) => {
 
 const toggleUnroll = () => {
   storeChat.isUnrolled = !storeChat.isUnrolled;
+  if (storeChat.isUnrolled) {
+    // Ensure we have correct context and attention when unrolling
+    if (!storeChat.storeAI.chatAttention) {
+      const fallback = storeChat.storeAI.activeLifeStrapID || storeChat.storeAI.liveBspace?.cueid || 'chat';
+      storeChat.storeAI.chatAttention = fallback;
+    }
+    
+    if (storeChat.storeAI.activeLifeStrapID && storeChat.storeAI.beebeeContext === 'chat') {
+       storeChat.storeAI.beebeeContext = 'lifestrap';
+    }
+    
+    storeChat.storeAI.bentochatState = true;
+  }
 };
 
 const startRibbonResize = (e) => {
@@ -157,8 +170,27 @@ const handleToggle = () => {
   // If the panel is closed (width <= 50), always open it on click
   // If it's open, toggle it.
   const nextState = props.width <= 50;
+  
+  if (nextState) {
+    // Proactively set states to show the chat interface
+    storeChat.storeAI.bentochatState = true;
+    storeChat.isUnrolled = true;
+    
+    // Ensure we are looking at the right conversation
+    if (!storeChat.storeAI.chatAttention || storeChat.storeAI.chatAttention === 'new') {
+      storeChat.storeAI.chatAttention = storeChat.storeAI.activeLifeStrapID || 'chat';
+    }
+
+    if (storeChat.storeAI.activeLifeStrapID && (storeChat.storeAI.beebeeContext === 'chat' || !storeChat.storeAI.beebeeContext)) {
+       storeChat.storeAI.beebeeContext = 'lifestrap';
+    }
+
+    emit("update:width", 380);
+  } else {
+    emit("update:width", 0);
+  }
+  
   emit("update:isOpen", nextState);
-  emit("update:width", nextState ? 380 : 0);
 };
 </script>
 

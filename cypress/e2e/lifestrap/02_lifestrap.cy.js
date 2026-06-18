@@ -22,6 +22,9 @@ describe('Lifestrap E2E Tests', () => {
     // In LifeTools.vue, newLifeStrapStory sets storeAI.beebeeContext = "lifestrap"
     // and storeAI.currentMode = "zen"
     
+    // To see beebee right panel, it needs to be clicked to open right panel first
+    cy.get('.thought-bubble-button', { timeout: 20000 }).click()
+
     // We can verify if the UI reflects this. 
     // Usually, Beebee view might change or a specific message appears.
     cy.get('#beebee-shaper').should('be.visible')

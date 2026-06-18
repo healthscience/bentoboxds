@@ -82,7 +82,7 @@
                   class="form-input"
                 >
               </div>
-              <button 
+              <button
                 id="invite-generation-button" 
                 @click="generateInvite()"
                 class="btn btn-primary"

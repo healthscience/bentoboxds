@@ -35,6 +35,8 @@ export class ExperienceOrchestrator {
     if (right) {
       chat.isChatOpen = true;
       chat.chatWidth = 380;
+      chat.isUnrolled = true;
+      ai.bentochatState = true;
     } else {
       chat.isChatOpen = false;
       chat.chatWidth = 0;
@@ -73,9 +75,15 @@ export class ExperienceOrchestrator {
    * Called when the Loom has finished weaving the texture (Final trigger for Lens)
    */
   onTextureWeaved(texture) {
-    const { ai, besearch } = this.stores;
+    const { ai } = this.stores;
+    ai.isInitialState = false; 
     const isNew = ai.newLifestrap || texture.key === 'prime-life-strap' || texture.key === 'new-ls';
     
+    // Ensure the key is active
+    if (texture.key) {
+      this.activateLifestrapState(texture.key);
+    }
+
     if (isNew) {
       this.syncLayout({
         left: false,
@@ -88,15 +96,14 @@ export class ExperienceOrchestrator {
       this.orchestrateExtraction(texture.story, texture.key);
       
       ai.newLifestrap = false;
-      ai.isInitialState = false;
     } else {
       this.syncLayout({
         left: false,
-        right: false,
-        bottom: false,
-        mode: 'active'
+        right: true,
+        bottom: 'lens',
+        mode: 'active',
+        context: 'lifestrap'
       });
-      ai.isInitialState = false;
     }
   }
 
@@ -104,12 +111,12 @@ export class ExperienceOrchestrator {
    * Orchestrate the extraction dialogue messages
    */
   orchestrateExtraction(peerInput, lsKey) {
-    const { chat } = this.stores;
+    const { chat, ai } = this.stores;
     
-    if (!this.stores.ai.historyPair[lsKey]) this.stores.ai.historyPair[lsKey] = [];
+    if (!ai.historyPair[lsKey]) ai.historyPair[lsKey] = [];
     if (!chat.chatHistory[lsKey]) chat.chatHistory[lsKey] = [];
 
-    chat.addMessage({
+    const peerMessage = {
       role: "peer",
       type: "peer",
       content: peerInput || "Story extraction initiated...",
@@ -117,9 +124,10 @@ export class ExperienceOrchestrator {
       conversationId: lsKey,
       contract_key: lsKey,
       lifeStrapID: lsKey,
-    });
+      timestamp: new Date(),
+    };
 
-    chat.addMessage({
+    const agentMessage = {
       role: "beebee",
       type: "agent",
       content: "beebee is digesting the story.",
@@ -128,7 +136,19 @@ export class ExperienceOrchestrator {
       contract_key: lsKey,
       lifeStrapID: lsKey,
       status: "complete",
+      timestamp: new Date(),
+    };
+
+    chat.addMessage(peerMessage);
+    chat.addMessage(agentMessage);
+
+    // Also populate historyPair for safety, as some components might still use it
+    ai.historyPair[lsKey].push({
+      question: { bbid: `q_${Date.now()}`, data: { text: peerMessage.content, active: true } },
+      reply: { time: agentMessage.timestamp, type: "extraction", data: { text: agentMessage.content } }
     });
+    
+    chat.beginChat = true;
   }
 
   /**
@@ -153,6 +173,7 @@ export class ExperienceOrchestrator {
     besearch.loadCyclesForLifestrap(lsKey);
     this.activateLifestrapState(lsKey);
     ai.setActiveLifeStrap(strapData); 
+    ai.liveBspace = null; // Clear space context when selecting lifestrap
 
     if (loom && typeof loom.applyStrapTexture === 'function') {
       loom.applyStrapTexture(lsKey, strapData);
@@ -160,9 +181,10 @@ export class ExperienceOrchestrator {
 
     this.syncLayout({
       left: false,
-      right: false,
+      right: true,
       bottom: 'lens',
-      mode: 'active'
+      mode: 'active',
+      context: 'lifestrap'
     });
   }
 
