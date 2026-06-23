@@ -339,30 +339,28 @@ export const libraryStore = defineStore('librarystore', {
         if (message.task === 'save-complete') {
           // save complete
         } else if (message.task === 'bringtobe-start') {
+          console.log('bringtobe-start received in libraryStore')
+          console.log(message)
           // split the data lump: story goes to lifestrapStore, supporting to loomStore
           if (message.data.length > 0) {
             // First item is typically the story contract
             const storyContract = message.data[0]
-            this.storeLifestrap.processReply({
-              action: 'bringtobe-start',
-              data: [storyContract]
-            })
+            this.storeLifestrap.processGenesisLifestrap(storyContract)
 
             // Rest are supporting contracts for the Loom/Tapestry
             if (message.data.length > 1) {
               const supportingContracts = message.data.slice(1)
-              this.storeLoom.processReply({
-                action: 'bringtobe-start',
-                data: supportingContracts
-              })
+              this.storeLoom.processReply(supportingContracts)
             }
           }
         }
       } else if (message.action === 'lifestrap-genesis') {
-        this.storeLifestrap.processReply(message)
-      } else if (message.action === 'lifestrap-contract') {
-        console.log('lifestrap-contract received in libraryStore', message)
-        this.storeLifestrap.processReply(message)
+        // all goes via beebee  aistore
+        // this.storeLifestrap.processGenesisLifestrap(message)
+        this.storeAI.processReply(message)
+      } else if (message.action === 'lifestrap-contract') { {}
+        // this.storeLifestrap.processWholeLifestrap(message)
+        this.storeAI.processReply(message)
       } else if (message.action === 'model-contract') {
         // first time save for update?
         if (message.task === 'save-complete') {

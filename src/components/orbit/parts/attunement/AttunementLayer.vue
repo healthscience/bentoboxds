@@ -95,6 +95,14 @@ const storeBesearch = besearchStore();
 const storeChat = useChatStore();
 const orbitStore = useOrbitStore();
 
+const actions = ["Improve", "Prevention", "Repair", "Rejuvenation"];
+const activeMenuIndex = ref(null);
+
+// Initial slots
+const attunementSlots = ref([
+  { label: "Set Attunement", value: "", type: "" }
+]);
+
 // Watch for cycle changes to restore local state
 watch(
   () => storeBesearch.activeCycleId,
@@ -106,14 +114,6 @@ watch(
   },
   { immediate: true }
 );
-
-const actions = ["Improve", "Prevention", "Repair", "Rejuvenation"];
-const activeMenuIndex = ref(null);
-
-// Initial slots
-const attunementSlots = ref([
-  { label: "Set Attunement", value: "", type: "" }
-]);
 
 const activeSlots = computed(() => attunementSlots.value.filter(s => s.label !== "Set Attunement"));
 

@@ -33,11 +33,78 @@ export const loomStore = defineStore('loomstore', {
   getters: {
     capacityItems: (state) => Array.from(state.activeLens.capacity.values()),
     contextItems: (state) => Array.from(state.activeLens.context.values()),
-    unmappedFragments: (state) => state.activeLens.residue,
-    attunementItems: (state) => state.activeLens.attunement
+    unmappedFragments: (state) => {
+      const residue = state.activeLens.residue || [];
+      if (residue.length > 0) return residue;
+
+      // Fallback: If residue is empty, extract words from the story text!
+      const story = ''
+
+      // Exclude words that are currently allocated to any of the pillars or activeLens
+      const allocated = new Set();
+      const pillars = state.lifestrapTexture?.pillars || {};
+      Object.keys(pillars).forEach(pillarKey => {
+        const pillar = pillars[pillarKey];
+        if (Array.isArray(pillar)) {
+          pillar.forEach(item => {
+            if (item.value) {
+              allocated.add(item.value);
+              // Support lowercase matching for robustness
+              allocated.add(item.value.toLowerCase());
+            }
+          });
+        }
+      });
+
+      if (state.activeLens) {
+        if (state.activeLens.capacity) {
+          state.activeLens.capacity.forEach((val, key) => {
+            allocated.add(key);
+            allocated.add(key.toLowerCase());
+          });
+        }
+        if (state.activeLens.context) {
+          state.activeLens.context.forEach((val, key) => {
+            allocated.add(key);
+            allocated.add(key.toLowerCase());
+          });
+        }
+        if (state.activeLens.attunement) {
+          state.activeLens.attunement.forEach(item => {
+            if (item.value) {
+              allocated.add(item.value);
+              allocated.add(item.value.toLowerCase());
+            }
+          });
+        }
+      }
+      let remainingWords = []
+      return remainingWords;
+    },
+    attunementItems: (state) => state.activeLens.attunement,
+    mappedLenses: (state) => {
+      const input = state.digestInput;
+      if (!input) return { capacity: [], coherence: [], context: [], heli: [] };
+
+      if (input.pillars) {
+        return {
+          capacity: input.pillars.capacity || [],
+          coherence: input.pillars.coherence ? [input.pillars.coherence] : [],
+          context: input.pillars.context || [],
+          heli: input.pillars.heli || [],
+        };
+      }
+
+      return {
+        capacity: input.capacity || [],
+        coherence: input.coherence || [],
+        context: input.context || [],
+        heli: [],
+      };
+    }
   },
   actions: {
-    animateStrand(cueKey, rawDataInstanceId, capacityMap, contextMap) {
+    animateStrand(cueKey, rawDataInstanceId, capacityMap, contextMap, forceZone = null) {
       const orrery = orreryStore()
       const lifestrap = lifestrapStore()
       const referenceCue = orrery.registry.get(cueKey)
@@ -51,7 +118,7 @@ export const loomStore = defineStore('loomstore', {
         pulsedAt: new Date()
       }
       
-      const domain = referenceCue?.domain;
+      const domain = forceZone || referenceCue?.domain;
 
       if (domain === 'capacity') {
         (capacityMap || this.activeLens.capacity).set(cueKey, activeStrand)
@@ -78,7 +145,7 @@ export const loomStore = defineStore('loomstore', {
         texture.pillars.capacity.forEach((item) => {
           if (item.value) {
             newCapacity.set(item.value, item);
-            this.animateStrand(item.value, item.instanceId || item.value, newCapacity, newContext);
+            this.animateStrand(item.value, item.instanceId || item.value, newCapacity, newContext, 'capacity');
           }
         });
       }
@@ -87,7 +154,7 @@ export const loomStore = defineStore('loomstore', {
         texture.pillars.context.forEach((item) => {
           if (item.value) {
             newContext.set(item.value, item);
-            this.animateStrand(item.value, item.instanceId || item.value, newCapacity, newContext);
+            this.animateStrand(item.value, item.instanceId || item.value, newCapacity, newContext, 'context');
           }
         });
       }
@@ -100,12 +167,16 @@ export const loomStore = defineStore('loomstore', {
       const ai = aiInterfaceStore();
       const besearch = besearchStore();
 
-      const newTexture = ai.liveLsUtil.lensTobe(lsContract.key, lsContract);
+      // Normalize the key to hex string immediately
+      const hexContract = ai.liveLsUtil.convertBinaryToHex(lsContract);
+      const lsKey = hexContract.key;
+
+      const newTexture = ai.liveLsUtil.lensTobe(lsKey, hexContract);
       this.lifestrapTexture = newTexture;
       this.digestInput = newTexture;
       besearch.activeBesearchContext.story = newTexture.story;
 
-      this.loomCache[lsContract.key] = { lens: newTexture };
+      this.loomCache[lsKey] = { lens: newTexture };
       this.updateActiveLensFromTexture(newTexture);
 
       ai.initOrchestrator();
@@ -125,101 +196,64 @@ export const loomStore = defineStore('loomstore', {
         this.digestInput = newObj;
         besearch.activeBesearchContext.story = newObj.story;
         this.updateActiveLensFromTexture(newObj);
+        
+        ai.initOrchestrator();
+        if (ai.experienceOrchestrator) {
+          ai.experienceOrchestrator.hydrateReturningPeer(lsKey, newObj);
+        }
+      } else if (strapData && strapData.pillars) {
+        this.lifestrapTexture = strapData;
+        this.digestInput = strapData;
+        besearch.activeBesearchContext.story = strapData.story;
+        this.loomCache[lsKey] = { lens: strapData };
+        this.updateActiveLensFromTexture(strapData);
+        
+        ai.initOrchestrator();
+        if (ai.experienceOrchestrator) {
+          ai.experienceOrchestrator.hydrateReturningPeer(lsKey, strapData);
+        }
       } else {
-        const newTexture = ai.liveLsUtil.lensTobe(lsKey, strapData);
-        this.lifestrapTexture = newTexture;
-        this.digestInput = newTexture;
-        besearch.activeBesearchContext.story = newTexture.story;
-        this.loomCache[lsKey] = { lens: newTexture };
-        this.updateActiveLensFromTexture(newTexture);
-        this.fetchWholeLoom(lsKey);
+        // If we don't have a cache hit, check if the current texture matches this key
+        // and ALREADY has pillars (e.g. from an in-flight npl-reply).
+        const currentMatches = this.lifestrapTexture && this.lifestrapTexture.key === lsKey;
+        const hasPillars = this.lifestrapTexture?.pillars?.capacity?.length > 0 || this.lifestrapTexture?.pillars?.context?.length > 0;
+
+        if (currentMatches && hasPillars) {
+          // Ensure it's cached for next time
+          this.loomCache[lsKey] = { lens: JSON.parse(JSON.stringify(this.lifestrapTexture)) };
+        } else {
+          const newTexture = ai.liveLsUtil.lensTobe(lsKey, strapData);
+          this.lifestrapTexture = newTexture;
+          this.digestInput = newTexture;
+          this.updateActiveLensFromTexture(newTexture);
+        }
+        // this.fetchWholeLoom(lsKey);
       }
     },
 
-    processReply(received) {
+    processLoom(received) {
+      console.log(`[LoomStore] processReply action: ${received}`);
+
       if (received.action === "bringtobe-start") {
         libraryStore().sendMessage('get-library');
       } else if (received.action === "ls-pattern") {
         this.weavePattern(received.data.index);
-      } else if (received.action === "ls-whole-loom") {
-        const ai = aiInterfaceStore();
-        if (received.data?.whole?.lens?.[0]) {
-          const newTexture = ai.liveLsUtil.lensTobe(ai.activeLifestrapKey, received.data.whole.lens[0]);
-          this.lifestrapTexture = newTexture;
-          this.digestInput = newTexture;
-          this.loomCache[ai.activeLifestrapKey] = { lens: newTexture };
-          this.updateActiveLensFromTexture(newTexture);
-        }
-      } else if (received.action === "npl-reply") {
-        if (received.task === "lens-extraction") {
-          const ai = aiInterfaceStore();
-          const capacity = received.data.lens.capacity ? [{ label: "Extracted", value: received.data.lens.capacity }] : [];
-          const context = received.data.lens.context ? (Array.isArray(received.data.lens.context) ? received.data.lens.context : received.data.lens.context.split(",")).map(v => ({ label: "Extracted", value: v.trim() })) : [];
+      }
 
-          this.lifestrapTexture = {
-            ...this.lifestrapTexture,
-            key: this.lifestrapTexture.key || ai.activeLifestrapKey,
-            pillars: { ...this.lifestrapTexture.pillars, capacity, context },
-            residue: [...(received.data.lens.residue || [])],
-          };
+    },
+    processBeginLoom (loomData) {
+      console.log('[LoomStore] processBeginLoom ')
+      console.log(loomData);
+      const ai = aiInterfaceStore();
+      // prepare data to standard for loom,  genesis and first time and returning lens glue.
+      if (loomData.length > 0) {
+        const newTexture = ai.liveLsUtil.lensTobe(ai.activeLifestrapKey, loomData);
+        this.lifestrapTexture = newTexture;
+        this.digestInput = newTexture;
+        this.loomCache[ai.activeLifestrapKey] = { lens: newTexture };
+        this.updateActiveLensFromTexture(newTexture);
 
-          this.updateActiveLensFromTexture(this.lifestrapTexture);
-          
-          if (this.lifestrapTexture.key) {
-            this.loomCache[this.lifestrapTexture.key] = { lens: this.lifestrapTexture };
-          }
-          this.digestInput = JSON.parse(JSON.stringify(this.lifestrapTexture));
-
-          ai.initOrchestrator();
-          if (ai.experienceOrchestrator) {
-            ai.experienceOrchestrator.onTextureWeaved(this.lifestrapTexture);
-          }
-        }
-      } else if (received.action === "ls-whole") {
-        const ai = aiInterfaceStore();
-        const lifestrap = lifestrapStore();
-        const data = received.data;
-
-        if (data.lifestrap) {
-          lifestrap.processReply(received);
-        }
-
-        if (data.whole && data.whole.lsKeytrack?.lsid) {
-          const activeStrapHex = ai.liveLsUtil.convertBinaryToHex({
-            key: data.whole.lsKeytrack.lsid,
-            value: {}
-          });
-          const activeStrapKey = activeStrapHex.key;
-
-          let lensContract = null;
-          if (data.whole.lens && data.whole.lens.length > 0) {
-            lensContract = data.whole.lens.find(l => {
-              const hexL = ai.liveLsUtil.convertBinaryToHex(l);
-              const conceptKey = hexL.value?.concept?.key;
-              if (conceptKey && conceptKey.type === 'Buffer') {
-                return conceptKey.data.join(',') === data.whole.lsKeytrack.lsid.data.join(',');
-              }
-              return false;
-            });
-            if (!lensContract) lensContract = data.whole.lens[0];
-          }
-
-          if (lensContract) {
-            const hexLens = ai.liveLsUtil.convertBinaryToHex(lensContract);
-            const newTexture = ai.liveLsUtil.lensTobe(activeStrapKey, hexLens);
-            
-            this.lifestrapTexture = newTexture;
-            this.digestInput = newTexture;
-            this.loomCache[activeStrapKey] = { lens: newTexture };
-            this.updateActiveLensFromTexture(newTexture);
-
-            ai.initOrchestrator();
-            if (ai.experienceOrchestrator) {
-              ai.experienceOrchestrator.activateLifestrapState(activeStrapKey);
-              ai.experienceOrchestrator.onTextureWeaved(newTexture);
-            }
-          }
-        }
+        ai.initOrchestrator();
       }
     },
     reorderStrandCues(zone, oldIndex, newIndex) {
@@ -232,6 +266,9 @@ export const loomStore = defineStore('loomstore', {
     updateResonWeight(word, zone, label = null) {
       if (!this.lifestrapTexture) {
         this.lifestrapTexture = { pillars: { capacity: [], context: [], heli: [] }, residue: [], key: "" };
+      }
+      if (!this.lifestrapTexture.residue || this.lifestrapTexture.residue.length === 0) {
+        this.lifestrapTexture.residue = [...this.unmappedFragments];
       }
       this.lifestrapTexture.residue = this.lifestrapTexture.residue.filter(w => w !== word);
       this.lifestrapTexture.pillars.capacity = this.lifestrapTexture.pillars.capacity.filter(i => i.value !== word);

@@ -4,7 +4,7 @@
     :class="[
       activeWorld,
       {
-        'is-zen': isInitialState,
+        'is-zen': storeAI.isInitialState,
         'is-interplay': orbitStore.isInterplayActive,
       },
     ]"
@@ -51,14 +51,14 @@
             v-if="activeQuadrants.includes('now-me')"
             class="bento-cell now-me-cell"
           >
-            <OrbitHUD v-if="!isInitialState" />
+            <OrbitHUD v-if="!storeAI.isInitialState" />
 
             <div class="interface-layer">
               <transition name="sov-fade">
                 <LaunchpadStack
-                  v-if="isInitialState || isExtracting || isDemoMode"
-                  :mode="currentMode"
-                  :extractedData="mappedLenses"
+                  v-if="storeAI.isLaunchpadVisible"
+                  :mode="storeAI.currentMode"
+                  :extractedData="storeLoom.mappedLenses"
                   @launch="launchDemo"
                   @reset="exitToZen"
                 />
@@ -68,12 +68,12 @@
             <WorldCanvas
               class="world-canvas-layer"
               :activeWorld="activeWorld"
-              :showTools="!isInitialState"
+              :showTools="!storeAI.isInitialState"
             />
 
             <div class="fuse-container">
               <BesearchFuse
-                v-if="!isInitialState && storeAI.currentMode === 'besearch'"
+                v-if="storeAI.isBesearchFuseVisible"
               />
             </div>
           </div>
@@ -99,14 +99,14 @@
             class="bento-cell now-us-cell"
           >
             <div class="future-indicator us">NOW US</div>
-            <OrbitHUD v-if="!isInitialState" />
+            <OrbitHUD v-if="!storeAI.isInitialState" />
 
             <div class="interface-layer">
               <transition name="sov-fade">
                 <LaunchpadStack
-                  v-if="isInitialState || isExtracting || isDemoMode"
-                  :mode="currentMode"
-                  :extractedData="mappedLenses"
+                  v-if="storeAI.isLaunchpadVisible"
+                  :mode="storeAI.currentMode"
+                  :extractedData="storeLoom.mappedLenses"
                   @launch="launchDemo"
                   @reset="exitToZen"
                 />
@@ -116,12 +116,12 @@
             <WorldCanvas
               class="world-canvas-layer"
               :activeWorld="activeWorld"
-              :showTools="!isInitialState"
+              :showTools="!storeAI.isInitialState"
             />
 
             <div class="fuse-container">
               <BesearchFuse
-                v-if="!isInitialState && storeAI.currentMode === 'besearch'"
+                v-if="storeAI.isBesearchFuseVisible"
               />
             </div>
           </div>
@@ -142,14 +142,14 @@
             class="bento-cell future-us-cell"
           >
             <div class="future-indicator us">FUTURE US</div>
-            <OrbitHUD v-if="!isInitialState" />
+            <OrbitHUD v-if="!storeAI.isInitialState" />
 
             <div class="interface-layer">
               <transition name="sov-fade">
                 <LaunchpadStack
-                  v-if="isInitialState || isExtracting || isDemoMode"
-                  :mode="currentMode"
-                  :extractedData="mappedLenses"
+                  v-if="storeAI.isLaunchpadVisible"
+                  :mode="storeAI.currentMode"
+                  :extractedData="storeLoom.mappedLenses"
                   @launch="launchDemo"
                   @reset="exitToZen"
                 />
@@ -159,12 +159,12 @@
             <WorldCanvas
               class="world-canvas-layer"
               :activeWorld="activeWorld"
-              :showTools="!isInitialState"
+              :showTools="!storeAI.isInitialState"
             />
 
             <div class="fuse-container">
               <BesearchFuse
-                v-if="!isInitialState && storeAI.currentMode === 'besearch'"
+                v-if="storeAI.isBesearchFuseVisible"
               />
             </div>
           </div>
@@ -177,9 +177,9 @@
       class="right-panel-area"
       :width="chatWidth"
       :isOpen="isChatOpen"
-      :isInitialState="isInitialState"
+      :isInitialState="storeAI.isInitialState"
       :isInterplayActive="orbitStore.isInterplayActive"
-      :data="extractedData"
+      :data="storeLoom.mappedLenses"
       @update:isOpen="(val) => (isChatOpen = val)"
       @update:width="(val) => (chatWidth = val)"
       @startDrag="startChatDrag"
@@ -286,21 +286,12 @@ const panelWidth = ref(30);
 const draggingMode = ref(null);
 
 /* computed */
-const extractedData = computed(() => storeLoom.digestInput);
 const activeWorld = computed({
   get: () => storeAI.activeWorld,
   set: (val) => (storeAI.activeWorld = val),
 });
 
 const isBottomOpen = computed(() => storeBesearch.showBottomPanel);
-
-const isInitialState = computed(() => {
-  return storeAI.isInitialState;
-});
-
-const isDemoMode = computed(() => storeAI.currentMode === "demo");
-const isExtracting = computed(() => storeAI.currentMode === "extracting");
-const currentMode = computed(() => storeAI.currentMode);
 
 const isChatOpen = computed({
   get: () => storeChat.isChatOpen,
@@ -384,28 +375,6 @@ const exitToZen = () => {
   storeAI.experienceOrchestrator.resetToZen();
   panelWidth.value = 30;
 };
-
-// Map the 3 Cs to the Lenses
-const mappedLenses = computed(() => {
-  const input = storeLoom.digestInput;
-  if (!input) return { capacity: [], coherence: [], context: [], heli: [] };
-
-  if (input.pillars) {
-    return {
-      capacity: input.pillars.capacity || [],
-      coherence: input.pillars.coherence ? [input.pillars.coherence] : [],
-      context: input.pillars.context || [],
-      heli: input.pillars.heli || [],
-    };
-  }
-
-  return {
-    capacity: input.capacity || [],
-    coherence: input.coherence || [],
-    context: input.context || [],
-    heli: [],
-  };
-});
 
 /* drag handlers */
 const startDraggingLeft = () => {

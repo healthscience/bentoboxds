@@ -111,6 +111,17 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       performanceVelocity: 0,
     };
   },
+  getters: {
+    isLaunchpadVisible: (state) => {
+      return state.isInitialState || state.currentMode === 'extracting' || state.currentMode === 'demo';
+    },
+    isBesearchFuseVisible: (state) => {
+      return !state.isInitialState && state.currentMode === 'besearch';
+    },
+    isNewLifestrap: (state) => (lsKey) => {
+      return state.newLifestrap || lsKey === 'prime-life-strap' || lsKey === 'new-ls';
+    }
+  },
   actions: {
     setEmulationHorizon(delta) {
       this.emulationHorizon = delta;
@@ -130,7 +141,6 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         });
       }
     },
-
     ensureSpaceChatInMenu(cueId, name) {
       if (!cueId) return;
       const now = Date.now();
@@ -172,12 +182,10 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       this.chatAttention = cueId;
       this.historyList = true;
     },
-
     initializeSovereignSession(lsKey) {
       this.initOrchestrator();
       this.experienceOrchestrator.onLifestrapArrived({ key: lsKey });
     },
-
     beebeeDigest() {
       const storeLifestrap = lifestrapStore();
       const storyText = this.askQuestion.text;
@@ -205,27 +213,82 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       this.activeContractKey = cKey;
       this.chatAttention = lsKey;
       this.isInitialState = false;
+
+      // Ensure the orchestrator is aware of this state change if it was triggered elsewhere
+      if (this.experienceOrchestrator) {
+        this.experienceOrchestrator.activateLifestrapState(lsKey);
+      }
     },
 
     processReply(received) {
-      if (received.action === "ls-pattern" || received.action === "ls-whole" || received.action === "ls-whole-loom" || received.action === "npl-reply" || received.action === "bringtobe-start") {
-        this.storeLoom.processReply(received);
-      } else if (received.action === "lifestrap-genesis") {
-        this.storeLifestrap.processReply(received);
-      } else if (received.action === "seed-library") {
-        // pass on to library store
-        this.storeOrrery.processReply(received)
-      } else if (received.action === 'warm-peers-begin') {
-        // convert key to hex
-        for (let wpeer of received.data) {
-          const hexContract = this.storeLibrary.utilLibrary.convertBinaryToHex(wpeer);
-          this.storeAcc.warmPeers.push(hexContract)
-        }
-        // this.storeAcc.warmPeers = received.data
+      console.log('[aiInterface] processReply action:')
+      console.log(received);
+      // Orderly dispatch to specialized stores
+      switch (received.action) {
+        case "ls-whole":
+          // convert keys to hex
+          let hexkeyLifestap = this.keyIndexConvert(received.data.lifestrap)
+          // Inform lifestrap store and loom store
+          this.storeLifestrap.processWholeLifestrap(hexkeyLifestap);
+          // convert keys in loom contract
+          let contractTypes = Object.keys(received.data.whole);
+          let loomContractHex = {}
+          for (let cType of contractTypes) {
+            for (let contract of received.data.whole[cType]) {
+              loomContractHex.push(this.storeLibrary.utilLibrary.convertBinaryToHex(contract));
+            }
+            loomContractHex[cType] = loomContractHex
+          }
+          console.log('loom contracts extractto hex')
+          console.log(loomContractHex)
+          for (let cType of contractTypes) {
+            if (cType === 'lens') {
+            this.storeLoom.processBeginLoom(loomContractHex[cType]);
+            }
+          }
+          break;
+
+        case "lifestrap-genesis":
+          let hexkeyLifestapG = this.keyIndexConvert([received.data])
+          console.log('geneiss key contract')
+          console.log(hexkeyLifestapG)
+          this.storeLifestrap.processGenesisLifestrap(hexkeyLifestapG[0]);
+          break;
+
+        case "ls-pattern":
+          let hexkeyLoom = this.keyIndexConvert([received.data.contract])
+          console.log('geneiss key contract')
+          console.log(hexkeyLoom)
+          this.storeLoom.processBeginLoom(hexkeyLoom);
+          break;
+
+        case "ls-whole-loom":
+        case "seed-library":
+          this.storeOrrery.processReply(received);
+          break;
+
+        case "warm-peers-begin":
+          this.handleWarmPeers(received.data);
+          break;
       }
 
       if (received.bbid) {
         this.chatBottom++;
+      }
+    },
+    keyIndexConvert (lifestrapList) {
+      let hexkeyLifestap = []
+      for(let strap of lifestrapList) {
+        let hexContract = this.storeLibrary.utilLibrary.convertBinaryToHex(strap)
+        hexkeyLifestap.push(hexContract)
+      }
+      return hexkeyLifestap
+    },
+    handleWarmPeers(peers) {
+      if (!Array.isArray(peers)) return;
+      for (let wpeer of peers) {
+        const hexContract = this.storeLibrary.utilLibrary.convertBinaryToHex(wpeer);
+        this.storeAcc.warmPeers.push(hexContract);
       }
     },
     processNotification(received) {
@@ -295,6 +358,31 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
     },
     clearData() {
       this.historyPair = {};
+      this.activeLifeStrapID = "";
+      this.activeContractKey = "";
+      this.activeLifestrapKey = "";
+      this.isInitialState = true;
+      this.currentMode = "zen";
+      this.beebeeContext = "chat";
+      
+      // Clear associated stores
+      if (this.storeChat) {
+        this.storeChat.chatHistory = {};
+        this.storeChat.isChatOpen = false;
+      }
+      if (this.storeBesearch) {
+        this.storeBesearch.showBottomPanel = false;
+        this.storeBesearch.besearchCycles = [];
+      }
+      if (this.storeLoom) {
+        this.storeLoom.digestInput = null;
+        this.storeLoom.lifestrapTexture = {
+          pillars: { capacity: [], context: [], attunement: [], heli: [], coherence: { isStable: false, resonance: 0 } },
+          residue: [],
+          key: ""
+        };
+      }
+
       location.reload();
     },
     actionBBAI() {

@@ -34,7 +34,7 @@
       <div class="panel-content-area">
         <transition name="fade-slide" mode="out-in">
           <div
-            v-if="mode === 'chat' && (isOpen || !isInitialState || isInterplayActive)"
+            v-if="isChatVisible"
             class="chat-zone"
             key="chat"
           >
@@ -63,7 +63,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 import LifeDialogue from "@/components/orbit/dialogue/lifeDialogue.vue";
 import InputBox from "@/components/beebeehelp/inputBox.vue";
 import { useChatStore } from "@/stores/chatStore.js";
@@ -89,6 +89,10 @@ const dragStartTime = ref(0);
 const storeChat = useChatStore();
 const ribbonHeight = ref(400);
 const isResizing = ref(false);
+
+const isChatVisible = computed(() => {
+  return props.mode === 'chat' && (props.isOpen || !props.isInitialState || props.isInterplayActive);
+});
 
 watch(() => props.isInterplayActive, (val) => {
   storeChat.isInterplayActive = val;

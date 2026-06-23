@@ -21,7 +21,7 @@ export const lifestrapStore = defineStore('lifestrapstore', {
       // Notify Orchestrator through AI store
       const ai = aiInterfaceStore();
       ai.initOrchestrator();
-      if (ai.experienceOrchestrator) {
+      if (ai.experienceOrchestrator) { 
         ai.experienceOrchestrator.onLifestrapArrived(strap);
       }
     },
@@ -29,17 +29,17 @@ export const lifestrapStore = defineStore('lifestrapstore', {
       const lsKey = strap.key || strap.id;
       this.activeStrapKey = lsKey;
     },
-    processReply(received) {
-      if (received.action === 'bringtobe-start' || received.action === 'lifestrap-genesis' || received.action === 'ls-whole') {
-        const ai = aiInterfaceStore();
-        const data = received.action === 'ls-whole' ? received.data.lifestrap : received.data;
-        const straps = Array.isArray(data) ? data : [data];
-        straps.forEach(s => {
-          // Use ai.liveLsUtil as the centralized utility
-          const hexContract = ai.liveLsUtil?.convertBinaryToHex(s) || s;
-          this.addStrap(hexContract);
-        });
-      }
+    processWholeLifestrap(lifeStraps) {
+      lifeStraps.forEach(strap => {
+        // Use ai.liveLsUtil as the centralized utility
+        this.addStrap(strap);
+      });
+    },
+    processGenesisLifestrap(lifeStrap) {
+      // Handle genesis case if needed
+      console.log('genesis first time ever')
+      console.log(lifeStrap)
+      this.addStrap(lifeStrap);
     }
   }
 })

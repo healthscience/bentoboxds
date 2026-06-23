@@ -1,105 +1,299 @@
 'use strict'
+
 /**
  * ExperienceOrchestrator
  *
- * Centralized "Brain" for cross-store transitions.
- * Manages the visibility and state of:
- * - Left Panel (LifeTools)
- * - Right Panel (Beebee Chat)
- * - Bottom Panel (Lens / HUD)
- *
- * @class ExperienceOrchestrator
+ * Centralized coordination for cross-store lifecycle transitions.
+ * Drives the visibility, layout, and data context for:
+ * - Left Panel (LifeTools / Story Lists)
+ * - Right Panel (Beebee Chat / Interplay Dialogue)
+ * - Bottom Panel (Lens / HUD / Coherence Ledger)
+ * - Stage (Orrery / Emulation Worlds)
  */
-
 export class ExperienceOrchestrator {
   constructor(stores) {
     this.stores = stores; // Expects { ai, besearch, library, chat, loom, lifestrap }
   }
 
   /**
-   * Internal helper to sync the three main UI zones
-   * @param {Object} config - { left, right, bottom, mode, context }
+   * Sync the layout configuration across UI zones
    */
   syncLayout({ left, right, bottom, mode, context, world = 'orbit' }) {
     const { ai, chat, besearch, library } = this.stores;
 
-    // 1. Mode & World
     if (mode) ai.currentMode = mode;
     if (context) ai.beebeeContext = context;
     ai.activeWorld = world;
 
-    // 2. Left Panel (LifeTools)
-    if (library) library.isLifeToolsOpen = !!left;
-
-    // 3. Right Panel (Chat)
-    if (right) {
-      chat.isChatOpen = true;
-      chat.chatWidth = 380;
-      chat.isUnrolled = true;
-      ai.bentochatState = true;
-    } else {
-      chat.isChatOpen = false;
-      chat.chatWidth = 0;
+    // Left Panel (LifeTools / Lists)
+    if (library && left !== null && left !== undefined) {
+      library.isLifeToolsOpen = !!left;
     }
 
-    // 4. Bottom Panel (HUD/Lens)
+    // Right Panel (Beebee Chat)
+    if (right === true) {
+      chat.isChatOpen = true;
+      chat.chatWidth = 380;
+      chat.isUnrolled = false; 
+      ai.bentochatState = true;
+    } else if (right === false) {
+      chat.isChatOpen = false;
+      chat.chatWidth = 0;
+      ai.bentochatState = false;
+    }
+
+    // Bottom Panel (HUD/Lens)
     if (bottom) {
       besearch.showBottomPanel = true;
-      besearch.bottomHeight = 400;
+      besearch.bottomHeight = (bottom === 'lens' || bottom === true) ? 400 : 600;
       besearch.setHUUDState(bottom === true ? 'lens' : bottom);
-    } else {
+      ai.showLifestapLens = false;
+    } else if (bottom === false) {
       besearch.showBottomPanel = false;
       besearch.setHUUDState('default');
+      ai.showLifestapLens = true;
     }
   }
 
   /**
-   * Handle opening the chat panel with proper state orchestration
+   * Enter the macro dashboard state to browse lists of lifestrap stories
    */
+  enterDashboardState() {
+    const { ai, besearch } = this.stores;
+    
+    // Clear targeted execution contexts
+    ai.liveBspace = null;
+    
+    // Move layout to show choices on the left, closing operational overlays
+    this.syncLayout({
+      left: true,       // Open LifeTools to display lists
+      right: false,     // Close Chat
+      bottom: false,    // Collapse Lens back to bar
+      mode: 'browsing',
+      context: 'catalog',
+      world: 'orbit'    // Set Orrery stage to a neutral overview macro-view
+    });
+
+    if (ai.storeOrrery && typeof ai.storeOrrery.viewMacroOverview === 'function') {
+      ai.storeOrrery.viewMacroOverview();
+    }
+  }
+
+  /**
+   * Handle operational selection of a specific story
+   */
+  handleLifestrapSelection(strapData) {
+    const { ai, besearch, loom, chat } = this.stores;
+    let lsKey = strapData.key;
+
+    this._migratePlaceholderHistory(lsKey);
+
+    // Populate operational data contexts
+    besearch.loadCyclesForLifestrap(lsKey);
+    this.activateLifestrapState(lsKey);
+    ai.setActiveLifeStrap(strapData); 
+    ai.liveBspace = null;
+
+    if (loom && typeof loom.applyStrapTexture === 'function') {
+      loom.applyStrapTexture(lsKey, strapData);
+    }
+
+    // Extract narrative text for the interplay stage
+    const storyText = strapData.story
+      || strapData.inquiry
+      || strapData.value?.concept?.story
+      || strapData.value?.concept?.inquiry
+      || null;
+
+    if (storyText) {
+      this.orchestrateExtraction(storyText, lsKey);
+    } else {
+      ai.chatAttention = lsKey;
+    }
+
+    const hasChatHistory = (chat.chatHistory[lsKey] || []).some(m => m.context === 'extraction');
+    const chatContext = hasChatHistory ? 'extraction' : 'lifestrap';
+
+    // Transition layout into active tracking engagement
+    this.syncLayout({
+      left: false,
+      right: true,
+      bottom: 'lens',
+      mode: 'active',
+      context: chatContext,
+      world: 'orbit'
+    });
+
+    // Feed data live into the Emulation stage engine
+    this.syncEmulationStage(lsKey, strapData);
+  }
+
+  /**
+   * Sync active variables directly into the Orrery / Emulation environment
+   */
+  syncEmulationStage(lsKey, strapData) {
+    const { ai, loom } = this.stores;
+    if (ai.storeOrrery && typeof ai.storeOrrery.setActiveEmulationContext === 'function') {
+      const texture = loom?.lifestrapTexture?.key === lsKey ? loom.lifestrapTexture : null;
+      ai.storeOrrery.setActiveEmulationContext({
+        key: lsKey,
+        metadata: strapData,
+        pillars: texture?.pillars || null,
+        cycles: texture?.cycles || null
+      });
+    }
+  }
+
+  /**
+   * Safe allocation of active lifestrap state identifiers.
+   * Enforces rules preventing placeholders from clobbering validated hex keys.
+   */
+  activateLifestrapState(lsKey) {
+    const { ai } = this.stores;
+    if (!lsKey) return;
+
+    const PLACEHOLDERS = ['prime-life-strap', 'new-ls', 'new-life-strap'];
+    const incomingIsPlaceholder = PLACEHOLDERS.includes(lsKey);
+    const currentIsRealKey = ai.activeLifestrapKey && !PLACEHOLDERS.includes(ai.activeLifestrapKey);
+
+    // Enforce guard rule: Never overwrite an established hex key with a placeholder
+    if (incomingIsPlaceholder && currentIsRealKey) {
+      return;
+    }
+
+    ai.activeLifestrapKey = lsKey;
+    ai.activeLifeStrapID = lsKey;
+    ai.activeContractKey = lsKey;
+    ai.chatAttention = lsKey;
+    ai.lifeStrapID = lsKey;
+    ai.beebeeContext = "lifestrap";
+  }
+
+  onLifestrapArrived(strap) {
+    const { ai, loom, chat } = this.stores;
+    const isNew = ai.isNewLifestrap(strap.key);
+
+    this.activateLifestrapState(strap.key);
+
+    if (isNew) {
+      ai.currentMode = 'extracting';
+      ai.isInitialState = false;
+      ai.activeWorld = "orbit";
+      
+      // Explicitly show initial panel setup for new generation instantly
+      this.syncLayout({
+        left: false,
+        right: true,
+        bottom: 'lens',
+        mode: 'extracting',
+        context: 'extraction'
+      });
+    } else {
+      if (!chat.chatHistory[strap.key]) {
+        chat.chatHistory[strap.key] = [];
+      }
+    }
+  }
+
+  onTextureWeaved(texture) {
+    const { ai } = this.stores;
+    ai.isInitialState = false; 
+    ai.activeWorld = "orbit";
+    const isNew = ai.isNewLifestrap(texture.key);
+    
+    if (texture.key) {
+      this.activateLifestrapState(texture.key);
+    }
+
+    if (isNew) {
+      this.syncLayout({
+        left: false,
+        right: true,
+        bottom: 'lens',
+        mode: 'extracting',
+        context: 'extraction',
+        world: 'orbit'
+      });
+      this.orchestrateExtraction(texture.story, texture.key);
+      ai.newLifestrap = false;
+    } else {
+      this.hydrateReturningPeer(texture.key);
+    }
+  }
+
+  _migratePlaceholderHistory(lsKey) {
+    if (!lsKey) return;
+    const { chat } = this.stores;
+    const PLACEHOLDERS = ['prime-life-strap', 'new-ls', 'new-life-strap'];
+
+    for (const ph of PLACEHOLDERS) {
+      const orphaned = chat.chatHistory[ph];
+      if (orphaned && orphaned.length > 0) {
+        if (!chat.chatHistory[lsKey]) chat.chatHistory[lsKey] = [];
+        const migrated = orphaned.map(m => ({
+          ...m,
+          conversationId: lsKey,
+          contract_key: lsKey,
+          lifeStrapID: lsKey,
+        }));
+        const existing = chat.chatHistory[lsKey];
+        for (const msg of migrated) {
+          const alreadyExists = existing.some(
+            e => e.type === msg.type && e.content === msg.content && e.context === msg.context
+          );
+          if (!alreadyExists) {
+            existing.push(msg);
+          }
+        }
+        delete chat.chatHistory[ph];
+      }
+    }
+  }
+
   openChatPanel(width = 380) {
     const { ai, chat } = this.stores;
-
-    // 1. Set Chat States
     chat.isChatOpen = true;
     chat.chatWidth = width;
     chat.isUnrolled = true;
     ai.bentochatState = true;
 
-    // 2. Ensure we are looking at the right conversation
     if (!ai.chatAttention || ai.chatAttention === 'new') {
       ai.chatAttention = ai.activeLifeStrapID || 'chat';
     }
 
-    // 3. Update context if it's missing or in default 'chat' but we have a lifestrap
     if (ai.activeLifeStrapID && (ai.beebeeContext === 'chat' || !ai.beebeeContext)) {
       ai.beebeeContext = 'lifestrap';
     }
+
+    const strapStore = this.stores.lifestrap;
+    const strap = strapStore ? strapStore.straps.find(s => s.key === ai.activeLifeStrapID) : null;
+    if (strap) {
+      const storyText = strap.story
+        || strap.inquiry
+        || strap.value?.concept?.story
+        || strap.value?.concept?.inquiry
+        || null;
+      if (storyText) {
+        this.orchestrateExtraction(storyText, ai.activeLifeStrapID);
+      }
+    }
   }
 
-  /**
-   * Handle toggling the unrolled state of the ribbon/chat
-   */
   toggleChatUnroll() {
     const { ai, chat } = this.stores;
     chat.isUnrolled = !chat.isUnrolled;
 
     if (chat.isUnrolled) {
       if (!ai.chatAttention) {
-        const fallback = ai.activeLifeStrapID || ai.liveBspace?.cueid || 'chat';
-        ai.chatAttention = fallback;
+        ai.chatAttention = ai.activeLifeStrapID || ai.liveBspace?.cueid || 'chat';
       }
-
       if (ai.activeLifeStrapID && ai.beebeeContext === 'chat') {
         ai.beebeeContext = 'lifestrap';
       }
-
       ai.bentochatState = true;
     }
   }
 
-  /**
-   * Handle toggling the bottom panel with proper state orchestration
-   */
   toggleBottomPanel() {
     const { besearch } = this.stores;
     const isCurrentlyOpen = besearch.showBottomPanel;
@@ -114,34 +308,17 @@ export class ExperienceOrchestrator {
     return !isCurrentlyOpen;
   }
 
-  /**
-   * Centralized method to set HUD state and sync AI modes
-   */
   setHUUDState(mode, forceOpen = true) {
-    const { besearch } = this.stores;
+    const { besearch, ai } = this.stores;
     besearch.setHUUDState(mode, forceOpen);
-    // Add additional cross-store logic here if needed (e.g. library visibility)
+    if (forceOpen) {
+      ai.showLifestapLens = false;
+      besearch.showBottomPanel = true;
+    }
   }
 
-  /**
-   * Universal Orchestrator to stitch together Worlds, Panels, and Contexts
-   */
-  stitchExperience({
-    world = 'orbit',
-    left = null,
-    right = null,
-    bottom = null,
-    context = null,
-    mode = null
-  }) {
-    this.syncLayout({ left, right, bottom, mode, context, world });
-  }
-
-  /**
-   * Orchestrate space-specific chat context
-   */
   enterSpaceContext(spaceData) {
-    const { ai } = this.stores;
+    const { ai, chat } = this.stores;
     if (!spaceData) return;
 
     const cueId = spaceData.cueid || spaceData.spaceid;
@@ -149,154 +326,16 @@ export class ExperienceOrchestrator {
       ai.beebeeContext = "chatspace";
       const name = spaceData.name;
       const contractKey = spaceData.contract_key;
-      const lifeStrapID = spaceData.lifeStrapID || cueId;
+      const lifeStrapID = spaceData.lifeStrapID || ai.activeLifeStrapID || cueId;
 
       ai.setActiveLifeStrap(lifeStrapID, contractKey);
       ai.ensureSpaceChatInMenu(cueId, name);
     }
   }
 
-  /**
-   * Exit space context and revert to previous
-   */
   exitSpaceContext(previousContext) {
     const { ai } = this.stores;
     ai.beebeeContext = previousContext || "chat";
-  }
-
-  /**
-   * Called when a lifestrap contract arrives (Genesis or Load)
-   */
-  onLifestrapArrived(strap) {
-    const { ai } = this.stores;
-    const isNew = ai.newLifestrap || strap.key === 'prime-life-strap' || strap.key === 'new-ls';
-    const wasZen = ai.currentMode === 'zen' || ai.isInitialState;
-
-    this.activateLifestrapState(strap.key);
-
-    if (isNew) {
-      ai.currentMode = 'extracting';
-      ai.isInitialState = false;
-    } else if (wasZen) {
-      this.syncLayout({ left: false, right: false, bottom: false, mode: 'active', world: 'orbit' });
-    }
-  }
-
-  /**
-   * Called when the Loom has finished weaving the texture (Final trigger for Lens)
-   */
-  onTextureWeaved(texture) {
-    const { ai } = this.stores;
-    ai.isInitialState = false; 
-    const isNew = ai.newLifestrap || texture.key === 'prime-life-strap' || texture.key === 'new-ls';
-    
-    // Ensure the key is active
-    if (texture.key) {
-      this.activateLifestrapState(texture.key);
-    }
-
-    if (isNew) {
-      this.syncLayout({
-        left: false,
-        right: true,
-        bottom: 'lens',
-        mode: 'extracting',
-        context: 'extraction'
-      });
-      
-      this.orchestrateExtraction(texture.story, texture.key);
-      
-      ai.newLifestrap = false;
-    } else {
-      this.syncLayout({
-        left: false,
-        right: true,
-        bottom: 'lens',
-        mode: 'active',
-        context: 'lifestrap'
-      });
-    }
-  }
-
-  /**
-   * Orchestrate the extraction dialogue messages
-   */
-  orchestrateExtraction(peerInput, lsKey) {
-    const { chat, ai } = this.stores;
-    
-    if (!ai.historyPair[lsKey]) ai.historyPair[lsKey] = [];
-    if (!chat.chatHistory[lsKey]) chat.chatHistory[lsKey] = [];
-
-    const peerMessage = {
-      role: "peer",
-      type: "peer",
-      content: peerInput || "Story extraction initiated...",
-      context: "extraction",
-      conversationId: lsKey,
-      contract_key: lsKey,
-      lifeStrapID: lsKey,
-      timestamp: new Date(),
-    };
-
-    const agentMessage = {
-      role: "beebee",
-      type: "agent",
-      content: "beebee is digesting the story.",
-      context: "extraction",
-      conversationId: lsKey,
-      contract_key: lsKey,
-      lifeStrapID: lsKey,
-      status: "complete",
-      timestamp: new Date(),
-    };
-
-    chat.addMessage(peerMessage);
-    chat.addMessage(agentMessage);
-
-    // Also populate historyPair for safety, as some components might still use it
-    ai.historyPair[lsKey].push({
-      question: { bbid: `q_${Date.now()}`, data: { text: peerMessage.content, active: true } },
-      reply: { time: agentMessage.timestamp, type: "extraction", data: { text: agentMessage.content } }
-    });
-    
-    chat.beginChat = true;
-  }
-
-  /**
-   * Centralized method to set active lifestrap keys
-   */
-  activateLifestrapState(lsKey) {
-    const { ai } = this.stores;
-    ai.activeLifestrapKey = lsKey;
-    ai.activeLifeStrapID = lsKey;
-    ai.activeContractKey = lsKey;
-    ai.chatAttention = lsKey;
-    ai.lifeStrapID = lsKey;
-  }
-
-  /**
-   * Handle manual user selection of a story
-   */
-  handleLifestrapSelection(strapData) {
-    const { ai, besearch, loom } = this.stores;
-    const lsKey = strapData.key || strapData.id;
-    
-    besearch.loadCyclesForLifestrap(lsKey);
-    this.activateLifestrapState(lsKey);
-    ai.setActiveLifeStrap(strapData); 
-    ai.liveBspace = null; // Clear space context when selecting lifestrap
-
-    if (loom && typeof loom.applyStrapTexture === 'function') {
-      loom.applyStrapTexture(lsKey, strapData);
-    }
-
-    this.syncLayout({
-      left: false,
-      right: true,
-      bottom: 'lens',
-      mode: 'active',
-      context: 'lifestrap'
-    });
   }
 
   resetToZen() {

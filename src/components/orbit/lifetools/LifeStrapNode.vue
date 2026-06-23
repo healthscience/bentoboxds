@@ -52,18 +52,6 @@ const emit = defineEmits(["select", "delete"]);
 
 const showOptions = ref(false);
 
-/* Compute an ID that includes name words */
-const strapIdWithName = computed(() => {
-  const s = props.strap;
-  if (!s) return "";
-  // Generate ID: ls_{first_two_words}_{year}
-  const nameWords = s.name
-    ? s.name.split(" ").slice(0, 2).join("_").toLowerCase()
-    : "unnamed";
-  const year = s.id ? s.id.match(/\d{4}/)?.[0] || "2026" : "2026";
-  return `ls_${nameWords}_${year}`;
-});
-
 /* methods */
 const toggleOptions = (event) => {
   event.stopPropagation();

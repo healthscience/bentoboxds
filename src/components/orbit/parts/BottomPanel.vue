@@ -191,7 +191,7 @@ watch(
 );
 
 const extractedData = computed(() => {
-  return storeLoom.digestInput;
+  return storeLoom.mappedLenses;
 });
 
 /* methods */

@@ -25,7 +25,26 @@ export const orreryStore = defineStore('orrerystore', {
         }
 
         if (cueContracts) {
-         this.storeCues.cuesList = message.data.cueContracts
+          this.storeCues.cuesList = message.data.cueContracts;
+          // Populate registry for categorization
+          cueContracts.forEach(c => {
+            const hexC = this.storeCues.utilCues?.convertBinaryToHex(c) || c;
+            const key = hexC.key || (hexC.value?.id);
+            if (key) this.registry.set(key, hexC.value);
+          });
+        }
+        
+        if (referenceContracts) {
+          this.storeCues.integrateReferenceContracts(referenceContracts);
+          Object.values(referenceContracts).forEach(contracts => {
+            if (Array.isArray(contracts)) {
+              contracts.forEach(c => {
+                const hexC = this.storeCues.utilCues?.convertBinaryToHex(c) || c;
+                const key = hexC.key || (hexC.value?.id);
+                if (key) this.registry.set(key, hexC.value);
+              });
+            }
+          });
         }
       } else if (message.action === 'seed-library') {
         this.storeCues.cuesList = message.data.cueContracts
