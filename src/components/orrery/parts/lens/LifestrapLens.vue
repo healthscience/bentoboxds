@@ -151,8 +151,8 @@
 import { ref, computed, onMounted } from "vue";
 import BentoSpace from "@/components/bentospace/spaceTemplate.vue";
 import WholeResonance from "@/components/consilience/wholeResonance.vue";
-import LensColumn from "@/components/orbit/parts/shared/LensColumn.vue";
-import CuesPortal from "@/components/orbit/parts/shared/CuesPortal.vue";
+import LensColumn from "@/components/orrery/parts/shared/LensColumn.vue";
+import CuesPortal from "@/components/orrery/parts/shared/CuesPortal.vue";
 
 import { besearchStore } from "@/stores/besearchStore.js";
 import { cuesStore } from "@/stores/cuesStore.js";

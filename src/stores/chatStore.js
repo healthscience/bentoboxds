@@ -513,14 +513,12 @@ export const useChatStore = defineStore('chat', {
       }
     },
     processReply (message) {
-      console.log("[ChatStore] processReply action:", message.action, "reftype:", message.reftype);
       if (message.reftype.trim() === 'chat-history') {
         if (message.action.trim() === 'start') {
           // prepare chat dialogues
           let chatMenu = []
           if (message.data.length !== 0) {
             chatMenu = this.storeAI.liveChatUtil.prepareChatMenu(message.data)
-            console.log("[ChatStore] Prepared Chat Menu length:", chatMenu.length, "First chatid:", chatMenu[0]?.chatid);
             this.storeAI.chatAttention = chatMenu[0].chatid
             let setOneActive = []
             let chatAct = 0
@@ -541,7 +539,6 @@ export const useChatStore = defineStore('chat', {
               this.storeAI.storeBentobox.chatList = setOneActive
             }
             this.chatList = setOneActive
-            console.log("[ChatStore] Syncing chat attention:", this.storeAI.chatAttention);
             // hydrate chatStore.chatHistory from saved pairs per conversation
             this.hydrateFromSaved(message.data)
             // what items was last uses ie time or could be favourite ie most frequent use
@@ -553,8 +550,6 @@ export const useChatStore = defineStore('chat', {
             if (this.storeAI.chatAttention && (this.storeAI.chatAttention === "prime-life-strap" || this.storeAI.chatAttention.startsWith("ls_") || this.storeAI.chatAttention.startsWith("6c696665737472617021"))) {
               this.storeAI.initOrchestrator();
               const lsKey = this.storeAI.chatAttention;
-              console.log("[ChatStore] Returning Session Orchestration triggered for lifestrap:", lsKey);
-
               // Find the saved lifestrap record. Prefer lifestrapTexture (full pillars),
               // fall back to the chat meta object which may have story/inquiry fields.
               const matchingRec = Array.isArray(message.data) ? message.data.find(r => r.value?.chat?.chatid === lsKey) : null;

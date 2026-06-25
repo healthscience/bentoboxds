@@ -5,7 +5,7 @@
 </template>
 
 <script setup>
-import SculptingLayer from "@/components/orbit/sculpting/sculptingLayer.vue";
+import SculptingLayer from "@/components/orrery/sculpting/sculptingLayer.vue";
 </script>
 
 <style scoped>

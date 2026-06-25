@@ -203,26 +203,18 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
 
     setActiveLifeStrap(strap, contractKey = null) {
       if (!strap) return;
-      const lsKey = typeof strap === 'string' ? strap : (strap.key || strap.id);
-      const cKey = contractKey || (typeof strap === 'object' ? (strap.contract_key || lsKey) : lsKey);
-      
-      this.initOrchestrator();
+      const lsKey = strap.key
+      const cKey = contractKey
       
       this.activeLifestrapKey = lsKey;
       this.activeLifeStrapID = lsKey;
       this.activeContractKey = cKey;
       this.chatAttention = lsKey;
       this.isInitialState = false;
-
-      // Ensure the orchestrator is aware of this state change if it was triggered elsewhere
-      if (this.experienceOrchestrator) {
-        this.experienceOrchestrator.activateLifestrapState(lsKey);
-      }
     },
 
     processReply(received) {
-      console.log('[aiInterface] processReply action:')
-      console.log(received);
+      this.initOrchestrator();
       // Orderly dispatch to specialized stores
       switch (received.action) {
         case "ls-whole":
@@ -232,37 +224,70 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
           this.storeLifestrap.processWholeLifestrap(hexkeyLifestap);
           // convert keys in loom contract
           let contractTypes = Object.keys(received.data.whole);
-          let loomContractHex = {}
+          let loomHexList = {}
           for (let cType of contractTypes) {
-            for (let contract of received.data.whole[cType]) {
-              loomContractHex.push(this.storeLibrary.utilLibrary.convertBinaryToHex(contract));
+            let loomContractHex = []
+            if (cType !== 'lsKeytrack') { 
+              for (let contract of received.data.whole[cType]) {
+                loomContractHex.push(this.storeLibrary.utilLibrary.convertBinaryToHex(contract));
+              }
+              // loomHexList[cType] = {}
+              loomHexList[cType] = loomContractHex
             }
-            loomContractHex[cType] = loomContractHex
           }
-          console.log('loom contracts extractto hex')
-          console.log(loomContractHex)
+          // set the active story based on lens data returned
+          const fullKey = this.storeLibrary.utilLibrary.convertKeytoHex(received.data.whole.lsKeytrack.ls)
+          this.activeLifestrapKey = fullKey
+          const loomKey = 
+          this.storeLibrary.utilLibrary.convertKeytoHex(received.data.whole.lsKeytrack.lens)
+          this.activeLoomLens = loomKey
+          // populate the loom
           for (let cType of contractTypes) {
             if (cType === 'lens') {
-            this.storeLoom.processBeginLoom(loomContractHex[cType]);
+              this.storeLoom.processBeginLoom(loomHexList[cType][0]);
             }
           }
+          // set the world
+          this.currentMode = "orbit"
           break;
 
         case "lifestrap-genesis":
           let hexkeyLifestapG = this.keyIndexConvert([received.data])
-          console.log('geneiss key contract')
-          console.log(hexkeyLifestapG)
           this.storeLifestrap.processGenesisLifestrap(hexkeyLifestapG[0]);
           break;
 
         case "ls-pattern":
           let hexkeyLoom = this.keyIndexConvert([received.data.contract])
-          console.log('geneiss key contract')
-          console.log(hexkeyLoom)
-          this.storeLoom.processBeginLoom(hexkeyLoom);
+          this.storeLoom.processBeginLoom(hexkeyLoom[0]);
           break;
 
         case "ls-whole-loom":
+          const loomBundleKey = 
+          this.storeLibrary.utilLibrary.convertKeytoHex(received.data.whole.lsKeytrack.lens)
+          this.activeLoomLens = loomBundleKey
+          // convert keys in loom contract
+          let contractLoomTypes = Object.keys(received.data.whole);
+          let loomSHexList = {}
+          for (let cType of contractLoomTypes) {
+            let loomContractHex = []
+            if (cType !== 'lsKeytrack') { 
+              for (let contract of received.data.whole[cType]) {
+                loomContractHex.push(this.storeLibrary.utilLibrary.convertBinaryToHex(contract));
+              }
+              // loomHexList[cType] = {}
+              loomSHexList[cType] = loomContractHex
+            }
+          }
+          // populate the loom
+          for (let cType of contractLoomTypes) {
+            if (cType === 'lens') {
+              this.storeLoom.processBeginLoom(loomSHexList[cType][0]);
+            }
+          }
+          // set the world
+          this.currentMode = "orbit"
+          break;
+
         case "seed-library":
           this.storeOrrery.processReply(received);
           break;

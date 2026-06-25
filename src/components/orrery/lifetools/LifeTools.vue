@@ -244,10 +244,10 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
-import LifeStrapNode from "@/components/orbit/lifetools/LifeStrapNode.vue";
-import BesearchControls from "@/components/orbit/lifetools/besearchControls.vue";
+import LifeStrapNode from "@/components/orrery/lifetools/LifeStrapNode.vue";
+import BesearchControls from "@/components/orrery/lifetools/besearchControls.vue";
 import AttunementType from "@/components/besearch/attunement/attunementType.vue";
-import BentoInstruments from "@/components/orbit/instruments/bentoInstruments.vue";
+import BentoInstruments from "@/components/orrery/instruments/bentoInstruments.vue";
 
 import { libraryStore } from "@/stores/libraryStore.js";
 import { aiInterfaceStore } from "@/stores/aiInterface.js";
@@ -294,7 +294,6 @@ const emit = defineEmits([
 
 /** Handle life-strap deletion */
 const handleStrapDelete = (strapKey) => {
-  console.log("Life strap delete requested for key:", strapKey);
   // Optional: Add confirmation dialog here
   storeLibrary.removeLSContract(strapKey, "private");
 };
@@ -319,7 +318,6 @@ const besearchTime = () => {
 };
 
 const newLifeStrapStory = () => {
-  console.log("new life strap story");
   storeAI.initOrchestrator();
   storeAI.experienceOrchestrator.resetToZen();
   
@@ -339,8 +337,6 @@ const newLifeStrapStory = () => {
 };
 
 const handleStrapSelect = (strapData) => {
-  // Update Experience via Orchestrator
-  storeAI.initOrchestrator();
   storeAI.experienceOrchestrator.handleLifestrapSelection(strapData);
 
   // Emit to parent components (for worlds switching)
@@ -360,7 +356,6 @@ const selectWorld = (worldId) => {
   if (worldId === "body") {
     storeBesearch.setNexusWorld("body");
   } else if (worldId === "orbit") {
-    console.log("orbit");
     storeAI.currentMode = "zen";
   }
 };
@@ -416,8 +411,6 @@ const stopPeer = () => {
 };
 
 const intervene = () => {
-  // Implement intervention logic here
-  console.log("Peer intervention initiated");
   // You can add more specific intervention logic as needed
   emit("peer-intervention");
 };
@@ -426,18 +419,15 @@ const hasDrawing = ref(false);
 const selectedCueId = ref("");
 
 const startDrawing = () => {
-  console.log("Start drawing mode");
   hasDrawing.value = true; // Mocking completion for now
   emit("start-drawing");
 };
 
 const startTagging = () => {
-  console.log("Start tagging mode");
   emit("start-tagging");
 };
 
 const saveCueLocation = () => {
-  console.log("Save cue location", selectedCueId.value);
   emit("save-cue", selectedCueId.value);
   hasDrawing.value = false;
   selectedCueId.value = "";

@@ -64,7 +64,7 @@
 
 <script setup>
 import { ref, watch, computed } from "vue";
-import LifeDialogue from "@/components/orbit/dialogue/lifeDialogue.vue";
+import LifeDialogue from "@/components/orrery/dialogue/lifeDialogue.vue";
 import InputBox from "@/components/beebeehelp/inputBox.vue";
 import { useChatStore } from "@/stores/chatStore.js";
 

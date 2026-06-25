@@ -134,15 +134,15 @@
 
 <script setup>
 import { ref, computed, onUnmounted } from "vue";
-import StartClock from "@/components/orbit/clock/HeliStart.vue";
-import ProjectionHeli from "@/components/orbit/clock/projectionHeli.vue";
-import ResonancePulse from "@/components/orbit/resonance/ResonancePulse.vue";
-import ResonancePulseghost from "@/components/orbit/resonance/ResonancePulseghost.vue";
-import CubeStructure from "@/components/orbit/cueCude/cubeStructure.vue";
-import FilterContext from "@/components/orbit/filter/contextFilter.vue";
-import OrbitHUD from "@/components/orbit/parts/OrbitHUD.vue";
-import TinyDevice from "@/components/orbit/devices/tinyDevice.vue";
-import ExpandDevice from "@/components/orbit/devices/expandDevice.vue";
+import StartClock from "@/components/orrery/clock/HeliStart.vue";
+import ProjectionHeli from "@/components/orrery/clock/projectionHeli.vue";
+import ResonancePulse from "@/components/orrery/resonance/ResonancePulse.vue";
+import ResonancePulseghost from "@/components/orrery/resonance/ResonancePulseghost.vue";
+import CubeStructure from "@/components/orrery/cueCude/cubeStructure.vue";
+import FilterContext from "@/components/orrery/filter/contextFilter.vue";
+import OrbitHUD from "@/components/orrery/parts/OrbitHUD.vue";
+import TinyDevice from "@/components/orrery/devices/tinyDevice.vue";
+import ExpandDevice from "@/components/orrery/devices/expandDevice.vue";
 
 import { aiInterfaceStore } from "@/stores/aiInterface.js";
 import { useOrbitStore } from "@/stores/orbitStore.js";

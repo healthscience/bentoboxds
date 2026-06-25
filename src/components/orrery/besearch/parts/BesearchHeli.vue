@@ -66,7 +66,7 @@
 <script setup>
 import { computed } from "vue";
 import { besearchStore } from "@/stores/besearchStore.js";
-import HeliClock from "@/components/orbit/clock/HeliClock.vue";
+import HeliClock from "@/components/orrery/clock/HeliClock.vue";
 
 const storeBesearch = besearchStore();
 const besearchContext = computed(() => storeBesearch.activeBesearchContext);

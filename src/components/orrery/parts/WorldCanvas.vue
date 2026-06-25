@@ -26,9 +26,9 @@
 
 <script setup>
 import { ref, computed } from "vue";
-import OrbitView from "@/components/orbit/worlds/OrbitView.vue";
-import HumanWorld from "@/components/orbit/worlds/Cues-BodyWorld.vue";
-import EarthEnvironment from "@/components/orbit/worlds/EarthEnvironment.vue";
+import OrbitView from "@/components/orrery/worlds/OrbitView.vue";
+import HumanWorld from "@/components/orrery/worlds/Cues-BodyWorld.vue";
+import EarthEnvironment from "@/components/orrery/worlds/EarthEnvironment.vue";
 import BesearchCanvas from "@/components/besearch/besearchCanvas.vue";
 
 import { aiInterfaceStore } from "@/stores/aiInterface.js";

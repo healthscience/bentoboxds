@@ -92,11 +92,11 @@ E<template>
 import { ref, computed, watch } from 'vue';
 import { diaryStore } from '@/stores/diaryStore.js';
 import heliToGPS from '@/stores/hopUtility/heliToCoordUtil.js'
-import OpenStreetMap from '@/components/orbit/worlds/map/OpenstreetMap.vue';
-import PathTool from '@/components/orbit/worlds/tools/PathTool.vue';
-import RiverEmulation from '@/components/orbit/emulations/river/RiverEmulation.vue';
-import GaiaEmulation from '@/components/orbit/worlds/daisyworld/gaiaEmulation.vue';
-import AlgotectureSpace from '@/components/orbit/worlds/environment/algotectureSpace.vue';
+import OpenStreetMap from '@/components/orrery/worlds/map/OpenstreetMap.vue';
+import PathTool from '@/components/orrery/worlds/tools/PathTool.vue';
+import RiverEmulation from '@/components/orrery/emulations/river/RiverEmulation.vue';
+import GaiaEmulation from '@/components/orrery/worlds/daisyworld/gaiaEmulation.vue';
+import AlgotectureSpace from '@/components/orrery/worlds/environment/algotectureSpace.vue';
 import { useLensStability } from '@/composables/useLensStability';
 
 const storeDiary = diaryStore();

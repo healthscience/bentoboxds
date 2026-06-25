@@ -57,10 +57,7 @@ class LifestrapUtility {
    */
   lensTobe = function (keyIn, lensData) {
     // data coming in is in hex key format
-    console.log('lens to be data INININI')
-    console.log(keyIn)
-    console.log(lensData)
-    let lsContract = lensData[0]
+    let lsContract = lensData
     const slots = lsContract.value.concept.context?.slots || [];
 
     const unmappedFragments =

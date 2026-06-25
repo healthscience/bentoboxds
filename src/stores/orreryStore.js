@@ -10,7 +10,6 @@ export const orreryStore = defineStore('orrerystore', {
   }),
   actions: {
     processReply(message) {
-      console.log('Processing message:', message)
       if (message.action === 'seed-base-biology') {
         const { cueContracts, referenceContracts, verification } = message.data
         

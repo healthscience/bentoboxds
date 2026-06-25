@@ -36,7 +36,7 @@
 
 <script setup>
 import { ref } from "vue";
-import LifeTools from "@/components/orbit/lifetools/LifeTools.vue";
+import LifeTools from "@/components/orrery/lifetools/LifeTools.vue";
 
 // PROPS: Controlled by PrimeInterface
 const props = defineProps({

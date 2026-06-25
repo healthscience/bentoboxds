@@ -80,8 +80,8 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import HeliGenesis from '@/components/orbit/clock/HeliGenesis.vue';
-import HeliClock from '@/components/orbit/clock/HeliClock.vue';
+import HeliGenesis from '@/components/orrery/clock/HeliGenesis.vue';
+import HeliClock from '@/components/orrery/clock/HeliClock.vue';
 import { diaryStore } from '@/stores/diaryStore.js';
 
 const storeDiary = diaryStore();

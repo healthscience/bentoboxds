@@ -116,13 +116,13 @@
 <script setup>
 import { ref, computed, watch, nextTick, onMounted, onUnmounted } from "vue";
 import BesearchDetail from "@/components/besearch/attunement/besearchDetail.vue";
-import LifestrapLens from "@/components/orbit/parts/lens/LifestrapLens.vue";
-import AttunementLayer from "@/components/orbit/parts/attunement/AttunementLayer.vue";
-import HeliProjectionLayer from "@/components/orbit/parts/heli/HeliProjectionLayer.vue";
-import GraftLayer from "@/components/orbit/parts/graft/GraftLayer.vue";
-import CuecubeLayer from "@/components/orbit/parts/emulation/CuecubeLayer.vue";
-import TinkerLayer from "@/components/orbit/parts/tinker/TinkerLayer.vue";
-import BesearchLayer from "@/components/orbit/besearch/besearchLayer.vue";
+import LifestrapLens from "@/components/orrery/parts/lens/LifestrapLens.vue";
+import AttunementLayer from "@/components/orrery/parts/attunement/AttunementLayer.vue";
+import HeliProjectionLayer from "@/components/orrery/parts/heli/HeliProjectionLayer.vue";
+import GraftLayer from "@/components/orrery/parts/graft/GraftLayer.vue";
+import CuecubeLayer from "@/components/orrery/parts/emulation/CuecubeLayer.vue";
+import TinkerLayer from "@/components/orrery/parts/tinker/TinkerLayer.vue";
+import BesearchLayer from "@/components/orrery/besearch/besearchLayer.vue";
 
 import { besearchStore } from "@/stores/besearchStore.js";
 import { aiInterfaceStore } from "@/stores/aiInterface.js";

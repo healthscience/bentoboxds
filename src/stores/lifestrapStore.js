@@ -8,6 +8,7 @@ export const lifestrapStore = defineStore('lifestrapstore', {
   }),
   actions: {
     addStrap(strap) {
+      const ai = aiInterfaceStore();
       if (!strap.key && strap.id) strap.key = strap.id;
       if (!strap.key) return;
 
@@ -19,11 +20,7 @@ export const lifestrapStore = defineStore('lifestrapstore', {
       }
 
       // Notify Orchestrator through AI store
-      const ai = aiInterfaceStore();
-      ai.initOrchestrator();
-      if (ai.experienceOrchestrator) { 
-        ai.experienceOrchestrator.onLifestrapArrived(strap);
-      }
+      ai.experienceOrchestrator.onLifestrapArrived(strap);
     },
     setActiveStrap(strap) {
       const lsKey = strap.key || strap.id;
@@ -37,8 +34,6 @@ export const lifestrapStore = defineStore('lifestrapstore', {
     },
     processGenesisLifestrap(lifeStrap) {
       // Handle genesis case if needed
-      console.log('genesis first time ever')
-      console.log(lifeStrap)
       this.addStrap(lifeStrap);
     }
   }

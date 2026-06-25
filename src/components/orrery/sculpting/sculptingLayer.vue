@@ -261,7 +261,7 @@ import { useOrgoStore } from "@/stores/orgoStore.js";
 import { useGelleStore } from "@/stores/gelleStore.js";
 import { aiInterfaceStore } from "@/stores/aiInterface.js";
 import { libraryStore } from "@/stores/libraryStore.js";
-import LifeStrapHorizon from "@/components/orbit/sculpting/LifeStrapHorizon.vue";
+import LifeStrapHorizon from "@/components/orrery/sculpting/LifeStrapHorizon.vue";
 
 const storeBesearch = besearchStore();
 const storeCues = cuesStore();

@@ -134,7 +134,6 @@ export const loomStore = defineStore('loomstore', {
     },
 
     updateActiveLensFromTexture(texture) {
-      if (!texture || !texture.pillars) return;
       this.activeLens.residue = texture.residue || [];
       this.activeLens.attunement = texture.pillars.attunement || [];
       
@@ -178,16 +177,13 @@ export const loomStore = defineStore('loomstore', {
 
       this.loomCache[lsKey] = { lens: newTexture };
       this.updateActiveLensFromTexture(newTexture);
-
-      ai.initOrchestrator();
-      if (ai.experienceOrchestrator) {
-        ai.experienceOrchestrator.onTextureWeaved(newTexture);
-      }
     },
 
     applyStrapTexture(lsKey, strapData) {
       const ai = aiInterfaceStore();
       const besearch = besearchStore();
+
+      // clear the current loom
 
       if (this.loomCache[lsKey]) {
         const cached = this.loomCache[lsKey];
@@ -196,44 +192,14 @@ export const loomStore = defineStore('loomstore', {
         this.digestInput = newObj;
         besearch.activeBesearchContext.story = newObj.story;
         this.updateActiveLensFromTexture(newObj);
-        
-        ai.initOrchestrator();
-        if (ai.experienceOrchestrator) {
-          ai.experienceOrchestrator.hydrateReturningPeer(lsKey, newObj);
-        }
-      } else if (strapData && strapData.pillars) {
-        this.lifestrapTexture = strapData;
-        this.digestInput = strapData;
-        besearch.activeBesearchContext.story = strapData.story;
-        this.loomCache[lsKey] = { lens: strapData };
-        this.updateActiveLensFromTexture(strapData);
-        
-        ai.initOrchestrator();
-        if (ai.experienceOrchestrator) {
-          ai.experienceOrchestrator.hydrateReturningPeer(lsKey, strapData);
-        }
-      } else {
-        // If we don't have a cache hit, check if the current texture matches this key
-        // and ALREADY has pillars (e.g. from an in-flight npl-reply).
-        const currentMatches = this.lifestrapTexture && this.lifestrapTexture.key === lsKey;
-        const hasPillars = this.lifestrapTexture?.pillars?.capacity?.length > 0 || this.lifestrapTexture?.pillars?.context?.length > 0;
 
-        if (currentMatches && hasPillars) {
-          // Ensure it's cached for next time
-          this.loomCache[lsKey] = { lens: JSON.parse(JSON.stringify(this.lifestrapTexture)) };
-        } else {
-          const newTexture = ai.liveLsUtil.lensTobe(lsKey, strapData);
-          this.lifestrapTexture = newTexture;
-          this.digestInput = newTexture;
-          this.updateActiveLensFromTexture(newTexture);
-        }
-        // this.fetchWholeLoom(lsKey);
+      } else {
+        // if not data in bentoboxds, then ask HOP for begin loom bundle
+        this.fetchWholeLoom(lsKey);
       }
     },
 
     processLoom(received) {
-      console.log(`[LoomStore] processReply action: ${received}`);
-
       if (received.action === "bringtobe-start") {
         libraryStore().sendMessage('get-library');
       } else if (received.action === "ls-pattern") {
@@ -242,18 +208,15 @@ export const loomStore = defineStore('loomstore', {
 
     },
     processBeginLoom (loomData) {
-      console.log('[LoomStore] processBeginLoom ')
-      console.log(loomData);
+      // match lens key to loom data
       const ai = aiInterfaceStore();
       // prepare data to standard for loom,  genesis and first time and returning lens glue.
-      if (loomData.length > 0) {
-        const newTexture = ai.liveLsUtil.lensTobe(ai.activeLifestrapKey, loomData);
+      if (loomData) {
+        const newTexture = ai.liveLsUtil.lensTobe(ai.activeLoomLens, loomData);
         this.lifestrapTexture = newTexture;
         this.digestInput = newTexture;
-        this.loomCache[ai.activeLifestrapKey] = { lens: newTexture };
+        this.loomCache[ai.activeLoomLens] = { lens: newTexture };
         this.updateActiveLensFromTexture(newTexture);
-
-        ai.initOrchestrator();
       }
     },
     reorderStrandCues(zone, oldIndex, newIndex) {
@@ -295,7 +258,13 @@ export const loomStore = defineStore('loomstore', {
 
     fetchWholeLoom(lsKey) {
       const ai = aiInterfaceStore();
-      ai.sendMessageHOP({ type: "bbai", action: "fetch-whole-loom", data: { lifeStrapID: lsKey, contract_key: lsKey } });
+      ai.sendMessageHOP(
+        {
+          type: "bbai",
+          action: "fetch-whole-loom",
+          data: { lifeStrapID: lsKey, contract_key: lsKey }
+        }
+      );
     }
   }
 })

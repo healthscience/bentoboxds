@@ -85,40 +85,25 @@ export class ExperienceOrchestrator {
   handleLifestrapSelection(strapData) {
     const { ai, besearch, loom, chat } = this.stores;
     let lsKey = strapData.key;
-
-    this._migratePlaceholderHistory(lsKey);
-
-    // Populate operational data contexts
-    besearch.loadCyclesForLifestrap(lsKey);
+    // update active keys across all worlds and panels
     this.activateLifestrapState(lsKey);
-    ai.setActiveLifeStrap(strapData); 
-    ai.liveBspace = null;
+    // update beebee chat
+    this.updateBeeBeeChat(lsKey);
+    // update besearch
+    besearch.loadCyclesForLifestrap(lsKey);
 
-    if (loom && typeof loom.applyStrapTexture === 'function') {
-      loom.applyStrapTexture(lsKey, strapData);
-    }
+    // check if loom data required or already available
+    loom.applyStrapTexture(lsKey, strapData);
 
-    // Extract narrative text for the interplay stage
-    const storyText = strapData.story
-      || strapData.inquiry
-      || strapData.value?.concept?.story
-      || strapData.value?.concept?.inquiry
-      || null;
-
-    if (storyText) {
-      this.orchestrateExtraction(storyText, lsKey);
-    } else {
-      ai.chatAttention = lsKey;
-    }
-
+    // look to remove this logic
     const hasChatHistory = (chat.chatHistory[lsKey] || []).some(m => m.context === 'extraction');
     const chatContext = hasChatHistory ? 'extraction' : 'lifestrap';
 
     // Transition layout into active tracking engagement
     this.syncLayout({
       left: false,
-      right: true,
-      bottom: 'lens',
+      right: false,
+      bottom: false,
       mode: 'active',
       context: chatContext,
       world: 'orbit'
@@ -142,31 +127,6 @@ export class ExperienceOrchestrator {
         cycles: texture?.cycles || null
       });
     }
-  }
-
-  /**
-   * Safe allocation of active lifestrap state identifiers.
-   * Enforces rules preventing placeholders from clobbering validated hex keys.
-   */
-  activateLifestrapState(lsKey) {
-    const { ai } = this.stores;
-    if (!lsKey) return;
-
-    const PLACEHOLDERS = ['prime-life-strap', 'new-ls', 'new-life-strap'];
-    const incomingIsPlaceholder = PLACEHOLDERS.includes(lsKey);
-    const currentIsRealKey = ai.activeLifestrapKey && !PLACEHOLDERS.includes(ai.activeLifestrapKey);
-
-    // Enforce guard rule: Never overwrite an established hex key with a placeholder
-    if (incomingIsPlaceholder && currentIsRealKey) {
-      return;
-    }
-
-    ai.activeLifestrapKey = lsKey;
-    ai.activeLifeStrapID = lsKey;
-    ai.activeContractKey = lsKey;
-    ai.chatAttention = lsKey;
-    ai.lifeStrapID = lsKey;
-    ai.beebeeContext = "lifestrap";
   }
 
   onLifestrapArrived(strap) {
@@ -195,6 +155,30 @@ export class ExperienceOrchestrator {
     }
   }
 
+
+  /**
+   * Safe allocation of active lifestrap state identifiers.
+   * Enforces rules preventing placeholders from clobbering validated hex keys.
+   */
+  activateLifestrapState(lsKey) {
+    const { ai } = this.stores;
+    if (!lsKey) return;
+
+    const PLACEHOLDERS = ['prime-life-strap', 'new-ls', 'new-life-strap'];
+    const incomingIsPlaceholder = PLACEHOLDERS.includes(lsKey);
+    const currentIsRealKey = ai.activeLifestrapKey && !PLACEHOLDERS.includes(ai.activeLifestrapKey);
+
+    // Enforce guard rule: Never overwrite an established hex key with a placeholder
+    if (incomingIsPlaceholder && currentIsRealKey) {
+      return;
+    }
+
+    ai.activeLifestrapKey = lsKey;
+    ai.activeLifeStrapID = lsKey;
+    ai.activeContractKey = lsKey;
+    ai.chatAttention = lsKey;
+  }
+
   onTextureWeaved(texture) {
     const { ai } = this.stores;
     ai.isInitialState = false; 
@@ -214,40 +198,30 @@ export class ExperienceOrchestrator {
         context: 'extraction',
         world: 'orbit'
       });
-      this.orchestrateExtraction(texture.story, texture.key);
+
       ai.newLifestrap = false;
     } else {
       this.hydrateReturningPeer(texture.key);
     }
   }
 
-  _migratePlaceholderHistory(lsKey) {
-    if (!lsKey) return;
-    const { chat } = this.stores;
-    const PLACEHOLDERS = ['prime-life-strap', 'new-ls', 'new-life-strap'];
+  /**
+   * Migrate chat history from placeholder keys to the active hex key
+   * 
+   * @param {string} lsKey - The active lifestrap key (hex identifier)
+   * @returns {void}
+   */
+  hydratePeerExperience(lsKey) {
+    
+  }
 
-    for (const ph of PLACEHOLDERS) {
-      const orphaned = chat.chatHistory[ph];
-      if (orphaned && orphaned.length > 0) {
-        if (!chat.chatHistory[lsKey]) chat.chatHistory[lsKey] = [];
-        const migrated = orphaned.map(m => ({
-          ...m,
-          conversationId: lsKey,
-          contract_key: lsKey,
-          lifeStrapID: lsKey,
-        }));
-        const existing = chat.chatHistory[lsKey];
-        for (const msg of migrated) {
-          const alreadyExists = existing.some(
-            e => e.type === msg.type && e.content === msg.content && e.context === msg.context
-          );
-          if (!alreadyExists) {
-            existing.push(msg);
-          }
-        }
-        delete chat.chatHistory[ph];
-      }
-    }
+  /* world orchestration */
+  orchestrateWorldChange() {
+    console.log('update world emulation and scale')
+  }
+
+  updateBeeBeeChat(lsKey) {
+
   }
 
   openChatPanel(width = 380) {
@@ -273,9 +247,6 @@ export class ExperienceOrchestrator {
         || strap.value?.concept?.story
         || strap.value?.concept?.inquiry
         || null;
-      if (storyText) {
-        this.orchestrateExtraction(storyText, ai.activeLifeStrapID);
-      }
     }
   }
 

@@ -339,8 +339,6 @@ export const libraryStore = defineStore('librarystore', {
         if (message.task === 'save-complete') {
           // save complete
         } else if (message.task === 'bringtobe-start') {
-          console.log('bringtobe-start received in libraryStore')
-          console.log(message)
           // split the data lump: story goes to lifestrapStore, supporting to loomStore
           if (message.data.length > 0) {
             // First item is typically the story contract

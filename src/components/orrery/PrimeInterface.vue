@@ -249,16 +249,16 @@ import { libraryStore } from "@/stores/libraryStore.js";
 import { diaryStore } from "@/stores/diaryStore.js";
 
 // Sub-components
-import LeftPanel from "@/components/orbit/parts/LeftPanel.vue";
-import RightPanel from "@/components/orbit/parts/RightPanel.vue";
-import BottomPanel from "@/components/orbit/parts/BottomPanel.vue";
-import WorldCanvas from "@/components/orbit/parts/WorldCanvas.vue";
-import OrbitHUD from "@/components/orbit/parts/OrbitHUD.vue";
-import LaunchpadStack from "@/components/orbit/parts/LaunchpadStack.vue";
-import BesearchFuse from "@/components/orbit/besearch/BesearchFuse.vue";
-import BesearchLayer from "@/components/orbit/besearch/besearchLayer.vue";
-import SculptingLayer from "@/components/orbit/sculpting/sculptingLayer.vue";
-import BentoBox from "@/components/orbit/parts/BentoBox.vue";
+import LeftPanel from "@/components/orrery/parts/LeftPanel.vue";
+import RightPanel from "@/components/orrery/parts/RightPanel.vue";
+import BottomPanel from "@/components/orrery/parts/BottomPanel.vue";
+import WorldCanvas from "@/components/orrery/parts/WorldCanvas.vue";
+import OrbitHUD from "@/components/orrery/parts/OrbitHUD.vue";
+import LaunchpadStack from "@/components/orrery/parts/LaunchpadStack.vue";
+import BesearchFuse from "@/components/orrery/besearch/BesearchFuse.vue";
+import BesearchLayer from "@/components/orrery/besearch/besearchLayer.vue";
+import SculptingLayer from "@/components/orrery/sculpting/sculptingLayer.vue";
+import BentoBox from "@/components/orrery/parts/BentoBox.vue";
 
 import { useOrbitStore } from "@/stores/orbitStore.js";
 

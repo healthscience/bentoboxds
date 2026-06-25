@@ -63,7 +63,7 @@ import { computed } from "vue";
 import { besearchStore } from "@/stores/besearchStore.js";
 import { useOrgoStore } from "@/stores/orgoStore.js";
 import { useGelleStore } from "@/stores/gelleStore.js";
-import OrganSurface from "@/components/orbit/worlds/body/organSurface.vue";
+import OrganSurface from "@/components/orrery/worlds/body/organSurface.vue";
 
 const storeBesearch = besearchStore();
 const orgoStore = useOrgoStore();
