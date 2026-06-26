@@ -40,17 +40,10 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       currentMode: "zen",
       activeWorld: "orbit",
       newLifestrap: false,
-      chatAttention: "",
-      historyPair: {},
       isInitialState: true,
       activeLifeStrapID: "",
       activeContractKey: "",
       activeLifestrapKey: "",
-      askQuestion: { text: "", compute: "observation" },
-      historyList: false,
-      historyBar: false,
-      subscribers: [],
-      helpchatHistory: shallowRef([]),
       beebeeContext: "chat",
       qcount: 0,
       inputTools: [],
@@ -74,11 +67,6 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       showLifestapLens: false,
       agentStatus: false,
       modelLoading: false,
-      helpchatAsk: markRaw({
-        text: "",
-        time: "",
-        active: true,
-      }),
       boxSettings: { opendatatools: { active: false }, boxtoolshow: { active: false }, vistoolsstatus: { active: false }, scalezoom: 1, location: {}, chartstyle: "line", legends: true },
       bboxFeedback: {},
       interactionMode: "lens",
@@ -188,7 +176,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
     },
     beebeeDigest() {
       const storeLifestrap = lifestrapStore();
-      const storyText = this.askQuestion.text;
+      const storyText = this.storeChat.askQuestion.text;
       this.initOrchestrator();
       this.newLifestrap = true;
       const lsData = {
@@ -198,7 +186,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       const placeholderKey = lsData.name === "prime-life-strap" ? "prime-life-strap" : "new-ls";
       this.experienceOrchestrator.activateLifestrapState(placeholderKey);
       this.storeLibrary.createLifeStrap(lsData);
-      this.askQuestion.text = "";
+      this.storeChat.askQuestion.text = "";
     },
 
     setActiveLifeStrap(strap, contractKey = null) {
@@ -212,8 +200,9 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       this.chatAttention = lsKey;
       this.isInitialState = false;
     },
-
     processReply(received) {
+      console.log('ai beebee process flow')
+      console.log(received)
       this.initOrchestrator();
       // Orderly dispatch to specialized stores
       switch (received.action) {
@@ -249,11 +238,15 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
           }
           // set the world
           this.currentMode = "orbit"
+          // set beebee dialogue from memory and if cue sub dialogues have data ready to appear
+          // this.storeChat.
           break;
 
         case "lifestrap-genesis":
           let hexkeyLifestapG = this.keyIndexConvert([received.data])
           this.storeLifestrap.processGenesisLifestrap(hexkeyLifestapG[0]);
+          // form beebee dialogue
+          this.storeChat.addLifestrapStory(hexkeyLifestapG[0].key)
           break;
 
         case "ls-pattern":
@@ -371,15 +364,15 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       this.sendSocket.send_message(message);
     },
     subscribe(callback) {
-      this.subscribers.push(callback);
+      this.storeChat.subscribers.push(callback);
     },
     unsubscribe(callback) {
-      this.subscribers = this.subscribers.filter(
+      this.storeChat.subscribers = this.storeChat.subscribers.filter(
         (subscriber) => subscriber !== callback,
       );
     },
     notifySubscribers(mutation, state) {
-      this.subscribers.forEach((subscriber) => subscriber(mutation, state));
+      this.storeChat.subscribers.forEach((subscriber) => subscriber(mutation, state));
     },
     clearData() {
       this.historyPair = {};
@@ -427,11 +420,6 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         this.submitAsk();
       }
     },
-    setupChatHistory(chat) {
-      if (this.historyPair.hasOwnProperty(chat.chatid) === false) {
-        this.historyPair[chat.chatid] = [];
-      }
-    },
     async submitAsk(dataInfo, primeLifeStrap) {
       try {
         const baseContext = this.beebeeContext || "chat";
@@ -439,7 +427,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         const keyContext = baseContext === "chatspace" && cueId ? cueId : this.chatAttention || "chat";
         
         let toolsUsed = [];
-        const validationResult = this.liveChatUtil.validateQuestion(this.askQuestion.text, toolsUsed);
+        const validationResult = this.liveChatUtil.validateQuestion(this.storeChat.askQuestion.text, toolsUsed);
         if (!validationResult.isValid) {
           const feedbackMessage = this.liveChatUtil.createFeedbackMessage(validationResult.message);
           this.storeChat.addMessage(feedbackMessage);
@@ -449,11 +437,11 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         let question = {
           role: "peer",
           type: "peer",
-          content: this.askQuestion.text,
+          content: this.storeChat.askQuestion.text,
           conversationId: keyContext,
           contract_key: this.activeContractKey || "",
           lifeStrapID: this.activeLifeStrapID || "",
-          context: baseContext === "chatspace" ? "space" : baseContext === "extraction" ? "extraction" : "emulation",
+          context: baseContext === "chatspace" ? "space" : baseContext === "lensing" ? "lensing" : "emulation",
           tools: toolsUsed,
           timestamp: new Date(),
         };
@@ -479,8 +467,8 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
           bbid: hashObject(question)
         });
 
-        this.askQuestion.text = "";
-        this.askQuestion.compute = false;
+        this.storeChat.askQuestion.text = "";
+        this.storeChat.askQuestion.compute = false;
         this.qcount++;
       } catch (error) {
         console.error("Error submitting question:", error);

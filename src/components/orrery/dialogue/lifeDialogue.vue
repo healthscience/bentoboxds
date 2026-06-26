@@ -2,7 +2,8 @@
   <div id="life-dialogue">
     <div id="chatspace-modal-header" v-if="isHeaderVisible">
       <div id="spacechat">
-        {{ storeAI.beebeeContext === 'extraction' ? 'BeeBee Extraction' : 'CueChat # ' + (storeAI.liveBspace?.name || '...') }}
+        {{ storeAI.beebeeContext === 'lensing' ? 'beebee' : 'CueChat # ' + (storeAI.liveBspace?.name || '...') }}
+        dd {{ storeAI.beebeeContext }}
       </div>
       <div
         id="return-modal-close"
@@ -16,10 +17,10 @@
       <chat-menu v-if="chatHistoryStatus === true"></chat-menu>
       <div class="context-content">
         <chat-interface
-          :context-filter="storeAI.beebeeContext === 'extraction' ? 'extraction' : (storeAI.beebeeContext === 'lifestrap' ? 'lifestrap' : {
+          :context-filter="storeAI.beebeeContext === 'lensing' ? 'lensing' : {
             type: 'chatspace',
             id: storeAI.liveBspace?.cueid || storeAI.liveBspace?.spaceid,
-          })"
+          }"
         ></chat-interface>
       </div>
     </div>

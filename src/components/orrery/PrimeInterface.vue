@@ -59,7 +59,6 @@
                   v-if="storeAI.isLaunchpadVisible"
                   :mode="storeAI.currentMode"
                   :extractedData="storeLoom.mappedLenses"
-                  @launch="launchDemo"
                   @reset="exitToZen"
                 />
               </transition>

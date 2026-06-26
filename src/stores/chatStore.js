@@ -1,3 +1,4 @@
+import { shallowRef, markRaw } from "vue";
 import { defineStore } from 'pinia'
 import { useSocketStore } from '@/stores/socket.js'
 import { aiInterfaceStore } from "@/stores/aiInterface.js"
@@ -17,6 +18,18 @@ export const useChatStore = defineStore('chat', {
     isUnrolled: false,
     isInterplayActive: false,
     chatList: [],
+    historyPair: {},
+    chatAttention: "",
+    askQuestion: { text: "", compute: "observation" },
+    historyList: false,
+    historyBar: false,
+    subscribers: [],
+    helpchatHistory: shallowRef([]),
+    helpchatAsk: markRaw({
+      text: "",
+      time: "",
+      active: true,
+    })
   }),
 
   getters: {
@@ -27,7 +40,7 @@ export const useChatStore = defineStore('chat', {
       return !state.isInterplayActive || state.isUnrolled
     },
     chatPairs: (state) => {
-      return state.storeAI.historyPair[state.storeAI.chatAttention]
+      return state.historyPair[state.chatAttention]
     },
     chatAsk: (state) => {
       return state.storeAI.helpchatAsk
@@ -40,6 +53,11 @@ export const useChatStore = defineStore('chat', {
     }
   },
   actions: {
+    setupChatHistory(chat) {
+      if (this.historyPair.hasOwnProperty(chat.chatid) === false) {
+        this.historyPair[chat.chatid] = [];
+      }
+    },
     subscribe(callback) {
       this.subscribers.push(callback)
     },
@@ -142,6 +160,34 @@ export const useChatStore = defineStore('chat', {
         contract: activeContractKey // Pass contract context to subscribers
       }, this.$state)
     },
+    addLifestrapStory(chatID, peerInput) {
+      // beebee provides commentary on new story. lifestrap id become chat id.  cues will be id for other beebee dialogues
+      if (!this.historyPair[chatID]) this.historyPair[chatID] = [];
+      if (!this.chatHistory[chatID]) this.chatHistory[chatID] = [];
+
+      this.addMessage({
+        role: "peer",
+        type: "peer",
+        content: peerInput || "Story lensing initiated...",
+        context: "lensing",
+        conversationId: chatID,
+        contract_key: chatID,
+        lifeStrapID: chatID,
+      });
+
+      this.addMessage({
+        role: "beebee",
+        type: "agent",
+        content: "beebee is digesting the story.",
+        context: "lensing",
+        conversationId: chatID,
+        contract_key: chatID,
+        lifeStrapID: chatID,
+        status: "complete",
+      });
+      // save to HOP
+      this.saveChatDialogue(chatID)
+    },
     addUploadMessage(uploadInfo) {
       const peerMessage = {
         type: 'peer',
@@ -152,6 +198,16 @@ export const useChatStore = defineStore('chat', {
         context: this.storeAI.beebeeContext || 'chat'
       }
       this.addMessage(peerMessage)
+    },
+    saveChatDialogue(chatID) {
+      let messageHOP = {}
+      messageHOP.type = 'library'
+      messageHOP.action = 'dialogue-chat'
+      messageHOP.reftype = 'new'
+      messageHOP.privacy = 'private'
+      messageHOP.task = 'PUT'
+      messageHOP.data = { chatid: chatID, dialogue: this.chatHistory[chatID] }
+      this.sendSocket.send_message(messageHOP)
     },
     startStreamingMessage() {
       this.currentStreamingMessage = {

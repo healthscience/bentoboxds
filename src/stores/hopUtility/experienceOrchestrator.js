@@ -17,7 +17,8 @@ export class ExperienceOrchestrator {
 
   /**
    * Sync the layout configuration across UI zones
-   */
+   * 
+  */
   syncLayout({ left, right, bottom, mode, context, world = 'orbit' }) {
     const { ai, chat, besearch, library } = this.stores;
 
@@ -57,6 +58,7 @@ export class ExperienceOrchestrator {
 
   /**
    * Enter the macro dashboard state to browse lists of lifestrap stories
+   * 
    */
   enterDashboardState() {
     const { ai, besearch } = this.stores;
@@ -96,8 +98,8 @@ export class ExperienceOrchestrator {
     loom.applyStrapTexture(lsKey, strapData);
 
     // look to remove this logic
-    const hasChatHistory = (chat.chatHistory[lsKey] || []).some(m => m.context === 'extraction');
-    const chatContext = hasChatHistory ? 'extraction' : 'lifestrap';
+    const hasChatHistory = (chat.chatHistory[lsKey] || []).some(m => m.context === 'lensing');
+    const chatContext = hasChatHistory ? 'lensing' : 'lifestrap';
 
     // Transition layout into active tracking engagement
     this.syncLayout({
@@ -136,7 +138,7 @@ export class ExperienceOrchestrator {
     this.activateLifestrapState(strap.key);
 
     if (isNew) {
-      ai.currentMode = 'extracting';
+      ai.currentMode = 'lensing';
       ai.isInitialState = false;
       ai.activeWorld = "orbit";
       
@@ -145,8 +147,8 @@ export class ExperienceOrchestrator {
         left: false,
         right: true,
         bottom: 'lens',
-        mode: 'extracting',
-        context: 'extraction'
+        mode: 'lensing',
+        context: 'lensing'
       });
     } else {
       if (!chat.chatHistory[strap.key]) {
@@ -195,7 +197,7 @@ export class ExperienceOrchestrator {
         right: true,
         bottom: 'lens',
         mode: 'extracting',
-        context: 'extraction',
+        context: 'lensing',
         world: 'orbit'
       });
 
@@ -221,6 +223,7 @@ export class ExperienceOrchestrator {
   }
 
   updateBeeBeeChat(lsKey) {
+    console.log('update beebee chat')
 
   }
 

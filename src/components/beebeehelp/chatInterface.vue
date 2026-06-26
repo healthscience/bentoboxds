@@ -1,5 +1,5 @@
 <template>
-  <div id="chat-interface">
+  <div id="chat-interface">chat pass {{ chatHistory }}
     <welcome-beebee
       v-if="
         beginChat === false &&
@@ -127,12 +127,12 @@ const chatHistory = computed(() => {
   // If we have a context filter, apply it
   if (props.contextFilter) {
     let filtered = [];
-    if (storeAI.beebeeContext === "extraction") {
-      filtered = history.filter((m) => m.context === "extraction");
+    if (storeAI.beebeeContext === "lensing") {
+      filtered = history.filter((m) => m.context === "lensing");
     } else if (storeAI.beebeeContext === "lifestrap") {
-      // For lifestrap, show extraction, lifestrap, emulation, and generic chat messages
+      // For lifestrap, show lensing, lifestrap, emulation, and generic chat messages
       filtered = history.filter((m) =>
-        m.context === "extraction" ||
+        m.context === "lensing" ||
         m.context === "lifestrap" ||
         m.context === "emulation" ||
         m.context === "chat" ||

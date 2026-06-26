@@ -116,6 +116,7 @@
           @select="handleStrapSelect"
           @delete="handleStrapDelete"
         />
+        <DemoExperience></DemoExperience>
       </div>
     </div>
 
@@ -245,6 +246,7 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import LifeStrapNode from "@/components/orrery/lifetools/LifeStrapNode.vue";
+import DemoExperience from "@/components/orrery/lifetools/demoExperience.vue";
 import BesearchControls from "@/components/orrery/lifetools/besearchControls.vue";
 import AttunementType from "@/components/besearch/attunement/attunementType.vue";
 import BentoInstruments from "@/components/orrery/instruments/bentoInstruments.vue";

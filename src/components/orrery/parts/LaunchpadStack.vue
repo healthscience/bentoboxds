@@ -10,7 +10,7 @@
           <inputBox />
         </div>
       </div>
-
+      <!--
       <div class="demo-zone-message">
         Examples to explore:
       </div>
@@ -28,7 +28,7 @@
         <button class="sov-demo-btn" @click="$emit('launch', 'daisy')">
           Daisy world
         </button>
-      </div>
+      </div>-->
     </div>
 
     <div v-else class="active-resonance-grid">

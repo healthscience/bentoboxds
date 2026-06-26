@@ -73,6 +73,8 @@ export const useSocketStore = defineStore({
       } else if (received.type === 'chat') {
         this.chatStore.processReply(received)
       } else if (received.type === 'library') {
+        console.log('library return')
+        console.log(received)
         this.libStore.processReply(received)
       } else if (received.type == 'publiclibrary') {
         this.libStore.processReply(received)
