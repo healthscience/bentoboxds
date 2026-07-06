@@ -7,8 +7,9 @@
       <div id="rel-one">
         <div id="select-cue-a">
           Select a Cue
-          <div class="cues-list" v-for="whCue in cuesList">
-            <button  v-bind:class="{ active: cueSelect[whCue.key]?.active === true}" @click="selectCue(whCue)">{{ whCue.value.concept.name }}</button>
+          <AlphabetFilter v-model="filterLetterA" :showReset="true" />
+          <div class="cues-list" v-for="whCue in filteredCuesListA">
+            <button  v-bind:class="{ active: cueSelect[whCue.key]?.active === true}" @click="selectCue(whCue)">{{ whCue.value.concept.datatype.concept.name }}</button>
           </div>
         </div>
         <div id="doughnut-size-add" v-if="columnA === 'cueA'">
@@ -36,9 +37,10 @@
         </div>
         <div id="select-cue-a" v-if="matchType === 'cue'">
           Select a cue please
+          <AlphabetFilter v-model="filterLetterRel" :showReset="true" />
           <!-- existing cues -->
-          <div class="cues-list" v-for="whCue in cuesList">
-            <button  v-bind:class="{ active: cueSelectRel[whCue.key]?.active === true}" @click="selectCueRel(whCue.key)">{{ whCue.value.concept.name }}</button>
+          <div class="cues-list" v-for="whCue in filteredCuesListRel">
+            <button  v-bind:class="{ active: cueSelectRel[whCue.key]?.active === true}" @click="selectCueRel(whCue.key)">{{ whCue.value.concept.datatype.concept.name }}</button>
           </div>
         </div>
         <div id="select-cue-a" v-if="matchType === 'marker'">
@@ -71,11 +73,13 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import AlphabetFilter from '@/components/shared/AlphabetFilter.vue'
 import PieChartcues from '@/components/visualisation/charts/doughnutChart.vue'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { bentoboxStore } from '@/stores/bentoboxStore.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 import { cuesStore } from '@/stores/cuesStore.js'
+import { CullFaceBack } from 'three/src/constants.js'
 
   const storeAI = aiInterfaceStore()
   const storeBentobox = bentoboxStore()
@@ -92,6 +96,8 @@ import { cuesStore } from '@/stores/cuesStore.js'
   let primeCue = ref('')
   let feedbackCount = ref(0)
   let existingRelGlue = ref([])
+  let filterLetterA = ref('')
+  let filterLetterRel = ref('')
 
   /*  computed  */
   const feedbackBeeBee = computed(() => {
@@ -130,6 +136,26 @@ import { cuesStore } from '@/stores/cuesStore.js'
     return sortedContracts
   })
 
+  const filteredCuesListA = computed(() => {
+    const list = cuesList.value
+    if (!filterLetterA.value) return list
+    const letter = filterLetterA.value.toLowerCase()
+    return list.filter(whCue => {
+      const name = whCue.value?.concept?.datatype?.concept?.name || ''
+      return name.toLowerCase().startsWith(letter)
+    })
+  })
+
+  const filteredCuesListRel = computed(() => {
+    const list = cuesList.value
+    if (!filterLetterRel.value) return list
+    const letter = filterLetterRel.value.toLowerCase()
+    return list.filter(whCue => {
+      const name = whCue.value?.concept?.datatype?.concept?.name || ''
+      return name.toLowerCase().startsWith(letter)
+    })
+  })
+
   /* methods */
   const cueSelectAdd = (type, seg) => {
     let labelA = seg.chart.$context.chart.tooltip.dataPoints[0].label
@@ -140,6 +166,8 @@ import { cuesStore } from '@/stores/cuesStore.js'
   }
 
   const selectCue = (cueKey) => {
+    console.log('cue selected')
+    console.log(cueKey)
     if (cueSelect.value[cueKey.key] === undefined) {
       cueSelect.value[cueKey.key] = { active: false}
     }

@@ -15,13 +15,13 @@
         >
           {{ world.icon }}
         </div>
-        <div
+        <!--<div
           class="world-icon sculpting-trigger"
           @click="storeBesearch.openSculptingLayer()"
           title="Sculpting Lab"
         >
           🛠️
-        </div>
+        </div>-->
       </div>
       <div id="world-tools">
         <div class="orbit-tools" v-if="activeWorld === 'orbit'">
@@ -724,7 +724,7 @@ const saveCueLocation = () => {
 
   .world-switcher {
     display: grid;
-    grid-template-columns: auto auto auto auto;
+    grid-template-columns: auto auto auto;
     padding: 10px;
     background: rgba(0, 0, 0, 0.03);
     border-radius: 12px;

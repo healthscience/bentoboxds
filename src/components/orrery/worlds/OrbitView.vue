@@ -33,6 +33,20 @@
       </div>
     </Teleport>
 
+    <!-- Relationship Expansion Teleport -->
+    <Teleport to="body">
+      <div
+        v-if="orbitStore.expandedRelationship"
+        class="relationship-expanded-wrapper"
+        @click.self="handleRelationshipExpand"
+      >
+        <button class="close-btn" @click="handleRelationshipExpand">×</button>
+        <div class="expanded-relationship-container">
+          <NewRelationships />
+        </div>
+      </div>
+    </Teleport>
+
     <div class="orbit-stage">
       <OrbitHUD />
 
@@ -127,6 +141,27 @@
             }}</span
           >-->
         </div>
+
+        <!-- RELATIONSHIPS -->
+        <div
+          v-if="orbitStore.tools.relationship"
+          class="tool-grab-wrapper relationship-instrument"
+          :class="{ dragging: orbitStore.draggingToolId === 'relationship' }"
+          :style="{
+            left: (orbitStore.tools.relationship?.x || 30) + '%',
+            top: (orbitStore.tools.relationship?.y || 50) + '%',
+            zIndex: orbitStore.draggingToolId === 'relationship' ? 2500 : 1500,
+          }"
+          @mousedown="startDragging($event, 'relationship')"
+          @dblclick="handleRelationshipExpand"
+        >
+          <span class="label">RELATIONSHIP</span>
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--color-text); opacity: 0.8; margin-top: 5px;">
+            <circle cx="6" cy="6" r="3" />
+            <circle cx="18" cy="18" r="3" />
+            <line x1="8.1" y1="8.1" x2="15.9" y2="15.9" />
+          </svg>
+        </div>
       </div>
     </div>
   </div>
@@ -143,6 +178,7 @@ import FilterContext from "@/components/orrery/filter/contextFilter.vue";
 import OrbitHUD from "@/components/orrery/parts/OrbitHUD.vue";
 import TinyDevice from "@/components/orrery/devices/tinyDevice.vue";
 import ExpandDevice from "@/components/orrery/devices/expandDevice.vue";
+import NewRelationships from "@/components/bentocues/relationships/newRelationships.vue";
 
 import { aiInterfaceStore } from "@/stores/aiInterface.js";
 import { useOrbitStore } from "@/stores/orbitStore.js";
@@ -193,6 +229,15 @@ const handlePulseExpand = () => {
 const handleTinyExpand = () => {
   orbitStore.toggleTinyExpand();
   if (orbitStore.expandedTinyDevice) {
+    storeAI.currentMode = "projecting";
+  } else {
+    storeAI.currentMode = "zen";
+  }
+};
+
+const handleRelationshipExpand = () => {
+  orbitStore.expandedRelationship = !orbitStore.expandedRelationship;
+  if (orbitStore.expandedRelationship) {
     storeAI.currentMode = "projecting";
   } else {
     storeAI.currentMode = "zen";
@@ -352,7 +397,8 @@ onUnmounted(() => {
 
 /* Expansion Styles */
 .resonance-expanded-wrapper,
-.device-expanded-wrapper {
+.device-expanded-wrapper,
+.relationship-expanded-wrapper {
   position: fixed;
   inset: 0;
   z-index: 9999;
@@ -390,5 +436,17 @@ onUnmounted(() => {
 .close-btn:hover {
   transform: scale(1.1);
   background: #f1f5f9;
+}
+
+.expanded-relationship-container {
+  background-color: var(--color-background-soft, #1e293b);
+  border: 1px solid var(--color-border, #334155);
+  border-radius: 12px;
+  padding: 1rem;
+  width: 95%;
+  max-width: 1200px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
 }
 </style>

@@ -55,6 +55,12 @@ const availableInstruments = [
     description: "Vibration and resonance",
   },
   {
+    id: "relationship",
+    name: "Map relationships",
+    icon: "⚗️",
+    description: "Map cues to cues in two modes",
+  },
+  {
     id: "filter",
     name: "Filter Context",
     icon: "⚗️",

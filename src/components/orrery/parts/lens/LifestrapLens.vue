@@ -64,14 +64,6 @@
           
           <div class="action-group">
             <button 
-              class="enter-bench-btn"
-              :class="{ active: storeBesearch.canEnterBench }"
-              @click="handleAttunementTrigger"
-            >
-              Set Heli
-            </button>
-
-            <button 
               class="collapse-lens-btn"
               @click="handleAttunementTrigger"
               title="Collapse Lens"
@@ -83,60 +75,34 @@
 
         <div class="columns-grid">
           <!-- Pillar 1: Capacity -->
-          <div
-            class="lens-box capacity zone"
-            :class="{ 'active-zone': activeZone === 'capacity' }"
-            @drop.prevent="onDrop($event, 'capacity')"
-            @dragover.prevent="onDragOver($event, 'capacity')"
+          <capacity-lens
+            :active-zone="activeZone"
+            :capacity-items="capacityItems"
+            :store-besearch="storeBesearch"
+            @dragstart="onDragStart"
+            @unmap="unmapFragment"
+            @select="selectCapacity"
+            @drop="onDrop"
+            @dragover="onDragOver"
             @dragleave="onDragLeave"
-          >
-            <header class="lens-header">
-              <h3>capacity</h3>
-            </header>
-            <LensColumn
-              :groups="[{ id: 'capacity', title: 'Capacity', items: capacityItems }]"
-              :show-item-labels="true"
-              :strand-mode="storeBesearch.strandMode"
-              :is-orgo-logic="storeBesearch.isOrgoLogic"
-              @dragstart="onDragStart"
-              @unmap="unmapFragment"
-              @select="selectCapacity"
-              @drop="onDrop"
-              @dragover="onDragOver"
-              @dragleave="onDragLeave"
-              @reorder="handleReorder"
-            />
-          </div>
+            @reorder="handleReorder"
+          ></capacity-lens>
 
           <!-- Pillar 2: Context -->
-          <div 
-            class="lens-box context zone"
-            :class="{ 'active-zone': activeZone === 'context' }"
-            @drop.prevent="onDrop($event, 'context')"
-            @dragover.prevent="onDragOver($event, 'context')"
+          <context-lens
+            :active-zone="activeZone"
+            :body-peer-items="bodyPeerItems"
+            :environment-items="environmentItems"
+            :earth-items="earthItems"
+            :store-besearch="storeBesearch"
+            @dragstart="onDragStart"
+            @unmap="unmapFragment"
+            @select="handleCueSpace"
+            @drop="onDrop"
+            @dragover="onDragOver"
             @dragleave="onDragLeave"
-          >
-            <header class="lens-header">
-              <h3>context</h3>
-            </header>
-            <LensColumn
-              :groups="[
-                { id: 'peer', title: 'Body/Peer', items: bodyPeerItems },
-                { id: 'environment', title: 'Building Environment', items: environmentItems },
-                { id: 'earth', title: 'Earth Scales', items: earthItems },
-              ]"
-              :show-item-labels="true"
-              :strand-mode="storeBesearch.strandMode"
-              :is-orgo-logic="storeBesearch.isOrgoLogic"
-              @dragstart="onDragStart"
-              @unmap="unmapFragment"
-              @select="handleCueSpace"
-              @drop="onDrop"
-              @dragover="onDragOver"
-              @dragleave="onDragLeave"
-              @reorder="handleReorder"
-            />
-          </div>
+            @reorder="handleReorder"
+          ></context-lens>
         </div>
       </div>
 
@@ -149,6 +115,8 @@
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
+import CapacityLens from "@/components/orrery/parts/lens/CapacityLens.vue";
+import ContextLens from "@/components/orrery/parts/lens/ContextLens.vue";
 import BentoSpace from "@/components/bentospace/spaceTemplate.vue";
 import WholeResonance from "@/components/consilience/wholeResonance.vue";
 import LensColumn from "@/components/orrery/parts/shared/LensColumn.vue";

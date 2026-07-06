@@ -282,7 +282,10 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
           break;
 
         case "seed-library":
+          console.log('seed library')
+          console.log(received)
           this.storeOrrery.processReply(received);
+          this.storeLibrary.datatypeContracts = received.data.datatypeContracts
           break;
 
         case "warm-peers-begin":

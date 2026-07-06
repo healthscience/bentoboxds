@@ -11,6 +11,7 @@ import { cuesStore } from "@/stores/cuesStore.js"
 import { orreryStore } from '@/stores/orreryStore.js'
 import { lifestrapStore } from '@/stores/lifestrapStore.js'
 import { loomStore } from '@/stores/loomStore.js'
+import TileSource from 'ol/source/Tile'
 
 export const libraryStore = defineStore('librarystore', {
   state: () => ({
@@ -42,6 +43,13 @@ export const libraryStore = defineStore('librarystore', {
       data: []
     },
     publicLibrary: {},
+    datatypeContracts: [],
+    questionContracts: [],
+    packagingContracts: [],
+    computeContracts: [],
+    visualisationContracts: [],
+    networkExpModules: [],
+    privateNetworkExpModules: [],
     libraryAvailable: false,
     peerExperimentWaiting: false,
     peerNXPWaiting: [],
@@ -291,6 +299,11 @@ export const libraryStore = defineStore('librarystore', {
           this.publicLibrary = message
           // Also sync reference contracts to cuesStore for cue expansion
           if (message.referenceContracts) {
+            this.datatypeContracts = message.referenceContracts.datatype || []
+            this.questionContracts = message.referenceContracts.question || []
+            this.packagingContracts = message.referenceContracts.packaging || []
+            this.computeContracts = message.referenceContracts.compute || []
+            this.visualisationContracts = message.referenceContracts.visualise || []
             this.storeCues.integrateReferenceContracts(message.referenceContracts)
           }
           if(this.peerExperimentWaiting === true) {
@@ -397,10 +410,19 @@ export const libraryStore = defineStore('librarystore', {
         let productContract = message.data.data
         this.storeCues.productMatch[productContract.value.concept.cueid].push(productContract)
       } else if (message.action === 'reference-contract') {
+        let hexContract = this.utilLibrary.convertBinaryToHex(message.data)
+        if (hexContract.value.refcontract === 'datatype') {
+          this.datatypeContracts.push(hexContract)
+        } else if (hexContract.value.refcontract === 'question') {
+        } else if (hexContract.value.refcontract === 'packaging') {
+        } else if (hexContract.value.refcontract === 'compute') {
+        } else if (hexContract.value.refcontract === 'visualise') {
+        } else if (hexContract.value.refcontract === 'other') {
+        }                              
         // call HOP to get latest changes to public library
-        this.sendMessage('get-public-library')
+        // this.sendMessage('get-public-library')
         // call HOP to get latest changes to results library
-        this.sendMessage('get-results')
+        // this.sendMessage('get-results')
       } else if (message.action === 'peer-library') {
         // prepare network experiment lists
         let newPair = {}
@@ -464,6 +486,8 @@ export const libraryStore = defineStore('librarystore', {
         this.peerLedger = message.data
       } else if (message.action === 'seed-base-biology') {
         this.storeOrrery.processReply(message)
+        // set the datatype Contracts
+        this.populateSeedDatatypes(message.data.datatypeContracts)
       }
     },
     prepareCueMenuHistory (cueID) {
@@ -481,6 +505,11 @@ export const libraryStore = defineStore('librarystore', {
       let expandDTCue = this.utilLibrary.expandCuesDTSingle(cueContract, this.storeCues.pathRefContracts)
       // add to cues list
       this.storeCues.cuesHistoryList.push(expandDTCue)
+    },
+    populateSeedDatatypes (dtList) {
+      for(let dtC of dtList) {
+        this.datatypeContracts.push(dtC)
+      }
     },
     prepareJoinNXPMessage (genContract, setControls, settingsInfo) {
       // let updateJoinSettings = this.utilLibrary.updateSettings(genContract, settings)

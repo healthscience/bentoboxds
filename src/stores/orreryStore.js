@@ -1,17 +1,19 @@
 import { defineStore } from 'pinia'
 import { cuesStore } from '@/stores/cuesStore.js'
+import { libraryStore } from "@/stores/libraryStore.js";
 
 export const orreryStore = defineStore('orrerystore', {
   state: () => ({
     registry: new Map(),
     seedingProgress: 0,
     isSeeding: false,
-    storeCues: cuesStore()
+    storeCues: cuesStore(),
+    storeLibrary: libraryStore(),
   }),
   actions: {
     processReply(message) {
       if (message.action === 'seed-base-biology') {
-        const { cueContracts, referenceContracts, verification } = message.data
+        const { cueContracts, datatypeContracts, verification } = message.data
         
         if (verification) {
           const actual = verification.actual || 0
@@ -24,29 +26,23 @@ export const orreryStore = defineStore('orrerystore', {
         }
 
         if (cueContracts) {
-          this.storeCues.cuesList = message.data.cueContracts;
           // Populate registry for categorization
           cueContracts.forEach(c => {
-            const hexC = this.storeCues.utilCues?.convertBinaryToHex(c) || c;
-            const key = hexC.key || (hexC.value?.id);
+            const hexC = this.storeLibrary.utilLibrary.convertBinaryToHex(c);
+            this.storeCues.cuesList.push(hexC)
+            const key = hexC.key;
             if (key) this.registry.set(key, hexC.value);
           });
         }
         
-        if (referenceContracts) {
-          this.storeCues.integrateReferenceContracts(referenceContracts);
-          Object.values(referenceContracts).forEach(contracts => {
-            if (Array.isArray(contracts)) {
-              contracts.forEach(c => {
-                const hexC = this.storeCues.utilCues?.convertBinaryToHex(c) || c;
-                const key = hexC.key || (hexC.value?.id);
-                if (key) this.registry.set(key, hexC.value);
-              });
-            }
-          });
-        }
       } else if (message.action === 'seed-library') {
-        this.storeCues.cuesList = message.data.cueContracts
+        let cueContracts = message.data.cueContracts
+        cueContracts.forEach(c => {
+            const hexC = this.storeLibrary.utilLibrary.convertBinaryToHex(c);
+            this.storeCues.cuesList.push(hexC)
+            const key = hexC.key;
+            if (key) this.registry.set(key, hexC.value);
+          });
       } else if (message.action === 'reference-contract') {
         // Handle reference contracts specifically if they come in isolation
       }
