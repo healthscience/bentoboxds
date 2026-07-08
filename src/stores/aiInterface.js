@@ -201,8 +201,6 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       this.isInitialState = false;
     },
     processReply(received) {
-      console.log('ai beebee process flow')
-      console.log(received)
       this.initOrchestrator();
       // Orderly dispatch to specialized stores
       switch (received.action) {
@@ -282,8 +280,6 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
           break;
 
         case "seed-library":
-          console.log('seed library')
-          console.log(received)
           this.storeOrrery.processReply(received);
           this.storeLibrary.datatypeContracts = received.data.datatypeContracts
           break;

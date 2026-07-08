@@ -29,7 +29,14 @@ export const orreryStore = defineStore('orrerystore', {
           // Populate registry for categorization
           cueContracts.forEach(c => {
             const hexC = this.storeLibrary.utilLibrary.convertBinaryToHex(c);
-            this.storeCues.cuesList.push(hexC)
+            let cueStatus = {}
+            cueStatus.contract = hexC
+            cueStatus.state = {
+              isActive: false,
+              buttonColor: '#4a5568',
+              isExpanded: false
+            }
+            this.storeCues.cuesList.push(cueStatus)
             const key = hexC.key;
             if (key) this.registry.set(key, hexC.value);
           });
@@ -39,7 +46,14 @@ export const orreryStore = defineStore('orrerystore', {
         let cueContracts = message.data.cueContracts
         cueContracts.forEach(c => {
             const hexC = this.storeLibrary.utilLibrary.convertBinaryToHex(c);
-            this.storeCues.cuesList.push(hexC)
+            let cueStatus = {}
+            cueStatus.contract = hexC
+            cueStatus.state = {
+              isActive: false,
+              buttonColor: '#4a5568',
+              isExpanded: false
+            }
+            this.storeCues.cuesList.push(cueStatus)
             const key = hexC.key;
             if (key) this.registry.set(key, hexC.value);
           });

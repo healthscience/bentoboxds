@@ -326,7 +326,14 @@ export const libraryStore = defineStore('librarystore', {
         if (message.task === 'save-complete') {
           let expandDTCue = this.utilLibrary.expandCuesDTSingle(message.data, this.storeCues.pathRefContracts)
           // add to cues list
-          this.storeCues.cuesList.push(expandDTCue)
+          let cueStatus = {}
+          cueStatus.contract = hexC
+          cueStatus.state = {
+            isActive: false,
+            buttonColor: '#4a5568',
+            isExpanded: false
+          }
+          this.storeCues.cuesList.push(cueStatus)
           this.storeCues.spaceListHistory.push(expandDTCue)
         } else if (message.task === 'update-complete') {
           // update contract in list

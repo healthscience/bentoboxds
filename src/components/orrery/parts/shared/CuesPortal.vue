@@ -22,10 +22,10 @@
               :key="cue.key"
               class="cue-chip"
               draggable="true"
-              @dragstart="onDragStart($event, cue.value.concept.name)"
+              @dragstart="onDragStart($event, cue.contract.key)"
               @click="$emit('select', cue)"
             >
-              {{ cue.value.concept.name }}
+              {{ cue.contract.value.concept.datatype.concept.name }}
             </button>
             <div v-if="getFilteredCues(cat.id).length === 0" class="empty-state">
               No cues matching '{{ categoryFilters[cat.id] }}'
@@ -74,15 +74,15 @@ const groupedCues = computed(() => {
   const all = storeCues.cuesList || []
   return {
     body: all.filter(c => {
-      const label = c.value?.concept?.settings?.label || ''
+      const label = c.contract.value?.concept?.settings?.label || ''
       return label === 'Activity' || label === 'Body/Peer' || !label // Default to body if unknown
     }),
     environment: all.filter(c => {
-      const label = c.value?.concept?.settings?.label || ''
+      const label = c.contract.value?.concept?.settings?.label || ''
       return label === 'Space' || label === 'Environment'
     }),
     earth: all.filter(c => {
-      const label = c.value?.concept?.settings?.label || ''
+      const label = c.contract.value?.concept?.settings?.label || ''
       return label === 'Temporal' || label === 'Earth Scales'
     }),
     all: all
@@ -102,7 +102,7 @@ const getFilteredCues = (catId) => {
   const letter = categoryFilters.value[catId]
   if (!letter) return cues
   return cues.filter(c => 
-    c.value.concept.name.toLowerCase().startsWith(letter.toLowerCase())
+    c.contract.value.concept.datatype.concept.name.toLowerCase().startsWith(letter.toLowerCase())
   )
 }
 

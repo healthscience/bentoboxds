@@ -263,7 +263,6 @@ const activeWorldLabel = computed(() => {
 
 const storySummary = computed(() => {
   const story = storeBesearch.activeBesearchContext.story || "";
-  console.log("HUD: activeBesearchContext.story is:", story);
   if (!story) return "NO STORY";
   return story.split(/\s+/).slice(0, 4).join(" ");
 });

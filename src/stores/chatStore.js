@@ -472,7 +472,7 @@ export const useChatStore = defineStore('chat', {
         this.addMessage(systemMessage)
       }
       // Notify subscribers of the incoming message
-      this.notifySubscribers({ type: 'incomingMessage', payload: message }, this.storeAI.$state)
+      this.notifySubscribers({ type: 'incomingMessage', payload: message }, this.$state)
     },
     // Add a method to handle user questions
     addPeerQuestion(text, tools = []) {

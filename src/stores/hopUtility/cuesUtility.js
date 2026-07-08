@@ -132,9 +132,6 @@ class CuesUtility {
    * @method cueDisplayMake
   */
   cueDisplayMake = function (cueKey, cueRel, existingRels) {
-    console.log('cue display Make')
-    console.log(cueRel)
-    console.log(existingRels)
     let existingLabels = []
     let existingDatasets = {}
     // first time add?
@@ -156,7 +153,6 @@ class CuesUtility {
     }
     // add new label and dataset
     existingLabels.push(cueRel.value.concept.name)
-    console.log(cueRel)
     existingDatasets.backgroundColor.push(cueRel.value.concept.settings.backgroundColor)
     // size of each segment
     let segUpdate = this.prepareSegmentSize(existingLabels.length)

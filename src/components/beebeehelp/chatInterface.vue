@@ -1,5 +1,5 @@
 <template>
-  <div id="chat-interface">chat pass {{ chatHistory }}
+  <div id="chat-interface">
     <welcome-beebee
       v-if="
         beginChat === false &&
@@ -200,7 +200,14 @@ watch(
 /** subscribed to events */
 // Add a subscribe method to the actions
 const handleUpdate = (mutation, state) => {
-  chatStore.handleIncomingMessage(mutation, state);
+  // Safe handler that avoids circular/infinite recursion by not feeding mutations back to the store.
+  // The watcher on chatHistory handles scrolling, but we can also trigger a scroll on update.
+  nextTick(() => {
+    const conversation = document.getElementById("conversation");
+    if (conversation) {
+      conversation.scrollTop = conversation.scrollHeight;
+    }
+  });
 };
 
 // No need to prune arrays now; chatHistory is keyed. We keep watcher as no-op to maintain any side-effects if needed.

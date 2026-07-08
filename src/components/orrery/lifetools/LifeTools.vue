@@ -256,6 +256,7 @@ import { aiInterfaceStore } from "@/stores/aiInterface.js";
 import { loomStore } from "@/stores/loomStore.js";
 import { besearchStore } from "@/stores/besearchStore.js";
 import { cuesStore } from "@/stores/cuesStore.js";
+import { useChatStore } from "@/stores/chatStore.js";
 
 import { lifestrapStore } from "@/stores/lifestrapStore.js";
 
@@ -265,6 +266,7 @@ const storeAI = aiInterfaceStore();
 const storeLoom = loomStore();
 const storeBesearch = besearchStore();
 const storeCues = cuesStore();
+const storeChat = useChatStore();
 
 const expandedSection = ref(null);
 
@@ -335,7 +337,7 @@ const newLifeStrapStory = () => {
   });
   
   // clear input
-  storeAI.askQuestion.text = "";
+  storeChat.askQuestion.text = "";
 };
 
 const handleStrapSelect = (strapData) => {
