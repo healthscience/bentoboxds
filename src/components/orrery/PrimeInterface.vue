@@ -287,8 +287,16 @@ const draggingMode = ref(null);
 /* computed */
 const activeWorld = computed({
   get: () => storeAI.activeWorld,
-  set: (val) => (storeAI.activeWorld = val),
+  set: (val)=> {
+    storeAI.activeWorld = val
+    if (storeAI.activeWorld === 'body') {
+      storeBesearch.besearchMode = 'graft'
+    } else if (storeAI.activeWorld === 'orbit') {
+      storeBesearch.besearchMode = 'lens'
+    }
+  },
 });
+
 
 const isBottomOpen = computed(() => storeBesearch.showBottomPanel);
 

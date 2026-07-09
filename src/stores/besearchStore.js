@@ -30,6 +30,9 @@ export const besearchStore = defineStore("besearchstore", {
     showBottomPanel: false,
     bottomHeight: 60,
     // Expansion states for the dual-layer view
+    isPortalExpanded: false,
+    selectedWord: null,
+    activeZone: null,
 
     isLensExpanded: false,
     isBesearchExpanded: true,
@@ -549,6 +552,11 @@ export const besearchStore = defineStore("besearchstore", {
       this.setHUUDState("lens");
     },
     setHUUDState(mode, forceOpen = true) {
+      console.log('set besearch mode stat bottom panel')
+      console.log(mode)
+      console.log(forceOpen)
+      console.log('seive')
+      console.log(this.isSieveExpanded)
       const aiStore = aiInterfaceStore();
       this.besearchMode = mode;
       
@@ -557,12 +565,13 @@ export const besearchStore = defineStore("besearchstore", {
         this.isAttunementLayerOpen = false;
         this.isGraftLayerOpen = false;
         this.isSculptingLayerOpen = false;
-        this.isSieveExpanded = false;
-        this.isLensExpanded = false;
+        this.isSieveExpanded = true;
+        this.isLensExpanded = true;
         this.showBottomPanel = false;
         this.bottomHeight = 60;
         aiStore.showLifestapLens = true; // "collapsed" legacy behavior
         this.setHUUDLayer(this.previousHUUDContext || "world");
+        
       } else if (mode === "lens") {
         this.previousHUUDContext = this.huudContext !== "lens" ? this.huudContext : this.previousHUUDContext;
         if (aiStore.currentMode === "zen") {
@@ -624,7 +633,7 @@ export const besearchStore = defineStore("besearchstore", {
         }
 
         aiStore.showLifestapLens = true;
-        this.setHUUDLayer("lens");
+        this.setHUUDLayer("lab");
       } else if (mode === "heli") {
         if (aiStore.currentMode === "zen") {
           aiStore.currentMode = "extracting";
@@ -645,7 +654,7 @@ export const besearchStore = defineStore("besearchstore", {
         }
 
         aiStore.showLifestapLens = true;
-        this.setHUUDLayer("lens");
+        this.setHUUDLayer("heli");
       } else if (mode === "emulation") {
         this.isBesearchLayerOpen = false;
         this.isAttunementLayerOpen = false;
