@@ -97,6 +97,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       previousLLM: {},
       emulationHorizon: 0,
       performanceVelocity: 0,
+      hasDrawing: false,
     };
   },
   getters: {
@@ -292,6 +293,10 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       if (received.bbid) {
         this.chatBottom++;
       }
+    },
+    processHOPdata(sfData) {
+      console.log('safeflow returned world emulation update')
+      console.log(sfData)
     },
     keyIndexConvert (lifestrapList) {
       let hexkeyLifestap = []

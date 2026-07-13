@@ -65,9 +65,11 @@
             </div>
 
             <WorldCanvas
+              ref="worldCanvasRef"
               class="world-canvas-layer"
               :activeWorld="activeWorld"
               :showTools="!storeAI.isInitialState"
+              @draw-complete="handleDrawComplete"
             />
 
             <div class="fuse-container">
@@ -113,9 +115,11 @@
             </div>
 
             <WorldCanvas
+              ref="worldCanvasRef"
               class="world-canvas-layer"
               :activeWorld="activeWorld"
               :showTools="!storeAI.isInitialState"
+              @draw-complete="handleDrawComplete"
             />
 
             <div class="fuse-container">
@@ -156,9 +160,11 @@
             </div>
 
             <WorldCanvas
+              ref="worldCanvasRef"
               class="world-canvas-layer"
               :activeWorld="activeWorld"
               :showTools="!storeAI.isInitialState"
+              @draw-complete="handleDrawComplete"
             />
 
             <div class="fuse-container">
@@ -333,6 +339,11 @@ const handleStartDrawing = () => {
   if (worldCanvasRef.value) {
     worldCanvasRef.value.startDrawing();
   }
+};
+
+const handleDrawComplete = () => {
+  console.log("DRAW COMPLETE FIRED!");
+  storeAI.hasDrawing = true;
 };
 
 const handleStartTagging = () => {

@@ -41,80 +41,101 @@
 
       <div class="lab-workspace">
         <!-- 2.1 The Palette (Left Panel: Seeding Logic) -->
-        <aside class="orgo-drawer" :class="{ open: isDrawerOpen }">
+        <aside class="orgo-drawer" :class="{ open: isDrawerOpen, 'builder-expanded': newOGrefcont }">
           <header class="drawer-header" @click="isDrawerOpen = !isDrawerOpen">
             <h5>Logic Seeds</h5>
             <span class="toggle-icon">{{ isDrawerOpen ? "←" : "→" }}</span>
           </header>
-          <div class="seed-list">
-            <div class="seed-section">
-              <h6>Orgos</h6>
-              <div
-                v-for="seed in orgoStore.availableSeeds"
-                :key="seed.id"
-                class="seed-item"
-                draggable="true"
-                @dragstart="handleSeedDragStart($event, seed, 'orgo')"
-              >
-                <div class="seed-icon">{{ seed.icon }}</div>
-                <div class="seed-info">
-                  <span class="seed-name">{{ seed.name }}</span>
+          <div class="drawer-content-container">
+            <div class="seed-list">
+              <div class="seed-section">
+                <div id="orgo-menu">
+                  <h6>Orgos</h6>
+                  <div id="new-orgo" @click.stop="buildOrgoGelleContract('orgo')">new</div>
+                </div>
+                <div
+                  v-for="seed in orgoStore.orgoMorphogens"
+                  :key="seed.id"
+                  class="seed-item"
+                  draggable="true"
+                  @dragstart="handleSeedDragStart($event, seed, 'orgo')"
+                >
+                  <div class="seed-icon">{{ seed.icon }}</div>
+                  <div class="seed-info">
+                    <span class="seed-name">{{ seed.name }}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="seed-section">
-              <h6>Gelles</h6>
-              <div
-                v-for="texture in gelleStore.availableTextures"
-                :key="texture.id"
-                class="seed-item"
-                draggable="true"
-                @dragstart="handleSeedDragStart($event, texture, 'gelle')"
-              >
-                <div class="seed-icon">{{ texture.icon }}</div>
-                <div class="seed-info">
-                  <span class="seed-name">{{ texture.name }}</span>
+              <div class="seed-section">
+                <div id="orgo-menu">
+                  <h6>Gelle</h6>
+                  <div id="new-orgo" @click.stop="buildOrgoGelleContract('gelle')">new</div>
+                </div>
+                <div
+                  v-for="texture in gelleStore.availableTextures"
+                  :key="texture.id"
+                  class="seed-item"
+                  draggable="true"
+                  @dragstart="handleSeedDragStart($event, texture, 'gelle')"
+                >
+                  <div class="seed-icon">{{ texture.icon }}</div>
+                  <div class="seed-info">
+                    <span class="seed-name">{{ texture.name }}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div class="seed-section">
-              <h6>Instruments</h6>
-              <div
-                v-for="device in activeInstruments"
-                :key="device.id"
-                class="seed-item device"
-                draggable="true"
-                @dragstart="handleInstrumentDragStart($event, device)"
-                @click="snapOrgoToDevice(device)"
-              >
-                <div class="seed-icon">
-                  <div
-                    class="device-status-dot"
-                    :class="{ online: device.online }"
-                  ></div>
-                </div>
-                <div class="seed-info">
-                  <span class="seed-name">{{ device.name }}</span>
-                  <span class="seed-type">{{ device.type }}</span>
+              <div class="seed-section">
+                <h6>Instruments</h6>
+                <div
+                  v-for="device in activeInstruments"
+                  :key="device.id"
+                  class="seed-item device"
+                  draggable="true"
+                  @dragstart="handleInstrumentDragStart($event, device)"
+                  @click="snapOrgoToDevice(device)"
+                >
+                  <div class="seed-icon">
+                    <div
+                      class="device-status-dot"
+                      :class="{ online: device.online }"
+                    ></div>
+                  </div>
+                  <div class="seed-info">
+                    <span class="seed-name">{{ device.name }}</span>
+                    <span class="seed-type">{{ device.type }}</span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div class="sculpt-actions-bottom">
-              <button class="sculpt-btn secondary small">
-                [Search Commons]
-              </button>
-              <button class="sculpt-btn secondary small">[Author Seed]</button>
+              <div class="sculpt-actions-bottom">
+                <button class="sculpt-btn secondary small">
+                  [Search Commons]
+                </button>
+                <button class="sculpt-btn secondary small" @click.stop="buildOrgoGelleContract('orgo')">
+                  [Author Seed]
+                </button>
+              </div>
             </div>
+            <!-- expand out build contract tools for new orgo gelle -->
+            <transition name="slide-panel">
+              <div id="build-orgo-gelle" v-if="newOGrefcont === true && selectedOGtype === 'orgo'">
+                <build-orgo @close="newOGrefcont = false" @save="handleSaveNewSeed"></build-orgo>
+              </div>
+            </transition>
+            <transition name="slide-panel">
+              <div id="build-orgo-gelle" v-if="newOGrefcont === true && selectedOGtype === 'gelle'">
+                <build-gelle @close="newOGrefcont = false" @save="handleSaveNewSeed"></build-gelle>
+              </div>
+            </transition>
           </div>
         </aside>
 
         <!-- 2.2 The Canvas (Center Stage: The Braid) -->
         <main class="lab-space-v2">
           <div class="canvas-stage-v2">
-            <div class="horizon-container">
+            <!--<div class="horizon-container">
               <LifeStrapHorizon :strap="activeStrapData" />
-            </div>
+            </div>-->
 
             <div class="logic-braid-wrapper">
               <div class="logic-braid-top">
@@ -261,6 +282,9 @@ import { useOrgoStore } from "@/stores/orgoStore.js";
 import { useGelleStore } from "@/stores/gelleStore.js";
 import { aiInterfaceStore } from "@/stores/aiInterface.js";
 import { libraryStore } from "@/stores/libraryStore.js";
+
+import BuildOrgo from "@/components/orrery/sculpting/build/orgoBuild.vue"
+import BuildGelle from "@/components/orrery/sculpting/build/gelleBuild.vue"
 import LifeStrapHorizon from "@/components/orrery/sculpting/LifeStrapHorizon.vue";
 
 const storeBesearch = besearchStore();
@@ -275,6 +299,8 @@ const storeLibrary = libraryStore();
 
 const isDarkMode = ref(false);
 const isDrawerOpen = ref(true);
+const newOGrefcont = ref(false)
+let selectedOGtype = ref('')
 
 const isOpen = computed(() => {
   if (storeBesearch.besearchMode === 'graft') return true;
@@ -302,8 +328,15 @@ const closeLayer = () => {
   storeBesearch.setHUUDState('lens');
 };
 
-const openHeli = () => {
-  storeBesearch.setHUUDLayer("heli");
+const buildOrgoGelleContract = (refType) => {
+  console.log('build new reference contract orgo gelle', refType)
+  isDrawerOpen.value = true;
+  selectedOGtype = refType
+};
+
+const handleSaveNewSeed = (seedData) => {
+  console.log("Saving new seed template:", seedData);
+  newOGrefcont.value = false;
 };
 
 const handleSeedDragStart = (e, seed, type) => {
@@ -640,18 +673,97 @@ onMounted(() => {
   background: rgba(237, 233, 225, 0.9);
   backdrop-filter: blur(5px);
   border-right: 1px solid rgba(0, 0, 0, 0.08);
-  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   display: grid;
   grid-template-rows: auto 1fr;
+  overflow: hidden;
 }
 
 .dark-theme .orgo-drawer {
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(10, 10, 15, 0.9);
   border-right: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .orgo-drawer.open {
   width: 280px;
+}
+
+.orgo-drawer.open.builder-expanded {
+  width: 620px;
+}
+
+.drawer-content-container {
+  display: flex;
+  width: 620px;
+  height: 100%;
+  overflow: hidden;
+}
+
+#orgo-menu {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+#orgo-menu h6 {
+  margin: 0;
+}
+
+#new-orgo {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #00796b;
+  cursor: pointer;
+  background: rgba(0, 121, 107, 0.08);
+  padding: 2px 8px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.dark-theme #new-orgo {
+  color: #00ffcc;
+  background: rgba(0, 255, 204, 0.08);
+}
+
+#new-orgo:hover {
+  background: rgba(0, 121, 107, 0.15);
+  transform: scale(1.05);
+}
+
+.dark-theme #new-orgo:hover {
+  background: rgba(0, 255, 204, 0.15);
+}
+
+#build-orgo-gelle {
+  width: 340px;
+  flex-shrink: 0;
+  padding: 20px;
+  border-left: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.3);
+  overflow-y: auto;
+}
+
+.dark-theme #build-orgo-gelle {
+  border-left-color: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* Slide Panel Transition */
+.slide-panel-enter-active,
+.slide-panel-leave-active {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+}
+
+.slide-panel-enter-from {
+  transform: translateX(-20px);
+  opacity: 0;
+}
+
+.slide-panel-leave-to {
+  transform: translateX(-20px);
+  opacity: 0;
 }
 
 .drawer-header {
@@ -675,6 +787,8 @@ onMounted(() => {
 }
 
 .seed-list {
+  width: 280px;
+  flex-shrink: 0;
   overflow-y: auto;
   padding: 20px;
   display: grid;

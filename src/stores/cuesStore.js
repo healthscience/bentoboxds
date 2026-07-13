@@ -155,6 +155,19 @@ export const cuesStore = defineStore('cues', {
         }
       }
     },
+    saveBodyMap (cueKey) {
+      // take the cue and add draw location coord on body map
+      let cueCanvasSpace = {}
+      cueCanvasSpace.contract = cueKey
+      cueCanvasSpace.canvas = ''
+      const cueContract = {}
+      cueContract.type = 'library'
+      cueContract.action = 'cues'
+      cueContract.reftype = 'space'
+      cueContract.task = 'UPDATE'
+      cueContract.privacy = 'public'
+      cueContract.data = cueCanvasSpace
+    },
     matchCueContract (cueInfo) {
       this.cueUtil.cueMatch(this.activeCue, this.cuesList)
 
@@ -199,6 +212,7 @@ export const cuesStore = defineStore('cues', {
         }
       }
     },
+    // now done in HOP via heli
     updateCueTimestamp (cueid) {
       let cueContract = this.cueUtil.cueMatch(cueid, this.cuesList)
       let updateCueContract = this.cueUtil.updateTimestamp(cueContract)

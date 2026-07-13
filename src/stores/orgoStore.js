@@ -3,7 +3,7 @@ import { createOscillatorOrgo } from "@/orgos/oscillator.js";
 
 export const useOrgoStore = defineStore("orgostore", {
   state: () => ({
-    availableSeeds: [
+    orgoMorphogens: [
       {
         id: "oscillator",
         name: "OscillatorOrgo",
@@ -16,7 +16,7 @@ export const useOrgoStore = defineStore("orgostore", {
   }),
   actions: {
     instantiateOrgo(seedId, initialState = {}) {
-      const seed = this.availableSeeds.find((s) => s.id === seedId);
+      const seed = this.orgoMorphogens.find((s) => s.id === seedId);
       if (seed) {
         const instance = {
           ...seed,
