@@ -83,6 +83,21 @@ export const cuesStore = defineStore('cues', {
          this.refreshExpandedCues()
       }
     },
+    savedCuePrepare (cueC) {
+      const hexC = this.storeLibrary.utilLibrary.convertBinaryToHex(cueC);
+      let cueStatus = {}
+      cueStatus.contract = hexC
+      cueStatus.state = {
+        isActive: false,
+        buttonColor: '#4a5568',
+        isExpanded: false
+      }
+      console.log(cueStatus)
+      console.log(cueStatus.contract)
+      this.cuesList.push(cueStatus)
+      // this.spaceListHistory.push(expandDTCue)
+
+    },
     cueDisplayBuilder (cueKey, cueRel, liveWheel) {
       let cueDisplay = this.cueUtil.cueDisplayMake(cueKey, cueRel, liveWheel)
       // keep track of history

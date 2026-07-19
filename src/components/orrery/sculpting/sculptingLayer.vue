@@ -47,7 +47,7 @@
             <span class="toggle-icon">{{ isDrawerOpen ? "←" : "→" }}</span>
           </header>
           <div class="drawer-content-container">
-            <div class="seed-list">
+            <div class="seed-list" v-if="!showCuesPortal">
               <div class="seed-section">
                 <div id="orgo-menu">
                   <h6>Orgos</h6>
@@ -116,15 +116,16 @@
                 </button>
               </div>
             </div>
+            <CuesPortal v-else @dragstart="handleCueDragStart" @select="handleCueSelect" />
             <!-- expand out build contract tools for new orgo gelle -->
             <transition name="slide-panel">
               <div id="build-orgo-gelle" v-if="newOGrefcont === true && selectedOGtype === 'orgo'">
-                <build-orgo @close="newOGrefcont = false" @save="handleSaveNewSeed"></build-orgo>
+                <build-orgo @close="newOGrefcont = false; selectedOGtype = ''" @save="handleSaveNewSeed" @toggle-cues="showCuesPortal = !showCuesPortal" :incomingCue="selectedCue"></build-orgo>
               </div>
             </transition>
             <transition name="slide-panel">
               <div id="build-orgo-gelle" v-if="newOGrefcont === true && selectedOGtype === 'gelle'">
-                <build-gelle @close="newOGrefcont = false" @save="handleSaveNewSeed"></build-gelle>
+                <build-gelle @close="newOGrefcont = false; selectedOGtype = ''" @save="handleSaveNewSeed"></build-gelle>
               </div>
             </transition>
           </div>
@@ -286,6 +287,7 @@ import { libraryStore } from "@/stores/libraryStore.js";
 import BuildOrgo from "@/components/orrery/sculpting/build/orgoBuild.vue"
 import BuildGelle from "@/components/orrery/sculpting/build/gelleBuild.vue"
 import LifeStrapHorizon from "@/components/orrery/sculpting/LifeStrapHorizon.vue";
+import CuesPortal from "@/components/orrery/parts/shared/CuesPortal.vue";
 
 const storeBesearch = besearchStore();
 const storeCues = cuesStore();
@@ -300,7 +302,17 @@ const storeLibrary = libraryStore();
 const isDarkMode = ref(false);
 const isDrawerOpen = ref(true);
 const newOGrefcont = ref(false)
-let selectedOGtype = ref('')
+const selectedOGtype = ref('')
+const showCuesPortal = ref(false);
+const selectedCue = ref('');
+
+const handleCueDragStart = ({ event, word }) => {
+  event.dataTransfer.setData("application/besearch-cue", word);
+};
+
+const handleCueSelect = (cue) => {
+  selectedCue.value = cue.contract.value.concept.datatype.concept.name;
+};
 
 const isOpen = computed(() => {
   if (storeBesearch.besearchMode === 'graft') return true;
@@ -331,12 +343,14 @@ const closeLayer = () => {
 const buildOrgoGelleContract = (refType) => {
   console.log('build new reference contract orgo gelle', refType)
   isDrawerOpen.value = true;
-  selectedOGtype = refType
+  selectedOGtype.value = refType
+  newOGrefcont.value = true
 };
 
 const handleSaveNewSeed = (seedData) => {
   console.log("Saving new seed template:", seedData);
   newOGrefcont.value = false;
+  selectedOGtype.value = '';
 };
 
 const handleSeedDragStart = (e, seed, type) => {
@@ -689,12 +703,12 @@ onMounted(() => {
 }
 
 .orgo-drawer.open.builder-expanded {
-  width: 620px;
+  width: 760px;
 }
 
 .drawer-content-container {
   display: flex;
-  width: 620px;
+  width: 720px;
   height: 100%;
   overflow: hidden;
 }
@@ -737,7 +751,7 @@ onMounted(() => {
 }
 
 #build-orgo-gelle {
-  width: 340px;
+  width: 520px;
   flex-shrink: 0;
   padding: 20px;
   border-left: 1px solid rgba(0, 0, 0, 0.08);

@@ -324,20 +324,11 @@ export const libraryStore = defineStore('librarystore', {
         }
       } else if (message.action === 'cue-contract') {
         if (message.task === 'save-complete') {
-          let expandDTCue = this.utilLibrary.expandCuesDTSingle(message.data, this.storeCues.pathRefContracts)
-          // add to cues list
-          let cueStatus = {}
-          cueStatus.contract = hexC
-          cueStatus.state = {
-            isActive: false,
-            buttonColor: '#4a5568',
-            isExpanded: false
-          }
-          this.storeCues.cuesList.push(cueStatus)
-          this.storeCues.spaceListHistory.push(expandDTCue)
+          // pass to cue store
+          this.storeCues.savedCuePrepare(message.data)
         } else if (message.task === 'update-complete') {
           // update contract in list
-          let updateCueList = []
+          /*let updateCueList = []
           for (let cue of this.storeCues.cuesList) {
             if (cue.key === message.data.key) {
               updateCueList.push(message.data)
@@ -346,6 +337,8 @@ export const libraryStore = defineStore('librarystore', {
             }
           }
           this.storeCues.cuesList = updateCueList
+
+          PASS TO CUE STORE TODO */
         }
       } else if (message.action === 'beebeelearn-contract' || message.action === 'teach-history') {
         // pass on to chat store

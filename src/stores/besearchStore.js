@@ -552,11 +552,6 @@ export const besearchStore = defineStore("besearchstore", {
       this.setHUUDState("lens");
     },
     setHUUDState(mode, forceOpen = true) {
-      console.log('set besearch mode stat bottom panel')
-      console.log(mode)
-      console.log(forceOpen)
-      console.log('seive')
-      console.log(this.isSieveExpanded)
       const aiStore = aiInterfaceStore();
       this.besearchMode = mode;
       
