@@ -1,5 +1,5 @@
 <template>
-	<div id="upload-space">
+	<div id="upload-space" :class="{ inline: props.inline }">
 		<drop-zone class="drop-area" @files-dropped="addFiles" #default="{ dropZoneActive }">
 			<label for="file-input">
 				<span v-if="dropZoneActive">
@@ -7,7 +7,7 @@
 					<span class="smaller">to add them</span>
 				</span>
 				<span v-else>
-					<span class="drag-file-message">Drag Your Files Here</span>
+					<span class="drag-file-message">Drag Files Here</span>
 					<span class="smaller">
 						or <strong>click</strong> to select files
 						<input type="file" id="file-input" multiple @change="onInputChange" />
@@ -38,6 +38,19 @@ import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { ref, shallowRef, computed } from "vue"
 import FileHander from '@/components/dataspace/upload/utils/fileHandler.js'
 
+  const props = defineProps({
+    inline: {
+      type: Boolean,
+      default: false
+    },
+    expectedType: {
+      type: String,
+      default: ''
+    }
+  })
+
+  const emit = defineEmits(['upload-sent', 'upload-error'])
+
 	const file = shallowRef(null)
 	let HandleLargeFiles = new FileHander()
 	let headerLocal = ref({})
@@ -57,12 +70,9 @@ import useFileList from '@/components/dataspace/upload/compositions/fileList.js'
 
   /* methods */
   function onInputChange(e) {
-	console.log('file input -------name--------')
-	console.log(e.target.files[0])
 	file.value = e.target.files[0]
 	let fileName = file.value.name
 	storeLibrary.fileBund.name = fileName
-	console.log(storeLibrary.fileBund)
 	let addF = addFiles(e.target.files)
 	//e.target.value = null // reset so that selecting the same file again will still cause it to fire this change
   }
@@ -131,14 +141,14 @@ import useFileList from '@/components/dataspace/upload/compositions/fileList.js'
 		storeLibrary.fileBundleList.push(fileBundle)
 		console.log('after push to list files')
 		// give summary back to peer
-		if (file.file.type === 'text/csv') {
+		if (largeFileStatus === true) {
+			let fType = file.file.type || 'unknown'
+			HandleLargeFiles.handleLargeFile(file.file, fType, storeLibrary)
+			// emit upload-sent with empty messageHOP as it's handled via stream
+			emit('upload-sent', { fileBundle, messageHOP: {} })
+		} else if (file.file.type === 'text/csv') {
 			storeLibrary.csvpreviewLive = true
-			// use hander large or small?
-			if (largeFileStatus === false) {
-			  HandleLargeFiles.csvHandler(file, storeAI, storeLibrary, hashObject, fileBundle)
-			} else {
-			  HandleLargeFiles.handleLargeFile(file.file, 'csv', storeLibrary )
-			}
+			HandleLargeFiles.csvHandler(file, storeAI, storeLibrary, hashObject, fileBundle)
 		} else if (file.file.type === 'image/png') {
 			storeLibrary.imagepreviewLive = true
 			// get file data via reader
@@ -193,169 +203,156 @@ import useFileList from '@/components/dataspace/upload/compositions/fileList.js'
 			messageHOP.data = fileSave
 			// send to HOP
 			storeLibrary.sendMessage(messageHOP)
+			emit('upload-sent', { fileBundle, messageHOP })
 			}
 			readerImage.onerror = function() {
 				console.log(readerImage.error)
+				emit('upload-error', readerImage.error)
 			}
 			readerImage.readAsDataURL(file.file)
-		} else if (file.file.type !== 'text/csv') {
-			// check for pdf file  i.e. sqlite file
-			if (file.file.type !== 'application/pdf' && file.file.type !== 'application/json') {
+		} else if (file.file.type === 'application/json') {
+			// build for chat and library upload
+			const reader3 = new FileReader()
+			reader3.readAsText(file.file)
+			reader3.onload = function () {
+				let rawData = reader3.result
+				const lines = JSON.parse(rawData)
+				// need to call beebee agent if new json file structure
+				console.log('json lines')
+				console.log(lines)
+				if (lines.data !== undefined) {
+					storeLibrary.linesLimit = lines.slice(0, 20)
+				} else {
+					storeLibrary.linesLimit = lines.data.slice(0, 20)
+				}
+				
+				let headerLocal = Object.keys(lines[0] || {})
+				// make columns in standard form object
+				let columnStructure = []
+				let scount = 0
+				for (let head of headerLocal) {
+					columnStructure.push({ cid: scount, name: head })
+					scount++
+				}
+
+				// for chat interface
+				if (storeAI.dataBoxStatus !== true) {
+					// TODO send to beebee via socket but for now create reply here
+					storeAI.qcount++
+					let question = {}
+					question.type ='bbai'
+					question.reftype = 'ignore'
+					question.action = 'question'
+					question.data = { "count": storeAI.qcount, "text": "Upload of file", "active": true, "time": new Date() }
+					let hashQuestion = hashObject(question.data + file.file.name)
+			
+					let fileContent = reader3.result
+					storeLibrary.fileBund.content = fileContent
+					// build for chart interface
+					question.bbid = hashQuestion
+					let bbReply = {}
+					bbReply.type = 'bbai-reply'
+					bbReply.data = { text: 'summary of file data file is json, headings are:', filedata: { type: 'json', file: fileBundle, columns: 'one', grid: storeLibrary.linesLimit }, prompt: 'Select data to chart:', options: headerLocal, }
+					bbReply.bbid = hashQuestion
+					let newPair = {}
+					newPair.question = question
+					newPair.reply = bbReply
+					storeAI.historyPair[storeAI.chatAttention].push(newPair)
+					// if json  active viewer
+				} else {
+					// build for library upload
+					storeLibrary.newPackagingForm.apicolumns = headerLocal
+					storeLibrary.newDatafile.columns = columnStructure
+					storeLibrary.newDatafile.path = 'json'
+					storeLibrary.newDatafile.file = fileBundle.name
+				}
+				
+				// Ensure JSON is saved to HOP
 				let fileSave = {}
 				fileSave.name = file.file.name
 				fileSave.path = file.url
 				fileSave.source = sourceLocation
-				if (file.file.type.length === 0) {
-					let splitExtension = file.file.name.split('.')
-					let matchExtension = ''
-					if (splitExtension[1] === 'db') {
-						matchExtension = 'sqlite'
-					} else {
-						matchExtension = splitExtension[1]
-					}
-					fileSave.type = matchExtension
-				} else {
-					fileSave.type = file.file.type
-				}
-				const reader2 = new FileReader()
-				reader2.readAsDataURL(file.file)
-				reader2.onload = function (e) {
-					fileSave.content = e.target.result
-					// is this for join nxp module?
-					if (storeLibrary.joinNXP !== true) {
-						// prepare message structure
-						let messageHOP = {}
-						messageHOP.type = 'library'
-						messageHOP.action = 'contracts'
-						messageHOP.reftype = 'save-file'
-						messageHOP.privacy = 'private'
-						messageHOP.task = 'PUT'
-						messageHOP.data = fileSave
-						// close the upload
-						storeLibrary.uploadStatus = false
-						storeLibrary.sendMessage(messageHOP)
-					} else {
-						// prepare message for join NXP module process i.e. HOPquery structure already setup by genesis
-						let messageHOP = {}
-						messageHOP.type = 'library'
-						messageHOP.action = 'contracts'
-						messageHOP.reftype = 'save-file'
-						messageHOP.privacy = 'private'
-						messageHOP.task = 'PUT'
-						messageHOP.data = fileSave
-						// close the upload
-						storeLibrary.uploadStatus = false
-						storeLibrary.joinNXPprocess(messageHOP)
-					}
-				}
-			} else if (file.file.type === 'application/json') {
-		  	  // build for chat and library upload
-					const reader3 = new FileReader()
-					reader3.readAsText(file.file)
-					reader3.onload = function () {
-					let rawData = reader3.result
-					const lines = JSON.parse(rawData)
-					// need to call beebee agent if new json file structure
-					console.log('json lines')
-					console.log(lines)
-					if (lines.data !== undefined) {
-					storeLibrary.linesLimit = lines.slice(0, 20)
-					} else {
-						storeLibrary.linesLimit = lines.data.slice(0, 20)
-					}
-					// for chat interface
-					if (storeAI.dataBoxStatus !== true) {
-						// TODO send to beebee via socket but for now create reply here
-						storeAI.qcount++
-						let question = {}
-						question.type ='bbai'
-						question.reftype = 'ignore'
-						question.action = 'question'
-						question.data = { "count": storeAI.qcount, "text": "Upload of file", "active": true, "time": new Date() }
-						let hashQuestion = hashObject(question.data + file.file.name)
-				
-						let headerLocal = Object.keys(lines[0])
-						// make columns in standard form object
-						let columnStructure = []
-						let scount = 0
-						for (let head of headerLocal) {
-							columnStructure.push({ cid: scount, name: head })
-							scount++
-						}
-						let fileContent = reader3.result
-						storeLibrary.fileBund.content = fileContent
-						// build for chart interface
-						question.bbid = hashQuestion
-						let bbReply = {}
-						bbReply.type = 'bbai-reply'
-						bbReply.data = { text: 'summary of file data file is json, headings are:', filedata: { type: 'json', file: fileBundle, columns: 'one', grid: storeLibrary.linesLimit }, prompt: 'Select data to chart:', options: headerLocal, }
-						bbReply.bbid = hashQuestion
-						let newPair = {}
-						newPair.question = question
-						newPair.reply = bbReply
-						storeAI.historyPair[storeAI.chatAttention].push(newPair)
-						// if json  active viewer
-					} else {
-							// build for library
-							let headerLocal = Object.keys(lines[0])
-							// make columns in standard form object
-							let columnStructure = []
-							let scount = 0
-							for (let head of headerLocal) {
-								columnStructure.push({ cid: scount, name: head })
-								scount++
-							}
-							// build for library upload
-							storeLibrary.newPackagingForm.apicolumns = headerLocal
-							storeLibrary.newDatafile.columns = columnStructure
-							storeLibrary.newDatafile.path = 'json'
-							storeLibrary.newDatafile.file = fileBundle.name
-						}
-					}
-			} else {
-				let aiMessage = {}
-				aiMessage.type = 'bbai'
-				aiMessage.reftype = 'ai'
-				aiMessage.action = 'agent-task'
-				aiMessage.task = 'cale-gpt4all-rag'
-				aiMessage.data = { text: 'please add this data to medical learning rag'}
-				aiMessage.bbid = '' // props.bboxid
-				storeAI.sendMessageHOP(aiMessage)
-			}
-		} else {
-			// prepare file data for storage via HOP
-			const reader2 = new FileReader()
-			// reader2.readAsText(fileData)
-			reader2.onloadend = function () {
-				let fileContent = reader2.result
-				let lineBundle =
-				{
-					cnumber: '',
-					dataline: '',
-					delimiter: '',
-					datetype: ''
-				}
-				let fileOut = {}
-				fileOut.name = storeLibrary.fileBund.name
-				let type = storeLibrary.newPackagingForm.type
-				let fileSave = {}
-				fileSave.file = fileOut
-				fileSave.content = fileContent
-				fileSave.info = lineBundle
-				fileSave.type = type
-				// prepare message structure
+				fileSave.type = 'json'
+				fileSave.content = reader3.result
+
 				let messageHOP = {}
 				messageHOP.type = 'library'
 				messageHOP.action = 'contracts'
 				messageHOP.reftype = 'save-file'
 				messageHOP.privacy = 'private'
 				messageHOP.task = 'PUT'
-				messageHOP.data = fileSave // storeLibrary.fileBund
-				// send to HOP
-				storeLibrary.sendMessage(messageHOP)
-				storeLibrary.uploadStatus = false
+				messageHOP.data = fileSave
+
+				if (storeLibrary.joinNXP !== true) {
+					storeLibrary.uploadStatus = false
+					storeLibrary.sendMessage(messageHOP)
+					emit('upload-sent', { fileBundle, messageHOP })
+				} else {
+					storeLibrary.uploadStatus = false
+					storeLibrary.joinNXPprocess(messageHOP)
+					emit('upload-sent', { fileBundle, messageHOP })
+				}
 			}
-			reader2.readAsDataURL(file)
+		} else if (file.file.type === 'application/pdf') {
+			let aiMessage = {}
+			aiMessage.type = 'bbai'
+			aiMessage.reftype = 'ai'
+			aiMessage.action = 'agent-task'
+			aiMessage.task = 'cale-gpt4all-rag'
+			aiMessage.data = { text: 'please add this data to medical learning rag'}
+			aiMessage.bbid = '' // props.bboxid
+			storeAI.sendMessageHOP(aiMessage)
+		} else {
+			// check for other binary/media files like duckdb, sqlite, video
+			let fileSave = {}
+			fileSave.name = file.file.name
+			fileSave.path = file.url
+			fileSave.source = sourceLocation
+			if (file.file.type.length === 0) {
+				let splitExtension = file.file.name.split('.')
+				let matchExtension = ''
+				if (splitExtension[1] === 'db') {
+					matchExtension = 'sqlite'
+				} else {
+					matchExtension = splitExtension[1]
+				}
+				fileSave.type = matchExtension
+			} else {
+				fileSave.type = file.file.type
+			}
+			const reader2 = new FileReader()
+			reader2.readAsDataURL(file.file)
+			reader2.onload = function (e) {
+				fileSave.content = e.target.result
+				// is this for join nxp module?
+				if (storeLibrary.joinNXP !== true) {
+					// prepare message structure
+					let messageHOP = {}
+					messageHOP.type = 'library'
+					messageHOP.action = 'contracts'
+					messageHOP.reftype = 'save-file'
+					messageHOP.privacy = 'private'
+					messageHOP.task = 'PUT'
+					messageHOP.data = fileSave
+					// close the upload
+					storeLibrary.uploadStatus = false
+					storeLibrary.sendMessage(messageHOP)
+					emit('upload-sent', { fileBundle, messageHOP })
+				} else {
+					// prepare message for join NXP module process i.e. HOPquery structure already setup by genesis
+					let messageHOP = {}
+					messageHOP.type = 'library'
+					messageHOP.action = 'contracts'
+					messageHOP.reftype = 'save-file'
+					messageHOP.privacy = 'private'
+					messageHOP.task = 'PUT'
+					messageHOP.data = fileSave
+					// close the upload
+					storeLibrary.uploadStatus = false
+					storeLibrary.joinNXPprocess(messageHOP)
+					emit('upload-sent', { fileBundle, messageHOP })
+				}
+			}
 		}
 		// lastly clear file list
 		removeFile(file)
@@ -393,6 +390,12 @@ import useFileList from '@/components/dataspace/upload/compositions/fileList.js'
 	justify-content: center;
 }
 
+#upload-space.inline {
+	height: auto;
+	background-color: transparent;
+	padding: 10px 0;
+}
+
 .drop-area {
 	width: 100%;
 	max-width: 800px;
@@ -406,6 +409,11 @@ import useFileList from '@/components/dataspace/upload/compositions/fileList.js'
 		box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 		background: #ffffffcc;
 	}
+}
+
+#upload-space.inline .drop-area {
+	padding: 20px;
+	min-height: auto;
 }
 
 .drag-file-message {
@@ -486,6 +494,12 @@ button {
 			border: 2px solid red;
 		}
 
+		#upload-space.inline {
+			border: none;
+			background-color: transparent;
+			padding: 10px 0;
+		}
+
 		.drop-area {
 			min-height: 50vh;
 			width: 100%;
@@ -500,6 +514,11 @@ button {
 				box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 				background: #ffffffcc;
 			}
+		}
+
+		#upload-space.inline .drop-area {
+			min-height: auto;
+			padding: 20px;
 		}
 	}
 </style>

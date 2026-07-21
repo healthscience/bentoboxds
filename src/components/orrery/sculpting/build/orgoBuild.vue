@@ -10,7 +10,7 @@
       <div class="form-section">
         <div id="orgo-cues-tools">
           <label>Cue</label>
-          <button class="cues-toggle-btn" @click.prevent="$emit('toggle-cues')">Cues</button>
+          <button class="cues-toggle-btn" @click.prevent="$emit('toggle-cues')">Cues library</button>
         </div>
         <div class="cue-input-wrapper">
           <input v-model="newSeed.cue" type="text" placeholder="e.g., Central Torso Core" @drop.prevent="onDropCue" @dragover.prevent />
@@ -18,27 +18,45 @@
         </div>
       </div>
       <!-- DYNAMIC METRIC REGISTRY -->
-      <div class="form-group-header">Computational Metric Registry</div>
-      <p class="meta-note">Define metrics by cue (e.g., #Flexion). Logic & meaning are bound to each.</p>
-
-      <div v-for="(metric, index) in metrics" :key="index" class="metric-row">
-        <div class="form-grid-row">
-          <input v-model="metric.cue" placeholder="Cue (e.g., #Flexion)" class="cue-input" @drop.prevent="onDropMetricCue($event, index)" @dragover.prevent />
-          <input v-model.number="metric.value" type="number" placeholder="Value" />
+      <div id="build-elements-contract">
+        <div class="form-group-header">Conduction elements</div>
+         <div id="orgo-cue-input">
+          <div class="form-group-header">Input elements</div>
+          <div v-for="(metric, index) in metrics" :key="index" class="metric-row">
+            <div class="form-grid-row">
+              <input v-model="metric.cue" placeholder="Cue (e.g., #Flexion)" class="cue-input" @drop.prevent="onDropMetricCue($event, index)" @dragover.prevent />
+            </div>
+          </div>
+          <button class="add-metric-btn" @click="addMetric">+ Add Metric Cue</button>
         </div>
-        <textarea v-model="metric.meaning" placeholder="Meaning / Rule explanation..." class="meaning-input"></textarea>
-        <textarea v-model="metric.driver" placeholder="JS Logic for this metric..." class="code-input"></textarea>
+        <div id="orgo-cue-output">
+          <div class="form-group-header">Output elements</div>
+          <div v-for="(metric, index) in metricsOut" :key="index" class="metric-row">
+            <div class="form-grid-row">
+              <input v-model="metric.cue" placeholder="Cue (e.g., #Flexion)" class="cue-input" @drop.prevent="onDropMetricCueOut($event, index)" @dragover.prevent />
+            </div>
+          </div>
+          <button class="add-metric-btn" @click="addMetricOut">+ Add Metric Cue</button>
+        </div>
       </div>
-
-      <button class="add-metric-btn" @click="addMetric">+ Add Metric Cue</button>
-
-      <button class="commit-btn" @click="commitContract">COMMIT TO HOP LIBRARY</button>
+      <div id="computation-contract-file">
+        <div class="form-group-header">add orgo computation file</div>
+        <SpaceUpload :inline="true" @upload-sent="handleUploadSent" />
+        <div v-if="fileMatch?.success === true" class="upload-success-message">
+          ✅ {{ fileIDoutgoing }} uploaded
+        </div>
+      </div>
+      <button class="commit-btn" @click="commitContract">CONTRIBUTE TO LIBRARY</button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
+import SpaceUpload from '@/components/dataspace/upload/uploadSpace.vue'
+import { libraryStore } from '@/stores/libraryStore.js'
+
+const storeLibrary = libraryStore()
 
 const props = defineProps({
   incomingCue: {
@@ -49,13 +67,23 @@ const props = defineProps({
 
 const activeCue = ref("#torso");
 const metrics = ref([]);
+const metricsOut = ref([]);
 let newSeed = ref({ cue: '', metrics: []})
+let fileIDoutgoing = ref('')
 
 watch(() => props.incomingCue, (newVal) => {
   if (newVal) {
     newSeed.value.cue = newVal;
   }
 });
+
+/* computed */
+const fileMatch = computed(() => {
+  let fileSavedMatch = storeLibrary.fileSaveList.find(
+    f => f.file.name === fileIDoutgoing.value
+  );
+  return fileSavedMatch
+})
 
 const onDropCue = (e) => {
   const cueStr = e.dataTransfer.getData("application/besearch-cue");
@@ -71,20 +99,37 @@ const onDropMetricCue = (e, index) => {
   }
 };
 
+const onDropMetricCueOut = (e, index) => {
+  const cueStr = e.dataTransfer.getData("application/besearch-cue");
+  if (cueStr && metricsOut.value[index]) {
+    metricsOut.value[index].cue = cueStr;
+  }
+};
+
+const uploadedFile = ref(null);
+
+const handleUploadSent = (payload) => {
+  // set file id to match when save return success
+  fileIDoutgoing.value = payload.fileBundle.name
+};
+
 const addMetric = () => {
   metrics.value.push({ cue: '', value: 0, meaning: '', driver: '' });
 };
 
+const addMetricOut = () => {
+  metricsOut.value.push({ cue: '', value: 0, meaning: '', driver: '' });
+};
+
 const commitContract = () => {
-  const contract = {
-    refcontract: 'orgo',
-    cue: activeCue.value,
-    metrics: metrics.value.map(m => ({
-      ...m,
-      hash: btoa(m.driver) // Basic proof-of-code placeholder
-    }))
-  };
-  emit("save", contract);
+  // send to library store to format message for saving
+  console.log(fileMatch.value.blob.blobPath)
+  const contractInfo = {
+    orgoID: newSeed.value,
+    metrics: { input:  metrics.value, output: metricsOut.value },
+    compute: fileMatch.value.blob.blobPath
+  }
+  storeLibrary.prepareOrgoContracts(contractInfo)
 };
 
 
@@ -157,7 +202,7 @@ const saveCreatedSeed = () => {
 </script>
 
 <style scoped>
-.orgo-contract-author { padding: 15px; border: 1px solid #ccc; border-radius: 8px; }
+.orgo-contract-author { width: 90%; padding: 15px; border: 4px solid #ccc; border-radius: 8px; }
 .form-group-header { font-weight: bold; margin: 10px 0; border-bottom: 1px solid #eee; }
 .cue-input-wrapper { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: stretch; margin-bottom: 5px; }
 
@@ -217,6 +262,12 @@ const saveCreatedSeed = () => {
   #orgo-cues-tools {
     display: grid;
     grid-template-columns: 1fr 1fr;
+  }
+
+  #computation-contract-file {
+    display: grid;
+    grid-template-columns: 1fr;
+    margin-top: 2em;
   }
 
   .section-explanation {
@@ -296,5 +347,12 @@ const saveCreatedSeed = () => {
   .full-width {
     width: 100%;
     margin-top: 10px;
+  }
+
+  .upload-success-message {
+    color: green;
+    font-weight: bold;
+    margin-top: 10px;
+    text-align: center;
   }
 </style>

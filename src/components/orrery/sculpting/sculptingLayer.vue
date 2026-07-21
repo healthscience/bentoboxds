@@ -43,7 +43,7 @@
         <!-- 2.1 The Palette (Left Panel: Seeding Logic) -->
         <aside class="orgo-drawer" :class="{ open: isDrawerOpen, 'builder-expanded': newOGrefcont }">
           <header class="drawer-header" @click="isDrawerOpen = !isDrawerOpen">
-            <h5>Logic Seeds</h5>
+            <h5>Grafting Seeds</h5>
             <span class="toggle-icon">{{ isDrawerOpen ? "←" : "→" }}</span>
           </header>
           <div class="drawer-content-container">
@@ -116,28 +116,28 @@
                 </button>
               </div>
             </div>
-            <CuesPortal v-else @dragstart="handleCueDragStart" @select="handleCueSelect" />
+            <div id="cues-by-category" v-else >
+              <CuesPortal @dragstart="handleCueDragStart" @select="handleCueSelect" />
+            </div>
             <!-- expand out build contract tools for new orgo gelle -->
-            <transition name="slide-panel">
-              <div id="build-orgo-gelle" v-if="newOGrefcont === true && selectedOGtype === 'orgo'">
-                <build-orgo @close="newOGrefcont = false; selectedOGtype = ''" @save="handleSaveNewSeed" @toggle-cues="showCuesPortal = !showCuesPortal" :incomingCue="selectedCue"></build-orgo>
-              </div>
-            </transition>
-            <transition name="slide-panel">
-              <div id="build-orgo-gelle" v-if="newOGrefcont === true && selectedOGtype === 'gelle'">
-                <build-gelle @close="newOGrefcont = false; selectedOGtype = ''" @save="handleSaveNewSeed"></build-gelle>
-              </div>
-            </transition>
+            <div id="contract-builders"> 
+              <transition name="slide-panel">
+                <div id="build-orgo-gelle" v-if="newOGrefcont === true && selectedOGtype === 'orgo'">
+                  <build-orgo @close="closeRoutine" @save="handleSaveNewSeed" @toggle-cues="showCuesPortal = !showCuesPortal" :incomingCue="selectedCue"></build-orgo>
+                </div>
+              </transition>
+              <transition name="slide-panel">
+                <div id="build-orgo-gelle" v-if="newOGrefcont === true && selectedOGtype === 'gelle'">
+                  <build-gelle @close="newOGrefcont = false; selectedOGtype = ''" @save="handleSaveNewSeed"></build-gelle>
+                </div>
+              </transition>
+            </div>
           </div>
         </aside>
 
         <!-- 2.2 The Canvas (Center Stage: The Braid) -->
         <main class="lab-space-v2">
           <div class="canvas-stage-v2">
-            <!--<div class="horizon-container">
-              <LifeStrapHorizon :strap="activeStrapData" />
-            </div>-->
-
             <div class="logic-braid-wrapper">
               <div class="logic-braid-top">
                 <!-- A. The Orgo Bay -->
@@ -472,6 +472,14 @@ onMounted(() => {
     attributeFilter: ["data-theme"],
   });
 });
+
+// close and ensure cues portal closed
+const closeRoutine = () => {
+  newOGrefcont.value = false;
+  selectedOGtype.value = ''
+  showCuesPortal.value = false
+}
+
 </script>
 
 <style scoped>
@@ -492,6 +500,7 @@ onMounted(() => {
     background 0.3s,
     color 0.3s;
   padding-top: 0;
+  border: 2px solid darkblue;
 }
 
 .sculpting-layer.is-embedded {
@@ -538,113 +547,11 @@ onMounted(() => {
   justify-items: center;
 }
 
-.workflow-breadcrumb {
-  display: grid;
-  grid-auto-flow: column;
-  align-items: center;
-  gap: 12px;
-  background: rgba(0, 0, 0, 0.03);
-  padding: 8px 20px;
-  border-radius: 30px;
-  font-family: "Space Mono", monospace;
-  font-size: 0.7rem;
-}
-
-.dark-theme .workflow-breadcrumb {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.crumb {
-  opacity: 0.4;
-  font-weight: 400;
-}
-
-.crumb.active {
-  opacity: 0.8;
-  color: #00796b;
-}
-
-.dark-theme .crumb.active {
-  color: #00ffcc;
-}
-
-.crumb.current {
-  opacity: 1;
-  font-weight: 700;
-  color: #00796b;
-}
-
-.dark-theme .crumb.current {
-  color: #00ffcc;
-}
-
-.crumb-separator {
-  opacity: 0.2;
-}
-
-.header-actions {
-  display: grid;
-  grid-auto-flow: column;
-  gap: 15px;
-}
-
 .header-right {
   display: grid;
   grid-auto-flow: column;
   align-items: center;
   gap: 20px;
-}
-
-.nav-action-btn {
-  background: transparent;
-  border: 1px solid rgba(0, 121, 107, 0.3);
-  color: #00796b;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  cursor: pointer;
-  display: grid;
-  grid-auto-flow: column;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.2s;
-}
-
-.dark-theme .nav-action-btn {
-  border-color: rgba(0, 255, 204, 0.3);
-  color: #00ffcc;
-}
-
-.nav-action-btn:hover {
-  background: rgba(0, 121, 107, 0.05);
-  border-color: #00796b;
-}
-
-.dark-theme .nav-action-btn:hover {
-  background: rgba(0, 255, 204, 0.05);
-  border-color: #00ffcc;
-}
-
-.nav-action-btn.primary {
-  background: #00796b;
-  color: white;
-  border-color: #00796b;
-}
-
-.dark-theme .nav-action-btn.primary {
-  background: #00ffcc;
-  color: #000;
-  border-color: #00ffcc;
-}
-
-.nav-action-btn.primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 121, 107, 0.2);
-}
-
-.dark-theme .nav-action-btn.primary:hover {
-  box-shadow: 0 4px 12px rgba(0, 255, 204, 0.2);
 }
 
 .lab-branding {
@@ -708,7 +615,7 @@ onMounted(() => {
 
 .drawer-content-container {
   display: flex;
-  width: 720px;
+  width: 820px;
   height: 100%;
   overflow: hidden;
 }
@@ -751,7 +658,6 @@ onMounted(() => {
 }
 
 #build-orgo-gelle {
-  width: 520px;
   flex-shrink: 0;
   padding: 20px;
   border-left: 1px solid rgba(0, 0, 0, 0.08);
@@ -762,6 +668,21 @@ onMounted(() => {
 .dark-theme #build-orgo-gelle {
   border-left-color: rgba(255, 255, 255, 0.05);
   background: rgba(0, 0, 0, 0.1);
+}
+
+#cues-by-category {
+  display: grid;
+  grid-template-columns: 1fr;
+  border: 2px solid darkgoldenrod;
+  width: 340px;  
+}
+
+/* builder forms */
+#contract-builders {
+  display: grid;
+  grid-template-columns: 1fr;
+  width: 100%;
+  border: 2px solid red;
 }
 
 /* Slide Panel Transition */
@@ -857,6 +778,7 @@ onMounted(() => {
 .lab-space-v2 {
   overflow-y: auto;
   padding: 40px;
+  border: 2px solid purple;
 }
 
 .canvas-stage-v2 {
@@ -1010,70 +932,6 @@ onMounted(() => {
 
 .dark-theme .panel-header {
   border-bottom-color: rgba(255, 255, 255, 0.05);
-}
-
-.panel-content {
-  padding: 0 20px;
-  overflow-y: auto;
-  display: grid;
-  align-content: start;
-}
-
-.seer-section {
-  padding: 20px 0;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-}
-
-.seer-section:last-of-type {
-  border-bottom: none;
-}
-
-.seer-section h6 {
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 15px;
-  opacity: 0.6;
-}
-
-.dark-theme .seer-section {
-  border-bottom-color: rgba(255, 255, 255, 0.05);
-}
-
-.horizon-container {
-  width: 100%;
-  height: 600px;
-  margin-bottom: 20px;
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-}
-
-/* Life-Strap Horizon Backdrop */
-.life-strap-horizon {
-  height: 40px;
-  position: relative;
-  display: grid;
-  place-items: center;
-  margin-bottom: 20px;
-}
-
-.horizon-line {
-  position: absolute;
-  width: 100%;
-  height: 1px;
-  background: currentColor;
-  opacity: 0.1;
-}
-
-.horizon-label {
-  padding: 0 20px;
-  font-size: 0.65rem;
-  text-transform: uppercase;
-  letter-spacing: 0.3em;
-  opacity: 0.4;
-  font-weight: 700;
 }
 
 .sculpt-slide-enter-active,

@@ -19,13 +19,13 @@ export class ExperienceOrchestrator {
    * Sync the layout configuration across UI zones
    */
   syncLayout({ left, right, bottom, mode, context, world }) {
-    console.log('sync mode EOrch')
+    /*console.log('sync mode EOrch')
     console.log(left)
     console.log(right)
     console.log(bottom)
     console.log(mode)
     console.log(context)
-    console.log(world)
+    console.log(world) */
     const { ai, chat, besearch, library } = this.stores;
 
     if (mode !== undefined) ai.currentMode = mode;
@@ -95,10 +95,8 @@ export class ExperienceOrchestrator {
    * Panel Toggles
    */
   toggleBottomPanel() {
-    console.log('toggle bottom lens panel')
     const { besearch } = this.stores;
     const isCurrentlyOpen = besearch.showBottomPanel;
-    console.log(isCurrentlyOpen)
     this.syncLayout({ bottom: !isCurrentlyOpen });
     return !isCurrentlyOpen;
   }

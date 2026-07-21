@@ -37,6 +37,7 @@ export const libraryStore = defineStore('librarystore', {
     libraryMessage: '',
     uploadStatus: false,
     describeSource: {},
+    fileSaveList: [],
     restStatus: false,
     peerExperimentList: {
       columns: ['id', 'name', 'description', 'time', 'device', 'action'],
@@ -103,6 +104,21 @@ export const libraryStore = defineStore('librarystore', {
     newPackagingForm:
     {
       authrequired: false
+    },
+    joinOptions: {},
+    uploadFileStatus: false,
+    uploadHolder: [],
+    fileBund: {},
+    fileBundleList: [],
+    linesLimit: {},
+    csvpreviewLive: false,
+    imagepreviewLive: false,
+    lineBundle: {
+      cnumber: '',
+      dataline: '',
+      delimiter: '',
+      datetype: '',
+      location: ''
     }
   }),
   actions: {
@@ -229,6 +245,9 @@ export const libraryStore = defineStore('librarystore', {
             this.newDatafile.columns = message.data.columns
             this.newDatafile.path = 'sqlite'
             this.newDatafile.file = message.data.path
+          } else if (message.task === 'binary') {
+            // bin file saved.  Inform library
+            this.fileSaveList.push(message.data)
           } else {
             this.libraryMessage = message.data
             this.newPackagingForm.apicolumns = message.data.data.headerinfo.splitwords
@@ -589,6 +608,19 @@ export const libraryStore = defineStore('librarystore', {
           // provide feedback to peer
         }
       }
+    },
+    prepareOrgoContracts (orgoData) {
+      let aiMessageout = {}
+      aiMessageout.type = 'library'
+      aiMessageout.reftype = 'orgo'
+      aiMessageout.action = 'orgo'
+      aiMessageout.task = 'PUT'
+      aiMessageout.privacy = 'public'
+      aiMessageout.data = orgoData
+      aiMessageout.bbid = ''
+      console.log('prepare ORGO contract out')
+      console.log(aiMessageout)
+      // this.sendSocket.send_message(aiMessageout)
     },
     prepareGenesisModContracts (message) {
       let aiMessageout = {}
