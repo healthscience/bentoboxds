@@ -40,5 +40,11 @@ export const useGelleStore = defineStore("gellestore", {
         gelle.strategy = strategy;
       }
     },
+    removeOrgo(gelleKey) {
+      const index = this.activeOrgos.findIndex((o) => o.key === gelleKey);
+      if (index !== -1) {
+          this.activeGelles.splice(index, 1);
+      }
+    }
   },
 });

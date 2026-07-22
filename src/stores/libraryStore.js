@@ -637,6 +637,27 @@ export const libraryStore = defineStore('librarystore', {
       console.log(aiMessageout)
       this.sendSocket.send_message(aiMessageout)
     },
+    deleteSeedContract(contKey, contType) {
+      let aiMessageout = {}
+      aiMessageout.type = 'library'
+      aiMessageout.reftype = contType
+      aiMessageout.action = contType
+      aiMessageout.task = 'DEL'
+      aiMessageout.privacy = 'public'
+      aiMessageout.data = contKey
+      aiMessageout.bbid = ''
+      console.log('prepare see DEL contract out')
+      console.log(aiMessageout)
+      this.sendSocket.send_message(aiMessageout)
+      // remove from live list
+      if (contType === 'orgo') {
+        this.storeOrgo.removeOrgo(contKey)
+      } else if (contType === 'gelle') {
+        this.storeGelle.removeGelle(contKey)
+      } else if (contType === 'exocue') {
+        this.storeExocue.removeExocue(contKey)
+      }
+    },
     prepareGenesisModContracts (message) {
       let aiMessageout = {}
       aiMessageout.type = 'library'

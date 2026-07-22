@@ -13,7 +13,7 @@
           <button class="cues-toggle-btn" @click.prevent="$emit('toggle-cues')">Cues library</button>
         </div>
         <div class="cue-input-wrapper">
-          <input v-model="orgoName.cue" type="text" placeholder="e.g., Central Torso Core" @drop.prevent="onDropCue" @dragover.prevent />
+          <input v-model="orgoName.cue" type="text" placeholder="e.g. Torso" @drop.prevent="onDropCue" @dragover.prevent />
 
         </div>
       </div>
@@ -55,8 +55,10 @@
 import { ref, watch, computed } from "vue";
 import SpaceUpload from '@/components/dataspace/upload/uploadSpace.vue'
 import { libraryStore } from '@/stores/libraryStore.js'
+import { useOrgoStore } from '@/stores/orgoStore.js'
 
 const storeLibrary = libraryStore()
+const storeOrgo = useOrgoStore()
 
 const props = defineProps({
   incomingCue: {
@@ -78,6 +80,17 @@ watch(() => props.incomingCue, (newVal) => {
   }
 });
 
+watch(() => storeOrgo.saveConfirm, (newVal) => {
+  if (newVal) {
+    console.log(newVal)
+    if (newVal === true) {
+      resetForm()
+      this.emit('close')
+      storeOrgo.saveConfirm = false
+    }
+  }
+});
+
 /* computed */
 const fileMatch = computed(() => {
   let fileSavedMatch = storeLibrary.fileSaveList.find(
@@ -86,6 +99,8 @@ const fileMatch = computed(() => {
   return fileSavedMatch
 })
 
+
+/* methods */
 const onDropCue = (e) => {
   const cueStr = e.dataTransfer.getData("application/besearch-cue");
   if (cueStr) {
@@ -131,11 +146,11 @@ const commitContract = () => {
   for (let mi of metrics.value) {
     orgoInputs.push(mi.cue)
   }
-  for (let mo of metrics.value) {
+  for (let mo of metricsOut.value) {
     orgoOutputs.push(mo.cue)
   }
   const contractInfo = {
-    orgoID: newSeed.value,
+    orgoID: orgoName.value,
     metrics: { inputs:  orgoInputs, outputs: orgoOutputs },
     compute: fileMatch.value.blob.blobPath
   }
@@ -145,56 +160,11 @@ const commitContract = () => {
 
 const emit = defineEmits(["close", "save", "toggle-cues"]);
 
-const getCleanContractState = () => ({
-  refcontract: 'orgo',
-  concept: {
-    id: 'core_torso_01',
-    name: 'Central Torso Core',
-    icon: '👤',
-    type: 'structural_torso',
-    anchors: {
-      parentOrgoId: 'self',
-      connectionPoint: 'ground_coherence_base',
-      coupling: 'rigid_graft'
-    }
-  },
-  // The local dictionary that explains the metrics to any peer or SafeFlow engine
-  semanticCues: {
-    torsoLength: {
-      tag: '#torsoLength',
-      value: 1.20,
-      meaning: 'Defines the absolute skeletal distance in meters along the Y-axis. Used by adjacent limb Orgos to compute cumulative height standing tall.'
-    },
-    weightRatio: {
-      tag: '#torsoMassFraction',
-      value: 0.48,
-      meaning: 'Represents the torso mass as a fractional percentage of total peer body weight (0.48 = 48%). Influences ResonAgent balance calculations.'
-    }
-  },
-  computational: {
-    instanceId: 'orgo_inst_torso_01',
-    kinematics: {
-      degreesOfFreedom: 1, // Torso core is rigid, perhaps only allowing minor sway
-      flexionLimit: 15,
-      extensionLimit: 15,
-      currentAngle: { x: 0, y: 0, z: 0 }
-    },
-    energyCost: {
-      idle: 0.5,
-      active: 2.0
-    },
-    // SafeFlow-ECS can evaluate this string using local sandbox isolation
-    driverCode: `/**\n * Torso Kinematics Driver\n */\nexport function update(state, dt) {\n  // Calculates basic torso mechanical sway\n  if (state.swayActive) {\n    state.angle.z = Math.sin(Date.now() * 0.001) * 0.1;\n  }\n}`
-  }
-});
-
-const cancelAuthoring = () => {
-  emit("close");
-  resetForm();
-};
-
 const resetForm = () => {
-  newSeed.value = getCleanContractState();
+  newSeed.value = { cue: '', metrics: []};
+  orgoName.value = ''
+  metrics.value = []
+  metricsOut.value = []
 };
 
 

@@ -13,6 +13,7 @@ export const useOrgoStore = defineStore("orgostore", {
       },
     ],*/
     activeOrgos: [],
+    saveConfirm: false
   }),
   actions: {
     instantiateOrgo(seedId, initialState = {}) {
@@ -30,6 +31,7 @@ export const useOrgoStore = defineStore("orgostore", {
     },
     saveOrogContract(orgoContract) {
       this.orgoMorphogens.push(orgoContract)
+      this.saveConfirm = true
     },
     updateOrgoParam(instanceId, param, value) {
       const orgo = this.activeOrgos.find((o) => o.instanceId === instanceId);
@@ -37,5 +39,11 @@ export const useOrgoStore = defineStore("orgostore", {
         orgo.params[param] = value;
       }
     },
-  },
+    removeOrgo(orgoKey) {
+      const index = this.orgoMorphogens.findIndex((o) => o.key === orgoKey);
+      if (index !== -1) {
+          this.activeOrgos.splice(index, 1);
+      }
+    }
+  }
 });

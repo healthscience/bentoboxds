@@ -62,6 +62,10 @@
                 >
                   <div class="seed-info">
                     <span class="seed-name">{{ seed.value.concept.orgocue.cue }}</span>
+                    <span class="seed-edit">
+                      <button @click.stop="toggleOrgoEdit(seed.key)">...</button>
+                      <button v-if="editingOrgoKey === seed.key" class="delete-btn" @click.stop="deleteOrgo(seed.key)">Delete</button>
+                    </span>
                   </div>
                 </div>
               </div>
@@ -77,9 +81,12 @@
                   draggable="true"
                   @dragstart="handleSeedDragStart($event, texture, 'gelle')"
                 >
-                  <div class="seed-icon">{{ texture.icon }}</div>
                   <div class="seed-info">
                     <span class="seed-name">{{ texture.name }}</span>
+                    <span class="seed-edit">
+                      <button @click.stop="toggleGelleEdit(texture.id)">...</button>
+                      <button v-if="editingGelleId === texture.id" class="delete-btn" @click.stop="deleteGelle(texture.id)">Delete</button>
+                    </span>
                   </div>
                 </div>
               </div>
@@ -304,6 +311,26 @@ const newOGrefcont = ref(false)
 const selectedOGtype = ref('')
 const showCuesPortal = ref(false);
 const selectedCue = ref('');
+const editingOrgoKey = ref(null);
+const editingGelleId = ref(null);
+
+const toggleOrgoEdit = (key) => {
+  editingOrgoKey.value = editingOrgoKey.value === key ? null : key;
+};
+
+const toggleGelleEdit = (id) => {
+  editingGelleId.value = editingGelleId.value === id ? null : id;
+};
+
+const deleteOrgo = (key) => {
+  editingOrgoKey.value = null;
+  storeLibrary.deleteSeedContract(key, 'orgo')
+};
+
+const deleteGelle = (key) => {
+  editingGelleId.value = null;
+  storeLibrary.deleteSeedContract(key, 'gelle')
+};
 
 const handleCueDragStart = ({ event, word }) => {
   event.dataTransfer.setData("application/besearch-cue", word);
@@ -329,8 +356,8 @@ const activeStrapData = computed(() => {
 });
 
 const activeInstruments = ref([
-  { id: "polar-h10", name: "Polar H10", type: "HRM", online: true },
-  { id: "withings-body", name: "Withings Body+", type: "Scale", online: true },
+  // { id: "polar-h10", name: "Polar H10", type: "HRM", online: true },
+  // { id: "withings-body", name: "Withings Body+", type: "Scale", online: true },
 ]);
 
 const droppedInstruments = ref([]);
@@ -606,7 +633,7 @@ const closeRoutine = () => {
 }
 
 .orgo-drawer.open {
-  width: 280px;
+  width: 340px;
 }
 
 .orgo-drawer.open.builder-expanded {
@@ -722,7 +749,7 @@ const closeRoutine = () => {
 }
 
 .seed-list {
-  width: 280px;
+  width: 340px;
   flex-shrink: 0;
   overflow-y: auto;
   padding: 20px;
@@ -738,7 +765,43 @@ const closeRoutine = () => {
   opacity: 0.6;
 }
 
+.seed-info {
+  display: grid;
+  grid-template-columns: 4fr 1fr;
+  width: 100%;
+  align-items: center;
+}
+
+.seed-edit {
+  display: flex;
+  gap: 5px;
+}
+
+.seed-edit button {
+  background: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 2px 6px;
+  font-size: 0.7rem;
+}
+
+.dark-theme .seed-edit button {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.seed-edit button.delete-btn {
+  background: #ef5350;
+  color: white;
+  border: none;
+}
+
 .seed-item {
+  display: grid;
+  grid-template-columns: 1fr;
+  width: 280px;
+  overflow-x: hidden;
   padding: 12px;
   background: white;
   border: 1px solid rgba(0, 0, 0, 0.06);
@@ -751,6 +814,12 @@ const closeRoutine = () => {
   margin-bottom: 8px;
   font-size: 0.85rem;
   transition: all 0.2s;
+}
+
+.seed-name {
+  display: grid;
+  width: 200px;
+  overflow-x: hidden;
 }
 
 .dark-theme .seed-item {

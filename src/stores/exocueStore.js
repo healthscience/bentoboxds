@@ -36,5 +36,11 @@ export const useExocueStore = defineStore("exocuestore", {
         exocue.params[param] = value;
       }
     },
+    removeExocue(exocueKey) {
+      const index = this.activeOrgos.findIndex((o) => o.key === exocueKey);
+      if (index !== -1) {
+          this.activeOrgos.splice(index, 1);
+      }
+    }
   },
 });
