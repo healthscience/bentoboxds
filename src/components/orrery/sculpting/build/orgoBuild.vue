@@ -13,7 +13,7 @@
           <button class="cues-toggle-btn" @click.prevent="$emit('toggle-cues')">Cues library</button>
         </div>
         <div class="cue-input-wrapper">
-          <input v-model="newSeed.cue" type="text" placeholder="e.g., Central Torso Core" @drop.prevent="onDropCue" @dragover.prevent />
+          <input v-model="orgoName.cue" type="text" placeholder="e.g., Central Torso Core" @drop.prevent="onDropCue" @dragover.prevent />
 
         </div>
       </div>
@@ -66,6 +66,7 @@ const props = defineProps({
 });
 
 const activeCue = ref("#torso");
+const orgoName = ref('')
 const metrics = ref([]);
 const metricsOut = ref([]);
 let newSeed = ref({ cue: '', metrics: []})
@@ -89,6 +90,7 @@ const onDropCue = (e) => {
   const cueStr = e.dataTransfer.getData("application/besearch-cue");
   if (cueStr) {
     newSeed.value.cue = cueStr;
+    orgoName.value = newSeed.value
   }
 };
 
@@ -123,10 +125,18 @@ const addMetricOut = () => {
 
 const commitContract = () => {
   // send to library store to format message for saving
-  console.log(fileMatch.value.blob.blobPath)
+  // cue id only for inputs and outputs
+  let orgoInputs = []
+  let orgoOutputs = []
+  for (let mi of metrics.value) {
+    orgoInputs.push(mi.cue)
+  }
+  for (let mo of metrics.value) {
+    orgoOutputs.push(mo.cue)
+  }
   const contractInfo = {
     orgoID: newSeed.value,
-    metrics: { input:  metrics.value, output: metricsOut.value },
+    metrics: { inputs:  orgoInputs, outputs: orgoOutputs },
     compute: fileMatch.value.blob.blobPath
   }
   storeLibrary.prepareOrgoContracts(contractInfo)
@@ -187,18 +197,7 @@ const resetForm = () => {
   newSeed.value = getCleanContractState();
 };
 
-const saveCreatedSeed = () => {
-  if (!newSeed.value.concept.id.trim()) {
-    return alert('Unique ID required');
-  }
-  if (!newSeed.value.concept.name.trim()) {
-    return alert('Seed identity name required');
-  }
-  
-  // Clone the raw contract state deeply to avoid reactive mutations in the backing Hyperbee store
-  emit("save", JSON.parse(JSON.stringify(newSeed.value)));
-  resetForm();
-};
+
 </script>
 
 <style scoped>

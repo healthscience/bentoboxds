@@ -55,14 +55,13 @@
                 </div>
                 <div
                   v-for="seed in orgoStore.orgoMorphogens"
-                  :key="seed.id"
+                  :key="seed.key"
                   class="seed-item"
                   draggable="true"
                   @dragstart="handleSeedDragStart($event, seed, 'orgo')"
                 >
-                  <div class="seed-icon">{{ seed.icon }}</div>
                   <div class="seed-info">
-                    <span class="seed-name">{{ seed.name }}</span>
+                    <span class="seed-name">{{ seed.value.concept.orgocue.cue }}</span>
                   </div>
                 </div>
               </div>
@@ -345,6 +344,7 @@ const buildOrgoGelleContract = (refType) => {
   isDrawerOpen.value = true;
   selectedOGtype.value = refType
   newOGrefcont.value = true
+  showCuesPortal.value = true
 };
 
 const handleSaveNewSeed = (seedData) => {

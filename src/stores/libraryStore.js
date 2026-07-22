@@ -11,7 +11,9 @@ import { cuesStore } from "@/stores/cuesStore.js"
 import { orreryStore } from '@/stores/orreryStore.js'
 import { lifestrapStore } from '@/stores/lifestrapStore.js'
 import { loomStore } from '@/stores/loomStore.js'
-import TileSource from 'ol/source/Tile'
+import { useOrgoStore } from '@/stores/orgoStore.js'
+import { useGelleStore } from '@/stores/gelleStore.js'
+import { useExocueStore } from '@/stores/exocueStore.js'
 
 export const libraryStore = defineStore('librarystore', {
   state: () => ({
@@ -23,6 +25,9 @@ export const libraryStore = defineStore('librarystore', {
     joinFeedback: false,
     storeCues: cuesStore(),
     storeAI: aiInterfaceStore(),
+    storeOrgo: useOrgoStore(),
+    storeGelle: useGelleStore(),
+    storeExocue: useExocueStore(),
     storeBentobox: bentoboxStore(),
     storeOrrery: orreryStore(),
     storeLifestrap: lifestrapStore(),
@@ -215,6 +220,8 @@ export const libraryStore = defineStore('librarystore', {
       this.sendSocket.send_message(messageHOP)
     },
     processReply (message, questionStart) {
+      console.log('library message in form OHP')
+      console.log(message)
       if (message.action === 'save-file') {
         this.describeSource = message.data
         // set message
@@ -471,6 +478,14 @@ export const libraryStore = defineStore('librarystore', {
         }
       } else if (message.action === 'cues') {
          this.storeCues.processCuesReply(message)
+      } else if (message.action === 'orgo-contract') {
+        // convert key to hex
+        let hexOrgoContract = this.utilLibrary.convertBinaryToHex(message.data);
+        this.storeOrgo.saveOrogContract(hexOrgoContract)
+      } else if (message.action === 'gelle-contract') {
+      
+      } else if (message.action === 'exocue-contract') {
+
       } else if (message.action === 'new-modules') {
         this.genesisModules = message.data.modules
       } else if (message.action === 'new-experiment') {
@@ -620,7 +635,7 @@ export const libraryStore = defineStore('librarystore', {
       aiMessageout.bbid = ''
       console.log('prepare ORGO contract out')
       console.log(aiMessageout)
-      // this.sendSocket.send_message(aiMessageout)
+      this.sendSocket.send_message(aiMessageout)
     },
     prepareGenesisModContracts (message) {
       let aiMessageout = {}

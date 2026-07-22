@@ -3,15 +3,15 @@ import { createOscillatorOrgo } from "@/orgos/oscillator.js";
 
 export const useOrgoStore = defineStore("orgostore", {
   state: () => ({
-    orgoMorphogens: [
-      {
+    orgoMorphogens: [],
+      /*{
         id: "oscillator",
         name: "OscillatorOrgo",
         icon: "pulse", // Icon placeholder
         description: "A rhythmic wave representing Effort and Recovery.",
         logic: createOscillatorOrgo,
       },
-    ],
+    ],*/
     activeOrgos: [],
   }),
   actions: {
@@ -27,6 +27,9 @@ export const useOrgoStore = defineStore("orgostore", {
         return instance;
       }
       return null;
+    },
+    saveOrogContract(orgoContract) {
+      this.orgoMorphogens.push(orgoContract)
     },
     updateOrgoParam(instanceId, param, value) {
       const orgo = this.activeOrgos.find((o) => o.instanceId === instanceId);
