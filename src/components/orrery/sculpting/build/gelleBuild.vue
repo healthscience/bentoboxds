@@ -1,7 +1,7 @@
 <template>
   <div class="gelle-contract-author">
     <header class="author-header">
-      <h6>gelle Reference Contract: {{ activeCue }}</h6>
+      <h6>Gelle Reference Contract: {{ activeCue }}</h6>
       <button class="close-btn" @click="$emit('close')">✕</button>
     </header>
 
@@ -13,8 +13,7 @@
           <button class="cues-toggle-btn" @click.prevent="$emit('toggle-cues')">Cues library</button>
         </div>
         <div class="cue-input-wrapper">
-          <input v-model="newSeed.cue" type="text" placeholder="e.g., Central Torso Core" @drop.prevent="onDropCue" @dragover.prevent />
-
+          <input v-model="getCueName(gelleName).value" type="text" placeholder="e.g. Torso" @drop.prevent="onDropCue" @dragover.prevent />
         </div>
       </div>
       <!-- DYNAMIC METRIC REGISTRY -->
@@ -24,7 +23,7 @@
           <div class="form-group-header">Input elements</div>
           <div v-for="(metric, index) in metrics" :key="index" class="metric-row">
             <div class="form-grid-row">
-              <input v-model="metric.cue" placeholder="Cue (e.g., #Flexion)" class="cue-input" @drop.prevent="onDropMetricCue($event, index)" @dragover.prevent />
+              <input v-model="getMetricName(metric).value" placeholder="Cue (e.g., #Flexion)" class="cue-input" @drop.prevent="onDropMetricCue($event, index)" @dragover.prevent />
             </div>
           </div>
           <button class="add-metric-btn" @click="addMetric">+ Add Metric Cue</button>
@@ -33,7 +32,7 @@
           <div class="form-group-header">Output elements</div>
           <div v-for="(metric, index) in metricsOut" :key="index" class="metric-row">
             <div class="form-grid-row">
-              <input v-model="metric.cue" placeholder="Cue (e.g., #Flexion)" class="cue-input" @drop.prevent="onDropMetricCueOut($event, index)" @dragover.prevent />
+              <input v-model="getMetricName(metric).value" placeholder="Cue (e.g., #Flexion)" class="cue-input" @drop.prevent="onDropMetricCueOut($event, index)" @dragover.prevent />
             </div>
           </div>
           <button class="add-metric-btn" @click="addMetricOut">+ Add Metric Cue</button>
@@ -55,8 +54,12 @@
 import { ref, watch, computed } from "vue";
 import SpaceUpload from '@/components/dataspace/upload/uploadSpace.vue'
 import { libraryStore } from '@/stores/libraryStore.js'
+import { cuesStore } from "@/stores/cuesStore.js"
+import { useGelleStore } from '@/stores/gelleStore.js'
 
 const storeLibrary = libraryStore()
+const storeCues = cuesStore()
+const storeGelle = useGelleStore()
 
 const props = defineProps({
   incomingCue: {
@@ -65,15 +68,33 @@ const props = defineProps({
   }
 });
 
-const activeCue = ref("#torso");
+const activeCue = ref("");
+const gelleName = ref({
+  key: '',
+  value: {
+    concept: {
+      datatype: { concept: { name: '' }}
+    }
+  }
+})
 const metrics = ref([]);
 const metricsOut = ref([]);
-let newSeed = ref({ cue: '', metrics: []})
+let newSeed = ref({ cue: gelleName, metrics: []})
 let fileIDoutgoing = ref('')
 
 watch(() => props.incomingCue, (newVal) => {
   if (newVal) {
     newSeed.value.cue = newVal;
+  }
+});
+
+watch(() => storeGelle.saveConfirm, (newVal) => {
+  if (newVal) {
+    if (newVal === true) {
+      resetForm()
+      emit('close')
+      storeGelle.saveConfirm = false
+    }
   }
 });
 
@@ -85,24 +106,59 @@ const fileMatch = computed(() => {
   return fileSavedMatch
 })
 
+
+/* methods */
+// Dynamic binding helper for dynamic dynamic metric rows
+const getMetricName = (metric) => {
+  return computed({
+    get() {
+      return metric.cue?.value?.concept?.datatype?.concept?.name ?? '';
+    },
+    set(val) {
+      if (!metric.cue) metric.cue = createEmptyCue();
+      metric.cue.value.concept.datatype.concept.name = val;
+    }
+  });
+};
+
+
+// Dynamic binding helper for dynamic dynamic metric rows
+const getCueName = (cue) => {
+  return computed({
+    get() {
+      return cue?.value?.concept?.datatype?.concept?.name ?? '';
+    },
+    set(val) {
+      if (!cue) cue = createEmptyCue();
+      cue.value.concept.datatype.concept.name = val;
+    }
+  });
+};
+
+
+
 const onDropCue = (e) => {
   const cueStr = e.dataTransfer.getData("application/besearch-cue");
   if (cueStr) {
     newSeed.value.cue = cueStr;
+    let fullCue = storeCues.getFullCue(cueStr)
+    gelleName.value = fullCue
   }
 };
 
 const onDropMetricCue = (e, index) => {
   const cueStr = e.dataTransfer.getData("application/besearch-cue");
   if (cueStr && metrics.value[index]) {
-    metrics.value[index].cue = cueStr;
+    let fullCue = storeCues.getFullCue(cueStr)
+    metrics.value[index].cue = fullCue
   }
 };
 
 const onDropMetricCueOut = (e, index) => {
   const cueStr = e.dataTransfer.getData("application/besearch-cue");
   if (cueStr && metricsOut.value[index]) {
-    metricsOut.value[index].cue = cueStr;
+    let fullCue = storeCues.getFullCue(cueStr)
+    metricsOut.value[index].cue = fullCue
   }
 };
 
@@ -123,82 +179,41 @@ const addMetricOut = () => {
 
 const commitContract = () => {
   // send to library store to format message for saving
-  console.log(fileMatch.value.blob.blobPath)
+  // cue id only for inputs and outputs
+  let gelleInputs = []
+  let gelleOutputs = []
+  for (let mi of metrics.value) {
+    gelleInputs.push(mi.cue.key)
+  }
+  for (let mo of metricsOut.value) {
+    gelleOutputs.push(mo.cue.key)
+  }
   const contractInfo = {
-    gelleID: newSeed.value,
-    metrics: { input:  metrics.value, output: metricsOut.value },
+    gelleID: gelleName.value.key,
+    metrics: { inputs:  gelleInputs, outputs: gelleOutputs },
     compute: fileMatch.value.blob.blobPath
   }
-  storeLibrary.preparegelleContracts(contractInfo)
+  storeLibrary.prepareGelleContracts(contractInfo)
 };
 
 
 const emit = defineEmits(["close", "save", "toggle-cues"]);
 
-const getCleanContractState = () => ({
-  refcontract: 'gelle',
-  concept: {
-    id: 'core_torso_01',
-    name: 'Central Torso Core',
-    icon: '👤',
-    type: 'structural_torso',
-    anchors: {
-      parentgelleId: 'self',
-      connectionPoint: 'ground_coherence_base',
-      coupling: 'rigid_graft'
-    }
-  },
-  // The local dictionary that explains the metrics to any peer or SafeFlow engine
-  semanticCues: {
-    torsoLength: {
-      tag: '#torsoLength',
-      value: 1.20,
-      meaning: 'Defines the absolute skeletal distance in meters along the Y-axis. Used by adjacent limb gelles to compute cumulative height standing tall.'
-    },
-    weightRatio: {
-      tag: '#torsoMassFraction',
-      value: 0.48,
-      meaning: 'Represents the torso mass as a fractional percentage of total peer body weight (0.48 = 48%). Influences ResonAgent balance calculations.'
-    }
-  },
-  computational: {
-    instanceId: 'gelle_inst_torso_01',
-    kinematics: {
-      degreesOfFreedom: 1, // Torso core is rigid, perhaps only allowing minor sway
-      flexionLimit: 15,
-      extensionLimit: 15,
-      currentAngle: { x: 0, y: 0, z: 0 }
-    },
-    energyCost: {
-      idle: 0.5,
-      active: 2.0
-    },
-    // SafeFlow-ECS can evaluate this string using local sandbox isolation
-    driverCode: `/**\n * Torso Kinematics Driver\n */\nexport function update(state, dt) {\n  // Calculates basic torso mechanical sway\n  if (state.swayActive) {\n    state.angle.z = Math.sin(Date.now() * 0.001) * 0.1;\n  }\n}`
-  }
-});
-
-const cancelAuthoring = () => {
-  emit("close");
-  resetForm();
-};
-
 const resetForm = () => {
-  newSeed.value = getCleanContractState();
+  newSeed.value = { cue: {}, metrics: []};
+  gelleName.value = {
+    key: '',
+    value: {
+      concept: {
+        datatype: { concept: { name: '' }}
+      }
+    }
+  }
+  metrics.value = []
+  metricsOut.value = []
 };
 
-const saveCreatedSeed = () => {
-  if (!newSeed.value.concept.id.trim()) {
-    return alert('Unique ID required');
-  }
-  if (!newSeed.value.concept.name.trim()) {
-    return alert('Seed identity name required');
-  }
-  
-  // Clone the raw contract state deeply to avoid reactive mutations in the backing Hyperbee store
-  emit("save", JSON.parse(JSON.stringify(newSeed.value)));
-  resetForm();
-};
+
 </script>
 
 <style scoped>

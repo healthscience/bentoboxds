@@ -2,15 +2,8 @@ import { defineStore } from "pinia";
 
 export const useGelleStore = defineStore("gellestore", {
   state: () => ({
-    availableTextures: [
-      {
-        id: "platonic_solid",
-        name: "Platonic Gelle",
-        icon: "polyhedron",
-        description: "Adaptive geometric texture for structural repair.",
-        strategy: "Prevention",
-      },
-    ],
+    gelleMorphogens: [],
+    availableTextures: [],
     activeGelles: [],
   }),
   actions: {
@@ -33,6 +26,19 @@ export const useGelleStore = defineStore("gellestore", {
       if (gelle && !gelle.grafts.includes(word)) {
         gelle.grafts.push(word);
       }
+    },
+    saveGelleContract(gelleContract) {
+      this.gelleMorphogens.push(
+        {
+          contract: gelleContract,
+          state: {
+            isActive: false,
+            buttonColor: '#4a5568',
+            isExpanded: false
+          }
+        }
+      )
+      this.saveConfirm = true
     },
     updateStrategy(instanceId, strategy) {
       const gelle = this.activeGelles.find((g) => g.instanceId === instanceId);

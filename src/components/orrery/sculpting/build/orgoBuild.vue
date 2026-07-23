@@ -13,8 +13,7 @@
           <button class="cues-toggle-btn" @click.prevent="$emit('toggle-cues')">Cues library</button>
         </div>
         <div class="cue-input-wrapper">
-          <input v-model="orgoName.cue" type="text" placeholder="e.g. Torso" @drop.prevent="onDropCue" @dragover.prevent />
-
+          <input v-model="getCueName(orgoName).value" type="text" placeholder="e.g. Torso" @drop.prevent="onDropCue" @dragover.prevent />
         </div>
       </div>
       <!-- DYNAMIC METRIC REGISTRY -->
@@ -24,7 +23,7 @@
           <div class="form-group-header">Input elements</div>
           <div v-for="(metric, index) in metrics" :key="index" class="metric-row">
             <div class="form-grid-row">
-              <input v-model="metric.cue" placeholder="Cue (e.g., #Flexion)" class="cue-input" @drop.prevent="onDropMetricCue($event, index)" @dragover.prevent />
+              <input v-model="getMetricName(metric).value" placeholder="Cue (e.g., #Flexion)" class="cue-input" @drop.prevent="onDropMetricCue($event, index)" @dragover.prevent />
             </div>
           </div>
           <button class="add-metric-btn" @click="addMetric">+ Add Metric Cue</button>
@@ -33,7 +32,7 @@
           <div class="form-group-header">Output elements</div>
           <div v-for="(metric, index) in metricsOut" :key="index" class="metric-row">
             <div class="form-grid-row">
-              <input v-model="metric.cue" placeholder="Cue (e.g., #Flexion)" class="cue-input" @drop.prevent="onDropMetricCueOut($event, index)" @dragover.prevent />
+              <input v-model="getMetricName(metric).value" placeholder="Cue (e.g., #Flexion)" class="cue-input" @drop.prevent="onDropMetricCueOut($event, index)" @dragover.prevent />
             </div>
           </div>
           <button class="add-metric-btn" @click="addMetricOut">+ Add Metric Cue</button>
@@ -55,9 +54,11 @@
 import { ref, watch, computed } from "vue";
 import SpaceUpload from '@/components/dataspace/upload/uploadSpace.vue'
 import { libraryStore } from '@/stores/libraryStore.js'
+import { cuesStore } from "@/stores/cuesStore.js"
 import { useOrgoStore } from '@/stores/orgoStore.js'
 
 const storeLibrary = libraryStore()
+const storeCues = cuesStore()
 const storeOrgo = useOrgoStore()
 
 const props = defineProps({
@@ -67,11 +68,18 @@ const props = defineProps({
   }
 });
 
-const activeCue = ref("#torso");
-const orgoName = ref('')
+const activeCue = ref("");
+const orgoName = ref({
+  key: '',
+  value: {
+    concept: {
+      datatype: { concept: { name: '' }}
+    }
+  }
+})
 const metrics = ref([]);
 const metricsOut = ref([]);
-let newSeed = ref({ cue: '', metrics: []})
+let newSeed = ref({ cue: orgoName, metrics: []})
 let fileIDoutgoing = ref('')
 
 watch(() => props.incomingCue, (newVal) => {
@@ -82,10 +90,9 @@ watch(() => props.incomingCue, (newVal) => {
 
 watch(() => storeOrgo.saveConfirm, (newVal) => {
   if (newVal) {
-    console.log(newVal)
     if (newVal === true) {
       resetForm()
-      this.emit('close')
+      emit('close')
       storeOrgo.saveConfirm = false
     }
   }
@@ -101,25 +108,57 @@ const fileMatch = computed(() => {
 
 
 /* methods */
+// Dynamic binding helper for dynamic dynamic metric rows
+const getMetricName = (metric) => {
+  return computed({
+    get() {
+      return metric.cue?.value?.concept?.datatype?.concept?.name ?? '';
+    },
+    set(val) {
+      if (!metric.cue) metric.cue = createEmptyCue();
+      metric.cue.value.concept.datatype.concept.name = val;
+    }
+  });
+};
+
+
+// Dynamic binding helper for dynamic dynamic metric rows
+const getCueName = (cue) => {
+  return computed({
+    get() {
+      return cue?.value?.concept?.datatype?.concept?.name ?? '';
+    },
+    set(val) {
+      if (!cue) cue = createEmptyCue();
+      cue.value.concept.datatype.concept.name = val;
+    }
+  });
+};
+
+
+
 const onDropCue = (e) => {
   const cueStr = e.dataTransfer.getData("application/besearch-cue");
   if (cueStr) {
     newSeed.value.cue = cueStr;
-    orgoName.value = newSeed.value
+    let fullCue = storeCues.getFullCue(cueStr)
+    orgoName.value = fullCue
   }
 };
 
 const onDropMetricCue = (e, index) => {
   const cueStr = e.dataTransfer.getData("application/besearch-cue");
   if (cueStr && metrics.value[index]) {
-    metrics.value[index].cue = cueStr;
+    let fullCue = storeCues.getFullCue(cueStr)
+    metrics.value[index].cue = fullCue
   }
 };
 
 const onDropMetricCueOut = (e, index) => {
   const cueStr = e.dataTransfer.getData("application/besearch-cue");
   if (cueStr && metricsOut.value[index]) {
-    metricsOut.value[index].cue = cueStr;
+    let fullCue = storeCues.getFullCue(cueStr)
+    metricsOut.value[index].cue = fullCue
   }
 };
 
@@ -144,13 +183,13 @@ const commitContract = () => {
   let orgoInputs = []
   let orgoOutputs = []
   for (let mi of metrics.value) {
-    orgoInputs.push(mi.cue)
+    orgoInputs.push(mi.cue.key)
   }
   for (let mo of metricsOut.value) {
-    orgoOutputs.push(mo.cue)
+    orgoOutputs.push(mo.cue.key)
   }
   const contractInfo = {
-    orgoID: orgoName.value,
+    orgoID: orgoName.value.key,
     metrics: { inputs:  orgoInputs, outputs: orgoOutputs },
     compute: fileMatch.value.blob.blobPath
   }
@@ -161,8 +200,15 @@ const commitContract = () => {
 const emit = defineEmits(["close", "save", "toggle-cues"]);
 
 const resetForm = () => {
-  newSeed.value = { cue: '', metrics: []};
-  orgoName.value = ''
+  newSeed.value = { cue: {}, metrics: []};
+  orgoName.value = {
+    key: '',
+    value: {
+      concept: {
+        datatype: { concept: { name: '' }}
+      }
+    }
+  }
   metrics.value = []
   metricsOut.value = []
 };

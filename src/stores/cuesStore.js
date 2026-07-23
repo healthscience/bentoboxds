@@ -68,6 +68,42 @@ export const cuesStore = defineStore('cues', {
       let cueContract = this.cueUtil.prepareCuesContractPrime(cueInfo)
       this.sendSocket.send_message(cueContract)
     },
+    getFullCue (cueKey) {
+      if (!cueKey) return null
+      // 1. Try matching directly in currently loaded cuesList
+      const existing = this.cueUtil.cueMatch(cueKey, this.cuesList)
+      if (existing && existing.contract.value) {
+        return existing.contract
+      }
+      // 2. Check if it's already queued or waiting
+      const isWaiting = this.waitingCues.some(c => (c.key === cueKey || c.contract === cueKey))
+      
+      if (!isWaiting) {
+        // 3. Trigger library socket request for the missing cue contract
+        const cueContractReq = {
+          type: 'library',
+          action: 'cues',
+          reftype: 'cue-single',
+          task: 'GET',
+          privacy: 'public',
+          data: { cueKey }
+        }
+        
+        // Push key stub so we don't spam duplicate socket messages
+        this.waitingCues.push({ key: cueKey, contract: cueKey })
+        this.sendSocket.send_message(cueContractReq)
+      }
+
+      // 4. Return reactive stub so drag/drop component renders gracefully
+      return {
+        key: cueKey,
+        name: 'Resolving...',
+        label: cueKey.slice(0, 10) + '...',
+        datatype: 'Unknown',
+        units: '',
+        isLoaded: false
+      }
+    },
     refreshGetCues () {
       const cueContract = {}
       cueContract.type = 'library'
@@ -92,8 +128,6 @@ export const cuesStore = defineStore('cues', {
         buttonColor: '#4a5568',
         isExpanded: false
       }
-      console.log(cueStatus)
-      console.log(cueStatus.contract)
       this.cuesList.push(cueStatus)
       // this.spaceListHistory.push(expandDTCue)
 

@@ -483,7 +483,8 @@ export const libraryStore = defineStore('librarystore', {
         let hexOrgoContract = this.utilLibrary.convertBinaryToHex(message.data);
         this.storeOrgo.saveOrogContract(hexOrgoContract)
       } else if (message.action === 'gelle-contract') {
-      
+        let hexOrgoContract = this.utilLibrary.convertBinaryToHex(message.data);
+        this.storeGelle.saveGelleContract(hexOrgoContract)      
       } else if (message.action === 'exocue-contract') {
 
       } else if (message.action === 'new-modules') {
@@ -634,6 +635,19 @@ export const libraryStore = defineStore('librarystore', {
       aiMessageout.data = orgoData
       aiMessageout.bbid = ''
       console.log('prepare ORGO contract out')
+      console.log(aiMessageout)
+      this.sendSocket.send_message(aiMessageout)
+    },
+    prepareGelleContracts (gelleData) {
+      let aiMessageout = {}
+      aiMessageout.type = 'library'
+      aiMessageout.reftype = 'gelle'
+      aiMessageout.action = 'gelle'
+      aiMessageout.task = 'PUT'
+      aiMessageout.privacy = 'public'
+      aiMessageout.data = gelleData
+      aiMessageout.bbid = ''
+      console.log('prepare GELLE contract out')
       console.log(aiMessageout)
       this.sendSocket.send_message(aiMessageout)
     },

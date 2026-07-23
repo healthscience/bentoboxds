@@ -54,17 +54,17 @@
                   <div id="new-orgo" @click.stop="buildOrgoGelleContract('orgo')">new</div>
                 </div>
                 <div
-                  v-for="seed in orgoStore.orgoMorphogens"
+                  v-for="seed in storeOrgo.orgoMorphogens"
                   :key="seed.key"
                   class="seed-item"
                   draggable="true"
                   @dragstart="handleSeedDragStart($event, seed, 'orgo')"
                 >
                   <div class="seed-info">
-                    <span class="seed-name">{{ seed.value.concept.orgocue.cue }}</span>
+                    <span class="seed-name">{{ getOrgoValue(seed).value.concept.datatype.concept.name }}</span>
                     <span class="seed-edit">
-                      <button @click.stop="toggleOrgoEdit(seed.key)">...</button>
-                      <button v-if="editingOrgoKey === seed.key" class="delete-btn" @click.stop="deleteOrgo(seed.key)">Delete</button>
+                      <button @click.stop="toggleOrgoEdit(seed.contract.key)">...</button>
+                      <button v-if="editingOrgoKey === seed.contract.key" class="delete-btn" @click.stop="deleteOrgo(seed.contract.key)">Delete</button>
                     </span>
                   </div>
                 </div>
@@ -75,14 +75,14 @@
                   <div id="new-orgo" @click.stop="buildOrgoGelleContract('gelle')">new</div>
                 </div>
                 <div
-                  v-for="texture in gelleStore.availableTextures"
-                  :key="texture.id"
+                  v-for="texture in gelleStore.gelleMorphogens"
+                  :key="texture.key"
                   class="seed-item"
                   draggable="true"
                   @dragstart="handleSeedDragStart($event, texture, 'gelle')"
                 >
                   <div class="seed-info">
-                    <span class="seed-name">{{ texture.name }}</span>
+                    <span class="seed-name">{{ getGelleValue(texture).value.concept.datatype.concept.name }}</span>
                     <span class="seed-edit">
                       <button @click.stop="toggleGelleEdit(texture.id)">...</button>
                       <button v-if="editingGelleId === texture.id" class="delete-btn" @click.stop="deleteGelle(texture.id)">Delete</button>
@@ -134,7 +134,7 @@
               </transition>
               <transition name="slide-panel">
                 <div id="build-orgo-gelle" v-if="newOGrefcont === true && selectedOGtype === 'gelle'">
-                  <build-gelle @close="newOGrefcont = false; selectedOGtype = ''" @save="handleSaveNewSeed"></build-gelle>
+                  <build-gelle @close="closeRoutine" @save="handleSaveNewSeed"></build-gelle>
                 </div>
               </transition>
             </div>
@@ -285,8 +285,8 @@
 import { ref, computed, onMounted, watch } from "vue";
 import { besearchStore } from "@/stores/besearchStore.js";
 import { cuesStore } from "@/stores/cuesStore.js";
-import { useOrgoStore } from "@/stores/orgoStore.js";
-import { useGelleStore } from "@/stores/gelleStore.js";
+import { useOrgoStore } from '@/stores/orgoStore.js'
+import { useGelleStore } from '@/stores/gelleStore.js'
 import { aiInterfaceStore } from "@/stores/aiInterface.js";
 import { libraryStore } from "@/stores/libraryStore.js";
 
@@ -297,7 +297,7 @@ import CuesPortal from "@/components/orrery/parts/shared/CuesPortal.vue";
 
 const storeBesearch = besearchStore();
 const storeCues = cuesStore();
-const orgoStore = useOrgoStore();
+const storeOrgo = useOrgoStore();
 const gelleStore = useGelleStore();
 const storeAI = aiInterfaceStore();
 import { lifestrapStore } from "@/stores/lifestrapStore.js";
@@ -313,6 +313,20 @@ const showCuesPortal = ref(false);
 const selectedCue = ref('');
 const editingOrgoKey = ref(null);
 const editingGelleId = ref(null);
+
+// Script
+const getOrgoValue = (item) => {
+  const cueKey = item.contract.value.concept.orgocue;
+  if (!cueKey) return '';
+  return storeCues.getFullCue(cueKey) ?? '';
+};
+
+// Script
+const getGelleValue = (item) => {
+  const cueKey = item.contract.value.concept.gellecue;
+  if (!cueKey) return '';
+  return storeCues.getFullCue(cueKey) ?? '';
+};
 
 const toggleOrgoEdit = (key) => {
   editingOrgoKey.value = editingOrgoKey.value === key ? null : key;
@@ -345,7 +359,7 @@ const isOpen = computed(() => {
   return storeBesearch.isSculptingLayerOpen;
 });
 
-const activeOrgos = computed(() => orgoStore.activeOrgos);
+const activeOrgos = computed(() => storeOrgo.activeOrgos);
 const activeGelles = computed(() => gelleStore.activeGelles);
 
 const activeStrapData = computed(() => {
@@ -367,7 +381,6 @@ const closeLayer = () => {
 };
 
 const buildOrgoGelleContract = (refType) => {
-  console.log('build new reference contract orgo gelle', refType)
   isDrawerOpen.value = true;
   selectedOGtype.value = refType
   newOGrefcont.value = true
@@ -375,7 +388,6 @@ const buildOrgoGelleContract = (refType) => {
 };
 
 const handleSaveNewSeed = (seedData) => {
-  console.log("Saving new seed template:", seedData);
   newOGrefcont.value = false;
   selectedOGtype.value = '';
 };
@@ -393,7 +405,7 @@ const handleSeedDrop = (e, targetType) => {
   const data = JSON.parse(rawData);
   if (data.type === targetType) {
     if (targetType === "orgo") {
-      orgoStore.instantiateOrgo(data.id);
+      storeOrgo.instantiateOrgo(data.id);
     } else {
       gelleStore.graftGelle(data.id);
     }
@@ -426,7 +438,7 @@ const removeInstrument = (id) => {
 const syncGraftToCycle = () => {
   if (!storeBesearch.activeCycle) return;
   storeBesearch.syncActiveCycleState('grafting', {
-    activeOrgos: JSON.parse(JSON.stringify(orgoStore.activeOrgos)),
+    activeOrgos: JSON.parse(JSON.stringify(storeOrgo.activeOrgos)),
     activeGelles: JSON.parse(JSON.stringify(gelleStore.activeGelles)),
     droppedInstruments: JSON.parse(JSON.stringify(droppedInstruments.value))
   });
@@ -468,7 +480,7 @@ watch(
     const cycle = storeBesearch.activeCycle;
     if (cycle && cycle.state.grafting) {
       // Direct mutation of stores to restore state
-      orgoStore.activeOrgos = JSON.parse(JSON.stringify(cycle.state.grafting.activeOrgos || []));
+      storeOrgo.activeOrgos = JSON.parse(JSON.stringify(cycle.state.grafting.activeOrgos || []));
       gelleStore.activeGelles = JSON.parse(JSON.stringify(cycle.state.grafting.activeGelles || []));
       droppedInstruments.value = JSON.parse(JSON.stringify(cycle.state.grafting.droppedInstruments || []));
     }
@@ -477,7 +489,7 @@ watch(
 );
 
 // Watch for seed drops
-watch([() => orgoStore.activeOrgos, () => gelleStore.activeGelles], () => {
+watch([() => storeOrgo.activeOrgos, () => gelleStore.activeGelles], () => {
   syncGraftToCycle();
 }, { deep: true });
 

@@ -27,7 +27,7 @@ export const useExocueStore = defineStore("exocuestore", {
       }
       return null;
     },
-    saveOrogContract(exocueContract) {
+    saveExocueContract(exocueContract) {
       this.exocueMorphogens.push(exocueContract)
     },
     updateexocueParam(instanceId, param, value) {
