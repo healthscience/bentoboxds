@@ -18,14 +18,13 @@
         <div class="header-center"></div>
         <div class="header-right">
           <div class="gifting-actions">
-            <button class="sculpt-btn primary">GIFT TO COMMONS</button>
-            <button class="sculpt-btn secondary">CHECK COMPATIBILITY</button>
+            <button class="sculpt-btn secondary" @click="validateExoPairing()">CHECK COMPATIBILITY</button>
+            <button class="sculpt-btn primary">GRAFT exoCue</button>
           </div>
           <!-- 2.3 The Lens (Right Panel: The Seer) -->
           <aside class="lab-panel seer-panel">
             <header class="panel-header">
               <div class="header-flex">
-                <h5>The Lens</h5>
                 <button
                   class="close-lab-panel"
                   @click="closeLayer"
@@ -144,6 +143,9 @@
         <!-- 2.2 The Canvas (Center Stage: The Braid) -->
         <main class="lab-space-v2">
           <div class="canvas-stage-v2">
+            <section id="exocue-ref-contract">
+              exoCue Name: {{ validCueOrgoGellPair }}
+            </section>
             <div class="logic-braid-wrapper">
               <div class="logic-braid-top">
                 <!-- A. The Orgo Bay -->
@@ -166,26 +168,15 @@
                     class="active-instance mini"
                   >
                     <div class="instance-header">
-                      <span class="instance-name">{{ orgo.name }}</span>
+                      <span class="instance-name">{{ getOrgoValue(orgo).value.concept.datatype.concept.name }}</span>
                     </div>
-                    <div class="tuning-controls mini">
-                      <div
-                        class="slider-group"
-                        v-for="(val, key) in orgo.params"
-                        :key="key"
-                      >
-                        <input
-                          type="range"
-                          v-model="orgo.params[key]"
-                          min="0"
-                          :max="key === 'damping' ? 1 : 100"
-                          :step="key === 'damping' ? 0.01 : 1"
-                          @input="
-                            logMutation('orgo', orgo.instanceId, key, val)
-                          "
-                        />
-                      </div>
+                    <div class="instance-header">
+                      <span class="instance-name">{{ orgo.contract.value.computational.conduction_map }}</span>
                     </div>
+                    <div class="instance-header">
+                      <span class="instance-name">{{ orgo.contract.value.computational.executable }}</span>
+                    </div>
+                    <bento-code-editor :modelValue="orgo.contract.value.computational.executable" @update:modelValue="orgoExecutableCode = $event" />
                   </div>
                 </section>
 
@@ -213,18 +204,16 @@
                       @drop.prevent="handleGraftDrop($event, gelle.instanceId)"
                       @dragover.prevent
                     >
-                      <canvas
-                        v-if="gelle.id === 'platonic_solid'"
-                        :ref="(el) => setGelleCanvas(el, gelle.instanceId)"
-                        class="gelle-polyhedron-canvas"
-                      ></canvas>
-                      <div
-                        v-for="graft in gelle.grafts"
-                        :key="graft"
-                        class="graft-bubble mini"
-                      >
-                        {{ graft }}
+                      <div class="instance-header">
+                        <span class="instance-name">{{ getGelleValue(gelle).value.concept.datatype.concept.name }}</span>
                       </div>
+                      <div class="instance-header">
+                        <span class="instance-name">{{ gelle.contract.value.computational.conduction_map }}</span>
+                      </div>
+                      <div class="instance-header">
+                        <span class="instance-name">{{ gelle.contract.value.computational.executable }}</span>
+                      </div>
+                      <bento-code-editor :modelValue="gelle.contract.value.computational.executable" @update:modelValue="gelleExecutableCode = $event" />
                     </div>
                   </div>
                 </section>
@@ -294,6 +283,7 @@ import BuildOrgo from "@/components/orrery/sculpting/build/orgoBuild.vue"
 import BuildGelle from "@/components/orrery/sculpting/build/gelleBuild.vue"
 import LifeStrapHorizon from "@/components/orrery/sculpting/LifeStrapHorizon.vue";
 import CuesPortal from "@/components/orrery/parts/shared/CuesPortal.vue";
+import BentoCodeEditor from "@/components/orrery/sculpting/build/codeView.vue"
 
 const storeBesearch = besearchStore();
 const storeCues = cuesStore();
@@ -313,6 +303,8 @@ const showCuesPortal = ref(false);
 const selectedCue = ref('');
 const editingOrgoKey = ref(null);
 const editingGelleId = ref(null);
+const validCueOrgoGellPair = ref({})
+const validationReason = ref(null)
 
 // Script
 const getOrgoValue = (item) => {
@@ -403,11 +395,14 @@ const handleSeedDrop = (e, targetType) => {
   const rawData = e.dataTransfer.getData("application/besearch-seed");
   if (!rawData) return;
   const data = JSON.parse(rawData);
+  console.log(data)
   if (data.type === targetType) {
     if (targetType === "orgo") {
-      storeOrgo.instantiateOrgo(data.id);
+      storeOrgo.instantiateOrgo(data.contract.key);
     } else {
-      gelleStore.graftGelle(data.id);
+      console.log('gelle path')
+      console.log(data)
+      gelleStore.graftGelle(data.contract.key);
     }
   }
 };
@@ -432,23 +427,15 @@ const removeInstrument = (id) => {
   droppedInstruments.value = droppedInstruments.value.filter(
     (d) => d.id !== id,
   );
-  syncGraftToCycle();
 };
 
-const syncGraftToCycle = () => {
-  if (!storeBesearch.activeCycle) return;
-  storeBesearch.syncActiveCycleState('grafting', {
-    activeOrgos: JSON.parse(JSON.stringify(storeOrgo.activeOrgos)),
-    activeGelles: JSON.parse(JSON.stringify(gelleStore.activeGelles)),
-    droppedInstruments: JSON.parse(JSON.stringify(droppedInstruments.value))
-  });
-};
 
 const handleGraftDrop = (e, instanceId) => {
+  console.log('graft gelle drop')
+  console.log(instanceId)
   const word = e.dataTransfer.getData("text/plain");
+  console.log(word)
   if (word) {
-    gelleStore.addGraft(instanceId, word);
-    syncGraftToCycle();
   }
 };
 
@@ -457,18 +444,110 @@ const snapOrgoToDevice = (device) => {
     const firstOrgo = activeOrgos.value[0];
     firstOrgo.params.amplitude = 75;
     firstOrgo.params.wavelength = 40;
-    syncGraftToCycle();
   }
 };
 
-const logMutation = (type, instanceId, key, value) => {
-  storeBesearch.updateBesearchThread({
-    component: type,
-    instance: instanceId,
-    property: key,
-    value: value,
-  });
-  syncGraftToCycle();
+/* valid exoCue pairing of orgo and gelle */
+// Sculpting Lab Concept Validator (Pure JS)
+// Sculpting Lab Concept Validator (Pure JS - 1:N / N:M Support)
+// Sculpting Lab Concept Validator (Pure JS - Full Integrity Check for N:M)
+const validateExoPairing = () => {
+  // Reset states
+  validCueOrgoGellPair.value = '';
+  validationReason.value = '';
+
+  if (activeOrgos.value.length === 0 || activeGelles.value.length === 0) {
+    validationReason.value = 'Grafting requires at least one Orgo and one Gelle.';
+    return { valid: false, reason: validationReason.value };
+  }
+
+  const allCues = [];
+
+  // 1. Validate all Orgos
+  for (const orgo of activeOrgos.value) {
+    const cue = orgo.contract?.value?.concept?.orgocue;
+    if (!cue) {
+      validationReason.value = 'An Orgo is missing a concept cue.';
+      return { valid: false, reason: validationReason.value };
+    }
+    allCues.push(cue);
+
+    const comp = orgo.contract?.value?.computational;
+
+    // Check Inputs & Outputs (Checks conduction_map or input/output arrays based on schema)
+    const hasConduction = comp?.conduction_map && Object.keys(comp.conduction_map).length > 0;
+    const hasIO = comp?.inputs?.length > 0 && comp?.outputs?.length > 0;
+    
+    if (!hasConduction && !hasIO) {
+      validationReason.value = `Orgo (${cue}) has blank inputs, outputs, or conduction map.`;
+      return { valid: false, reason: validationReason.value };
+    }
+
+    // Check Executable presence
+    if (!comp?.executable || comp.executable.trim() === '') {
+      validationReason.value = `Orgo (${cue}) has a blank executable code block.`;
+      return { valid: false, reason: validationReason.value };
+    }
+
+    // Check Executable Syntax without executing
+    try {
+      new Function(comp.executable);
+    } catch (error) {
+      validationReason.value = `Syntax error in Orgo (${cue}): ${error.message}`;
+      return { valid: false, reason: validationReason.value };
+    }
+  }
+
+  // 2. Validate all Gelles
+  for (const gelle of activeGelles.value) {
+    const cue = gelle.contract?.value?.concept?.gellecue;
+    if (!cue) {
+      validationReason.value = 'A Gelle is missing a concept cue.';
+      return { valid: false, reason: validationReason.value };
+    }
+    allCues.push(cue);
+
+    const comp = gelle.contract?.value?.computational;
+
+    // Check Inputs & Outputs
+    const hasConduction = comp?.conduction_map && Object.keys(comp.conduction_map).length > 0;
+    const hasIO = comp?.inputs?.length > 0 && comp?.outputs?.length > 0;
+
+    if (!hasConduction && !hasIO) {
+      validationReason.value = `Gelle (${cue}) has blank inputs, outputs, or conduction map.`;
+      return { valid: false, reason: validationReason.value };
+    }
+
+    // Check Executable presence
+    if (!comp?.executable || comp.executable.trim() === '') {
+      validationReason.value = `Gelle (${cue}) has a blank executable code block.`;
+      return { valid: false, reason: validationReason.value };
+    }
+
+    // Check Executable Syntax
+    try {
+      new Function(comp.executable);
+    } catch (error) {
+      validationReason.value = `Syntax error in Gelle (${cue}): ${error.message}`;
+      return { valid: false, reason: validationReason.value };
+    }
+  }
+
+  // 3. Verify absolute coherence
+  const anchorCue = allCues[0];
+  const isCoherent = allCues.every(cue => cue === anchorCue);
+
+  if (!isCoherent) {
+    validationReason.value = 'Concept Mismatch: All components must share the same cue.';
+    return { valid: false, reason: validationReason.value };
+  }
+
+  // 4. Success! Resolve the human-readable name and clear any errors
+  const fullCue = storeCues.getFullCue(anchorCue);
+  validCueOrgoGellPair.value = fullCue?.concept?.datatype?.concept?.name || anchorCue;
+  validationReason.value = ''; // Clear error on success
+
+  return { valid: true, cue: anchorCue };
 };
 
 const gelleCanvases = ref({});
@@ -490,7 +569,7 @@ watch(
 
 // Watch for seed drops
 watch([() => storeOrgo.activeOrgos, () => gelleStore.activeGelles], () => {
-  syncGraftToCycle();
+
 }, { deep: true });
 
 onMounted(() => {

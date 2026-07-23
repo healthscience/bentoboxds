@@ -1,7 +1,9 @@
 import { defineStore } from "pinia";
+import LibraryUtility from '@/stores/hopUtility/libraryUtility.js'
 
 export const useExocueStore = defineStore("exocuestore", {
   state: () => ({
+    libUtil: new LibraryUtility(),
     exocueMorphogens: [],
       /*{
         id: "oscillator",
@@ -27,8 +29,22 @@ export const useExocueStore = defineStore("exocuestore", {
       }
       return null;
     },
+    processReply(exocueList) {
+      for (let exoCont of exocueList) {
+        let hexOrgoContract = this.libUtil.convertBinaryToHex(exoCont);
+        this.saveExocueContract(hexOrgoContract)
+      }
+    },
     saveExocueContract(exocueContract) {
-      this.exocueMorphogens.push(exocueContract)
+      this.exocueMorphogens.push(
+      {
+        contract: exocueContract,
+        state: {
+          isActive: false,
+          buttonColor: '#4a5568',
+          isExpanded: false
+        }
+      })
     },
     updateexocueParam(instanceId, param, value) {
       const exocue = this.activeexocues.find((o) => o.instanceId === instanceId);

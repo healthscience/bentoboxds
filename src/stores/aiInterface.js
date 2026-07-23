@@ -17,6 +17,9 @@ import { besearchStore } from "@/stores/besearchStore.js";
 import { orreryStore } from "@/stores/orreryStore.js";
 import { lifestrapStore } from "@/stores/lifestrapStore.js";
 import { loomStore } from "@/stores/loomStore.js";
+import { useOrgoStore } from '@/stores/orgoStore.js'
+import { useGelleStore } from '@/stores/gelleStore.js'
+import { useExocueStore } from '@/stores/exocueStore.js'
 
 export const aiInterfaceStore = defineStore("beebeeAIstore", {
   state: () => {
@@ -32,6 +35,9 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       storeChat: useChatStore(),
       storeTeaching: teachingStore(),
       storeBesearch: besearchStore(),
+      storeOrgo: useOrgoStore(),
+      storeGelle: useGelleStore(),
+      storeExocue: useExocueStore(),
       liveDataParse: new DataPraser(),
       liveLsUtil: new LifestrapUtilty(),
       liveChatUtil: new ChatUtilty(),
@@ -283,6 +289,14 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         case "seed-library":
           this.storeOrrery.processReply(received);
           this.storeLibrary.datatypeContracts = received.data.datatypeContracts
+          break;
+
+        case "graft-library":
+          console.log('graft library')
+          console.log(received)
+          this.storeOrgo.processReply(received.data.orgo);
+          this.storeGelle.processReply(received.data.gelle)
+          this.storeExocue.processReply(received.data.exoCue)
           break;
 
         case "warm-peers-begin":

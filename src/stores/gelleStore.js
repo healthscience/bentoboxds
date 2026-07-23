@@ -1,30 +1,35 @@
 import { defineStore } from "pinia";
+import LibraryUtility from '@/stores/hopUtility/libraryUtility.js'
 
 export const useGelleStore = defineStore("gellestore", {
   state: () => ({
+    libUtil: new LibraryUtility(),
     gelleMorphogens: [],
     availableTextures: [],
     activeGelles: [],
   }),
   actions: {
     graftGelle(textureId, initialState = {}) {
-      const texture = this.availableTextures.find((t) => t.id === textureId);
+      console.log('texturein')
+      console.log(textureId)
+      console.log(this.availableTextures)
+      const texture = this.gelleMorphogens.find((t) => t.contract.key === textureId);
+      console.log(texture)
       if (texture) {
         const instance = {
           ...texture,
           instanceId: `${textureId}-${Date.now()}`,
-          grafts: initialState.grafts || [],
-          strategy: initialState.strategy || texture.strategy,
+          params: texture.contract.value.computational
         };
         this.activeGelles.push(instance);
         return instance;
       }
       return null;
     },
-    addGraft(instanceId, word) {
-      const gelle = this.activeGelles.find((g) => g.instanceId === instanceId);
-      if (gelle && !gelle.grafts.includes(word)) {
-        gelle.grafts.push(word);
+    processReply(gelleList) {
+      for (let gelleCont of gelleList) {
+        let hexOrgoContract = this.libUtil.convertBinaryToHex(gelleCont);
+        this.saveGelleContract(hexOrgoContract)
       }
     },
     saveGelleContract(gelleContract) {

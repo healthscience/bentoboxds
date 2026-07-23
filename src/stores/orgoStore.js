@@ -1,9 +1,9 @@
 import { defineStore } from "pinia";
-import CuesUtilty from '@/stores/hopUtility/cuesUtility.js'
+import LibraryUtility from '@/stores/hopUtility/libraryUtility.js'
 
 export const useOrgoStore = defineStore("orgostore", {
   state: () => ({
-    cueUtil: new CuesUtilty(),
+    libUtil: new LibraryUtility(),
     orgoMorphogens: [],
     activeOrgos: [],
     saveConfirm: false,
@@ -11,17 +11,26 @@ export const useOrgoStore = defineStore("orgostore", {
   }),
   actions: {
     instantiateOrgo(seedId, initialState = {}) {
-      const seed = this.orgoMorphogens.find((s) => s.id === seedId);
+      console.log('orogo')
+      console.log(seedId)
+      const seed = this.orgoMorphogens.find((s) => s.contract.key === seedId);
+      console.log(seed)
       if (seed) {
         const instance = {
           ...seed,
           instanceId: `${seedId}-${Date.now()}`,
-          params: seed.logic(initialState).params,
+          params: seed.contract.value.computational,
         };
         this.activeOrgos.push(instance);
         return instance;
       }
       return null;
+    },
+    processReply(orgoList) {
+      for (let orgoCont of orgoList) {
+        let hexOrgoContract = this.libUtil.convertBinaryToHex(orgoCont);
+        this.saveOrogContract(hexOrgoContract)
+      }
     },
     saveOrogContract(orgoContract) {
       this.orgoMorphogens.push(
