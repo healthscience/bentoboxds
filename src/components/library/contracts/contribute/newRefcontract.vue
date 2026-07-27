@@ -52,6 +52,7 @@ import LibButton from '@/components/library/shared/LibButton.vue'
 import NewQuestiontype from '@/components/library/contracts/contribute/forms/newQuestiontype.vue'
 import NewDatatype from '@/components/library/contracts/contribute/forms/newDatatype.vue'
 import NewCompute from '@/components/library/contracts/contribute/forms/newCompute.vue'
+import NewOverlayData from '@/components/library/contracts/contribute/forms/overlayData.vue'
 import NewPackaging from '@/components/library/contracts/contribute/forms/newPackage.vue'
 import NewVisualise from '@/components/library/contracts/contribute/forms/newVisualise.vue'
 import NewMedia from '@/components/library/contracts/contribute/forms/newMedia.vue'
@@ -70,6 +71,7 @@ const storeLibrary = libraryStore()
 const isSaving = ref(false)
 
 const formContribute = [
+  { type: 'overlayData', form: markRaw(NewOverlayData) },
   { type: 'question', form: markRaw(NewQuestiontype) },
   { type: 'datatype', form: markRaw(NewDatatype) },
   { type: 'compute', form: markRaw(NewCompute) },
@@ -97,9 +99,14 @@ const saveRefContract = async () => {
     }
 
     const typeMap = {
+      // intent: 'intentForm', //  all new modules  TODO
+      // contextualData: 'contextData'
+      // topologyGraph: 'toplogogyForm',
+      // ledgerViewpoint: 'toplogyForm',
       question: 'questionForm',
       datatype: 'datatypeForm',
       compute: 'newComputeForm',
+      overlayData: 'overlayDataForm',
       packaging: 'newPackagingForm',
       visualise: 'newVisualiseForm',
       media: 'newMediaForm',

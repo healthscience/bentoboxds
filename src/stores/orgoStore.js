@@ -11,10 +11,7 @@ export const useOrgoStore = defineStore("orgostore", {
   }),
   actions: {
     instantiateOrgo(seedId, initialState = {}) {
-      console.log('orogo')
-      console.log(seedId)
       const seed = this.orgoMorphogens.find((s) => s.contract.key === seedId);
-      console.log(seed)
       if (seed) {
         const instance = {
           ...seed,
@@ -59,15 +56,11 @@ export const useOrgoStore = defineStore("orgostore", {
     },
     getFullOrgo (orgoKey) {
       if (!orgoKey) return null
-      console.log('key')
-      console.log(orgoKey)
       // 1. Try matching directly in currently loaded cuesList
       const existing = this.cueUtil.cueMatch(orgoKey, this.orgoMorphogens)
-      console.log()
       if (existing && existing.contract.value) {
         return existing.contract
       }
-      console.log(existing)
       // 2. Check if it's already queued or waiting
       const isWaiting = this.waitingCues.some(c => (c.key === orgoKey || c.contract === orgoKey))
       

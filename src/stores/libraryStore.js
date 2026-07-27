@@ -64,6 +64,10 @@ export const libraryStore = defineStore('librarystore', {
     peerResults: [],
     peerLedger: [],
     peerLibraryNXP: [],
+    newConductionForm: { type: '' },
+    newFileIntent: '',
+    fileFeedback: {},
+    overlayDataForm: {},
     newRefcontractForm: {},
     genesisModules: [],
     liveBBox: '',
@@ -486,7 +490,8 @@ export const libraryStore = defineStore('librarystore', {
         let hexOrgoContract = this.utilLibrary.convertBinaryToHex(message.data);
         this.storeGelle.saveGelleContract(hexOrgoContract)      
       } else if (message.action === 'exocue-contract') {
-
+        let hexOrgoContract = this.utilLibrary.convertBinaryToHex(message.data);
+        this.storeExoCue.saveExocueContract(hexOrgoContract) 
       } else if (message.action === 'new-modules') {
         this.genesisModules = message.data.modules
       } else if (message.action === 'new-experiment') {
@@ -671,6 +676,18 @@ export const libraryStore = defineStore('librarystore', {
       } else if (contType === 'exocue') {
         this.storeExocue.removeExocue(contKey)
       }
+    },
+    prepareExocueContract (exocueInfo) {
+      let aiMessageout = {}
+      aiMessageout.type = 'library'
+      aiMessageout.reftype = 'exocue'
+      aiMessageout.action = 'exocue'
+      aiMessageout.task = 'PUT'
+      aiMessageout.privacy = 'public'
+      aiMessageout.data = exocueInfo
+      aiMessageout.bbid = ''
+      console.log(aiMessageout)
+      this.sendSocket.send_message(aiMessageout)
     },
     prepareGenesisModContracts (message) {
       let aiMessageout = {}

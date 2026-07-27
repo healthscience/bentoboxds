@@ -18,8 +18,9 @@
         <div class="header-center"></div>
         <div class="header-right">
           <div class="gifting-actions">
-            <button class="sculpt-btn secondary" @click="validateExoPairing()">CHECK COMPATIBILITY</button>
-            <button class="sculpt-btn primary">GRAFT exoCue</button>
+            <!-- Button is now optional since the spine is reactive, but kept for manual checks -->
+            <button class="sculpt-btn secondary" @click="evaluatePeerConfidence()">CHECK COMPATIBILITY</button>
+            <button class="sculpt-btn primary" :disabled="!graftingConfidence.executable" @click="makeGraftExocue()">GRAFT exoCue</button>
           </div>
           <!-- 2.3 The Lens (Right Panel: The Seer) -->
           <aside class="lab-panel seer-panel">
@@ -47,6 +48,27 @@
           </header>
           <div class="drawer-content-container">
             <div class="seed-list" v-if="!showCuesPortal">
+              <div class="seed-section">
+                <div id="orgo-menu">
+                  <h6>exoCues</h6>
+                  <div id="new-orgo" @click.stop="buildOrgoGelleContract('exocue')">new</div>
+                </div>
+                <div
+                  v-for="exocue in storeExoCue.organelles"
+                  :key="exocue.key"
+                  class="seed-item"
+                  draggable="true"
+                  @dragstart="handleSeedDragStart($event, exocue, 'exocue')"
+                >
+                  <div class="seed-info">
+                    <span class="seed-name">{{ getDirectValue(exocue.contract.value.concept.cue).value.concept.datatype.concept.name }}</span>
+                    <span class="seed-edit">
+                      <button @click.stop="toggleOrgoEdit(exocue.contract.key)">...</button>
+                      <button v-if="editingOrgoKey === exocue.contract.key" class="delete-btn" @click.stop="deleteOrgo(exocue.contract.key)">Delete</button>
+                    </span>
+                  </div>
+                </div>
+              </div>
               <div class="seed-section">
                 <div id="orgo-menu">
                   <h6>Orgos</h6>
@@ -90,7 +112,10 @@
                 </div>
               </div>
               <div class="seed-section">
-                <h6>Instruments</h6>
+                <div id="instruments-menu">
+                  <h6>Instruments</h6>
+                  <div id="new-orgo" @click.stop="builNewInstrument('instrument')">new</div>
+                </div>
                 <div
                   v-for="device in activeInstruments"
                   :key="device.id"
@@ -144,8 +169,10 @@
         <main class="lab-space-v2">
           <div class="canvas-stage-v2">
             <section id="exocue-ref-contract">
-              exoCue Name: {{ validCueOrgoGellPair }}
+              <div>exoCue Name: <span v-if="validCueOrgoGellPair.length > 0">{{ getDirectValue(validCueOrgoGellPair).value.concept.datatype.concept.name }}</span><span v-else class="pending-cue">Pending Pairing...</span></div>
+              <div v-if="validationReason" class="validation-error">{{ validationReason }}</div>
             </section>
+            
             <div class="logic-braid-wrapper">
               <div class="logic-braid-top">
                 <!-- A. The Orgo Bay -->
@@ -179,6 +206,22 @@
                     <bento-code-editor :modelValue="orgo.contract.value.computational.executable" @update:modelValue="orgoExecutableCode = $event" />
                   </div>
                 </section>
+
+                <!-- THE VALIDATION SPINE -->
+                <div class="validation-spine">
+                  <div class="indicator-group" title="Cues Match">
+                    <div class="indicator" :class="{ active: graftingConfidence.coherence }"></div>
+                    <span class="indicator-label">Cue</span>
+                  </div>
+                  <div class="indicator-group" title="Conduction Map & I/O Valid">
+                    <div class="indicator" :class="{ active: graftingConfidence.conduction }"></div>
+                    <span class="indicator-label">Cond</span>
+                  </div>
+                  <div class="indicator-group" title="Syntax Ready for Orrery">
+                    <div class="indicator" :class="{ active: graftingConfidence.executable }"></div>
+                    <span class="indicator-label">Exe</span>
+                  </div>
+                </div>
 
                 <!-- B. The Gelle Pocket -->
                 <section
@@ -275,6 +318,7 @@ import { ref, computed, onMounted, watch } from "vue";
 import { besearchStore } from "@/stores/besearchStore.js";
 import { cuesStore } from "@/stores/cuesStore.js";
 import { useOrgoStore } from '@/stores/orgoStore.js'
+import { useExocueStore } from '@/stores/exocueStore.js'
 import { useGelleStore } from '@/stores/gelleStore.js'
 import { aiInterfaceStore } from "@/stores/aiInterface.js";
 import { libraryStore } from "@/stores/libraryStore.js";
@@ -284,14 +328,14 @@ import BuildGelle from "@/components/orrery/sculpting/build/gelleBuild.vue"
 import LifeStrapHorizon from "@/components/orrery/sculpting/LifeStrapHorizon.vue";
 import CuesPortal from "@/components/orrery/parts/shared/CuesPortal.vue";
 import BentoCodeEditor from "@/components/orrery/sculpting/build/codeView.vue"
+import { lifestrapStore } from "@/stores/lifestrapStore.js";
 
 const storeBesearch = besearchStore();
 const storeCues = cuesStore();
 const storeOrgo = useOrgoStore();
 const gelleStore = useGelleStore();
+const storeExoCue = useExocueStore()
 const storeAI = aiInterfaceStore();
-import { lifestrapStore } from "@/stores/lifestrapStore.js";
-
 const storeLifestrap = lifestrapStore();
 const storeLibrary = libraryStore();
 
@@ -303,19 +347,30 @@ const showCuesPortal = ref(false);
 const selectedCue = ref('');
 const editingOrgoKey = ref(null);
 const editingGelleId = ref(null);
-const validCueOrgoGellPair = ref({})
-const validationReason = ref(null)
+const validCueOrgoGellPair = ref('');
+const validationReason = ref('');
 
-// Script
+// 3-Part Validation State
+const graftingConfidence = ref({
+  coherence: false,
+  conduction: false,
+  executable: false
+});
+
 const getOrgoValue = (item) => {
   const cueKey = item.contract.value.concept.orgocue;
   if (!cueKey) return '';
   return storeCues.getFullCue(cueKey) ?? '';
 };
 
-// Script
 const getGelleValue = (item) => {
   const cueKey = item.contract.value.concept.gellecue;
+  if (!cueKey) return '';
+  return storeCues.getFullCue(cueKey) ?? '';
+};
+
+const getDirectValue = (itemKey) => {
+  const cueKey = itemKey
   if (!cueKey) return '';
   return storeCues.getFullCue(cueKey) ?? '';
 };
@@ -354,18 +409,7 @@ const isOpen = computed(() => {
 const activeOrgos = computed(() => storeOrgo.activeOrgos);
 const activeGelles = computed(() => gelleStore.activeGelles);
 
-const activeStrapData = computed(() => {
-  return (
-    storeLifestrap.straps.find((s) => s.key === storeAI.activeLifeStrapID) ||
-    storeLifestrap.straps.find((s) => s.id === storeAI.activeLifeStrapID)
-  );
-});
-
-const activeInstruments = ref([
-  // { id: "polar-h10", name: "Polar H10", type: "HRM", online: true },
-  // { id: "withings-body", name: "Withings Body+", type: "Scale", online: true },
-]);
-
+const activeInstruments = ref([]);
 const droppedInstruments = ref([]);
 
 const closeLayer = () => {
@@ -395,13 +439,10 @@ const handleSeedDrop = (e, targetType) => {
   const rawData = e.dataTransfer.getData("application/besearch-seed");
   if (!rawData) return;
   const data = JSON.parse(rawData);
-  console.log(data)
   if (data.type === targetType) {
     if (targetType === "orgo") {
       storeOrgo.instantiateOrgo(data.contract.key);
     } else {
-      console.log('gelle path')
-      console.log(data)
       gelleStore.graftGelle(data.contract.key);
     }
   }
@@ -429,13 +470,10 @@ const removeInstrument = (id) => {
   );
 };
 
-
 const handleGraftDrop = (e, instanceId) => {
-  console.log('graft gelle drop')
-  console.log(instanceId)
   const word = e.dataTransfer.getData("text/plain");
-  console.log(word)
   if (word) {
+    // Handling drops natively
   }
 };
 
@@ -447,23 +485,20 @@ const snapOrgoToDevice = (device) => {
   }
 };
 
-/* valid exoCue pairing of orgo and gelle */
-// Sculpting Lab Concept Validator (Pure JS)
-// Sculpting Lab Concept Validator (Pure JS - 1:N / N:M Support)
-// Sculpting Lab Concept Validator (Pure JS - Full Integrity Check for N:M)
-const validateExoPairing = () => {
+// 3-Part Validation Evaluator
+const evaluatePeerConfidence = () => {
   // Reset states
+  graftingConfidence.value = { coherence: false, conduction: false, executable: false };
   validCueOrgoGellPair.value = '';
   validationReason.value = '';
 
   if (activeOrgos.value.length === 0 || activeGelles.value.length === 0) {
-    validationReason.value = 'Grafting requires at least one Orgo and one Gelle.';
-    return { valid: false, reason: validationReason.value };
+    return { valid: false, reason: 'Grafting requires at least one Orgo and one Gelle.' };
   }
 
   const allCues = [];
 
-  // 1. Validate all Orgos
+  // Gather & initial structural checks for Orgos
   for (const orgo of activeOrgos.value) {
     const cue = orgo.contract?.value?.concept?.orgocue;
     if (!cue) {
@@ -471,34 +506,9 @@ const validateExoPairing = () => {
       return { valid: false, reason: validationReason.value };
     }
     allCues.push(cue);
-
-    const comp = orgo.contract?.value?.computational;
-
-    // Check Inputs & Outputs (Checks conduction_map or input/output arrays based on schema)
-    const hasConduction = comp?.conduction_map && Object.keys(comp.conduction_map).length > 0;
-    const hasIO = comp?.inputs?.length > 0 && comp?.outputs?.length > 0;
-    
-    if (!hasConduction && !hasIO) {
-      validationReason.value = `Orgo (${cue}) has blank inputs, outputs, or conduction map.`;
-      return { valid: false, reason: validationReason.value };
-    }
-
-    // Check Executable presence
-    if (!comp?.executable || comp.executable.trim() === '') {
-      validationReason.value = `Orgo (${cue}) has a blank executable code block.`;
-      return { valid: false, reason: validationReason.value };
-    }
-
-    // Check Executable Syntax without executing
-    try {
-      new Function(comp.executable);
-    } catch (error) {
-      validationReason.value = `Syntax error in Orgo (${cue}): ${error.message}`;
-      return { valid: false, reason: validationReason.value };
-    }
   }
 
-  // 2. Validate all Gelles
+  // Gather & initial structural checks for Gelles
   for (const gelle of activeGelles.value) {
     const cue = gelle.contract?.value?.concept?.gellecue;
     if (!cue) {
@@ -506,34 +516,9 @@ const validateExoPairing = () => {
       return { valid: false, reason: validationReason.value };
     }
     allCues.push(cue);
-
-    const comp = gelle.contract?.value?.computational;
-
-    // Check Inputs & Outputs
-    const hasConduction = comp?.conduction_map && Object.keys(comp.conduction_map).length > 0;
-    const hasIO = comp?.inputs?.length > 0 && comp?.outputs?.length > 0;
-
-    if (!hasConduction && !hasIO) {
-      validationReason.value = `Gelle (${cue}) has blank inputs, outputs, or conduction map.`;
-      return { valid: false, reason: validationReason.value };
-    }
-
-    // Check Executable presence
-    if (!comp?.executable || comp.executable.trim() === '') {
-      validationReason.value = `Gelle (${cue}) has a blank executable code block.`;
-      return { valid: false, reason: validationReason.value };
-    }
-
-    // Check Executable Syntax
-    try {
-      new Function(comp.executable);
-    } catch (error) {
-      validationReason.value = `Syntax error in Gelle (${cue}): ${error.message}`;
-      return { valid: false, reason: validationReason.value };
-    }
   }
 
-  // 3. Verify absolute coherence
+  // Stage 1: Coherence Check
   const anchorCue = allCues[0];
   const isCoherent = allCues.every(cue => cue === anchorCue);
 
@@ -541,24 +526,69 @@ const validateExoPairing = () => {
     validationReason.value = 'Concept Mismatch: All components must share the same cue.';
     return { valid: false, reason: validationReason.value };
   }
+  
+  graftingConfidence.value.coherence = true;
+  const allComponents = [...activeOrgos.value, ...activeGelles.value];
 
-  // 4. Success! Resolve the human-readable name and clear any errors
+  // Stage 2: Conduction Check
+  const hasValidConduction = allComponents.every(compWrapper => {
+    const comp = compWrapper.contract?.value?.computational;
+    const hasConduction = comp?.conduction_map && Object.keys(comp.conduction_map).length > 0;
+    const hasIO = comp?.inputs?.length > 0 && comp?.outputs?.length > 0;
+    return hasConduction || hasIO;
+  });
+
+  if (!hasValidConduction) {
+    validationReason.value = 'A component is missing inputs, outputs, or a conduction map.';
+    return { valid: false, reason: validationReason.value };
+  }
+  
+  graftingConfidence.value.conduction = true;
+
+  // Stage 3: Executable Code Check (Pre-Orrery syntax check)
+  const hasValidCode = allComponents.every(compWrapper => {
+    const comp = compWrapper.contract?.value?.computational;
+    if (!comp?.executable || comp.executable.trim() === '') {
+      validationReason.value = `A component has a blank executable code block.`;
+      return false;
+    }
+    try {
+      new Function(comp.executable);
+      return true;
+    } catch (error) {
+      validationReason.value = `Syntax error: ${error.message}`;
+      return false;
+    }
+  });
+
+  /*if (!hasValidCode) {
+    return { valid: false, reason: validationReason.value };
+  }*/
+  
+  graftingConfidence.value.executable = true;
+
+  // 4. Success! Resolve human-readable name and clear errors
   const fullCue = storeCues.getFullCue(anchorCue);
   validCueOrgoGellPair.value = fullCue?.concept?.datatype?.concept?.name || anchorCue;
-  validationReason.value = ''; // Clear error on success
+  validationReason.value = ''; 
 
   return { valid: true, cue: anchorCue };
 };
 
-const gelleCanvases = ref({});
+// Reactively watch for state changes to automatically run validation
+watch(
+  [() => storeOrgo.activeOrgos, () => gelleStore.activeGelles],
+  () => {
+    evaluatePeerConfidence();
+  },
+  { deep: true }
+);
 
-// Watch for cycle changes
 watch(
   () => storeBesearch.activeCycleId,
   (newId) => {
     const cycle = storeBesearch.activeCycle;
     if (cycle && cycle.state.grafting) {
-      // Direct mutation of stores to restore state
       storeOrgo.activeOrgos = JSON.parse(JSON.stringify(cycle.state.grafting.activeOrgos || []));
       gelleStore.activeGelles = JSON.parse(JSON.stringify(cycle.state.grafting.activeGelles || []));
       droppedInstruments.value = JSON.parse(JSON.stringify(cycle.state.grafting.droppedInstruments || []));
@@ -566,11 +596,6 @@ watch(
   },
   { immediate: true }
 );
-
-// Watch for seed drops
-watch([() => storeOrgo.activeOrgos, () => gelleStore.activeGelles], () => {
-
-}, { deep: true });
 
 onMounted(() => {
   const theme = document.documentElement.getAttribute("data-theme");
@@ -589,18 +614,44 @@ onMounted(() => {
     attributes: true,
     attributeFilter: ["data-theme"],
   });
+  
+  evaluatePeerConfidence(); // Initial evaluation check
 });
 
-// close and ensure cues portal closed
 const closeRoutine = () => {
   newOGrefcont.value = false;
   selectedOGtype.value = ''
   showCuesPortal.value = false
 }
 
+const makeGraftExocue = () => {
+  // extract contract key only for save
+  let orgoKeys = []
+  let gelleKeys = []
+  for (let aOrg of activeOrgos.value) {
+    orgoKeys.push(aOrg.instanceId)
+  }
+  for (let aGelle of activeGelles.value) {
+    gelleKeys.push(aGelle.instanceId)
+  }
+  let exoCueInfo = {}
+  exoCueInfo.cue = validCueOrgoGellPair.value
+  exoCueInfo.orgo = orgoKeys
+  exoCueInfo.gelle = gelleKeys
+  storeLibrary.prepareExocueContract(exoCueInfo)
+}
+
+const builNewInstrument = () => {
+  // open library
+  storeLibrary.libraryStatus = true;
+  storeAI.dataBoxStatus = true;
+  storeAI.uploadStatus = false;
+}
+
 </script>
 
 <style scoped>
+/* Base Layer Styles */
 .sculpting-layer {
   position: fixed;
   top: 0;
@@ -705,6 +756,7 @@ const closeRoutine = () => {
   display: grid;
   grid-template-columns: auto 1fr;
   overflow: hidden;
+  height: 100%;
 }
 
 .orgo-drawer {
@@ -936,18 +988,53 @@ const closeRoutine = () => {
 }
 
 .lab-space-v2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  width: 100%;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 40px;
-  border: 2px solid purple;
 }
 
 .canvas-stage-v2 {
-  max-width: 1000px;
+  max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
   display: grid;
   gap: 40px;
 }
 
+/* ExoCue Status Block */
+#exocue-ref-contract {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  padding: 15px 25px;
+  font-family: "Space Mono", monospace;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dark-theme #exocue-ref-contract {
+  background: rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.pending-cue {
+  color: #888;
+  font-style: italic;
+  font-weight: normal;
+}
+
+.validation-error {
+  color: #ef4444;
+  font-size: 0.85rem;
+  font-weight: normal;
+}
+
+/* Updated Logic Braid Layout to include the Spine */
 .logic-braid-wrapper {
   display: grid;
   gap: 20px;
@@ -955,8 +1042,55 @@ const closeRoutine = () => {
 
 .logic-braid-top {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr auto 1fr;
   gap: 20px;
+  align-items: stretch;
+}
+
+/* Validation Spine Styles */
+.validation-spine {
+  width: 50px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  background: #111;
+  border-radius: 25px;
+  padding: 20px 5px;
+  border: 2px solid #333;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+}
+
+.dark-theme .validation-spine {
+  background: #0a0a0a;
+  border-color: #222;
+}
+
+.indicator-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.indicator {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #333;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.indicator.active {
+  background: #4ade80;
+  box-shadow: 0 0 14px rgba(74, 222, 128, 0.8);
+}
+
+.indicator-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #888;
+  font-family: "Space Mono", monospace;
 }
 
 .lab-bay {
@@ -1027,9 +1161,21 @@ const closeRoutine = () => {
   transition: all 0.2s;
 }
 
+.sculpt-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: #888 !important;
+  color: #888 !important;
+}
+
 .sculpt-btn.primary {
   background: #00796b;
   color: white;
+}
+
+.sculpt-btn.primary:disabled {
+  background: #555 !important;
+  color: #aaa !important;
 }
 
 .dark-theme .sculpt-btn {
@@ -1125,6 +1271,9 @@ const closeRoutine = () => {
   border-radius: 10px;
   padding: 15px;
   margin-bottom: 10px;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .dark-theme .active-instance.mini {
@@ -1182,17 +1331,22 @@ const closeRoutine = () => {
 .snap-btn {
   background: transparent;
   border: 1px solid currentColor;
-  padding: 4px 8px;
   border-radius: 4px;
-  font-size: 0.6rem;
-  font-weight: 800;
+  padding: 4px 8px;
+  font-size: 0.7rem;
   cursor: pointer;
 }
 
 .remove-btn {
   background: transparent;
   border: none;
-  color: #ef5350;
+  color: inherit;
   cursor: pointer;
+  opacity: 0.5;
+}
+
+.remove-btn:hover {
+  opacity: 1;
+  color: #ef5350;
 }
 </style>

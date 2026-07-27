@@ -10,11 +10,7 @@ export const useGelleStore = defineStore("gellestore", {
   }),
   actions: {
     graftGelle(textureId, initialState = {}) {
-      console.log('texturein')
-      console.log(textureId)
-      console.log(this.availableTextures)
       const texture = this.gelleMorphogens.find((t) => t.contract.key === textureId);
-      console.log(texture)
       if (texture) {
         const instance = {
           ...texture,

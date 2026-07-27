@@ -4,15 +4,7 @@ import LibraryUtility from '@/stores/hopUtility/libraryUtility.js'
 export const useExocueStore = defineStore("exocuestore", {
   state: () => ({
     libUtil: new LibraryUtility(),
-    exocueMorphogens: [],
-      /*{
-        id: "oscillator",
-        name: "Oscillatorexocue",
-        icon: "pulse", // Icon placeholder
-        description: "A rhythmic wave representing Effort and Recovery.",
-        logic: createOscillatorexocue,
-      },
-    ],*/
+    organelles: [],
     activeexocues: [],
   }),
   actions: {
@@ -36,7 +28,7 @@ export const useExocueStore = defineStore("exocuestore", {
       }
     },
     saveExocueContract(exocueContract) {
-      this.exocueMorphogens.push(
+      this.organelles.push(
       {
         contract: exocueContract,
         state: {
