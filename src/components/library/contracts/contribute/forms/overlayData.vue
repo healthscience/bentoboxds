@@ -15,17 +15,6 @@
     </div>
 
     <div class="conduction-form-item">
-      <label for="conduction-source-data">Data source driver:</label>
-      <div id="source-location">
-      <!-- Direct builder if an exoCue is open/active in the workspace -->
-      <conduction-builder v-if="isExoCueOpen === true"/>
-
-      <!-- Isolated builder pipeline for cold drops/normal uploads -->
-      <conduction-isolated/>
-    </div>
-    </div>
-
-    <div class="conduction-form-item">
       <label for="conduction-mapping-name">Conduction Name:</label>
       <input 
         id="conduction-mapping-name" 
@@ -45,6 +34,18 @@
         required 
         v-model="storeLibrary.newConductionForm.description"
       ></textarea>
+    </div>
+
+
+    <div class="conduction-form-item">
+      <label for="conduction-source-data">Data source driver:</label>
+      <div id="source-location">
+      <!-- Direct builder if an exoCue is open/active in the workspace -->
+      <conduction-builder v-if="isExoCueOpen === true"/>
+
+      <!-- Isolated builder pipeline for cold drops/normal uploads -->
+      <conduction-isolated/>
+      </div>
     </div>
   </div>
 </template>

@@ -65,6 +65,7 @@ export const libraryStore = defineStore('librarystore', {
     peerLedger: [],
     peerLibraryNXP: [],
     newConductionForm: { type: '' },
+    conductionOverlay: {},
     newFileIntent: '',
     fileFeedback: {},
     overlayDataForm: {},
@@ -545,6 +546,9 @@ export const libraryStore = defineStore('librarystore', {
       let expandDTCue = this.utilLibrary.expandCuesDTSingle(cueContract, this.storeCues.pathRefContracts)
       // add to cues list
       this.storeCues.cuesHistoryList.push(expandDTCue)
+    },
+    overlayDataPrepare (conductData) {
+      this.conductionOverlay = conductData
     },
     populateSeedDatatypes (dtList) {
       for(let dtC of dtList) {

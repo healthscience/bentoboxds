@@ -21,13 +21,17 @@
       </div>
     </div>
 
-    <!-- Step 2: Parse and Describe Payload Structure 
+    <!-- Step 2: Parse and Describe Payload Structure -->
     <div v-if="datasourceLive">
-      <conduction-describe />
+      <div id="data-viewer">
+          view data sample {{ conductionData }}
+          <conduction-data :extractedData="conductionData"></conduction-data>
+      </div>
+      <!--<conduction-describe />-->
       
        Step 3: Map Discovered Source Keys to exoCue Cues
-      <map-cues :requiredCues="activeContractCues" />
-    </div>-->
+      <!--<map-cues :requiredCues="activeContractCues" />-->
+    </div>
   </div>
 </template>
 
@@ -35,6 +39,7 @@
 import { ref, computed } from 'vue'
 import { libraryStore } from '@/stores/libraryStore.js'
 import UploadSpace from '@/components/dataspace/upload/uploadSpace.vue'
+import ConductionData from '@/components/library/contracts/contribute/forms/conductiondevice/OverlayDataBuilder.vue'
 import ConductionDescribe from './conductionDescribe.vue'
 import MapCues from './mapCues.vue'
 
@@ -45,13 +50,13 @@ const fileIDoutgoing = ref('')
 
 /* computed */
 const datasourceLive = computed(() => storeLibrary.sourceDataSelected)
-const filetypeLive = computed(() => storeLibrary.sourceFiletype)
-const sourceDriver = computed(() => storeLibrary.newConductionForm.type)
-const fileFeedback = computed(() => storeLibrary.fileFeedback.columns)
 
-/* computed */
 const uploadStatus = computed(() => {
   return storeLibrary.uploadStatus
+})
+
+const conductionData = computed(() => {
+  return storeLibrary.conductionOverlay
 })
 
 

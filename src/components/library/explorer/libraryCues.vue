@@ -212,8 +212,6 @@ const beebeeFeedback = computed(() => {
 
 const cuesNetworkList = computed(() => {
   const contracts = storeCues.cuesList
-  console.log('cue list compound error')
-  console.log(storeCues.cuesList)
   return [...contracts].sort((a, b) => {
     const nameA = a.contract.value.concept?.datatype?.concept?.name
     const nameB = b.contract.value.concept?.datatype?.concept?.name

@@ -302,6 +302,12 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         case "warm-peers-begin":
           this.handleWarmPeers(received.data);
           break;
+
+        case "overlay-data":
+          console.log('overlay data')
+          console.log(received)
+          this.storeLibrary.overlayDataPrepare(received.data)
+          break;
       }
 
       if (received.bbid) {
@@ -309,8 +315,8 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       }
     },
     processHOPdata(sfData) {
-      console.log('safeflow returned world emulation update')
-      console.log(sfData)
+      // console.log('safeflow returned world emulation update')
+      // console.log(sfData)
     },
     keyIndexConvert (lifestrapList) {
       let hexkeyLifestap = []

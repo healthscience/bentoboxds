@@ -91,8 +91,8 @@ export const useSocketStore = defineStore({
       } else if (received.type == 'network-notification') {
         this.aiStore.processNotification(received)
       } else if (received.type === 'safeflow-ecs') {
-        console.log('safeflow-ECS data arrived')
-        console.log(received)
+        // console.log('safeflow-ECS data arrived')
+        // console.log(received)
         this.aiStore.processHOPdata(received)
         /*
       } else if (received.type == 'sf-networkdata') {
