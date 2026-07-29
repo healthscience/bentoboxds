@@ -36,15 +36,14 @@
       ></textarea>
     </div>
 
-
     <div class="conduction-form-item">
       <label for="conduction-source-data">Data source driver:</label>
       <div id="source-location">
-      <!-- Direct builder if an exoCue is open/active in the workspace -->
-      <conduction-builder v-if="isExoCueOpen === true"/>
+        <!-- Direct builder if an exoCue is open/active in the workspace -->
+        <conduction-builder v-if="isExoCueOpen === true"/>
 
-      <!-- Isolated builder pipeline for cold drops/normal uploads -->
-      <conduction-isolated/>
+        <!-- Isolated builder pipeline for cold drops/normal uploads -->
+        <conduction-isolated/>
       </div>
     </div>
   </div>
@@ -79,13 +78,15 @@ const isExoCueOpen = computed(() => {
     grid-template-columns: 1fr;
     font-size: 1em;
     width: 80vw;
+    border: 2px solid red;
   }
 
   .conduction-form-item {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 6fr;
     margin: 1em;
     list-style: none;
+    border: 2px solid blue;
   }
 
   .conduction-form-item label {

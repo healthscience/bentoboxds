@@ -64,7 +64,7 @@ export const libraryStore = defineStore('librarystore', {
     peerResults: [],
     peerLedger: [],
     peerLibraryNXP: [],
-    newConductionForm: { type: '' },
+    newConductionForm: { type: '', map: {}, filePath: '' },
     conductionOverlay: {},
     newFileIntent: '',
     fileFeedback: {},

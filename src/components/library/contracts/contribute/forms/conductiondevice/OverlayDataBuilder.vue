@@ -25,40 +25,63 @@
       <!-- Right: The Suggested/Editable Mapping -->
       <div class="annotation-pane">
         <h4>Conduction Rule Mapping</h4>
-        <p class="hint">Review the auto-extracted suggestions for this gifted device.</p>
+        <p class="hint">Review and annotate the extracted paths to align with the overlay-data structure.</p>
         
         <div class="mapping-fields">
+          <!-- Device Class -->
           <div 
             class="field-row" 
-            :class="{ active: focusedAnnotationTarget === 'primaryDataPath' }"
-            @click="setFocus('primaryDataPath')"
+            :class="{ active: focusedAnnotationTarget === 'tinyDevicePath' }"
+            @click="setFocus('tinyDevicePath')"
           >
-            <label>Primary Data Path</label>
-            <input v-model="activeMapping.primaryDataPath" type="text" placeholder="e.g., payload.data" />
+            <label>Tiny Device</label>
+            <input v-model="activeMapping.tinyDevicePath" type="text" placeholder="e.g., exoCue-cameraOverlay-v2" />
           </div>
 
+          <!-- Time Anchor Path (Helistamp) -->
           <div 
             class="field-row" 
-            :class="{ active: focusedAnnotationTarget === 'timeAnchorPath' }"
-            @click="setFocus('timeAnchorPath')"
+            :class="{ active: focusedAnnotationTarget === 'conductionPath' }"
+            @click="setFocus('conductionPath')"
           >
-            <label>Time Anchor Path</label>
-            <input v-model="activeMapping.timeAnchorPath" type="text" placeholder="e.g., meta.timestamp" />
+            <label>Conduction info.</label>
+            <input v-model="activeMapping.conductionPath" type="text" placeholder="e.g., helistamp etc" />
           </div>
 
+          <!-- Scale Anchor Path -->
           <div 
             class="field-row" 
-            :class="{ active: focusedAnnotationTarget === 'valuePath' }"
-            @click="setFocus('valuePath')"
+            :class="{ active: focusedAnnotationTarget === 'scaleAnchorPath' }"
+            @click="setFocus('scaleAnchorPath')"
           >
-            <label>Value Path</label>
-            <input v-model="activeMapping.valuePath" type="text" placeholder="e.g., payload.reading" />
+            <label>Scale Anchor</label>
+            <input v-model="activeMapping.scaleAnchorPath" type="text" placeholder="e.g., scale ratio" />
+          </div>
+
+          <!-- Morphology Context Path -->
+          <div 
+            class="field-row" 
+            :class="{ active: focusedAnnotationTarget === 'morphologyPath' }"
+            @click="setFocus('morphologyPath')"
+          >
+            <label>Morphology Path</label>
+            <input v-model="activeMapping.morphologyPath" type="text" placeholder="e.g., cues.morphology" />
+          </div>
+
+          <!-- Primary Cue Map Path -->
+          <div 
+            class="field-row" 
+            :class="{ active: focusedAnnotationTarget === 'cueMapPath' }"
+            @click="setFocus('cueMapPath')"
+          >
+            <label>Data</label>
+            <input v-model="activeMapping.cueMapPath" type="text" placeholder="e.g. source data" />
           </div>
         </div>
 
         <div class="action-row">
           <button class="accept-btn" @click="acceptMapping">
-            Accept & Mint Rule
+            Mint Conduction Rule
           </button>
         </div>
       </div>
@@ -70,6 +93,10 @@
 <script setup>
 import { ref, reactive, watch } from 'vue'
 import TreeNode from './TreeNode.vue'
+import { libraryStore } from '@/stores/libraryStore.js'
+
+
+const storeLibrary = libraryStore()
 
 const props = defineProps({
   // The pre-extracted JSON structure passed down from safeflow-ecs
@@ -79,57 +106,44 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['mapping-accepted'])
-
-// The working contract that the peer is annotating
+// The working conduction contract that the peer is annotating
 const activeMapping = reactive({
-  deviceClass: 'tiny-conduction-node',
-  primaryDataPath: '',
-  timeAnchorPath: '',
-  valuePath: ''
+  tinyDevicePath: '',
+  conductionPath: '',
+  scaleAnchorPath: '',
+  morphologyPath: '',
+  cueMapPath: ''
 })
 
 // Tracks which field the peer is currently trying to assign via the tree
 const focusedAnnotationTarget = ref(null)
 
-// Zero-Draft Mode: Auto-extract structure and suggest a mapping
-const autoSuggestMapping = (data) => {
-  // Basic heuristic to guess the paths - easily expanded for the orrery's needs
-  const flatKeys = JSON.stringify(data).toLowerCase()
-  
-  activeMapping.primaryDataPath = flatKeys.includes('payload') ? 'payload' : 'data'
-  
-  if (flatKeys.includes('timestamp') || flatKeys.includes('time')) {
-    activeMapping.timeAnchorPath = 'timestamp'
-  }
-  
-  if (flatKeys.includes('value') || flatKeys.includes('reading')) {
-    activeMapping.valuePath = 'value'
-  }
-}
 
 watch(() => props.extractedData, (newData) => {
   if (newData) {
-    autoSuggestMapping(newData)
+    // autoSuggestMapping(newData)
   }
-}, { immediate: true })
+}, { immediate: true, deep: true })
 
-// When a peer clicks a field in the contract to edit it
+// When a peer clicks a field in the contract to edit or assign it
 const setFocus = (field) => {
   focusedAnnotationTarget.value = field
 }
 
-// When a peer clicks a node in the tree to assign a path to the focused field
+// When a peer clicks a node in the visual tree to assign a path to the focused field
 const handleNodeSelected = (path) => {
   if (focusedAnnotationTarget.value) {
-    activeMapping[focusedAnnotationTarget.value] = path
+    // Strip internal ECS wrapper prefix if present to keep paths relative to payload root
+    const cleanPath = path.replace(/^fullStructure\./, '')
+    
+    activeMapping[focusedAnnotationTarget.value] = cleanPath
     focusedAnnotationTarget.value = null // drop focus after assignment
   }
 }
 
 const acceptMapping = () => {
-  // Passes the finalized mapping forward into the Story -> Interplay -> Emulation pipeline
-  emit('mapping-accepted', { ...activeMapping })
+  console.log('Minting conduction rule with mapping:', { ...activeMapping })
+  storeLibrary.newConductionForm.map = activeMapping
 }
 </script>
 
@@ -138,11 +152,13 @@ const acceptMapping = () => {
   font-family: monospace;
 }
 .workspace {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 2rem;
 }
 .tree-pane, .annotation-pane {
-  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr;
   border: 1px solid #444;
   padding: 1.5rem;
   background: #181818;

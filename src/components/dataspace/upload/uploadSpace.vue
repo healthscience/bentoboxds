@@ -198,24 +198,11 @@ async function saveFiles(fileList) {
       reader.onload = () => {
         const rawData = reader.result
         const parsed = JSON.parse(rawData)
-        const lines = parsed.data !== undefined ? parsed.data : parsed
 
-        storeLibrary.linesLimit = Array.isArray(lines) ? lines.slice(0, 20) : []
-        const headerLocal = Object.keys((Array.isArray(lines) ? lines[0] : lines) || {})
-        const columnStructure = headerLocal.map((head, idx) => ({ cid: idx, name: head }))
+          //const hashQuestion = hashObject(question.data + fileObj.name)
+          //question.bbid = hashQuestion
 
-        if (!storeAI.dataBoxStatus) {
-          storeAI.qcount++
-          const question = {
-            type: 'bbai',
-            reftype: 'ignore',
-            action: 'question',
-            data: { count: storeAI.qcount, text: 'Upload of file', active: true, time: new Date() }
-          }
-          const hashQuestion = hashObject(question.data + fileObj.name)
-          question.bbid = hashQuestion
-
-          storeLibrary.fileBund.content = rawData
+          /*storeLibrary.fileBund.content = rawData
           // form beebee message
           const bbReply = {
             type: 'bbai-reply',
@@ -228,13 +215,7 @@ async function saveFiles(fileList) {
             bbid: hashQuestion
           }
 
-          storeAI.historyPair[storeAI.chatAttention].push({ question, reply: bbReply })
-        } else {
-          storeLibrary.newPackagingForm.apicolumns = headerLocal
-          storeLibrary.newDatafile.columns = columnStructure
-          storeLibrary.newDatafile.path = 'json'
-          storeLibrary.newDatafile.file = fileBundle.name
-        }
+          storeAI.historyPair[storeAI.chatAttention].push({ question, reply: bbReply }) */
 
         const messageHOP = {
           type: 'library',

@@ -1,6 +1,6 @@
 <template>
   <div id="conduction-isolated-builder">
-    <h3>Isolated Conduction Device Setup</h3>
+    <h3>Upload an example data file</h3>
     <div class="source-form-item">
       <select class="select-source-id" @change="sourceSelect" v-model="fileType">
         <option value="none" disabled selected>Please select source type</option>
@@ -13,24 +13,48 @@
       </select>
     </div>
 
-    <!-- Step 1: Upload Radia Payload -->
-    <div v-if="uploadStatus === true">
+    <!-- Step : Upload Radia Payload -->
+    <div id="file-agent" v-if="uploadStatus === true">
       <upload-space :inline="true" @upload-sent="handleUploadSent"></upload-space>
       <div v-if="fileMatch?.success === true" class="upload-success-message">
         ✅ {{ fileIDoutgoing }} uploaded
       </div>
     </div>
 
+    <!-- allow to add path to example -->
+    <div id="overlay-source-path">
+      <label for="conduction-source-path">Example source:</label>
+      <input 
+        id="conduction-source-example" 
+        v-model="storeLibrary.newConductionForm.sourcepath" 
+        placeholder="hyperdrive address" 
+        required 
+        type="text"
+      >
+    </div>
+
+    <!-- emulation scale -->
+    <div id="emulation-scale">
+      <label for="conduction-emulation">Emulation:</label>
+      <select 
+        id="conduction-emulation" 
+        v-model="storeLibrary.newConductionForm.emulation" 
+        required
+      >
+        <option value="" disabled selected>Please select emulation scale</option>
+        <option value="body-full">body-full</option>
+        <option value="body-organ">body-organ</option>
+        <option value="body-cell">body-cell</option>
+        <option value="environment">environment</option>
+        <option value="bioregion">bioregion</option>
+      </select>
+    </div>
+
     <!-- Step 2: Parse and Describe Payload Structure -->
-    <div v-if="datasourceLive">
+    <div id="conduction-viewer" v-if="datasourceLive">
       <div id="data-viewer">
-          view data sample {{ conductionData }}
           <conduction-data :extractedData="conductionData"></conduction-data>
       </div>
-      <!--<conduction-describe />-->
-      
-       Step 3: Map Discovered Source Keys to exoCue Cues
-      <!--<map-cues :requiredCues="activeContractCues" />-->
     </div>
   </div>
 </template>
@@ -40,8 +64,6 @@ import { ref, computed } from 'vue'
 import { libraryStore } from '@/stores/libraryStore.js'
 import UploadSpace from '@/components/dataspace/upload/uploadSpace.vue'
 import ConductionData from '@/components/library/contracts/contribute/forms/conductiondevice/OverlayDataBuilder.vue'
-import ConductionDescribe from './conductionDescribe.vue'
-import MapCues from './mapCues.vue'
 
 const storeLibrary = libraryStore()
 
@@ -61,8 +83,6 @@ const conductionData = computed(() => {
 
 
 const sourceSelect = () => {
-  console.log('source select')
-  console.log(fileType.value)
   // set file context to new overlay
   storeLibrary.newFileIntent = 'overlay-data'
   if (fileType.value === 'none') return
@@ -101,4 +121,15 @@ const fileMatch = computed(() => {
   margin-top: 10px;
   text-align: center;
 }
+
+#file-agent {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+#conduction-viewer {
+  display: grid;
+  grid-template-columns: 1fr;  
+}
+
 </style>

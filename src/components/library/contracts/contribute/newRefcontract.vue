@@ -71,7 +71,11 @@ const storeLibrary = libraryStore()
 const isSaving = ref(false)
 
 const formContribute = [
-  { type: 'overlayData', form: markRaw(NewOverlayData) },
+  // intent: 'intentForm', //  all new modules  TODO
+  // contextualData: 'contextData'
+  // topologyGraph: 'toplogogyForm',
+  // ledgerViewpoint: 'toplogyForm',
+  { type: 'overlay', form: markRaw(NewOverlayData) },
   { type: 'question', form: markRaw(NewQuestiontype) },
   { type: 'datatype', form: markRaw(NewDatatype) },
   { type: 'compute', form: markRaw(NewCompute) },
@@ -88,25 +92,22 @@ const contractformType = ref(formContribute[1]) // Default to datatype
 const savenxpSuccess = computed(() => storeLibrary.saveSuccessnxp)
 
 const saveRefContract = async () => {
+
   isSaving.value = true
   try {
-    const refContract = {
+    let refContract = {
       type: 'library',
-      action: 'contracts',
+      action: 'contract',
       reftype: contractformType.value.type,
       task: 'PUT',
       privacy: props.scope
     }
 
     const typeMap = {
-      // intent: 'intentForm', //  all new modules  TODO
-      // contextualData: 'contextData'
-      // topologyGraph: 'toplogogyForm',
-      // ledgerViewpoint: 'toplogyForm',
       question: 'questionForm',
       datatype: 'datatypeForm',
       compute: 'newComputeForm',
-      overlayData: 'overlayDataForm',
+      overlay: 'newConductionForm',
       packaging: 'newPackagingForm',
       visualise: 'newVisualiseForm',
       media: 'newMediaForm',
@@ -116,21 +117,34 @@ const saveRefContract = async () => {
     }
 
     const storeKey = typeMap[contractformType.value.type]
+ 
     if (storeKey) {
-      refContract.data = storeLibrary[storeKey]
+      // get form rules and expand out data
+      let formRules = storeLibrary[storeKey]
+      console.log(formRules)
+      console.log('extracted data bck from sf json extractor')
+      console.log(storeLibrary.conductionOverlay)
+      console.log(storeLibrary.conductionOverlay.fullStructure.conduction)
+      // expand out parts needed
+      formRules.conduction = storeLibrary.conductionOverlay.fullStructure.conduction
+      formRules.scaleAnchor = storeLibrary.conductionOverlay.fullStructure.scaleAnchor
+
+      refContract.data = formRules
     }
 
     // Special cases for action
-    if (['media', 'research', 'marker'].includes(contractformType.value.type)) {
+    if (['overlay', 'media', 'research', 'marker'].includes(contractformType.value.type)) {
       refContract.action = contractformType.value.type
     }
 
     // Assuming storeLibrary has a method to handle the actual save, 
     // or we emit/call the existing logic. 
     // For now, keeping the logic consistent with original but cleaner.
-    console.log('Saving Ref Contract:', refContract)
+    console.log('Saving Ref Contract:')
+    console.log(refContract)
     storeLibrary.sendMessage(refContract)
-    storeLibrary.saveSuccessnxp = true
+    // need to wait for reply back from HOP save success
+    // storeLibrary.saveSuccessnxp = true
     
   } finally {
     isSaving.value = false
@@ -141,7 +155,7 @@ const saveRefContract = async () => {
 <style scoped>
 .new-ref-contract {
   padding: 1rem;
-  max-width: 900px;
+  max-width: 90vw;
   margin: 0 auto;
 }
 
