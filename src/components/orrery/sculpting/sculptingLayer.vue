@@ -118,7 +118,7 @@
                 </div>
                 <div
                   v-for="device in activeInstruments"
-                  :key="device.id"
+                  :key="device.contract.key"
                   class="seed-item device"
                   draggable="true"
                   @dragstart="handleInstrumentDragStart($event, device)"
@@ -131,8 +131,7 @@
                     ></div>
                   </div>
                   <div class="seed-info">
-                    <span class="seed-name">{{ device.name }}</span>
-                    <span class="seed-type">{{ device.type }}</span>
+                    <span class="seed-name">{{ device.contract.value.concept.name }}</span>
                   </div>
                 </div>
               </div>
@@ -282,7 +281,7 @@
                 <div class="dropped-instruments-list">
                   <div
                     v-for="device in droppedInstruments"
-                    :key="device.id"
+                    :key="device.contract.key"
                     class="instrument-item dropped"
                   >
                     <div
@@ -290,8 +289,7 @@
                       :class="{ online: device.online }"
                     ></div>
                     <div class="device-info">
-                      <span class="device-name">{{ device.name }}</span>
-                      <span class="device-type">{{ device.type }}</span>
+                      <span class="device-name">{{ device.contract }}</span>
                     </div>
                     <button class="snap-btn" @click="snapOrgoToDevice(device)">
                       SNAP
@@ -320,6 +318,7 @@ import { cuesStore } from "@/stores/cuesStore.js";
 import { useOrgoStore } from '@/stores/orgoStore.js'
 import { useExocueStore } from '@/stores/exocueStore.js'
 import { useGelleStore } from '@/stores/gelleStore.js'
+import { useOverlayStore }from '@/stores/overlayStore.js' 
 import { aiInterfaceStore } from "@/stores/aiInterface.js";
 import { libraryStore } from "@/stores/libraryStore.js";
 
@@ -335,6 +334,7 @@ const storeCues = cuesStore();
 const storeOrgo = useOrgoStore();
 const gelleStore = useGelleStore();
 const storeExoCue = useExocueStore()
+const storeOverlay = useOverlayStore()
 const storeAI = aiInterfaceStore();
 const storeLifestrap = lifestrapStore();
 const storeLibrary = libraryStore();
@@ -408,9 +408,9 @@ const isOpen = computed(() => {
 
 const activeOrgos = computed(() => storeOrgo.activeOrgos);
 const activeGelles = computed(() => gelleStore.activeGelles);
+const activeInstruments = computed(() => storeOverlay.conductionData);
 
-const activeInstruments = ref([]);
-const droppedInstruments = ref([]);
+const droppedInstruments = ref([]); 
 
 const closeLayer = () => {
   storeBesearch.setHUUDState('lens');

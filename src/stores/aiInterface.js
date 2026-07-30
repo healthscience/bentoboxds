@@ -20,6 +20,7 @@ import { loomStore } from "@/stores/loomStore.js";
 import { useOrgoStore } from '@/stores/orgoStore.js'
 import { useGelleStore } from '@/stores/gelleStore.js'
 import { useExocueStore } from '@/stores/exocueStore.js'
+import { useOverlayStore } from '@/stores/overlayStore.js'
 
 export const aiInterfaceStore = defineStore("beebeeAIstore", {
   state: () => {
@@ -38,6 +39,7 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       storeOrgo: useOrgoStore(),
       storeGelle: useGelleStore(),
       storeExocue: useExocueStore(),
+      storeOverlay: useOverlayStore(),
       liveDataParse: new DataPraser(),
       liveLsUtil: new LifestrapUtilty(),
       liveChatUtil: new ChatUtilty(),
@@ -297,6 +299,8 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
           this.storeOrgo.processReply(received.data.orgo);
           this.storeGelle.processReply(received.data.gelle)
           this.storeExocue.processReply(received.data.exoCue)
+          this.storeOverlay.processReply(received.data.overlay)
+
           break;
 
         case "warm-peers-begin":
@@ -306,7 +310,9 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         case "overlay-data":
           console.log('overlay data')
           console.log(received)
-          this.storeLibrary.overlayDataPrepare(received.data)
+          this.storeOverlay.setNewContract(received.data)
+          // add to list for library viewer
+          // this.storeOverlay.saveOverlayContract(received.data)
           break;
       }
 

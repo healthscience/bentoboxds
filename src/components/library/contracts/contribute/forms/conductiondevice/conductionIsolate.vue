@@ -62,10 +62,12 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { libraryStore } from '@/stores/libraryStore.js'
+import { useOverlayStore } from '@/stores/overlayStore.js'
 import UploadSpace from '@/components/dataspace/upload/uploadSpace.vue'
 import ConductionData from '@/components/library/contracts/contribute/forms/conductiondevice/OverlayDataBuilder.vue'
 
 const storeLibrary = libraryStore()
+const storeOverlay = useOverlayStore()
 
 const fileType = ref('none')
 const fileIDoutgoing = ref('')
@@ -78,7 +80,7 @@ const uploadStatus = computed(() => {
 })
 
 const conductionData = computed(() => {
-  return storeLibrary.conductionOverlay
+  return storeOverlay.newOverlayContractLive
 })
 
 

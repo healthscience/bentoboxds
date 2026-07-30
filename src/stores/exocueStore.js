@@ -9,7 +9,7 @@ export const useExocueStore = defineStore("exocuestore", {
   }),
   actions: {
     instantiateexocue(seedId, initialState = {}) {
-      const seed = this.exocueMorphogens.find((s) => s.id === seedId);
+      const seed = this.organelles.find((s) => s.id === seedId);
       if (seed) {
         const instance = {
           ...seed,
@@ -23,8 +23,8 @@ export const useExocueStore = defineStore("exocuestore", {
     },
     processReply(exocueList) {
       for (let exoCont of exocueList) {
-        let hexOrgoContract = this.libUtil.convertBinaryToHex(exoCont);
-        this.saveExocueContract(hexOrgoContract)
+        let hexExoContract = this.libUtil.convertBinaryToHex(exoCont);
+        this.saveExocueContract(hexExoContract)
       }
     },
     saveExocueContract(exocueContract) {
@@ -45,9 +45,9 @@ export const useExocueStore = defineStore("exocuestore", {
       }
     },
     removeExocue(exocueKey) {
-      const index = this.activeOrgos.findIndex((o) => o.key === exocueKey);
+      const index = this.activeexocues.findIndex((o) => o.key === exocueKey);
       if (index !== -1) {
-          this.activeOrgos.splice(index, 1);
+          this.activexocues.splice(index, 1);
       }
     }
   },

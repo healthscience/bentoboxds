@@ -14,6 +14,7 @@ import { loomStore } from '@/stores/loomStore.js'
 import { useOrgoStore } from '@/stores/orgoStore.js'
 import { useGelleStore } from '@/stores/gelleStore.js'
 import { useExocueStore } from '@/stores/exocueStore.js'
+import { useOverlayStore } from '@/stores/overlayStore.js'
 
 export const libraryStore = defineStore('librarystore', {
   state: () => ({
@@ -28,6 +29,7 @@ export const libraryStore = defineStore('librarystore', {
     storeOrgo: useOrgoStore(),
     storeGelle: useGelleStore(),
     storeExocue: useExocueStore(),
+    storeOverlay: useOverlayStore(),
     storeBentobox: bentoboxStore(),
     storeOrrery: orreryStore(),
     storeLifestrap: lifestrapStore(),
@@ -492,7 +494,10 @@ export const libraryStore = defineStore('librarystore', {
         this.storeGelle.saveGelleContract(hexOrgoContract)      
       } else if (message.action === 'exocue-contract') {
         let hexOrgoContract = this.utilLibrary.convertBinaryToHex(message.data);
-        this.storeExoCue.saveExocueContract(hexOrgoContract) 
+        this.storeExoCue.saveExocueContract(hexOrgoContract)
+      } else if (message.action === 'overlay-contract') {
+        let hexOverlayContract = this.utilLibrary.convertBinaryToHex(message.data);
+        this.storeOverlay.saveExocueContract(hexOverlayContract) 
       } else if (message.action === 'new-modules') {
         this.genesisModules = message.data.modules
       } else if (message.action === 'new-experiment') {
@@ -546,9 +551,6 @@ export const libraryStore = defineStore('librarystore', {
       let expandDTCue = this.utilLibrary.expandCuesDTSingle(cueContract, this.storeCues.pathRefContracts)
       // add to cues list
       this.storeCues.cuesHistoryList.push(expandDTCue)
-    },
-    overlayDataPrepare (conductData) {
-      this.conductionOverlay = conductData
     },
     populateSeedDatatypes (dtList) {
       for(let dtC of dtList) {

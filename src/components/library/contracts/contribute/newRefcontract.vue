@@ -42,6 +42,7 @@
 <script setup>
 import { ref, computed, markRaw } from 'vue'
 import { libraryStore } from '@/stores/libraryStore.js'
+import { useOverlayStore } from '@/stores/overlayStore.js'
 
 // Shared Components
 import LibCard from '@/components/library/shared/LibCard.vue'
@@ -68,6 +69,7 @@ const props = defineProps({
 })
 
 const storeLibrary = libraryStore()
+const storeOverlay = useOverlayStore()
 const isSaving = ref(false)
 
 const formContribute = [
@@ -121,13 +123,9 @@ const saveRefContract = async () => {
     if (storeKey) {
       // get form rules and expand out data
       let formRules = storeLibrary[storeKey]
-      console.log(formRules)
-      console.log('extracted data bck from sf json extractor')
-      console.log(storeLibrary.conductionOverlay)
-      console.log(storeLibrary.conductionOverlay.fullStructure.conduction)
       // expand out parts needed
-      formRules.conduction = storeLibrary.conductionOverlay.fullStructure.conduction
-      formRules.scaleAnchor = storeLibrary.conductionOverlay.fullStructure.scaleAnchor
+      formRules.conduction = storeOverlay.newOverlayContractLive.fullStructure.conduction
+      formRules.scaleAnchor = storeOverlay.newOverlayContractLive.fullStructure.scaleAnchor
 
       refContract.data = formRules
     }
