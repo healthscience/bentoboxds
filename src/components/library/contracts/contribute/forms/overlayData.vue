@@ -78,7 +78,6 @@ const isExoCueOpen = computed(() => {
     grid-template-columns: 1fr;
     font-size: 1em;
     width: 80vw;
-    border: 2px solid red;
   }
 
   .conduction-form-item {
@@ -86,7 +85,6 @@ const isExoCueOpen = computed(() => {
     grid-template-columns: 1fr 6fr;
     margin: 1em;
     list-style: none;
-    border: 2px solid blue;
   }
 
   .conduction-form-item label {

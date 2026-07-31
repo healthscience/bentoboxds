@@ -67,6 +67,8 @@ export const libraryStore = defineStore('librarystore', {
     peerLedger: [],
     peerLibraryNXP: [],
     newConductionForm: { type: '', map: {}, filePath: '' },
+    contractExocueSuccess: false,
+    sourceDataSelected: false,
     conductionOverlay: {},
     newFileIntent: '',
     fileFeedback: {},
@@ -494,10 +496,22 @@ export const libraryStore = defineStore('librarystore', {
         this.storeGelle.saveGelleContract(hexOrgoContract)      
       } else if (message.action === 'exocue-contract') {
         let hexOrgoContract = this.utilLibrary.convertBinaryToHex(message.data);
-        this.storeExoCue.saveExocueContract(hexOrgoContract)
+        this.storeExocue.saveExocueContract(hexOrgoContract)
+        // inform form to empty and success message.
+        this.contractExocueSuccess = true
+        // clear form
+        this.storeGelle.activeGelles = []
+        this.storeOrgo.activeOrgos = []
+
       } else if (message.action === 'overlay-contract') {
         let hexOverlayContract = this.utilLibrary.convertBinaryToHex(message.data);
-        this.storeOverlay.saveExocueContract(hexOverlayContract) 
+        this.storeOverlay.saveOverlayContract(hexOverlayContract)
+        // inform form save success
+        this.storeOverlay.setNewContract(hexOverlayContract)
+        this.saveSuccessnxp = true
+        this.sourceDataSelected = false
+        // clear form
+        this.newConductionForm = { type: '', map: {}, filePath: '', emulation: '' }
       } else if (message.action === 'new-modules') {
         this.genesisModules = message.data.modules
       } else if (message.action === 'new-experiment') {

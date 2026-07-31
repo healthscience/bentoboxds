@@ -6,6 +6,11 @@ export const useExocueStore = defineStore("exocuestore", {
     libUtil: new LibraryUtility(),
     organelles: [],
     activeexocues: [],
+    matchConfidence: {
+      coherence: false,
+      conduction: false,
+      executable: false
+    }
   }),
   actions: {
     instantiateexocue(seedId, initialState = {}) {
@@ -13,7 +18,7 @@ export const useExocueStore = defineStore("exocuestore", {
       if (seed) {
         const instance = {
           ...seed,
-          instanceId: `${seedId}-${Date.now()}`,
+          instanceId: `${seedId}`,
           params: seed.logic(initialState).params,
         };
         this.activeexocues.push(instance);

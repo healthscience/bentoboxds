@@ -138,8 +138,6 @@ const saveRefContract = async () => {
     // Assuming storeLibrary has a method to handle the actual save, 
     // or we emit/call the existing logic. 
     // For now, keeping the logic consistent with original but cleaner.
-    console.log('Saving Ref Contract:')
-    console.log(refContract)
     storeLibrary.sendMessage(refContract)
     // need to wait for reply back from HOP save success
     // storeLibrary.saveSuccessnxp = true

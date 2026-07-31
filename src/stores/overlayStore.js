@@ -14,7 +14,7 @@ export const useOverlayStore = defineStore("overlaystore", {
       if (seed) {
         const instance = {
           ...seed,
-          instanceId: `${seedId}-${Date.now()}`,
+          instanceId: `${seedId}`,
           params: seed.logic(initialState).params,
         };
         this.activeoverlays.push(instance);

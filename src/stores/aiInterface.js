@@ -294,8 +294,6 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
           break;
 
         case "graft-library":
-          console.log('graft library')
-          console.log(received)
           this.storeOrgo.processReply(received.data.orgo);
           this.storeGelle.processReply(received.data.gelle)
           this.storeExocue.processReply(received.data.exoCue)
@@ -308,8 +306,6 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
           break;
 
         case "overlay-data":
-          console.log('overlay data')
-          console.log(received)
           this.storeOverlay.setNewContract(received.data)
           // add to list for library viewer
           // this.storeOverlay.saveOverlayContract(received.data)
@@ -365,6 +361,17 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
       if (!this.historyPair[this.chatAttention]) this.historyPair[this.chatAttention] = [];
       this.historyPair[this.chatAttention].push(pairBB);
       this.chatBottom++;
+    },
+    prepareHOPstory (storyData) {
+      let aiMessageout = {}
+      aiMessageout.type = 'bbai'
+      aiMessageout.reftype = 'ignore'
+      aiMessageout.action = 'hopstory'
+      aiMessageout.task = 'expand-graft'
+      aiMessageout.privacy = 'private'
+      aiMessageout.data = storyData
+      aiMessageout.bbid = ''
+      this.sendSocket.send_message(aiMessageout)
     },
     prepareCuespace(notItem) {
       let matchPeername = this.storeAcc.warmPeers.find((p) => p.key === notItem.data.publickey);

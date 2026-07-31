@@ -40,6 +40,7 @@
         id="conduction-emulation" 
         v-model="storeLibrary.newConductionForm.emulation" 
         required
+        @change="changeEmulationWorld()"
       >
         <option value="" disabled selected>Please select emulation scale</option>
         <option value="body-full">body-full</option>
@@ -50,8 +51,8 @@
       </select>
     </div>
 
-    <!-- Step 2: Parse and Describe Payload Structure -->
-    <div id="conduction-viewer" v-if="datasourceLive">
+    <!-- Step 2: Parse and Describe Payload Structure -->dd {{ datasourceLive }}
+    <div id="conduction-viewer" v-if="datasourceLive === true">
       <div id="data-viewer">
           <conduction-data :extractedData="conductionData"></conduction-data>
       </div>
@@ -61,11 +62,13 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { aiInterfaceStore } from '@/stores/aiInterface.js'
 import { libraryStore } from '@/stores/libraryStore.js'
 import { useOverlayStore } from '@/stores/overlayStore.js'
 import UploadSpace from '@/components/dataspace/upload/uploadSpace.vue'
 import ConductionData from '@/components/library/contracts/contribute/forms/conductiondevice/OverlayDataBuilder.vue'
 
+const storeAI = aiInterfaceStore()
 const storeLibrary = libraryStore()
 const storeOverlay = useOverlayStore()
 
@@ -95,6 +98,23 @@ const sourceSelect = () => {
   storeLibrary.newConductionForm.type = fileType.value
   storeLibrary.fileFeedback = []
   
+}
+
+const changeEmulationWorld = () => {
+  console.log('world change')
+    if (storeLibrary.newConductionForm.emulation === 'body-full') {
+      storeAI.activeWorld = 'body'
+    } else if (storeLibrary.newConductionForm.emulation === 'body-organ') {
+      storeAI.activeWorld = 'body'
+    } else if (storeLibrary.newConductionForm.emulation === 'body-cell') {
+      storeAI.activeWorld = 'body'
+    } else if (storeLibrary.newConductionForm.emulation === 'environment') {
+      storeAI.activeWorld = 'earth'
+    } else if (storeLibrary.newConductionForm.emulation === 'bioregion') {
+      storeAI.activeWorld = 'earth'
+    } else {
+      storeAI.activeWorld = 'orbit'
+    }
 }
 
 const handleUploadSent = (payload) => {

@@ -142,7 +142,6 @@ const handleNodeSelected = (path) => {
 }
 
 const acceptMapping = () => {
-  console.log('Minting conduction rule with mapping:', { ...activeMapping })
   storeLibrary.newConductionForm.map = activeMapping
 }
 </script>

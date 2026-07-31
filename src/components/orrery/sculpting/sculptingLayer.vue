@@ -17,10 +17,14 @@
         </div>
         <div class="header-center"></div>
         <div class="header-right">
-          <div class="gifting-actions">
+          <div class="gifting-actions">dd {{ graftingConfidence }}
             <!-- Button is now optional since the spine is reactive, but kept for manual checks -->
-            <button class="sculpt-btn secondary" @click="evaluatePeerConfidence()">CHECK COMPATIBILITY</button>
-            <button class="sculpt-btn primary" :disabled="!graftingConfidence.executable" @click="makeGraftExocue()">GRAFT exoCue</button>
+            <button v-if="activeTab === 'exoCue'" class="sculpt-btn secondary" @click="evaluatePeerConfidence()">CHECK COMPATIBILITY</button>
+            <button v-if="activeTab === 'exoCue'" class="sculpt-btn primary" :disabled="!graftingConfidence.executable" @click="makeGraftExocue()">GRAFT exoCue</button>
+            <button v-if="activeTab === 'HOPstory'" class="sculpt-btn primary" @click="makeHOPstory()">Send HOPstory</button>
+          </div>
+          <div id="feedback-save-exocue" v-if="exocueContractFeedback === true">
+            Feedback message.
           </div>
           <!-- 2.3 The Lens (Right Panel: The Seer) -->
           <aside class="lab-panel seer-panel">
@@ -51,7 +55,7 @@
               <div class="seed-section">
                 <div id="orgo-menu">
                   <h6>exoCues</h6>
-                  <div id="new-orgo" @click.stop="buildOrgoGelleContract('exocue')">new</div>
+                  <!--<div id="new-orgo" @click.stop="buildOrgoGelleContract('exocue')">new</div>-->
                 </div>
                 <div
                   v-for="exocue in storeExoCue.organelles"
@@ -61,7 +65,7 @@
                   @dragstart="handleSeedDragStart($event, exocue, 'exocue')"
                 >
                   <div class="seed-info">
-                    <span class="seed-name">{{ getDirectValue(exocue.contract.value.concept.cue).value.concept.datatype.concept.name }}</span>
+                    <span class="seed-name">{{ getDirectValue(exocue.contract.value.concept.cue)?.value.concept.datatype.concept.name }}</span>
                     <span class="seed-edit">
                       <button @click.stop="toggleOrgoEdit(exocue.contract.key)">...</button>
                       <button v-if="editingOrgoKey === exocue.contract.key" class="delete-btn" @click.stop="deleteOrgo(exocue.contract.key)">Delete</button>
@@ -166,7 +170,13 @@
 
         <!-- 2.2 The Canvas (Center Stage: The Braid) -->
         <main class="lab-space-v2">
-          <div class="canvas-stage-v2">
+          <!-- new two tabs exoCue HOPstory -->
+          <div class="tabs-container">
+            <button class="tab-btn" :class="{ active: activeTab === 'exoCue' }" @click="activeTab = 'exoCue'">exoCue</button>
+            <button class="tab-btn" :class="{ active: activeTab === 'HOPstory' }" @click="activeTab = 'HOPstory'">HOPstory</button>
+          </div>
+
+          <div class="canvas-stage-v2" v-if="activeTab === 'exoCue'">
             <section id="exocue-ref-contract">
               <div>exoCue Name: <span v-if="validCueOrgoGellPair.length > 0">{{ getDirectValue(validCueOrgoGellPair).value.concept.datatype.concept.name }}</span><span v-else class="pending-cue">Pending Pairing...</span></div>
               <div v-if="validationReason" class="validation-error">{{ validationReason }}</div>
@@ -197,7 +207,14 @@
                       <span class="instance-name">{{ getOrgoValue(orgo).value.concept.datatype.concept.name }}</span>
                     </div>
                     <div class="instance-header">
-                      <span class="instance-name">{{ orgo.contract.value.computational.conduction_map }}</span>
+                      <div class="orgo-gelle-contracts">
+                        <div class="contract-item">
+                          Inputs: <span class="instance-name">{{ orgo.contract.value.computational.conduction_map.inputs }}</span>
+                        </div>
+                        <div class="contract-item">
+                          Outputs: <span class="instance-name">{{ orgo.contract.value.computational.conduction_map.outputs }}</span>
+                        </div>
+                      </div>
                     </div>
                     <div class="instance-header">
                       <span class="instance-name">{{ orgo.contract.value.computational.executable }}</span>
@@ -250,7 +267,14 @@
                         <span class="instance-name">{{ getGelleValue(gelle).value.concept.datatype.concept.name }}</span>
                       </div>
                       <div class="instance-header">
-                        <span class="instance-name">{{ gelle.contract.value.computational.conduction_map }}</span>
+                        <div class="orgo-gelle-contracts">
+                          <div class="contract-item">
+                            Inputs: <span class="instance-name">{{ gelle.contract.value.computational.conduction_map.inputs }}</span>
+                          </div>
+                          <div class="contract-item">
+                            Outputs: <span class="instance-name">{{ gelle.contract.value.computational.conduction_map.outputs }}</span>
+                          </div>
+                        </div>
                       </div>
                       <div class="instance-header">
                         <span class="instance-name">{{ gelle.contract.value.computational.executable }}</span>
@@ -260,49 +284,45 @@
                   </div>
                 </section>
               </div>
+            </div>
+          </div>
 
-              <!-- C. The Instrument Dock (Dropped Devices) -->
-              <section
-                class="lab-bay instrument-dock-zone"
-                @drop.prevent="handleInstrumentDrop($event)"
-                @dragover.prevent
-              >
-                <header class="bay-header">
-                  <h4>Instrument Dock (Evidence)</h4>
-                </header>
+          <!-- HOPstory tab content -->
+          <div class="hopstory-stage" v-if="activeTab === 'HOPstory'">
+            <div class="lab-bay hopstory-bay" @drop.prevent="handleHopstoryDrop($event, 'exoCue')" @dragover.prevent>
+              <header class="bay-header">
+                <h4>exoCue</h4>
+              </header>
+              <div v-if="hopstoryItems.exoCue.length === 0" class="bay-placeholder">
+                Drop exoCue Here
+              </div>
+              <div v-for="key in hopstoryItems.exoCue" :key="key" class="active-instance mini">
+                <span class="instance-name">{{ key }}</span>
+              </div>
+            </div>
 
-                <div
-                  v-if="droppedInstruments.length === 0"
-                  class="bay-placeholder"
-                >
-                  Drag Instruments here to ground logic
-                </div>
+            <div class="lab-bay hopstory-bay" @drop.prevent="handleHopstoryDrop($event, 'Instrument')" @dragover.prevent>
+              <header class="bay-header">
+                <h4>Instrument</h4>
+              </header>
+              <div v-if="hopstoryItems.Instrument.length === 0" class="bay-placeholder">
+                Drop Instrument Here
+              </div>
+              <div v-for="key in hopstoryItems.Instrument" :key="key" class="active-instance mini">
+                <span class="instance-name">{{ key }}</span>
+              </div>
+            </div>
 
-                <div class="dropped-instruments-list">
-                  <div
-                    v-for="device in droppedInstruments"
-                    :key="device.contract.key"
-                    class="instrument-item dropped"
-                  >
-                    <div
-                      class="device-status"
-                      :class="{ online: device.online }"
-                    ></div>
-                    <div class="device-info">
-                      <span class="device-name">{{ device.contract }}</span>
-                    </div>
-                    <button class="snap-btn" @click="snapOrgoToDevice(device)">
-                      SNAP
-                    </button>
-                    <button
-                      class="remove-btn"
-                      @click="removeInstrument(device.id)"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                </div>
-              </section>
+            <div class="lab-bay hopstory-bay" @drop.prevent="handleHopstoryDrop($event, 'emulation')" @dragover.prevent>
+              <header class="bay-header">
+                <h4>Emulation World</h4>
+              </header>
+              <div v-if="hopstoryItems.emulation.length === 0" class="bay-placeholder">
+                Drop Emulation World Here
+              </div>
+              <div v-for="key in hopstoryItems.emulation" :key="key" class="active-instance mini">
+                <span class="instance-name">{{ key }}</span>
+              </div>
             </div>
           </div>
         </main>
@@ -350,11 +370,13 @@ const editingGelleId = ref(null);
 const validCueOrgoGellPair = ref('');
 const validationReason = ref('');
 
-// 3-Part Validation State
-const graftingConfidence = ref({
-  coherence: false,
-  conduction: false,
-  executable: false
+/* computed */
+const exocueContractFeedback = (() => {
+  return storeLibrary.contractExocueSuccess
+})
+
+const graftingConfidence = computed(() => {
+  return storeExoCue.matchConfidence
 });
 
 const getOrgoValue = (item) => {
@@ -411,6 +433,38 @@ const activeGelles = computed(() => gelleStore.activeGelles);
 const activeInstruments = computed(() => storeOverlay.conductionData);
 
 const droppedInstruments = ref([]); 
+
+const activeTab = ref('exoCue');
+const hopstoryItems = ref({
+  exoCue: [],
+  Instrument: [],
+  emulation: []
+});
+
+const handleHopstoryDrop = (e, part) => {
+  let item = null;
+  const seedData = e.dataTransfer.getData("application/besearch-seed");
+  if (seedData) {
+    try { item = JSON.parse(seedData); } catch(err) {}
+  } else {
+    const instrumentData = e.dataTransfer.getData("application/besearch-instrument");
+    if (instrumentData) {
+      try { item = JSON.parse(instrumentData); } catch(err) {}
+    } else {
+      const cueData = e.dataTransfer.getData("application/besearch-cue");
+      if (cueData) {
+        item = { key: cueData };
+      }
+    }
+  }
+
+  if (item) {
+    const key = item.contract?.key || item.id || item.key || (typeof item === 'string' ? item : null);
+    if (key && !hopstoryItems.value[part].includes(key)) {
+      hopstoryItems.value[part].push(key);
+    }
+  }
+};
 
 const closeLayer = () => {
   storeBesearch.setHUUDState('lens');
@@ -488,7 +542,7 @@ const snapOrgoToDevice = (device) => {
 // 3-Part Validation Evaluator
 const evaluatePeerConfidence = () => {
   // Reset states
-  graftingConfidence.value = { coherence: false, conduction: false, executable: false };
+  storeExoCue.matchConfidence = { coherence: false, conduction: false, executable: false };
   validCueOrgoGellPair.value = '';
   validationReason.value = '';
 
@@ -527,7 +581,7 @@ const evaluatePeerConfidence = () => {
     return { valid: false, reason: validationReason.value };
   }
   
-  graftingConfidence.value.coherence = true;
+  storeExoCue.matchConfidence.coherence = true;
   const allComponents = [...activeOrgos.value, ...activeGelles.value];
 
   // Stage 2: Conduction Check
@@ -543,7 +597,7 @@ const evaluatePeerConfidence = () => {
     return { valid: false, reason: validationReason.value };
   }
   
-  graftingConfidence.value.conduction = true;
+  storeExoCue.matchConfidence.conduction = true;
 
   // Stage 3: Executable Code Check (Pre-Orrery syntax check)
   const hasValidCode = allComponents.every(compWrapper => {
@@ -565,7 +619,7 @@ const evaluatePeerConfidence = () => {
     return { valid: false, reason: validationReason.value };
   }*/
   
-  graftingConfidence.value.executable = true;
+  storeExoCue.matchConfidence.executable = true;
 
   // 4. Success! Resolve human-readable name and clear errors
   const fullCue = storeCues.getFullCue(anchorCue);
@@ -641,6 +695,16 @@ const makeGraftExocue = () => {
   storeLibrary.prepareExocueContract(exoCueInfo)
 }
 
+const makeHOPstory = () => {
+  // Structure the payload for the HOPstory from collected state
+  let hopstoryData = {
+    exoCue: hopstoryItems.value.exoCue,
+    Instrument: hopstoryItems.value.Instrument,
+    emulation: storeAI.activeWorld // hopstoryItems.value.emulation 
+  }
+  storeAI.prepareHOPstory(hopstoryData)
+}
+
 const builNewInstrument = () => {
   // open library
   storeLibrary.libraryStatus = true;
@@ -651,6 +715,51 @@ const builNewInstrument = () => {
 </script>
 
 <style scoped>
+/* Tabs and HOPstory Styles */
+.tabs-container {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-bottom: 25px;
+}
+
+.tab-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid #00796b;
+  background: transparent;
+  color: #00796b;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: "Space Mono", monospace;
+  text-transform: uppercase;
+}
+
+.tab-btn.active {
+  background: #00796b;
+  color: white;
+}
+
+.dark-theme .tab-btn {
+  border-color: #00ffcc;
+  color: #00ffcc;
+}
+
+.dark-theme .tab-btn.active {
+  background: #00ffcc;
+  color: #000;
+}
+
+.hopstory-stage {
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(3, 1fr);
+}
+
 /* Base Layer Styles */
 .sculpting-layer {
   position: fixed;

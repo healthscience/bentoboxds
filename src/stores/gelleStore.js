@@ -14,7 +14,7 @@ export const useGelleStore = defineStore("gellestore", {
       if (texture) {
         const instance = {
           ...texture,
-          instanceId: `${textureId}-${Date.now()}`,
+          instanceId: `${textureId}`,
           params: texture.contract.value.computational
         };
         this.activeGelles.push(instance);

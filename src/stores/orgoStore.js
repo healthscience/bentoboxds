@@ -15,7 +15,7 @@ export const useOrgoStore = defineStore("orgostore", {
       if (seed) {
         const instance = {
           ...seed,
-          instanceId: `${seedId}-${Date.now()}`,
+          instanceId: `${seedId}`,
           params: seed.contract.value.computational,
         };
         this.activeOrgos.push(instance);
