@@ -17,7 +17,7 @@
         </div>
         <div class="header-center"></div>
         <div class="header-right">
-          <div class="gifting-actions">dd {{ graftingConfidence }}
+          <div class="gifting-actions">
             <!-- Button is now optional since the spine is reactive, but kept for manual checks -->
             <button v-if="activeTab === 'exoCue'" class="sculpt-btn secondary" @click="evaluatePeerConfidence()">CHECK COMPATIBILITY</button>
             <button v-if="activeTab === 'exoCue'" class="sculpt-btn primary" :disabled="!graftingConfidence.executable" @click="makeGraftExocue()">GRAFT exoCue</button>
@@ -119,6 +119,21 @@
                 <div id="instruments-menu">
                   <h6>Instruments</h6>
                   <div id="new-orgo" @click.stop="builNewInstrument('instrument')">new</div>
+                  <div
+                    v-for="file in storeLibrary.privateFileIndex"
+                    :key="file.path"
+                    class="seed-item"
+                    draggable="true"
+                    @dragstart="handleSeedDragStart($event, file, 'file')"
+                  >
+                    <div class="seed-info">
+                      <span class="seed-name">{{ file.customMetadata.type.name }}</span>
+                      <span class="seed-edit">
+                        Edit
+                      </span>
+                    </div>
+                  </div>
+
                 </div>
                 <div
                   v-for="device in activeInstruments"

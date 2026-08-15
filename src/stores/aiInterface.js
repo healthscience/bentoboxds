@@ -301,6 +301,11 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
 
           break;
 
+        case "drive-index":
+          this.handleDriveIndex(received.data);
+          break;
+
+
         case "warm-peers-begin":
           this.handleWarmPeers(received.data);
           break;
@@ -327,6 +332,9 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
         hexkeyLifestap.push(hexContract)
       }
       return hexkeyLifestap
+    },
+    handleDriveIndex(driveIndex) {
+      this.storeLibrary.privateFileIndex = driveIndex.private
     },
     handleWarmPeers(peers) {
       if (!Array.isArray(peers)) return;

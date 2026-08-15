@@ -173,7 +173,7 @@ async function saveFiles(fileList) {
 
         const messageHOP = {
           type: 'library',
-          action: 'contracts',
+          action: 'files',
           reftype: 'save-file',
           privacy: 'private',
           task: 'PUT',
@@ -219,7 +219,7 @@ async function saveFiles(fileList) {
 
         const messageHOP = {
           type: 'library',
-          action: 'contracts',
+          action: 'files',
           reftype: 'save-file',
           privacy: 'private',
           task: 'PUT',
@@ -263,7 +263,7 @@ async function saveFiles(fileList) {
     reader.onload = (e) => {
       const messageHOP = {
         type: 'library',
-        action: 'contracts',
+        action: 'files',
         reftype: 'save-file',
         privacy: 'private',
         task: 'PUT',

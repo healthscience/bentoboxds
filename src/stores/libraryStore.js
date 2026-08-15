@@ -45,6 +45,7 @@ export const libraryStore = defineStore('librarystore', {
     uploadStatus: false,
     describeSource: {},
     fileSaveList: [],
+    privateFileIndex: [],
     restStatus: false,
     peerExperimentList: {
       columns: ['id', 'name', 'description', 'time', 'device', 'action'],
