@@ -294,6 +294,8 @@ export const aiInterfaceStore = defineStore("beebeeAIstore", {
           break;
 
         case "graft-library":
+          console.log('graft start')
+          console.log(received.data)
           this.storeOrgo.processReply(received.data.orgo);
           this.storeGelle.processReply(received.data.gelle)
           this.storeExocue.processReply(received.data.exoCue)

@@ -85,7 +85,7 @@
 
 <script setup>
 import { ref, shallowRef, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
-import OrbitHUD from '@/components/orrery/parts/OrbitHUD.vue'
+import OrbitHUD from '@/components/orrery/parts/huud/OrbitHUD.vue'
 import BodyNavigation from './body/BodyNavigation.vue'
 import OrganSurface from './body/organSurface.vue'
 import CellularSurface from './body/cellularSurface.vue'

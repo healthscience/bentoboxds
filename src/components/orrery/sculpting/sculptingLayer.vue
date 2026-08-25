@@ -55,7 +55,6 @@
               <div class="seed-section">
                 <div id="orgo-menu">
                   <h6>exoCues</h6>
-                  <!--<div id="new-orgo" @click.stop="buildOrgoGelleContract('exocue')">new</div>-->
                 </div>
                 <div
                   v-for="exocue in storeExoCue.organelles"
@@ -120,11 +119,12 @@
                   <h6>Instruments</h6>
                   <div id="new-orgo" @click.stop="builNewInstrument('instrument')">new</div>
                   <div
-                    v-for="file in storeLibrary.privateFileIndex"
+                    v-if="storeLibrary.privateFileIndex.length > 0" v-for="file in storeLibrary.privateFileIndex"
                     :key="file.path"
                     class="seed-item"
                     draggable="true"
-                    @dragstart="handleSeedDragStart($event, file, 'file')"
+                    @dragstart="handleInstrumentDragStart($event, file, 'file')"
+                    @click="snapOrgoToDevice(device)"
                   >
                     <div class="seed-info">
                       <span class="seed-name">{{ file.customMetadata.type.name }}</span>
@@ -335,6 +335,7 @@
               <div v-if="hopstoryItems.emulation.length === 0" class="bay-placeholder">
                 Drop Emulation World Here
               </div>
+              <div class="">emulation: {{ storeAI.activeWorld }}</div>
               <div v-for="key in hopstoryItems.emulation" :key="key" class="active-instance mini">
                 <span class="instance-name">{{ key }}</span>
               </div>
@@ -384,6 +385,8 @@ const editingOrgoKey = ref(null);
 const editingGelleId = ref(null);
 const validCueOrgoGellPair = ref('');
 const validationReason = ref('');
+let storyInstrument = ref(null)
+let storyExocue = ref(null)
 
 /* computed */
 const exocueContractFeedback = (() => {
@@ -457,28 +460,13 @@ const hopstoryItems = ref({
 });
 
 const handleHopstoryDrop = (e, part) => {
-  let item = null;
-  const seedData = e.dataTransfer.getData("application/besearch-seed");
-  if (seedData) {
-    try { item = JSON.parse(seedData); } catch(err) {}
-  } else {
-    const instrumentData = e.dataTransfer.getData("application/besearch-instrument");
-    if (instrumentData) {
-      try { item = JSON.parse(instrumentData); } catch(err) {}
-    } else {
-      const cueData = e.dataTransfer.getData("application/besearch-cue");
-      if (cueData) {
-        item = { key: cueData };
-      }
-    }
+  let instrumentChosen = ''
+  if (part === 'exoCue') {
+    instrumentChosen = storyExocue.value;
+  } else if (part === 'Instrument') {
+    instrumentChosen = storyInstrument.value;
   }
-
-  if (item) {
-    const key = item.contract?.key || item.id || item.key || (typeof item === 'string' ? item : null);
-    if (key && !hopstoryItems.value[part].includes(key)) {
-      hopstoryItems.value[part].push(key);
-    }
-  }
+  hopstoryItems.value[part].push(instrumentChosen)
 };
 
 const closeLayer = () => {
@@ -498,10 +486,7 @@ const handleSaveNewSeed = (seedData) => {
 };
 
 const handleSeedDragStart = (e, seed, type) => {
-  e.dataTransfer.setData(
-    "application/besearch-seed",
-    JSON.stringify({ ...seed, type }),
-  );
+  storyExocue.value = seed.contract.key
 };
 
 const handleSeedDrop = (e, targetType) => {
@@ -518,13 +503,17 @@ const handleSeedDrop = (e, targetType) => {
 };
 
 const handleInstrumentDragStart = (e, device) => {
+  storyInstrument.value = device
   e.dataTransfer.setData(
     "application/besearch-instrument",
     JSON.stringify(device),
   );
 };
 
-const handleInstrumentDrop = (e) => {
+const handleInstrumentDrop = (e, file) => {
+console.log(' hand data instrument of conduction')
+console.log(e)
+console.log(file)
   const dataRaw = e.dataTransfer.getData("application/besearch-instrument");
   if (!dataRaw) return;
   const device = JSON.parse(dataRaw);

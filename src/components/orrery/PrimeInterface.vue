@@ -258,7 +258,7 @@ import LeftPanel from "@/components/orrery/parts/LeftPanel.vue";
 import RightPanel from "@/components/orrery/parts/RightPanel.vue";
 import BottomPanel from "@/components/orrery/parts/BottomPanel.vue";
 import WorldCanvas from "@/components/orrery/parts/WorldCanvas.vue";
-import OrbitHUD from "@/components/orrery/parts/OrbitHUD.vue";
+import OrbitHUD from "@/components/orrery/parts/huud/OrbitHUD.vue";
 import LaunchpadStack from "@/components/orrery/parts/LaunchpadStack.vue";
 import BesearchFuse from "@/components/orrery/besearch/BesearchFuse.vue";
 import BesearchLayer from "@/components/orrery/besearch/besearchLayer.vue";

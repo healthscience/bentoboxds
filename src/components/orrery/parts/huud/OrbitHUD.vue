@@ -30,6 +30,21 @@
               <div class="metric">
                 <span>LIFE-STRAPS</span><strong>{{ countLifeStraps }}</strong>
               </div>
+              <div class="metric">
+                <span>Osmosis</span>
+              </div>
+              <div 
+                class="osmosis-indicator" 
+                :class="{ 'is-active': totalOsmosis > 0 }"
+                @click="toggleOsmosisExperience"
+              >
+                <div class="gradient-orb" :class="orbStateClass">
+                  <div v-if="totalOsmosis > 0" class="osmosis-stats">
+                    <span v-if="liveCount > 0" class="stat live" title="Live Transfers">{{ liveCount }}</span>
+                    <span v-if="waitingCount > 0" class="stat waiting" title="Waiting/Closed">{{ waitingCount }}</span>
+                  </div>
+                </div>
+              </div>
             </template>
             <template v-else-if="activeWorld === 'body'">
               <div class="metric"><span>VITALS</span><strong>NOMINAL</strong></div>
@@ -189,12 +204,16 @@
           </div>
         </transition>
       </div>
+      <!-- osmosis expanded -->
+       <osmosis-hud v-if="osmosisExpand === true"></osmosis-hud>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
+import OsmosisHud from "@/components/orrery/parts/huud/osmosisExperience.vue";
+
 import { aiInterfaceStore } from "@/stores/aiInterface.js";
 import { loomStore } from "@/stores/loomStore.js";
 import { libraryStore } from "@/stores/libraryStore.js";
@@ -209,6 +228,36 @@ const storeLibrary = libraryStore();
 const storeBesearch = besearchStore();
 
 const isExpanded = ref(false);
+
+const osmosisExpand = ref(false);
+const liveCount = ref(0)
+const waitingCount = ref(0)
+const emit = defineEmits(['open-osmosis'])
+const totalOsmosis = computed(() => liveCount.value + waitingCount.value)
+
+onMounted(() => {
+  storeBesearch.initializeDefaultCycle();
+  window.addEventListener('osmosis-state-change', handleOsmosisState)
+});
+
+onUnmounted(() => {
+  window.removeEventListener('osmosis-state-change', handleOsmosisState)
+})
+
+// Determine the thermodynamic visual state based on activity
+const orbStateClass = computed(() => {
+  if (liveCount.value > 0) return 'phase-agitated' // Active transfer (hop-chaos active)
+  if (waitingCount.value > 0) return 'phase-resting' // Queued or closed
+  return 'phase-dormant'
+})
+
+// Listeners for vanilla JS events dispatched by the core hop-osmosis logic
+const handleOsmosisState = (e) => {
+  // Expecting e.detail = { live: Int, waiting: Int }
+  liveCount.value = e.detail.live || 0
+  waitingCount.value = e.detail.waiting || 0
+}
+
 
 const stages = [
   { id: 1, name: "Grounded", mode: "lens" },
@@ -333,9 +382,11 @@ const rotateHUUD = () => {
 // Auto-expand story summary if it looks truncated
 const isStoryLong = computed(() => storySummary.value.length > 20);
 
-onMounted(() => {
-  storeBesearch.initializeDefaultCycle();
-});
+const toggleOsmosisExperience = () => {
+  osmosisExpand.value = !osmosisExpand.value
+  // emit('open-osmosis')
+}
+
 </script>
 
 <style scoped>
@@ -808,5 +859,99 @@ onMounted(() => {
 
 #orbit-hud.is-expanded .metric strong {
   font-size: 0.95rem;
+}
+
+/* Contextual Buffer Geometry: Floating, unobtrusive HUD element */
+.osmosis-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: rgba(20, 20, 25, 0.6);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.osmosis-indicator:hover {
+  background: rgba(30, 30, 35, 0.8);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.osmosis-indicator.is-active {
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Thermodynamic Orb (hop-gradient visualization) */
+.gradient-orb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  transition: background 0.5s ease, box-shadow 0.5s ease;
+}
+
+/* Dormant: No active or waiting osmosis */
+.phase-dormant {
+  background: #333;
+  box-shadow: inset 0 0 2px #111;
+}
+
+/* Resting: Transfers are queued or closed but not actively pulling data */
+.phase-resting {
+  background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+  box-shadow: 0 0 6px rgba(78, 67, 118, 0.5);
+  animation: breathe-slow 4s infinite ease-in-out;
+}
+
+/* Agitated: Active peer replication and data flow (hop-chaos kicking in) */
+.phase-agitated {
+  background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+  box-shadow: 0 0 8px rgba(255, 65, 108, 0.8);
+  animation: pulse-fast 1.5s infinite ease-in-out;
+}
+
+/* Stats Badges */
+.osmosis-stats {
+  display: flex;
+  gap: 6px;
+  font-family: monospace;
+  font-size: 0.85rem;
+}
+
+.stat {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.stat.live {
+  color: #fff;
+  background: rgba(255, 65, 108, 0.2);
+  border: 1px solid rgba(255, 65, 108, 0.4);
+}
+
+.stat.waiting {
+  color: #a0aab5;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Animations */
+@keyframes breathe-slow {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.1); opacity: 1; }
+}
+
+@keyframes pulse-fast {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 65, 108, 0.7); }
+  70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(255, 65, 108, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 65, 108, 0); }
 }
 </style>
