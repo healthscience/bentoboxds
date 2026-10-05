@@ -138,6 +138,8 @@ export const accountStore = defineStore('account', {
       } else if (received.action === 'hop-wrong-password') {
         this.accountFeedback = received.data.feedback
       } else if (received.action === 'hop-holepunch-live') {
+        console.log('jwt token')
+        console.log(received)
         // set token for subsequent HOP messages
         this.sendSocket.jwt = received.data.jwt
         // reply is verified
@@ -245,7 +247,9 @@ export const accountStore = defineStore('account', {
       shareInfo.data = peer
       // keep tabs of invite details
       this.invitedPeers.push(peer)
-      this.sendMessageHOP(shareInfo)
+      console.log('peer invite ')
+      console.log(shareInfo)
+      // this.sendMessageHOP(shareInfo)
     },
     retryPeertoNetwork (peer) {
       // try to see if other peer is live on network
