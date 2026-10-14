@@ -26,6 +26,8 @@ class LibraryUtility {
    * @method convertBinaryToHex
    */
   convertBinaryToHex = function (contract) {
+    console.log('lib util hex')
+    console.log(contract)
     let hexKey = "";
     if (
       contract.key &&

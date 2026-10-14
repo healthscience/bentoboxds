@@ -240,8 +240,6 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
   }
 
   const generateInvite = async () => {
-    console.log('generate an invite')
-    console.log('peer name')
     if (peerName.value.length > 0) {
       // 1. Let the utility do the heavy lifting  
       const result = await createInviteBundle(peerName.value, storeAccount.networkInfo.publickey);  
