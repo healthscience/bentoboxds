@@ -217,6 +217,7 @@ export const accountStore = defineStore('account', {
       } else if (received.action === 'peer-reconnected-verify') {
         console.log('update peer live after reconnect')
         console.log(received.data)
+        this.updateTopicPeertoNetwork(received.data)
       }
     },
     persistSovereign () {
@@ -293,18 +294,18 @@ export const accountStore = defineStore('account', {
       this.pendingInvites = updatePendList
     },
     updateTopicPeertoNetwork (update) {
-      // update warmpeer item to at drop
-      /* let updateWarmPeers = []
+      // loop over warm peers and match on topic, then update public key  (rotate topic coming next)
+      let updateLiveList = []
       for (let wpeer of this.warmPeers) {
-        if (wpeer.key === update.publickey) {
-          wpeer.value.live = update.live
-          wpeer.value.topic = update.topic
-          updateWarmPeers.push(wpeer)
+        if (wpeer.value.concept.topic === update.topic) {
+          wpeer.value.concept.publickey = update.publickey
+          wpeer.value.concept.live = true
+          updateLiveList.push(wpeer)
         } else {
-          updateWarmPeers.push(wpeer)
+          updateLiveList.push(wpeer)
         }
-      } */
-      // this.warmPeers = updateWarmPeers
+      }
+      this.warmPeers = updateLiveList
     },
     updatePeerName (update) {
       const hexContract = this.storeLibrary.utilLibrary.convertBinaryToHex(update);
