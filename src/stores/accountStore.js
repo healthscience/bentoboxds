@@ -216,7 +216,7 @@ export const accountStore = defineStore('account', {
         this.checkPeerStatus(received.data)
       } else if (received.action === 'peer-reconnected-verify') {
         console.log('update peer live after reconnect')
-        consolelog(received.data)
+        console.log(received.data)
       }
     },
     persistSovereign () {
