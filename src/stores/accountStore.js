@@ -466,6 +466,16 @@ export const accountStore = defineStore('account', {
       shareInfo.data = peer
       this.sendMessageHOP(shareInfo)
     },
+    checkOsmosis (osmosisKind) {
+      let shareInfo = {}
+      shareInfo.type = 'library'
+      shareInfo.action = 'osmosis-request-replication'
+      shareInfo.task = ''
+      shareInfo.reftype = 'null'
+      shareInfo.privacy = 'public'
+      shareInfo.data = osmosisKind
+      this.sendMessageHOP(shareInfo)
+    },
     prepareChartShareDirect (boxid) {
       let peerDetails = {}
       peerDetails.name = 'peer'

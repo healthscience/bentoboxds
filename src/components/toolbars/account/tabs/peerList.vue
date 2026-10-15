@@ -56,6 +56,9 @@
               <button @click="editPeer(peer.key)">edit</button>
             </div>
             <div class="peer-action">
+              <button @click="osmosisStart(peer.key)">osmosis</button>
+            </div>
+            <div class="peer-action">
               <button @click="removePeer(peer)">remove</button>
             </div>
           </div>
@@ -307,6 +310,14 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
     // remove peer
     storeAccount.removePeerfromNetwork(peer)
 
+  }
+
+  const osmosisStart = (peer) => {
+    // remove peer
+    let osmosisInfo = {}
+    osmosisInfo.targetPeerKey = peer
+    osmosisInfo.stores = ['bentocues']
+    storeAccount.checkOsmosis(osmosisInfo)
   }
 
   const copyKey = (key) => {
