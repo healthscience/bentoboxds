@@ -316,7 +316,7 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
     // remove peer
     let osmosisInfo = {}
     osmosisInfo.targetPeerKey = peer
-    osmosisInfo.stores = ['bentocues']
+    osmosisInfo.stores = ['bentocues', 'publiclibrary-ref']
     storeAccount.checkOsmosis(osmosisInfo)
   }
 
