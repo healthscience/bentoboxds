@@ -107,6 +107,8 @@ export const accountStore = defineStore('account', {
       } */
     },
     async processReply (received) {
+      console.log('account messages')
+      console.log(received)
       if (received.action === 'hop-anchor') {
         this.anchorStatus = true
       } else if (received.action === 'hop-locked') {
@@ -209,9 +211,13 @@ export const accountStore = defineStore('account', {
       } else if (received.action === 'network-peer-live') {
         this.updateWarmPeerLive(received.data)
       } else if (received.action === 'peer-record-saved') {
+        console.log('peer-record-saved')
+        console.log(received.data)
         this.updatePeerlive(received.data)
         this.checkPeerStatus(received.data)
       } else if (received.action === 'peer-reconnected-verify') {
+        console.log('peer warm finalized')
+        console.log(received)
         this.updateTopicPeertoNetwork(received.data)
       }
     },
@@ -317,15 +323,15 @@ export const accountStore = defineStore('account', {
       this.warmPeers = updateNameList
     },
     updatePeerlive (update) {
-      let updateNameList = []
       const hexContract = this.storeLibrary.utilLibrary.convertBinaryToHex(update);
+      console.log(hexContract)
       hexContract.value.concept.matched = true
       hexContract.value.concept.live = true
       this.warmPeers.push(hexContract)
     },
     updatePeerDisconnect (update) {
       let updateNameList = []
-      const hexContract = this.storeLibrary.utilLibrary.convertBinaryToHex(update.peercontract);
+      const hexContract = update.publickey // this.storeLibrary.utilLibrary.convertBinaryToHex(update.peercontract);
       for (let wpeer of this.warmPeers) {
         if (wpeer.key === hexContract.key) {
           let peerOrg = wpeer
