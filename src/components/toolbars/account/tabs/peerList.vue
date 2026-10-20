@@ -147,7 +147,8 @@
                   >
                 </div>
                 <button 
-                  type="button" 
+                  type="button"
+                  id="accept-invite-button"
                   class="btn btn-primary" 
                   @click="sendInviteWarmpeer()"
                   :disabled="!newPeername || !newPeerPubKey"
