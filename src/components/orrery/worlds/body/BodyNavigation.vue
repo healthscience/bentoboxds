@@ -181,7 +181,6 @@ const savedDrawStyle = computed(() => {
 
 const saveCueLocation = (cueId) => {
   if (drawBox.value) {
-    console.log(`Saved cue ${cueId} at box`, drawBox.value)
     drawBox.value = null
   }
 }

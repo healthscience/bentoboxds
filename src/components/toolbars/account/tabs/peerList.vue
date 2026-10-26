@@ -326,7 +326,7 @@ import SocialGraph from '@/components/toolbars/account/graphs/socialGraph.vue'
   }
 
   const editPeer = (key) => {
-    console.log('edit peer')
+    
   }
 
 </script>

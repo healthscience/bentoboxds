@@ -340,7 +340,7 @@ const selectCueRel = (cueKey) => {
       // clear those selected
       matchType.value = ''
     } else {
-      console.log('incomplete relationship')
+
     }
   }
 

@@ -511,9 +511,6 @@ const handleInstrumentDragStart = (e, device) => {
 };
 
 const handleInstrumentDrop = (e, file) => {
-console.log(' hand data instrument of conduction')
-console.log(e)
-console.log(file)
   const dataRaw = e.dataTransfer.getData("application/besearch-instrument");
   if (!dataRaw) return;
   const device = JSON.parse(dataRaw);

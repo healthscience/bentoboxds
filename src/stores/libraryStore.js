@@ -230,8 +230,6 @@ export const libraryStore = defineStore('librarystore', {
       this.sendSocket.send_message(messageHOP)
     },
     processReply (message, questionStart) {
-      console.log('library message in form OHP')
-      console.log(message)
       if (message.action === 'save-file') {
         this.describeSource = message.data
         // set message
@@ -274,7 +272,6 @@ export const libraryStore = defineStore('librarystore', {
           }
         } else {
           // package of join source and device data
-          console.log('join info package on queries')
           // this.joinOptions.yaxis = message.data.tables
           // this.joinOptions.yaxis = ['time']
         }
@@ -660,8 +657,6 @@ export const libraryStore = defineStore('librarystore', {
       aiMessageout.privacy = 'public'
       aiMessageout.data = orgoData
       aiMessageout.bbid = ''
-      console.log('prepare ORGO contract out')
-      console.log(aiMessageout)
       this.sendSocket.send_message(aiMessageout)
     },
     prepareGelleContracts (gelleData) {
@@ -673,8 +668,6 @@ export const libraryStore = defineStore('librarystore', {
       aiMessageout.privacy = 'public'
       aiMessageout.data = gelleData
       aiMessageout.bbid = ''
-      console.log('prepare GELLE contract out')
-      console.log(aiMessageout)
       this.sendSocket.send_message(aiMessageout)
     },
     deleteSeedContract(contKey, contType) {
@@ -686,8 +679,6 @@ export const libraryStore = defineStore('librarystore', {
       aiMessageout.privacy = 'public'
       aiMessageout.data = contKey
       aiMessageout.bbid = ''
-      console.log('prepare see DEL contract out')
-      console.log(aiMessageout)
       this.sendSocket.send_message(aiMessageout)
       // remove from live list
       if (contType === 'orgo') {
@@ -707,7 +698,6 @@ export const libraryStore = defineStore('librarystore', {
       aiMessageout.privacy = 'public'
       aiMessageout.data = exocueInfo
       aiMessageout.bbid = ''
-      console.log(aiMessageout)
       this.sendSocket.send_message(aiMessageout)
     },
     prepareGenesisModContracts (message) {
