@@ -211,8 +211,6 @@ const beebeeFeedback = computed(() => {
 })
 
 const cuesNetworkList = computed(() => {
-  console.log('cues list')
-  console.log(storeCues.cuesList)
   const contracts = storeCues.cuesList
   return [...contracts].sort((a, b) => {
     const nameA = a.contract.value.concept?.datatype?.concept?.name
