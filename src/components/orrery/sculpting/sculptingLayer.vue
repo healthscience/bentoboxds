@@ -398,8 +398,11 @@ const graftingConfidence = computed(() => {
 });
 
 const getOrgoValue = (item) => {
+  console.log('orgo vaue')
+  console.log(item)
   const cueKey = item.contract.value.concept.orgocue;
   if (!cueKey) return '';
+  console.log(storeCues.getFullCue(cueKey))
   return storeCues.getFullCue(cueKey) ?? '';
 };
 

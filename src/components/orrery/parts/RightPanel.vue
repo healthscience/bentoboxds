@@ -182,7 +182,7 @@ const handleToggle = () => {
 
 <style scoped>
 .right-panel-container {
-  height: calc(100vh - var(--header-height, 60px));
+  height: calc(90vh - var(--header-height, 120px));
   position: absolute;
   top: 0;
   right: 0;
@@ -351,5 +351,7 @@ const handleToggle = () => {
   flex: 1;
   overflow: hidden;
   padding: 0 20px;
+  height: 80vh;
+  border: 2px solid blue;
 }
 </style>

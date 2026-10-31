@@ -270,7 +270,7 @@ defineExpose({
 #chat-interface {
   display: grid;
   grid-template-rows: 1fr auto;
-  height: 100%;
+  height: 90%;
   width: 100%;
   overflow: hidden;
   font-size: 0.8em;
@@ -333,7 +333,7 @@ defineExpose({
   border: 1px solid grey;
   padding: 1em;
   border-radius: 1em;
-  height: 100%;
+  height: 80vh;
   overflow: hidden;
 }
 
@@ -472,7 +472,7 @@ defineExpose({
     border: 0px solid grey;
     padding: 1em;
     border-radius: 1em;
-    height: 80vh;
+    height: 72vh;
     overflow-y: scroll;
   }
 

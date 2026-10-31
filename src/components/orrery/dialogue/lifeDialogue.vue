@@ -84,29 +84,45 @@ const chatHistoryMenu = () => {
 <style scoped>
 #life-dialogue {
   display: grid;
-  grid-template-rows: auto 1fr auto;
-  height: 100%;
+  grid-template-rows: auto auto 1fr; /* Added 'px' units */
+  grid-template-areas: 
+    "header"
+    "content"
+    "input";
+  height: 60%;
   width: 100%;
-  overflow: hidden;
 }
 
-.chat-input {
-  border-top: 1px solid #eee;
-  padding: 8px;
-  background: white;
-  z-index: 10;
+#chatspace-modal-header {
+  grid-area: header;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #ddd;
 }
 
 .space-chat {
+  grid-area: content;
   display: grid;
   grid-template-columns: v-bind('chatHistoryStatus ? "250px" : "0px"') 1fr;
   grid-template-rows: 1fr;
   gap: 0px 0px;
   grid-template-areas: "chat-menu context-content";
   width: 100%;
-  height: 100%;
+  height: 100%; /* Changed from 82% to 100% so grid 1fr controls it */
   overflow: hidden;
   transition: grid-template-columns 0.3s ease;
+}
+
+.chat-input {
+  grid-area: input;
+  border-top: 1px solid #eee;
+  padding: 8px;
+  background: white;
+  z-index: 10;
+  height: 100%;
 }
 
 .context-content {
@@ -121,15 +137,6 @@ const chatHistoryMenu = () => {
   overflow-y: auto;
   height: 100%;
   width: 100%;
-}
-
-#chatspace-modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  background-color: #f5f5f5;
-  border-bottom: 1px solid #ddd;
 }
 
 #spacechat {
