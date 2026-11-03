@@ -5,11 +5,11 @@
         <BeeBeeAvatar />
       </div>
 
-      <div class="input-zone">
+      <!--<div class="input-zone">
         <div class="input-constraint">
           <inputBox />
         </div>
-      </div>
+      </div>-->
       <!--
       <div class="demo-zone-message">
         Examples to explore:

@@ -84,13 +84,14 @@ const chatHistoryMenu = () => {
 <style scoped>
 #life-dialogue {
   display: grid;
-  grid-template-rows: auto auto 1fr; /* Added 'px' units */
+  grid-template-rows: auto 1fr auto; /* header, content, input */
   grid-template-areas: 
     "header"
     "content"
     "input";
-  height: 60%;
+  height: 100%;
   width: 100%;
+  overflow: hidden;
 }
 
 #chatspace-modal-header {
@@ -122,7 +123,10 @@ const chatHistoryMenu = () => {
   padding: 8px;
   background: white;
   z-index: 10;
-  height: 100%;
+  height: auto;
+  min-height: 60px;
+  max-height: 150px;
+  overflow: visible;
 }
 
 .context-content {

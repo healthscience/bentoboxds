@@ -351,7 +351,6 @@ const handleToggle = () => {
   flex: 1;
   overflow: hidden;
   padding: 0 20px;
-  height: 80vh;
-  border: 2px solid blue;
+  min-height: 0;
 }
 </style>
