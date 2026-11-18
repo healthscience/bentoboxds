@@ -1,7 +1,7 @@
 <template>
   <div id="sovereign-keys" class="sovereign-container">
     <div class="header-section">
-      <h3>Sovereign Identity</h3>
+      <h3>Biopoiesis peer</h3>
       <p class="status">Status: {{ keyExists ? 'Active' : 'Identity Not Found' }}</p>
     </div>
 
@@ -16,7 +16,7 @@
         <p>Deleting your keys will detach you from your current Coherence Ledger lineage.</p>
         
         <div v-if="!confirmDelete">
-          <button @click="confirmDelete = true" class="btn-warn">Delete Sovereign Identity</button>
+          <button @click="confirmDelete = true" class="btn-warn">Delete Biopoiesis peer</button>
         </div>
         
         <div v-else class="confirmation-flow">
@@ -36,7 +36,7 @@
     </div>
 
     <div v-else class="setup-section">
-      <p>No active identity found. Generate a new one to begin your orbit.</p>
+      <p>No active peer found. Generate a new one to begin your orbit.</p>
       <button @click="generateNewIdentity" class="btn-primary">Generate Genesis Identity</button>
     </div>
   </div>
@@ -44,8 +44,6 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue';
-// Assuming your WASM/HOP bus logic is accessible globally or via a composable
-// import { useHopCrypto } from '@/composables/useHopCrypto';
 
 const keyExists = ref(false);
 const pubKey = ref('');

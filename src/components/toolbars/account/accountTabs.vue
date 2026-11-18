@@ -18,11 +18,11 @@
           Datastores
         </div>
         <div
-          id="aiagents-tab"
-          class="grid-component-tab" v-bind:class="{ active: activeTab === 'aiagents' }"
-          @click="selectTab('aiagents')"
+          id="conduction-tab"
+          class="grid-component-tab" v-bind:class="{ active: activeTab === 'conduction' }"
+          @click="selectTab('conduction')"
         >
-          Agents
+          Conduction
         </div>
         <div
           id="sovereign-tab"
@@ -46,7 +46,7 @@
           </div>
         </div>
         <datastore-list v-if="activeTab === 'datastores'"></datastore-list>
-        <aiagents-list v-if="activeTab === 'aiagents'"></aiagents-list>
+        <conduction-list v-if="activeTab === 'conduction'"></conduction-list>
         <sovereign-keys v-if="activeTab === 'current'"></sovereign-keys>
         <div class="list-space" id="wallet-list" v-if="activeTab === 'current'">
         </div>
@@ -59,8 +59,8 @@
 import { ref } from 'vue'
 import PeerList from '@/components/toolbars/account/tabs/peerList.vue'
 import DatastoreList from '@/components/toolbars/account/tabs/datastoreList.vue'
-import AiagentsList from '@/components/toolbars/account/tabs/aiagentsList.vue'
-import SovereignKeys from '@/components/toolbars/account/tabs/sovereignKeys.vue'
+import ConductionList from '@/components/toolbars/account/tabs/conductionInstruments.vue'
+import SovereignKeys from '@/components/toolbars/account/tabs/currentKeys.vue'
 import { accountStore } from '@/stores/accountStore.js'
 import { aiInterfaceStore } from '@/stores/aiInterface.js'
 
@@ -76,8 +76,8 @@ let activeTab = ref('peers')
       activeTab.value = 'peers'
     } else if (ls === 'datastores') {
       activeTab.value = 'datastores'
-    } else if (ls === 'aiagents') {
-      activeTab.value = 'aiagents'
+    } else if (ls === 'conduction') {
+      activeTab.value = 'conduction'
     } else if (ls === 'current') {
       activeTab.value = 'current'
     }

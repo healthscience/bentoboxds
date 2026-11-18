@@ -85,7 +85,7 @@
                   @dragstart="handleSeedDragStart($event, seed, 'orgo')"
                 >
                   <div class="seed-info">
-                    <span class="seed-name">{{ getOrgoValue(seed).value.concept.datatype.concept.name }}</span>
+                    <span class="seed-name">{{ getOrgoValue(seed).value?.concept?.datatype?.concept?.name }}</span>
                     <span class="seed-edit">
                       <button @click.stop="toggleOrgoEdit(seed.contract.key)">...</button>
                       <button v-if="editingOrgoKey === seed.contract.key" class="delete-btn" @click.stop="deleteOrgo(seed.contract.key)">Delete</button>
